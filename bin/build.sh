@@ -2,6 +2,6 @@
 
 
 cd ${REEF_HOME}
-mvn clean install -DskipTests
+mvn clean install package -DskipTests
 cd reef-distro
 mvn assembly:assembly
