@@ -7,3 +7,4 @@ generated
 .project
 .sw[op]
 *.sw[op]
+.externalToolBuilders
