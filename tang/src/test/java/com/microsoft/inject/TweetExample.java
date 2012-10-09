@@ -80,12 +80,12 @@ public class TweetExample {
 
     @Test
     public void test() {
-        Tang t = new Tang(ns);
+/*        Tang t = new Tang(ns);
         t.setDefaultImpl(TweetFactory.class, MockTweetFactory.class);
         t.setDefaultImpl(SMS.class, MockSMS.class);
         t.setNamedParameter("phone-number", 867-5309);
         Tweeter tw = Tang.getInstance(Tweeter.class);
-        tw.sendMessage();
+        tw.sendMessage(); */
     }
 
 }
