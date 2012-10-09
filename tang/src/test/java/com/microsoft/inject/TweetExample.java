@@ -21,6 +21,8 @@ public class TweetExample {
     }
 
     private class MockTweetFactory implements TweetFactory {
+    	@Inject
+    	public MockTweetFactory() { }
         @Override
         public String getTweet() {
             return "@tw #bbq bbqftw!!! gopher://vuwed.wefd/bbqftw!";
@@ -28,6 +30,8 @@ public class TweetExample {
     }
 
     private class MockSMS implements SMS {
+    	@Inject
+    	MockSMS() { }
         @Override
         public void sendSMS(String msg, long phoneNumber) {
             if (phoneNumber != 867 - 5309) {
@@ -71,6 +75,7 @@ public class TweetExample {
         ns.registerClass(MockTweetFactory.class);
         ns.registerClass(MockSMS.class);
         // Pull in unknown dependencies (eg: TweetFactory) automagically.
+        ns.resolveAllClasses();
     }
 
     @After
@@ -80,11 +85,11 @@ public class TweetExample {
 
     @Test
     public void test() {
-/*        Tang t = new Tang(ns);
+        Tang t = new Tang(ns);
         t.setDefaultImpl(TweetFactory.class, MockTweetFactory.class);
         t.setDefaultImpl(SMS.class, MockSMS.class);
-        t.setNamedParameter("phone-number", 867-5309);
-        Tweeter tw = Tang.getInstance(Tweeter.class);
+        t.setNamedParameter(Tweeter.class+".phone-number", 867-5309);
+        /*Tweeter tw = Tang.getInstance(Tweeter.class);
         tw.sendMessage(); */
     }
 
