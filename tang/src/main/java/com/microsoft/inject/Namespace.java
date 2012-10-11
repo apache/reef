@@ -13,6 +13,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.microsoft.inject.exceptions.NameResolutionException;
+
 @ConfigurationMetadata(name = "ns.impl", params = { @NamedParameter(value = "foo", doc = "a second string", default_value = "default") })
 public class Namespace {
 
@@ -33,7 +35,7 @@ public class Namespace {
   }
 
   class Node {
-    private final String name;
+    protected final String name;
 
     Map<String, Node> children = new HashMap<String, Node>();
 
@@ -51,9 +53,37 @@ public class Namespace {
 
     private void put(Node n) {
       Node old = children.get(n.name);
-      if (old != null && !old.getClass().equals(Node.class)) {
-        throw new IllegalStateException(
-            "Attempt to add node that already exists!");
+      if (old != null) {
+        final boolean resolved;
+        if (old.getClass().equals(Node.class)) {
+          // do nothing, the new node definitely is more (or as) specific
+          resolved = true;
+        } else if (old instanceof NamedParameterNode
+            && n instanceof NamedParameterNode) {
+          // If they both match, we're good.
+          if (old.equals(n)) {
+            resolved = true;
+          // If one is more specific than the other, use it.
+          } else if (((NamedParameterNode)old).isAsSpecificAs((NamedParameterNode)n)) {
+            // We'll want to merge their children and keep the old one. So,
+            // swap them, and old will get put back in at the end.
+            Node tmp = n;
+            n = old;
+            old = tmp;
+            resolved = true;
+          } else if (((NamedParameterNode)n).isAsSpecificAs((NamedParameterNode)old)) {
+            resolved = true;
+          } else {
+            resolved = false;
+          }
+        } else {
+          resolved = false;
+        }
+        if (!resolved) {
+          // we're in trouble.
+          throw new IllegalArgumentException("Conflicting definition of named parameter: " + n
+              + " is incompatible with " + old);
+        }
       }
       if (old != null) {
         if (!old.children.isEmpty()) {
@@ -154,7 +184,8 @@ public class Namespace {
               }
             }
             args[i] = new ConstructorArg(paramTypes[i], named);
-            children.put(args[i].getName(), new NamedParameterNode(args[i].getName(), args[i].type));
+            children.put(args[i].getName(),
+                new NamedParameterNode(args[i].getName(), args[i].type));
           }
           ConstructorDef def = new ConstructorDef(args, constructors[k]);
           if (injectableConstructors.contains(def)) {
@@ -199,12 +230,21 @@ public class Namespace {
       children = null;
       this.namedParameter = n;
       try {
-        this.argClass = Class.forName(n.type());
+        this.argClass = ReflectionUtilities.classForName(n.type());
       } catch (ClassNotFoundException e) {
         throw new IllegalArgumentException("Named parameter " + n.toString()
             + " takes unknown class as argument: " + n.type() + ".");
       }
     }
+
+    public boolean isAsSpecificAs(NamedParameterNode n) {
+      if(!argClass.equals(n.argClass)) { return false; }
+      if(!name.equals(n.name)) { return false; }
+      if(n.namedParameter == null) { return true; }
+      if(this.namedParameter == null) { return false; }
+      return this.namedParameter.equals(n.namedParameter);
+    }
+
     NamedParameterNode(String name, Class<?> argClass) {
       super(name);
       this.argClass = argClass;
@@ -213,13 +253,15 @@ public class Namespace {
 
     @Override
     public String toString() {
-      return argClass.getSimpleName()
-          + " "
-          + super.toString()
-          + (namedParameter.default_value() != null ? (" default=" + namedParameter
-              .default_value()) : "")
-          + (namedParameter.doc() != null ? (" Documentation: " + namedParameter
-              .doc()) : "");
+      String ret = argClass.getSimpleName() + " " + super.toString();
+      if (namedParameter != null) {
+        ret = ret
+            + (namedParameter.default_value() != null ? (" default=" + namedParameter
+                .default_value()) : "")
+            + (namedParameter.doc() != null ? (" Documentation: " + namedParameter
+                .doc()) : "");
+      }
+      return ret;
     }
   }
 
@@ -230,6 +272,7 @@ public class Namespace {
     String getName() {
       return name == null ? type.getName() : name.value();
     }
+
     String getFullyQualifiedName(Class<?> targetClass) {
       String name = getName();
       if (!name.contains(".")) {
@@ -237,6 +280,7 @@ public class Namespace {
       }
       return name;
     }
+
     ConstructorArg(Class<?> argType) {
       this.type = argType;
       this.name = null;
@@ -261,6 +305,7 @@ public class Namespace {
   class ConstructorDef {
     final ConstructorArg[] args;
     final Constructor<?> constructor;
+
     @Override
     public String toString() {
       if (args.length == 0) {
@@ -274,7 +319,7 @@ public class Namespace {
       return sb.toString();
     }
 
-    ConstructorDef(ConstructorArg[] args, Constructor constructor) {
+    ConstructorDef(ConstructorArg[] args, Constructor<?> constructor) {
       this.args = args;
       this.constructor = constructor;
       for (int i = 0; i < this.args.length; i++) {
@@ -362,24 +407,33 @@ public class Namespace {
     return ret;
   }
 
-  Node getNode(Class<?> clazz) {
+  Node getNode(Class<?> clazz) throws NameResolutionException {
     return getNode(clazz.getName());
   }
 
-  Node getNode(String name) {
+  Node getNode(String name) throws NameResolutionException {
     String[] path = name.split(regexp);
-    return getNode(path, path.length);
+    return getNode(name, path, path.length);
   }
 
-  private Node getNode(String[] path, int depth) {
+  private Node getNode(String name, String[] path, int depth)
+      throws NameResolutionException {
     Node root = namespace;
     for (int i = 0; i < depth; i++) {
       if (root instanceof ConfigurationPrefixNode) {
         root = ((ConfigurationPrefixNode) root).target;
       }
       root = root.get(path[i]);
-      if (root == null)
-        return null;
+      if (root == null) {
+        StringBuilder sb = new StringBuilder();
+        for (int j = 0; j < i; j++) {
+          sb.append(path[j]);
+          if (j != i - 1) {
+            sb.append(".");
+          }
+        }
+        throw new NameResolutionException(name, sb.toString());
+      }
     }
     return root;
   }
@@ -419,23 +473,35 @@ public class Namespace {
       ClassNode cls = (ClassNode) root;
       for (ConstructorDef def : cls.injectableConstructors) {
         for (ConstructorArg arg : def.args) {
-          if (getNode(arg.type) == null) {
+          try {
+            getNode(arg.type);
+          } catch (NameResolutionException e) {
             unresolved.add(arg.type);
           }
         }
       }
       Class<?> zuper = cls.clazz.getSuperclass();
-      if (zuper != null && getNode(zuper) == null)
-        unresolved.add(zuper);
+      if (zuper != null) {
+        try {
+          getNode(zuper);
+        } catch (NameResolutionException e) {
+          unresolved.add(zuper);
+        }
+      }
       Class<?>[] interfaces = cls.clazz.getInterfaces();
       for (Class<?> i : interfaces) {
-        if (getNode(i) == null)
+        try {
+          getNode(i);
+        } catch (NameResolutionException e) {
           unresolved.add(i);
+        }
       }
     }
     if (root instanceof NamedParameterNode) {
       NamedParameterNode np = (NamedParameterNode) (root);
-      if (getNode(np.argClass) == null) {
+      try {
+        getNode(np.argClass);
+      } catch (NameResolutionException e) {
         unresolved.add(np.argClass);
       }
     }
@@ -468,7 +534,7 @@ public class Namespace {
   public static void main(String[] args) throws Exception {
     Namespace ns = new Namespace();
     for (String s : args) {
-      ns.registerClass(Class.forName(s));
+      ns.registerClass(ReflectionUtilities.classForName(s));
     }
     for (Class<?>[] classes = ns.findUnresolvedClasses(); classes.length > 0; classes = ns
         .findUnresolvedClasses()) {

@@ -1,5 +1,6 @@
 package com.microsoft.inject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import com.microsoft.inject.Namespace.ConstructorArg;
 import com.microsoft.inject.Namespace.ConstructorDef;
 import com.microsoft.inject.Namespace.NamedParameterNode;
 import com.microsoft.inject.Namespace.Node;
+import com.microsoft.inject.exceptions.NameResolutionException;
 
 public class Tang {
   private final Configuration conf;
@@ -46,7 +48,8 @@ public class Tang {
     }
   }
 
-  public void setDefaultImpl(Class<?> c, Class<?> d) {
+  public void setDefaultImpl(Class<?> c, Class<?> d)
+      throws NameResolutionException {
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
@@ -55,19 +58,16 @@ public class Tang {
     if (n instanceof ClassNode) {
       boundValues.put(n, d);
     } else {
+      // TODO need new exception type here.
       throw new IllegalArgumentException(
           "Detected type mismatch.  Expected ClassNode, but namespace contains a "
               + n);
     }
   }
 
-  public void setNamedParameter(String name, Object o) {
-    // TODO: Better error messages. List first thing in path that doesn't
-    // resolve.
+  public void setNamedParameter(String name, Object o)
+      throws NameResolutionException {
     Node n = namespace.getNode(name);
-    if (n == null) {
-      throw new IllegalArgumentException("Unknown NamedParameter: " + name);
-    }
     if (n instanceof NamedParameterNode) {
       NamedParameterNode np = (NamedParameterNode) n;
       if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
@@ -77,13 +77,14 @@ public class Tang {
             + " to " + np.argClass);
       }
     } else {
+      // TODO need new exception type here.
       throw new IllegalArgumentException(
           "Detected type mismatch when setting named parameter " + name
               + "  Expected NamedParameterNode, but namespace contains a " + n);
     }
   }
 
-  public Object getInstance(Class<?> clazz) throws Exception { //XXX
+  public Object getInstance(Class<?> clazz) throws NameResolutionException, ReflectiveOperationException {
     Node n = namespace.getNode(clazz);
     if (n instanceof ClassNode) {
       Class<?> c = (Class<?>) boundValues.get(n);
@@ -91,6 +92,7 @@ public class Tang {
         return getInstance(c);
       }
     } else {
+      // TODO need new exception type here.
       throw new IllegalStateException("Expected ClassNode, got: "
           + n.toString() + " (" + n.getClass() + ")");
     }
@@ -101,7 +103,11 @@ public class Tang {
       boolean canInject = true;
       for (ConstructorArg arg : def.args) {
         String name = arg.getFullyQualifiedName(clazz);
-      if (namespace.getNode(name) == null) { // XXX this is inadequate.  need to check to see if we can instantiate it too!
+        try {
+          // XXX this is inadequate. need to check to see if we can actually instantiate it
+          // it too!
+          namespace.getNode(name);
+        } catch (NameResolutionException e) {
           canInject = false;
         }
       }
@@ -113,21 +119,27 @@ public class Tang {
     // Now, find most specific def, or throw exception for non-comparable defs.
     if (defs.size() != 1) {
       throw new UnsupportedOperationException("Found " + defs.size()
-          + " injectable constructors for class " + clazz + " (must be 1 for now).");
+          + " injectable constructors for class " + clazz
+          + " (must be 1 for now).");
     }
     List<Object> args = new ArrayList<Object>();
-    for(ConstructorArg arg : defs.get(0).args) {
+    for (ConstructorArg arg : defs.get(0).args) {
       Node argNode = namespace.getNode(arg.getFullyQualifiedName(clazz));
-      if(argNode instanceof ClassNode) {
-        args.add(getInstance(((ClassNode)argNode).clazz));
-      } else if(argNode instanceof NamedParameterNode){
+      if (argNode instanceof ClassNode) {
+        args.add(getInstance(((ClassNode) argNode).clazz));
+      } else if (argNode instanceof NamedParameterNode) {
         args.add(boundValues.get(argNode));
+      } else {
+        throw new IllegalStateException(
+            "Expected ClassNode or NamedParameterNode, but got " + argNode);
       }
     }
     try {
       return defs.get(0).constructor.newInstance(args.toArray());
-    } catch(IllegalArgumentException e) {
-      throw new IllegalStateException("Could not invoke constructor " + defs.get(0).constructor + " with args " + Arrays.toString(args.toArray()) + ": " + e.getMessage(), e);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalStateException("Could not invoke constructor "
+          + defs.get(0).constructor + " with args "
+          + Arrays.toString(args.toArray()) + ": " + e.getMessage(), e);
     }
   }
 }

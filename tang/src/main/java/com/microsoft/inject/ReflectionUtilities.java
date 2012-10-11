@@ -36,4 +36,27 @@ class ReflectionUtilities {
     }
     return to.isAssignableFrom(from);
   }
+  static Class<?> classForName(String name) throws ClassNotFoundException {
+    if(name.equals("boolean")) {
+      return boolean.class;
+    } else if(name.equals("byte")) {
+      return byte.class;
+    } else if(name.equals("char")) {
+      return char.class;
+    } else if(name.equals("short")) {
+      return short.class;
+    } else if(name.equals("int")) {
+      return int.class;
+    } else if(name.equals("long")) {
+      return long.class;
+    } else if(name.equals("float")) {
+      return float.class;
+    } else if(name.equals("double")) {
+      return double.class;
+    } else if(name.equals("void")) {
+      return void.class;
+    } else {
+      return Class.forName(name);
+    }
+  }
 }

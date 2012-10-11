@@ -1,7 +1,5 @@
 package com.microsoft.inject;
 
-import static org.junit.Assert.*;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
