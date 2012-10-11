@@ -1,7 +1,5 @@
 package com.microsoft.inject;
 
-import static org.junit.Assert.*;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -12,85 +10,90 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TweetExample {
-    private interface TweetFactory {
-        public String getTweet();
+  private static interface TweetFactory {
+    public String getTweet();
+  }
+
+  private static interface SMS {
+    public void sendSMS(String msg, long phoneNumber);
+  }
+
+  private static class MockTweetFactory implements TweetFactory {
+    @Inject
+    public MockTweetFactory() {
     }
 
-    private interface SMS {
-        public void sendSMS(String msg, long phoneNumber);
+    @Override
+    public String getTweet() {
+      return "@tw #bbq bbqftw!!! gopher://vuwed.wefd/bbqftw!";
+    }
+  }
+
+  private static class MockSMS implements SMS {
+    @Inject
+    public MockSMS() {
     }
 
-    private class MockTweetFactory implements TweetFactory {
-    	@Inject
-    	public MockTweetFactory() { }
-        @Override
-        public String getTweet() {
-            return "@tw #bbq bbqftw!!! gopher://vuwed.wefd/bbqftw!";
-        }
+    @Override
+    public void sendSMS(String msg, long phoneNumber) {
+      if (phoneNumber != 867 - 5309) {
+        throw new IllegalArgumentException("Unknown recipient");
+      }
+      // success!
+    }
+  }
+
+  private static class Tweeter {
+    final TweetFactory tw;
+    final SMS sms;
+    final long phoneNumber;
+
+    @Inject
+    public Tweeter(TweetFactory tw, SMS sms,
+        @Named("phone-number") long phoneNumber) {
+      this.tw = tw;
+      this.sms = sms;
+      this.phoneNumber = phoneNumber;
     }
 
-    private class MockSMS implements SMS {
-    	@Inject
-    	MockSMS() { }
-        @Override
-        public void sendSMS(String msg, long phoneNumber) {
-            if (phoneNumber != 867 - 5309) {
-                throw new IllegalArgumentException("Unknown recipient");
-            }
-            // success!
-        }
+    public void sendMessage() {
+      sms.sendSMS(tw.getTweet(), phoneNumber);
     }
+  }
 
-    private class Tweeter {
-        final TweetFactory tw;
-        final SMS sms;
-        final long phoneNumber;
+  private Namespace ns;
 
-        @Inject
-        public Tweeter(TweetFactory tw, SMS sms,
-                @Named("phone-number") long phoneNumber) {
-            this.tw = tw;
-            this.sms = sms;
-            this.phoneNumber = phoneNumber;
-        }
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
+  }
 
-        public void sendMessage() {
-            sms.sendSMS(tw.getTweet(), phoneNumber);
-        }
-    }
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+  }
 
-    private Namespace ns;
+  @Before
+  public void setUp() throws Exception {
+    ns = new Namespace();
+    ns.registerClass(MockTweetFactory.class);
+    ns.registerClass(MockSMS.class);
+    ns.registerClass(Tweeter.class);
+    // Pull in unknown dependencies (eg: TweetFactory) automagically.
+    ns.resolveAllClasses();
+  }
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
+  @After
+  public void tearDown() throws Exception {
+    ns = null;
+  }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        ns = new Namespace();
-        ns.registerClass(MockTweetFactory.class);
-        ns.registerClass(MockSMS.class);
-        // Pull in unknown dependencies (eg: TweetFactory) automagically.
-        ns.resolveAllClasses();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        ns = null;
-    }
-
-    @Test
-    public void test() {
-        Tang t = new Tang(ns);
-        t.setDefaultImpl(TweetFactory.class, MockTweetFactory.class);
-        t.setDefaultImpl(SMS.class, MockSMS.class);
-        t.setNamedParameter(Tweeter.class+".phone-number", 867-5309);
-        /*Tweeter tw = Tang.getInstance(Tweeter.class);
-        tw.sendMessage(); */
-    }
+  @Test
+  public void test() throws Exception {
+    Tang t = new Tang(ns);
+    t.setDefaultImpl(TweetFactory.class, MockTweetFactory.class);
+    t.setDefaultImpl(SMS.class, MockSMS.class);
+    t.setNamedParameter(Tweeter.class.getName() + ".phone-number", 867 - 5309);
+    Tweeter tw = (Tweeter) t.getInstance(Tweeter.class);
+    tw.sendMessage();
+  }
 
 }
