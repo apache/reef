@@ -300,6 +300,16 @@ public class Namespace {
       return name == null ? type.getSimpleName()
           : (type.getSimpleName() + " " + name.value());
     }
+    @Override
+    public boolean equals(Object o) {
+      ConstructorArg arg = (ConstructorArg)o;
+      if(!type.equals(arg.type)){ return false; }
+      if(name == null && arg.name == null) { return true; }
+      if(name == null && arg.name != null) { return false; }
+      if(name != null && arg.name == null) { return false; }
+      return name.equals(arg.name);
+      
+    }
   }
 
   class ConstructorDef {
@@ -364,6 +374,16 @@ public class Namespace {
     @Override
     public boolean equals(Object o) {
       return equalsIgnoreOrder((ConstructorDef) o);
+    }
+    public boolean isMoreSpecificThan(ConstructorDef def) {
+      for(int i = 0; i < args.length; i++) {
+        boolean found = false;
+        for(int j = 0; j < def.args.length; j++) {
+          if(args[i].equals(def.args[j])) { found = true; }
+        }
+        if(found == false) return false;
+      }
+      return args.length > def.args.length;
     }
   }
 

@@ -84,7 +84,37 @@ public class Tang {
     }
   }
 
-  public Object getInstance(Class<?> clazz) throws NameResolutionException, ReflectiveOperationException {
+  public boolean canInject(String name) throws NameResolutionException {
+    Node n = namespace.getNode(name);
+    if (n instanceof ClassNode) {
+      ClassNode c = (ClassNode) n;
+      Class<?> clz = (Class<?>) boundValues.get(c);
+      if (clz != null) {
+        return canInject(clz.getName());
+      }
+      for (ConstructorDef def : c.injectableConstructors) {
+        boolean canInject = true;
+        for (ConstructorArg arg : def.args) {
+          if (!canInject(arg.getFullyQualifiedName(c.clazz))) {
+            canInject = false;
+            break;
+          }
+        }
+        if (canInject) {
+          return true;
+        }
+      }
+      return false;
+    } else if (n instanceof NamedParameterNode) {
+      NamedParameterNode np = (NamedParameterNode) n;
+      return boundValues.get(np) != null;
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
+
+  public Object getInstance(Class<?> clazz) throws NameResolutionException,
+      ReflectiveOperationException {
     Node n = namespace.getNode(clazz);
     if (n instanceof ClassNode) {
       Class<?> c = (Class<?>) boundValues.get(n);
@@ -104,9 +134,9 @@ public class Tang {
       for (ConstructorArg arg : def.args) {
         String name = arg.getFullyQualifiedName(clazz);
         try {
-          // XXX this is inadequate. need to check to see if we can actually instantiate it
-          // it too!
-          namespace.getNode(name);
+          if (!canInject(name)) {
+            canInject = false;
+          }
         } catch (NameResolutionException e) {
           canInject = false;
         }
@@ -117,10 +147,25 @@ public class Tang {
     }
 
     // Now, find most specific def, or throw exception for non-comparable defs.
-    if (defs.size() != 1) {
-      throw new UnsupportedOperationException("Found " + defs.size()
-          + " injectable constructors for class " + clazz
-          + " (must be 1 for now).");
+    for (int i = 0; i < defs.size(); i++) {
+      for (int j = 0; j < defs.size(); j++) {
+        if (defs.get(i).isMoreSpecificThan(defs.get(j))) {
+          defs.remove(j);
+          if (i >= j) {
+            i--;
+          }
+          j--;
+        }
+      }
+    }
+    if (defs.size() == 0) {
+      throw new IllegalArgumentException("No injectable constructors for "
+          + clazz);
+    }
+    if (defs.size() > 1) {
+      throw new IllegalArgumentException("Ambiguous injection of " + clazz
+          + " Found the following constructors: "
+          + Arrays.toString(defs.toArray()));
     }
     List<Object> args = new ArrayList<Object>();
     for (ConstructorArg arg : defs.get(0).args) {
