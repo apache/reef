@@ -33,7 +33,7 @@ public class TestNamespace {
         Assert.assertNull(ns.getNode("com.microsoft"));
         Assert.assertNull(ns.getNode(this.getClass()));
     }
-    private class SimpleConstructors{
+    private static class SimpleConstructors{
         @Inject
         public SimpleConstructors() { }
         @Inject
@@ -48,12 +48,12 @@ public class TestNamespace {
         ns.registerClass(SimpleConstructors.class);
         Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
         ClassNode cls = (ClassNode)ns.getNode(SimpleConstructors.class);
-        Assert.assertTrue(cls.children == null || cls.children.size() == 0);
+        Assert.assertTrue(cls.children.size() == 2);
         ConstructorDef def[] = cls.injectableConstructors;
         Assert.assertEquals(3, def.length);
         
     }
-    class NamedParameterConstructors {
+    static class NamedParameterConstructors {
         @Inject
         public NamedParameterConstructors(String x, @Named(value="x") String y) { }
     }
@@ -61,7 +61,7 @@ public class TestNamespace {
     public void testNamedParameterConstructors() {
         ns.registerClass(NamedParameterConstructors.class);
     }
-    class InvalidNamedParameterConstructors {
+    static class InvalidNamedParameterConstructors {
         @Inject // This should fail since @Named needs to specify a name to help us.
         public InvalidNamedParameterConstructors(String x, @Named String y) { }
     }
@@ -79,7 +79,7 @@ public class TestNamespace {
             @NamedParameter(value="bar", doc="a bar", default_value="i-beam"),
             @NamedParameter(value="quuz", doc="???")
         })
-    class Metadata { }
+    static class Metadata { }
     @Test
     public void testMetadata() {
         ns.registerClass(Metadata.class);
