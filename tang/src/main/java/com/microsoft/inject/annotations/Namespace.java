@@ -1,4 +1,4 @@
-package com.microsoft.inject;
+package com.microsoft.inject.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigurationMetadata {
-    String name() default "";
-    NamedParameter[] params();
+public @interface Namespace {
+    String value() default "";
 }

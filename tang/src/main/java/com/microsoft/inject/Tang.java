@@ -1,6 +1,5 @@
 package com.microsoft.inject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,26 +9,27 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 
-import com.microsoft.inject.Namespace.ClassNode;
-import com.microsoft.inject.Namespace.ConstructorArg;
-import com.microsoft.inject.Namespace.ConstructorDef;
-import com.microsoft.inject.Namespace.NamedParameterNode;
-import com.microsoft.inject.Namespace.Node;
+import com.microsoft.inject.TypeHierarchy.ClassNode;
+import com.microsoft.inject.TypeHierarchy.ConstructorArg;
+import com.microsoft.inject.TypeHierarchy.ConstructorDef;
+import com.microsoft.inject.TypeHierarchy.NamedParameterNode;
+import com.microsoft.inject.TypeHierarchy.Node;
+import com.microsoft.inject.annotations.Name;
 import com.microsoft.inject.exceptions.NameResolutionException;
 
 public class Tang {
   private final Configuration conf;
-  private final Namespace namespace;
+  private final TypeHierarchy namespace;
   private final Map<Node, Object> boundValues = new HashMap<Node, Object>();
 
-  public Tang(Namespace namespace) {
+  public Tang(TypeHierarchy namespace) {
     this.conf = null;
     this.namespace = namespace;
   }
 
   public Tang(Configuration conf) {
     this.conf = conf;
-    this.namespace = new Namespace();
+    this.namespace = new TypeHierarchy();
 
     Iterator<String> it = this.conf.getKeys();
 
@@ -55,7 +55,7 @@ public class Tang {
           + " does not extend or implement " + c.getName());
     }
     Node n = namespace.getNode(c);
-    if (n instanceof ClassNode) {
+    if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
       boundValues.put(n, d);
     } else {
       // TODO need new exception type here.
@@ -65,9 +65,9 @@ public class Tang {
     }
   }
 
-  public void setNamedParameter(String name, Object o)
+  public void setNamedParameter(Class<? extends Name> name, Object o)
       throws NameResolutionException {
-    Node n = namespace.getNode(name);
+    Node n = namespace.getNode(name.getName());
     if (n instanceof NamedParameterNode) {
       NamedParameterNode np = (NamedParameterNode) n;
       if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
@@ -86,7 +86,10 @@ public class Tang {
 
   public boolean canInject(String name) throws NameResolutionException {
     Node n = namespace.getNode(name);
-    if (n instanceof ClassNode) {
+    if (n instanceof NamedParameterNode) {
+      NamedParameterNode np = (NamedParameterNode) n;
+      return boundValues.get(np) != null;
+    } else if (n instanceof ClassNode) {
       ClassNode c = (ClassNode) n;
       Class<?> clz = (Class<?>) boundValues.get(c);
       if (clz != null) {
@@ -105,9 +108,6 @@ public class Tang {
         }
       }
       return false;
-    } else if (n instanceof NamedParameterNode) {
-      NamedParameterNode np = (NamedParameterNode) n;
-      return boundValues.get(np) != null;
     } else {
       throw new IllegalArgumentException();
     }
@@ -116,7 +116,7 @@ public class Tang {
   public Object getInstance(Class<?> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     Node n = namespace.getNode(clazz);
-    if (n instanceof ClassNode) {
+    if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
       Class<?> c = (Class<?>) boundValues.get(n);
       if (c != null) {
         return getInstance(c);
@@ -170,10 +170,10 @@ public class Tang {
     List<Object> args = new ArrayList<Object>();
     for (ConstructorArg arg : defs.get(0).args) {
       Node argNode = namespace.getNode(arg.getFullyQualifiedName(clazz));
-      if (argNode instanceof ClassNode) {
-        args.add(getInstance(((ClassNode) argNode).clazz));
-      } else if (argNode instanceof NamedParameterNode) {
+      if (argNode instanceof NamedParameterNode) {
         args.add(boundValues.get(argNode));
+      } else if (argNode instanceof ClassNode) {
+        args.add(getInstance(((ClassNode) argNode).clazz));
       } else {
         throw new IllegalStateException(
             "Expected ClassNode or NamedParameterNode, but got " + argNode);

@@ -11,26 +11,36 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
+import com.microsoft.inject.annotations.Name;
+import com.microsoft.inject.annotations.Namespace;
+import com.microsoft.inject.annotations.NamedParameter;
+import com.microsoft.inject.annotations.Parameter;
 import com.microsoft.inject.exceptions.NameResolutionException;
 
-@ConfigurationMetadata(name = "ns.impl", params = { @NamedParameter(value = "foo", doc = "a second string", default_value = "default") })
-public class Namespace {
+@Namespace("ns.impl")
+public class TypeHierarchy {
+  @NamedParameter(doc = "a second string", default_value = "default")
+  public class Foo {
+  }
 
   final static String regexp = "[\\.\\$]";
 
   @Inject
-  public Namespace() {
+  public TypeHierarchy() {
   }
 
   @Inject
-  public Namespace(String two) {
+  public TypeHierarchy(String two) {
 
   }
 
+  @NamedParameter
+  class ParamX implements Name {
+  }
+
   @Inject
-  public Namespace(@Named("foo") String exportedNamespace, String two) {
+  public TypeHierarchy(@Parameter(ParamX.class) String exportedNamespace, String two) {
 
   }
 
@@ -38,6 +48,10 @@ public class Namespace {
     protected final String name;
 
     Map<String, Node> children = new HashMap<String, Node>();
+
+    Node(Class<?> name) {
+      this.name = name.getSimpleName();
+    }
 
     Node(String name) {
       this.name = name;
@@ -63,15 +77,17 @@ public class Namespace {
           // If they both match, we're good.
           if (old.equals(n)) {
             resolved = true;
-          // If one is more specific than the other, use it.
-          } else if (((NamedParameterNode)old).isAsSpecificAs((NamedParameterNode)n)) {
+            // If one is more specific than the other, use it.
+          } else if (((NamedParameterNode) old)
+              .isAsSpecificAs((NamedParameterNode) n)) {
             // We'll want to merge their children and keep the old one. So,
             // swap them, and old will get put back in at the end.
             Node tmp = n;
             n = old;
             old = tmp;
             resolved = true;
-          } else if (((NamedParameterNode)n).isAsSpecificAs((NamedParameterNode)old)) {
+          } else if (((NamedParameterNode) n)
+              .isAsSpecificAs((NamedParameterNode) old)) {
             resolved = true;
           } else {
             resolved = false;
@@ -81,13 +97,14 @@ public class Namespace {
         }
         if (!resolved) {
           // we're in trouble.
-          throw new IllegalArgumentException("Conflicting definition of named parameter: " + n
-              + " is incompatible with " + old);
+          throw new IllegalArgumentException(
+              "Conflicting definition of named parameter: " + n
+                  + " is incompatible with " + old);
         }
       }
       if (old != null) {
         if (!old.children.isEmpty()) {
-          if (n instanceof ClassNode) {
+          if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
             n.children.putAll(old.children);
           } else {
             throw new IllegalStateException(
@@ -98,10 +115,12 @@ public class Namespace {
       children.put(n.name, n);
     }
 
-    public void addNamedParameter(NamedParameter name) {
-      put(new NamedParameterNode(name));
-
-    }
+    /*
+     * public void addNamedParameter(NamedParameter name, Class<?> nameClazz) {
+     * put(new NamedParameterNode(name, nameClazz));
+     * 
+     * }
+     */
 
     public String toIndentedString(int level) {
       StringBuilder sb = new StringBuilder();
@@ -139,10 +158,11 @@ public class Namespace {
 
     public ClassNode(Class<?> clazz, boolean isPrefixTarget) {
       super(clazz.getSimpleName());
+
+      boolean injectable = true;
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
         if (!Modifier.isStatic(clazz.getModifiers())) {
-          throw new IllegalArgumentException(
-              "Cannot @Inject non-static member/local class: " + clazz);
+          injectable = false;
         }
       }
       this.clazz = clazz;
@@ -151,12 +171,19 @@ public class Namespace {
       boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) != null);
       Constructor<?>[] constructors = clazz.getConstructors();
       List<ConstructorDef> injectableConstructors = new ArrayList<ConstructorDef>();
+      if (injectAllConstructors && !injectable) {
+        throw new IllegalArgumentException(
+            "Cannot @Inject non-static member/local class: " + clazz);
+      }
 
       for (int k = 0; k < constructors.length; k++) {
 
         if (injectAllConstructors
             || null != constructors[k].getAnnotation(Inject.class)) {
-
+          if (!injectable) {
+            throw new IllegalArgumentException(
+                "Cannot @Inject non-static member/local class: " + clazz);
+          }
           // go through the constructor arguments.
           if (constructors[k].isSynthetic()) {
             throw new IllegalArgumentException(
@@ -176,16 +203,28 @@ public class Namespace {
           ConstructorArg[] args = new ConstructorArg[paramTypes.length];
           for (int i = 0; i < paramTypes.length; i++) {
             // if there is an appropriate annotation, use that.
-            Named named = null;
+            Parameter named = null;
             for (int j = 0; j < paramAnnotations[i].length; j++) {
               Annotation annotation = paramAnnotations[i][j];
-              if (annotation instanceof Named) {
-                named = (Named) annotation;
+              if (annotation instanceof Parameter) {
+                named = (Parameter) annotation;
+                // Register the Parameter type, if necessary.
+                Node n;
+                try {
+                  n = getNode(named.value());
+                } catch(NameResolutionException e) {
+                  n = buildPathToNode(named.value(), false);
+                }
+                if(!(n instanceof NamedParameterNode)) {
+                  throw new IllegalStateException();
+                }
+                NamedParameterNode np = (NamedParameterNode)n;
+                if(!ReflectionUtilities.isCoercable(paramTypes[i], np.argClass)) {
+                  throw new IllegalArgumentException("Incompatible argument type.  Constructor expects " + paramTypes[i] + " but " + np.name + " is a " + np.argClass);
+                }
               }
             }
             args[i] = new ConstructorArg(paramTypes[i], named);
-            children.put(args[i].getName(),
-                new NamedParameterNode(args[i].getName(), args[i].type));
           }
           ConstructorDef def = new ConstructorDef(args, constructors[k]);
           if (injectableConstructors.contains(def)) {
@@ -221,34 +260,42 @@ public class Namespace {
     }
   }
 
-  class NamedParameterNode extends Node {
+  class NamedParameterNode extends ClassNode {
     private final NamedParameter namedParameter;
     final Class<?> argClass;
 
-    NamedParameterNode(NamedParameter n) {
-      super(n.value());
-      children = null;
-      this.namedParameter = n;
-      try {
-        this.argClass = ReflectionUtilities.classForName(n.type());
-      } catch (ClassNotFoundException e) {
-        throw new IllegalArgumentException("Named parameter " + n.toString()
-            + " takes unknown class as argument: " + n.type() + ".");
-      }
-    }
+    /*
+     * NamedParameterNode(NamedParameter n, Class<?> nameClazz) {
+     * super(nameClazz); children = null; this.namedParameter = n; this.argClass
+     * = n.type(); }
+     */
 
     public boolean isAsSpecificAs(NamedParameterNode n) {
-      if(!argClass.equals(n.argClass)) { return false; }
-      if(!name.equals(n.name)) { return false; }
-      if(n.namedParameter == null) { return true; }
-      if(this.namedParameter == null) { return false; }
+      if (!argClass.equals(n.argClass)) {
+        return false;
+      }
+      if (!name.equals(n.name)) {
+        return false;
+      }
+      if (n.namedParameter == null) {
+        return true;
+      }
+      if (this.namedParameter == null) {
+        return false;
+      }
       return this.namedParameter.equals(n.namedParameter);
     }
 
-    NamedParameterNode(String name, Class<?> argClass) {
-      super(name);
-      this.argClass = argClass;
-      this.namedParameter = null;
+    NamedParameterNode(Class<?> clazz) {
+      // Inner classes cannot be prefix targets, so pass a false in here.
+      super(clazz, false);
+      if (super.injectableConstructors.length > 0) {
+        throw new IllegalStateException(
+            "Detected illegal @Injectable parameter class");
+      }
+      this.namedParameter = clazz.getAnnotation(NamedParameter.class);
+      this.argClass = this.namedParameter == null ? clazz : namedParameter
+          .type();
     }
 
     @Override
@@ -267,10 +314,10 @@ public class Namespace {
 
   class ConstructorArg {
     final Class<?> type;
-    final Named name;
+    final Parameter name;
 
     String getName() {
-      return name == null ? type.getName() : name.value();
+      return name == null ? type.getName() : name.value().getSimpleName();
     }
 
     String getFullyQualifiedName(Class<?> targetClass) {
@@ -286,29 +333,34 @@ public class Namespace {
       this.name = null;
     }
 
-    ConstructorArg(Class<?> type, Named name) {
+    ConstructorArg(Class<?> type, Parameter name) {
       this.type = type;
       this.name = name;
-      if (name != null && name.value().equals("")) {
-        throw new IllegalArgumentException(
-            "Named parameters with the empty name (\"\") aren't allowed!");
-      }
     }
 
     @Override
     public String toString() {
       return name == null ? type.getSimpleName()
-          : (type.getSimpleName() + " " + name.value());
+          : (type.getSimpleName() + " " + name.value().getSimpleName());
     }
+
     @Override
     public boolean equals(Object o) {
-      ConstructorArg arg = (ConstructorArg)o;
-      if(!type.equals(arg.type)){ return false; }
-      if(name == null && arg.name == null) { return true; }
-      if(name == null && arg.name != null) { return false; }
-      if(name != null && arg.name == null) { return false; }
+      ConstructorArg arg = (ConstructorArg) o;
+      if (!type.equals(arg.type)) {
+        return false;
+      }
+      if (name == null && arg.name == null) {
+        return true;
+      }
+      if (name == null && arg.name != null) {
+        return false;
+      }
+      if (name != null && arg.name == null) {
+        return false;
+      }
       return name.equals(arg.name);
-      
+
     }
   }
 
@@ -375,13 +427,17 @@ public class Namespace {
     public boolean equals(Object o) {
       return equalsIgnoreOrder((ConstructorDef) o);
     }
+
     public boolean isMoreSpecificThan(ConstructorDef def) {
-      for(int i = 0; i < args.length; i++) {
+      for (int i = 0; i < args.length; i++) {
         boolean found = false;
-        for(int j = 0; j < def.args.length; j++) {
-          if(args[i].equals(def.args[j])) { found = true; }
+        for (int j = 0; j < def.args.length; j++) {
+          if (args[i].equals(def.args[j])) {
+            found = true;
+          }
         }
-        if(found == false) return false;
+        if (found == false)
+          return false;
       }
       return args.length > def.args.length;
     }
@@ -389,9 +445,9 @@ public class Namespace {
 
   final Node namespace = new Node("");
 
-  private ConfigurationPrefixNode buildPathToNode(ConfigurationMetadata conf,
+  private ConfigurationPrefixNode buildPathToNode(Namespace conf,
       ClassNode classNode) {
-    String[] path = conf.name().split(regexp);
+    String[] path = conf.value().split(regexp);
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
@@ -422,7 +478,15 @@ public class Namespace {
         root = root.get(path[i]);
       }
     }
-    ret = new ClassNode(clazz, isPrefixTarget);
+    if (clazz.getAnnotation(NamedParameter.class) != null) {
+      if (isPrefixTarget) {
+        throw new IllegalStateException(clazz
+            + " cannot be both a namespace and parameter.");
+      }
+      ret = new NamedParameterNode(clazz);
+    } else {
+      ret = new ClassNode(clazz, isPrefixTarget);
+    }
     root.put(ret);
     return ret;
   }
@@ -467,20 +531,18 @@ public class Namespace {
     // "Can't register primitive types");
     // }
 
-    ConfigurationMetadata confAnnotation = c
-        .getAnnotation(ConfigurationMetadata.class);
+    Namespace confAnnotation = c
+        .getAnnotation(Namespace.class);
     ClassNode n;
-    if (confAnnotation == null || confAnnotation.name() == null) {
+    if (confAnnotation == null || confAnnotation.value() == null) {
       n = buildPathToNode(c, false);
     } else {
       n = buildPathToNode(c, true);
       buildPathToNode(confAnnotation, n);
     }
 
-    if (confAnnotation != null) {
-      for (NamedParameter name : confAnnotation.params()) {
-        n.addNamedParameter(name);
-      }
+    for (Class<?> inner_class : c.getDeclaredClasses()) {
+      registerClass(inner_class);
     }
   }
 
@@ -489,7 +551,14 @@ public class Namespace {
   }
 
   public void findUnresolvedClasses(Node root, Set<Class<?>> unresolved) {
-    if (root instanceof ClassNode) {
+    if (root instanceof NamedParameterNode) {
+      NamedParameterNode np = (NamedParameterNode) (root);
+      try {
+        getNode(np.argClass);
+      } catch (NameResolutionException e) {
+        unresolved.add(np.argClass);
+      }
+    } else if (root instanceof ClassNode) {
       ClassNode cls = (ClassNode) root;
       for (ConstructorDef def : cls.injectableConstructors) {
         for (ConstructorArg arg : def.args) {
@@ -515,14 +584,6 @@ public class Namespace {
         } catch (NameResolutionException e) {
           unresolved.add(i);
         }
-      }
-    }
-    if (root instanceof NamedParameterNode) {
-      NamedParameterNode np = (NamedParameterNode) (root);
-      try {
-        getNode(np.argClass);
-      } catch (NameResolutionException e) {
-        unresolved.add(np.argClass);
       }
     }
     if (root.children != null) {
@@ -552,7 +613,7 @@ public class Namespace {
   // relevant jar has not yet been loaded.
 
   public static void main(String[] args) throws Exception {
-    Namespace ns = new Namespace();
+    TypeHierarchy ns = new TypeHierarchy();
     for (String s : args) {
       ns.registerClass(ReflectionUtilities.classForName(s));
     }

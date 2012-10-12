@@ -1,13 +1,17 @@
 package com.microsoft.inject;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.microsoft.inject.annotations.Name;
+import com.microsoft.inject.annotations.NamedParameter;
+import com.microsoft.inject.annotations.Parameter;
+
 
 public class TweetExample {
   private static interface TweetFactory {
@@ -48,9 +52,11 @@ public class TweetExample {
     final SMS sms;
     final long phoneNumber;
 
+    @NamedParameter(type = long.class)
+    class PhoneNumber implements Name {}
     @Inject
     public Tweeter(TweetFactory tw, SMS sms,
-        @Named("phone-number") long phoneNumber) {
+        @Parameter(PhoneNumber.class) long phoneNumber) {
       this.tw = tw;
       this.sms = sms;
       this.phoneNumber = phoneNumber;
@@ -61,7 +67,7 @@ public class TweetExample {
     }
   }
 
-  private Namespace ns;
+  private TypeHierarchy ns;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -73,7 +79,7 @@ public class TweetExample {
 
   @Before
   public void setUp() throws Exception {
-    ns = new Namespace();
+    ns = new TypeHierarchy();
     ns.registerClass(MockTweetFactory.class);
     ns.registerClass(MockSMS.class);
     ns.registerClass(Tweeter.class);
@@ -91,7 +97,7 @@ public class TweetExample {
     Tang t = new Tang(ns);
     t.setDefaultImpl(TweetFactory.class, MockTweetFactory.class);
     t.setDefaultImpl(SMS.class, MockSMS.class);
-    t.setNamedParameter(Tweeter.class.getName() + ".phone-number", 867 - 5309);
+    t.setNamedParameter(Tweeter.PhoneNumber.class, 867 - 5309);
     Tweeter tw = (Tweeter) t.getInstance(Tweeter.class);
     tw.sendMessage();
   }
