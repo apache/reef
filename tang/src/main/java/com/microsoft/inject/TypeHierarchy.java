@@ -169,7 +169,7 @@ public class TypeHierarchy {
       this.isPrefixTarget = isPrefixTarget;
 
       boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) != null);
-      Constructor<?>[] constructors = clazz.getConstructors();
+      Constructor<?>[] constructors = clazz.getDeclaredConstructors();
       List<ConstructorDef> injectableConstructors = new ArrayList<ConstructorDef>();
       if (injectAllConstructors && !injectable) {
         throw new IllegalArgumentException(
@@ -317,13 +317,15 @@ public class TypeHierarchy {
     final Parameter name;
 
     String getName() {
-      return name == null ? type.getName() : name.value().getSimpleName();
+      return name == null ? type.getName() : name.value().getName();
     }
 
+    // TODO: Delete this method if we finalize the "class as name" approach to named parameters
     String getFullyQualifiedName(Class<?> targetClass) {
       String name = getName();
       if (!name.contains(".")) {
         name = targetClass.getName() + "." + name;
+        throw new IllegalStateException("Should be dead code now!");
       }
       return name;
     }
@@ -384,6 +386,8 @@ public class TypeHierarchy {
     ConstructorDef(ConstructorArg[] args, Constructor<?> constructor) {
       this.args = args;
       this.constructor = constructor;
+      constructor.setAccessible(true);
+
       for (int i = 0; i < this.args.length; i++) {
         for (int j = i + 1; j < this.args.length; j++) {
           if (this.args[i].toString().equals(this.args[j].toString())) {
@@ -601,9 +605,10 @@ public class TypeHierarchy {
 
   public void resolveAllClasses() {
     for (Class<?>[] classes = findUnresolvedClasses(); classes.length > 0; classes = findUnresolvedClasses()) {
-      for (Class<?> c : classes) {
-        registerClass(c);
-      }
+      registerClass(classes[0]); // XXX slow hack.
+//      for (Class<?> c : classes) {
+//        registerClass(c);
+//      }
     }
   }
 

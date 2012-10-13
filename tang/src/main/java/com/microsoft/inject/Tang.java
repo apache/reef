@@ -25,6 +25,7 @@ public class Tang {
   public Tang(TypeHierarchy namespace) {
     this.conf = null;
     this.namespace = namespace;
+    namespace.resolveAllClasses();
   }
 
   public Tang(Configuration conf) {
@@ -84,8 +85,13 @@ public class Tang {
     }
   }
 
-  public boolean canInject(String name) throws NameResolutionException {
-    Node n = namespace.getNode(name);
+  public boolean canInject(String name) { //throws NameResolutionException {
+    Node n;
+    try { n = namespace.getNode(name); }
+    catch(NameResolutionException e) {
+      e.printStackTrace();
+      return false;
+    }
     if (n instanceof NamedParameterNode) {
       NamedParameterNode np = (NamedParameterNode) n;
       return boundValues.get(np) != null;
@@ -107,7 +113,8 @@ public class Tang {
           return true;
         }
       }
-      return false;
+      throw new IllegalStateException("Can't inject: " + name);
+      //return false;
     } else {
       throw new IllegalArgumentException();
     }
@@ -133,11 +140,7 @@ public class Tang {
       boolean canInject = true;
       for (ConstructorArg arg : def.args) {
         String name = arg.getFullyQualifiedName(clazz);
-        try {
-          if (!canInject(name)) {
-            canInject = false;
-          }
-        } catch (NameResolutionException e) {
+        if (!canInject(name)) {
           canInject = false;
         }
       }
