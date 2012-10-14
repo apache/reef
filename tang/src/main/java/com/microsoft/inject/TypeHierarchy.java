@@ -12,37 +12,34 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import com.microsoft.inject.annotations.Name;
 import com.microsoft.inject.annotations.Namespace;
 import com.microsoft.inject.annotations.NamedParameter;
 import com.microsoft.inject.annotations.Parameter;
 import com.microsoft.inject.exceptions.NameResolutionException;
 
-@Namespace("ns.impl")
 public class TypeHierarchy {
-  @NamedParameter(doc = "a second string", default_value = "default")
-  public class Foo {
-  }
-
+  private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();
+  final Node namespace = new Node("");
   final static String regexp = "[\\.\\$]";
 
-  @Inject
-  public TypeHierarchy() {
-  }
-
-  @Inject
-  public TypeHierarchy(String two) {
-
-  }
-
-  @NamedParameter
-  class ParamX implements Name {
-  }
-
-  @Inject
-  public TypeHierarchy(@Parameter(ParamX.class) String exportedNamespace, String two) {
-
-  }
+  /*
+   * @NamedParameter(doc = "a second string", default_value = "default") public
+   * class Foo { }
+   * 
+   * 
+   * @Inject public TypeHierarchy() { }
+   * 
+   * @Inject public TypeHierarchy(String two) {
+   * 
+   * }
+   * 
+   * @NamedParameter class ParamX implements Name { }
+   * 
+   * @Inject public TypeHierarchy(@Parameter(ParamX.class) String
+   * exportedNamespace, String two) {
+   * 
+   * }
+   */
 
   class Node {
     protected final String name;
@@ -212,15 +209,19 @@ public class TypeHierarchy {
                 Node n;
                 try {
                   n = getNode(named.value());
-                } catch(NameResolutionException e) {
+                } catch (NameResolutionException e) {
                   n = buildPathToNode(named.value(), false);
                 }
-                if(!(n instanceof NamedParameterNode)) {
+                if (!(n instanceof NamedParameterNode)) {
                   throw new IllegalStateException();
                 }
-                NamedParameterNode np = (NamedParameterNode)n;
-                if(!ReflectionUtilities.isCoercable(paramTypes[i], np.argClass)) {
-                  throw new IllegalArgumentException("Incompatible argument type.  Constructor expects " + paramTypes[i] + " but " + np.name + " is a " + np.argClass);
+                NamedParameterNode np = (NamedParameterNode) n;
+                if (!ReflectionUtilities
+                    .isCoercable(paramTypes[i], np.argClass)) {
+                  throw new IllegalArgumentException(
+                      "Incompatible argument type.  Constructor expects "
+                          + paramTypes[i] + " but " + np.name + " is a "
+                          + np.argClass);
                 }
               }
             }
@@ -320,7 +321,8 @@ public class TypeHierarchy {
       return name == null ? type.getName() : name.value().getName();
     }
 
-    // TODO: Delete this method if we finalize the "class as name" approach to named parameters
+    // TODO: Delete this method if we finalize the "class as name" approach to
+    // named parameters
     String getFullyQualifiedName(Class<?> targetClass) {
       String name = getName();
       if (!name.contains(".")) {
@@ -447,8 +449,6 @@ public class TypeHierarchy {
     }
   }
 
-  final Node namespace = new Node("");
-
   private ConfigurationPrefixNode buildPathToNode(Namespace conf,
       ClassNode classNode) {
     String[] path = conf.value().split(regexp);
@@ -534,9 +534,23 @@ public class TypeHierarchy {
     // throw new UnsupportedOperationException(
     // "Can't register primitive types");
     // }
+    Class<?> d = c;
+    // Note: getEnclosingClass returns anonymous declaring class.
+    // getDeclaringClass() would skip up to the first thing with a name.
+    while (null != (d = d.getEnclosingClass())) {
+      try {
+        getNode(d);
+      } catch (NameResolutionException e) {
+        registerClass(d);
+      }
+    }
+    try {
+      getNode(c);
+      return;
+    } catch (NameResolutionException e) {
+    }
 
-    Namespace confAnnotation = c
-        .getAnnotation(Namespace.class);
+    Namespace confAnnotation = c.getAnnotation(Namespace.class);
     ClassNode n;
     if (confAnnotation == null || confAnnotation.value() == null) {
       n = buildPathToNode(c, false);
@@ -547,6 +561,46 @@ public class TypeHierarchy {
 
     for (Class<?> inner_class : c.getDeclaredClasses()) {
       registerClass(inner_class);
+    }
+    Class<?> superclass = c.getSuperclass();
+    if (superclass != null) {
+      registerClass(superclass);
+      try {
+        ClassNode sc = (ClassNode) getNode(superclass);
+        putImpl(sc, n);
+      } catch (NameResolutionException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+    for (Class<?> interf : c.getInterfaces()) {
+      registerClass(interf);
+      try {
+        ClassNode sc = (ClassNode) getNode(interf);
+        putImpl(sc, n);
+      } catch (NameResolutionException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+  }
+
+  private void putImpl(ClassNode superclass, ClassNode impl) {
+    List<ClassNode> s = knownImpls.get(superclass);
+    if (s == null) {
+      s = new ArrayList<ClassNode>();
+      knownImpls.put(superclass, s);
+    }
+    if (!s.contains(impl)) {
+      //System.out.println("putImpl: " + impl + " implements " + superclass);
+      s.add(impl);
+    }
+  }
+
+  ClassNode[] getKnownImpls(ClassNode c) {
+    List<ClassNode> l = knownImpls.get(c);
+    if (l != null) {
+      return l.toArray(new ClassNode[0]);
+    } else {
+      return new ClassNode[0];
     }
   }
 
@@ -605,10 +659,9 @@ public class TypeHierarchy {
 
   public void resolveAllClasses() {
     for (Class<?>[] classes = findUnresolvedClasses(); classes.length > 0; classes = findUnresolvedClasses()) {
-      registerClass(classes[0]); // XXX slow hack.
-//      for (Class<?> c : classes) {
-//        registerClass(c);
-//      }
+      for (Class<?> c : classes) {
+        registerClass(c);
+      }
     }
   }
 

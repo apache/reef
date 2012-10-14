@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 
@@ -20,8 +21,9 @@ import com.microsoft.inject.exceptions.NameResolutionException;
 public class Tang {
   private final Configuration conf;
   private final TypeHierarchy namespace;
-  private final Map<Node, Object> boundValues = new HashMap<Node, Object>();
-
+  private final Map<Node, Class<?>> defaultImpls = new HashMap<Node, Class<?>>();
+  private final Map<Node, Object> defaultInstances = new HashMap<Node, Object>();
+  
   public Tang(TypeHierarchy namespace) {
     this.conf = null;
     this.namespace = namespace;
@@ -57,7 +59,7 @@ public class Tang {
     }
     Node n = namespace.getNode(c);
     if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
-      boundValues.put(n, d);
+      defaultImpls.put(n, d);
     } else {
       // TODO need new exception type here.
       throw new IllegalArgumentException(
@@ -72,12 +74,13 @@ public class Tang {
     if (n instanceof NamedParameterNode) {
       NamedParameterNode np = (NamedParameterNode) n;
       if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
-        boundValues.put(n, o);
+        defaultInstances.put(n, o);
       } else {
         throw new ClassCastException("Cannot cast from " + o.getClass()
             + " to " + np.argClass);
       }
     } else {
+      // TODO add support for setting default *instance* of class.
       // TODO need new exception type here.
       throw new IllegalArgumentException(
           "Detected type mismatch when setting named parameter " + name
@@ -94,12 +97,24 @@ public class Tang {
     }
     if (n instanceof NamedParameterNode) {
       NamedParameterNode np = (NamedParameterNode) n;
-      return boundValues.get(np) != null;
+      return defaultInstances.get(np) != null;
     } else if (n instanceof ClassNode) {
       ClassNode c = (ClassNode) n;
-      Class<?> clz = (Class<?>) boundValues.get(c);
+      Object instance = defaultInstances.get(c);
+      if(instance != null) {
+        return true;
+      }
+      Class<?> clz = defaultImpls.get(c);
       if (clz != null) {
         return canInject(clz.getName());
+      }
+      ClassNode[] cn = namespace.getKnownImpls(c);
+      boolean haveAltImpl = false;
+      if(cn.length == 1) {
+        if(canInject(cn[0].clazz.getName())) { haveAltImpl = true; }
+      } else if (cn.length == 0) {
+        // we don't consider something to be an impl of itself
+        // so fall through and check this class.
       }
       for (ConstructorDef def : c.injectableConstructors) {
         boolean canInject = true;
@@ -110,9 +125,13 @@ public class Tang {
           }
         }
         if (canInject) {
+          if(haveAltImpl) {
+            throw new IllegalStateException("Can't inject due to two impls!"+name);
+          }
           return true;
         }
       }
+      if(haveAltImpl) { return true; }
       throw new IllegalStateException("Can't inject: " + name);
       //return false;
     } else {
@@ -124,9 +143,15 @@ public class Tang {
       ReflectiveOperationException {
     Node n = namespace.getNode(clazz);
     if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
-      Class<?> c = (Class<?>) boundValues.get(n);
+      Class<?> c = defaultImpls.get(n);
       if (c != null) {
         return getInstance(c);
+      }
+      ClassNode[] known = namespace.getKnownImpls((ClassNode)n);
+      if(known.length == 1) {
+        return getInstance(known[0].clazz);
+      } else if(known.length > 1) {
+        throw new IllegalStateException("Ambiguous inject of " + clazz + " detected.  No default, and known impls are " + Arrays.toString(known));
       }
     } else {
       // TODO need new exception type here.
@@ -174,7 +199,7 @@ public class Tang {
     for (ConstructorArg arg : defs.get(0).args) {
       Node argNode = namespace.getNode(arg.getFullyQualifiedName(clazz));
       if (argNode instanceof NamedParameterNode) {
-        args.add(boundValues.get(argNode));
+        args.add(defaultInstances.get(argNode));
       } else if (argNode instanceof ClassNode) {
         args.add(getInstance(((ClassNode) argNode).clazz));
       } else {

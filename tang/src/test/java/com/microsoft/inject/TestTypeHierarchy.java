@@ -47,16 +47,6 @@ public class TestTypeHierarchy {
           
         }
     }
-    private static class SimpleConstructors{
-        @Inject
-        public SimpleConstructors() { }
-        @Inject
-        public SimpleConstructors(int x) { }
-        @SuppressWarnings("unused")
-        public SimpleConstructors(String x) { }
-        @Inject
-        public SimpleConstructors(int x, String y) { }
-    }
     @Test
     public void testSimpleConstructors() throws NameResolutionException {
         ns.registerClass(SimpleConstructors.class);
@@ -67,12 +57,6 @@ public class TestTypeHierarchy {
         Assert.assertEquals(3, def.length);
         
     }
-    static class NamedParameterConstructors {
-        @NamedParameter()
-        class X implements Name {};
-        @Inject
-        public NamedParameterConstructors(String x, @Parameter(X.class) String y) { }
-    }
     @Test
     public void testNamedParameterConstructors() {
         ns.registerClass(NamedParameterConstructors.class);
@@ -81,15 +65,6 @@ public class TestTypeHierarchy {
     public void testArray() {
         ns.registerClass(new String[0].getClass());
     }
-    private @Namespace("foo.bar")
-    static class Metadata { 
-      @NamedParameter(doc = "a baz", default_value="woo")
-      final class Baz {};
-      @NamedParameter(doc = "a bar", default_value="i-beam")
-      final class Bar {};
-      @NamedParameter(doc = "???")
-      final class Quuz{};
-    }
     @Test
     public void testMetadata() throws NameResolutionException {
         ns.registerClass(Metadata.class);
@@ -97,9 +72,6 @@ public class TestTypeHierarchy {
         Assert.assertFalse(ns.getNode("foo.bar") instanceof NamedParameterNode);
         Assert.assertTrue(ns.getNode("foo.bar.Quuz") instanceof ClassNode);
         Assert.assertTrue(((ClassNode)ns.getNode(Metadata.class)).isPrefixTarget);
-    }
-    static class RepeatConstructorArg {
-        public @Inject RepeatConstructorArg(int x, int y) {}
     }
     @Test(expected = IllegalArgumentException.class)
     public void testRepeatConstructorArg() {
@@ -113,27 +85,55 @@ public class TestTypeHierarchy {
         }
         Assert.assertNotNull(ns.getNode(String.class));
     }
-    @Namespace("bar")
-    static class DocumentedLocalNamedParameter {
-      @NamedParameter(doc="doc stuff", default_value="some value")
-      final class Foo implements Name {}
-      @Inject
-      public DocumentedLocalNamedParameter(@Parameter(Foo.class) String s) {}
-    }
     @Test
     public void testDocumentedLocalNamedParameter() {
       ns.registerClass(DocumentedLocalNamedParameter.class);
-    }
-    @Namespace("baz")
-    static class ConflictingLocalNamedParameter {
-      @NamedParameter(type=int.class, doc="doc.stuff", default_value="1")
-      final class Foo implements Name {}
-      @Inject
-      public ConflictingLocalNamedParameter(@Parameter(Foo.class) String s) {}
     }
     // TODO need better exception type for conflicting named parameters
     @Test(expected = IllegalArgumentException.class)
     public void testConflictingLocalNamedParameter() {
       ns.registerClass(ConflictingLocalNamedParameter.class);
     }
+}
+
+class SimpleConstructors{
+  @Inject
+  public SimpleConstructors() { }
+  @Inject
+  public SimpleConstructors(int x) { }
+  public SimpleConstructors(String x) { }
+  @Inject
+  public SimpleConstructors(int x, String y) { }
+}
+class NamedParameterConstructors {
+  @NamedParameter()
+  class X implements Name {};
+  @Inject
+  public NamedParameterConstructors(String x, @Parameter(X.class) String y) { }
+}
+@Namespace("foo.bar")
+class Metadata { 
+  @NamedParameter(doc = "a baz", default_value="woo")
+  final class Baz {};
+  @NamedParameter(doc = "a bar", default_value="i-beam")
+  final class Bar {};
+  @NamedParameter(doc = "???")
+  final class Quuz{};
+}
+class RepeatConstructorArg {
+  public @Inject RepeatConstructorArg(int x, int y) {}
+}
+@Namespace("bar")
+class DocumentedLocalNamedParameter {
+  @NamedParameter(doc="doc stuff", default_value="some value")
+  final class Foo implements Name {}
+  @Inject
+  public DocumentedLocalNamedParameter(@Parameter(Foo.class) String s) {}
+}
+@Namespace("baz")
+class ConflictingLocalNamedParameter {
+  @NamedParameter(type=int.class, doc="doc.stuff", default_value="1")
+  final class Foo implements Name {}
+  @Inject
+  public ConflictingLocalNamedParameter(@Parameter(Foo.class) String s) {}
 }
