@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.microsoft.inject.TypeHierarchy.NamedParameterNode;
+import com.microsoft.inject.TypeHierarchy.Node;
 import com.microsoft.inject.annotations.Namespace;
 import com.microsoft.inject.annotations.NamedParameter;
 import com.microsoft.inject.annotations.Parameter;
@@ -19,6 +22,7 @@ import com.microsoft.inject.exceptions.NameResolutionException;
 
 public class TypeHierarchy {
   private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();
+  private final Map<String, NamedParameterNode> shortNames = new HashMap<String, NamedParameterNode>();
   final Node namespace = new Node("");
   final static String regexp = "[\\.\\$]";
 
@@ -311,6 +315,14 @@ public class TypeHierarchy {
       }
       return ret;
     }
+
+    public String getShortName() {
+      if (namedParameter.short_name() != null
+          && namedParameter.short_name().length() == 0) {
+        return null;
+      }
+      return namedParameter.short_name();
+    }
   }
 
   class ConstructorArg {
@@ -487,7 +499,15 @@ public class TypeHierarchy {
         throw new IllegalStateException(clazz
             + " cannot be both a namespace and parameter.");
       }
-      ret = new NamedParameterNode(clazz);
+      NamedParameterNode np = new NamedParameterNode(clazz);
+      ret = np;
+      String shortName = np.getShortName();
+      if (shortName != null) {
+        Node oldNode = shortNames.put(shortName, np);
+        if (oldNode != null) {
+          throw new IllegalStateException();
+        }
+      }
     } else {
       ret = new ClassNode(clazz, isPrefixTarget);
     }
@@ -590,7 +610,7 @@ public class TypeHierarchy {
       knownImpls.put(superclass, s);
     }
     if (!s.contains(impl)) {
-      //System.out.println("putImpl: " + impl + " implements " + superclass);
+      // System.out.println("putImpl: " + impl + " implements " + superclass);
       s.add(impl);
     }
   }
@@ -685,5 +705,13 @@ public class TypeHierarchy {
       System.out.println("Done.");
     }
     System.out.print(ns.exportNamespace());
+  }
+
+  public Collection<NamedParameterNode> getNamedParameterNodes() {
+    return shortNames.values();
+  }
+
+  public NamedParameterNode getNodeFromShortName(String shortName) {
+    return shortNames.get(shortName);
   }
 }

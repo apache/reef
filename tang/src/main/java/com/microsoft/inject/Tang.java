@@ -1,14 +1,21 @@
 package com.microsoft.inject;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 
 import com.microsoft.inject.TypeHierarchy.ClassNode;
 import com.microsoft.inject.TypeHierarchy.ConstructorArg;
@@ -19,36 +26,94 @@ import com.microsoft.inject.annotations.Name;
 import com.microsoft.inject.exceptions.NameResolutionException;
 
 public class Tang {
-  private final Configuration conf;
   private final TypeHierarchy namespace;
   private final Map<Node, Class<?>> defaultImpls = new HashMap<Node, Class<?>>();
   private final Map<Node, Object> defaultInstances = new HashMap<Node, Object>();
-  
+
   public Tang(TypeHierarchy namespace) {
-    this.conf = null;
     this.namespace = namespace;
     namespace.resolveAllClasses();
   }
 
-  public Tang(Configuration conf) {
-    this.conf = conf;
-    this.namespace = new TypeHierarchy();
+  /*
+   * public Tang(Configuration conf) { this.conf = conf; this.namespace = new
+   * TypeHierarchy();
+   * 
+   * Iterator<String> it = this.conf.getKeys();
+   * 
+   * while (it.hasNext()) { String key = it.next(); String value =
+   * this.conf.getString(key);
+   * 
+   * if (key.equals("tang.import")) { try {
+   * namespace.registerClass(Class.forName(value)); } catch
+   * (ClassNotFoundException e) { // print error message + exit. } }
+   * 
+   * } }
+   */
 
-    Iterator<String> it = this.conf.getKeys();
+  @SuppressWarnings("unchecked")
+  public void registerConfigFile(String configFileName)
+      throws ConfigurationException, NameResolutionException {
+    Configuration conf = new PropertiesConfiguration(configFileName);
+    Iterator<String> it = conf.getKeys();
 
     while (it.hasNext()) {
       String key = it.next();
-      String value = this.conf.getString(key);
-
-      if (key.equals("require")) {
-        try {
-          namespace.registerClass(Class.forName(value));
-        } catch (ClassNotFoundException e) {
-          // print error message + exit.
+      String[] values = conf.getStringArray(key);
+      for (String value : values) {
+        if (key.equals("tang.import")) {
+          try {
+            namespace.registerClass(Class.forName(value));
+            namespace.resolveAllClasses();
+          } catch (ClassNotFoundException e) {
+            // print error message + exit.
+          }
+        } else {
+          Node n = namespace.getNode(key);
+          if (n instanceof NamedParameterNode) {
+            NamedParameterNode np = (NamedParameterNode) n;
+            setNamedParameter((Class<? extends Name>) np.clazz, new Integer(
+                Integer.parseInt(value))); // XXX blatant hack.
+          }
         }
       }
-
     }
+    namespace.resolveAllClasses();
+  }
+
+  public Options getCommandLineOptions() {
+    Options opts = new Options();
+    Collection<NamedParameterNode> namedParameters = namespace
+        .getNamedParameterNodes();
+    for (NamedParameterNode param : namedParameters) {
+      String shortName = param.getShortName();
+      if (shortName != null) {
+//        opts.addOption(OptionBuilder.withLongOpt(shortName).hasArg()
+//            .withDescription(param.toString()).create());
+        opts.addOption(shortName, true, param.toString());
+      }
+    }
+    return opts;
+  }
+
+  public void processCommandLine(CommandLine cl, Options o)
+      throws NumberFormatException, NameResolutionException {
+    for (Object ob : o.getOptions()) {
+      Option option = (Option) ob;
+      String shortName = option.getOpt();
+      String value = option.getValue();
+      //System.out.println("Got option " + shortName + " = " + value);
+      //if(cl.hasOption(shortName)) {
+      NamedParameterNode n = namespace.getNodeFromShortName(shortName);
+      if (n != null && value != null) {
+        setNamedParameter((Class<? extends Name>) (n.clazz), new Integer(
+            Integer.parseInt(value))); // XXX blatant hack
+      }
+    }
+  }
+
+  public Tang() {
+    namespace = new TypeHierarchy();
   }
 
   public void setDefaultImpl(Class<?> c, Class<?> d)
@@ -72,13 +137,7 @@ public class Tang {
       throws NameResolutionException {
     Node n = namespace.getNode(name.getName());
     if (n instanceof NamedParameterNode) {
-      NamedParameterNode np = (NamedParameterNode) n;
-      if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
-        defaultInstances.put(n, o);
-      } else {
-        throw new ClassCastException("Cannot cast from " + o.getClass()
-            + " to " + np.argClass);
-      }
+      setNamedParameter((NamedParameterNode) n, o);
     } else {
       // TODO add support for setting default *instance* of class.
       // TODO need new exception type here.
@@ -88,10 +147,20 @@ public class Tang {
     }
   }
 
-  public boolean canInject(String name) { //throws NameResolutionException {
+  public void setNamedParameter(NamedParameterNode np, Object o) {
+    if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
+      defaultInstances.put(np, o);
+    } else {
+      throw new ClassCastException("Cannot cast from " + o.getClass() + " to "
+          + np.argClass);
+    }
+  }
+
+  public boolean canInject(String name) { // throws NameResolutionException {
     Node n;
-    try { n = namespace.getNode(name); }
-    catch(NameResolutionException e) {
+    try {
+      n = namespace.getNode(name);
+    } catch (NameResolutionException e) {
       e.printStackTrace();
       return false;
     }
@@ -101,7 +170,7 @@ public class Tang {
     } else if (n instanceof ClassNode) {
       ClassNode c = (ClassNode) n;
       Object instance = defaultInstances.get(c);
-      if(instance != null) {
+      if (instance != null) {
         return true;
       }
       Class<?> clz = defaultImpls.get(c);
@@ -110,8 +179,10 @@ public class Tang {
       }
       ClassNode[] cn = namespace.getKnownImpls(c);
       boolean haveAltImpl = false;
-      if(cn.length == 1) {
-        if(canInject(cn[0].clazz.getName())) { haveAltImpl = true; }
+      if (cn.length == 1) {
+        if (canInject(cn[0].clazz.getName())) {
+          haveAltImpl = true;
+        }
       } else if (cn.length == 0) {
         // we don't consider something to be an impl of itself
         // so fall through and check this class.
@@ -125,33 +196,39 @@ public class Tang {
           }
         }
         if (canInject) {
-          if(haveAltImpl) {
-            throw new IllegalStateException("Can't inject due to two impls!"+name);
+          if (haveAltImpl) {
+            throw new IllegalStateException("Can't inject due to two impls!"
+                + name);
           }
           return true;
         }
       }
-      if(haveAltImpl) { return true; }
+      if (haveAltImpl) {
+        return true;
+      }
       throw new IllegalStateException("Can't inject: " + name);
-      //return false;
+      // return false;
     } else {
       throw new IllegalArgumentException();
     }
   }
 
-  public Object getInstance(Class<?> clazz) throws NameResolutionException,
+  @SuppressWarnings("unchecked")
+  public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     Node n = namespace.getNode(clazz);
     if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
-      Class<?> c = defaultImpls.get(n);
+      Class<U> c = (Class<U>) defaultImpls.get(n);
       if (c != null) {
         return getInstance(c);
       }
-      ClassNode[] known = namespace.getKnownImpls((ClassNode)n);
-      if(known.length == 1) {
-        return getInstance(known[0].clazz);
-      } else if(known.length > 1) {
-        throw new IllegalStateException("Ambiguous inject of " + clazz + " detected.  No default, and known impls are " + Arrays.toString(known));
+      ClassNode[] known = namespace.getKnownImpls((ClassNode) n);
+      if (known.length == 1) {
+        return getInstance((Class<U>) known[0].clazz);
+      } else if (known.length > 1) {
+        throw new IllegalStateException("Ambiguous inject of " + clazz
+            + " detected.  No default, and known impls are "
+            + Arrays.toString(known));
       }
     } else {
       // TODO need new exception type here.
@@ -208,7 +285,8 @@ public class Tang {
       }
     }
     try {
-      return defs.get(0).constructor.newInstance(args.toArray());
+      return ((Constructor<U>) (defs.get(0).constructor)).newInstance(args
+          .toArray());
     } catch (IllegalArgumentException e) {
       throw new IllegalStateException("Could not invoke constructor "
           + defs.get(0).constructor + " with args "
