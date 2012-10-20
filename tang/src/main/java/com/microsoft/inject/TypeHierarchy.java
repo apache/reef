@@ -13,8 +13,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import com.microsoft.inject.TypeHierarchy.NamedParameterNode;
-import com.microsoft.inject.TypeHierarchy.Node;
 import com.microsoft.inject.annotations.Namespace;
 import com.microsoft.inject.annotations.NamedParameter;
 import com.microsoft.inject.annotations.Parameter;
@@ -143,8 +141,14 @@ public class TypeHierarchy {
     }
   }
 
-  class ClassNode extends Node {
+  abstract class AbstractClassNode extends Node {
     final Class<?> clazz;
+    public AbstractClassNode(Class<?> clazz) {
+      super(clazz.getSimpleName());
+      this.clazz = clazz;
+    }
+  }
+  class ClassNode extends AbstractClassNode {
     final boolean isPrefixTarget;
     final ConstructorDef[] injectableConstructors;
 
@@ -158,7 +162,7 @@ public class TypeHierarchy {
     }
 
     public ClassNode(Class<?> clazz, boolean isPrefixTarget) {
-      super(clazz.getSimpleName());
+      super(clazz);
 
       boolean injectable = true;
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
@@ -166,7 +170,6 @@ public class TypeHierarchy {
           injectable = false;
         }
       }
-      this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
 
       boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) != null);
@@ -265,7 +268,7 @@ public class TypeHierarchy {
     }
   }
 
-  class NamedParameterNode extends ClassNode {
+  class NamedParameterNode extends AbstractClassNode {
     private final NamedParameter namedParameter;
     final Class<?> argClass;
 
@@ -293,10 +296,15 @@ public class TypeHierarchy {
 
     NamedParameterNode(Class<?> clazz) {
       // Inner classes cannot be prefix targets, so pass a false in here.
-      super(clazz, false);
-      if (super.injectableConstructors.length > 0) {
-        throw new IllegalStateException(
-            "Detected illegal @Injectable parameter class");
+      super(clazz);
+      // XXX need to check for @Inject
+      for(Constructor<?> c : clazz.getDeclaredConstructors()) {
+        for(Annotation a : c.getDeclaredAnnotations()) {
+          if(a instanceof Inject) {
+            throw new IllegalStateException(
+              "Detected illegal @Injectable parameter class");
+          }
+        }
       }
       this.namedParameter = clazz.getAnnotation(NamedParameter.class);
       this.argClass = this.namedParameter == null ? clazz : namedParameter
@@ -481,10 +489,10 @@ public class TypeHierarchy {
 
   }
 
-  private ClassNode buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
+  private AbstractClassNode buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
     String[] path = clazz.getName().split(regexp);
     Node root = namespace;
-    ClassNode ret = null;
+    AbstractClassNode ret = null;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
         Node newRoot = new Node(path[i]);
@@ -571,12 +579,12 @@ public class TypeHierarchy {
     }
 
     Namespace confAnnotation = c.getAnnotation(Namespace.class);
-    ClassNode n;
+    AbstractClassNode n;
     if (confAnnotation == null || confAnnotation.value() == null) {
       n = buildPathToNode(c, false);
     } else {
       n = buildPathToNode(c, true);
-      buildPathToNode(confAnnotation, n);
+      buildPathToNode(confAnnotation, (ClassNode)n);
     }
 
     for (Class<?> inner_class : c.getDeclaredClasses()) {
@@ -587,7 +595,7 @@ public class TypeHierarchy {
       registerClass(superclass);
       try {
         ClassNode sc = (ClassNode) getNode(superclass);
-        putImpl(sc, n);
+        if(n instanceof ClassNode) { putImpl(sc, (ClassNode)n); }
       } catch (NameResolutionException e) {
         throw new IllegalStateException(e);
       }
@@ -596,7 +604,7 @@ public class TypeHierarchy {
       registerClass(interf);
       try {
         ClassNode sc = (ClassNode) getNode(interf);
-        putImpl(sc, n);
+        if(n instanceof ClassNode) { putImpl(sc, (ClassNode)n); }
       } catch (NameResolutionException e) {
         throw new IllegalStateException(e);
       }

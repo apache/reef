@@ -70,7 +70,7 @@ public class TestTypeHierarchy {
         ns.registerClass(Metadata.class);
         Assert.assertNotNull(ns.getNode(Metadata.class));
         Assert.assertFalse(ns.getNode("foo.bar") instanceof NamedParameterNode);
-        Assert.assertTrue(ns.getNode("foo.bar.Quuz") instanceof ClassNode);
+        Assert.assertTrue(ns.getNode("foo.bar.Quuz") instanceof NamedParameterNode);
         Assert.assertTrue(((ClassNode)ns.getNode(Metadata.class)).isPrefixTarget);
     }
     @Test(expected = IllegalArgumentException.class)

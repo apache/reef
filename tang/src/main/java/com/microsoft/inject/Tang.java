@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.Parser;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -96,8 +99,18 @@ public class Tang {
     return opts;
   }
 
-  public void processCommandLine(CommandLine cl, Options o)
-      throws NumberFormatException, NameResolutionException {
+  public void processCommandLine(String [] args)
+      throws NumberFormatException, NameResolutionException, ParseException {
+    Options o = getCommandLineOptions();
+    Option helpFlag = new Option("?", "help");
+    o.addOption(helpFlag);
+    Parser g = new GnuParser();
+    CommandLine cl = g.parse(o, args);
+    if(cl.hasOption("?")) {
+      HelpFormatter help = new HelpFormatter();
+      help.printHelp("reef", o);
+      return;
+    }
     for (Object ob : o.getOptions()) {
       Option option = (Option) ob;
       String shortName = option.getOpt();
