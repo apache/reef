@@ -1,4 +1,4 @@
-package com.microsoft.inject;
+package com.microsoft.tang;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -20,13 +20,13 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import com.microsoft.inject.TypeHierarchy.ClassNode;
-import com.microsoft.inject.TypeHierarchy.ConstructorArg;
-import com.microsoft.inject.TypeHierarchy.ConstructorDef;
-import com.microsoft.inject.TypeHierarchy.NamedParameterNode;
-import com.microsoft.inject.TypeHierarchy.Node;
-import com.microsoft.inject.annotations.Name;
-import com.microsoft.inject.exceptions.NameResolutionException;
+import com.microsoft.tang.TypeHierarchy.ClassNode;
+import com.microsoft.tang.TypeHierarchy.ConstructorArg;
+import com.microsoft.tang.TypeHierarchy.ConstructorDef;
+import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.TypeHierarchy.Node;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class Tang {
   private final TypeHierarchy namespace;

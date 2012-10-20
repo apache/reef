@@ -1,4 +1,4 @@
-package com.microsoft.inject;
+package com.microsoft.tang;
 
 import javax.inject.Inject;
 
@@ -8,9 +8,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.microsoft.inject.annotations.Name;
-import com.microsoft.inject.annotations.NamedParameter;
-import com.microsoft.inject.annotations.Parameter;
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.TypeHierarchy;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Parameter;
 
 
 public class TweetExample {

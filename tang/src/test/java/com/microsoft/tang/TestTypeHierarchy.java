@@ -1,4 +1,4 @@
-package com.microsoft.inject;
+package com.microsoft.tang;
 
 import javax.inject.Inject;
 
@@ -8,14 +8,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.microsoft.inject.TypeHierarchy.ClassNode;
-import com.microsoft.inject.TypeHierarchy.ConstructorDef;
-import com.microsoft.inject.TypeHierarchy.NamedParameterNode;
-import com.microsoft.inject.annotations.Name;
-import com.microsoft.inject.annotations.Namespace;
-import com.microsoft.inject.annotations.NamedParameter;
-import com.microsoft.inject.annotations.Parameter;
-import com.microsoft.inject.exceptions.NameResolutionException;
+import com.microsoft.tang.TypeHierarchy;
+import com.microsoft.tang.TypeHierarchy.ClassNode;
+import com.microsoft.tang.TypeHierarchy.ConstructorDef;
+import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Namespace;
+import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class TestTypeHierarchy {
     TypeHierarchy ns;

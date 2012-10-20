@@ -1,4 +1,4 @@
-package com.microsoft.inject;
+package com.microsoft.tang;
 
 public class InjectionPlan {
   public class Constructor {

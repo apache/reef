@@ -1,13 +1,12 @@
-package com.microsoft.inject.annotations;
+package com.microsoft.tang.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
-@Target(ElementType.PARAMETER)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Parameter {
-  Class<? extends Name> value();
+public @interface Namespace {
+    String value() default "";
 }

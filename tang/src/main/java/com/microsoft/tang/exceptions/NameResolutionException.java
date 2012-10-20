@@ -1,4 +1,4 @@
-package com.microsoft.inject.exceptions;
+package com.microsoft.tang.exceptions;
 
 public class NameResolutionException extends Exception {
     public NameResolutionException(String name, String longestPrefix) {

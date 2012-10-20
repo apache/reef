@@ -1,4 +1,4 @@
-package com.microsoft.inject.annotations;
+package com.microsoft.tang.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

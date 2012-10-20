@@ -1,4 +1,4 @@
-package com.microsoft.inject;
+package com.microsoft.tang;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -13,10 +13,10 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import com.microsoft.inject.annotations.Namespace;
-import com.microsoft.inject.annotations.NamedParameter;
-import com.microsoft.inject.annotations.Parameter;
-import com.microsoft.inject.exceptions.NameResolutionException;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Namespace;
+import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class TypeHierarchy {
   private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();

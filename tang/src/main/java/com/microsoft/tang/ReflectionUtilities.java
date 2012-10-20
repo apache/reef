@@ -1,4 +1,4 @@
-package com.microsoft.inject;
+package com.microsoft.tang;
 
 class ReflectionUtilities {
   static Class<?> boxClass(Class<?> c) {
