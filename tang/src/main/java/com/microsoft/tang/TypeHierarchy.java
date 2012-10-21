@@ -420,7 +420,9 @@ public class TypeHierarchy {
     }
   }
 
-  private ConfigurationPrefixNode buildPathToNode(Namespace conf,
+  // XXX if someone first registers a namespace "foo.bar", then later "foo", we'll have a problem.
+  // allow namespace annotations to be added to package nodes after the fact?
+  private ConfigurationPrefixNode registerNamespace(Namespace conf,
       ClassNode classNode) {
     String[] path = conf.value().split(regexp);
     Node root = namespace;
@@ -537,14 +539,13 @@ public class TypeHierarchy {
     }
     new NamespaceNode(parent, packageName[packageName.length - 1]);
   }
-
   public void register(Class<?> c) {
     if (c.getSuperclass() != null)
       register(c.getSuperclass());
     for (Class<?> i : c.getInterfaces()) {
       register(i);
     }
-
+    
     List<Class<?>> pathToRoot = new ArrayList<Class<?>>();
     Class<?> d = c;
     do {
@@ -579,6 +580,7 @@ public class TypeHierarchy {
       }
       // Now, register the class.
       registerClass(p);
+      // Check for Namespace annotation, and register the namespace here (or at the end of registerClass)
     }
     for (Class<?> inner_class : c.getDeclaredClasses()) {
       register(inner_class);
@@ -600,16 +602,19 @@ public class TypeHierarchy {
     } catch (NameResolutionException e) {
     }
 
+    // TODO: Constructor arguments can pull in classes.  The walk of
+    // those dependencies belongs in register(), but is spread out below.
     Namespace nsAnnotation = c.getAnnotation(Namespace.class);
     Node n;
-    if (nsAnnotation == null || nsAnnotation.value() == null) {
+    if (nsAnnotation == null) {
       n = buildPathToNode(c, false);
     } else {
-      n = (ClassNode)buildPathToNode(c, true); 
-      if(!(n instanceof ClassNode)) {
-        throw new IllegalArgumentException("Found namespace annotation " + nsAnnotation + " with target " + n + " which is a named parameter.");
+      n = buildPathToNode(c, true); 
+      if(n instanceof NamedParameterNode) {
+        throw new IllegalArgumentException("Found namespace annotation " +
+            nsAnnotation + " with target " + n + " which is a named parameter.");
       }
-      buildPathToNode(nsAnnotation, (ClassNode)n);
+      registerNamespace(nsAnnotation, (ClassNode)n);
     }
 
     if(n instanceof ClassNode) {
@@ -676,7 +681,7 @@ public class TypeHierarchy {
           }
         }
       }
-      Class<?> zuper = cls.clazz.getSuperclass();
+/*      Class<?> zuper = cls.clazz.getSuperclass();
       if (zuper != null) {
         try {
           getNode(zuper);
@@ -691,7 +696,7 @@ public class TypeHierarchy {
         } catch (NameResolutionException e) {
           unresolved.add(i);
         }
-      }
+      }*/
     }
     if (root.children != null) {
       for (Node n : root.children.values()) {
