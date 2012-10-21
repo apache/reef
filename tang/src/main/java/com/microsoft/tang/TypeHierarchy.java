@@ -24,25 +24,6 @@ public class TypeHierarchy {
   final Node namespace = new Node("");
   final static String regexp = "[\\.\\$]";
 
-  /*
-   * @NamedParameter(doc = "a second string", default_value = "default") public
-   * class Foo { }
-   * 
-   * 
-   * @Inject public TypeHierarchy() { }
-   * 
-   * @Inject public TypeHierarchy(String two) {
-   * 
-   * }
-   * 
-   * @NamedParameter class ParamX implements Name { }
-   * 
-   * @Inject public TypeHierarchy(@Parameter(ParamX.class) String
-   * exportedNamespace, String two) {
-   * 
-   * }
-   */
-
   class Node {
     protected final String name;
 
@@ -141,14 +122,8 @@ public class TypeHierarchy {
     }
   }
 
-  abstract class AbstractClassNode extends Node {
+  class ClassNode extends Node {
     final Class<?> clazz;
-    public AbstractClassNode(Class<?> clazz) {
-      super(clazz.getSimpleName());
-      this.clazz = clazz;
-    }
-  }
-  class ClassNode extends AbstractClassNode {
     final boolean isPrefixTarget;
     final ConstructorDef[] injectableConstructors;
 
@@ -163,6 +138,7 @@ public class TypeHierarchy {
 
     public ClassNode(Class<?> clazz, boolean isPrefixTarget) {
       super(clazz);
+      this.clazz = clazz;
 
       boolean injectable = true;
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
@@ -268,7 +244,8 @@ public class TypeHierarchy {
     }
   }
 
-  class NamedParameterNode extends AbstractClassNode {
+  class NamedParameterNode extends Node {
+    final Class<?> clazz;
     private final NamedParameter namedParameter;
     final Class<?> argClass;
 
@@ -295,14 +272,14 @@ public class TypeHierarchy {
     }
 
     NamedParameterNode(Class<?> clazz) {
-      // Inner classes cannot be prefix targets, so pass a false in here.
       super(clazz);
+      this.clazz = clazz;
       // XXX need to check for @Inject
-      for(Constructor<?> c : clazz.getDeclaredConstructors()) {
-        for(Annotation a : c.getDeclaredAnnotations()) {
-          if(a instanceof Inject) {
+      for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+        for (Annotation a : c.getDeclaredAnnotations()) {
+          if (a instanceof Inject) {
             throw new IllegalStateException(
-              "Detected illegal @Injectable parameter class");
+                "Detected illegal @Injectable parameter class");
           }
         }
       }
@@ -489,10 +466,10 @@ public class TypeHierarchy {
 
   }
 
-  private AbstractClassNode buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
+  private Node buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
     String[] path = clazz.getName().split(regexp);
     Node root = namespace;
-    AbstractClassNode ret = null;
+    Node ret = null;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
         Node newRoot = new Node(path[i]);
@@ -579,12 +556,12 @@ public class TypeHierarchy {
     }
 
     Namespace confAnnotation = c.getAnnotation(Namespace.class);
-    AbstractClassNode n;
+    Node n;
     if (confAnnotation == null || confAnnotation.value() == null) {
       n = buildPathToNode(c, false);
     } else {
       n = buildPathToNode(c, true);
-      buildPathToNode(confAnnotation, (ClassNode)n);
+      buildPathToNode(confAnnotation, (ClassNode) n);
     }
 
     for (Class<?> inner_class : c.getDeclaredClasses()) {
@@ -595,7 +572,9 @@ public class TypeHierarchy {
       registerClass(superclass);
       try {
         ClassNode sc = (ClassNode) getNode(superclass);
-        if(n instanceof ClassNode) { putImpl(sc, (ClassNode)n); }
+        if (n instanceof ClassNode) {
+          putImpl(sc, (ClassNode) n);
+        }
       } catch (NameResolutionException e) {
         throw new IllegalStateException(e);
       }
@@ -604,7 +583,9 @@ public class TypeHierarchy {
       registerClass(interf);
       try {
         ClassNode sc = (ClassNode) getNode(interf);
-        if(n instanceof ClassNode) { putImpl(sc, (ClassNode)n); }
+        if (n instanceof ClassNode) {
+          putImpl(sc, (ClassNode) n);
+        }
       } catch (NameResolutionException e) {
         throw new IllegalStateException(e);
       }
