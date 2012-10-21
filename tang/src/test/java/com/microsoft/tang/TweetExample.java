@@ -82,9 +82,9 @@ public class TweetExample {
   @Before
   public void setUp() throws Exception {
     ns = new TypeHierarchy();
-    ns.registerClass(MockTweetFactory.class);
-    ns.registerClass(MockSMS.class);
-    ns.registerClass(Tweeter.class);
+    ns.register(MockTweetFactory.class);
+    ns.register(MockSMS.class);
+    ns.register(Tweeter.class);
     // Pull in unknown dependencies (eg: TweetFactory) automagically.
     ns.resolveAllClasses();
   }

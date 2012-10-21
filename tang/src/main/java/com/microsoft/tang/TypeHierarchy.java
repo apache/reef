@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,20 +22,29 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 public class TypeHierarchy {
   private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();
   private final Map<String, NamedParameterNode> shortNames = new HashMap<String, NamedParameterNode>();
-  final Node namespace = new NamespaceNode("");
+  final NamespaceNode namespace = new NamespaceNode(null, "");
   final static String regexp = "[\\.\\$]";
 
   abstract class Node {
+    protected final Node parent;
     protected final String name;
 
     Map<String, Node> children = new HashMap<String, Node>();
 
-    Node(Class<?> name) {
+    Node(Node parent, Class<?> name) {
+      this.parent = parent;
       this.name = name.getSimpleName();
+      if (parent != null) {
+        parent.put(this);
+      }
     }
 
-    Node(String name) {
+    Node(Node parent, String name) {
+      this.parent = parent;
       this.name = name;
+      if (parent != null) {
+        parent.put(this);
+      }
     }
 
     public boolean contains(String key) {
@@ -46,54 +56,11 @@ public class TypeHierarchy {
     }
 
     private void put(Node n) {
-      Node old = children.get(n.name);
-      if (old != null) {
-        final boolean resolved;
-        if (old instanceof NamespaceNode) {
-          throw new IllegalStateException("Conflicting types.  Thought " + n + " was a package: " + old);
-          // do nothing, the new node definitely is more (or as) specific
-          //resolved = true;
-        } else if (old instanceof NamedParameterNode
-            && n instanceof NamedParameterNode) {
-          // If they both match, we're good.
-          if (old.equals(n)) {
-            resolved = true;
-            // If one is more specific than the other, use it.
-          } else if (((NamedParameterNode) old)
-              .isAsSpecificAs((NamedParameterNode) n)) {
-            // We'll want to merge their children and keep the old one. So,
-            // swap them, and old will get put back in at the end.
-            Node tmp = n;
-            n = old;
-            old = tmp;
-            resolved = true;
-          } else if (((NamedParameterNode) n)
-              .isAsSpecificAs((NamedParameterNode) old)) {
-            resolved = true;
-          } else {
-            resolved = false;
-          }
-        } else {
-          resolved = false;
-        }
-        if (!resolved) {
-          // we're in trouble.
-          throw new IllegalArgumentException(
-              "Conflicting definition of named parameter: " + n
-                  + " is incompatible with " + old);
-        }
+      Node old = children.put(n.name,  n);
+      if(old != null) {
+        throw new IllegalStateException(
+            "Attempt to register node that already exists!");
       }
-      if (old != null) {
-        if (!old.children.isEmpty()) {
-          if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
-            n.children.putAll(old.children);
-          } else {
-            throw new IllegalStateException(
-                "Somehow ended up with leaf node that has children");
-          }
-        }
-      }
-      children.put(n.name, n);
     }
 
     /*
@@ -122,9 +89,13 @@ public class TypeHierarchy {
       return "[" + this.getClass().getSimpleName() + " " + name + "]";
     }
   }
+
   class NamespaceNode extends Node {
-    NamespaceNode(String name) { super(name); }
+    NamespaceNode(Node parent, String name) {
+      super(parent, name);
+    }
   }
+
   class ClassNode extends Node {
     final Class<?> clazz;
     final boolean isPrefixTarget;
@@ -139,38 +110,38 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
-    public ClassNode(Class<?> clazz, boolean isPrefixTarget) {
-      super(clazz);
+    public ClassNode(Node parent, Class<?> clazz, boolean isPrefixTarget) {
+      super(parent, clazz);
       this.clazz = clazz;
+      this.isPrefixTarget = isPrefixTarget;
 
+      // Don't support non-static member classes with @Inject annotations.
       boolean injectable = true;
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
         if (!Modifier.isStatic(clazz.getModifiers())) {
           injectable = false;
         }
       }
-      this.isPrefixTarget = isPrefixTarget;
 
-      boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) != null);
+      //boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) != null);
       Constructor<?>[] constructors = clazz.getDeclaredConstructors();
       List<ConstructorDef> injectableConstructors = new ArrayList<ConstructorDef>();
-      if (injectAllConstructors && !injectable) {
+      /*if (injectAllConstructors && !injectable) {
         throw new IllegalArgumentException(
             "Cannot @Inject non-static member/local class: " + clazz);
-      }
+      }*/
 
       for (int k = 0; k < constructors.length; k++) {
 
-        if (injectAllConstructors
-            || null != constructors[k].getAnnotation(Inject.class)) {
+        if (constructors[k].getAnnotation(Inject.class) != null) {
           if (!injectable) {
             throw new IllegalArgumentException(
                 "Cannot @Inject non-static member/local class: " + clazz);
           }
           // go through the constructor arguments.
           if (constructors[k].isSynthetic()) {
-            throw new IllegalArgumentException(
-                "Attempt to make synthetic constructor injectable.");
+            throw new IllegalStateException(
+                "Synthetic constructor was annotated with @Inject!");
           }
 
           // ConstructorDef's constructor checks for duplicate
@@ -232,8 +203,8 @@ public class TypeHierarchy {
   class ConfigurationPrefixNode extends Node {
     final Node target;
 
-    public ConfigurationPrefixNode(String name, ClassNode target) {
-      super(name);
+    public ConfigurationPrefixNode(Node parent, String name, ClassNode target) {
+      super(parent, name);
       children = null;
       if (!target.isPrefixTarget) {
         throw new IllegalStateException();
@@ -274,10 +245,10 @@ public class TypeHierarchy {
       return this.namedParameter.equals(n.namedParameter);
     }
 
-    NamedParameterNode(Class<?> clazz) {
-      super(clazz);
+    NamedParameterNode(Node parent, Class<?> clazz) {
+      super(parent, clazz);
       this.clazz = clazz;
-      // XXX need to check for @Inject
+
       for (Constructor<?> c : clazz.getDeclaredConstructors()) {
         for (Annotation a : c.getDeclaredAnnotations()) {
           if (a instanceof Inject) {
@@ -295,11 +266,11 @@ public class TypeHierarchy {
     public String toString() {
       String ret = argClass.getSimpleName() + " " + super.toString();
       if (namedParameter != null) {
-        ret = ret
-            + (namedParameter.default_value() != null ? (" default=" + namedParameter
+        ret = ret + " " + namedParameter;
+/*            + (namedParameter.default_value() != null ? (" default=" + namedParameter
                 .default_value()) : "")
             + (namedParameter.doc() != null ? (" Documentation: " + namedParameter
-                .doc()) : "");
+                .doc()) : ""); */
       }
       return ret;
     }
@@ -455,16 +426,16 @@ public class TypeHierarchy {
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
-        Node newRoot = new NamespaceNode(path[i]);
-        root.put(newRoot);
+        Node newRoot = new NamespaceNode(root, path[i]);
+        // root.put(newRoot);
         root = newRoot;
       } else {
         root = root.get(path[i]);
       }
     }
-    ConfigurationPrefixNode ret = new ConfigurationPrefixNode(
+    ConfigurationPrefixNode ret = new ConfigurationPrefixNode(root,
         path[path.length - 1], classNode);
-    root.put(ret);
+    // root.put(ret);
     return ret;
 
   }
@@ -472,22 +443,23 @@ public class TypeHierarchy {
   private Node buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
     String[] path = clazz.getName().split(regexp);
     Node root = namespace;
-    Node ret = null;
+    // Node ret = null;
     for (int i = 0; i < path.length - 1; i++) {
-      if (!root.contains(path[i])) {
-        Node newRoot = new NamespaceNode(path[i]);
-        root.put(newRoot);
-        root = newRoot;
-      } else {
-        root = root.get(path[i]);
-      }
+      root = root.get(path[i]);
     }
+
+    if (root == null) {
+      throw new NullPointerException();
+    }
+    Node parent = root;
+
+    Node ret = null;
     if (clazz.getAnnotation(NamedParameter.class) != null) {
       if (isPrefixTarget) {
         throw new IllegalStateException(clazz
             + " cannot be both a namespace and parameter.");
       }
-      NamedParameterNode np = new NamedParameterNode(clazz);
+      NamedParameterNode np = new NamedParameterNode(parent, clazz);
       ret = np;
       String shortName = np.getShortName();
       if (shortName != null) {
@@ -497,9 +469,8 @@ public class TypeHierarchy {
         }
       }
     } else {
-      ret = new ClassNode(clazz, isPrefixTarget);
+      ret = new ClassNode(parent, clazz, isPrefixTarget);
     }
-    root.put(ret);
     return ret;
   }
 
@@ -534,23 +505,94 @@ public class TypeHierarchy {
     return root;
   }
 
-  public void registerClass(Class<?> c) {
+  private String arrayToDotString(String[] array, int length) {
+    StringBuilder parentString = new StringBuilder(array[0]);
+    for (int i = 1; i < length; i++) {
+      parentString.append("." + array[i]);
+    }
+    return parentString.toString();
+  }
+
+  /**
+   * Assumes parent packages are already registered.
+   * 
+   * @param packageName
+   * @throws NameResolutionException
+   */
+  public void registerPackage(String[] packageName)
+      throws NameResolutionException {
+
+    try {
+      getNode(arrayToDotString(packageName, packageName.length));
+      return;
+    } catch (NameResolutionException e) {
+    }
+
+    final NamespaceNode parent;
+    if (packageName.length == 1) {
+      parent = namespace;
+    } else {
+      parent = (NamespaceNode) getNode(arrayToDotString(packageName,
+          packageName.length - 1));
+    }
+    new NamespaceNode(parent, packageName[packageName.length - 1]);
+  }
+
+  public void register(Class<?> c) {
+    if (c.getSuperclass() != null)
+      register(c.getSuperclass());
+    for (Class<?> i : c.getInterfaces()) {
+      register(i);
+    }
+
+    List<Class<?>> pathToRoot = new ArrayList<Class<?>>();
+    Class<?> d = c;
+    do {
+      pathToRoot.add(0, d);
+    } while (null != (d = d.getEnclosingClass()));
+
+    for (Class<?> p : pathToRoot) {
+      Package pack = p.getPackage();
+      final String packageName;
+      if(pack == null) {
+        String className = p.getName();
+        int lastDot = className.lastIndexOf('.');
+        if(lastDot != -1) {
+          packageName = className.substring(0, lastDot);
+        } else {
+          packageName = "";
+        }
+      } else {
+        packageName = pack.getName();
+      }
+      String[] packageList = packageName.split(regexp);
+      packageList = Arrays.copyOf(packageList, packageList.length);
+
+      for (int i = 0; i < packageList.length; i++) {
+        try {
+          registerPackage(Arrays.copyOf(packageList, i + 1));
+        } catch (NameResolutionException e) {
+          throw new IllegalStateException("Could not find parent package "
+              + Arrays.toString(Arrays.copyOf(packageList, i + 1))
+              + ", which this method should have registered.", e);
+        }
+      }
+      // Now, register the class.
+      registerClass(p);
+    }
+    for (Class<?> inner_class : c.getDeclaredClasses()) {
+      register(inner_class);
+    }
+  }
+
+  /**
+   * Assumes that all of the parents of c have been registered already.
+   * 
+   * @param c
+   */
+  private void registerClass(Class<?> c) {
     if (c.isArray()) {
       throw new UnsupportedOperationException("Can't register array types");
-    }
-    // if (c.isPrimitive()) {
-    // throw new UnsupportedOperationException(
-    // "Can't register primitive types");
-    // }
-    Class<?> d = c;
-    // Note: getEnclosingClass returns anonymous declaring class.
-    // getDeclaringClass() would skip up to the first thing with a name.
-    while (null != (d = d.getEnclosingClass())) {
-      try {
-        getNode(d);
-      } catch (NameResolutionException e) {
-        registerClass(d);
-      }
     }
     try {
       getNode(c);
@@ -563,34 +605,29 @@ public class TypeHierarchy {
     if (nsAnnotation == null || nsAnnotation.value() == null) {
       n = buildPathToNode(c, false);
     } else {
-      n = buildPathToNode(c, true);
-      buildPathToNode(nsAnnotation, (ClassNode) n);
+      n = (ClassNode)buildPathToNode(c, true); 
+      if(!(n instanceof ClassNode)) {
+        throw new IllegalArgumentException("Found namespace annotation " + nsAnnotation + " with target " + n + " which is a named parameter.");
+      }
+      buildPathToNode(nsAnnotation, (ClassNode)n);
     }
 
-    for (Class<?> inner_class : c.getDeclaredClasses()) {
-      registerClass(inner_class);
-    }
-    Class<?> superclass = c.getSuperclass();
-    if (superclass != null) {
-      registerClass(superclass);
-      try {
-        ClassNode sc = (ClassNode) getNode(superclass);
-        if (n instanceof ClassNode) {
-          putImpl(sc, (ClassNode) n);
+    if(n instanceof ClassNode) {
+      ClassNode cn = (ClassNode)n;
+      Class<?> superclass = c.getSuperclass();
+      if (superclass != null) {
+        try {
+          putImpl((ClassNode)getNode(superclass), (ClassNode)n);
+        } catch (NameResolutionException e) {
+          throw new IllegalStateException(e);
         }
-      } catch (NameResolutionException e) {
-        throw new IllegalStateException(e);
       }
-    }
-    for (Class<?> interf : c.getInterfaces()) {
-      registerClass(interf);
-      try {
-        ClassNode sc = (ClassNode) getNode(interf);
-        if (n instanceof ClassNode) {
-          putImpl(sc, (ClassNode) n);
+      for (Class<?> interf : c.getInterfaces()) {
+        try {
+          putImpl((ClassNode) getNode(interf), cn);
+        } catch (NameResolutionException e) {
+          throw new IllegalStateException(e);
         }
-      } catch (NameResolutionException e) {
-        throw new IllegalStateException(e);
       }
     }
   }
@@ -672,7 +709,7 @@ public class TypeHierarchy {
   public void resolveAllClasses() {
     for (Class<?>[] classes = findUnresolvedClasses(); classes.length > 0; classes = findUnresolvedClasses()) {
       for (Class<?> c : classes) {
-        registerClass(c);
+        register(c);
       }
     }
   }
@@ -685,14 +722,14 @@ public class TypeHierarchy {
   public static void main(String[] args) throws Exception {
     TypeHierarchy ns = new TypeHierarchy();
     for (String s : args) {
-      ns.registerClass(ReflectionUtilities.classForName(s));
+      ns.register(ReflectionUtilities.classForName(s));
     }
     for (Class<?>[] classes = ns.findUnresolvedClasses(); classes.length > 0; classes = ns
         .findUnresolvedClasses()) {
       System.out.println("Found unresolved classes.  Loading them.");
       for (Class<?> c : classes) {
         System.out.println("  " + c.getName());
-        ns.registerClass(c);
+        ns.register(c);
       }
       System.out.println("Done.");
     }

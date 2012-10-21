@@ -30,7 +30,7 @@ public class TestTypeHierarchy {
     }
     @Test
     public void testJavaString() throws NameResolutionException {
-        ns.registerClass(String.class);
+        ns.register(String.class);
         Assert.assertNotNull(ns.getNode("java"));
         Assert.assertNotNull(ns.getNode("java.lang"));
         Assert.assertNotNull(ns.getNode("java.lang.String"));
@@ -50,7 +50,7 @@ public class TestTypeHierarchy {
     }
     @Test
     public void testSimpleConstructors() throws NameResolutionException {
-        ns.registerClass(SimpleConstructors.class);
+        ns.register(SimpleConstructors.class);
         Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
         ClassNode cls = (ClassNode)ns.getNode(SimpleConstructors.class);
         Assert.assertTrue(cls.children.size() == 0);
@@ -60,15 +60,15 @@ public class TestTypeHierarchy {
     }
     @Test
     public void testNamedParameterConstructors() {
-        ns.registerClass(NamedParameterConstructors.class);
+        ns.register(NamedParameterConstructors.class);
     }
     @Test(expected = UnsupportedOperationException.class)
     public void testArray() {
-        ns.registerClass(new String[0].getClass());
+        ns.register(new String[0].getClass());
     }
     @Test
     public void testMetadata() throws NameResolutionException {
-        ns.registerClass(Metadata.class);
+        ns.register(Metadata.class);
         Assert.assertNotNull(ns.getNode(Metadata.class));
         Assert.assertFalse(ns.getNode("foo.bar") instanceof NamedParameterNode);
         Assert.assertTrue(ns.getNode("foo.bar.Quuz") instanceof NamedParameterNode);
@@ -76,24 +76,24 @@ public class TestTypeHierarchy {
     }
     @Test(expected = IllegalArgumentException.class)
     public void testRepeatConstructorArg() {
-        ns.registerClass(RepeatConstructorArg.class);
+        ns.register(RepeatConstructorArg.class);
     }
     @Test
     public void testResolveDependencies() throws NameResolutionException {
-        ns.registerClass(SimpleConstructors.class);
+        ns.register(SimpleConstructors.class);
         for(Class<?> c : ns.findUnresolvedClasses()) {
-            ns.registerClass(c);
+            ns.register(c);
         }
         Assert.assertNotNull(ns.getNode(String.class));
     }
     @Test
     public void testDocumentedLocalNamedParameter() {
-      ns.registerClass(DocumentedLocalNamedParameter.class);
+      ns.register(DocumentedLocalNamedParameter.class);
     }
     // TODO need better exception type for conflicting named parameters
     @Test(expected = IllegalArgumentException.class)
     public void testConflictingLocalNamedParameter() {
-      ns.registerClass(ConflictingLocalNamedParameter.class);
+      ns.register(ConflictingLocalNamedParameter.class);
     }
 }
 

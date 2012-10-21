@@ -66,7 +66,7 @@ public class Tang {
       for (String value : values) {
         if (key.equals("tang.import")) {
           try {
-            namespace.registerClass(Class.forName(value));
+            namespace.register(Class.forName(value));
             namespace.resolveAllClasses();
           } catch (ClassNotFoundException e) {
             // print error message + exit.
