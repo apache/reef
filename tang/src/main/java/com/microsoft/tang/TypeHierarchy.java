@@ -21,10 +21,10 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 public class TypeHierarchy {
   private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();
   private final Map<String, NamedParameterNode> shortNames = new HashMap<String, NamedParameterNode>();
-  final Node namespace = new Node("");
+  final Node namespace = new NamespaceNode("");
   final static String regexp = "[\\.\\$]";
 
-  class Node {
+  abstract class Node {
     protected final String name;
 
     Map<String, Node> children = new HashMap<String, Node>();
@@ -49,9 +49,10 @@ public class TypeHierarchy {
       Node old = children.get(n.name);
       if (old != null) {
         final boolean resolved;
-        if (old.getClass().equals(Node.class)) {
+        if (old instanceof NamespaceNode) {
+          throw new IllegalStateException("Conflicting types.  Thought " + n + " was a package: " + old);
           // do nothing, the new node definitely is more (or as) specific
-          resolved = true;
+          //resolved = true;
         } else if (old instanceof NamedParameterNode
             && n instanceof NamedParameterNode) {
           // If they both match, we're good.
@@ -118,10 +119,12 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      return name + " [" + this.getClass().getSimpleName() + "]";
+      return "[" + this.getClass().getSimpleName() + " " + name + "]";
     }
   }
-
+  class NamespaceNode extends Node {
+    NamespaceNode(String name) { super(name); }
+  }
   class ClassNode extends Node {
     final Class<?> clazz;
     final boolean isPrefixTarget;
@@ -452,7 +455,7 @@ public class TypeHierarchy {
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
-        Node newRoot = new Node(path[i]);
+        Node newRoot = new NamespaceNode(path[i]);
         root.put(newRoot);
         root = newRoot;
       } else {
@@ -472,7 +475,7 @@ public class TypeHierarchy {
     Node ret = null;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
-        Node newRoot = new Node(path[i]);
+        Node newRoot = new NamespaceNode(path[i]);
         root.put(newRoot);
         root = newRoot;
       } else {
@@ -555,13 +558,13 @@ public class TypeHierarchy {
     } catch (NameResolutionException e) {
     }
 
-    Namespace confAnnotation = c.getAnnotation(Namespace.class);
+    Namespace nsAnnotation = c.getAnnotation(Namespace.class);
     Node n;
-    if (confAnnotation == null || confAnnotation.value() == null) {
+    if (nsAnnotation == null || nsAnnotation.value() == null) {
       n = buildPathToNode(c, false);
     } else {
       n = buildPathToNode(c, true);
-      buildPathToNode(confAnnotation, (ClassNode) n);
+      buildPathToNode(nsAnnotation, (ClassNode) n);
     }
 
     for (Class<?> inner_class : c.getDeclaredClasses()) {
