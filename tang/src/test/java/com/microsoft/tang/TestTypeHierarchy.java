@@ -126,11 +126,11 @@ class NamedParameterConstructors {
 @Namespace("foo.bar")
 class Metadata { 
   @NamedParameter(doc = "a baz", default_value="woo")
-  final class Baz {};
+  final class Baz implements Name {};
   @NamedParameter(doc = "a bar", default_value="i-beam")
-  final class Bar {};
+  final class Bar implements Name {};
   @NamedParameter(doc = "???")
-  final class Quuz{};
+  final class Quuz implements Name{};
 }
 class RepeatConstructorArg {
   public @Inject RepeatConstructorArg(int x, int y) {}

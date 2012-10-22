@@ -73,7 +73,7 @@ public class Tang {
     namespace.resolveAllClasses();
   }
 
-  public Options getCommandLineOptions() {
+  private Options getCommandLineOptions() {
     Options opts = new Options();
     Collection<NamedParameterNode> namedParameters = namespace
         .getNamedParameterNodes();
@@ -149,7 +149,7 @@ public class Tang {
     }
   }
 
-  public void setNamedParameter(NamedParameterNode np, Object o) {
+  private void setNamedParameter(NamedParameterNode np, Object o) {
     if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
       defaultInstances.put(np, o);
     } else {
@@ -239,12 +239,12 @@ public class Tang {
   public boolean canInject(String name) throws NameResolutionException {
     InjectionPlan p = getInjectionPlan(name);
     boolean ret = p.getNumAlternatives() == 1;
-    boolean oldret = canInjectOld(name);
+    /*boolean oldret = canInjectOld(name);
     if (ret != oldret) {
       throw new IllegalStateException(
           "Found bug in old or new implementation of canInject().  Name is "
               + name + " old says " + oldret + " new says " + ret);
-    }
+    }*/
     return ret;
   }
   @SuppressWarnings("unchecked")
@@ -280,8 +280,8 @@ public class Tang {
   }
   
   /// REST OF FILE IS OLD IMPLEMENTATION: PLAN TO DELETE IT.
-  
-  public boolean canInjectOld(String name) { // throws NameResolutionException {
+  @SuppressWarnings("unused")
+  private boolean canInjectOld(String name) { // throws NameResolutionException {
     Node n;
     try {
       n = namespace.getNode(name);
@@ -339,8 +339,8 @@ public class Tang {
   }
 
 
-  @SuppressWarnings("unchecked")
-  public <U> U getInstanceOld(Class<U> clazz) throws NameResolutionException,
+  @SuppressWarnings({"unchecked", "unused"})
+  private <U> U getInstanceOld(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     Node n = namespace.getNode(clazz);
     if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {

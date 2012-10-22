@@ -20,6 +20,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
@@ -246,7 +247,7 @@ public class TypeHierarchy {
   }
 
   class NamedParameterNode extends Node {
-    final Class<?> clazz;
+    final Class<? extends Name> clazz;
     private final NamedParameter namedParameter;
     final Class<?> argClass;
 
@@ -272,7 +273,7 @@ public class TypeHierarchy {
       return this.namedParameter.equals(n.namedParameter);
     }
 
-    NamedParameterNode(Node parent, Class<?> clazz) {
+    NamedParameterNode(Node parent, Class<? extends Name> clazz) {
       super(parent, clazz);
       this.clazz = clazz;
 
@@ -504,7 +505,12 @@ public class TypeHierarchy {
         throw new IllegalStateException(clazz
             + " cannot be both a namespace and parameter.");
       }
-      NamedParameterNode np = new NamedParameterNode(parent, clazz);
+      if(!Arrays.asList(clazz.getInterfaces()).contains(Name.class)){
+        throw new IllegalArgumentException(
+            "NamedParameter " + clazz + " must implement com.microsoft.tang.Name");
+      }
+      @SuppressWarnings("unchecked")
+      NamedParameterNode np = new NamedParameterNode(parent, (Class<? extends Name>)clazz);
       ret = np;
       String shortName = np.getShortName();
       if (shortName != null) {
