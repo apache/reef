@@ -38,22 +38,6 @@ public class Tang {
     namespace.resolveAllClasses();
   }
 
-  /*
-   * public Tang(Configuration conf) { this.conf = conf; this.namespace = new
-   * TypeHierarchy();
-   * 
-   * Iterator<String> it = this.conf.getKeys();
-   * 
-   * while (it.hasNext()) { String key = it.next(); String value =
-   * this.conf.getString(key);
-   * 
-   * if (key.equals("tang.import")) { try {
-   * namespace.registerClass(Class.forName(value)); } catch
-   * (ClassNotFoundException e) { // print error message + exit. } }
-   * 
-   * } }
-   */
-
   @SuppressWarnings("unchecked")
   public void registerConfigFile(String configFileName)
       throws ConfigurationException, NameResolutionException {

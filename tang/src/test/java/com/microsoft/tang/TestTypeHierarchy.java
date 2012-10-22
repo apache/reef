@@ -12,6 +12,7 @@ import com.microsoft.tang.TypeHierarchy;
 import com.microsoft.tang.TypeHierarchy.ClassNode;
 import com.microsoft.tang.TypeHierarchy.ConstructorDef;
 import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.TypeHierarchy.NamespaceNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
@@ -95,6 +96,16 @@ public class TestTypeHierarchy {
     public void testConflictingLocalNamedParameter() {
       ns.register(ConflictingLocalNamedParameter.class);
     }
+    @Test
+    public void testInconvenientNamespaceRegistrationOrder() throws NameResolutionException {
+      ns.register(InconvenientNamespaceRegistrationOrder1.class);
+      Assert.assertTrue(ns.getNode("a.b") instanceof NamespaceNode);
+      ns.register(InconvenientNamespaceRegistrationOrder2.class);
+      Assert.assertTrue(ns.getNode("a.b") instanceof NamespaceNode);
+      Assert.assertTrue(ns.getNode("a") instanceof NamespaceNode);
+      Assert.assertTrue(ns.getNode("a.B") instanceof NamedParameterNode);
+      Assert.assertTrue(ns.getNode("a.b.C") instanceof NamedParameterNode);
+    }
 }
 
 class SimpleConstructors{
@@ -137,4 +148,14 @@ class ConflictingLocalNamedParameter {
   final class Foo implements Name {}
   @Inject
   public ConflictingLocalNamedParameter(@Parameter(Foo.class) String s) {}
+}
+@Namespace("a.b")
+class InconvenientNamespaceRegistrationOrder1 {
+  @NamedParameter()
+  final class C implements Name {}
+}
+@Namespace("a")
+class InconvenientNamespaceRegistrationOrder2 {
+  @NamedParameter()
+  final class B implements Name {}
 }

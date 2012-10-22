@@ -1,5 +1,7 @@
 package com.microsoft.tang;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -14,6 +16,10 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
@@ -22,9 +28,13 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 public class TypeHierarchy {
   private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();
   private final Map<String, NamedParameterNode> shortNames = new HashMap<String, NamedParameterNode>();
-  final NamespaceNode namespace = new NamespaceNode(null, "");
+  final PackageNode namespace = new PackageNode(null, "");
   final static String regexp = "[\\.\\$]";
 
+  public void writeJson(OutputStream out) throws JsonGenerationException, JsonMappingException, IOException {
+    ObjectMapper map = new ObjectMapper();
+    map.defaultPrettyPrintingWriter().writeValue(out, this);
+  }
   abstract class Node {
     protected final Node parent;
     protected final String name;
@@ -55,7 +65,7 @@ public class TypeHierarchy {
       return children.get(key);
     }
 
-    private void put(Node n) {
+    void put(Node n) {
       Node old = children.put(n.name,  n);
       if(old != null) {
         throw new IllegalStateException(
@@ -88,10 +98,12 @@ public class TypeHierarchy {
     public String toString() {
       return "[" + this.getClass().getSimpleName() + " " + name + "]";
     }
+    public String getName() { return name; }
+    public Collection<Node> getChildren() { return children.values(); }
   }
 
-  class NamespaceNode extends Node {
-    NamespaceNode(Node parent, String name) {
+  class PackageNode extends Node {
+    PackageNode(Node parent, String name) {
       super(parent, name);
     }
   }
@@ -200,21 +212,36 @@ public class TypeHierarchy {
     }
   }
 
-  class ConfigurationPrefixNode extends Node {
-    final Node target;
+  class NamespaceNode extends Node {
+    private ClassNode target;
 
-    public ConfigurationPrefixNode(Node parent, String name, ClassNode target) {
+    public NamespaceNode(Node parent, String name, ClassNode target) {
       super(parent, name);
-      children = null;
       if (!target.isPrefixTarget) {
         throw new IllegalStateException();
       }
       this.target = target;
     }
+    public NamespaceNode(Node parent, String name) {
+      super(parent, name);
+    }
 
+    public void setTarget(ClassNode target) {
+      this.target = target;
+      if (!target.isPrefixTarget) {
+        throw new IllegalStateException();
+      }
+    }
+    public Node getTarget() {
+      return target;
+    }
     @Override
     public String toString() {
-      return super.toString() + " -> " + target.toString();
+      if (target != null) {
+        return super.toString() + " -> " + target.toString();
+      } else {
+        return super.toString();
+      }
     }
   }
 
@@ -420,26 +447,42 @@ public class TypeHierarchy {
     }
   }
 
-  // XXX if someone first registers a namespace "foo.bar", then later "foo", we'll have a problem.
-  // allow namespace annotations to be added to package nodes after the fact?
-  private ConfigurationPrefixNode registerNamespace(Namespace conf,
+  private NamespaceNode registerNamespace(Namespace conf,
       ClassNode classNode) {
     String[] path = conf.value().split(regexp);
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
         Node newRoot = new NamespaceNode(root, path[i]);
-        // root.put(newRoot);
         root = newRoot;
       } else {
         root = root.get(path[i]);
+        if (!(root instanceof NamespaceNode)) {
+          throw new IllegalArgumentException(
+              "Attempt to register namespace inside of " + root
+                  + " namespaces and java packages/classes cannot overlap.");
+        }
       }
     }
-    ConfigurationPrefixNode ret = new ConfigurationPrefixNode(root,
-        path[path.length - 1], classNode);
-    // root.put(ret);
+    Node n = root.get(path[path.length-1]);
+    NamespaceNode ret;
+    if(n == null) {
+      ret = new NamespaceNode(root, path[path.length - 1], classNode); 
+    } else if (n instanceof NamespaceNode) {
+      ret = (NamespaceNode)n;
+      ret.setTarget(classNode);
+      for(Node child : ret.children.values()) {
+        // TODO: Better error message here.  We're trying to merge two
+        // namespaces.  If put throws an exception, it probably found a
+        // conflicting node name.
+        classNode.put(child);
+      }
+    } else {
+        throw new IllegalArgumentException(
+            "Attempt to register namespace on top of " + n
+                + " namespaces and java packages/classes cannot overlap.");
+    }
     return ret;
-
   }
 
   private Node buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
@@ -489,8 +532,11 @@ public class TypeHierarchy {
       throws NameResolutionException {
     Node root = namespace;
     for (int i = 0; i < depth; i++) {
-      if (root instanceof ConfigurationPrefixNode) {
-        root = ((ConfigurationPrefixNode) root).target;
+      if (root instanceof NamespaceNode) {
+        NamespaceNode ns = (NamespaceNode)root;
+        if(ns.target != null) {
+          root = ns.target;
+        }
       }
       root = root.get(path[i]);
       if (root == null) {
@@ -530,14 +576,14 @@ public class TypeHierarchy {
     } catch (NameResolutionException e) {
     }
 
-    final NamespaceNode parent;
+    final PackageNode parent;
     if (packageName.length == 1) {
       parent = namespace;
     } else {
-      parent = (NamespaceNode) getNode(arrayToDotString(packageName,
+      parent = (PackageNode) getNode(arrayToDotString(packageName,
           packageName.length - 1));
     }
-    new NamespaceNode(parent, packageName[packageName.length - 1]);
+    new PackageNode(parent, packageName[packageName.length - 1]);
   }
   public void register(Class<?> c) {
     if (c.getSuperclass() != null)
@@ -739,8 +785,12 @@ public class TypeHierarchy {
       System.out.println("Done.");
     }
     System.out.print(ns.exportNamespace());
+    ns.writeJson(System.out);
   }
 
+  public PackageNode getNamespace() {
+    return namespace;
+  }
   public Collection<NamedParameterNode> getNamedParameterNodes() {
     return shortNames.values();
   }
