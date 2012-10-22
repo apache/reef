@@ -254,18 +254,8 @@ public class Tang {
                 .toArray(new InjectionPlan[0])));
           }
           sub_ips.add(wrapInjectionPlans(thisCN.getName(), constructors));
-/*          if(constructors.size() == 0) {
-            sub_ips.add(new InfeasibleInjectionPlan());
-          } else if(constructors.size() == 1) {
-            sub_ips.add(constructors.get(0));
-          } else {
-            sub_ips.add(new InjectionPlan.AmbiguousInjectionPlan(constructors
-                .toArray(new InjectionPlan[0])));
-          } */
         }
         ip = wrapInjectionPlans(name, sub_ips);
-/*        ip = new InjectionPlan.AmbiguousInjectionPlan(
-            sub_ips.toArray(new InjectionPlan[0])); */
       }
     } else if (n instanceof PackageNode) {
       throw new IllegalArgumentException(
@@ -303,12 +293,6 @@ public class Tang {
   public boolean canInject(String name) throws NameResolutionException {
     InjectionPlan p = getInjectionPlan(name);
     boolean ret = p.getNumAlternatives() == 1;
-    /*boolean oldret = canInjectOld(name);
-    if (ret != oldret) {
-      throw new IllegalStateException(
-          "Found bug in old or new implementation of canInject().  Name is "
-              + name + " old says " + oldret + " new says " + ret);
-    }*/
     return ret;
   }
   /**
