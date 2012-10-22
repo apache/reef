@@ -12,7 +12,7 @@ public abstract class InjectionPlan {
       pretty.append(' ');
     }
   }
-  static String prettyPrint(InjectionPlan p) {
+  public static String prettyPrint(InjectionPlan p) {
     String ugly = p.toString();
     StringBuffer pretty = new StringBuffer();
     int currentIndent = 0;

@@ -311,6 +311,12 @@ public class Tang {
     return (U)injectFromPlan(plan);
   }
   private Object injectFromPlan(InjectionPlan plan) throws ReflectiveOperationException {
+    if(plan.getNumAlternatives() == 0) {
+      throw new IllegalArgumentException("Attempt to inject infeasible plan: " + InjectionPlan.prettyPrint(plan));
+    }
+    if(plan.getNumAlternatives() > 1) {
+      throw new IllegalArgumentException("Attempt to inject ambiguous plan: " + InjectionPlan.prettyPrint(plan));
+    }
     if(plan instanceof InjectionPlan.Instance) {
       return ((InjectionPlan.Instance)plan).instance;
     } else if(plan instanceof InjectionPlan.Constructor) {
@@ -322,12 +328,6 @@ public class Tang {
       return constructor.constructor.constructor.newInstance(args);
     } else if(plan instanceof AmbiguousInjectionPlan) {
       AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan)plan;
-      if(ambiguous.getNumAlternatives() == 0) {
-        throw new IllegalArgumentException("Attempt to inject infeasible plan: " + InjectionPlan.prettyPrint(ambiguous));
-      }
-      if(ambiguous.getNumAlternatives() > 1) {
-        throw new IllegalArgumentException("Attempt to inject ambiguous plan: " + InjectionPlan.prettyPrint(ambiguous));
-      }
       for(InjectionPlan p : ambiguous.alternatives) {
         if(p.canInject()) { return injectFromPlan(p); }
       }
@@ -336,147 +336,6 @@ public class Tang {
       throw new IllegalArgumentException("Attempt to inject infeasible plan!");
     } else {
       throw new IllegalStateException("Unknown plan type: " + plan);
-    }
-  }
-  
-  /// REST OF FILE IS OLD IMPLEMENTATION: PLAN TO DELETE IT.
-  @SuppressWarnings("unused")
-  private boolean canInjectOld(String name) { // throws NameResolutionException {
-    Node n;
-    try {
-      n = namespace.getNode(name);
-    } catch (NameResolutionException e) {
-      e.printStackTrace();
-      return false;
-    }
-    if (n instanceof NamedParameterNode) {
-      NamedParameterNode np = (NamedParameterNode) n;
-      return defaultInstances.get(np) != null;
-    } else if (n instanceof ClassNode) {
-      ClassNode c = (ClassNode) n;
-      Object instance = defaultInstances.get(c);
-      if (instance != null) {
-        return true;
-      }
-      Class<?> clz = defaultImpls.get(c);
-      if (clz != null) {
-        return canInjectOld(clz.getName());
-      }
-      ClassNode[] cn = namespace.getKnownImpls(c);
-      boolean haveAltImpl = false;
-      if (cn.length == 1) {
-        if (canInjectOld(cn[0].clazz.getName())) {
-          haveAltImpl = true;
-        }
-      } else if (cn.length == 0) {
-        // we don't consider something to be an impl of itself
-        // so fall through and check this class.
-      }
-      for (ConstructorDef def : c.injectableConstructors) {
-        boolean canInject = true;
-        for (ConstructorArg arg : def.args) {
-          if (!canInjectOld(arg.getFullyQualifiedName(c.clazz))) {
-            canInject = false;
-            break;
-          }
-        }
-        if (canInject) {
-          if (haveAltImpl) {
-            throw new IllegalStateException("Can't inject due to two impls!"
-                + name);
-          }
-          return true;
-        }
-      }
-      if (haveAltImpl) {
-        return true;
-      }
-      throw new IllegalStateException("Can't inject: " + name);
-      // return false;
-    } else {
-      throw new IllegalArgumentException();
-    }
-  }
-
-
-  @SuppressWarnings({"unchecked", "unused"})
-  private <U> U getInstanceOld(Class<U> clazz) throws NameResolutionException,
-      ReflectiveOperationException {
-    Node n = namespace.getNode(clazz);
-    if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
-      Class<U> c = (Class<U>) defaultImpls.get(n);
-      if (c != null) {
-        return getInstanceOld(c);
-      }
-      ClassNode[] known = namespace.getKnownImpls((ClassNode) n);
-      if (known.length == 1) {
-        return getInstanceOld((Class<U>) known[0].clazz);
-      } else if (known.length > 1) {
-        throw new IllegalStateException("Ambiguous inject of " + clazz
-            + " detected.  No default, and known impls are "
-            + Arrays.toString(known));
-      }
-    } else {
-      // TODO need new exception type here.
-      throw new IllegalStateException("Expected ClassNode, got: "
-          + n.toString() + " (" + n.getClass() + ")");
-    }
-    // OK, n is a ClassNode, and has not been overridden with a call
-    // to setDefaultImpl. Let's try to construct it!
-    List<ConstructorDef> defs = new ArrayList<ConstructorDef>();
-    for (ConstructorDef def : ((ClassNode) n).injectableConstructors) {
-      boolean canInject = true;
-      for (ConstructorArg arg : def.args) {
-        String name = arg.getFullyQualifiedName(clazz);
-        if (!canInject(name)) {
-          canInject = false;
-        }
-      }
-      if (canInject) {
-        defs.add(def);
-      }
-    }
-
-    // Now, find most specific def, or throw exception for non-comparable defs.
-    for (int i = 0; i < defs.size(); i++) {
-      for (int j = 0; j < defs.size(); j++) {
-        if (defs.get(i).isMoreSpecificThan(defs.get(j))) {
-          defs.remove(j);
-          if (i >= j) {
-            i--;
-          }
-          j--;
-        }
-      }
-    }
-    if (defs.size() == 0) {
-      throw new IllegalArgumentException("No injectable constructors for "
-          + clazz);
-    }
-    if (defs.size() > 1) {
-      throw new IllegalArgumentException("Ambiguous injection of " + clazz
-          + " Found the following constructors: "
-          + Arrays.toString(defs.toArray()));
-    }
-    List<Object> args = new ArrayList<Object>();
-    for (ConstructorArg arg : defs.get(0).args) {
-      Node argNode = namespace.getNode(arg.getFullyQualifiedName(clazz));
-      if (argNode instanceof NamedParameterNode) {
-        args.add(defaultInstances.get(argNode));
-      } else if (argNode instanceof ClassNode) {
-        args.add(getInstanceOld(((ClassNode) argNode).clazz));
-      } else {
-        throw new IllegalStateException(
-            "Expected ClassNode or NamedParameterNode, but got " + argNode);
-      }
-    }
-    try {
-      return ((Constructor<U>) (defs.get(0).constructor)).newInstance(args
-          .toArray());
-    } catch (IllegalArgumentException e) {
-      throw new IllegalStateException("Could not invoke constructor "
-          + defs.get(0).constructor + " with args "
-          + Arrays.toString(args.toArray()) + ": " + e.getMessage(), e);
     }
   }
 }
