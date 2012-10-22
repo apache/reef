@@ -81,4 +81,86 @@ Of course, in isolation, this example is incomplete; we need a main() method to
 invoke tang, and instantiate our timer:
 
 ```java
+...
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.TypeHierarchy;
+...
+  public static void main(String[] args) throws Exception {
+    TypeHierarchy typeHierarchy = new TypeHierarchy();
+    typeHierarchy.register(Timer.class);
+    Tang tang = new Tang(typeHierarchy);
+    Timer timer = tang.getInstance(Timer.class);
+    System.out.println("Tick...");
+    timer.sleep();
+    System.out.println("Tock.");
+  }
 ```
+
+In order to use Tang, we first build a database of classes that it should consider for use at runtime.
+We do this by instantiating a new TypeHierarchy object.  The only class we're interested in is our new Timer,
+so we pass Timer.class into typeHierarchy.register().  Next, we pass typeHierarchy into Tang's constructor,
+and ask Tang to instantiate a new Timer object.  Tang automatically passes 10, the default_value field of
+Seconds into Timer's constructor, so the call to sleep() takes 10 seconds to complete.
+
+Looking under the hood
+----------------------
+
+In the example above, TypeHierarchy walks the class definition for Timer, looking
+for superclasses, interfaces, and classes referenced by its constructors.  In this case, there is nothing too
+interesting to find.  To take a look, add a call to '''typeHierarchy.writeJson(System.err)''' after the call
+to register.  You should see this on stderr:
+
+```json
+{
+  "namespace" : {
+    "name" : "",
+    "children" : [ {
+      "name" : "com",
+      "children" : [ {
+        "name" : "example",
+        "children" : [ {
+          "name" : "Timer",
+          "children" : [ {
+            "name" : "Seconds",
+            "children" : [ ],
+            "shortName" : "sec"
+          } ]
+        } ]
+      }, {
+        "name" : "microsoft",
+        "children" : [ {
+          "name" : "tang",
+          "children" : [ {
+            "name" : "annotations",
+            "children" : [ {
+              "name" : "Name",
+              "children" : [ ]
+            } ]
+          } ]
+        } ]
+      } ]
+    }, {
+      "name" : "java",
+      "children" : [ {
+        "name" : "lang",
+        "children" : [ {
+          "name" : "Object",
+          "children" : [ ]
+        } ]
+      } ]
+    } ]
+  },
+  "namedParameterNodes" : [ {
+    "name" : "Seconds",
+    "children" : [ ],
+    "shortName" : "sec"
+  } ]
+```
+This is quite verbose, but is simply saying that Tang found (in order): com.example.Timer,
+com.example.Timer.Seconds (note that Tang's state mirrors the Java package hierarchy, so
+Timer is an ancestor of Seconds).  It also pulled in Seconds' superclass,
+com.microsoft.tang.annotations.Name, and java.lang.Object.  A second JSON element,
+"namedParameterNodes" documents the named parameters that have been discovered so far.  
+
+Note that, as of the writing of this document, the JSON format is incomplete, and is
+expected to change over time.
