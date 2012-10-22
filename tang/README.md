@@ -102,6 +102,10 @@ so we pass Timer.class into typeHierarchy.register().  Next, we pass typeHierarc
 and ask Tang to instantiate a new Timer object.  Tang automatically passes 10, the default_value field of
 Seconds into Timer's constructor, so the call to sleep() takes 10 seconds to complete.
 
+More complicated examples
+-------------------------
+Suppose we had multiple implementations of the timer example (TODO)
+
 When things go wrong
 --------------------
 In the timer example, we specified a default value for the Sleep parameter.  If we hadn't done this, then the call
