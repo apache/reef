@@ -225,6 +225,7 @@ public class Tang {
     if (n instanceof NamedParameterNode) {
       NamedParameterNode np = (NamedParameterNode) n;
       Object instance = defaultInstances.get(n);
+      if(instance == null) { instance = np.defaultInstance; }
       ip = new Instance(np, instance);
     } else if (n instanceof ClassNode) {
       ClassNode cn = (ClassNode) n;

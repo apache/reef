@@ -256,7 +256,8 @@ public class TypeHierarchy {
     final Class<? extends Name> clazz;
     private final NamedParameter namedParameter;
     final Class<?> argClass;
-
+    final Object defaultInstance;
+    
     /*
      * NamedParameterNode(NamedParameter n, Class<?> nameClazz) {
      * super(nameClazz); children = null; this.namedParameter = n; this.argClass
@@ -294,6 +295,8 @@ public class TypeHierarchy {
       this.namedParameter = clazz.getAnnotation(NamedParameter.class);
       this.argClass = this.namedParameter == null ? clazz : namedParameter
           .type();
+      this.defaultInstance = (this.namedParameter == null || namedParameter.default_value().length()==0) ?
+          null : ReflectionUtilities.parse(namedParameter.type(), namedParameter.default_value());
     }
 
     @Override
