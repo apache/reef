@@ -298,14 +298,21 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      String ret = argClass.getSimpleName() + " " + super.toString();
+      String ret = argClass.getSimpleName();
+      if (namedParameter == null) {
+        ret = ret + " " + name;
+      } else {
+        ret = ret + " @Parameter(" + name + ")";
+      }
+      //super.toString();
+      /*}
       if (namedParameter != null) {
         ret = ret + " " + namedParameter;
-/*            + (namedParameter.default_value() != null ? (" default=" + namedParameter
+/ *            + (namedParameter.default_value() != null ? (" default=" + namedParameter
                 .default_value()) : "")
             + (namedParameter.doc() != null ? (" Documentation: " + namedParameter
                 .doc()) : ""); */
-      }
+      //}
       return ret;
     }
 
