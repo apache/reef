@@ -27,7 +27,7 @@ public class Timer {
   public static void main(String[] args) throws Exception {
     TypeHierarchy typeHierarchy = new TypeHierarchy();
     typeHierarchy.register(Timer.class);
-    //typeHierarchy.writeJson(System.err);
+    typeHierarchy.writeJson(System.err);
     Tang tang = new Tang(typeHierarchy);
     InjectionPlan ip = tang.getInjectionPlan("com.example.Timer");
     System.out.println(InjectionPlan.prettyPrint(ip));

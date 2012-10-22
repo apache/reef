@@ -1,8 +1,6 @@
 package com.microsoft.tang;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -247,7 +245,7 @@ public class Tang {
           for (ConstructorDef def : thisCN.injectableConstructors) {
             List<InjectionPlan> args = new ArrayList<InjectionPlan>();
             for (ConstructorArg arg : def.args) {
-              String argName = arg.getFullyQualifiedName(thisCN.clazz);
+              String argName = arg.getName(); //getFullyQualifiedName(thisCN.clazz);
               buildInjectionPlan(argName, memo);
               args.add(memo.get(argName));
             }

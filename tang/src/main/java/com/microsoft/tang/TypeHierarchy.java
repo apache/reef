@@ -105,6 +105,7 @@ public class TypeHierarchy {
     public String toString() {
       return "[" + this.getClass().getSimpleName() + " " + name + "]";
     }
+    public String getType() { return this.getClass().getSimpleName(); }
     public String getName() { return name; }
     public Collection<Node> getChildren() { return children.values(); }
   }
@@ -119,7 +120,15 @@ public class TypeHierarchy {
     final Class<?> clazz;
     final boolean isPrefixTarget;
     final ConstructorDef[] injectableConstructors;
-
+    public Class<?> getClazz() {
+      return clazz;
+    }
+    public boolean getIsPrefixTarget() {
+      return isPrefixTarget;
+    }
+    public ConstructorDef[] getInjectableConstructors() {
+      return injectableConstructors;
+    }
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
@@ -319,6 +328,25 @@ public class TypeHierarchy {
       return ret;
     }
 
+    public Class<?> getArgClass() {
+      return argClass;
+    }
+    public Class<? extends Name> getNameClass() {
+      return clazz;
+    }
+    public Object getDefaultInstance() {
+      return defaultInstance;
+    }
+    public String getDocumentation() {
+      if(namedParameter != null) {
+        return namedParameter.doc();
+      } else {
+        return "";
+      }
+    }
+/*    public NamedParameter getNamedParameter() {
+      return namedParameter;
+    } */
     public String getShortName() {
       if (namedParameter.short_name() != null
           && namedParameter.short_name().length() == 0) {
@@ -331,21 +359,23 @@ public class TypeHierarchy {
   class ConstructorArg {
     final Class<?> type;
     final Parameter name;
-
-    String getName() {
+    public String getType() {
+      return type.toString();
+    }
+    public String getName() {
       return name == null ? type.getName() : name.value().getName();
     }
 
     // TODO: Delete this method if we finalize the "class as name" approach to
     // named parameters
-    String getFullyQualifiedName(Class<?> targetClass) {
+    /*String getFullyQualifiedName(Class<?> targetClass) {
       String name = getName();
       if (!name.contains(".")) {
         name = targetClass.getName() + "." + name;
         throw new IllegalStateException("Should be dead code now!");
       }
       return name;
-    }
+    }*/
 
     ConstructorArg(Class<?> argType) {
       this.type = argType;
@@ -386,7 +416,12 @@ public class TypeHierarchy {
   class ConstructorDef {
     final ConstructorArg[] args;
     final Constructor<?> constructor;
-
+    public Class<?> getConstructor() {
+      return constructor.getDeclaringClass();
+    }
+    public ConstructorArg[] getArgs() {
+      return args;
+    }
     @Override
     public String toString() {
       if (args.length == 0) {
