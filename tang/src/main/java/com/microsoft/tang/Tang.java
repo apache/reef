@@ -64,8 +64,8 @@ public class Tang {
           Node n = namespace.getNode(key);
           if (n instanceof NamedParameterNode) {
             NamedParameterNode np = (NamedParameterNode) n;
-            setNamedParameter((Class<? extends Name>) np.clazz, new Integer(
-                Integer.parseInt(value))); // XXX blatant hack.
+            setNamedParameter((Class<? extends Name>) np.clazz,
+                ReflectionUtilities.parse(np.argClass, value));
           }
         }
       }
@@ -108,9 +108,9 @@ public class Tang {
       // if(cl.hasOption(shortName)) {
       NamedParameterNode n = namespace.getNodeFromShortName(shortName);
       if (n != null && value != null) {
-        setNamedParameter((Class<? extends Name>) (n.clazz), new Integer(
-            Integer.parseInt(value))); // XXX blatant hack
-      }
+        setNamedParameter((Class<? extends Name>) (n.clazz),
+            ReflectionUtilities.parse(n.argClass, value));
+        }
     }
   }
 

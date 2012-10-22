@@ -1,6 +1,18 @@
 package com.microsoft.tang;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class ReflectionUtilities {
+  static Map<Class<?>, Integer> sizeof = new HashMap<Class<?>, Integer>();
+  static {
+    sizeof.put(Byte.class, 8);
+    sizeof.put(Short.class, 16);
+    sizeof.put(Integer.class, 32);
+    sizeof.put(Long.class, 64);
+    sizeof.put(Float.class, 32);
+    sizeof.put(Double.class, 64);
+  }
   static Class<?> boxClass(Class<?> c) {
     if(c.isPrimitive() && c != Class.class) {
       if(c == boolean.class) {
@@ -32,7 +44,7 @@ class ReflectionUtilities {
     to = boxClass(to);
     from = boxClass(from);
     if(Number.class.isAssignableFrom(to) && Number.class.isAssignableFrom(from)) {
-      return true; // XXX not quite true.  Might be loss of precision...
+      return sizeof.get(from) <= sizeof.get(to);
     }
     return to.isAssignableFrom(from);
   }
@@ -58,5 +70,19 @@ class ReflectionUtilities {
     } else {
       return Class.forName(name);
     }
+  }
+  @SuppressWarnings("unchecked")
+  static <T> T parse(Class<T> c, String s) {
+    Class<?> d = boxClass(c);
+    if(d == String.class) { return (T)s; }
+    if(d == Byte.class) { return (T)(Byte)Byte.parseByte(s); }
+    if(d == Character.class) { return (T)(Character)s.charAt(0); }
+    if(d == Short.class){ return (T)(Short)Short.parseShort(s); }
+    if(d == Integer.class) { return (T)(Integer)Integer.parseInt(s); }
+    if(d == Long.class){ return (T)(Long)Long.parseLong(s); }
+    if(d == Float.class) { return (T)(Float)Float.parseFloat(s); }
+    if(d == Double.class) { return (T)(Double)Double.parseDouble(s); }
+    if(d == Void.class) { throw new ClassCastException("Can't instantiate void"); }
+    throw new UnsupportedOperationException("Don't know how to parse a " + c);
   }
 }
