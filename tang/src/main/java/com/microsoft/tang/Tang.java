@@ -20,11 +20,14 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import com.microsoft.tang.InjectionPlan.Instance;
 import com.microsoft.tang.TypeHierarchy.ClassNode;
 import com.microsoft.tang.TypeHierarchy.ConstructorArg;
 import com.microsoft.tang.TypeHierarchy.ConstructorDef;
 import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.TypeHierarchy.NamespaceNode;
 import com.microsoft.tang.TypeHierarchy.Node;
+import com.microsoft.tang.TypeHierarchy.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
@@ -75,22 +78,22 @@ public class Tang {
     for (NamedParameterNode param : namedParameters) {
       String shortName = param.getShortName();
       if (shortName != null) {
-//        opts.addOption(OptionBuilder.withLongOpt(shortName).hasArg()
-//            .withDescription(param.toString()).create());
+        // opts.addOption(OptionBuilder.withLongOpt(shortName).hasArg()
+        // .withDescription(param.toString()).create());
         opts.addOption(shortName, true, param.toString());
       }
     }
     return opts;
   }
 
-  public void processCommandLine(String [] args)
-      throws NumberFormatException, NameResolutionException, ParseException {
+  public void processCommandLine(String[] args) throws NumberFormatException,
+      NameResolutionException, ParseException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
     o.addOption(helpFlag);
     Parser g = new GnuParser();
     CommandLine cl = g.parse(o, args);
-    if(cl.hasOption("?")) {
+    if (cl.hasOption("?")) {
       HelpFormatter help = new HelpFormatter();
       help.printHelp("reef", o);
       return;
@@ -99,8 +102,8 @@ public class Tang {
       Option option = (Option) ob;
       String shortName = option.getOpt();
       String value = option.getValue();
-      //System.out.println("Got option " + shortName + " = " + value);
-      //if(cl.hasOption(shortName)) {
+      // System.out.println("Got option " + shortName + " = " + value);
+      // if(cl.hasOption(shortName)) {
       NamedParameterNode n = namespace.getNodeFromShortName(shortName);
       if (n != null && value != null) {
         setNamedParameter((Class<? extends Name>) (n.clazz), new Integer(
@@ -153,7 +156,96 @@ public class Tang {
     }
   }
 
-  public boolean canInject(String name) { // throws NameResolutionException {
+  static final InjectionPlan BUILDING = new InjectionPlan() {
+    @Override
+    public int getNumAlternatives() {
+      throw new UnsupportedOperationException();
+    }
+  };
+
+  private void buildInjectionPlan(String name, Map<String, InjectionPlan> memo)
+      throws NameResolutionException {
+    if (memo.containsKey(name)) {
+      if (BUILDING == memo.get(name)) {
+        throw new IllegalStateException("Detected loopy constructor involving "
+            + name);
+      } else {
+        return;
+      }
+    }
+    memo.put(name, BUILDING);
+
+    Node n = namespace.getNode(name);
+    final InjectionPlan ip;
+    if (n instanceof NamedParameterNode) {
+      NamedParameterNode np = (NamedParameterNode) n;
+      Object instance = defaultInstances.get(n);
+      ip = new Instance(np, instance);
+    } else if (n instanceof ClassNode) {
+      ClassNode cn = (ClassNode) n;
+      if(defaultInstances.containsKey(cn)) {
+        ip = new Instance(cn, defaultInstances.get(cn));
+      } else if(defaultImpls.containsKey(cn)) {
+        String implName = defaultImpls.get(cn).getName();
+        buildInjectionPlan(implName, memo);
+        ip = memo.get(implName);
+      } else {
+        List<ClassNode> classNodes = new ArrayList<ClassNode>();
+        for(ClassNode c: namespace.getKnownImpls(cn)) {
+          classNodes.add(c);
+        }
+        classNodes.add(cn);
+        List<InjectionPlan> sub_ips = new ArrayList<InjectionPlan>();
+        for(ClassNode thisCN : classNodes) {
+          List<InjectionPlan.Constructor> constructors = new ArrayList<InjectionPlan.Constructor>();
+          for (ConstructorDef def : thisCN.injectableConstructors) {
+            List<InjectionPlan> args = new ArrayList<InjectionPlan>();
+            for (ConstructorArg arg : def.args) {
+              String argName = arg.getFullyQualifiedName(thisCN.clazz);
+              buildInjectionPlan(argName, memo);
+              args.add(memo.get(argName));
+            }
+            constructors.add(new InjectionPlan.Constructor(def, args
+                .toArray(new InjectionPlan[0])));
+          }
+          sub_ips.add(new InjectionPlan.AmbiguousInjectionPlan(
+              constructors.toArray(new InjectionPlan[0])));
+        }
+        ip = new InjectionPlan.AmbiguousInjectionPlan(sub_ips.toArray(new InjectionPlan[0]));
+      }
+    } else if (n instanceof PackageNode) {
+      throw new IllegalArgumentException(
+          "Request to instantiate Java package as object");
+    } else if (n instanceof NamespaceNode) {
+      throw new IllegalArgumentException(
+          "Request to instantiate Tang namespace as object");
+    } else {
+      throw new IllegalStateException(
+          "Type hierarchy contained unknown node type!:" + n);
+    }
+    memo.put(name, ip);
+  }
+
+  public InjectionPlan getInjectionPlan(String name)
+      throws NameResolutionException {
+    Map<String, InjectionPlan> memo = new HashMap<String, InjectionPlan>();
+    buildInjectionPlan(name, memo);
+    return memo.get(name);
+  }
+
+  public boolean canInject(String name) throws NameResolutionException {
+    InjectionPlan p = getInjectionPlan(name);
+    boolean ret = p.getNumAlternatives() == 1;
+    boolean oldret = canInjectOld(name);
+    if (ret != oldret) {
+      throw new IllegalStateException(
+          "Found bug in old or new implementation of canInject().  Name is "
+              + name + " old says " + oldret + " new says " + ret);
+    }
+    return ret;
+  }
+
+  public boolean canInjectOld(String name) { // throws NameResolutionException {
     Node n;
     try {
       n = namespace.getNode(name);
@@ -172,12 +264,12 @@ public class Tang {
       }
       Class<?> clz = defaultImpls.get(c);
       if (clz != null) {
-        return canInject(clz.getName());
+        return canInjectOld(clz.getName());
       }
       ClassNode[] cn = namespace.getKnownImpls(c);
       boolean haveAltImpl = false;
       if (cn.length == 1) {
-        if (canInject(cn[0].clazz.getName())) {
+        if (canInjectOld(cn[0].clazz.getName())) {
           haveAltImpl = true;
         }
       } else if (cn.length == 0) {
@@ -187,7 +279,7 @@ public class Tang {
       for (ConstructorDef def : c.injectableConstructors) {
         boolean canInject = true;
         for (ConstructorArg arg : def.args) {
-          if (!canInject(arg.getFullyQualifiedName(c.clazz))) {
+          if (!canInjectOld(arg.getFullyQualifiedName(c.clazz))) {
             canInject = false;
             break;
           }
