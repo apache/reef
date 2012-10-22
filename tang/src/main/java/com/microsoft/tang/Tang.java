@@ -21,6 +21,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import com.microsoft.tang.InjectionPlan.AmbiguousInjectionPlan;
 import com.microsoft.tang.InjectionPlan.InfeasibleInjectionPlan;
 import com.microsoft.tang.InjectionPlan.Instance;
+import com.microsoft.tang.Tang.CommandLineCallback;
 import com.microsoft.tang.TypeHierarchy.ClassNode;
 import com.microsoft.tang.TypeHierarchy.ConstructorArg;
 import com.microsoft.tang.TypeHierarchy.ConstructorDef;
@@ -108,9 +109,20 @@ public class Tang {
         opts.addOption(shortName, true, param.toString());
       }
     }
+    for(Option o : applicationOptions.keySet()) {
+      opts.addOption(o);
+    }
     return opts;
   }
 
+  public interface CommandLineCallback {
+    public void process(Option option);
+  }
+  Map<Option, CommandLineCallback> applicationOptions = new HashMap<Option, CommandLineCallback>();
+  public void addCommandLineOption(Option option, CommandLineCallback cb) {
+    // TODO: Check for conflicting options.
+    applicationOptions.put(option, cb);
+  }
   public void processCommandLine(String[] args) throws NumberFormatException,
       NameResolutionException, ParseException {
     Options o = getCommandLineOptions();
@@ -131,9 +143,14 @@ public class Tang {
       // if(cl.hasOption(shortName)) {
       NamedParameterNode n = namespace.getNodeFromShortName(shortName);
       if (n != null && value != null) {
-        setNamedParameter((Class<? extends Name>) (n.clazz),
-            ReflectionUtilities.parse(n.argClass, value));
+        // XXX completely untested.
+        if(applicationOptions.containsKey(option)) {
+          applicationOptions.get(option).process(option);
+        } else {
+          setNamedParameter((Class<? extends Name>) (n.clazz),
+              ReflectionUtilities.parse(n.argClass, value));
         }
+      }
     }
   }
 
