@@ -156,7 +156,7 @@ the state that Tang gets from .class files, including class inheritance relation
 In the example above, TypeHierarchy walks the class definition for Timer, looking
 for superclasses, interfaces, and classes referenced by its constructors.  In this case, there is nothing too
 interesting to find.  To take a look, add a call to '''typeHierarchy.writeJson(System.err)''' after the call
-to register.  You should see this on stderr:
+to register.  You should see something like this on stderr:
 
 ```json
 {
@@ -171,9 +171,25 @@ to register.  You should see this on stderr:
           "children" : [ {
             "name" : "Seconds",
             "children" : [ ],
-            "shortName" : "sec"
-          } ]
-        } ]
+            "argClass" : "int",
+            "defaultInstance" : 10,
+            "shortName" : "sec",
+            "documentation" : "Number of seconds to sleep",
+            "nameClass" : "com.example.Timer$Seconds",
+            "type" : "NamedParameterNode"
+          } ],
+          "clazz" : "com.example.Timer",
+          "isPrefixTarget" : false,
+          "injectableConstructors" : [ {
+            "args" : [ {
+              "type" : "int",
+              "name" : "com.example.Timer$Seconds"
+            } ],
+            "constructor" : "com.example.Timer"
+          } ],
+          "type" : "ClassNode"
+        } ],
+        "type" : "PackageNode"
       }, {
         "name" : "microsoft",
         "children" : [ {
@@ -182,27 +198,48 @@ to register.  You should see this on stderr:
             "name" : "annotations",
             "children" : [ {
               "name" : "Name",
-              "children" : [ ]
-            } ]
-          } ]
-        } ]
-      } ]
+              "children" : [ ],
+              "clazz" : "com.microsoft.tang.annotations.Name",
+              "isPrefixTarget" : false,
+              "injectableConstructors" : [ ],
+              "type" : "ClassNode"
+            } ],
+            "type" : "PackageNode"
+          } ],
+          "type" : "PackageNode"
+        } ],
+        "type" : "PackageNode"
+      } ],
+      "type" : "PackageNode"
     }, {
       "name" : "java",
       "children" : [ {
         "name" : "lang",
         "children" : [ {
           "name" : "Object",
-          "children" : [ ]
-        } ]
-      } ]
-    } ]
+          "children" : [ ],
+          "clazz" : "java.lang.Object",
+          "isPrefixTarget" : false,
+          "injectableConstructors" : [ ],
+          "type" : "ClassNode"
+        } ],
+        "type" : "PackageNode"
+      } ],
+      "type" : "PackageNode"
+    } ],
+    "type" : "PackageNode"
   },
   "namedParameterNodes" : [ {
     "name" : "Seconds",
     "children" : [ ],
-    "shortName" : "sec"
+    "argClass" : "int",
+    "defaultInstance" : 10,
+    "shortName" : "sec",
+    "documentation" : "Number of seconds to sleep",
+    "nameClass" : "com.example.Timer$Seconds",
+    "type" : "NamedParameterNode"
   } ]
+}
 ```
 This is quite verbose, but is simply saying that Tang found (in order): com.example.Timer,
 com.example.Timer.Seconds (note that Tang's state mirrors the Java package hierarchy, so
