@@ -102,8 +102,52 @@ so we pass Timer.class into typeHierarchy.register().  Next, we pass typeHierarc
 and ask Tang to instantiate a new Timer object.  Tang automatically passes 10, the default_value field of
 Seconds into Timer's constructor, so the call to sleep() takes 10 seconds to complete.
 
+When things go wrong
+--------------------
+In the timer example, we specified a default value for the Sleep parameter.  If we hadn't done this, then the call
+to getInstance() would have thrown an exception:
+````
+Exception in thread "main"
+java.lang.IllegalArgumentException: Attempt to inject infeasible plan: com.example.Timer(int @Parameter(Seconds) null)
+  at com.microsoft.tang.Tang.injectFromPlan(Tang.java:315)
+	at com.microsoft.tang.Tang.getInstance(Tang.java:311)
+	at com.example.Timer.main(Timer.java:35)
+````
+Since Tang refuses to inject null values into object
+constructors, the plan to invoke Timer(null) is considered infeasible.  Note that this error message enumerates all
+possible injection plans.  If Timer had more constructors or implementations
+those would be enumerated here as well.  Similarly, if more than one feasible plan existed, Tang would refuse to perform
+the injection, and throw a similar exception.
+
+In both cases, the solution is to set Tang parameters to create a single feasible plan.  tang.setDefaultImpl() allows you
+to hardcode Tang to use a particular implementation of a class/interface (and automatically registers its parameters with Tang).
+Similarly, tang.setNamedParameter() lets you set named parameters, and override default values.
+
 Looking under the hood
 ----------------------
+
+### InjectionPlan
+
+InjectionPlan objects explain what Tang would do to instantiate a new object, but don't actually instantiate anything.
+Add the following lines to the Timer example;
+
+````java
+    InjectionPlan ip = tang.getInjectionPlan("com.example.Timer");
+    System.out.println(InjectionPlan.prettyPrint(ip));
+    System.out.println("Number of plans:" + ip.getNumAlternatives());
+````
+
+Running the program now produces a bit of additional output:
+````
+com.example.Timer(int @Parameter(Seconds) 10)
+Number of plans:1
+````
+
+### TypeHierachy
+
+InjectionPlan explains what would happen if you asked Tang to take some action, but it doesn't provide much insight
+into Tang's view of the object hierarchy, parameter defaults and so on.  TypeHierarchy object encode
+the state that Tang gets from .class files, including class inheritance relationships, parameter annotations, and so on.
 
 In the example above, TypeHierarchy walks the class definition for Timer, looking
 for superclasses, interfaces, and classes referenced by its constructors.  In this case, there is nothing too
@@ -164,3 +208,9 @@ com.microsoft.tang.annotations.Name, and java.lang.Object.  A second JSON elemen
 
 Note that, as of the writing of this document, the JSON format is incomplete, and is
 expected to change over time.
+
+### Tang (TODO)
+
+Tang objects encode state that is derived dynamically.  This include information from
+command line parameters configuration files, and from application-level calls to
+setDefaultImpl() and setNamedParameter().  Methods to dump / read this information are coming soon.
