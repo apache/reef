@@ -20,6 +20,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import com.microsoft.tang.InjectionPlan.AmbiguousInjectionPlan;
+import com.microsoft.tang.InjectionPlan.InfeasibleInjectionPlan;
 import com.microsoft.tang.InjectionPlan.Instance;
 import com.microsoft.tang.TypeHierarchy.ClassNode;
 import com.microsoft.tang.TypeHierarchy.ConstructorArg;
@@ -183,20 +185,20 @@ public class Tang {
       ip = new Instance(np, instance);
     } else if (n instanceof ClassNode) {
       ClassNode cn = (ClassNode) n;
-      if(defaultInstances.containsKey(cn)) {
+      if (defaultInstances.containsKey(cn)) {
         ip = new Instance(cn, defaultInstances.get(cn));
-      } else if(defaultImpls.containsKey(cn)) {
+      } else if (defaultImpls.containsKey(cn)) {
         String implName = defaultImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
         ip = memo.get(implName);
       } else {
         List<ClassNode> classNodes = new ArrayList<ClassNode>();
-        for(ClassNode c: namespace.getKnownImpls(cn)) {
+        for (ClassNode c : namespace.getKnownImpls(cn)) {
           classNodes.add(c);
         }
         classNodes.add(cn);
         List<InjectionPlan> sub_ips = new ArrayList<InjectionPlan>();
-        for(ClassNode thisCN : classNodes) {
+        for (ClassNode thisCN : classNodes) {
           List<InjectionPlan.Constructor> constructors = new ArrayList<InjectionPlan.Constructor>();
           for (ConstructorDef def : thisCN.injectableConstructors) {
             List<InjectionPlan> args = new ArrayList<InjectionPlan>();
@@ -208,10 +210,11 @@ public class Tang {
             constructors.add(new InjectionPlan.Constructor(def, args
                 .toArray(new InjectionPlan[0])));
           }
-          sub_ips.add(new InjectionPlan.AmbiguousInjectionPlan(
-              constructors.toArray(new InjectionPlan[0])));
+          sub_ips.add(new InjectionPlan.AmbiguousInjectionPlan(constructors
+              .toArray(new InjectionPlan[0])));
         }
-        ip = new InjectionPlan.AmbiguousInjectionPlan(sub_ips.toArray(new InjectionPlan[0]));
+        ip = new InjectionPlan.AmbiguousInjectionPlan(
+            sub_ips.toArray(new InjectionPlan[0]));
       }
     } else if (n instanceof PackageNode) {
       throw new IllegalArgumentException(
@@ -244,7 +247,40 @@ public class Tang {
     }
     return ret;
   }
-
+  @SuppressWarnings("unchecked")
+  public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
+      ReflectiveOperationException {
+    InjectionPlan plan = getInjectionPlan(clazz.getName());
+    return (U)injectFromPlan(plan);
+  }
+  private Object injectFromPlan(InjectionPlan plan) throws ReflectiveOperationException {
+    if(plan instanceof InjectionPlan.Instance) {
+      return ((InjectionPlan.Instance)plan).instance;
+    } else if(plan instanceof InjectionPlan.Constructor) {
+      InjectionPlan.Constructor constructor = (InjectionPlan.Constructor)plan;
+      Object[] args = new Object[constructor.args.length];
+      for(int i = 0; i < constructor.args.length; i++) {
+        args[i] = injectFromPlan(constructor.args[i]);
+      }
+      return constructor.constructor.constructor.newInstance(args);
+    } else if(plan instanceof AmbiguousInjectionPlan) {
+      AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan)plan;
+      if(ambiguous.getNumAlternatives() != 1) {
+        throw new IllegalArgumentException("Attempt to inject ambiguous plan!");
+      }
+      for(InjectionPlan p : ambiguous.alternatives) {
+        if(p.canInject()) { return injectFromPlan(p); }
+      }
+      throw new IllegalStateException("Thought there was an injectable plan, but can't find it!");
+    } else if(plan instanceof InfeasibleInjectionPlan) {
+      throw new IllegalArgumentException("Attempt to inject infeasible plan!");
+    } else {
+      throw new IllegalStateException("Unknown plan type: " + plan);
+    }
+  }
+  
+  /// REST OF FILE IS OLD IMPLEMENTATION: PLAN TO DELETE IT.
+  
   public boolean canInjectOld(String name) { // throws NameResolutionException {
     Node n;
     try {
@@ -302,18 +338,19 @@ public class Tang {
     }
   }
 
+
   @SuppressWarnings("unchecked")
-  public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
+  public <U> U getInstanceOld(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     Node n = namespace.getNode(clazz);
     if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
       Class<U> c = (Class<U>) defaultImpls.get(n);
       if (c != null) {
-        return getInstance(c);
+        return getInstanceOld(c);
       }
       ClassNode[] known = namespace.getKnownImpls((ClassNode) n);
       if (known.length == 1) {
-        return getInstance((Class<U>) known[0].clazz);
+        return getInstanceOld((Class<U>) known[0].clazz);
       } else if (known.length > 1) {
         throw new IllegalStateException("Ambiguous inject of " + clazz
             + " detected.  No default, and known impls are "
@@ -367,7 +404,7 @@ public class Tang {
       if (argNode instanceof NamedParameterNode) {
         args.add(defaultInstances.get(argNode));
       } else if (argNode instanceof ClassNode) {
-        args.add(getInstance(((ClassNode) argNode).clazz));
+        args.add(getInstanceOld(((ClassNode) argNode).clazz));
       } else {
         throw new IllegalStateException(
             "Expected ClassNode or NamedParameterNode, but got " + argNode);
