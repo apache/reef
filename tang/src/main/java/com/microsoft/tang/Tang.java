@@ -43,7 +43,6 @@ public class Tang {
     namespace.resolveAllClasses();
   }
 
-  @SuppressWarnings("unchecked")
   public void registerConfigFile(String configFileName)
       throws ConfigurationException, NameResolutionException {
     Configuration conf = new PropertiesConfiguration(configFileName);
@@ -118,6 +117,32 @@ public class Tang {
     namespace = new TypeHierarchy();
   }
 
+  /**
+   * Obtain the effective configuration of this Tang instance.  This consists of
+   * string-string pairs that could be dumped directly to a Properties file, for
+   * example.  Currently, this method does not return information about default
+   * parameter values that were specified by parameter annotations.
+   * 
+   * @return a String to String map 
+   */
+  public Map<String, String> getEffectiveConfig() {
+    Map<String, String> ret = new HashMap<String,String>();
+    for(Node opt : defaultImpls.keySet()) {
+      ret.put(opt.getFullName(), defaultImpls.get(opt).toString());
+    }
+    for(Node opt : defaultInstances.keySet()) {
+      ret.put(opt.getFullName(), defaultInstances.get(opt).toString());
+    }
+    return ret;
+  }
+  /**
+   * Override the default implementation of c, using d instead.  d must implement c,
+   * of course.  If exactly one injectable implementation of c has been registered
+   * with Tang (perhaps including c), then this is optional.
+   * @param c
+   * @param d
+   * @throws NameResolutionException
+   */
   public void setDefaultImpl(Class<?> c, Class<?> d)
       throws NameResolutionException {
     if (!c.isAssignableFrom(d)) {
@@ -134,7 +159,12 @@ public class Tang {
               + n);
     }
   }
-
+  /**
+   * Set the default value of a named parameter.
+   * @param name The dummy class that serves as the name of this parameter.
+   * @param o The value of the parameter.  The type must match the type specified by name.
+   * @throws NameResolutionException
+   */
   public void setNamedParameter(Class<? extends Name> name, Object o)
       throws NameResolutionException {
     Node n = namespace.getNode(name.getName());
@@ -229,13 +259,26 @@ public class Tang {
     memo.put(name, ip);
   }
 
+  /**
+   * Return an injection plan for the given class / parameter name.  This will be more
+   * useful once plans can be serialized / deserialized / pretty printed.
+   * 
+   * @param name The name of an injectable class or interface, or a NamedParameter.
+   * @return
+   * @throws NameResolutionException
+   */
   public InjectionPlan getInjectionPlan(String name)
       throws NameResolutionException {
     Map<String, InjectionPlan> memo = new HashMap<String, InjectionPlan>();
     buildInjectionPlan(name, memo);
     return memo.get(name);
   }
-
+  /**
+   * Returns true if Tang is ready to instantiate the object named by name.
+   * @param name
+   * @return
+   * @throws NameResolutionException
+   */
   public boolean canInject(String name) throws NameResolutionException {
     InjectionPlan p = getInjectionPlan(name);
     boolean ret = p.getNumAlternatives() == 1;
@@ -247,6 +290,13 @@ public class Tang {
     }*/
     return ret;
   }
+  /**
+   * Get a new instance of the class clazz.
+   * @param clazz
+   * @return
+   * @throws NameResolutionException
+   * @throws ReflectiveOperationException
+   */
   @SuppressWarnings("unchecked")
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {

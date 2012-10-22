@@ -39,7 +39,13 @@ public class TypeHierarchy {
   abstract class Node {
     protected final Node parent;
     protected final String name;
-
+    String getFullName() {
+      if(parent == null) {
+        return name;
+      } else {
+        return parent.getFullName() + "." + name;
+      }
+    }
     Map<String, Node> children = new HashMap<String, Node>();
 
     Node(Node parent, Class<?> name) {
