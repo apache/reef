@@ -42,32 +42,58 @@ public class Tang {
   }
 
   public void registerConfigFile(String configFileName)
-      throws ConfigurationException, NameResolutionException {
+      throws ConfigurationException, NameResolutionException, ClassNotFoundException {
     Configuration conf = new PropertiesConfiguration(configFileName);
     Iterator<String> it = conf.getKeys();
 
+    Map<String, String> shortNames = new HashMap<String,String>();
+    
     while (it.hasNext()) {
       String key = it.next();
+      String longName = shortNames.get(key);
       String[] values = conf.getStringArray(key);
+      if(longName != null) {
+//        System.err.println("Mapped " + key + " to " + longName);
+        key = longName;
+      }
       for (String value : values) {
-        if (key.equals("tang.import")) {
+        if (key.equals("import")) {
           try {
             namespace.register(Class.forName(value));
-            namespace.resolveAllClasses();
+            String[] tok = value.split(TypeHierarchy.regexp);
+            try {
+              namespace.getNode(tok[tok.length-1]);
+              throw new IllegalArgumentException("Conflict on short name: " + tok[tok.length-1]);
+            } catch(NameResolutionException e) {
+              String oldValue = shortNames.put(tok[tok.length-1], value);
+              if(oldValue != null) {
+                throw new IllegalArgumentException("Name conflict.  " + tok[tok.length-1] + " maps to " + oldValue + " and " + value);
+              }
+//              System.err.println("Added mapping from " + tok[tok.length-1] + " to " + value);
+            }
           } catch (ClassNotFoundException e) {
             // print error message + exit.
           }
         } else {
           Node n = namespace.getNode(key);
+          String longVal = shortNames.get(value);
+          if(longVal != null) value = longVal;
           if (n instanceof NamedParameterNode) {
             NamedParameterNode np = (NamedParameterNode) n;
             setNamedParameter((Class<? extends Name>) np.clazz,
                 ReflectionUtilities.parse(np.argClass, value));
+          } else if(n instanceof ClassNode) {
+            setDefaultImpl(((ClassNode)n).getClazz(), Class.forName(value));
           }
         }
+        // Resolve all classes before processing the next line.  It could be
+        // that this line indirectly brings a namespace in or something.
+        // Plus, this lets us throw an exception earlier in the file, which
+        // helps with debugging.
+        
+        namespace.resolveAllClasses();
       }
     }
-    namespace.resolveAllClasses();
   }
 
   private Options getCommandLineOptions() {
