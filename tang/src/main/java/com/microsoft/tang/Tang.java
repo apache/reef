@@ -35,7 +35,7 @@ public class Tang {
   private final TypeHierarchy namespace;
   private final Map<Node, Class<?>> defaultImpls = new HashMap<Node, Class<?>>();
   private final Map<Node, Object> defaultInstances = new HashMap<Node, Object>();
-  private final Map<Node, Factory<?>> factories = new HashMap<Node, Factory<?>>();
+  private final Map<Node, Class<Vivifier<?>>> vivifier = new HashMap<Node, Class<Vivifier<?>>>();
   public Tang(TypeHierarchy namespace) {
     this.namespace = namespace;
     namespace.resolveAllClasses();
@@ -201,11 +201,44 @@ public class Tang {
               + n);
     }
   }
-  public interface Factory<T> { T get(); }
-  public <T> void setClassFactory(Class<T> c, Factory<? extends T> f) {
+  /**
+   * This interface allows legacy classes to be injected by Tang.  The Vivifier
+   * implementation should define a constructor with an @Inject annotation.
+   * Instead of attempting to directly instantiate a value of type T, Tang will
+   * create a vivifier, call get() on it, and then discard the vivifier.
+   * 
+   * Note that Tang does not directly support singleton vivifier, or vivifier
+   * in lieu of injectors.  This is intentional.
+   * 
+   * If you want a singleton factory @see setClassSingleton().
+   * 
+   * If you want to pass a factory into a constructor (so the constructed object
+   * can make lots of objects with the factory), go for it; that's none of Tang's
+   * business.  Feel free to pass the constructor into setClassSingleton() if you
+   * want to share it across instances.
+   * 
+   * If you want to run application-specific logic outside of the constructor of
+   * your object, and keep that state around across constructor invocations, but
+   * not across Tang instances, tough luck.  That would make Tang injection
+   * non-deterministic, and prevent us from reliably serializing Tang's state and
+   * injection graphs.
+   * 
+   * @author sears
+   *
+   * @param <T> The type this Vivifier will create.
+   */
+  public interface Vivifier<T> {
+    /**
+     * This method will only be called once.
+     * @return a new, distinct instance of T.
+     */
+    T get();
+  }
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public <T> void setClassVivifier(Class<T> c, Class<Vivifier<? extends T>> v) {
     namespace.register(c);
     try {
-      factories.put(namespace.getNode(c), f);
+      vivifier.put(namespace.getNode(c), (Class)v);
     } catch(NameResolutionException e) {
       throw new IllegalStateException("Could not find class " + c + " which this method just registered!");
     }
@@ -296,8 +329,9 @@ public class Tang {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (defaultInstances.containsKey(cn)) {
         ip = new Instance(cn, defaultInstances.get(cn));
-      } else if (factories.containsKey(cn)) {
-        ip = new Instance(cn, factories.get(cn).get());
+      } else if (vivifier.containsKey(cn)) {
+        throw new UnsupportedOperationException("Vivifiers aren't working yet!");
+//        ip = new Instance(cn, null);
       } else if (defaultImpls.containsKey(cn)) {
         String implName = defaultImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
