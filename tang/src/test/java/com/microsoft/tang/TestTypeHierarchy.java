@@ -119,18 +119,18 @@ class SimpleConstructors{
 }
 class NamedParameterConstructors {
   @NamedParameter()
-  class X implements Name {};
+  class X implements Name<String> {};
   @Inject
   public NamedParameterConstructors(String x, @Parameter(X.class) String y) { }
 }
 @Namespace("foo.bar")
 class Metadata { 
   @NamedParameter(doc = "a baz", default_value="woo")
-  final class Baz implements Name {};
+  final class Baz implements Name<String> {};
   @NamedParameter(doc = "a bar", default_value="i-beam")
-  final class Bar implements Name {};
+  final class Bar implements Name<String> {};
   @NamedParameter(doc = "???")
-  final class Quuz implements Name{};
+  final class Quuz implements Name<String>{};
 }
 class RepeatConstructorArg {
   public @Inject RepeatConstructorArg(int x, int y) {}
@@ -138,24 +138,24 @@ class RepeatConstructorArg {
 @Namespace("bar")
 class DocumentedLocalNamedParameter {
   @NamedParameter(doc="doc stuff", default_value="some value")
-  final class Foo implements Name {}
+  final class Foo implements Name<String> {}
   @Inject
   public DocumentedLocalNamedParameter(@Parameter(Foo.class) String s) {}
 }
 @Namespace("baz")
 class ConflictingLocalNamedParameter {
-  @NamedParameter(type=int.class, doc="doc.stuff", default_value="1")
-  final class Foo implements Name {}
+  @NamedParameter(doc="doc.stuff", default_value="1")
+  final class Foo implements Name<Integer> {}
   @Inject
   public ConflictingLocalNamedParameter(@Parameter(Foo.class) String s) {}
 }
 @Namespace("a.b")
 class InconvenientNamespaceRegistrationOrder1 {
   @NamedParameter()
-  final class C implements Name {}
+  final class C implements Name<String> {}
 }
 @Namespace("a")
 class InconvenientNamespaceRegistrationOrder2 {
   @NamedParameter()
-  final class B implements Name {}
+  final class B implements Name<String> {}
 }

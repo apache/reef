@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Parameter {
-  Class<? extends Name> value();
+  Class<? extends Name<? extends Object>> value();
 }

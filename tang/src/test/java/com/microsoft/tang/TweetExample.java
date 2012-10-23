@@ -54,8 +54,8 @@ public class TweetExample {
     final SMS sms;
     final long phoneNumber;
 
-    @NamedParameter(type = long.class)
-    class PhoneNumber implements Name {}
+    @NamedParameter()
+    class PhoneNumber implements Name<Long> {}
     @Inject
     public Tweeter(TweetFactory tw, SMS sms,
         @Parameter(PhoneNumber.class) long phoneNumber) {
@@ -97,9 +97,9 @@ public class TweetExample {
   @Test
   public void test() throws Exception {
     Tang t = new Tang(ns);
-    t.setDefaultImpl(TweetFactory.class, MockTweetFactory.class);
-    t.setDefaultImpl(SMS.class, MockSMS.class);
-    t.setNamedParameter(Tweeter.PhoneNumber.class, 867 - 5309);
+    t.setClassImplementation(TweetFactory.class, MockTweetFactory.class);
+    t.setClassImplementation(SMS.class, MockSMS.class);
+    t.setParameterValue(Tweeter.PhoneNumber.class, (long)(867 - 5309));
     Tweeter tw = (Tweeter) t.getInstance(Tweeter.class);
     tw.sendMessage();
   }

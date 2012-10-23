@@ -21,7 +21,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import com.microsoft.tang.InjectionPlan.AmbiguousInjectionPlan;
 import com.microsoft.tang.InjectionPlan.InfeasibleInjectionPlan;
 import com.microsoft.tang.InjectionPlan.Instance;
-import com.microsoft.tang.Tang.CommandLineCallback;
 import com.microsoft.tang.TypeHierarchy.ClassNode;
 import com.microsoft.tang.TypeHierarchy.ConstructorArg;
 import com.microsoft.tang.TypeHierarchy.ConstructorDef;
@@ -42,7 +41,7 @@ public class Tang {
     namespace.resolveAllClasses();
   }
 
-  public void registerConfigFile(String configFileName)
+  public <T> void registerConfigFile(String configFileName)
       throws ConfigurationException, NameResolutionException, ClassNotFoundException {
     Configuration conf = new PropertiesConfiguration(configFileName);
     Iterator<String> it = conf.getKeys();
@@ -80,11 +79,12 @@ public class Tang {
           String longVal = shortNames.get(value);
           if(longVal != null) value = longVal;
           if (n instanceof NamedParameterNode) {
-            NamedParameterNode np = (NamedParameterNode) n;
-            setNamedParameter((Class<? extends Name>) np.clazz,
-                ReflectionUtilities.parse(np.argClass, value));
+            @SuppressWarnings("unchecked")
+            NamedParameterNode<T> np = (NamedParameterNode<T>) n;
+
+            setParameterValue(np.clazz, ReflectionUtilities.parse(np.argClass, value));
           } else if(n instanceof ClassNode) {
-            setDefaultImpl(((ClassNode)n).getClazz(), Class.forName(value));
+            setClassImplementation(((ClassNode)n).getClazz(), Class.forName(value));
           }
         }
         // Resolve all classes before processing the next line.  It could be
@@ -99,9 +99,9 @@ public class Tang {
 
   private Options getCommandLineOptions() {
     Options opts = new Options();
-    Collection<NamedParameterNode> namedParameters = namespace
+    Collection<NamedParameterNode<?>> namedParameters = namespace
         .getNamedParameterNodes();
-    for (NamedParameterNode param : namedParameters) {
+    for (NamedParameterNode<?> param : namedParameters) {
       String shortName = param.getShortName();
       if (shortName != null) {
         // opts.addOption(OptionBuilder.withLongOpt(shortName).hasArg()
@@ -123,7 +123,7 @@ public class Tang {
     // TODO: Check for conflicting options.
     applicationOptions.put(option, cb);
   }
-  public void processCommandLine(String[] args) throws NumberFormatException,
+  public <T> void processCommandLine(String[] args) throws NumberFormatException,
       NameResolutionException, ParseException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
@@ -141,13 +141,14 @@ public class Tang {
       String value = option.getValue();
       // System.out.println("Got option " + shortName + " = " + value);
       // if(cl.hasOption(shortName)) {
-      NamedParameterNode n = namespace.getNodeFromShortName(shortName);
+      
+      NamedParameterNode<T> n = namespace.getNodeFromShortName(shortName);
       if (n != null && value != null) {
         // XXX completely untested.
         if(applicationOptions.containsKey(option)) {
           applicationOptions.get(option).process(option);
         } else {
-          setNamedParameter((Class<? extends Name>) (n.clazz),
+          setParameterValue((n.clazz),
               ReflectionUtilities.parse(n.argClass, value));
         }
       }
@@ -184,7 +185,7 @@ public class Tang {
    * @param d
    * @throws NameResolutionException
    */
-  public void setDefaultImpl(Class<?> c, Class<?> d)
+  public void setClassImplementation(Class<?> c, Class<?> d)
       throws NameResolutionException {
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
@@ -206,11 +207,12 @@ public class Tang {
    * @param o The value of the parameter.  The type must match the type specified by name.
    * @throws NameResolutionException
    */
-  public void setNamedParameter(Class<? extends Name> name, Object o)
+  @SuppressWarnings("unchecked")
+  public <T> void setParameterValue(Class<? extends Name<T>> name, T o)
       throws NameResolutionException {
-    Node n = namespace.getNode(name.getName());
+    Node n = namespace.getNode(name);
     if (n instanceof NamedParameterNode) {
-      setNamedParameter((NamedParameterNode) n, o);
+      setNamedParameter((NamedParameterNode<T>) n, o);
     } else {
       // TODO add support for setting default *instance* of class.
       // TODO need new exception type here.
@@ -220,7 +222,7 @@ public class Tang {
     }
   }
 
-  private void setNamedParameter(NamedParameterNode np, Object o) {
+  private <T> void setNamedParameter(NamedParameterNode<T> np, T o) {
     if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
       defaultInstances.put(np, o);
     } else {
@@ -264,7 +266,7 @@ public class Tang {
     Node n = namespace.getNode(name);
     final InjectionPlan ip;
     if (n instanceof NamedParameterNode) {
-      NamedParameterNode np = (NamedParameterNode) n;
+      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object instance = defaultInstances.get(n);
       if(instance == null) { instance = np.defaultInstance; }
       ip = new Instance(np, instance);

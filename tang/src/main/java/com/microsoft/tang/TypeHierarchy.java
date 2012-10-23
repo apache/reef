@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +30,7 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class TypeHierarchy {
   private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();
-  private final Map<String, NamedParameterNode> shortNames = new HashMap<String, NamedParameterNode>();
+  private final Map<String, NamedParameterNode<?>> shortNames = new HashMap<String, NamedParameterNode<?>>();
   final PackageNode namespace = new PackageNode(null, "");
   final static String regexp = "[\\.\\$]";
 
@@ -200,7 +202,7 @@ public class TypeHierarchy {
                 if (!(n instanceof NamedParameterNode)) {
                   throw new IllegalStateException();
                 }
-                NamedParameterNode np = (NamedParameterNode) n;
+                NamedParameterNode<?> np = (NamedParameterNode<?>) n;
                 if (!ReflectionUtilities
                     .isCoercable(paramTypes[i], np.argClass)) {
                   throw new IllegalArgumentException(
@@ -261,10 +263,10 @@ public class TypeHierarchy {
     }
   }
 
-  class NamedParameterNode extends Node {
-    final Class<? extends Name> clazz;
+  class NamedParameterNode<T> extends Node {
+    final Class<? extends Name<T>> clazz;
     private final NamedParameter namedParameter;
-    final Class<?> argClass;
+    final Class<T> argClass;
     final Object defaultInstance;
     
     /*
@@ -273,7 +275,7 @@ public class TypeHierarchy {
      * = n.type(); }
      */
 
-    public boolean isAsSpecificAs(NamedParameterNode n) {
+    public boolean isAsSpecificAs(NamedParameterNode<?> n) {
       if (!argClass.equals(n.argClass)) {
         return false;
       }
@@ -289,7 +291,8 @@ public class TypeHierarchy {
       return this.namedParameter.equals(n.namedParameter);
     }
 
-    NamedParameterNode(Node parent, Class<? extends Name> clazz) {
+    @SuppressWarnings("unchecked")
+    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz) {
       super(parent, clazz);
       this.clazz = clazz;
 
@@ -301,11 +304,36 @@ public class TypeHierarchy {
           }
         }
       }
+      Class<T> parameterClass;
+      try {
+        Type[] interfaces = clazz.getGenericInterfaces();
+        if(interfaces.length != 1) { throw new IllegalArgumentException(); }
+        Type genericNameType = interfaces[0];
+        if(genericNameType instanceof ParameterizedType) {
+          ParameterizedType ptype = (ParameterizedType)genericNameType;
+          if(ptype.getRawType() != Name.class) { throw new IllegalArgumentException(); }
+          try {
+            Type t = ptype.getActualTypeArguments()[0];
+            // It could be that the parameter is, itself a generic type.  Not sure if we should support this, but we do for now.
+            if(t instanceof ParameterizedType) {
+              t = ((ParameterizedType) t).getRawType();  // Get the underlying raw type of the parameter.
+            }
+            parameterClass = (Class<T>)t;
+          } catch(ClassCastException e) {
+            throw new IllegalArgumentException();
+          }
+        } else {
+          throw new IllegalArgumentException();
+        }
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("NamedParameter " + clazz + " must have exactly one super interface: A name with a concrete type parameter.");
+      }
+
+      
       this.namedParameter = clazz.getAnnotation(NamedParameter.class);
-      this.argClass = this.namedParameter == null ? clazz : namedParameter
-          .type();
+      this.argClass = parameterClass;
       this.defaultInstance = (this.namedParameter == null || namedParameter.default_value().length()==0) ?
-          null : ReflectionUtilities.parse(namedParameter.type(), namedParameter.default_value());
+          null : ReflectionUtilities.parse(this.argClass, namedParameter.default_value());
     }
 
     @Override
@@ -316,22 +344,13 @@ public class TypeHierarchy {
       } else {
         ret = ret + " @Parameter(" + name + ")";
       }
-      //super.toString();
-      /*}
-      if (namedParameter != null) {
-        ret = ret + " " + namedParameter;
-/ *            + (namedParameter.default_value() != null ? (" default=" + namedParameter
-                .default_value()) : "")
-            + (namedParameter.doc() != null ? (" Documentation: " + namedParameter
-                .doc()) : ""); */
-      //}
       return ret;
     }
 
-    public Class<?> getArgClass() {
+    public Class<T> getArgClass() {
       return argClass;
     }
-    public Class<? extends Name> getNameClass() {
+    public Class<? extends Name<T>> getNameClass() {
       return clazz;
     }
     public Object getDefaultInstance() {
@@ -537,7 +556,7 @@ public class TypeHierarchy {
     return ret;
   }
 
-  private Node buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
+  private <T> Node buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
     String[] path = clazz.getName().split(regexp);
     Node root = namespace;
     // Node ret = null;
@@ -556,12 +575,9 @@ public class TypeHierarchy {
         throw new IllegalStateException(clazz
             + " cannot be both a namespace and parameter.");
       }
-      if(!Arrays.asList(clazz.getInterfaces()).contains(Name.class)){
-        throw new IllegalArgumentException(
-            "NamedParameter " + clazz + " must implement com.microsoft.tang.Name");
-      }
-      @SuppressWarnings("unchecked")
-      NamedParameterNode np = new NamedParameterNode(parent, (Class<? extends Name>)clazz);
+      @SuppressWarnings("unchecked") // checked inside of NamedParameterNode, using reflection.
+      NamedParameterNode<T> np = new NamedParameterNode<T>(parent, (Class<? extends Name<T>>)clazz);
+      //(Class<? extends Name<?>>)clazz);
       ret = np;
       String shortName = np.getShortName();
       if (shortName != null) {
@@ -767,7 +783,7 @@ public class TypeHierarchy {
 
   public void findUnresolvedClasses(Node root, Set<Class<?>> unresolved) {
     if (root instanceof NamedParameterNode) {
-      NamedParameterNode np = (NamedParameterNode) (root);
+      NamedParameterNode<?> np = (NamedParameterNode<?>) (root);
       try {
         getNode(np.argClass);
       } catch (NameResolutionException e) {
@@ -848,11 +864,11 @@ public class TypeHierarchy {
   public PackageNode getNamespace() {
     return namespace;
   }
-  public Collection<NamedParameterNode> getNamedParameterNodes() {
+  public Collection<NamedParameterNode<?>> getNamedParameterNodes() {
     return shortNames.values();
   }
-
-  public NamedParameterNode getNodeFromShortName(String shortName) {
-    return shortNames.get(shortName);
+  @SuppressWarnings("unchecked")
+  public <T> NamedParameterNode<T> getNodeFromShortName(String shortName) {
+    return (NamedParameterNode<T>)shortNames.get(shortName);
   }
 }

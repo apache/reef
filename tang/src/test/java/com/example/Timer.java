@@ -10,9 +10,9 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 
 public class Timer {
-  @NamedParameter(default_value="10", type=int.class,
+  @NamedParameter(default_value="10",
       doc="Number of seconds to sleep", short_name="sec")
-  class Seconds implements Name {}
+  class Seconds implements Name<Integer> {}
   private final int seconds;
 
   @Inject

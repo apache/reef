@@ -1,5 +1,5 @@
 package com.microsoft.tang.annotations;
 
-public interface Name {
+public interface Name<T> {
 
 }

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NamedParameter {
-  Class<?> type() default String.class;
+  //Class<?> type() default String.class;
   String doc() default "";
   String default_value() default "";
   String short_name() default "";
