@@ -203,7 +203,12 @@ public class Tang {
   }
   public interface Factory<T> { T get(); }
   public <T> void setClassFactory(Class<T> c, Factory<? extends T> f) {
-    throw new UnsupportedOperationException(); // TODO
+    namespace.register(c);
+    try {
+      factories.put(namespace.getNode(c), f);
+    } catch(NameResolutionException e) {
+      throw new IllegalStateException("Could not find class " + c + " which this method just registered!");
+    }
   }
   public <T> void setClassSingleton(Class<T> c, T o) {
     ClassNode<?> cn;
