@@ -235,7 +235,7 @@ public class Tang {
     T get();
   }
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public <T> void setClassVivifier(Class<T> c, Class<Vivifier<? extends T>> v) {
+  public <T> void setClassVivifier(Class<T> c, Class<? extends Vivifier<? extends T>> v) {
     namespace.register(c);
     try {
       vivifier.put(namespace.getNode(c), (Class)v);
