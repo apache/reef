@@ -29,7 +29,7 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class TypeHierarchy {
-  private final Map<ClassNode, List<ClassNode>> knownImpls = new HashMap<ClassNode, List<ClassNode>>();
+  private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new HashMap<ClassNode<?>, List<ClassNode<?>>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new HashMap<String, NamedParameterNode<?>>();
   final PackageNode namespace = new PackageNode(null, "");
   final static String regexp = "[\\.\\$]";
@@ -118,11 +118,11 @@ public class TypeHierarchy {
     }
   }
 
-  class ClassNode extends Node {
-    final Class<?> clazz;
+  class ClassNode<T> extends Node {
+    final Class<T> clazz;
     final boolean isPrefixTarget;
     final ConstructorDef[] injectableConstructors;
-    public Class<?> getClazz() {
+    public Class<T> getClazz() {
       return clazz;
     }
     public boolean getIsPrefixTarget() {
@@ -140,7 +140,7 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
-    public ClassNode(Node parent, Class<?> clazz, boolean isPrefixTarget) {
+    public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) {
       super(parent, clazz);
       this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
@@ -230,10 +230,10 @@ public class TypeHierarchy {
     }
   }
 
-  class NamespaceNode extends Node {
-    private ClassNode target;
+  class NamespaceNode<T> extends Node {
+    private ClassNode<T> target;
 
-    public NamespaceNode(Node parent, String name, ClassNode target) {
+    public NamespaceNode(Node parent, String name, ClassNode<T> target) {
       super(parent, name);
       if (!target.isPrefixTarget) {
         throw new IllegalStateException();
@@ -244,7 +244,10 @@ public class TypeHierarchy {
       super(parent, name);
     }
 
-    public void setTarget(ClassNode target) {
+    public void setTarget(ClassNode<T> target) {
+      if(this.target != null) {
+        throw new IllegalStateException("Attempt to set namespace target from " + this.target + " to " + target);
+      }
       this.target = target;
       if (!target.isPrefixTarget) {
         throw new IllegalStateException();
@@ -518,13 +521,14 @@ public class TypeHierarchy {
     }
   }
 
-  private NamespaceNode registerNamespace(Namespace conf,
-      ClassNode classNode) {
+  @SuppressWarnings("unchecked")
+  private <T> NamespaceNode<T> registerNamespace(Namespace conf,
+      ClassNode<T> classNode) {
     String[] path = conf.value().split(regexp);
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
-        Node newRoot = new NamespaceNode(root, path[i]);
+        Node newRoot = new NamespaceNode<T>(root, path[i]);
         root = newRoot;
       } else {
         root = root.get(path[i]);
@@ -536,11 +540,11 @@ public class TypeHierarchy {
       }
     }
     Node n = root.get(path[path.length-1]);
-    NamespaceNode ret;
+    NamespaceNode<T> ret;
     if(n == null) {
-      ret = new NamespaceNode(root, path[path.length - 1], classNode); 
+      ret = new NamespaceNode<T>(root, path[path.length - 1], classNode); 
     } else if (n instanceof NamespaceNode) {
-      ret = (NamespaceNode)n;
+      ret = (NamespaceNode<T>)n;
       ret.setTarget(classNode);
       for(Node child : ret.children.values()) {
         // TODO: Better error message here.  We're trying to merge two
@@ -556,7 +560,7 @@ public class TypeHierarchy {
     return ret;
   }
 
-  private <T> Node buildPathToNode(Class<?> clazz, boolean isPrefixTarget) {
+  private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget) {
     String[] path = clazz.getName().split(regexp);
     Node root = namespace;
     // Node ret = null;
@@ -587,7 +591,7 @@ public class TypeHierarchy {
         }
       }
     } else {
-      ret = new ClassNode(parent, clazz, isPrefixTarget);
+      ret = new ClassNode<U>(parent, clazz, isPrefixTarget);
     }
     return ret;
   }
@@ -606,7 +610,7 @@ public class TypeHierarchy {
     Node root = namespace;
     for (int i = 0; i < depth; i++) {
       if (root instanceof NamespaceNode) {
-        NamespaceNode ns = (NamespaceNode)root;
+        NamespaceNode<?> ns = (NamespaceNode<?>)root;
         if(ns.target != null) {
           root = ns.target;
         }
@@ -711,7 +715,8 @@ public class TypeHierarchy {
    * 
    * @param c
    */
-  private void registerClass(Class<?> c) {
+  @SuppressWarnings("unchecked")
+  private <T, U extends T> void registerClass(Class<U> c) {
     if (c.isArray()) {
       throw new UnsupportedOperationException("Can't register array types");
     }
@@ -733,22 +738,22 @@ public class TypeHierarchy {
         throw new IllegalArgumentException("Found namespace annotation " +
             nsAnnotation + " with target " + n + " which is a named parameter.");
       }
-      registerNamespace(nsAnnotation, (ClassNode)n);
+      registerNamespace(nsAnnotation, (ClassNode<?>)n);
     }
 
     if(n instanceof ClassNode) {
-      ClassNode cn = (ClassNode)n;
-      Class<?> superclass = c.getSuperclass();
+      ClassNode<U> cn = (ClassNode<U>)n;
+      Class<T> superclass = (Class<T>)c.getSuperclass();
       if (superclass != null) {
         try {
-          putImpl((ClassNode)getNode(superclass), (ClassNode)n);
+          putImpl((ClassNode<T>)getNode(superclass), cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }
       }
       for (Class<?> interf : c.getInterfaces()) {
         try {
-          putImpl((ClassNode) getNode(interf), cn);
+          putImpl((ClassNode<T>) getNode(interf), cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }
@@ -756,10 +761,10 @@ public class TypeHierarchy {
     }
   }
 
-  private void putImpl(ClassNode superclass, ClassNode impl) {
-    List<ClassNode> s = knownImpls.get(superclass);
+  private <T, U extends T> void putImpl(ClassNode<T> superclass, ClassNode<U> impl) {
+    List<ClassNode<?>> s = knownImpls.get(superclass);
     if (s == null) {
-      s = new ArrayList<ClassNode>();
+      s = new ArrayList<ClassNode<?>>();
       knownImpls.put(superclass, s);
     }
     if (!s.contains(impl)) {
@@ -768,12 +773,13 @@ public class TypeHierarchy {
     }
   }
 
-  ClassNode[] getKnownImpls(ClassNode c) {
-    List<ClassNode> l = knownImpls.get(c);
+  @SuppressWarnings("unchecked")
+  <T> ClassNode<T>[] getKnownImpls(ClassNode<T> c) {
+    List<ClassNode<?>> l = knownImpls.get(c);
     if (l != null) {
-      return l.toArray(new ClassNode[0]);
+      return (ClassNode<T>[])l.toArray(new ClassNode[0]);
     } else {
-      return new ClassNode[0];
+      return (ClassNode<T>[])new ClassNode[0];
     }
   }
 
@@ -790,7 +796,7 @@ public class TypeHierarchy {
         unresolved.add(np.argClass);
       }
     } else if (root instanceof ClassNode) {
-      ClassNode cls = (ClassNode) root;
+      ClassNode<?> cls = (ClassNode<?>) root;
       for (ConstructorDef def : cls.injectableConstructors) {
         for (ConstructorArg arg : def.args) {
           try {

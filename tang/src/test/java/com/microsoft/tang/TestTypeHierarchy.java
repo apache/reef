@@ -53,7 +53,7 @@ public class TestTypeHierarchy {
     public void testSimpleConstructors() throws NameResolutionException {
         ns.register(SimpleConstructors.class);
         Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
-        ClassNode cls = (ClassNode)ns.getNode(SimpleConstructors.class);
+        ClassNode<?> cls = (ClassNode<?>)ns.getNode(SimpleConstructors.class);
         Assert.assertTrue(cls.children.size() == 0);
         ConstructorDef def[] = cls.injectableConstructors;
         Assert.assertEquals(3, def.length);
@@ -73,7 +73,7 @@ public class TestTypeHierarchy {
         Assert.assertNotNull(ns.getNode(Metadata.class));
         Assert.assertFalse(ns.getNode("foo.bar") instanceof NamedParameterNode);
         Assert.assertTrue(ns.getNode("foo.bar.Quuz") instanceof NamedParameterNode);
-        Assert.assertTrue(((ClassNode)ns.getNode(Metadata.class)).isPrefixTarget);
+        Assert.assertTrue(((ClassNode<?>)ns.getNode(Metadata.class)).isPrefixTarget);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testRepeatConstructorArg() {

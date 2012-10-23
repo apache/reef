@@ -35,12 +35,13 @@ public class Tang {
   private final TypeHierarchy namespace;
   private final Map<Node, Class<?>> defaultImpls = new HashMap<Node, Class<?>>();
   private final Map<Node, Object> defaultInstances = new HashMap<Node, Object>();
-
+  private final Map<Node, Factory<?>> factories = new HashMap<Node, Factory<?>>();
   public Tang(TypeHierarchy namespace) {
     this.namespace = namespace;
     namespace.resolveAllClasses();
   }
 
+  @SuppressWarnings({ "unchecked" })
   public <T> void registerConfigFile(String configFileName)
       throws ConfigurationException, NameResolutionException, ClassNotFoundException {
     Configuration conf = new PropertiesConfiguration(configFileName);
@@ -79,12 +80,11 @@ public class Tang {
           String longVal = shortNames.get(value);
           if(longVal != null) value = longVal;
           if (n instanceof NamedParameterNode) {
-            @SuppressWarnings("unchecked")
             NamedParameterNode<T> np = (NamedParameterNode<T>) n;
 
             setParameterValue(np.clazz, ReflectionUtilities.parse(np.argClass, value));
           } else if(n instanceof ClassNode) {
-            setClassImplementation(((ClassNode)n).getClazz(), Class.forName(value));
+            setClassImplementation(((ClassNode<T>)n).getClazz(), (Class<? extends T>)Class.forName(value));
           }
         }
         // Resolve all classes before processing the next line.  It could be
@@ -185,7 +185,7 @@ public class Tang {
    * @param d
    * @throws NameResolutionException
    */
-  public void setClassImplementation(Class<?> c, Class<?> d)
+  public <T> void setClassImplementation(Class<T> c, Class<? extends T> d)
       throws NameResolutionException {
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
@@ -200,6 +200,23 @@ public class Tang {
           "Detected type mismatch.  Expected ClassNode, but namespace contains a "
               + n);
     }
+  }
+  public interface Factory<T> { T get(); }
+  public <T> void setClassFactory(Class<T> c, Factory<? extends T> f) {
+    throw new UnsupportedOperationException(); // TODO
+  }
+  public <T> void setClassSingleton(Class<T> c, T o) {
+    ClassNode<?> cn;
+    namespace.register(c);
+    try {
+      cn = (ClassNode<?>)namespace.getNode(c);
+    } catch(NameResolutionException e) {
+      throw new IllegalStateException("Could not find class " + c + " which this method just registered!");
+    } catch (ClassCastException e) {
+      throw new IllegalArgumentException("Cannot call setClassSingleton on " + c + ".  Try setNamedParameter() instead.");
+    }
+    
+    defaultInstances.put(cn, o);
   }
   /**
    * Set the default value of a named parameter.
@@ -271,21 +288,23 @@ public class Tang {
       if(instance == null) { instance = np.defaultInstance; }
       ip = new Instance(np, instance);
     } else if (n instanceof ClassNode) {
-      ClassNode cn = (ClassNode) n;
+      ClassNode<?> cn = (ClassNode<?>) n;
       if (defaultInstances.containsKey(cn)) {
         ip = new Instance(cn, defaultInstances.get(cn));
+      } else if (factories.containsKey(cn)) {
+        ip = new Instance(cn, factories.get(cn).get());
       } else if (defaultImpls.containsKey(cn)) {
         String implName = defaultImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
         ip = memo.get(implName);
       } else {
-        List<ClassNode> classNodes = new ArrayList<ClassNode>();
-        for (ClassNode c : namespace.getKnownImpls(cn)) {
+        List<ClassNode<?>> classNodes = new ArrayList<ClassNode<?>>();
+        for (ClassNode<?> c : namespace.getKnownImpls(cn)) {
           classNodes.add(c);
         }
         classNodes.add(cn);
         List<InjectionPlan> sub_ips = new ArrayList<InjectionPlan>();
-        for (ClassNode thisCN : classNodes) {
+        for (ClassNode<?> thisCN : classNodes) {
           List<InjectionPlan.Constructor> constructors = new ArrayList<InjectionPlan.Constructor>();
           for (ConstructorDef def : thisCN.injectableConstructors) {
             List<InjectionPlan> args = new ArrayList<InjectionPlan>();
