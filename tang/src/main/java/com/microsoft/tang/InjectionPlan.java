@@ -4,7 +4,7 @@ public abstract class InjectionPlan {
   public abstract int getNumAlternatives();
   public boolean isFeasible() { return getNumAlternatives() > 0; }
   public boolean isAmbiguous() { return getNumAlternatives() > 1; }
-  public boolean canInject() { return getNumAlternatives() == 1; }
+  public boolean isInjectable() { return getNumAlternatives() == 1; }
   
   private static void newline(StringBuffer pretty, int indent) {
     pretty.append('\n');
@@ -12,8 +12,8 @@ public abstract class InjectionPlan {
       pretty.append(' ');
     }
   }
-  public static String prettyPrint(InjectionPlan p) {
-    String ugly = p.toString();
+  public String toPrettyString() {
+    String ugly = toString();
     StringBuffer pretty = new StringBuffer();
     int currentIndent = 0;
     for(int i = 0; i < ugly.length(); i++) {

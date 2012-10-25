@@ -29,497 +29,15 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class TypeHierarchy {
+  // TODO: Want to add a "register namespace" method, but Java is not designed
+  // to support such things.
+  // There are third party libraries that would help, but they can fail if the
+  // relevant jar has not yet been loaded.
+  
   private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new HashMap<ClassNode<?>, List<ClassNode<?>>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new HashMap<String, NamedParameterNode<?>>();
   final PackageNode namespace = new PackageNode(null, "");
   final static String regexp = "[\\.\\$]";
-
-  public void writeJson(OutputStream out) throws JsonGenerationException, JsonMappingException, IOException {
-    ObjectMapper map = new ObjectMapper();
-    map.defaultPrettyPrintingWriter().writeValue(out, this);
-  }
-  abstract class Node {
-    protected final Node parent;
-    protected final String name;
-    String getFullName() {
-      if(parent == null) {
-        return name;
-      } else {
-        return parent.getFullName() + "." + name;
-      }
-    }
-    Map<String, Node> children = new HashMap<String, Node>();
-
-    Node(Node parent, Class<?> name) {
-      this.parent = parent;
-      this.name = name.getSimpleName();
-      if (parent != null) {
-        parent.put(this);
-      }
-    }
-
-    Node(Node parent, String name) {
-      this.parent = parent;
-      this.name = name;
-      if (parent != null) {
-        parent.put(this);
-      }
-    }
-
-    public boolean contains(String key) {
-      return children.containsKey(key);
-    }
-
-    public Node get(String key) {
-      return children.get(key);
-    }
-
-    void put(Node n) {
-      Node old = children.put(n.name,  n);
-      if(old != null) {
-        throw new IllegalStateException(
-            "Attempt to register node that already exists!");
-      }
-    }
-
-    /*
-     * public void addNamedParameter(NamedParameter name, Class<?> nameClazz) {
-     * put(new NamedParameterNode(name, nameClazz));
-     * 
-     * }
-     */
-
-    public String toIndentedString(int level) {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < level; i++) {
-        sb.append("\t");
-      }
-      sb.append(toString() + "\n");
-      if (children != null) {
-        for (Node n : children.values()) {
-          sb.append(n.toIndentedString(level + 1));
-        }
-      }
-      return sb.toString();
-    }
-
-    @Override
-    public String toString() {
-      return "[" + this.getClass().getSimpleName() + " " + name + "]";
-    }
-    public String getType() { return this.getClass().getSimpleName(); }
-    public String getName() { return name; }
-    public Collection<Node> getChildren() { return children.values(); }
-  }
-
-  class PackageNode extends Node {
-    PackageNode(Node parent, String name) {
-      super(parent, name);
-    }
-  }
-
-  class ClassNode<T> extends Node {
-    final Class<T> clazz;
-    final boolean isPrefixTarget;
-    final ConstructorDef[] injectableConstructors;
-    public Class<T> getClazz() {
-      return clazz;
-    }
-    public boolean getIsPrefixTarget() {
-      return isPrefixTarget;
-    }
-    public ConstructorDef[] getInjectableConstructors() {
-      return injectableConstructors;
-    }
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder(super.toString() + ": ");
-      for (ConstructorDef c : injectableConstructors) {
-        sb.append(c.toString() + ", ");
-      }
-      return sb.toString();
-    }
-
-    public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) {
-      super(parent, clazz);
-      this.clazz = clazz;
-      this.isPrefixTarget = isPrefixTarget;
-
-      // Don't support non-static member classes with @Inject annotations.
-      boolean injectable = true;
-      if (clazz.isLocalClass() || clazz.isMemberClass()) {
-        if (!Modifier.isStatic(clazz.getModifiers())) {
-          injectable = false;
-        }
-      }
-
-      //boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) != null);
-      Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-      List<ConstructorDef> injectableConstructors = new ArrayList<ConstructorDef>();
-      /*if (injectAllConstructors && !injectable) {
-        throw new IllegalArgumentException(
-            "Cannot @Inject non-static member/local class: " + clazz);
-      }*/
-
-      for (int k = 0; k < constructors.length; k++) {
-
-        if (constructors[k].getAnnotation(Inject.class) != null) {
-          if (!injectable) {
-            throw new IllegalArgumentException(
-                "Cannot @Inject non-static member/local class: " + clazz);
-          }
-          // go through the constructor arguments.
-          if (constructors[k].isSynthetic()) {
-            throw new IllegalStateException(
-                "Synthetic constructor was annotated with @Inject!");
-          }
-
-          // ConstructorDef's constructor checks for duplicate
-          // parameters
-          // The injectableConstructors set checks for ambiguous
-          // constructors.
-          Class<?>[] paramTypes = constructors[k].getParameterTypes();
-          Annotation[][] paramAnnotations = constructors[k]
-              .getParameterAnnotations();
-          if (paramTypes.length != paramAnnotations.length) {
-            throw new IllegalStateException();
-          }
-          ConstructorArg[] args = new ConstructorArg[paramTypes.length];
-          for (int i = 0; i < paramTypes.length; i++) {
-            // if there is an appropriate annotation, use that.
-            Parameter named = null;
-            for (int j = 0; j < paramAnnotations[i].length; j++) {
-              Annotation annotation = paramAnnotations[i][j];
-              if (annotation instanceof Parameter) {
-                named = (Parameter) annotation;
-                // Register the Parameter type, if necessary.
-                Node n;
-                try {
-                  n = getNode(named.value());
-                } catch (NameResolutionException e) {
-                  n = buildPathToNode(named.value(), false);
-                }
-                if (!(n instanceof NamedParameterNode)) {
-                  throw new IllegalStateException();
-                }
-                NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-                if (!ReflectionUtilities
-                    .isCoercable(paramTypes[i], np.argClass)) {
-                  throw new IllegalArgumentException(
-                      "Incompatible argument type.  Constructor expects "
-                          + paramTypes[i] + " but " + np.name + " is a "
-                          + np.argClass);
-                }
-              }
-            }
-            args[i] = new ConstructorArg(paramTypes[i], named);
-          }
-          ConstructorDef def = new ConstructorDef(args, constructors[k]);
-          if (injectableConstructors.contains(def)) {
-            throw new IllegalStateException(
-                "Ambiguous constructors detected in class " + clazz + ": "
-                    + def + " differs from some other " + " constructor only "
-                    + "by parameter order.");
-          } else {
-            injectableConstructors.add(def);
-          }
-        }
-      }
-      this.injectableConstructors = injectableConstructors
-          .toArray(new ConstructorDef[0]);
-    }
-  }
-
-  class NamespaceNode<T> extends Node {
-    private ClassNode<T> target;
-
-    public NamespaceNode(Node parent, String name, ClassNode<T> target) {
-      super(parent, name);
-      if (!target.isPrefixTarget) {
-        throw new IllegalStateException();
-      }
-      this.target = target;
-    }
-    public NamespaceNode(Node parent, String name) {
-      super(parent, name);
-    }
-
-    public void setTarget(ClassNode<T> target) {
-      if(this.target != null) {
-        throw new IllegalStateException("Attempt to set namespace target from " + this.target + " to " + target);
-      }
-      this.target = target;
-      if (!target.isPrefixTarget) {
-        throw new IllegalStateException();
-      }
-    }
-    public Node getTarget() {
-      return target;
-    }
-    @Override
-    public String toString() {
-      if (target != null) {
-        return super.toString() + " -> " + target.toString();
-      } else {
-        return super.toString();
-      }
-    }
-  }
-
-  class NamedParameterNode<T> extends Node {
-    final Class<? extends Name<T>> clazz;
-    private final NamedParameter namedParameter;
-    final Class<T> argClass;
-    final Object defaultInstance;
-    
-    /*
-     * NamedParameterNode(NamedParameter n, Class<?> nameClazz) {
-     * super(nameClazz); children = null; this.namedParameter = n; this.argClass
-     * = n.type(); }
-     */
-
-    public boolean isAsSpecificAs(NamedParameterNode<?> n) {
-      if (!argClass.equals(n.argClass)) {
-        return false;
-      }
-      if (!name.equals(n.name)) {
-        return false;
-      }
-      if (n.namedParameter == null) {
-        return true;
-      }
-      if (this.namedParameter == null) {
-        return false;
-      }
-      return this.namedParameter.equals(n.namedParameter);
-    }
-
-    @SuppressWarnings("unchecked")
-    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz) {
-      super(parent, clazz);
-      this.clazz = clazz;
-
-      for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-        for (Annotation a : c.getDeclaredAnnotations()) {
-          if (a instanceof Inject) {
-            throw new IllegalStateException(
-                "Detected illegal @Injectable parameter class");
-          }
-        }
-      }
-      Class<T> parameterClass;
-      try {
-        Type[] interfaces = clazz.getGenericInterfaces();
-        if(interfaces.length != 1) { throw new IllegalArgumentException(); }
-        Type genericNameType = interfaces[0];
-        if(genericNameType instanceof ParameterizedType) {
-          ParameterizedType ptype = (ParameterizedType)genericNameType;
-          if(ptype.getRawType() != Name.class) { throw new IllegalArgumentException(); }
-          try {
-            Type t = ptype.getActualTypeArguments()[0];
-            // It could be that the parameter is, itself a generic type.  Not sure if we should support this, but we do for now.
-            if(t instanceof ParameterizedType) {
-              t = ((ParameterizedType) t).getRawType();  // Get the underlying raw type of the parameter.
-            }
-            parameterClass = (Class<T>)t;
-          } catch(ClassCastException e) {
-            throw new IllegalArgumentException();
-          }
-        } else {
-          throw new IllegalArgumentException();
-        }
-      } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("NamedParameter " + clazz + " must have exactly one super interface: A name with a concrete type parameter.");
-      }
-
-      
-      this.namedParameter = clazz.getAnnotation(NamedParameter.class);
-      this.argClass = parameterClass;
-      this.defaultInstance = (this.namedParameter == null || namedParameter.default_value().length()==0) ?
-          null : ReflectionUtilities.parse(this.argClass, namedParameter.default_value());
-    }
-
-    @Override
-    public String toString() {
-      String ret = argClass.getSimpleName();
-      if (namedParameter == null) {
-        ret = ret + " " + name;
-      } else {
-        ret = ret + " @Parameter(" + name + ")";
-      }
-      return ret;
-    }
-
-    public Class<T> getArgClass() {
-      return argClass;
-    }
-    public Class<? extends Name<T>> getNameClass() {
-      return clazz;
-    }
-    public Object getDefaultInstance() {
-      return defaultInstance;
-    }
-    public String getDocumentation() {
-      if(namedParameter != null) {
-        return namedParameter.doc();
-      } else {
-        return "";
-      }
-    }
-/*    public NamedParameter getNamedParameter() {
-      return namedParameter;
-    } */
-    public String getShortName() {
-      if (namedParameter.short_name() != null
-          && namedParameter.short_name().length() == 0) {
-        return null;
-      }
-      return namedParameter.short_name();
-    }
-  }
-
-  class ConstructorArg {
-    final Class<?> type;
-    final Parameter name;
-    public String getType() {
-      return type.toString();
-    }
-    public String getName() {
-      return name == null ? type.getName() : name.value().getName();
-    }
-
-    // TODO: Delete this method if we finalize the "class as name" approach to
-    // named parameters
-    /*String getFullyQualifiedName(Class<?> targetClass) {
-      String name = getName();
-      if (!name.contains(".")) {
-        name = targetClass.getName() + "." + name;
-        throw new IllegalStateException("Should be dead code now!");
-      }
-      return name;
-    }*/
-
-    ConstructorArg(Class<?> argType) {
-      this.type = argType;
-      this.name = null;
-    }
-
-    ConstructorArg(Class<?> type, Parameter name) {
-      this.type = type;
-      this.name = name;
-    }
-
-    @Override
-    public String toString() {
-      return name == null ? type.getSimpleName()
-          : (type.getSimpleName() + " " + name.value().getSimpleName());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      ConstructorArg arg = (ConstructorArg) o;
-      if (!type.equals(arg.type)) {
-        return false;
-      }
-      if (name == null && arg.name == null) {
-        return true;
-      }
-      if (name == null && arg.name != null) {
-        return false;
-      }
-      if (name != null && arg.name == null) {
-        return false;
-      }
-      return name.equals(arg.name);
-
-    }
-  }
-
-  class ConstructorDef {
-    final ConstructorArg[] args;
-    final Constructor<?> constructor;
-    public Class<?> getConstructor() {
-      return constructor.getDeclaringClass();
-    }
-    public ConstructorArg[] getArgs() {
-      return args;
-    }
-    @Override
-    public String toString() {
-      if (args.length == 0) {
-        return "()";
-      }
-      StringBuilder sb = new StringBuilder("(" + args[0]);
-      for (int i = 1; i < args.length; i++) {
-        sb.append("," + args[i]);
-      }
-      sb.append(")");
-      return sb.toString();
-    }
-
-    ConstructorDef(ConstructorArg[] args, Constructor<?> constructor) {
-      this.args = args;
-      this.constructor = constructor;
-      constructor.setAccessible(true);
-
-      for (int i = 0; i < this.args.length; i++) {
-        for (int j = i + 1; j < this.args.length; j++) {
-          if (this.args[i].toString().equals(this.args[j].toString())) {
-            throw new IllegalArgumentException(
-                "Repeated constructor parameter detected.  "
-                    + "Cannot inject this constructor.");
-          }
-        }
-      }
-    }
-
-    /**
-     * Check to see if two constructors take indistinguishable arguments. If so
-     * (and they are in the same class), then this would lead to ambiguous
-     * injection targets, and we want to fail fast.
-     * 
-     * TODO could be faster. Currently O(n^2) in number of parameters.
-     * 
-     * @param def
-     * @return
-     */
-    boolean equalsIgnoreOrder(ConstructorDef def) {
-      if (args.length != def.args.length) {
-        return false;
-      }
-      for (int i = 0; i < args.length; i++) {
-        boolean found = false;
-        for (int j = 0; j < args.length; j++) {
-          if (args[i].getName().equals(args[j].getName())) {
-            found = true;
-          }
-        }
-        if (!found) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      return equalsIgnoreOrder((ConstructorDef) o);
-    }
-
-    public boolean isMoreSpecificThan(ConstructorDef def) {
-      for (int i = 0; i < args.length; i++) {
-        boolean found = false;
-        for (int j = 0; j < def.args.length; j++) {
-          if (args[i].equals(def.args[j])) {
-            found = true;
-          }
-        }
-        if (found == false)
-          return false;
-      }
-      return args.length > def.args.length;
-    }
-  }
 
   @SuppressWarnings("unchecked")
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
@@ -644,7 +162,7 @@ public class TypeHierarchy {
    * @param packageName
    * @throws NameResolutionException
    */
-  public void registerPackage(String[] packageName)
+  private void registerPackage(String[] packageName)
       throws NameResolutionException {
 
     try {
@@ -663,10 +181,14 @@ public class TypeHierarchy {
     new PackageNode(parent, packageName[packageName.length - 1]);
   }
   public void register(Class<?> c) {
+    registerImpl(c);
+    resolveAllClasses();
+  }
+  private void registerImpl(Class<?> c) {
     if (c.getSuperclass() != null)
-      register(c.getSuperclass());
+      registerImpl(c.getSuperclass());
     for (Class<?> i : c.getInterfaces()) {
-      register(i);
+      registerImpl(i);
     }
     
     List<Class<?>> pathToRoot = new ArrayList<Class<?>>();
@@ -706,7 +228,7 @@ public class TypeHierarchy {
       // Check for Namespace annotation, and register the namespace here (or at the end of registerClass)
     }
     for (Class<?> inner_class : c.getDeclaredClasses()) {
-      register(inner_class);
+      registerImpl(inner_class);
     }
   }
 
@@ -783,11 +305,7 @@ public class TypeHierarchy {
     }
   }
 
-  public String exportNamespace() {
-    return namespace.toIndentedString(0);
-  }
-
-  public void findUnresolvedClasses(Node root, Set<Class<?>> unresolved) {
+  private void findUnresolvedClasses(Node root, Set<Class<?>> unresolved) {
     if (root instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) (root);
       try {
@@ -830,43 +348,19 @@ public class TypeHierarchy {
     }
   }
 
-  public Class<?>[] findUnresolvedClasses() {
+  private Class<?>[] findUnresolvedClasses() {
     Set<Class<?>> unresolved = new HashSet<Class<?>>();
     findUnresolvedClasses(namespace, unresolved);
     return unresolved.toArray(new Class<?>[0]);
   }
 
-  public void resolveAllClasses() {
+  private void resolveAllClasses() {
     for (Class<?>[] classes = findUnresolvedClasses(); classes.length > 0; classes = findUnresolvedClasses()) {
       for (Class<?> c : classes) {
-        register(c);
+        registerImpl(c);
       }
     }
   }
-
-  // TODO: Want to add a "register namespace" method, but Java is not designed
-  // to support such things.
-  // There are third party libraries that would help, but they can fail if the
-  // relevant jar has not yet been loaded.
-
-  public static void main(String[] args) throws Exception {
-    TypeHierarchy ns = new TypeHierarchy();
-    for (String s : args) {
-      ns.register(ReflectionUtilities.classForName(s));
-    }
-    for (Class<?>[] classes = ns.findUnresolvedClasses(); classes.length > 0; classes = ns
-        .findUnresolvedClasses()) {
-      System.out.println("Found unresolved classes.  Loading them.");
-      for (Class<?> c : classes) {
-        System.out.println("  " + c.getName());
-        ns.register(c);
-      }
-      System.out.println("Done.");
-    }
-    System.out.print(ns.exportNamespace());
-    ns.writeJson(System.out);
-  }
-
   public PackageNode getNamespace() {
     return namespace;
   }
@@ -877,4 +371,502 @@ public class TypeHierarchy {
   public <T> NamedParameterNode<T> getNodeFromShortName(String shortName) {
     return (NamedParameterNode<T>)shortNames.get(shortName);
   }
+
+
+  /**
+   * TODO: Fix up output of TypeHierarchy!
+   * @return
+   */
+  public String toPrettyString() {
+    return namespace.toIndentedString(0);
+  }
+
+  public void writeJson(OutputStream out) throws JsonGenerationException, JsonMappingException, IOException {
+    ObjectMapper map = new ObjectMapper();
+    map.defaultPrettyPrintingWriter().writeValue(out, this);
+  }
+
+  public abstract class Node {
+    protected final Node parent;
+    protected final String name;
+    String getFullName() {
+      if(parent == null) {
+        return name;
+      } else {
+        return parent.getFullName() + "." + name;
+      }
+    }
+    Map<String, Node> children = new HashMap<String, Node>();
+
+    Node(Node parent, Class<?> name) {
+      this.parent = parent;
+      this.name = name.getSimpleName();
+      if (parent != null) {
+        parent.put(this);
+      }
+    }
+
+    Node(Node parent, String name) {
+      this.parent = parent;
+      this.name = name;
+      if (parent != null) {
+        parent.put(this);
+      }
+    }
+
+    public boolean contains(String key) {
+      return children.containsKey(key);
+    }
+
+    public Node get(String key) {
+      return children.get(key);
+    }
+
+    void put(Node n) {
+      Node old = children.put(n.name,  n);
+      if(old != null) {
+        throw new IllegalStateException(
+            "Attempt to register node that already exists!");
+      }
+    }
+
+    /*
+     * public void addNamedParameter(NamedParameter name, Class<?> nameClazz) {
+     * put(new NamedParameterNode(name, nameClazz));
+     * 
+     * }
+     */
+
+    public String toIndentedString(int level) {
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < level; i++) {
+        sb.append("\t");
+      }
+      sb.append(toString() + "\n");
+      if (children != null) {
+        for (Node n : children.values()) {
+          sb.append(n.toIndentedString(level + 1));
+        }
+      }
+      return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+      return "[" + this.getClass().getSimpleName() + " " + name + "]";
+    }
+    public String getType() { return this.getClass().getSimpleName(); }
+    public String getName() { return name; }
+    public Collection<Node> getChildren() { return children.values(); }
+  }
+
+  public class PackageNode extends Node {
+    PackageNode(Node parent, String name) {
+      super(parent, name);
+    }
+  }
+
+  public class ClassNode<T> extends Node {
+    final Class<T> clazz;
+    final boolean isPrefixTarget;
+    final ConstructorDef[] injectableConstructors;
+    public Class<T> getClazz() {
+      return clazz;
+    }
+    public boolean getIsPrefixTarget() {
+      return isPrefixTarget;
+    }
+    public ConstructorDef[] getInjectableConstructors() {
+      return injectableConstructors;
+    }
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder(super.toString() + ": ");
+      for (ConstructorDef c : injectableConstructors) {
+        sb.append(c.toString() + ", ");
+      }
+      return sb.toString();
+    }
+
+    public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) {
+      super(parent, clazz);
+      this.clazz = clazz;
+      this.isPrefixTarget = isPrefixTarget;
+
+      // Don't support non-static member classes with @Inject annotations.
+      boolean injectable = true;
+      if (clazz.isLocalClass() || clazz.isMemberClass()) {
+        if (!Modifier.isStatic(clazz.getModifiers())) {
+          injectable = false;
+        }
+      }
+
+      //boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) != null);
+      Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+      List<ConstructorDef> injectableConstructors = new ArrayList<ConstructorDef>();
+      /*if (injectAllConstructors && !injectable) {
+        throw new IllegalArgumentException(
+            "Cannot @Inject non-static member/local class: " + clazz);
+      }*/
+
+      for (int k = 0; k < constructors.length; k++) {
+
+        if (constructors[k].getAnnotation(Inject.class) != null) {
+          if (!injectable) {
+            throw new IllegalArgumentException(
+                "Cannot @Inject non-static member/local class: " + clazz);
+          }
+          // go through the constructor arguments.
+          if (constructors[k].isSynthetic()) {
+            throw new IllegalStateException(
+                "Synthetic constructor was annotated with @Inject!");
+          }
+
+          // ConstructorDef's constructor checks for duplicate
+          // parameters
+          // The injectableConstructors set checks for ambiguous
+          // constructors.
+          Class<?>[] paramTypes = constructors[k].getParameterTypes();
+          Annotation[][] paramAnnotations = constructors[k]
+              .getParameterAnnotations();
+          if (paramTypes.length != paramAnnotations.length) {
+            throw new IllegalStateException();
+          }
+          ConstructorArg[] args = new ConstructorArg[paramTypes.length];
+          for (int i = 0; i < paramTypes.length; i++) {
+            // if there is an appropriate annotation, use that.
+            Parameter named = null;
+            for (int j = 0; j < paramAnnotations[i].length; j++) {
+              Annotation annotation = paramAnnotations[i][j];
+              if (annotation instanceof Parameter) {
+                named = (Parameter) annotation;
+                // Register the Parameter type, if necessary.
+                Node n;
+                try {
+                  n = getNode(named.value());
+                } catch (NameResolutionException e) {
+                  n = buildPathToNode(named.value(), false);
+                }
+                if (!(n instanceof NamedParameterNode)) {
+                  throw new IllegalStateException();
+                }
+                NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+                if (!ReflectionUtilities
+                    .isCoercable(paramTypes[i], np.argClass)) {
+                  throw new IllegalArgumentException(
+                      "Incompatible argument type.  Constructor expects "
+                          + paramTypes[i] + " but " + np.name + " is a "
+                          + np.argClass);
+                }
+              }
+            }
+            args[i] = new ConstructorArg(paramTypes[i], named);
+          }
+          ConstructorDef def = new ConstructorDef(args, constructors[k]);
+          if (injectableConstructors.contains(def)) {
+            throw new IllegalStateException(
+                "Ambiguous constructors detected in class " + clazz + ": "
+                    + def + " differs from some other " + " constructor only "
+                    + "by parameter order.");
+          } else {
+            injectableConstructors.add(def);
+          }
+        }
+      }
+      this.injectableConstructors = injectableConstructors
+          .toArray(new ConstructorDef[0]);
+    }
+  }
+
+  public class NamespaceNode<T> extends Node {
+    private ClassNode<T> target;
+
+    public NamespaceNode(Node parent, String name, ClassNode<T> target) {
+      super(parent, name);
+      if (!target.isPrefixTarget) {
+        throw new IllegalStateException();
+      }
+      this.target = target;
+    }
+    public NamespaceNode(Node parent, String name) {
+      super(parent, name);
+    }
+
+    public void setTarget(ClassNode<T> target) {
+      if(this.target != null) {
+        throw new IllegalStateException("Attempt to set namespace target from " + this.target + " to " + target);
+      }
+      this.target = target;
+      if (!target.isPrefixTarget) {
+        throw new IllegalStateException();
+      }
+    }
+    public Node getTarget() {
+      return target;
+    }
+    @Override
+    public String toString() {
+      if (target != null) {
+        return super.toString() + " -> " + target.toString();
+      } else {
+        return super.toString();
+      }
+    }
+  }
+
+  public class NamedParameterNode<T> extends Node {
+    final Class<? extends Name<T>> clazz;
+    private final NamedParameter namedParameter;
+    final Class<T> argClass;
+    final Object defaultInstance;
+    
+    /*
+     * NamedParameterNode(NamedParameter n, Class<?> nameClazz) {
+     * super(nameClazz); children = null; this.namedParameter = n; this.argClass
+     * = n.type(); }
+     */
+
+    public boolean isAsSpecificAs(NamedParameterNode<?> n) {
+      if (!argClass.equals(n.argClass)) {
+        return false;
+      }
+      if (!name.equals(n.name)) {
+        return false;
+      }
+      if (n.namedParameter == null) {
+        return true;
+      }
+      if (this.namedParameter == null) {
+        return false;
+      }
+      return this.namedParameter.equals(n.namedParameter);
+    }
+
+    @SuppressWarnings("unchecked")
+    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz) {
+      super(parent, clazz);
+      this.clazz = clazz;
+
+      for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+        for (Annotation a : c.getDeclaredAnnotations()) {
+          if (a instanceof Inject) {
+            throw new IllegalStateException(
+                "Detected illegal @Injectable parameter class");
+          }
+        }
+      }
+      Class<T> parameterClass;
+      try {
+        Type[] interfaces = clazz.getGenericInterfaces();
+        if(interfaces.length != 1) { throw new IllegalArgumentException(); }
+        Type genericNameType = interfaces[0];
+        if(genericNameType instanceof ParameterizedType) {
+          ParameterizedType ptype = (ParameterizedType)genericNameType;
+          if(ptype.getRawType() != Name.class) { throw new IllegalArgumentException(); }
+          try {
+            Type t = ptype.getActualTypeArguments()[0];
+            // It could be that the parameter is, itself a generic type.  Not sure if we should support this, but we do for now.
+            if(t instanceof ParameterizedType) {
+              t = ((ParameterizedType) t).getRawType();  // Get the underlying raw type of the parameter.
+            }
+            parameterClass = (Class<T>)t;
+          } catch(ClassCastException e) {
+            throw new IllegalArgumentException();
+          }
+        } else {
+          throw new IllegalArgumentException();
+        }
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("NamedParameter " + clazz + " must have exactly one super interface: A name with a concrete type parameter.");
+      }
+
+      
+      this.namedParameter = clazz.getAnnotation(NamedParameter.class);
+      this.argClass = parameterClass;
+      this.defaultInstance = (this.namedParameter == null || namedParameter.default_value().length()==0) ?
+          null : ReflectionUtilities.parse(this.argClass, namedParameter.default_value());
+    }
+
+    @Override
+    public String toString() {
+      String ret = argClass.getSimpleName();
+      if (namedParameter == null) {
+        ret = ret + " " + name;
+      } else {
+        ret = ret + " @Parameter(" + name + ")";
+      }
+      return ret;
+    }
+
+    public Class<T> getArgClass() {
+      return argClass;
+    }
+    public Class<? extends Name<T>> getNameClass() {
+      return clazz;
+    }
+    public Object getDefaultInstance() {
+      return defaultInstance;
+    }
+    public String getDocumentation() {
+      if(namedParameter != null) {
+        return namedParameter.doc();
+      } else {
+        return "";
+      }
+    }
+/*    public NamedParameter getNamedParameter() {
+      return namedParameter;
+    } */
+    public String getShortName() {
+      if (namedParameter.short_name() != null
+          && namedParameter.short_name().length() == 0) {
+        return null;
+      }
+      return namedParameter.short_name();
+    }
+  }
+
+  public class ConstructorArg {
+    final Class<?> type;
+    final Parameter name;
+    public String getType() {
+      return type.toString();
+    }
+    public String getName() {
+      return name == null ? type.getName() : name.value().getName();
+    }
+
+    // TODO: Delete this method if we finalize the "class as name" approach to
+    // named parameters
+    /*String getFullyQualifiedName(Class<?> targetClass) {
+      String name = getName();
+      if (!name.contains(".")) {
+        name = targetClass.getName() + "." + name;
+        throw new IllegalStateException("Should be dead code now!");
+      }
+      return name;
+    }*/
+
+    ConstructorArg(Class<?> argType) {
+      this.type = argType;
+      this.name = null;
+    }
+
+    ConstructorArg(Class<?> type, Parameter name) {
+      this.type = type;
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return name == null ? type.getSimpleName()
+          : (type.getSimpleName() + " " + name.value().getSimpleName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      ConstructorArg arg = (ConstructorArg) o;
+      if (!type.equals(arg.type)) {
+        return false;
+      }
+      if (name == null && arg.name == null) {
+        return true;
+      }
+      if (name == null && arg.name != null) {
+        return false;
+      }
+      if (name != null && arg.name == null) {
+        return false;
+      }
+      return name.equals(arg.name);
+
+    }
+  }
+
+  public class ConstructorDef {
+    final ConstructorArg[] args;
+    final Constructor<?> constructor;
+    public Class<?> getConstructor() {
+      return constructor.getDeclaringClass();
+    }
+    public ConstructorArg[] getArgs() {
+      return args;
+    }
+    @Override
+    public String toString() {
+      if (args.length == 0) {
+        return "()";
+      }
+      StringBuilder sb = new StringBuilder("(" + args[0]);
+      for (int i = 1; i < args.length; i++) {
+        sb.append("," + args[i]);
+      }
+      sb.append(")");
+      return sb.toString();
+    }
+
+    ConstructorDef(ConstructorArg[] args, Constructor<?> constructor) {
+      this.args = args;
+      this.constructor = constructor;
+      constructor.setAccessible(true);
+
+      for (int i = 0; i < this.args.length; i++) {
+        for (int j = i + 1; j < this.args.length; j++) {
+          if (this.args[i].toString().equals(this.args[j].toString())) {
+            throw new IllegalArgumentException(
+                "Repeated constructor parameter detected.  "
+                    + "Cannot inject this constructor.");
+          }
+        }
+      }
+    }
+
+    /**
+     * Check to see if two constructors take indistinguishable arguments. If so
+     * (and they are in the same class), then this would lead to ambiguous
+     * injection targets, and we want to fail fast.
+     * 
+     * TODO could be faster. Currently O(n^2) in number of parameters.
+     * 
+     * @param def
+     * @return
+     */
+    boolean equalsIgnoreOrder(ConstructorDef def) {
+      if (args.length != def.args.length) {
+        return false;
+      }
+      for (int i = 0; i < args.length; i++) {
+        boolean found = false;
+        for (int j = 0; j < args.length; j++) {
+          if (args[i].getName().equals(args[j].getName())) {
+            found = true;
+          }
+        }
+        if (!found) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return equalsIgnoreOrder((ConstructorDef) o);
+    }
+
+    public boolean isMoreSpecificThan(ConstructorDef def) {
+      for (int i = 0; i < args.length; i++) {
+        boolean found = false;
+        for (int j = 0; j < def.args.length; j++) {
+          if (args[i].equals(def.args[j])) {
+            found = true;
+          }
+        }
+        if (found == false)
+          return false;
+      }
+      return args.length > def.args.length;
+    }
+  }
+
 }

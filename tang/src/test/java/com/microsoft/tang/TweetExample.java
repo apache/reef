@@ -85,8 +85,6 @@ public class TweetExample {
     ns.register(MockTweetFactory.class);
     ns.register(MockSMS.class);
     ns.register(Tweeter.class);
-    // Pull in unknown dependencies (eg: TweetFactory) automagically.
-    ns.resolveAllClasses();
   }
 
   @After
@@ -97,9 +95,9 @@ public class TweetExample {
   @Test
   public void test() throws Exception {
     Tang t = new Tang(ns);
-    t.setClassImplementation(TweetFactory.class, MockTweetFactory.class);
-    t.setClassImplementation(SMS.class, MockSMS.class);
-    t.setParameterValue(Tweeter.PhoneNumber.class, (long)(867 - 5309));
+    t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
+    t.bindImplementation(SMS.class, MockSMS.class);
+    t.bindParameter(Tweeter.PhoneNumber.class, (long)(867 - 5309));
     Tweeter tw = (Tweeter) t.getInstance(Tweeter.class);
     tw.sendMessage();
   }

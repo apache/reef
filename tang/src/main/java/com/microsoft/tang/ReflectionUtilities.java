@@ -3,8 +3,8 @@ package com.microsoft.tang;
 import java.util.HashMap;
 import java.util.Map;
 
-class ReflectionUtilities {
-  static Map<Class<?>, Integer> sizeof = new HashMap<Class<?>, Integer>();
+public class ReflectionUtilities {
+  private static Map<Class<?>, Integer> sizeof = new HashMap<Class<?>, Integer>();
   static {
     sizeof.put(Byte.class, 8);
     sizeof.put(Short.class, 16);
@@ -13,7 +13,7 @@ class ReflectionUtilities {
     sizeof.put(Float.class, 32);
     sizeof.put(Double.class, 64);
   }
-  static Class<?> boxClass(Class<?> c) {
+  public static Class<?> boxClass(Class<?> c) {
     if(c.isPrimitive() && c != Class.class) {
       if(c == boolean.class) {
       return Boolean.class;
@@ -40,7 +40,7 @@ class ReflectionUtilities {
       return c;
     }
   }
-  static boolean isCoercable(Class<?> to, Class<?> from) {
+  public static boolean isCoercable(Class<?> to, Class<?> from) {
     to = boxClass(to);
     from = boxClass(from);
     if(Number.class.isAssignableFrom(to) && Number.class.isAssignableFrom(from)) {
@@ -48,7 +48,7 @@ class ReflectionUtilities {
     }
     return to.isAssignableFrom(from);
   }
-  static Class<?> classForName(String name) throws ClassNotFoundException {
+  public static Class<?> classForName(String name) throws ClassNotFoundException {
     if(name.equals("boolean")) {
       return boolean.class;
     } else if(name.equals("byte")) {
@@ -72,7 +72,7 @@ class ReflectionUtilities {
     }
   }
   @SuppressWarnings("unchecked")
-  static <T> T parse(Class<T> c, String s) {
+  public static <T> T parse(Class<T> c, String s) {
     Class<?> d = boxClass(c);
     if(d == String.class) { return (T)s; }
     if(d == Byte.class) { return (T)(Byte)Byte.parseByte(s); }

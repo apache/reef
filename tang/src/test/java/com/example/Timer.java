@@ -30,7 +30,7 @@ public class Timer {
     typeHierarchy.writeJson(System.err);
     Tang tang = new Tang(typeHierarchy);
     InjectionPlan ip = tang.getInjectionPlan("com.example.Timer");
-    System.out.println(InjectionPlan.prettyPrint(ip));
+    System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
     Timer timer = tang.getInstance(Timer.class);
     System.out.println("Tick...");

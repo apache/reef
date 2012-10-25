@@ -82,9 +82,6 @@ public class TestTypeHierarchy {
     @Test
     public void testResolveDependencies() throws NameResolutionException {
         ns.register(SimpleConstructors.class);
-        for(Class<?> c : ns.findUnresolvedClasses()) {
-            ns.register(c);
-        }
         Assert.assertNotNull(ns.getNode(String.class));
     }
     @Test

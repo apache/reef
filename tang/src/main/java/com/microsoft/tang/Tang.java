@@ -1,5 +1,7 @@
 package com.microsoft.tang;
 
+import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,28 +35,62 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class Tang {
   private final TypeHierarchy namespace;
-  private final Map<Node, Class<?>> defaultImpls = new HashMap<Node, Class<?>>();
-  private final Map<Node, Object> defaultInstances = new HashMap<Node, Object>();
-  private final Map<Node, Class<Vivifier<?>>> vivifier = new HashMap<Node, Class<Vivifier<?>>>();
+
+  class MonotonicMap<T,U> extends HashMap<T, U> {
+    private static final long serialVersionUID = 1L;
+    @Override
+    public U put(T key, U value) {
+      U old = super.get(key);
+      if(old != null) {
+        throw new IllegalArgumentException("Attempt to re-bind: (" + key + ") old value: " + old + " new value " + value);
+      }
+      return super.put(key, value);
+    }
+    @Override
+    public void putAll(Map<? extends T, ? extends U> m) {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public void clear() {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public U remove(Object o) {
+      throw new UnsupportedOperationException();
+    }
+  }
+  
+  private final Map<Node, Class<?>> defaultImpls = new MonotonicMap<Node, Class<?>>();
+  private final Map<Node, Object> defaultInstances = new MonotonicMap<Node, Object>();
+  private final Map<Node, Class<ExternalConstructor<?>>> vivifier = new MonotonicMap<Node, Class<ExternalConstructor<?>>>();
+
+  public Tang() {
+    namespace = new TypeHierarchy();
+  }
+
   public Tang(TypeHierarchy namespace) {
     this.namespace = namespace;
-    namespace.resolveAllClasses();
+  }
+
+  public void register(Class<?> c) {
+    namespace.register(c);
   }
 
   @SuppressWarnings({ "unchecked" })
-  public <T> void registerConfigFile(String configFileName)
-      throws ConfigurationException, NameResolutionException, ClassNotFoundException {
+  public <T> void processConfigurationFile(File configFileName)
+      throws ConfigurationException, NameResolutionException,
+      ClassNotFoundException {
     Configuration conf = new PropertiesConfiguration(configFileName);
     Iterator<String> it = conf.getKeys();
 
-    Map<String, String> shortNames = new HashMap<String,String>();
-    
+    Map<String, String> shortNames = new HashMap<String, String>();
+
     while (it.hasNext()) {
       String key = it.next();
       String longName = shortNames.get(key);
       String[] values = conf.getStringArray(key);
-      if(longName != null) {
-//        System.err.println("Mapped " + key + " to " + longName);
+      if (longName != null) {
+        // System.err.println("Mapped " + key + " to " + longName);
         key = longName;
       }
       for (String value : values) {
@@ -63,14 +99,18 @@ public class Tang {
             namespace.register(Class.forName(value));
             String[] tok = value.split(TypeHierarchy.regexp);
             try {
-              namespace.getNode(tok[tok.length-1]);
-              throw new IllegalArgumentException("Conflict on short name: " + tok[tok.length-1]);
-            } catch(NameResolutionException e) {
-              String oldValue = shortNames.put(tok[tok.length-1], value);
-              if(oldValue != null) {
-                throw new IllegalArgumentException("Name conflict.  " + tok[tok.length-1] + " maps to " + oldValue + " and " + value);
+              namespace.getNode(tok[tok.length - 1]);
+              throw new IllegalArgumentException("Conflict on short name: "
+                  + tok[tok.length - 1]);
+            } catch (NameResolutionException e) {
+              String oldValue = shortNames.put(tok[tok.length - 1], value);
+              if (oldValue != null) {
+                throw new IllegalArgumentException("Name conflict.  "
+                    + tok[tok.length - 1] + " maps to " + oldValue + " and "
+                    + value);
               }
-//              System.err.println("Added mapping from " + tok[tok.length-1] + " to " + value);
+              // System.err.println("Added mapping from " + tok[tok.length-1] +
+              // " to " + value);
             }
           } catch (ClassNotFoundException e) {
             // print error message + exit.
@@ -78,21 +118,18 @@ public class Tang {
         } else {
           Node n = namespace.getNode(key);
           String longVal = shortNames.get(value);
-          if(longVal != null) value = longVal;
+          if (longVal != null)
+            value = longVal;
           if (n instanceof NamedParameterNode) {
             NamedParameterNode<T> np = (NamedParameterNode<T>) n;
 
-            setParameterValue(np.clazz, ReflectionUtilities.parse(np.argClass, value));
-          } else if(n instanceof ClassNode) {
-            setClassImplementation(((ClassNode<T>)n).getClazz(), (Class<? extends T>)Class.forName(value));
+            bindParameter(np.clazz,
+                ReflectionUtilities.parse(np.argClass, value));
+          } else if (n instanceof ClassNode) {
+            bindImplementation(((ClassNode<T>) n).getClazz(),
+                (Class<? extends T>) Class.forName(value));
           }
         }
-        // Resolve all classes before processing the next line.  It could be
-        // that this line indirectly brings a namespace in or something.
-        // Plus, this lets us throw an exception earlier in the file, which
-        // helps with debugging.
-        
-        namespace.resolveAllClasses();
       }
     }
   }
@@ -109,7 +146,7 @@ public class Tang {
         opts.addOption(shortName, true, param.toString());
       }
     }
-    for(Option o : applicationOptions.keySet()) {
+    for (Option o : applicationOptions.keySet()) {
       opts.addOption(o);
     }
     return opts;
@@ -118,13 +155,16 @@ public class Tang {
   public interface CommandLineCallback {
     public void process(Option option);
   }
+
   Map<Option, CommandLineCallback> applicationOptions = new HashMap<Option, CommandLineCallback>();
+
   public void addCommandLineOption(Option option, CommandLineCallback cb) {
     // TODO: Check for conflicting options.
     applicationOptions.put(option, cb);
   }
-  public <T> void processCommandLine(String[] args) throws NumberFormatException,
-      NameResolutionException, ParseException {
+
+  public <T> void processCommandLine(String[] args)
+      throws NumberFormatException, NameResolutionException, ParseException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
     o.addOption(helpFlag);
@@ -141,51 +181,33 @@ public class Tang {
       String value = option.getValue();
       // System.out.println("Got option " + shortName + " = " + value);
       // if(cl.hasOption(shortName)) {
-      
+
       NamedParameterNode<T> n = namespace.getNodeFromShortName(shortName);
       if (n != null && value != null) {
         // XXX completely untested.
-        if(applicationOptions.containsKey(option)) {
+        if (applicationOptions.containsKey(option)) {
           applicationOptions.get(option).process(option);
         } else {
-          setParameterValue((n.clazz),
-              ReflectionUtilities.parse(n.argClass, value));
+          bindParameter((n.clazz), ReflectionUtilities.parse(n.argClass, value));
         }
       }
     }
   }
 
-  public Tang() {
-    namespace = new TypeHierarchy();
+  public void bind(Class<?> c, Class<?> d) {
+    // XXX
   }
 
   /**
-   * Obtain the effective configuration of this Tang instance.  This consists of
-   * string-string pairs that could be dumped directly to a Properties file, for
-   * example.  Currently, this method does not return information about default
-   * parameter values that were specified by parameter annotations.
+   * Override the default implementation of c, using d instead. d must implement
+   * c, of course. If exactly one injectable implementation of c has been
+   * registered with Tang (perhaps including c), then this is optional.
    * 
-   * @return a String to String map 
-   */
-  public Map<String, String> getEffectiveConfig() {
-    Map<String, String> ret = new HashMap<String,String>();
-    for(Node opt : defaultImpls.keySet()) {
-      ret.put(opt.getFullName(), defaultImpls.get(opt).toString());
-    }
-    for(Node opt : defaultInstances.keySet()) {
-      ret.put(opt.getFullName(), defaultInstances.get(opt).toString());
-    }
-    return ret;
-  }
-  /**
-   * Override the default implementation of c, using d instead.  d must implement c,
-   * of course.  If exactly one injectable implementation of c has been registered
-   * with Tang (perhaps including c), then this is optional.
    * @param c
    * @param d
    * @throws NameResolutionException
    */
-  public <T> void setClassImplementation(Class<T> c, Class<? extends T> d)
+  public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
       throws NameResolutionException {
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
@@ -201,69 +223,19 @@ public class Tang {
               + n);
     }
   }
-  /**
-   * This interface allows legacy classes to be injected by Tang.  The Vivifier
-   * implementation should define a constructor with an @Inject annotation.
-   * Instead of attempting to directly instantiate a value of type T, Tang will
-   * create a vivifier, call get() on it, and then discard the vivifier.
-   * 
-   * Note that Tang does not directly support singleton vivifier, or vivifier
-   * in lieu of injectors.  This is intentional.
-   * 
-   * If you want a singleton factory @see setClassSingleton().
-   * 
-   * If you want to pass a factory into a constructor (so the constructed object
-   * can make lots of objects with the factory), go for it; that's none of Tang's
-   * business.  Feel free to pass the constructor into setClassSingleton() if you
-   * want to share it across instances.
-   * 
-   * If you want to run application-specific logic outside of the constructor of
-   * your object, and keep that state around across constructor invocations, but
-   * not across Tang instances, tough luck.  That would make Tang injection
-   * non-deterministic, and prevent us from reliably serializing Tang's state and
-   * injection graphs.
-   * 
-   * @author sears
-   *
-   * @param <T> The type this Vivifier will create.
-   */
-  public interface Vivifier<T> {
-    /**
-     * This method will only be called once.
-     * @return a new, distinct instance of T.
-     */
-    T get();
-  }
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public <T> void setClassVivifier(Class<T> c, Class<? extends Vivifier<? extends T>> v) {
-    namespace.register(c);
-    try {
-      vivifier.put(namespace.getNode(c), (Class)v);
-    } catch(NameResolutionException e) {
-      throw new IllegalStateException("Could not find class " + c + " which this method just registered!");
-    }
-  }
-  public <T> void setClassSingleton(Class<T> c, T o) {
-    ClassNode<?> cn;
-    namespace.register(c);
-    try {
-      cn = (ClassNode<?>)namespace.getNode(c);
-    } catch(NameResolutionException e) {
-      throw new IllegalStateException("Could not find class " + c + " which this method just registered!");
-    } catch (ClassCastException e) {
-      throw new IllegalArgumentException("Cannot call setClassSingleton on " + c + ".  Try setNamedParameter() instead.");
-    }
-    
-    defaultInstances.put(cn, o);
-  }
+
   /**
    * Set the default value of a named parameter.
-   * @param name The dummy class that serves as the name of this parameter.
-   * @param o The value of the parameter.  The type must match the type specified by name.
+   * 
+   * @param name
+   *          The dummy class that serves as the name of this parameter.
+   * @param o
+   *          The value of the parameter. The type must match the type specified
+   *          by name.
    * @throws NameResolutionException
    */
   @SuppressWarnings("unchecked")
-  public <T> void setParameterValue(Class<? extends Name<T>> name, T o)
+  public <T> void bindParameter(Class<? extends Name<T>> name, T o)
       throws NameResolutionException {
     Node n = namespace.getNode(name);
     if (n instanceof NamedParameterNode) {
@@ -274,6 +246,72 @@ public class Tang {
       throw new IllegalArgumentException(
           "Detected type mismatch when setting named parameter " + name
               + "  Expected NamedParameterNode, but namespace contains a " + n);
+    }
+  }
+
+  public <T> void bindSingleton(Class<T> c) throws NameResolutionException,
+      ReflectiveOperationException {
+    bindSingleton(c, getInstance(c));
+  }
+
+  public <T> void bindSingleton(Class<T> c, Class<? extends T> d)
+      throws NameResolutionException, ReflectiveOperationException {
+    bindSingleton(c, getInstance(d));
+  }
+
+  /**
+   * Warning, do not use!!!
+   * 
+   * @param c
+   * @param o
+   */
+  private <T> void bindSingleton(Class<T> c, T o) {
+    ClassNode<?> cn;
+    namespace.register(c);
+    try {
+      cn = (ClassNode<?>) namespace.getNode(c);
+    } catch (NameResolutionException e) {
+      throw new IllegalStateException("Could not find class " + c
+          + " which this method just registered!");
+    } catch (ClassCastException e) {
+      throw new IllegalArgumentException("Cannot call setClassSingleton on "
+          + c + ".  Try setNamedParameter() instead.");
+    }
+
+    defaultInstances.put(cn, o);
+  }
+
+  /**
+   * This interface allows legacy classes to be injected by Tang. To be of any
+   * use, implementations of this class must have at least one constructor with
+   * an @Inject annotation. From Tang's perspective, an ExternalConstructor
+   * class is just a special instance of the class T, except that, after
+   * injection an ExternalConstructor, Tang will call newInstance, and store the
+   * resulting object. It will then discard the ExternalConstructor.
+   * 
+   * @author sears
+   * 
+   * @param <T>
+   *          The type this ExternalConstructor will create.
+   */
+  public interface ExternalConstructor<T> {
+    /**
+     * This method will only be called once.
+     * 
+     * @return a new, distinct instance of T.
+     */
+    T newInstance();
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public <T> void bindConstructor(Class<T> c,
+      Class<? extends ExternalConstructor<? extends T>> v) {
+    namespace.register(c);
+    try {
+      vivifier.put(namespace.getNode(c), (Class) v);
+    } catch (NameResolutionException e) {
+      throw new IllegalStateException("Could not find class " + c
+          + " which this method just registered!");
     }
   }
 
@@ -297,15 +335,19 @@ public class Tang {
       return "BUILDING INJECTION PLAN";
     }
   };
-  private InjectionPlan wrapInjectionPlans(String infeasibleName, List<? extends InjectionPlan> list) {
-    if(list.size() == 0) {
+
+  private InjectionPlan wrapInjectionPlans(String infeasibleName,
+      List<? extends InjectionPlan> list) {
+    if (list.size() == 0) {
       return new InfeasibleInjectionPlan(infeasibleName);
-    } else if(list.size() == 1) {
+    } else if (list.size() == 1) {
       return list.get(0);
     } else {
-      return new InjectionPlan.AmbiguousInjectionPlan(list.toArray(new InjectionPlan[0]));
+      return new InjectionPlan.AmbiguousInjectionPlan(
+          list.toArray(new InjectionPlan[0]));
     }
   }
+
   private void buildInjectionPlan(String name, Map<String, InjectionPlan> memo)
       throws NameResolutionException {
     if (memo.containsKey(name)) {
@@ -323,7 +365,9 @@ public class Tang {
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object instance = defaultInstances.get(n);
-      if(instance == null) { instance = np.defaultInstance; }
+      if (instance == null) {
+        instance = np.defaultInstance;
+      }
       ip = new Instance(np, instance);
     } else if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
@@ -331,7 +375,7 @@ public class Tang {
         ip = new Instance(cn, defaultInstances.get(cn));
       } else if (vivifier.containsKey(cn)) {
         throw new UnsupportedOperationException("Vivifiers aren't working yet!");
-//        ip = new Instance(cn, null);
+        // ip = new Instance(cn, null);
       } else if (defaultImpls.containsKey(cn)) {
         String implName = defaultImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
@@ -348,7 +392,7 @@ public class Tang {
           for (ConstructorDef def : thisCN.injectableConstructors) {
             List<InjectionPlan> args = new ArrayList<InjectionPlan>();
             for (ConstructorArg arg : def.args) {
-              String argName = arg.getName(); //getFullyQualifiedName(thisCN.clazz);
+              String argName = arg.getName(); // getFullyQualifiedName(thisCN.clazz);
               buildInjectionPlan(argName, memo);
               args.add(memo.get(argName));
             }
@@ -373,10 +417,34 @@ public class Tang {
   }
 
   /**
-   * Return an injection plan for the given class / parameter name.  This will be more
-   * useful once plans can be serialized / deserialized / pretty printed.
+   * Obtain the effective configuration of this Tang instance. This consists of
+   * string-string pairs that could be dumped directly to a Properties file, for
+   * example. Currently, this method does not return information about default
+   * parameter values that were specified by parameter annotations.
    * 
-   * @param name The name of an injectable class or interface, or a NamedParameter.
+   * @return a String to String map
+   */
+  public Map<String, String> getEffectiveConfiguration() {
+    Map<String, String> ret = new HashMap<String, String>();
+    for (Node opt : defaultImpls.keySet()) {
+      ret.put(opt.getFullName(), defaultImpls.get(opt).toString());
+    }
+    for (Node opt : defaultInstances.keySet()) {
+      ret.put(opt.getFullName(), defaultInstances.get(opt).toString());
+    }
+    return ret;
+  }
+
+  public void writeConfigurationFile(OutputStream s) {
+    // TODO implement writeConfigurationFile!
+  }
+
+  /**
+   * Return an injection plan for the given class / parameter name. This will be
+   * more useful once plans can be serialized / deserialized / pretty printed.
+   * 
+   * @param name
+   *          The name of an injectable class or interface, or a NamedParameter.
    * @return
    * @throws NameResolutionException
    */
@@ -386,19 +454,22 @@ public class Tang {
     buildInjectionPlan(name, memo);
     return memo.get(name);
   }
+
   /**
    * Returns true if Tang is ready to instantiate the object named by name.
+   * 
    * @param name
    * @return
    * @throws NameResolutionException
    */
-  public boolean canInject(String name) throws NameResolutionException {
+  public boolean isInjectable(String name) throws NameResolutionException {
     InjectionPlan p = getInjectionPlan(name);
-    boolean ret = p.getNumAlternatives() == 1;
-    return ret;
+    return p.isInjectable();
   }
+
   /**
    * Get a new instance of the class clazz.
+   * 
    * @param clazz
    * @return
    * @throws NameResolutionException
@@ -407,33 +478,39 @@ public class Tang {
   @SuppressWarnings("unchecked")
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
-    namespace.resolveAllClasses();
     InjectionPlan plan = getInjectionPlan(clazz.getName());
-    return (U)injectFromPlan(plan);
+    return (U) injectFromPlan(plan);
   }
-  private Object injectFromPlan(InjectionPlan plan) throws ReflectiveOperationException {
-    if(plan.getNumAlternatives() == 0) {
-      throw new IllegalArgumentException("Attempt to inject infeasible plan: " + InjectionPlan.prettyPrint(plan));
+
+  private Object injectFromPlan(InjectionPlan plan)
+      throws ReflectiveOperationException {
+    if (plan.getNumAlternatives() == 0) {
+      throw new IllegalArgumentException("Attempt to inject infeasible plan: "
+          + plan.toPrettyString());
     }
-    if(plan.getNumAlternatives() > 1) {
-      throw new IllegalArgumentException("Attempt to inject ambiguous plan: " + InjectionPlan.prettyPrint(plan));
+    if (plan.getNumAlternatives() > 1) {
+      throw new IllegalArgumentException("Attempt to inject ambiguous plan: "
+          + plan.toPrettyString());
     }
-    if(plan instanceof InjectionPlan.Instance) {
-      return ((InjectionPlan.Instance)plan).instance;
-    } else if(plan instanceof InjectionPlan.Constructor) {
-      InjectionPlan.Constructor constructor = (InjectionPlan.Constructor)plan;
+    if (plan instanceof InjectionPlan.Instance) {
+      return ((InjectionPlan.Instance) plan).instance;
+    } else if (plan instanceof InjectionPlan.Constructor) {
+      InjectionPlan.Constructor constructor = (InjectionPlan.Constructor) plan;
       Object[] args = new Object[constructor.args.length];
-      for(int i = 0; i < constructor.args.length; i++) {
+      for (int i = 0; i < constructor.args.length; i++) {
         args[i] = injectFromPlan(constructor.args[i]);
       }
       return constructor.constructor.constructor.newInstance(args);
-    } else if(plan instanceof AmbiguousInjectionPlan) {
-      AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan)plan;
-      for(InjectionPlan p : ambiguous.alternatives) {
-        if(p.canInject()) { return injectFromPlan(p); }
+    } else if (plan instanceof AmbiguousInjectionPlan) {
+      AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan) plan;
+      for (InjectionPlan p : ambiguous.alternatives) {
+        if (p.isInjectable()) {
+          return injectFromPlan(p);
+        }
       }
-      throw new IllegalStateException("Thought there was an injectable plan, but can't find it!");
-    } else if(plan instanceof InfeasibleInjectionPlan) {
+      throw new IllegalStateException(
+          "Thought there was an injectable plan, but can't find it!");
+    } else if (plan instanceof InfeasibleInjectionPlan) {
       throw new IllegalArgumentException("Attempt to inject infeasible plan!");
     } else {
       throw new IllegalStateException("Unknown plan type: " + plan);
