@@ -97,7 +97,7 @@ public class TweetExample {
     Tang t = new Tang(ns);
     t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
     t.bindImplementation(SMS.class, MockSMS.class);
-    t.bindParameter(Tweeter.PhoneNumber.class, (long)(867 - 5309));
+    t.bindParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString());
     Tweeter tw = (Tweeter) t.getInstance(Tweeter.class);
     tw.sendMessage();
   }

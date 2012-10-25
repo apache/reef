@@ -1,13 +1,15 @@
 package com.microsoft.tang;
 
 import java.io.File;
-import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -35,34 +37,15 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class Tang {
   private final TypeHierarchy namespace;
+  private final Map<ClassNode<?>, Class<?>> defaultImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
+  private final Map<Node, Class<ExternalConstructor<?>>> constructors = new MonotonicMap<Node, Class<ExternalConstructor<?>>>();
+  private final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();
+  private final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<NamedParameterNode<?>, String>();
 
-  class MonotonicMap<T,U> extends HashMap<T, U> {
-    private static final long serialVersionUID = 1L;
-    @Override
-    public U put(T key, U value) {
-      U old = super.get(key);
-      if(old != null) {
-        throw new IllegalArgumentException("Attempt to re-bind: (" + key + ") old value: " + old + " new value " + value);
-      }
-      return super.put(key, value);
-    }
-    @Override
-    public void putAll(Map<? extends T, ? extends U> m) {
-      throw new UnsupportedOperationException();
-    }
-    @Override
-    public void clear() {
-      throw new UnsupportedOperationException();
-    }
-    @Override
-    public U remove(Object o) {
-      throw new UnsupportedOperationException();
-    }
-  }
-  
-  private final Map<Node, Class<?>> defaultImpls = new MonotonicMap<Node, Class<?>>();
-  private final Map<Node, Object> defaultInstances = new MonotonicMap<Node, Object>();
-  private final Map<Node, Class<ExternalConstructor<?>>> vivifier = new MonotonicMap<Node, Class<ExternalConstructor<?>>>();
+  // *Not* serialized.
+  private final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
+  private final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
+  private boolean sealed = false;
 
   public Tang() {
     namespace = new TypeHierarchy();
@@ -73,13 +56,16 @@ public class Tang {
   }
 
   public void register(Class<?> c) {
+    if (sealed) {
+      throw new IllegalStateException(
+          "Cannot register class after binding singleton!");
+    }
     namespace.register(c);
   }
 
-  @SuppressWarnings({ "unchecked" })
   public <T> void processConfigurationFile(File configFileName)
       throws ConfigurationException, NameResolutionException,
-      ClassNotFoundException {
+      ReflectiveOperationException {
     Configuration conf = new PropertiesConfiguration(configFileName);
     Iterator<String> it = conf.getKeys();
 
@@ -94,7 +80,14 @@ public class Tang {
         key = longName;
       }
       for (String value : values) {
+        boolean isSingleton = false;
+        if(value.equals("tang.singleton")) {
+          isSingleton = true;
+        }
         if (key.equals("import")) {
+          if(isSingleton) {
+            throw new IllegalArgumentException("Can't import=tang.singleton.  Makes no sense");
+          }
           try {
             namespace.register(Class.forName(value));
             String[] tok = value.split(TypeHierarchy.regexp);
@@ -116,21 +109,21 @@ public class Tang {
             // print error message + exit.
           }
         } else {
-          Node n = namespace.getNode(key);
-          String longVal = shortNames.get(value);
-          if (longVal != null)
-            value = longVal;
-          if (n instanceof NamedParameterNode) {
-            NamedParameterNode<T> np = (NamedParameterNode<T>) n;
-
-            bindParameter(np.clazz,
-                ReflectionUtilities.parse(np.argClass, value));
-          } else if (n instanceof ClassNode) {
-            bindImplementation(((ClassNode<T>) n).getClazz(),
-                (Class<? extends T>) Class.forName(value));
+          if(isSingleton) {
+            bindSingleton(Class.forName(key));
+          } else {
+            bind(key, value);
           }
         }
       }
+    }
+  }
+
+  public void writeConfigurationFile(PrintStream s) {
+    Map<String, String> effectiveConfiguration = getEffectiveConfiguration();
+    for(String k : effectiveConfiguration.keySet()) {
+      // XXX escaping of strings!!!
+      s.println(k+"="+effectiveConfiguration.get(k));
     }
   }
 
@@ -185,17 +178,36 @@ public class Tang {
       NamedParameterNode<T> n = namespace.getNodeFromShortName(shortName);
       if (n != null && value != null) {
         // XXX completely untested.
+
         if (applicationOptions.containsKey(option)) {
           applicationOptions.get(option).process(option);
         } else {
-          bindParameter((n.clazz), ReflectionUtilities.parse(n.argClass, value));
+          bindParameter(n.clazz, value);
         }
       }
     }
   }
 
-  public void bind(Class<?> c, Class<?> d) {
-    // XXX
+  @SuppressWarnings("unchecked")
+  public <T> void bind(String key, String value) throws NameResolutionException, ClassNotFoundException {
+    Node n = namespace.getNode(key);
+    /*String longVal = shortNames.get(value);
+    if (longVal != null)
+      value = longVal; */
+    if (n instanceof NamedParameterNode) {
+      bindParameter((NamedParameterNode<?>)n, value);
+    } else if (n instanceof ClassNode) {
+      Class<T> c = ((ClassNode<T>)n).getClazz();
+      Class<?> val = (Class<?>)Class.forName(value);
+      if(ExternalConstructor.class.isAssignableFrom(val) && 
+          (!ExternalConstructor.class.isAssignableFrom(c))) {
+        bindConstructor(c,
+            (Class<? extends ExternalConstructor<? extends T>>)val);
+      } else {
+        bindImplementation(c,
+          (Class<? extends T>) Class.forName(value));
+      }
+    }
   }
 
   /**
@@ -209,13 +221,17 @@ public class Tang {
    */
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
       throws NameResolutionException {
+    if (sealed) {
+      throw new IllegalStateException(
+          "Cannot bind implementation after binding singleton!");
+    }
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
     }
     Node n = namespace.getNode(c);
-    if (n instanceof ClassNode && !(n instanceof NamedParameterNode)) {
-      defaultImpls.put(n, d);
+    if (n instanceof ClassNode) {
+      defaultImpls.put((ClassNode<?>)n, d);
     } else {
       // TODO need new exception type here.
       throw new IllegalArgumentException(
@@ -223,7 +239,11 @@ public class Tang {
               + n);
     }
   }
-
+  private <T> void bindParameter(NamedParameterNode<T> name, String value) {
+    T o = ReflectionUtilities.parse(name.argClass, value);
+    namedParameters.put(name, value);
+    namedParameterInstances.put(name, o);
+  }
   /**
    * Set the default value of a named parameter.
    * 
@@ -235,41 +255,53 @@ public class Tang {
    * @throws NameResolutionException
    */
   @SuppressWarnings("unchecked")
-  public <T> void bindParameter(Class<? extends Name<T>> name, T o)
+  public <T> void bindParameter(Class<? extends Name<T>> name, String s)
       throws NameResolutionException {
-    Node n = namespace.getNode(name);
-    if (n instanceof NamedParameterNode) {
-      setNamedParameter((NamedParameterNode<T>) n, o);
+    Node np = namespace.getNode(name);
+    if (np instanceof NamedParameterNode) {
+      bindParameter((NamedParameterNode<T>)np, s);
     } else {
       // TODO add support for setting default *instance* of class.
       // TODO need new exception type here.
       throw new IllegalArgumentException(
           "Detected type mismatch when setting named parameter " + name
-              + "  Expected NamedParameterNode, but namespace contains a " + n);
+              + "  Expected NamedParameterNode, but namespace contains a " + np);
     }
   }
 
   public <T> void bindSingleton(Class<T> c) throws NameResolutionException,
       ReflectiveOperationException {
-    bindSingleton(c, getInstance(c));
+    bindSingleton(c, c);
   }
 
+  @SuppressWarnings("unchecked")
   public <T> void bindSingleton(Class<T> c, Class<? extends T> d)
       throws NameResolutionException, ReflectiveOperationException {
-    bindSingleton(c, getInstance(d));
+    System.err.println("Warning: Singletons aren't implemented at the moment");
+
+    namespace.register(c);
+    namespace.register(d);
+    try {
+      ClassNode<T> cn = (ClassNode<T>) namespace.getNode(c);
+      cn.setIsSingleton();
+      singletons.add(cn);
+      if(c != d) {
+        // Note: d is *NOT* necessarily a singleton.
+        defaultImpls.put(cn, d);
+      }
+    } catch (NameResolutionException e) {
+      throw new IllegalStateException("Failed to lookup class " + c
+          + " which this method just registered!");
+    }
   }
 
-  /**
-   * Warning, do not use!!!
-   * 
-   * @param c
-   * @param o
-   */
-  private <T> void bindSingleton(Class<T> c, T o) {
-    ClassNode<?> cn;
+  @SuppressWarnings("unchecked")
+  private <T> T injectSingleton(Class<T> c) throws NameResolutionException,
+      ReflectiveOperationException {
     namespace.register(c);
+    ClassNode<T> cn;
     try {
-      cn = (ClassNode<?>) namespace.getNode(c);
+      cn = (ClassNode<T>) namespace.getNode(c);
     } catch (NameResolutionException e) {
       throw new IllegalStateException("Could not find class " + c
           + " which this method just registered!");
@@ -277,8 +309,16 @@ public class Tang {
       throw new IllegalArgumentException("Cannot call setClassSingleton on "
           + c + ".  Try setNamedParameter() instead.");
     }
-
-    defaultInstances.put(cn, o);
+    if (singletonInstances.containsKey(cn)) {
+      return (T) singletonInstances.get(cn);
+    } else if (cn.getIsSingleton()) {
+      T o = getInstance(c);
+      singletonInstances.put(cn, o);
+      return o;
+    } else {
+      throw new IllegalStateException("Attempt to inject singleton of " + c
+          + " which has not been bound as a singleton.");
+    }
   }
 
   /**
@@ -307,20 +347,12 @@ public class Tang {
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) {
     namespace.register(c);
+    System.err.println("Warning: ExternalConstructors aren't implemented at the moment");
     try {
-      vivifier.put(namespace.getNode(c), (Class) v);
+      constructors.put(namespace.getNode(c), (Class) v);
     } catch (NameResolutionException e) {
       throw new IllegalStateException("Could not find class " + c
           + " which this method just registered!");
-    }
-  }
-
-  private <T> void setNamedParameter(NamedParameterNode<T> np, T o) {
-    if (ReflectionUtilities.isCoercable(np.argClass, o.getClass())) {
-      defaultInstances.put(np, o);
-    } else {
-      throw new ClassCastException("Cannot cast from " + o.getClass() + " to "
-          + np.argClass);
     }
   }
 
@@ -364,16 +396,16 @@ public class Tang {
     final InjectionPlan ip;
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object instance = defaultInstances.get(n);
+      Object instance = namedParameterInstances.get(n);
       if (instance == null) {
         instance = np.defaultInstance;
       }
       ip = new Instance(np, instance);
     } else if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
-      if (defaultInstances.containsKey(cn)) {
-        ip = new Instance(cn, defaultInstances.get(cn));
-      } else if (vivifier.containsKey(cn)) {
+      if (singletonInstances.containsKey(cn)) {
+        ip = new Instance(cn, singletonInstances.get(cn));
+      } else if (constructors.containsKey(cn)) {
         throw new UnsupportedOperationException("Vivifiers aren't working yet!");
         // ip = new Instance(cn, null);
       } else if (defaultImpls.containsKey(cn)) {
@@ -420,23 +452,27 @@ public class Tang {
    * Obtain the effective configuration of this Tang instance. This consists of
    * string-string pairs that could be dumped directly to a Properties file, for
    * example. Currently, this method does not return information about default
-   * parameter values that were specified by parameter annotations.
+   * parameter values that were specified by parameter annotations, or about the
+   * auto-discovered stuff in TypeHierarchy.  All of that should be automatically
+   * imported as these keys are parsed on the other end.
    * 
    * @return a String to String map
    */
   public Map<String, String> getEffectiveConfiguration() {
-    Map<String, String> ret = new HashMap<String, String>();
+    Map<String, String> ret = new MonotonicMap<String, String>();
     for (Node opt : defaultImpls.keySet()) {
-      ret.put(opt.getFullName(), defaultImpls.get(opt).toString());
+      ret.put(opt.getFullName(), defaultImpls.get(opt).getName());
     }
-    for (Node opt : defaultInstances.keySet()) {
-      ret.put(opt.getFullName(), defaultInstances.get(opt).toString());
+    for (Node opt : constructors.keySet()) {
+      ret.put(opt.getFullName(), constructors.get(opt).getName());
+    }
+    for (Node opt : namedParameters.keySet()) {
+      ret.put(opt.getFullName(), namedParameters.get(opt));
+    }
+    for (Node opt : singletons) {
+      ret.put(opt.getFullName(), "tang.singleton");
     }
     return ret;
-  }
-
-  public void writeConfigurationFile(OutputStream s) {
-    // TODO implement writeConfigurationFile!
   }
 
   /**
@@ -482,6 +518,13 @@ public class Tang {
     return (U) injectFromPlan(plan);
   }
 
+  @SuppressWarnings("unchecked")
+  public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
+      throws NameResolutionException, ReflectiveOperationException {
+    InjectionPlan plan = getInjectionPlan(clazz.getName());
+    return (T) injectFromPlan(plan);
+  }
+
   private Object injectFromPlan(InjectionPlan plan)
       throws ReflectiveOperationException {
     if (plan.getNumAlternatives() == 0) {
@@ -516,4 +559,76 @@ public class Tang {
       throw new IllegalStateException("Unknown plan type: " + plan);
     }
   }
+
+  private class MonotonicSet<T> extends HashSet<T> {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public boolean add(T e) {
+      if (super.contains(e)) {
+        throw new IllegalArgumentException("Attempt to re-add " + e
+            + " to MonotonicSet!");
+      }
+      return super.add(e);
+    }
+
+    @Override
+    public void clear() {
+      throw new UnsupportedOperationException("Attempt to clear MonotonicSet!");
+    }
+
+    @Override
+    public boolean remove(Object o) {
+      throw new UnsupportedOperationException("Attempt to remove " + o
+          + " from MonotonicSet!");
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+      throw new UnsupportedOperationException(
+          "removeAll() doesn't make sense for MonotonicSet!");
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+      throw new UnsupportedOperationException(
+          "retainAll() doesn't make sense for MonotonicSet!");
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+      throw new UnsupportedOperationException(
+          "addAll() not implemennted for MonotonicSet.");
+    }
+  }
+
+  private class MonotonicMap<T, U> extends HashMap<T, U> {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public U put(T key, U value) {
+      U old = super.get(key);
+      if (old != null) {
+        throw new IllegalArgumentException("Attempt to re-bind: (" + key
+            + ") old value: " + old + " new value " + value);
+      }
+      return super.put(key, value);
+    }
+
+    @Override
+    public void putAll(Map<? extends T, ? extends U> m) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public U remove(Object o) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
 }

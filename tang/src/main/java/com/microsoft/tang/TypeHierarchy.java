@@ -109,7 +109,7 @@ public class TypeHierarchy {
         }
       }
     } else {
-      ret = new ClassNode<U>(parent, clazz, isPrefixTarget);
+      ret = new ClassNode<U>(parent, clazz, isPrefixTarget, false);
     }
     return ret;
   }
@@ -469,12 +469,19 @@ public class TypeHierarchy {
   public class ClassNode<T> extends Node {
     final Class<T> clazz;
     final boolean isPrefixTarget;
+    boolean isSingleton;
     final ConstructorDef[] injectableConstructors;
     public Class<T> getClazz() {
       return clazz;
     }
     public boolean getIsPrefixTarget() {
       return isPrefixTarget;
+    }
+    public void setIsSingleton() {
+      isSingleton = true;
+    }
+    public boolean getIsSingleton() {
+      return isSingleton;
     }
     public ConstructorDef[] getInjectableConstructors() {
       return injectableConstructors;
@@ -488,10 +495,11 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
-    public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) {
+    public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget, boolean isSingleton) {
       super(parent, clazz);
       this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
+      this.isSingleton = isSingleton;
 
       // Don't support non-static member classes with @Inject annotations.
       boolean injectable = true;
