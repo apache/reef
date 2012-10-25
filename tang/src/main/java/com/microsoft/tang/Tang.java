@@ -56,10 +56,6 @@ public class Tang {
   }
 
   public void register(Class<?> c) {
-    if (sealed) {
-      throw new IllegalStateException(
-          "Cannot register class after binding singleton!");
-    }
     namespace.register(c);
   }
 
@@ -190,6 +186,7 @@ public class Tang {
 
   @SuppressWarnings("unchecked")
   public <T> void bind(String key, String value) throws NameResolutionException, ClassNotFoundException {
+    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
     Node n = namespace.getNode(key);
     /*String longVal = shortNames.get(value);
     if (longVal != null)
@@ -221,10 +218,7 @@ public class Tang {
    */
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
       throws NameResolutionException {
-    if (sealed) {
-      throw new IllegalStateException(
-          "Cannot bind implementation after binding singleton!");
-    }
+    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
@@ -240,6 +234,7 @@ public class Tang {
     }
   }
   private <T> void bindParameter(NamedParameterNode<T> name, String value) {
+    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
     T o = ReflectionUtilities.parse(name.argClass, value);
     namedParameters.put(name, value);
     namedParameterInstances.put(name, o);
@@ -257,6 +252,8 @@ public class Tang {
   @SuppressWarnings("unchecked")
   public <T> void bindParameter(Class<? extends Name<T>> name, String s)
       throws NameResolutionException {
+    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
+    register(name);
     Node np = namespace.getNode(name);
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>)np, s);
@@ -271,13 +268,14 @@ public class Tang {
 
   public <T> void bindSingleton(Class<T> c) throws NameResolutionException,
       ReflectiveOperationException {
+    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
     bindSingleton(c, c);
   }
 
   @SuppressWarnings("unchecked")
   public <T> void bindSingleton(Class<T> c, Class<? extends T> d)
       throws NameResolutionException, ReflectiveOperationException {
-    System.err.println("Warning: Singletons aren't implemented at the moment");
+    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
 
     namespace.register(c);
     namespace.register(d);
@@ -312,9 +310,7 @@ public class Tang {
     if (singletonInstances.containsKey(cn)) {
       return (T) singletonInstances.get(cn);
     } else if (cn.getIsSingleton()) {
-      T o = getInstance(c);
-      singletonInstances.put(cn, o);
-      return o;
+      throw new IllegalStateException("No instance found for Singleton " + cn);
     } else {
       throw new IllegalStateException("Attempt to inject singleton of " + c
           + " which has not been bound as a singleton.");
@@ -514,6 +510,14 @@ public class Tang {
   @SuppressWarnings("unchecked")
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
+    register(clazz);
+    if(!sealed) {
+      sealed = true;
+      for(ClassNode<?> cn : singletons) {
+        Object o = getInstance(cn.getClazz());
+        singletonInstances.put(cn, o);
+      }
+    }
     InjectionPlan plan = getInjectionPlan(clazz.getName());
     return (U) injectFromPlan(plan);
   }
