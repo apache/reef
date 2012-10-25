@@ -46,6 +46,7 @@ public class Tang {
   private final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   private final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
   private boolean sealed = false;
+  private boolean dirtyBit = false;
 
   public Tang() {
     namespace = new TypeHierarchy();
@@ -77,12 +78,13 @@ public class Tang {
       }
       for (String value : values) {
         boolean isSingleton = false;
-        if(value.equals("tang.singleton")) {
+        if (value.equals("tang.singleton")) {
           isSingleton = true;
         }
         if (key.equals("import")) {
-          if(isSingleton) {
-            throw new IllegalArgumentException("Can't import=tang.singleton.  Makes no sense");
+          if (isSingleton) {
+            throw new IllegalArgumentException(
+                "Can't import=tang.singleton.  Makes no sense");
           }
           try {
             namespace.register(Class.forName(value));
@@ -105,7 +107,7 @@ public class Tang {
             // print error message + exit.
           }
         } else {
-          if(isSingleton) {
+          if (isSingleton) {
             bindSingleton(Class.forName(key));
           } else {
             bind(key, value);
@@ -116,10 +118,14 @@ public class Tang {
   }
 
   public void writeConfigurationFile(PrintStream s) {
+    if (dirtyBit) {
+      throw new IllegalStateException(
+          "Someone called setVolatileInstance() on this Tang object.  Refusing to serialize it!");
+    }
     Map<String, String> effectiveConfiguration = getEffectiveConfiguration();
-    for(String k : effectiveConfiguration.keySet()) {
+    for (String k : effectiveConfiguration.keySet()) {
       // XXX escaping of strings!!!
-      s.println(k+"="+effectiveConfiguration.get(k));
+      s.println(k + "=" + effectiveConfiguration.get(k));
     }
   }
 
@@ -185,24 +191,26 @@ public class Tang {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> void bind(String key, String value) throws NameResolutionException, ClassNotFoundException {
-    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
+  public <T> void bind(String key, String value)
+      throws NameResolutionException, ClassNotFoundException {
+    if (sealed)
+      throw new IllegalStateException("Can't bind to sealed Tang!");
     Node n = namespace.getNode(key);
-    /*String longVal = shortNames.get(value);
-    if (longVal != null)
-      value = longVal; */
+    /*
+     * String longVal = shortNames.get(value); if (longVal != null) value =
+     * longVal;
+     */
     if (n instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<?>)n, value);
+      bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
-      Class<T> c = ((ClassNode<T>)n).getClazz();
-      Class<?> val = (Class<?>)Class.forName(value);
-      if(ExternalConstructor.class.isAssignableFrom(val) && 
-          (!ExternalConstructor.class.isAssignableFrom(c))) {
+      Class<T> c = ((ClassNode<T>) n).getClazz();
+      Class<?> val = (Class<?>) Class.forName(value);
+      if (ExternalConstructor.class.isAssignableFrom(val)
+          && (!ExternalConstructor.class.isAssignableFrom(c))) {
         bindConstructor(c,
-            (Class<? extends ExternalConstructor<? extends T>>)val);
+            (Class<? extends ExternalConstructor<? extends T>>) val);
       } else {
-        bindImplementation(c,
-          (Class<? extends T>) Class.forName(value));
+        bindImplementation(c, (Class<? extends T>) Class.forName(value));
       }
     }
   }
@@ -218,14 +226,15 @@ public class Tang {
    */
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
       throws NameResolutionException {
-    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
+    if (sealed)
+      throw new IllegalStateException("Can't bind to sealed Tang!");
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
     }
     Node n = namespace.getNode(c);
     if (n instanceof ClassNode) {
-      defaultImpls.put((ClassNode<?>)n, d);
+      defaultImpls.put((ClassNode<?>) n, d);
     } else {
       // TODO need new exception type here.
       throw new IllegalArgumentException(
@@ -233,12 +242,15 @@ public class Tang {
               + n);
     }
   }
+
   private <T> void bindParameter(NamedParameterNode<T> name, String value) {
-    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
+    if (sealed)
+      throw new IllegalStateException("Can't bind to sealed Tang!");
     T o = ReflectionUtilities.parse(name.argClass, value);
     namedParameters.put(name, value);
     namedParameterInstances.put(name, o);
   }
+
   /**
    * Set the default value of a named parameter.
    * 
@@ -252,11 +264,12 @@ public class Tang {
   @SuppressWarnings("unchecked")
   public <T> void bindParameter(Class<? extends Name<T>> name, String s)
       throws NameResolutionException {
-    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
+    if (sealed)
+      throw new IllegalStateException("Can't bind to sealed Tang!");
     register(name);
     Node np = namespace.getNode(name);
     if (np instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<T>)np, s);
+      bindParameter((NamedParameterNode<T>) np, s);
     } else {
       // TODO add support for setting default *instance* of class.
       // TODO need new exception type here.
@@ -268,22 +281,29 @@ public class Tang {
 
   public <T> void bindSingleton(Class<T> c) throws NameResolutionException,
       ReflectiveOperationException {
-    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
+    if (sealed)
+      throw new IllegalStateException("Can't bind to sealed Tang!");
     bindSingleton(c, c);
   }
 
   @SuppressWarnings("unchecked")
   public <T> void bindSingleton(Class<T> c, Class<? extends T> d)
       throws NameResolutionException, ReflectiveOperationException {
-    if(sealed) throw new IllegalStateException("Can't bind to sealed Tang!");
+    if (sealed)
+      throw new IllegalStateException("Can't bind to sealed Tang!");
 
     namespace.register(c);
     namespace.register(d);
     try {
+      Node n = namespace.getNode(c);
+      if (!(n instanceof ClassNode)) {
+        throw new IllegalArgumentException("Can't bind singleton to " + n
+            + " try bindParameter() instead.");
+      }
       ClassNode<T> cn = (ClassNode<T>) namespace.getNode(c);
       cn.setIsSingleton();
       singletons.add(cn);
-      if(c != d) {
+      if (c != d) {
         // Note: d is *NOT* necessarily a singleton.
         defaultImpls.put(cn, d);
       }
@@ -293,27 +313,29 @@ public class Tang {
     }
   }
 
+  /**
+   * Note: if you call this method, then you may no longer serialize this tang
+   * to a config file.
+   * 
+   * @param c
+   * @param o
+   * @throws NameResolutionException
+   */
   @SuppressWarnings("unchecked")
-  private <T> T injectSingleton(Class<T> c) throws NameResolutionException,
-      ReflectiveOperationException {
-    namespace.register(c);
-    ClassNode<T> cn;
-    try {
-      cn = (ClassNode<T>) namespace.getNode(c);
-    } catch (NameResolutionException e) {
-      throw new IllegalStateException("Could not find class " + c
-          + " which this method just registered!");
-    } catch (ClassCastException e) {
-      throw new IllegalArgumentException("Cannot call setClassSingleton on "
-          + c + ".  Try setNamedParameter() instead.");
-    }
-    if (singletonInstances.containsKey(cn)) {
-      return (T) singletonInstances.get(cn);
-    } else if (cn.getIsSingleton()) {
-      throw new IllegalStateException("No instance found for Singleton " + cn);
+  public <T> void bindVolatialeInstance(Class<T> c, T o)
+      throws NameResolutionException {
+    dirtyBit = true;
+    register(c);
+    Node n = namespace.getNode(c);
+    if (n instanceof NamedParameterNode) {
+      NamedParameterNode<T> np = (NamedParameterNode<T>) n;
+      namedParameterInstances.put(np, o);
+      ClassNode<T> cn = (ClassNode<T>) n;
+      cn.setIsSingleton();
+      this.singletonInstances.put(cn, o);
     } else {
-      throw new IllegalStateException("Attempt to inject singleton of " + c
-          + " which has not been bound as a singleton.");
+      throw new IllegalArgumentException(
+          "Expected Class or NamedParameter, but " + c + " is neither.");
     }
   }
 
@@ -343,7 +365,8 @@ public class Tang {
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) {
     namespace.register(c);
-    System.err.println("Warning: ExternalConstructors aren't implemented at the moment");
+    System.err
+        .println("Warning: ExternalConstructors aren't implemented at the moment");
     try {
       constructors.put(namespace.getNode(c), (Class) v);
     } catch (NameResolutionException e) {
@@ -449,13 +472,18 @@ public class Tang {
    * string-string pairs that could be dumped directly to a Properties file, for
    * example. Currently, this method does not return information about default
    * parameter values that were specified by parameter annotations, or about the
-   * auto-discovered stuff in TypeHierarchy.  All of that should be automatically
+   * auto-discovered stuff in TypeHierarchy. All of that should be automatically
    * imported as these keys are parsed on the other end.
    * 
    * @return a String to String map
    */
   public Map<String, String> getEffectiveConfiguration() {
-    Map<String, String> ret = new MonotonicMap<String, String>();
+    if (dirtyBit) {
+      throw new IllegalStateException(
+          "Someone called setVolatileInstance() on this Tang object; no introspection allowed!");
+    }
+
+    Map<String, String> ret = new HashMap<String, String>();
     for (Node opt : defaultImpls.keySet()) {
       ret.put(opt.getFullName(), defaultImpls.get(opt).getName());
     }
@@ -511,9 +539,9 @@ public class Tang {
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     register(clazz);
-    if(!sealed) {
+    if (!sealed) {
       sealed = true;
-      for(ClassNode<?> cn : singletons) {
+      for (ClassNode<?> cn : singletons) {
         Object o = getInstance(cn.getClazz());
         singletonInstances.put(cn, o);
       }
