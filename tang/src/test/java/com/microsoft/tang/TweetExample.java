@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.microsoft.tang.Tang;
-import com.microsoft.tang.TypeHierarchy;
+import com.microsoft.tang.Tang.TangInjector;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -94,7 +94,7 @@ public class TweetExample {
     t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
     t.bindImplementation(SMS.class, MockSMS.class);
     t.bindParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString());
-    Tweeter tw = (Tweeter) t.forkConf().injector().getInstance(Tweeter.class);
+    Tweeter tw = (Tweeter) new TangInjector(t.forkConf()).getInstance(Tweeter.class);
     tw.sendMessage();
   }
 

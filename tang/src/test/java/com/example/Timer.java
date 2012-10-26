@@ -4,6 +4,8 @@ import javax.inject.Inject;
 
 import com.microsoft.tang.InjectionPlan;
 import com.microsoft.tang.Tang;
+import com.microsoft.tang.Tang.TangConf;
+import com.microsoft.tang.Tang.TangInjector;
 import com.microsoft.tang.TypeHierarchy;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -30,10 +32,13 @@ public class Timer {
     typeHierarchy.writeJson(System.err);
     Tang tang = new Tang();
     tang.register(Timer.class);
-    InjectionPlan ip = tang.forkConf().injector().getInjectionPlan("com.example.Timer");
+    //TangInjector injector = Tang.newInjector(
+    TangConf conf = tang.forkConf();
+    TangInjector injector = conf.injector();
+    InjectionPlan ip = injector.getInjectionPlan("com.example.Timer");
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
-    Timer timer = tang.forkConf().injector().getInstance(Timer.class);
+    Timer timer = injector.getInstance(Timer.class);
     System.out.println("Tick...");
     timer.sleep();
     System.out.println("Tock.");

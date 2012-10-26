@@ -23,7 +23,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import com.microsoft.tang.InjectionPlan.AmbiguousInjectionPlan;
-import com.microsoft.tang.InjectionPlan.Constructor;
 import com.microsoft.tang.InjectionPlan.InfeasibleInjectionPlan;
 import com.microsoft.tang.InjectionPlan.Instance;
 import com.microsoft.tang.TypeHierarchy.ClassNode;
@@ -53,73 +52,24 @@ public class Tang {
     namespace = new TypeHierarchy();
   }
 
-  public Tang(Tang... tangs) {
-    throw new UnsupportedOperationException();
+  public Tang(TangConf... tangs) {
+    namespace = new TypeHierarchy();
+    for (TangConf tc : tangs) {
+      addConf(tc);
+    }
+  }
+
+  public void addConf(TangConf tc) {
+
+    throw new UnsupportedOperationException("XXX"); // XXX
   }
 
   public void register(Class<?> c) {
     namespace.register(c);
   }
 
-  public static TangConf.TangInjector newInjector(Tang... args) {
-    return new Tang(args).forkConf().injector();
-  }
-
-  public <T> void processConfigurationFile(File configFileName)
-      throws ConfigurationException, NameResolutionException,
-      ReflectiveOperationException {
-    Configuration conf = new PropertiesConfiguration(configFileName);
-    Iterator<String> it = conf.getKeys();
-
-    Map<String, String> shortNames = new HashMap<String, String>();
-
-    while (it.hasNext()) {
-      String key = it.next();
-      String longName = shortNames.get(key);
-      String[] values = conf.getStringArray(key);
-      if (longName != null) {
-        // System.err.println("Mapped " + key + " to " + longName);
-        key = longName;
-      }
-      for (String value : values) {
-        boolean isSingleton = false;
-        if (value.equals("tang.singleton")) {
-          isSingleton = true;
-        }
-        if (key.equals("import")) {
-          if (isSingleton) {
-            throw new IllegalArgumentException(
-                "Can't import=tang.singleton.  Makes no sense");
-          }
-          try {
-            namespace.register(Class.forName(value));
-            String[] tok = value.split(TypeHierarchy.regexp);
-            try {
-              namespace.getNode(tok[tok.length - 1]);
-              throw new IllegalArgumentException("Conflict on short name: "
-                  + tok[tok.length - 1]);
-            } catch (NameResolutionException e) {
-              String oldValue = shortNames.put(tok[tok.length - 1], value);
-              if (oldValue != null) {
-                throw new IllegalArgumentException("Name conflict.  "
-                    + tok[tok.length - 1] + " maps to " + oldValue + " and "
-                    + value);
-              }
-              // System.err.println("Added mapping from " + tok[tok.length-1] +
-              // " to " + value);
-            }
-          } catch (ClassNotFoundException e) {
-            // print error message + exit.
-          }
-        } else {
-          if (isSingleton) {
-            bindSingleton(Class.forName(key));
-          } else {
-            bind(key, value);
-          }
-        }
-      }
-    }
+  public static TangInjector newInjector(TangConf... args) {
+    return args[0].tang.forkConf().injector();
   }
 
   private Options getCommandLineOptions() {
@@ -367,17 +317,269 @@ public class Tang {
           + " which this method just registered!");
     }
   }
+
+  static public TangConf tangConfFromConfigurationFile(File configFileName)
+      throws ConfigurationException, NameResolutionException,
+      ReflectiveOperationException {
+    return tangFromConfigurationFile(configFileName).forkConf();
+  }
+
   public TangConf forkConf() {
-    return forkConfImpl(); //XXX new Tang(this).forkConfImpl();
+    return forkConfImpl(); // XXX new Tang(this).forkConfImpl();
   }
+
+  public static class TangInjector {
+    private final TangConf tc;
+    
+    public TangInjector(TangConf tc) {
+      this.tc = tc;
+    }
+    private InjectionPlan wrapInjectionPlans(String infeasibleName,
+        List<? extends InjectionPlan> list) {
+      if (list.size() == 0) {
+        return new InfeasibleInjectionPlan(infeasibleName);
+      } else if (list.size() == 1) {
+        return list.get(0);
+      } else {
+        return new InjectionPlan.AmbiguousInjectionPlan(
+            list.toArray(new InjectionPlan[0]));
+      }
+    }
+  
+    private void buildInjectionPlan(String name,
+        Map<String, InjectionPlan> memo) throws NameResolutionException {
+      if (memo.containsKey(name)) {
+        if (InjectionPlan.BUILDING == memo.get(name)) {
+          throw new IllegalStateException(
+              "Detected loopy constructor involving " + name);
+        } else {
+          return;
+        }
+      }
+      memo.put(name, InjectionPlan.BUILDING);
+  
+      Node n = tc.tang.namespace.getNode(name);
+      final InjectionPlan ip;
+      if (n instanceof NamedParameterNode) {
+        NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+        Object instance = tc.tang.namedParameterInstances.get(n);
+        if (instance == null) {
+          instance = np.defaultInstance;
+        }
+        ip = new Instance(np, instance);
+      } else if (n instanceof ClassNode) {
+        ClassNode<?> cn = (ClassNode<?>) n;
+        if (tc.tang.singletonInstances.containsKey(cn)) {
+          ip = new Instance(cn, tc.tang.singletonInstances.get(cn));
+        } else if (tc.tang.constructors.containsKey(cn)) {
+          throw new UnsupportedOperationException(
+              "Vivifiers aren't working yet!");
+          // ip = new Instance(cn, null);
+        } else if (tc.tang.defaultImpls.containsKey(cn)) {
+          String implName = tc.tang.defaultImpls.get(cn).getName();
+          buildInjectionPlan(implName, memo);
+          ip = memo.get(implName);
+        } else {
+          List<ClassNode<?>> classNodes = new ArrayList<ClassNode<?>>();
+          for (ClassNode<?> c : tc.tang.namespace.getKnownImpls(cn)) {
+            classNodes.add(c);
+          }
+          classNodes.add(cn);
+          List<InjectionPlan> sub_ips = new ArrayList<InjectionPlan>();
+          for (ClassNode<?> thisCN : classNodes) {
+            List<InjectionPlan.Constructor> constructors = new ArrayList<InjectionPlan.Constructor>();
+            for (ConstructorDef def : thisCN.injectableConstructors) {
+              List<InjectionPlan> args = new ArrayList<InjectionPlan>();
+              for (ConstructorArg arg : def.args) {
+                String argName = arg.getName(); // getFullyQualifiedName(thisCN.clazz);
+                buildInjectionPlan(argName, memo);
+                args.add(memo.get(argName));
+              }
+              constructors.add(new InjectionPlan.Constructor(def, args
+                  .toArray(new InjectionPlan[0])));
+            }
+            sub_ips.add(wrapInjectionPlans(thisCN.getName(), constructors));
+          }
+          ip = wrapInjectionPlans(name, sub_ips);
+        }
+      } else if (n instanceof PackageNode) {
+        throw new IllegalArgumentException(
+            "Request to instantiate Java package as object");
+      } else if (n instanceof NamespaceNode) {
+        throw new IllegalArgumentException(
+            "Request to instantiate Tang namespace as object");
+      } else {
+        throw new IllegalStateException(
+            "Type hierarchy contained unknown node type!:" + n);
+      }
+      memo.put(name, ip);
+    }
+  
+    /**
+     * Return an injection plan for the given class / parameter name. This
+     * will be more useful once plans can be serialized / deserialized /
+     * pretty printed.
+     * 
+     * @param name
+     *          The name of an injectable class or interface, or a
+     *          NamedParameter.
+     * @return
+     * @throws NameResolutionException
+     */
+    public InjectionPlan getInjectionPlan(String name)
+        throws NameResolutionException {
+      Map<String, InjectionPlan> memo = new HashMap<String, InjectionPlan>();
+      buildInjectionPlan(name, memo);
+      return memo.get(name);
+    }
+  
+    /**
+     * Returns true if Tang is ready to instantiate the object named by name.
+     * 
+     * @param name
+     * @return
+     * @throws NameResolutionException
+     */
+    public boolean isInjectable(String name) throws NameResolutionException {
+      InjectionPlan p = getInjectionPlan(name);
+      return p.isInjectable();
+    }
+  
+    /**
+     * Get a new instance of the class clazz.
+     * 
+     * @param clazz
+     * @return
+     * @throws NameResolutionException
+     * @throws ReflectiveOperationException
+     */
+    @SuppressWarnings("unchecked")
+    public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
+        ReflectiveOperationException {
+      tc.tang.register(clazz);
+      if (!tc.tang.sealed) {
+        tc.tang.sealed = true;
+        for (ClassNode<?> cn : tc.tang.singletons) {
+          Object o = getInstance(cn.getClazz());
+          tc.tang.singletonInstances.put(cn, o);
+        }
+      }
+      InjectionPlan plan = getInjectionPlan(clazz.getName());
+      return (U) injectFromPlan(plan);
+    }
+  
+    private Object injectFromPlan(InjectionPlan plan)
+        throws ReflectiveOperationException {
+      if (plan.getNumAlternatives() == 0) {
+        throw new IllegalArgumentException(
+            "Attempt to inject infeasible plan: " + plan.toPrettyString());
+      }
+      if (plan.getNumAlternatives() > 1) {
+        throw new IllegalArgumentException(
+            "Attempt to inject ambiguous plan: " + plan.toPrettyString());
+      }
+      if (plan instanceof InjectionPlan.Instance) {
+        return ((InjectionPlan.Instance) plan).instance;
+      } else if (plan instanceof InjectionPlan.Constructor) {
+        InjectionPlan.Constructor constructor = (InjectionPlan.Constructor) plan;
+        Object[] args = new Object[constructor.args.length];
+        for (int i = 0; i < constructor.args.length; i++) {
+          args[i] = injectFromPlan(constructor.args[i]);
+        }
+        return constructor.constructor.constructor.newInstance(args);
+      } else if (plan instanceof AmbiguousInjectionPlan) {
+        AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan) plan;
+        for (InjectionPlan p : ambiguous.alternatives) {
+          if (p.isInjectable()) {
+            return injectFromPlan(p);
+          }
+        }
+        throw new IllegalStateException(
+            "Thought there was an injectable plan, but can't find it!");
+      } else if (plan instanceof InfeasibleInjectionPlan) {
+        throw new IllegalArgumentException(
+            "Attempt to inject infeasible plan!");
+      } else {
+        throw new IllegalStateException("Unknown plan type: " + plan);
+      }
+    }
+  
+  }
+
+  static private <T> Tang tangFromConfigurationFile(File configFileName)
+      throws ConfigurationException, NameResolutionException,
+      ReflectiveOperationException {
+    Tang t = new Tang();
+
+    Configuration conf = new PropertiesConfiguration(configFileName);
+    Iterator<String> it = conf.getKeys();
+
+    Map<String, String> shortNames = new HashMap<String, String>();
+
+    while (it.hasNext()) {
+      String key = it.next();
+      String longName = shortNames.get(key);
+      String[] values = conf.getStringArray(key);
+      if (longName != null) {
+        // System.err.println("Mapped " + key + " to " + longName);
+        key = longName;
+      }
+      for (String value : values) {
+        boolean isSingleton = false;
+        if (value.equals("tang.singleton")) {
+          isSingleton = true;
+        }
+        if (key.equals("import")) {
+          if (isSingleton) {
+            throw new IllegalArgumentException(
+                "Can't import=tang.singleton.  Makes no sense");
+          }
+          try {
+            t.namespace.register(Class.forName(value));
+            String[] tok = value.split(TypeHierarchy.regexp);
+            try {
+              t.namespace.getNode(tok[tok.length - 1]);
+              throw new IllegalArgumentException("Conflict on short name: "
+                  + tok[tok.length - 1]);
+            } catch (NameResolutionException e) {
+              String oldValue = shortNames.put(tok[tok.length - 1], value);
+              if (oldValue != null) {
+                throw new IllegalArgumentException("Name conflict.  "
+                    + tok[tok.length - 1] + " maps to " + oldValue + " and "
+                    + value);
+              }
+              // System.err.println("Added mapping from " + tok[tok.length-1] +
+              // " to " + value);
+            }
+          } catch (ClassNotFoundException e) {
+            // print error message + exit.
+          }
+        } else {
+          if (isSingleton) {
+            t.bindSingleton(Class.forName(key));
+          } else {
+            t.bind(key, value);
+          }
+        }
+      }
+    }
+    return t;
+  }
+
   private TangConf forkConfImpl() {
-    return new TangConf();
+    return new TangConf(this);
   }
+
   public class TangConf {
-    public TangInjector injector() {
-      return new TangInjector();
+    public Tang tang;
+
+    private TangConf(Tang tang) {
+      this.tang = tang;
     }
 
+    public TangInjector injector() {
+      return new TangInjector(this);
+    }
 
     public void writeConfigurationFile(PrintStream s) {
       if (dirtyBit) {
@@ -423,187 +625,15 @@ public class Tang {
       }
       return ret;
     }
+  }
 
-    public class TangInjector {
-
-      private InjectionPlan wrapInjectionPlans(String infeasibleName,
-          List<? extends InjectionPlan> list) {
-        if (list.size() == 0) {
-          return new InfeasibleInjectionPlan(infeasibleName);
-        } else if (list.size() == 1) {
-          return list.get(0);
-        } else {
-          return new InjectionPlan.AmbiguousInjectionPlan(
-              list.toArray(new InjectionPlan[0]));
-        }
-      }
-
-      private void buildInjectionPlan(String name,
-          Map<String, InjectionPlan> memo) throws NameResolutionException {
-        if (memo.containsKey(name)) {
-          if (InjectionPlan.BUILDING == memo.get(name)) {
-            throw new IllegalStateException(
-                "Detected loopy constructor involving " + name);
-          } else {
-            return;
-          }
-        }
-        memo.put(name, InjectionPlan.BUILDING);
-
-        Node n = namespace.getNode(name);
-        final InjectionPlan ip;
-        if (n instanceof NamedParameterNode) {
-          NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-          Object instance = namedParameterInstances.get(n);
-          if (instance == null) {
-            instance = np.defaultInstance;
-          }
-          ip = new Instance(np, instance);
-        } else if (n instanceof ClassNode) {
-          ClassNode<?> cn = (ClassNode<?>) n;
-          if (singletonInstances.containsKey(cn)) {
-            ip = new Instance(cn, singletonInstances.get(cn));
-          } else if (constructors.containsKey(cn)) {
-            throw new UnsupportedOperationException(
-                "Vivifiers aren't working yet!");
-            // ip = new Instance(cn, null);
-          } else if (defaultImpls.containsKey(cn)) {
-            String implName = defaultImpls.get(cn).getName();
-            buildInjectionPlan(implName, memo);
-            ip = memo.get(implName);
-          } else {
-            List<ClassNode<?>> classNodes = new ArrayList<ClassNode<?>>();
-            for (ClassNode<?> c : namespace.getKnownImpls(cn)) {
-              classNodes.add(c);
-            }
-            classNodes.add(cn);
-            List<InjectionPlan> sub_ips = new ArrayList<InjectionPlan>();
-            for (ClassNode<?> thisCN : classNodes) {
-              List<InjectionPlan.Constructor> constructors = new ArrayList<InjectionPlan.Constructor>();
-              for (ConstructorDef def : thisCN.injectableConstructors) {
-                List<InjectionPlan> args = new ArrayList<InjectionPlan>();
-                for (ConstructorArg arg : def.args) {
-                  String argName = arg.getName(); // getFullyQualifiedName(thisCN.clazz);
-                  buildInjectionPlan(argName, memo);
-                  args.add(memo.get(argName));
-                }
-                constructors.add(new InjectionPlan.Constructor(def, args
-                    .toArray(new InjectionPlan[0])));
-              }
-              sub_ips.add(wrapInjectionPlans(thisCN.getName(), constructors));
-            }
-            ip = wrapInjectionPlans(name, sub_ips);
-          }
-        } else if (n instanceof PackageNode) {
-          throw new IllegalArgumentException(
-              "Request to instantiate Java package as object");
-        } else if (n instanceof NamespaceNode) {
-          throw new IllegalArgumentException(
-              "Request to instantiate Tang namespace as object");
-        } else {
-          throw new IllegalStateException(
-              "Type hierarchy contained unknown node type!:" + n);
-        }
-        memo.put(name, ip);
-      }
-
-      /**
-       * Return an injection plan for the given class / parameter name. This
-       * will be more useful once plans can be serialized / deserialized /
-       * pretty printed.
-       * 
-       * @param name
-       *          The name of an injectable class or interface, or a
-       *          NamedParameter.
-       * @return
-       * @throws NameResolutionException
-       */
-      public InjectionPlan getInjectionPlan(String name)
-          throws NameResolutionException {
-        Map<String, InjectionPlan> memo = new HashMap<String, InjectionPlan>();
-        buildInjectionPlan(name, memo);
-        return memo.get(name);
-      }
-
-      /**
-       * Returns true if Tang is ready to instantiate the object named by name.
-       * 
-       * @param name
-       * @return
-       * @throws NameResolutionException
-       */
-      public boolean isInjectable(String name) throws NameResolutionException {
-        InjectionPlan p = getInjectionPlan(name);
-        return p.isInjectable();
-      }
-
-      /**
-       * Get a new instance of the class clazz.
-       * 
-       * @param clazz
-       * @return
-       * @throws NameResolutionException
-       * @throws ReflectiveOperationException
-       */
-      @SuppressWarnings("unchecked")
-      public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
-          ReflectiveOperationException {
-        register(clazz);
-        if (!sealed) {
-          sealed = true;
-          for (ClassNode<?> cn : singletons) {
-            Object o = getInstance(cn.getClazz());
-            singletonInstances.put(cn, o);
-          }
-        }
-        InjectionPlan plan = getInjectionPlan(clazz.getName());
-        return (U) injectFromPlan(plan);
-      }
-
-      @SuppressWarnings("unchecked")
-      public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
-          throws NameResolutionException, ReflectiveOperationException {
-        InjectionPlan plan = getInjectionPlan(clazz.getName());
-        return (T) injectFromPlan(plan);
-      }
-
-      private Object injectFromPlan(InjectionPlan plan)
-          throws ReflectiveOperationException {
-        if (plan.getNumAlternatives() == 0) {
-          throw new IllegalArgumentException(
-              "Attempt to inject infeasible plan: " + plan.toPrettyString());
-        }
-        if (plan.getNumAlternatives() > 1) {
-          throw new IllegalArgumentException(
-              "Attempt to inject ambiguous plan: " + plan.toPrettyString());
-        }
-        if (plan instanceof InjectionPlan.Instance) {
-          return ((InjectionPlan.Instance) plan).instance;
-        } else if (plan instanceof InjectionPlan.Constructor) {
-          InjectionPlan.Constructor constructor = (InjectionPlan.Constructor) plan;
-          Object[] args = new Object[constructor.args.length];
-          for (int i = 0; i < constructor.args.length; i++) {
-            args[i] = injectFromPlan(constructor.args[i]);
-          }
-          return constructor.constructor.constructor.newInstance(args);
-        } else if (plan instanceof AmbiguousInjectionPlan) {
-          AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan) plan;
-          for (InjectionPlan p : ambiguous.alternatives) {
-            if (p.isInjectable()) {
-              return injectFromPlan(p);
-            }
-          }
-          throw new IllegalStateException(
-              "Thought there was an injectable plan, but can't find it!");
-        } else if (plan instanceof InfeasibleInjectionPlan) {
-          throw new IllegalArgumentException(
-              "Attempt to inject infeasible plan!");
-        } else {
-          throw new IllegalStateException("Unknown plan type: " + plan);
-        }
-      }
-
-    }
+  @SuppressWarnings("unchecked")
+  public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
+      throws NameResolutionException, ReflectiveOperationException {
+    InjectionPlan plan = forkConf().injector()
+        .getInjectionPlan(clazz.getName());
+    // XXX this next line is funny bad.
+    return (T) forkConf().injector().injectFromPlan(plan);
   }
 
   private class MonotonicSet<T> extends HashSet<T> {

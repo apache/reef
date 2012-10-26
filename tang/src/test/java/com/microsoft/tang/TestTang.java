@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.microsoft.tang.Tang.TangInjector;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -21,12 +22,13 @@ public class TestTang {
   public void testSingleton() throws NameResolutionException, ReflectiveOperationException {
     Tang t = new Tang();
     t.bindSingleton(MustBeSingleton.class);
-    t.forkConf().injector().getInstance(TwoSingletons.class);
+    new TangInjector(t.forkConf()).getInstance(TwoSingletons.class);
   }
   @Test(expected = InvocationTargetException.class)
   public void testNotSingleton() throws NameResolutionException, ReflectiveOperationException {
     Tang t = new Tang();
-    t.forkConf().injector().getInstance(TwoSingletons.class);
+    TangInjector injector = new TangInjector(t.forkConf());
+    injector.getInstance(TwoSingletons.class);
   }
   @Test(expected = IllegalArgumentException.class)
   public void testRepeatedAmbiguousArgs() {
@@ -38,7 +40,7 @@ public class TestTang {
     Tang t = new Tang();
     t.bindParameter(RepeatedNamedArgs.A.class, "1");
     t.bindParameter(RepeatedNamedArgs.B.class, "2");
-    t.forkConf().injector().getInstance(RepeatedNamedArgs.class);
+    new TangInjector(t.forkConf()).getInstance(RepeatedNamedArgs.class);
   }
 /*  @Test
   public void testRepeatedNamedOKArgs() throws NameResolutionException, ReflectiveOperationException {
