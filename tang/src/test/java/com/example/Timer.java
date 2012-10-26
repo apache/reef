@@ -28,11 +28,12 @@ public class Timer {
     TypeHierarchy typeHierarchy = new TypeHierarchy();
     typeHierarchy.register(Timer.class);
     typeHierarchy.writeJson(System.err);
-    Tang tang = new Tang(typeHierarchy);
-    InjectionPlan ip = tang.getInjectionPlan("com.example.Timer");
+    Tang tang = new Tang();
+    tang.register(Timer.class);
+    InjectionPlan ip = tang.forkConf().injector().getInjectionPlan("com.example.Timer");
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
-    Timer timer = tang.getInstance(Timer.class);
+    Timer timer = tang.forkConf().injector().getInstance(Timer.class);
     System.out.println("Tick...");
     timer.sleep();
     System.out.println("Tock.");

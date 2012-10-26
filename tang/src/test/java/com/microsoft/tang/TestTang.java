@@ -21,12 +21,12 @@ public class TestTang {
   public void testSingleton() throws NameResolutionException, ReflectiveOperationException {
     Tang t = new Tang();
     t.bindSingleton(MustBeSingleton.class);
-    t.getInstance(TwoSingletons.class);
+    t.forkConf().injector().getInstance(TwoSingletons.class);
   }
   @Test(expected = InvocationTargetException.class)
   public void testNotSingleton() throws NameResolutionException, ReflectiveOperationException {
     Tang t = new Tang();
-    t.getInstance(TwoSingletons.class);
+    t.forkConf().injector().getInstance(TwoSingletons.class);
   }
   @Test(expected = IllegalArgumentException.class)
   public void testRepeatedAmbiguousArgs() {
@@ -38,7 +38,7 @@ public class TestTang {
     Tang t = new Tang();
     t.bindParameter(RepeatedNamedArgs.A.class, "1");
     t.bindParameter(RepeatedNamedArgs.B.class, "2");
-    t.getInstance(RepeatedNamedArgs.class);
+    t.forkConf().injector().getInstance(RepeatedNamedArgs.class);
   }
 /*  @Test
   public void testRepeatedNamedOKArgs() throws NameResolutionException, ReflectiveOperationException {

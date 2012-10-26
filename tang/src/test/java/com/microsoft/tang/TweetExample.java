@@ -69,8 +69,6 @@ public class TweetExample {
     }
   }
 
-  private TypeHierarchy ns;
-
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
   }
@@ -81,24 +79,22 @@ public class TweetExample {
 
   @Before
   public void setUp() throws Exception {
-    ns = new TypeHierarchy();
-    ns.register(MockTweetFactory.class);
-    ns.register(MockSMS.class);
-    ns.register(Tweeter.class);
   }
 
   @After
   public void tearDown() throws Exception {
-    ns = null;
   }
 
   @Test
   public void test() throws Exception {
-    Tang t = new Tang(ns);
+    Tang t = new Tang();
+    t.register(MockTweetFactory.class);
+    t.register(MockSMS.class);
+    t.register(Tweeter.class);
     t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
     t.bindImplementation(SMS.class, MockSMS.class);
     t.bindParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString());
-    Tweeter tw = (Tweeter) t.getInstance(Tweeter.class);
+    Tweeter tw = (Tweeter) t.forkConf().injector().getInstance(Tweeter.class);
     tw.sendMessage();
   }
 

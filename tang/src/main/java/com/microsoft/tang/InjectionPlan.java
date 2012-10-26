@@ -1,6 +1,17 @@
 package com.microsoft.tang;
 
 public abstract class InjectionPlan {
+  static final InjectionPlan BUILDING = new InjectionPlan() {
+    @Override
+    public int getNumAlternatives() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String toString() {
+      return "BUILDING INJECTION PLAN";
+    }
+  };
   public abstract int getNumAlternatives();
   public boolean isFeasible() { return getNumAlternatives() > 0; }
   public boolean isAmbiguous() { return getNumAlternatives() > 1; }
