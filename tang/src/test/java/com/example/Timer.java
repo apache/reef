@@ -4,8 +4,8 @@ import javax.inject.Inject;
 
 import com.microsoft.tang.InjectionPlan;
 import com.microsoft.tang.Tang;
-import com.microsoft.tang.Tang.TangConf;
-import com.microsoft.tang.Tang.TangInjector;
+import com.microsoft.tang.TangConf;
+import com.microsoft.tang.TangInjector;
 import com.microsoft.tang.TypeHierarchy;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
