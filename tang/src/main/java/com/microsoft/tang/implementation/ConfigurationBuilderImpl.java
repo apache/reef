@@ -55,8 +55,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   //  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
-  public void addConfiguration(ConfigurationImpl tc) {
-    addConfiguration(tc.tang);
+  public void addConfiguration(Configuration tc) {
+    addConfiguration(((ConfigurationImpl)tc).tang);
   }
   private void addConfiguration(ConfigurationBuilderImpl t) {
     if (t.dirtyBit) {

@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.InjectorImpl;
@@ -46,7 +47,8 @@ public class TestTang {
 
   @Test
   public void testRepeatedOKArgs() throws NameResolutionException,
-      ReflectiveOperationException {
+      ReflectiveOperationException,
+      BindException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindNamedParameter(RepeatedNamedArgs.A.class, "1");
     t.bindNamedParameter(RepeatedNamedArgs.B.class, "2");
