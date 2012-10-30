@@ -17,6 +17,7 @@ package com.microsoft.tang.implementation;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.impl.Tang;
@@ -58,6 +59,12 @@ final class ConfigurationBuilderImpl implements ConfigurationBuilder {
     public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value) throws BindException {
         t.bindParameter(name, value);        
     }
+
+    @Override
+    public <T> void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v) {
+        t.bindConstructor(c, v);
+    }    
+    
 
     @Override
     public Configuration build() {

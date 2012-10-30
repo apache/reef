@@ -63,9 +63,11 @@ public interface ConfigurationBuilder {
      */
     public <T> void bindNamedParameter(final Class<? extends Name<T>> name, final String value) throws BindException;
 
+    public <T> void bindConstructor(Class<T> iface, Class<? extends ExternalConstructor<? extends T>> constructor) throws BindException;
+
     /**
      * Builds the immutable Configuration object.
-     * 
+     *
      * @return a new immutable Configuration object
      */
     public Configuration build();

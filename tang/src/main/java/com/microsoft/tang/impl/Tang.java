@@ -1,5 +1,6 @@
 package com.microsoft.tang.impl;
 
+import com.microsoft.tang.ExternalConstructor;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
@@ -277,27 +278,7 @@ public class Tang {
     }
   }
 
-  /**
-   * This interface allows legacy classes to be injected by Tang. To be of any
-   * use, implementations of this class must have at least one constructor with
-   * an @Inject annotation. From Tang's perspective, an ExternalConstructor
-   * class is just a special instance of the class T, except that, after
-   * injection an ExternalConstructor, Tang will call newInstance, and store the
-   * resulting object. It will then discard the ExternalConstructor.
-   * 
-   * @author sears
-   * 
-   * @param <T>
-   *          The type this ExternalConstructor will create.
-   */
-  public interface ExternalConstructor<T> {
-    /**
-     * This method will only be called once.
-     * 
-     * @return a new, distinct instance of T.
-     */
-    T newInstance();
-  }
+
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> void bindConstructor(Class<T> c,
