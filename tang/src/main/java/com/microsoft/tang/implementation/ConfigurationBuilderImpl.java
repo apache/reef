@@ -43,14 +43,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   boolean sealed = false;
   boolean dirtyBit = false;
 
-  public ConfigurationBuilderImpl() {
-  }
-
   ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
     addConfiguration(t);
   }
 
-  public ConfigurationBuilderImpl(Configuration... tangs) {
+  ConfigurationBuilderImpl(Configuration... tangs) {
     for (Configuration tc : tangs) {
       addConfiguration(((ConfigurationImpl)tc).tang);
     }

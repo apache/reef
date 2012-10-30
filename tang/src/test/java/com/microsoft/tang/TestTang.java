@@ -15,41 +15,42 @@ import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.InjectorImpl;
 
 public class TestTang {
+  Tang tang;
   @Before
   public void setUp() throws Exception {
     MustBeSingleton.alreadyInstantiated = false;
+    tang = Tang.Factory.getTang();
   }
 
   @Test
   public void testSingleton() throws NameResolutionException,
       ReflectiveOperationException {
-    ConfigurationBuilder t = Tang.Factory.getTang().newConfigurationBuilder();
+    ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
-    Tang.Factory.getTang().getInjector(t.build())
-        .getInstance(TwoSingletons.class);
+    tang.newInjector(t.build()).getInstance(TwoSingletons.class);
   }
 
   @Test(expected = InvocationTargetException.class)
   public void testNotSingleton() throws NameResolutionException,
       ReflectiveOperationException {
-    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
-    InjectorImpl injector = new InjectorImpl(t.build());
+    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    InjectorImpl injector = new InjectorImpl(((ConfigurationBuilderImpl)t).build());
     injector.getInstance(TwoSingletons.class);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testRepeatedAmbiguousArgs() {
-    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
-    t.namespace.register(RepeatedAmbiguousArgs.class);
+    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    ((ConfigurationBuilderImpl)t).namespace.register(RepeatedAmbiguousArgs.class);
   }
 
   @Test
   public void testRepeatedOKArgs() throws NameResolutionException,
       ReflectiveOperationException {
-    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
+    ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindNamedParameter(RepeatedNamedArgs.A.class, "1");
     t.bindNamedParameter(RepeatedNamedArgs.B.class, "2");
-    new InjectorImpl(t.build()).getInstance(RepeatedNamedArgs.class);
+    new InjectorImpl(((ConfigurationBuilderImpl)t).build()).getInstance(RepeatedNamedArgs.class);
   }
   /*
    * @Test public void testRepeatedNamedOKArgs() throws NameResolutionException,

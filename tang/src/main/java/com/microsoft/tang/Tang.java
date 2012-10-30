@@ -14,7 +14,7 @@ public interface Tang {
    * @return 
    * @throws BindException 
    */
-  public Injector getInjector(final Configuration... confs);
+  public Injector newInjector(final Configuration... confs);
 
   /**
    * Reads a configuration from an InputStream

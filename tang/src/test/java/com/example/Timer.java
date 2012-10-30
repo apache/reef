@@ -2,6 +2,8 @@ package com.example;
 
 import javax.inject.Inject;
 
+import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -27,11 +29,10 @@ public class Timer {
   }
   
   public static void main(String[] args) throws Exception {
-    TypeHierarchy typeHierarchy = new TypeHierarchy();
-    typeHierarchy.register(Timer.class);
-    ConfigurationBuilderImpl tang = new ConfigurationBuilderImpl();
-    tang.register(Timer.class);
-    ConfigurationImpl conf = tang.build();
+    Tang tang = Tang.Factory.getTang();
+    ConfigurationBuilderImpl cb = (ConfigurationBuilderImpl)tang.newConfigurationBuilder();
+    cb.register(Timer.class);
+    ConfigurationImpl conf = cb.build();
     InjectorImpl injector = conf.injector();
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());

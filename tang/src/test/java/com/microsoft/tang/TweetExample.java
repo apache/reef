@@ -77,9 +77,12 @@ public class TweetExample {
   public static void tearDownAfterClass() throws Exception {
   }
 
+  Tang tang;
   @Before
   public void setUp() throws Exception {
+    tang = Tang.Factory.getTang();
   }
+
 
   @After
   public void tearDown() throws Exception {
@@ -87,9 +90,7 @@ public class TweetExample {
 
   @Test
   public void test() throws Exception {
-    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
-    t.register(MockTweetFactory.class);
-    t.register(MockSMS.class);
+    ConfigurationBuilderImpl t = (ConfigurationBuilderImpl)tang.newConfigurationBuilder();
     t.register(Tweeter.class);
     t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
     t.bindImplementation(SMS.class, MockSMS.class);
