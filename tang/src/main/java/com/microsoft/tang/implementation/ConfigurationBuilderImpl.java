@@ -14,10 +14,10 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Parser;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Injector;
@@ -50,13 +50,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     addConfiguration(t);
   }
 
-  public ConfigurationBuilderImpl(ConfigurationImpl... tangs) {
-    for (ConfigurationImpl tc : tangs) {
-      addConfiguration(tc.tang);
+  public ConfigurationBuilderImpl(Configuration... tangs) {
+    for (Configuration tc : tangs) {
+      addConfiguration(((ConfigurationImpl)tc).tang);
     }
   }
 
-//  @SuppressWarnings({"unchecked", "rawtypes"})
+  //  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void addConfiguration(ConfigurationImpl tc) {
     addConfiguration(tc.tang);
@@ -333,7 +333,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throws ConfigurationException, ReflectiveOperationException {
     ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
 
-    Configuration conf = new PropertiesConfiguration(configFileName);
+    PropertiesConfiguration conf = new PropertiesConfiguration(configFileName);
     Iterator<String> it = conf.getKeys();
 
     Map<String, String> shortNames = new HashMap<String, String>();
