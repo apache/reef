@@ -1,24 +1,25 @@
-package com.microsoft.tang;
+package com.microsoft.tang.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.microsoft.tang.InjectionPlan.AmbiguousInjectionPlan;
-import com.microsoft.tang.InjectionPlan.InfeasibleInjectionPlan;
-import com.microsoft.tang.InjectionPlan.Instance;
-import com.microsoft.tang.TypeHierarchy.ClassNode;
-import com.microsoft.tang.TypeHierarchy.ConstructorArg;
-import com.microsoft.tang.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.TypeHierarchy.NamespaceNode;
-import com.microsoft.tang.TypeHierarchy.Node;
-import com.microsoft.tang.TypeHierarchy.PackageNode;
+import com.microsoft.tang.impl.InjectionPlan.AmbiguousInjectionPlan;
+import com.microsoft.tang.impl.InjectionPlan.InfeasibleInjectionPlan;
+import com.microsoft.tang.impl.InjectionPlan.Instance;
+import com.microsoft.tang.Injector;
+import com.microsoft.tang.impl.TypeHierarchy.ClassNode;
+import com.microsoft.tang.impl.TypeHierarchy.ConstructorArg;
+import com.microsoft.tang.impl.TypeHierarchy.ConstructorDef;
+import com.microsoft.tang.impl.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.impl.TypeHierarchy.NamespaceNode;
+import com.microsoft.tang.impl.TypeHierarchy.Node;
+import com.microsoft.tang.impl.TypeHierarchy.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
-public class TangInjector {
+public class TangInjector implements Injector {
   private final TangConf tc;
   
   TangInjector(TangConf tc) {
@@ -155,6 +156,7 @@ public class TangInjector {
    * @throws NameResolutionException
    * @throws ReflectiveOperationException
    */
+    @Override
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     tc.tang.namespace.register(clazz);
@@ -171,6 +173,7 @@ public class TangInjector {
 
 
   @SuppressWarnings("unchecked")
+    @Override
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
       throws ReflectiveOperationException, NameResolutionException {
     InjectionPlan<T> plan = (InjectionPlan<T>)getInjectionPlan(clazz.getName());
@@ -221,7 +224,8 @@ public class TangInjector {
    * @throws NameResolutionException
    */
   @SuppressWarnings("unchecked")
-  public <T> void bindVolatialeInstance(Class<T> c, T o) {
+    @Override
+  public <T> void bindVolatileInstance(Class<T> c, T o) {
     tc.tang.dirtyBit = true;
     Node n = tc.tang.namespace.register(c);
     if (n instanceof NamedParameterNode) {

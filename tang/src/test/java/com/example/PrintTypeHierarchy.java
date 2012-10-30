@@ -1,6 +1,6 @@
 package com.example;
 
-import com.microsoft.tang.TypeHierarchy;
+import com.microsoft.tang.impl.TypeHierarchy;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class PrintTypeHierarchy {

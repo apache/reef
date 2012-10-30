@@ -1,5 +1,7 @@
 package com.microsoft.tang;
 
+import com.microsoft.tang.impl.Tang;
+import com.microsoft.tang.impl.TangInjector;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.inject.Inject;

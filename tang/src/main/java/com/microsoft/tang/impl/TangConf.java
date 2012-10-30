@@ -1,11 +1,11 @@
-package com.microsoft.tang;
+package com.microsoft.tang.impl;
 
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.microsoft.tang.TypeHierarchy.Node;
+import com.microsoft.tang.impl.TypeHierarchy.Node;
 
 public class TangConf {
   public final Tang tang;
