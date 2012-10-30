@@ -1,4 +1,4 @@
-package com.microsoft.tang;
+package com.microsoft.tang.util;
 
 import java.util.HashMap;
 import java.util.Map;

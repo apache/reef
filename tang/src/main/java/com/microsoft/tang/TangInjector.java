@@ -21,7 +21,7 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 public class TangInjector {
   private final TangConf tc;
   
-  public TangInjector(TangConf tc) {
+  TangInjector(TangConf tc) {
     this.tc = tc;
   }
   private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,

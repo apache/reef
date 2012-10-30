@@ -27,6 +27,7 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.util.MonotonicSet;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TypeHierarchy {
   // TODO: Want to add a "register namespace" method, but Java is not designed

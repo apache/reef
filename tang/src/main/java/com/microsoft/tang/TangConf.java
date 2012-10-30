@@ -3,11 +3,14 @@ package com.microsoft.tang;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.microsoft.tang.TypeHierarchy.Node;
 
 public class TangConf {
-  public Tang tang;
+  public final Tang tang;
+  public final static String REGISTERED = "registered";
+  public final static String SINGLETON = "singleton";
 
   TangConf(Tang tang) {
     if(tang.dirtyBit) { throw new IllegalStateException("Can't build TangConf from dirty Tang object!"); }
@@ -23,7 +26,7 @@ public class TangConf {
       throw new IllegalStateException(
           "Someone called setVolatileInstance() on this Tang object.  Refusing to serialize it!");
     }
-    Map<String, String> effectiveConfiguration = getEffectiveConfiguration();
+    Map<String, String> effectiveConfiguration = getConfiguration();
     for (String k : effectiveConfiguration.keySet()) {
       // XXX escaping of strings!!!
       s.println(k + "=" + effectiveConfiguration.get(k));
@@ -41,13 +44,16 @@ public class TangConf {
    * 
    * @return a String to String map
    */
-  public Map<String, String> getEffectiveConfiguration() {
+  public Map<String, String> getConfiguration() {
     if (tang.dirtyBit) {
       throw new IllegalStateException(
           "Someone called setVolatileInstance() on this Tang object; no introspection allowed!");
     }
 
     Map<String, String> ret = new HashMap<String, String>();
+    for (Class<?> opt : tang.namespace.registeredClasses) {
+      ret.put(opt.getName(), REGISTERED);
+    }
     for (Node opt : tang.boundImpls.keySet()) {
       ret.put(opt.getFullName(), tang.boundImpls.get(opt).getName());
     }
@@ -58,8 +64,21 @@ public class TangConf {
       ret.put(opt.getFullName(), tang.namedParameters.get(opt));
     }
     for (Node opt : tang.singletons) {
-      ret.put(opt.getFullName(), "tang.singleton");
+      ret.put(opt.getFullName(), SINGLETON);
     }
     return ret;
+  }
+  public TangConf processConfiguration(Map<String, String> conf) throws ReflectiveOperationException {
+    Tang t = new Tang();
+    for(Entry<String,String> e : conf.entrySet()) {
+      if(SINGLETON.equals(e.getValue())) {
+        t.bindSingleton(Class.forName(e.getKey()));
+      } else if(REGISTERED.equals(e.getValue())) {
+        t.register(Class.forName(e.getKey()));
+      } else {
+        t.bind(e.getKey(), e.getValue());
+      }
+    }
+    return t.forkConf();
   }
 }

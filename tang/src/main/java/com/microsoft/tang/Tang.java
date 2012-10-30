@@ -25,6 +25,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public class Tang {
   final TypeHierarchy namespace = new TypeHierarchy();
