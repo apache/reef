@@ -68,7 +68,7 @@ public class TangConf {
     }
     return ret;
   }
-  public TangConf processConfiguration(Map<String, String> conf) throws ReflectiveOperationException {
+  static public TangConf processConfiguration(Map<String, String> conf) throws ReflectiveOperationException {
     Tang t = new Tang();
     for(Entry<String,String> e : conf.entrySet()) {
       if(SINGLETON.equals(e.getValue())) {
