@@ -31,7 +31,7 @@ import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
-  public final TypeHierarchy namespace = new TypeHierarchy();
+  final TypeHierarchy namespace = new TypeHierarchy();
   final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();
@@ -49,7 +49,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   ConfigurationBuilderImpl(Configuration... tangs) {
     for (Configuration tc : tangs) {
-      addConfiguration(((ConfigurationImpl)tc).tang);
+      addConfiguration(((ConfigurationImpl)tc));
     }
   }
 
@@ -102,7 +102,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   public static Injector newInjector(ConfigurationImpl... args) {
-    return args[0].tang.build().injector();
+    return args[0].injector();
   }
 
   private Options getCommandLineOptions() {
@@ -217,9 +217,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
     }
+
     Node n = namespace.register(c);
     namespace.register(d);
 
+    
     if (n instanceof ClassNode) {
       boundImpls.put((ClassNode<?>) n, d);
     } else {

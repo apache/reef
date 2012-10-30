@@ -10,7 +10,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
 
 public class ConfigurationImpl implements Configuration {
-  public final ConfigurationBuilderImpl tang;
+  final ConfigurationBuilderImpl tang;
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
 

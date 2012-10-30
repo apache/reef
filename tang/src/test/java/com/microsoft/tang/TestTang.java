@@ -41,7 +41,7 @@ public class TestTang {
   @Test(expected = IllegalArgumentException.class)
   public void testRepeatedAmbiguousArgs() {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
-    ((ConfigurationBuilderImpl)t).namespace.register(RepeatedAmbiguousArgs.class);
+    ((ConfigurationBuilderImpl)t).register(RepeatedAmbiguousArgs.class);
   }
 
   @Test
