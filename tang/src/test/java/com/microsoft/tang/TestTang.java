@@ -11,7 +11,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.Tang;
+import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.TangInjector;
 
 public class TestTang {
@@ -21,37 +21,37 @@ public class TestTang {
   }
   @Test
   public void testSingleton() throws NameResolutionException, ReflectiveOperationException {
-    Tang t = new Tang();
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     t.bindSingleton(MustBeSingleton.class);
-    new TangInjector(t.forkConf()).getInstance(TwoSingletons.class);
+    new TangInjector(t.build()).getInstance(TwoSingletons.class);
   }
   @Test(expected = InvocationTargetException.class)
   public void testNotSingleton() throws NameResolutionException, ReflectiveOperationException {
-    Tang t = new Tang();
-    TangInjector injector = new TangInjector(t.forkConf());
+    ConfigurationBuilder t = new ConfigurationBuilderImpl();
+    TangInjector injector = new TangInjector(t.build());
     injector.getInstance(TwoSingletons.class);
   }
   @Test(expected = IllegalArgumentException.class)
   public void testRepeatedAmbiguousArgs() {
-    Tang t = new Tang();
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     t.namespace.register(RepeatedAmbiguousArgs.class);
   }
   @Test
   public void testRepeatedOKArgs() throws NameResolutionException, ReflectiveOperationException {
-    Tang t = new Tang();
-    t.bindParameter(RepeatedNamedArgs.A.class, "1");
-    t.bindParameter(RepeatedNamedArgs.B.class, "2");
-    new TangInjector(t.forkConf()).getInstance(RepeatedNamedArgs.class);
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
+    t.bindNamedParameter(RepeatedNamedArgs.A.class, "1");
+    t.bindNamedParameter(RepeatedNamedArgs.B.class, "2");
+    new TangInjector(t.build()).getInstance(RepeatedNamedArgs.class);
   }
 /*  @Test
   public void testRepeatedNamedOKArgs() throws NameResolutionException, ReflectiveOperationException {
-    Tang t = new Tang();
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     t.bindSingleton(MustBeSingleton.class);
     t.getInstance(RepeatedNamedSingletonArgs.class);
   }
   @Test
   public void testRepeatedNamedFailArgs() throws NameResolutionException, ReflectiveOperationException {
-    Tang t = new Tang();
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     t.getInstance(RepeatedNamedSingletonArgs.class);
   }*/
 }

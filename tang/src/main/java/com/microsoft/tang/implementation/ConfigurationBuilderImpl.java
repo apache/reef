@@ -18,6 +18,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
@@ -27,7 +29,7 @@ import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class Tang {
+public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public final TypeHierarchy namespace = new TypeHierarchy();
   final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
@@ -40,23 +42,27 @@ public class Tang {
   boolean sealed = false;
   boolean dirtyBit = false;
 
-  public Tang() {
+  public ConfigurationBuilderImpl() {
   }
 
-  Tang(Tang t) {
-    addConf(t);
+  ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
+    addConfiguration(t);
   }
 
-  public Tang(TangConf... tangs) {
+  public ConfigurationBuilderImpl(TangConf... tangs) {
     for (TangConf tc : tangs) {
-      addConf(tc.tang);
+      addConfiguration(tc.tang);
     }
   }
 
 //  @SuppressWarnings({"unchecked", "rawtypes"})
-  private void addConf(Tang t) {
+  @Override
+  public void addConfiguration(TangConf tc) {
+    addConfiguration(tc.tang);
+  }
+  private void addConfiguration(ConfigurationBuilderImpl t) {
     if (t.dirtyBit) {
-      throw new IllegalArgumentException("Cannot copy a dirty Tang");
+      throw new IllegalArgumentException("Cannot copy a dirty ConfigurationBuilderImpl");
     }
     try {
       for (Class<?> c : t.namespace.registeredClasses) {
@@ -81,14 +87,14 @@ public class Tang {
       }
     } catch (ReflectiveOperationException e) {
       throw new IllegalStateException(
-          "Encountered reflection error when copying a Tang: ", e);
+          "Encountered reflection error when copying a ConfigurationBuilderImpl: ", e);
     }
   }
 
   /**
    * Needed when you want to make a class available for injection, but don't
    * want to bind a subclass to its implementation. Without this call, by the
-   * time injector.newInstance() is called, Tang has been locked down, and the
+   * time injector.newInstance() is called, ConfigurationBuilderImpl has been locked down, and the
    * class won't be found.
    * 
    * @param c
@@ -98,7 +104,7 @@ public class Tang {
   }
 
   public static TangInjector newInjector(TangConf... args) {
-    return args[0].tang.forkConf().injector();
+    return args[0].tang.build().injector();
   }
 
   private Options getCommandLineOptions() {
@@ -125,11 +131,19 @@ public class Tang {
 
   Map<Option, CommandLineCallback> applicationOptions = new HashMap<Option, CommandLineCallback>();
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#addCommandLineOption(org.apache.commons.cli.Option, com.microsoft.tang.implementation.ConfigurationBuilderImpl.CommandLineCallback)
+   */
+  @Override
   public void addCommandLineOption(Option option, CommandLineCallback cb) {
     // TODO: Check for conflicting options.
     applicationOptions.put(option, cb);
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#processCommandLine(java.lang.String[])
+   */
+  @Override
   public <T> void processCommandLine(String[] args)
       throws NumberFormatException, ParseException {
     Options o = getCommandLineOptions();
@@ -156,15 +170,19 @@ public class Tang {
         if (applicationOptions.containsKey(option)) {
           applicationOptions.get(option).process(option);
         } else {
-          bindParameter(n.clazz, value);
+          bindNamedParameter(n.clazz, value);
         }
       }
     }
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bind(java.lang.String, java.lang.String)
+   */
+  @Override
   public <T> void bind(String key, String value) throws ClassNotFoundException {
     if (sealed)
-      throw new IllegalStateException("Can't bind to sealed Tang!");
+      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
     Node n = namespace.register(Class.forName(key));
     /*
      * String longVal = shortNames.get(value); if (longVal != null) value =
@@ -176,6 +194,10 @@ public class Tang {
       bind(((ClassNode<?>) n).getClazz(), Class.forName(value));
     }
   }
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bind(java.lang.Class, java.lang.Class)
+   */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> void bind(Class<T> c, Class<?> val) {
     if (ExternalConstructor.class.isAssignableFrom(val)
@@ -186,18 +208,13 @@ public class Tang {
     }
   }
 
-  /**
-   * Override the default implementation of c, using d instead. d must implement
-   * c, of course. If exactly one injectable implementation of c has been
-   * registered with Tang (perhaps including c), then this is optional.
-   * 
-   * @param c
-   * @param d
-   * @throws NameResolutionException
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindImplementation(java.lang.Class, java.lang.Class)
    */
+  @Override
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d) {
     if (sealed)
-      throw new IllegalStateException("Can't bind to sealed Tang!");
+      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
@@ -217,26 +234,20 @@ public class Tang {
 
   private <T> void bindParameter(NamedParameterNode<T> name, String value) {
     if (sealed)
-      throw new IllegalStateException("Can't bind to sealed Tang!");
+      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
     T o = ReflectionUtilities.parse(name.argClass, value);
     namedParameters.put(name, value);
     namedParameterInstances.put(name, o);
   }
 
-  /**
-   * Set the default value of a named parameter.
-   * 
-   * @param name
-   *          The dummy class that serves as the name of this parameter.
-   * @param o
-   *          The value of the parameter. The type must match the type specified
-   *          by name.
-   * @throws NameResolutionException
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindParameter(java.lang.Class, java.lang.String)
    */
+  @Override
   @SuppressWarnings("unchecked")
-  public <T> void bindParameter(Class<? extends Name<T>> name, String s) {
+  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s) {
     if (sealed)
-      throw new IllegalStateException("Can't bind to sealed Tang!");
+      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
     Node np = namespace.register(name);
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>) np, s);
@@ -249,17 +260,25 @@ public class Tang {
     }
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindSingleton(java.lang.Class)
+   */
+  @Override
   public <T> void bindSingleton(Class<T> c) throws ReflectiveOperationException {
     if (sealed)
-      throw new IllegalStateException("Can't bind to sealed Tang!");
-    bindSingleton(c, c);
+      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
+    bindSingletonImplementation(c, c);
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindSingleton(java.lang.Class, java.lang.Class)
+   */
+  @Override
   @SuppressWarnings("unchecked")
-  public <T> void bindSingleton(Class<T> c, Class<? extends T> d)
+  public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
       throws ReflectiveOperationException {
     if (sealed)
-      throw new IllegalStateException("Can't bind to sealed Tang!");
+      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
 
     Node n = namespace.register(c);
     namespace.register(d);
@@ -277,28 +296,11 @@ public class Tang {
     }
   }
 
-  /**
-   * This interface allows legacy classes to be injected by Tang. To be of any
-   * use, implementations of this class must have at least one constructor with
-   * an @Inject annotation. From Tang's perspective, an ExternalConstructor
-   * class is just a special instance of the class T, except that, after
-   * injection an ExternalConstructor, Tang will call newInstance, and store the
-   * resulting object. It will then discard the ExternalConstructor.
-   * 
-   * @author sears
-   * 
-   * @param <T>
-   *          The type this ExternalConstructor will create.
-   */
-  public interface ExternalConstructor<T> {
-    /**
-     * This method will only be called once.
-     * 
-     * @return a new, distinct instance of T.
-     */
-    T newInstance();
-  }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindConstructor(java.lang.Class, java.lang.Class)
+   */
+  @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) {
@@ -315,16 +317,20 @@ public class Tang {
 
   static public TangConf tangConfFromConfigurationFile(File configFileName)
       throws ConfigurationException, ReflectiveOperationException {
-    return tangFromConfigurationFile(configFileName).forkConf();
+    return tangFromConfigurationFile(configFileName).build();
   }
 
-  public TangConf forkConf() {
-    return forkConfImpl(); // XXX new Tang(this).forkConfImpl();
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.ConfigurationBuilder#forkConf()
+   */
+  @Override
+  public TangConf build() {
+    return forkConfImpl(); // XXX new ConfigurationBuilderImpl(this).forkConfImpl();
   }
 
-  static private <T> Tang tangFromConfigurationFile(File configFileName)
+  static private <T> ConfigurationBuilder tangFromConfigurationFile(File configFileName)
       throws ConfigurationException, ReflectiveOperationException {
-    Tang t = new Tang();
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
 
     Configuration conf = new PropertiesConfiguration(configFileName);
     Iterator<String> it = conf.getKeys();

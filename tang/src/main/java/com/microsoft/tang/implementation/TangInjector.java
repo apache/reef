@@ -105,7 +105,7 @@ public class TangInjector {
           "Request to instantiate Java package as object");
     } else if (n instanceof NamespaceNode) {
       throw new IllegalArgumentException(
-          "Request to instantiate Tang namespace as object");
+          "Request to instantiate ConfigurationBuilderImpl namespace as object");
     } else {
       throw new IllegalStateException(
           "Type hierarchy contained unknown node type!:" + n);
@@ -136,7 +136,7 @@ public class TangInjector {
   }
 
   /**
-   * Returns true if Tang is ready to instantiate the object named by name.
+   * Returns true if ConfigurationBuilderImpl is ready to instantiate the object named by name.
    * 
    * @param name
    * @return

@@ -8,13 +8,13 @@ import java.util.Map.Entry;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
 
 public class TangConf {
-  public final Tang tang;
+  public final ConfigurationBuilderImpl tang;
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
 
-  TangConf(Tang tang) {
-    if(tang.dirtyBit) { throw new IllegalStateException("Can't build TangConf from dirty Tang object!"); }
-    this.tang = new Tang(tang);
+  TangConf(ConfigurationBuilderImpl tang) {
+    if(tang.dirtyBit) { throw new IllegalStateException("Can't build TangConf from dirty ConfigurationBuilderImpl object!"); }
+    this.tang = new ConfigurationBuilderImpl(tang);
   }
 
   public TangInjector injector() {
@@ -24,7 +24,7 @@ public class TangConf {
   public void writeConfigurationFile(PrintStream s) {
     if (tang.dirtyBit) {
       throw new IllegalStateException(
-          "Someone called setVolatileInstance() on this Tang object.  Refusing to serialize it!");
+          "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object.  Refusing to serialize it!");
     }
     Map<String, String> effectiveConfiguration = getConfiguration();
     for (String k : effectiveConfiguration.keySet()) {
@@ -34,7 +34,7 @@ public class TangConf {
   }
 
   /**
-   * Obtain the effective configuration of this Tang instance. This consists
+   * Obtain the effective configuration of this ConfigurationBuilderImpl instance. This consists
    * of string-string pairs that could be dumped directly to a Properties
    * file, for example. Currently, this method does not return information
    * about default parameter values that were specified by parameter
@@ -47,7 +47,7 @@ public class TangConf {
   public Map<String, String> getConfiguration() {
     if (tang.dirtyBit) {
       throw new IllegalStateException(
-          "Someone called setVolatileInstance() on this Tang object; no introspection allowed!");
+          "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object; no introspection allowed!");
     }
 
     Map<String, String> ret = new HashMap<String, String>();
@@ -69,7 +69,7 @@ public class TangConf {
     return ret;
   }
   static public TangConf processConfiguration(Map<String, String> conf) throws ReflectiveOperationException {
-    Tang t = new Tang();
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     for(Entry<String,String> e : conf.entrySet()) {
       if(SINGLETON.equals(e.getValue())) {
         t.bindSingleton(Class.forName(e.getKey()));
@@ -79,6 +79,6 @@ public class TangConf {
         t.bind(e.getKey(), e.getValue());
       }
     }
-    return t.forkConf();
+    return t.build();
   }
 }
