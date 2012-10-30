@@ -18,8 +18,8 @@ public class ConfigurationImpl implements Configuration {
     this.tang = new ConfigurationBuilderImpl(tang);
   }
 
-  public TangInjector injector() {
-    return new TangInjector(this);
+  public InjectorImpl injector() {
+    return new InjectorImpl(this);
   }
 
   /* (non-Javadoc)

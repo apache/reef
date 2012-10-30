@@ -8,7 +8,7 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.ConfigurationImpl;
-import com.microsoft.tang.implementation.TangInjector;
+import com.microsoft.tang.implementation.InjectorImpl;
 import com.microsoft.tang.implementation.TypeHierarchy;
 
 public class Timer {
@@ -32,7 +32,7 @@ public class Timer {
     ConfigurationBuilderImpl tang = new ConfigurationBuilderImpl();
     tang.register(Timer.class);
     ConfigurationImpl conf = tang.build();
-    TangInjector injector = conf.injector();
+    InjectorImpl injector = conf.injector();
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());

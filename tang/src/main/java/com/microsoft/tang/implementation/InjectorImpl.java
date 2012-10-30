@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.microsoft.tang.Injector;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.InjectionPlan.InfeasibleInjectionPlan;
@@ -18,10 +19,10 @@ import com.microsoft.tang.implementation.TypeHierarchy.NamespaceNode;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
 import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
 
-public class TangInjector {
+public class InjectorImpl implements Injector {
   private final ConfigurationImpl tc;
   
-  public TangInjector(ConfigurationImpl tc) {
+  public InjectorImpl(ConfigurationImpl tc) {
     this.tc = tc;
   }
   private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,
@@ -147,14 +148,10 @@ public class TangInjector {
     return p.isInjectable();
   }
 
-  /**
-   * Get a new instance of the class clazz.
-   * 
-   * @param clazz
-   * @return
-   * @throws NameResolutionException
-   * @throws ReflectiveOperationException
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Injector#getInstance(java.lang.Class)
    */
+  @Override
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     tc.tang.namespace.register(clazz);
@@ -170,6 +167,10 @@ public class TangInjector {
   }
 
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Injector#getNamedParameter(java.lang.Class)
+   */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
       throws ReflectiveOperationException, NameResolutionException {
@@ -212,14 +213,10 @@ public class TangInjector {
       throw new IllegalStateException("Unknown plan type: " + plan);
     }
   }
-  /**
-   * Note: if you call this method, then you may no longer serialize this tang
-   * to a config file.
-   * 
-   * @param c
-   * @param o
-   * @throws NameResolutionException
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Injector#bindVolatialeInstance(java.lang.Class, T)
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> void bindVolatialeInstance(Class<T> c, T o) {
     tc.tang.dirtyBit = true;

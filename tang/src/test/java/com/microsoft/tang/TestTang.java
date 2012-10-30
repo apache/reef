@@ -12,7 +12,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
-import com.microsoft.tang.implementation.TangInjector;
+import com.microsoft.tang.implementation.InjectorImpl;
 
 public class TestTang {
   @Before
@@ -23,12 +23,12 @@ public class TestTang {
   public void testSingleton() throws NameResolutionException, ReflectiveOperationException {
     ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     t.bindSingleton(MustBeSingleton.class);
-    new TangInjector(t.build()).getInstance(TwoSingletons.class);
+    new InjectorImpl(t.build()).getInstance(TwoSingletons.class);
   }
   @Test(expected = InvocationTargetException.class)
   public void testNotSingleton() throws NameResolutionException, ReflectiveOperationException {
     ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
-    TangInjector injector = new TangInjector(t.build());
+    InjectorImpl injector = new InjectorImpl(t.build());
     injector.getInstance(TwoSingletons.class);
   }
   @Test(expected = IllegalArgumentException.class)
@@ -41,7 +41,7 @@ public class TestTang {
     ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     t.bindNamedParameter(RepeatedNamedArgs.A.class, "1");
     t.bindNamedParameter(RepeatedNamedArgs.B.class, "2");
-    new TangInjector(t.build()).getInstance(RepeatedNamedArgs.class);
+    new InjectorImpl(t.build()).getInstance(RepeatedNamedArgs.class);
   }
 /*  @Test
   public void testRepeatedNamedOKArgs() throws NameResolutionException, ReflectiveOperationException {

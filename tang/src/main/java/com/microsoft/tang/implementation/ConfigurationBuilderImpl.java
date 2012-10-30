@@ -20,6 +20,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.Injector;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
@@ -103,7 +104,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     namespace.register(c);
   }
 
-  public static TangInjector newInjector(ConfigurationImpl... args) {
+  public static Injector newInjector(ConfigurationImpl... args) {
     return args[0].tang.build().injector();
   }
 
