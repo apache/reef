@@ -27,8 +27,8 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class Tang {
   final TypeHierarchy namespace;
-  final Map<ClassNode<?>, Class<?>> defaultImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
-  final Map<ClassNode<?>, Class<ExternalConstructor<?>>> constructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
+  final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
+  final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();
   final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<NamedParameterNode<?>, String>();
 
@@ -50,32 +50,24 @@ public class Tang {
     if(t.dirtyBit) { throw new IllegalArgumentException("Cannot copy a dirty Tang"); }
     try {
       namespace = t.namespace.deepCopy();
-      for (ClassNode<?> cn : t.defaultImpls.keySet()) {
-        defaultImpls.put((ClassNode<?>) namespace.getNode(cn.getClazz()),
-            t.defaultImpls.get(cn));
+      for (ClassNode<?> cn : t.boundImpls.keySet()) {
+        boundImpls.put((ClassNode<?>) namespace.getNode(cn.getClazz()),
+            t.boundImpls.get(cn));
       }
-      for (ClassNode<?> cn : t.constructors.keySet()) {
-        constructors.put((ClassNode<?>) namespace.getNode(cn.getClazz()),
-            t.constructors.get(cn));
+      for (ClassNode<?> cn : t.boundConstructors.keySet()) {
+        boundConstructors.put((ClassNode<?>) namespace.getNode(cn.getClazz()),
+            t.boundConstructors.get(cn));
       }
       for (ClassNode<?> c : t.singletons) {
-        singletons.add((ClassNode<?>) namespace.getNode(c.getClazz()));
+        bindSingleton(c.getClazz());
       }
       for (NamedParameterNode<?> np : t.namedParameters.keySet()) {
-        namedParameters.put(
-            (NamedParameterNode<?>) namespace.getNode(np.getNameClass()),
-            t.namedParameters.get(np));
-      }
-      for (ClassNode<?> cn : t.singletonInstances.keySet()) {
-        singletonInstances.put((ClassNode<?>) namespace.getNode(cn.getClazz()),
-            t.singletonInstances.get(cn));
-      }
-      for (NamedParameterNode<?> np : t.namedParameterInstances.keySet()) {
-        namedParameterInstances.put((NamedParameterNode<?>)namespace.getNode(np.getNameClass()),
-            t.namedParameterInstances.get(np));
+        bindParameter(np.getNameClass(), t.namedParameters.get(np));
       }
     } catch(NameResolutionException e) {
       throw new IllegalStateException("Found a consistency error when copying a Tang: ", e);
+    } catch(ReflectiveOperationException e) {
+      throw new IllegalStateException("Encountered reflection error when copying a Tang: ", e);
     }
   }
 
@@ -204,7 +196,7 @@ public class Tang {
     }
     Node n = namespace.getNode(c);
     if (n instanceof ClassNode) {
-      defaultImpls.put((ClassNode<?>) n, d);
+      boundImpls.put((ClassNode<?>) n, d);
     } else {
       // TODO need new exception type here.
       throw new IllegalArgumentException(
@@ -275,7 +267,7 @@ public class Tang {
       singletons.add(cn);
       if (c != d) {
         // Note: d is *NOT* necessarily a singleton.
-        defaultImpls.put(cn, d);
+        boundImpls.put(cn, d);
       }
     } catch (NameResolutionException e) {
       throw new IllegalStateException("Failed to lookup class " + c
@@ -312,7 +304,7 @@ public class Tang {
     System.err
         .println("Warning: ExternalConstructors aren't implemented at the moment");
     try {
-      constructors.put((ClassNode<?>) namespace.getNode(c), (Class) v);
+      boundConstructors.put((ClassNode<?>) namespace.getNode(c), (Class) v);
     } catch (NameResolutionException e) {
       throw new IllegalStateException("Could not find class " + c
           + " which this method just registered!");

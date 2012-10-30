@@ -605,7 +605,7 @@ public class TypeHierarchy {
           // ConstructorDef's constructor checks for duplicate
           // parameters
           // The injectableConstructors set checks for ambiguous
-          // constructors.
+          // boundConstructors.
           Class<?>[] paramTypes = constructors[k].getParameterTypes();
           Annotation[][] paramAnnotations = constructors[k]
               .getParameterAnnotations();
@@ -645,7 +645,7 @@ public class TypeHierarchy {
           ConstructorDef def = new ConstructorDef(args, constructors[k]);
           if (injectableConstructors.contains(def)) {
             throw new IllegalStateException(
-                "Ambiguous constructors detected in class " + clazz + ": "
+                "Ambiguous boundConstructors detected in class " + clazz + ": "
                     + def + " differs from some other " + " constructor only "
                     + "by parameter order.");
           } else {
@@ -815,7 +815,7 @@ public class TypeHierarchy {
       if (namedParameter == null) {
         ret = ret + " " + name;
       } else {
-        ret = ret + " @Parameter(" + name + ")";
+        ret = ret + " " + name;
       }
       return ret;
     }
@@ -952,7 +952,7 @@ public class TypeHierarchy {
     }
 
     /**
-     * Check to see if two constructors take indistinguishable arguments. If so
+     * Check to see if two boundConstructors take indistinguishable arguments. If so
      * (and they are in the same class), then this would lead to ambiguous
      * injection targets, and we want to fail fast.
      * 

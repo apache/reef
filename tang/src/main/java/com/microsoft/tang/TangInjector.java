@@ -24,10 +24,11 @@ public class TangInjector {
     this.tc = tc;
   }
   private InjectionPlan wrapInjectionPlans(String infeasibleName,
-      List<? extends InjectionPlan> list) {
+      List<? extends InjectionPlan> list,
+      boolean forceAmbiguous) {
     if (list.size() == 0) {
       return new InfeasibleInjectionPlan(infeasibleName);
-    } else if (list.size() == 1) {
+    } else if((!forceAmbiguous) && list.size() == 1) {
       return list.get(0);
     } else {
       return new InjectionPlan.AmbiguousInjectionPlan(
@@ -60,12 +61,12 @@ public class TangInjector {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (tc.tang.singletonInstances.containsKey(cn)) {
         ip = new Instance(cn, tc.tang.singletonInstances.get(cn));
-      } else if (tc.tang.constructors.containsKey(cn)) {
+      } else if (tc.tang.boundConstructors.containsKey(cn)) {
         throw new UnsupportedOperationException(
             "Vivifiers aren't working yet!");
         // ip = new Instance(cn, null);
-      } else if (tc.tang.defaultImpls.containsKey(cn)) {
-        String implName = tc.tang.defaultImpls.get(cn).getName();
+      } else if (tc.tang.boundImpls.containsKey(cn)) {
+        String implName = tc.tang.boundImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
         ip = memo.get(implName);
       } else {
@@ -87,9 +88,13 @@ public class TangInjector {
             constructors.add(new InjectionPlan.Constructor(def, args
                 .toArray(new InjectionPlan[0])));
           }
-          sub_ips.add(wrapInjectionPlans(thisCN.getName(), constructors));
+          sub_ips.add(wrapInjectionPlans(thisCN.getName(), constructors, false));
         }
-        ip = wrapInjectionPlans(name, sub_ips);
+        if(classNodes.size() == 1 && classNodes.get(0).getClazz().getName().equals(name)) {
+          ip = wrapInjectionPlans(name, sub_ips, false);
+        } else {
+          ip = wrapInjectionPlans(name, sub_ips, true);
+        }
       }
     } else if (n instanceof PackageNode) {
       throw new IllegalArgumentException(
@@ -120,6 +125,10 @@ public class TangInjector {
     Map<String, InjectionPlan> memo = new HashMap<String, InjectionPlan>();
     buildInjectionPlan(name, memo);
     return memo.get(name);
+  }
+  public InjectionPlan getInjectionPlan(Class<?> name)
+      throws NameResolutionException {
+    return getInjectionPlan(name.getName());
   }
 
   /**
@@ -159,11 +168,11 @@ public class TangInjector {
 
   Object injectFromPlan(InjectionPlan plan)
       throws ReflectiveOperationException {
-    if (plan.getNumAlternatives() == 0) {
+    if (!plan.isFeasible()) {
       throw new IllegalArgumentException(
           "Attempt to inject infeasible plan: " + plan.toPrettyString());
     }
-    if (plan.getNumAlternatives() > 1) {
+    if (plan.isAmbiguous()) {
       throw new IllegalArgumentException(
           "Attempt to inject ambiguous plan: " + plan.toPrettyString());
     }
@@ -179,7 +188,7 @@ public class TangInjector {
     } else if (plan instanceof AmbiguousInjectionPlan) {
       AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan) plan;
       for (InjectionPlan p : ambiguous.alternatives) {
-        if (p.isInjectable()) {
+        if (p.isInjectable() && !p.isAmbiguous()) {
           return injectFromPlan(p);
         }
       }

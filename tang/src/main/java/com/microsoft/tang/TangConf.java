@@ -48,11 +48,11 @@ public class TangConf {
     }
 
     Map<String, String> ret = new HashMap<String, String>();
-    for (Node opt : tang.defaultImpls.keySet()) {
-      ret.put(opt.getFullName(), tang.defaultImpls.get(opt).getName());
+    for (Node opt : tang.boundImpls.keySet()) {
+      ret.put(opt.getFullName(), tang.boundImpls.get(opt).getName());
     }
-    for (Node opt : tang.constructors.keySet()) {
-      ret.put(opt.getFullName(), tang.constructors.get(opt).getName());
+    for (Node opt : tang.boundConstructors.keySet()) {
+      ret.put(opt.getFullName(), tang.boundConstructors.get(opt).getName());
     }
     for (Node opt : tang.namedParameters.keySet()) {
       ret.put(opt.getFullName(), tang.namedParameters.get(opt));
