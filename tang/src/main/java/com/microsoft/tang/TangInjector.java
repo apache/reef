@@ -15,6 +15,7 @@ import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.TypeHierarchy.NamespaceNode;
 import com.microsoft.tang.TypeHierarchy.Node;
 import com.microsoft.tang.TypeHierarchy.PackageNode;
+import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class TangInjector {
@@ -23,21 +24,22 @@ public class TangInjector {
   public TangInjector(TangConf tc) {
     this.tc = tc;
   }
-  private InjectionPlan wrapInjectionPlans(String infeasibleName,
-      List<? extends InjectionPlan> list,
+  private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,
+      List<InjectionPlan<?>> list,
       boolean forceAmbiguous) {
     if (list.size() == 0) {
-      return new InfeasibleInjectionPlan(infeasibleName);
+      return new InfeasibleInjectionPlan<Object>(infeasibleName);
     } else if((!forceAmbiguous) && list.size() == 1) {
       return list.get(0);
     } else {
-      return new InjectionPlan.AmbiguousInjectionPlan(
-          list.toArray(new InjectionPlan[0]));
+      InjectionPlan<?>[] injectionPlans = (InjectionPlan<?>[])new InjectionPlan[0];
+      return new InjectionPlan.AmbiguousInjectionPlan<Object>(
+          list.toArray(injectionPlans));
     }
   }
 
-  private void buildInjectionPlan(String name,
-      Map<String, InjectionPlan> memo) throws NameResolutionException {
+  private void buildInjectionPlan(String name, Map<String, InjectionPlan<?>> memo) 
+    throws NameResolutionException {
     if (memo.containsKey(name)) {
       if (InjectionPlan.BUILDING == memo.get(name)) {
         throw new IllegalStateException(
@@ -49,18 +51,18 @@ public class TangInjector {
     memo.put(name, InjectionPlan.BUILDING);
 
     Node n = tc.tang.namespace.getNode(name);
-    final InjectionPlan ip;
+    final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object instance = tc.tang.namedParameterInstances.get(n);
       if (instance == null) {
         instance = np.defaultInstance;
       }
-      ip = new Instance(np, instance);
+      ip = new Instance<Object>(np, instance);
     } else if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (tc.tang.singletonInstances.containsKey(cn)) {
-        ip = new Instance(cn, tc.tang.singletonInstances.get(cn));
+        ip = new Instance<Object>(cn, tc.tang.singletonInstances.get(cn));
       } else if (tc.tang.boundConstructors.containsKey(cn)) {
         throw new UnsupportedOperationException(
             "Vivifiers aren't working yet!");
@@ -75,18 +77,20 @@ public class TangInjector {
           classNodes.add(c);
         }
         classNodes.add(cn);
-        List<InjectionPlan> sub_ips = new ArrayList<InjectionPlan>();
+        List<InjectionPlan<?>> sub_ips = new ArrayList<InjectionPlan<?>>();
         for (ClassNode<?> thisCN : classNodes) {
-          List<InjectionPlan.Constructor> constructors = new ArrayList<InjectionPlan.Constructor>();
-          for (ConstructorDef def : thisCN.injectableConstructors) {
-            List<InjectionPlan> args = new ArrayList<InjectionPlan>();
+          List<InjectionPlan<?>> constructors = new ArrayList<InjectionPlan<?>>();
+          for (ConstructorDef<?> def : thisCN.injectableConstructors) {
+            List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
             for (ConstructorArg arg : def.args) {
               String argName = arg.getName(); // getFullyQualifiedName(thisCN.clazz);
               buildInjectionPlan(argName, memo);
               args.add(memo.get(argName));
             }
-            constructors.add(new InjectionPlan.Constructor(def, args
-                .toArray(new InjectionPlan[0])));
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            InjectionPlan.Constructor constructor = new InjectionPlan.Constructor(def, args
+                .toArray(new InjectionPlan[0]));
+            constructors.add(constructor);
           }
           sub_ips.add(wrapInjectionPlans(thisCN.getName(), constructors, false));
         }
@@ -120,15 +124,15 @@ public class TangInjector {
    * @return
    * @throws NameResolutionException
    */
-  public InjectionPlan getInjectionPlan(String name)
-      throws NameResolutionException {
-    Map<String, InjectionPlan> memo = new HashMap<String, InjectionPlan>();
+  public InjectionPlan<?> getInjectionPlan(String name) throws NameResolutionException {
+    Map<String, InjectionPlan<?>> memo = new HashMap<String, InjectionPlan<?>>();
     buildInjectionPlan(name, memo);
     return memo.get(name);
   }
-  public InjectionPlan getInjectionPlan(Class<?> name)
+  @SuppressWarnings("unchecked")
+  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name)
       throws NameResolutionException {
-    return getInjectionPlan(name.getName());
+    return (InjectionPlan<T>)getInjectionPlan(name.getName());
   }
 
   /**
@@ -139,7 +143,7 @@ public class TangInjector {
    * @throws NameResolutionException
    */
   public boolean isInjectable(String name) throws NameResolutionException {
-    InjectionPlan p = getInjectionPlan(name);
+    InjectionPlan<?> p = getInjectionPlan(name);
     return p.isInjectable();
   }
 
@@ -151,10 +155,9 @@ public class TangInjector {
    * @throws NameResolutionException
    * @throws ReflectiveOperationException
    */
-  @SuppressWarnings("unchecked")
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
-    tc.tang.register(clazz);
+    tc.tang.namespace.register(clazz);
     if (!tc.tang.sealed) {
       tc.tang.sealed = true;
       for (ClassNode<?> cn : tc.tang.singletons) {
@@ -162,11 +165,19 @@ public class TangInjector {
         tc.tang.singletonInstances.put(cn, o);
       }
     }
-    InjectionPlan plan = getInjectionPlan(clazz.getName());
-    return (U) injectFromPlan(plan);
+    InjectionPlan<U> plan = getInjectionPlan(clazz);
+    return injectFromPlan(plan);
   }
 
-  Object injectFromPlan(InjectionPlan plan)
+
+  @SuppressWarnings("unchecked")
+  public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
+      throws ReflectiveOperationException, NameResolutionException {
+    InjectionPlan<T> plan = (InjectionPlan<T>)getInjectionPlan(clazz.getName());
+    return (T) injectFromPlan(plan);
+  }
+  
+  <T> T injectFromPlan(InjectionPlan<T> plan)
       throws ReflectiveOperationException {
     if (!plan.isFeasible()) {
       throw new IllegalArgumentException(
@@ -177,17 +188,17 @@ public class TangInjector {
           "Attempt to inject ambiguous plan: " + plan.toPrettyString());
     }
     if (plan instanceof InjectionPlan.Instance) {
-      return ((InjectionPlan.Instance) plan).instance;
+      return ((InjectionPlan.Instance<T>) plan).instance;
     } else if (plan instanceof InjectionPlan.Constructor) {
-      InjectionPlan.Constructor constructor = (InjectionPlan.Constructor) plan;
+      InjectionPlan.Constructor<T> constructor = (InjectionPlan.Constructor<T>) plan;
       Object[] args = new Object[constructor.args.length];
       for (int i = 0; i < constructor.args.length; i++) {
         args[i] = injectFromPlan(constructor.args[i]);
       }
       return constructor.constructor.constructor.newInstance(args);
     } else if (plan instanceof AmbiguousInjectionPlan) {
-      AmbiguousInjectionPlan ambiguous = (AmbiguousInjectionPlan) plan;
-      for (InjectionPlan p : ambiguous.alternatives) {
+      AmbiguousInjectionPlan<T> ambiguous = (AmbiguousInjectionPlan<T>) plan;
+      for (InjectionPlan<? extends T> p : ambiguous.alternatives) {
         if (p.isInjectable() && !p.isAmbiguous()) {
           return injectFromPlan(p);
         }
@@ -210,11 +221,9 @@ public class TangInjector {
    * @throws NameResolutionException
    */
   @SuppressWarnings("unchecked")
-  public <T> void bindVolatialeInstance(Class<T> c, T o)
-      throws NameResolutionException {
+  public <T> void bindVolatialeInstance(Class<T> c, T o) {
     tc.tang.dirtyBit = true;
-    tc.tang.register(c);
-    Node n = tc.tang.namespace.getNode(c);
+    Node n = tc.tang.namespace.register(c);
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<T> np = (NamedParameterNode<T>) n;
       tc.tang.namedParameterInstances.put(np, o);

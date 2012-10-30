@@ -55,7 +55,7 @@ public class TestTypeHierarchy {
         Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
         ClassNode<?> cls = (ClassNode<?>)ns.getNode(SimpleConstructors.class);
         Assert.assertTrue(cls.children.size() == 0);
-        ConstructorDef def[] = cls.injectableConstructors;
+        ConstructorDef<?> def[] = cls.injectableConstructors;
         Assert.assertEquals(3, def.length);
         
     }

@@ -3,7 +3,6 @@ package com.microsoft.tang;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -24,14 +23,16 @@ import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.TypeHierarchy.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicSet;
 
 public class Tang {
-  final TypeHierarchy namespace;
+  final TypeHierarchy namespace = new TypeHierarchy();
   final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();
   final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<NamedParameterNode<?>, String>();
-
+  
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
@@ -39,50 +40,58 @@ public class Tang {
   boolean dirtyBit = false;
 
   public Tang() {
-    this(new TangConf[0]);
   }
 
-  Tang deepCopy() {
-    return new Tang(this);
-  }
-
-  private Tang(Tang t) {
-    if(t.dirtyBit) { throw new IllegalArgumentException("Cannot copy a dirty Tang"); }
-    try {
-      namespace = t.namespace.deepCopy();
-      for (ClassNode<?> cn : t.boundImpls.keySet()) {
-        boundImpls.put((ClassNode<?>) namespace.getNode(cn.getClazz()),
-            t.boundImpls.get(cn));
-      }
-      for (ClassNode<?> cn : t.boundConstructors.keySet()) {
-        boundConstructors.put((ClassNode<?>) namespace.getNode(cn.getClazz()),
-            t.boundConstructors.get(cn));
-      }
-      for (ClassNode<?> c : t.singletons) {
-        bindSingleton(c.getClazz());
-      }
-      for (NamedParameterNode<?> np : t.namedParameters.keySet()) {
-        bindParameter(np.getNameClass(), t.namedParameters.get(np));
-      }
-    } catch(NameResolutionException e) {
-      throw new IllegalStateException("Found a consistency error when copying a Tang: ", e);
-    } catch(ReflectiveOperationException e) {
-      throw new IllegalStateException("Encountered reflection error when copying a Tang: ", e);
-    }
+  Tang(Tang t) {
+    addConf(t);
   }
 
   public Tang(TangConf... tangs) {
-    namespace = new TypeHierarchy();
     for (TangConf tc : tangs) {
-      addConf(tc);
+      addConf(tc.tang);
     }
   }
 
-  public void addConf(TangConf tc) {
-
-    throw new UnsupportedOperationException("XXX"); // XXX
+//  @SuppressWarnings({"unchecked", "rawtypes"})
+  private void addConf(Tang t) {
+    if (t.dirtyBit) {
+      throw new IllegalArgumentException("Cannot copy a dirty Tang");
+    }
+    try {
+      for (Class<?> c : t.namespace.registeredClasses) {
+        register(c);
+      }
+      // Note: The commented out lines would be faster, but, for testing purposes, 
+      // we run through the high-level bind(), which dispatches to the correct call.
+      for (ClassNode<?> cn : t.boundImpls.keySet()) {
+        bind(cn.getClazz(), t.boundImpls.get(cn));
+//        bindImplementation((Class<?>) cn.getClazz(), (Class) t.boundImpls.get(cn));
+      }
+      for (ClassNode<?> cn : t.boundConstructors.keySet()) {
+        bind(cn.getClazz(), t.boundConstructors.get(cn));
+//        bindConstructor((Class<?>) cn.getClazz(), (Class) t.boundConstructors.get(cn));
+      }
+      for (ClassNode<?> cn : t.singletons) {
+        bindSingleton(cn.getClazz());
+      }
+      for (NamedParameterNode<?> np : t.namedParameters.keySet()) {
+        bind(np.getNameClass().getName(), t.namedParameters.get(np));
+//        bindParameter(np.getNameClass(), t.namedParameters.get(np));
+      }
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException(
+          "Encountered reflection error when copying a Tang: ", e);
+    }
   }
 
+  /**
+   * Needed when you want to make a class available for injection, but don't
+   * want to bind a subclass to its implementation. Without this call, by the
+   * time injector.newInstance() is called, Tang has been locked down, and the
+   * class won't be found.
+   * 
+   * @param c
+   */
   public void register(Class<?> c) {
     namespace.register(c);
   }
@@ -121,7 +130,7 @@ public class Tang {
   }
 
   public <T> void processCommandLine(String[] args)
-      throws NumberFormatException, NameResolutionException, ParseException {
+      throws NumberFormatException, ParseException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
     o.addOption(helpFlag);
@@ -152,12 +161,10 @@ public class Tang {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> void bind(String key, String value)
-      throws NameResolutionException, ClassNotFoundException {
+  public <T> void bind(String key, String value) throws ClassNotFoundException {
     if (sealed)
       throw new IllegalStateException("Can't bind to sealed Tang!");
-    Node n = namespace.getNode(key);
+    Node n = namespace.register(Class.forName(key));
     /*
      * String longVal = shortNames.get(value); if (longVal != null) value =
      * longVal;
@@ -165,15 +172,16 @@ public class Tang {
     if (n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
-      Class<T> c = ((ClassNode<T>) n).getClazz();
-      Class<?> val = (Class<?>) Class.forName(value);
-      if (ExternalConstructor.class.isAssignableFrom(val)
-          && (!ExternalConstructor.class.isAssignableFrom(c))) {
-        bindConstructor(c,
-            (Class<? extends ExternalConstructor<? extends T>>) val);
-      } else {
-        bindImplementation(c, (Class<? extends T>) Class.forName(value));
-      }
+      bind(((ClassNode<?>) n).getClazz(), Class.forName(value));
+    }
+  }
+  @SuppressWarnings("unchecked")
+  public <T> void bind(Class<T> c, Class<?> val) {
+    if (ExternalConstructor.class.isAssignableFrom(val)
+        && (!ExternalConstructor.class.isAssignableFrom(c))) {
+      bindConstructor(c, (Class<? extends ExternalConstructor<? extends T>>)val);
+    } else {
+      bindImplementation(c, (Class<? extends T>)val);
     }
   }
 
@@ -186,15 +194,16 @@ public class Tang {
    * @param d
    * @throws NameResolutionException
    */
-  public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
-      throws NameResolutionException {
+  public <T> void bindImplementation(Class<T> c, Class<? extends T> d) {
     if (sealed)
       throw new IllegalStateException("Can't bind to sealed Tang!");
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
     }
-    Node n = namespace.getNode(c);
+    Node n = namespace.register(c);
+    namespace.register(d);
+
     if (n instanceof ClassNode) {
       boundImpls.put((ClassNode<?>) n, d);
     } else {
@@ -224,12 +233,10 @@ public class Tang {
    * @throws NameResolutionException
    */
   @SuppressWarnings("unchecked")
-  public <T> void bindParameter(Class<? extends Name<T>> name, String s)
-      throws NameResolutionException {
+  public <T> void bindParameter(Class<? extends Name<T>> name, String s) {
     if (sealed)
       throw new IllegalStateException("Can't bind to sealed Tang!");
-    register(name);
-    Node np = namespace.getNode(name);
+    Node np = namespace.register(name);
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>) np, s);
     } else {
@@ -241,8 +248,7 @@ public class Tang {
     }
   }
 
-  public <T> void bindSingleton(Class<T> c) throws NameResolutionException,
-      ReflectiveOperationException {
+  public <T> void bindSingleton(Class<T> c) throws ReflectiveOperationException {
     if (sealed)
       throw new IllegalStateException("Can't bind to sealed Tang!");
     bindSingleton(c, c);
@@ -250,28 +256,23 @@ public class Tang {
 
   @SuppressWarnings("unchecked")
   public <T> void bindSingleton(Class<T> c, Class<? extends T> d)
-      throws NameResolutionException, ReflectiveOperationException {
+      throws ReflectiveOperationException {
     if (sealed)
       throw new IllegalStateException("Can't bind to sealed Tang!");
 
-    namespace.register(c);
+    Node n = namespace.register(c);
     namespace.register(d);
-    try {
-      Node n = namespace.getNode(c);
-      if (!(n instanceof ClassNode)) {
-        throw new IllegalArgumentException("Can't bind singleton to " + n
-            + " try bindParameter() instead.");
-      }
-      ClassNode<T> cn = (ClassNode<T>) namespace.getNode(c);
-      cn.setIsSingleton();
-      singletons.add(cn);
-      if (c != d) {
-        // Note: d is *NOT* necessarily a singleton.
-        boundImpls.put(cn, d);
-      }
-    } catch (NameResolutionException e) {
-      throw new IllegalStateException("Failed to lookup class " + c
-          + " which this method just registered!");
+
+    if (!(n instanceof ClassNode)) {
+      throw new IllegalArgumentException("Can't bind singleton to " + n
+          + " try bindParameter() instead.");
+    }
+    ClassNode<T> cn = (ClassNode<T>) n;
+    cn.setIsSingleton();
+    singletons.add(cn);
+    if (c != d) {
+      // Note: d is *NOT* necessarily a singleton.
+      boundImpls.put(cn, d);
     }
   }
 
@@ -300,14 +301,10 @@ public class Tang {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) {
-    namespace.register(c);
     System.err
         .println("Warning: ExternalConstructors aren't implemented at the moment");
     try {
-      boundConstructors.put((ClassNode<?>) namespace.getNode(c), (Class) v);
-    } catch (NameResolutionException e) {
-      throw new IllegalStateException("Could not find class " + c
-          + " which this method just registered!");
+      boundConstructors.put((ClassNode<?>) namespace.register(c), (Class) v);
     } catch (ClassCastException e) {
       throw new IllegalArgumentException(
           "Cannot register external class constructor for " + c
@@ -316,8 +313,7 @@ public class Tang {
   }
 
   static public TangConf tangConfFromConfigurationFile(File configFileName)
-      throws ConfigurationException, NameResolutionException,
-      ReflectiveOperationException {
+      throws ConfigurationException, ReflectiveOperationException {
     return tangFromConfigurationFile(configFileName).forkConf();
   }
 
@@ -326,8 +322,7 @@ public class Tang {
   }
 
   static private <T> Tang tangFromConfigurationFile(File configFileName)
-      throws ConfigurationException, NameResolutionException,
-      ReflectiveOperationException {
+      throws ConfigurationException, ReflectiveOperationException {
     Tang t = new Tang();
 
     Configuration conf = new PropertiesConfiguration(configFileName);
@@ -387,86 +382,6 @@ public class Tang {
 
   private TangConf forkConfImpl() {
     return new TangConf(this);
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
-      throws NameResolutionException, ReflectiveOperationException {
-    InjectionPlan plan = forkConf().injector()
-        .getInjectionPlan(clazz.getName());
-    // XXX this next line is funny bad.
-    return (T) forkConf().injector().injectFromPlan(plan);
-  }
-
-  private class MonotonicSet<T> extends HashSet<T> {
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public boolean add(T e) {
-      if (super.contains(e)) {
-        throw new IllegalArgumentException("Attempt to re-add " + e
-            + " to MonotonicSet!");
-      }
-      return super.add(e);
-    }
-
-    @Override
-    public void clear() {
-      throw new UnsupportedOperationException("Attempt to clear MonotonicSet!");
-    }
-
-    @Override
-    public boolean remove(Object o) {
-      throw new UnsupportedOperationException("Attempt to remove " + o
-          + " from MonotonicSet!");
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-      throw new UnsupportedOperationException(
-          "removeAll() doesn't make sense for MonotonicSet!");
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-      throw new UnsupportedOperationException(
-          "retainAll() doesn't make sense for MonotonicSet!");
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends T> c) {
-      throw new UnsupportedOperationException(
-          "addAll() not implemennted for MonotonicSet.");
-    }
-  }
-
-  private class MonotonicMap<T, U> extends HashMap<T, U> {
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public U put(T key, U value) {
-      U old = super.get(key);
-      if (old != null) {
-        throw new IllegalArgumentException("Attempt to re-bind: (" + key
-            + ") old value: " + old + " new value " + value);
-      }
-      return super.put(key, value);
-    }
-
-    @Override
-    public void putAll(Map<? extends T, ? extends U> m) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void clear() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public U remove(Object o) {
-      throw new UnsupportedOperationException();
-    }
   }
 
 }

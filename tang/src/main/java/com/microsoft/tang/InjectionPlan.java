@@ -1,7 +1,7 @@
 package com.microsoft.tang;
 
-public abstract class InjectionPlan {
-  static final InjectionPlan BUILDING = new InjectionPlan() {
+public abstract class InjectionPlan<T> {
+  static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>() {
     @Override
     public int getNumAlternatives() {
       throw new UnsupportedOperationException();
@@ -66,21 +66,21 @@ public abstract class InjectionPlan {
   @Override
   public abstract String toString();
 
-  final public static class Constructor extends InjectionPlan {
-    final TypeHierarchy.ConstructorDef constructor;
-    final InjectionPlan[] args;
+  final public static class Constructor<T> extends InjectionPlan<T> {
+    final TypeHierarchy.ConstructorDef<T> constructor;
+    final InjectionPlan<?>[] args;
     final int numAlternatives;
     final boolean isAmbiguous;
     final boolean isInjectable;
     
-    public Constructor(TypeHierarchy.ConstructorDef constructor,
-        InjectionPlan[] args) {
+    public Constructor(TypeHierarchy.ConstructorDef<T> constructor,
+        InjectionPlan<?>[] args) {
       this.constructor = constructor;
       this.args = args;
       int numAlternatives = 1;
       boolean isAmbiguous = false;
       boolean isInjectable = true;
-      for (InjectionPlan a : args) {
+      for (InjectionPlan<?> a : args) {
         numAlternatives *= a.getNumAlternatives();
         if(a.isAmbiguous()) isAmbiguous = true;
         if(!a.isInjectable()) isInjectable = false;
@@ -123,11 +123,11 @@ public abstract class InjectionPlan {
     }
   }
 
-  final public static class Instance extends InjectionPlan {
+  final public static class Instance<T> extends InjectionPlan<T> {
     final TypeHierarchy.Node name;
-    final Object instance;
+    final T instance;
 
-    public Instance(TypeHierarchy.Node name, Object instance) {
+    public Instance(TypeHierarchy.Node name, T instance) {
       this.name = name;
       this.instance = instance;
     }
@@ -153,7 +153,7 @@ public abstract class InjectionPlan {
     }
   }
 
-  final public static class InfeasibleInjectionPlan extends InjectionPlan {
+  final public static class InfeasibleInjectionPlan<T> extends InjectionPlan<T> {
     final String name;
 
     public InfeasibleInjectionPlan(String name) {
@@ -181,18 +181,18 @@ public abstract class InjectionPlan {
     }
   }
 
-  final public static class AmbiguousInjectionPlan extends InjectionPlan {
-    final InjectionPlan[] alternatives;
+  final public static class AmbiguousInjectionPlan<T> extends InjectionPlan<T> {
+    final InjectionPlan<? extends T>[] alternatives;
     final int numAlternatives;
     final boolean isInjectable;
     final boolean isAmbiguous;
     
-    public AmbiguousInjectionPlan(InjectionPlan[] alternatives) {
+    public AmbiguousInjectionPlan(InjectionPlan<? extends T>[] alternatives) {
       this.alternatives = alternatives;
       int numAlternatives = 0;
       boolean isInjectable = true;
       this.isAmbiguous = true;
-      for (InjectionPlan a : alternatives) {
+      for (InjectionPlan<? extends T> a : alternatives) {
         numAlternatives += a.getNumAlternatives();
         if(!a.isInjectable()) isInjectable = false;
       }

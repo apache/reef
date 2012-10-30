@@ -29,13 +29,11 @@ public class Timer {
   public static void main(String[] args) throws Exception {
     TypeHierarchy typeHierarchy = new TypeHierarchy();
     typeHierarchy.register(Timer.class);
-    typeHierarchy.writeJson(System.err);
     Tang tang = new Tang();
     tang.register(Timer.class);
-    //TangInjector injector = Tang.newInjector(
     TangConf conf = tang.forkConf();
     TangInjector injector = conf.injector();
-    InjectionPlan ip = injector.getInjectionPlan("com.example.Timer");
+    InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
     Timer timer = injector.getInstance(Timer.class);

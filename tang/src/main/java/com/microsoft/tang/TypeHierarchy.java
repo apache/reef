@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +26,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.util.MonotonicSet;
 
 public class TypeHierarchy {
   // TODO: Want to add a "register namespace" method, but Java is not designed
@@ -35,6 +35,7 @@ public class TypeHierarchy {
   // relevant jar has not yet been loaded.
 
   private final PackageNode namespace;
+  final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
   private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new HashMap<ClassNode<?>, List<ClassNode<?>>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new HashMap<String, NamedParameterNode<?>>();
   final static String regexp = "[\\.\\$]";
@@ -42,31 +43,6 @@ public class TypeHierarchy {
   public TypeHierarchy() {
     namespace = new PackageNode(null, "");
   }
-
-  private TypeHierarchy(TypeHierarchy th) throws NameResolutionException {
-    namespace = (PackageNode)th.namespace.deepCopy(null);
-    for (ClassNode<?> cn : th.knownImpls.keySet()) {
-      List<ClassNode<?>> newList = new ArrayList<ClassNode<?>>();
-      List<ClassNode<?>> oldList = th.knownImpls.get(cn);
-      for (ClassNode<?> cn2 : oldList) {
-        newList.add((ClassNode<?>) getNode(cn2.getClazz()));
-      }
-      knownImpls.put((ClassNode<?>) getNode(cn.getClazz()), newList);
-    }
-    for (String shortName : th.shortNames.keySet()) {
-      shortNames.put(shortName, (NamedParameterNode<?>) getNode(th.shortNames
-          .get(shortName).getNameClass()));
-    }
-  }
-
-  public TypeHierarchy deepCopy() {
-    try {
-      return new TypeHierarchy(this);
-    } catch(NameResolutionException e) {
-      throw new IllegalStateException("Encountered inconsistency when copying TypeHierarchy", e);
-    }
-  }
-
   @SuppressWarnings("unchecked")
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
       ClassNode<T> classNode) {
@@ -119,8 +95,9 @@ public class TypeHierarchy {
     }
     Node parent = root;
 
-    Node ret = null;
-    if (clazz.getAnnotation(NamedParameter.class) != null) {
+    if (clazz.getAnnotation(NamedParameter.class) == null) {
+      return new ClassNode<U>(parent, clazz, isPrefixTarget, false);
+    } else {
       if (isPrefixTarget) {
         throw new IllegalStateException(clazz
             + " cannot be both a namespace and parameter.");
@@ -129,8 +106,6 @@ public class TypeHierarchy {
       // checked inside of NamedParameterNode, using reflection.
       NamedParameterNode<T> np = new NamedParameterNode<T>(parent,
           (Class<? extends Name<T>>) clazz);
-      // (Class<? extends Name<?>>)clazz);
-      ret = np;
       String shortName = np.getShortName();
       if (shortName != null) {
         Node oldNode = shortNames.put(shortName, np);
@@ -138,10 +113,8 @@ public class TypeHierarchy {
           throw new IllegalStateException();
         }
       }
-    } else {
-      ret = new ClassNode<U>(parent, clazz, isPrefixTarget, false);
+      return np;
     }
-    return ret;
   }
 
   Node getNode(Class<?> clazz) throws NameResolutionException {
@@ -211,41 +184,41 @@ public class TypeHierarchy {
     new PackageNode(parent, packageName[packageName.length - 1]);
   }
 
-  public void register(Class<?> c) {
-    registerImpl(c);
-    resolveAllClasses();
-  }
-
-  private void registerImpl(Class<?> c) {
-    if (c.getSuperclass() != null)
-      registerImpl(c.getSuperclass());
-    for (Class<?> i : c.getInterfaces()) {
-      registerImpl(i);
+  public Node register(Class<?> c) {
+    if (c == null) {
+      return null;
     }
+    try {
+      Node n = getNode(c);
+      return n;
+    } catch (NameResolutionException e) {
+    }
+    // First, walk up the class hierarchy, registering all out parents. This
+    // can't be loopy.
+    if (c.getSuperclass() != null) {
+      register(c.getSuperclass());
+    }
+    for (Class<?> i : c.getInterfaces()) {
+      register(i);
+    }
+    // Now, we'd like to register our enclosing classes. This turns out to be
+    // safe.
+    // Thankfully, Java doesn't allow:
+    // class A implements A.B { class B { } }
 
-    List<Class<?>> pathToRoot = new ArrayList<Class<?>>();
-    Class<?> d = c;
-    do {
-      pathToRoot.add(0, d);
-    } while (null != (d = d.getEnclosingClass()));
+    // It also doesn't allow cycles such as:
+    // class A implements B.BB { interface AA { } }
+    // class B implements A.AA { interface BB { } }
 
-    for (Class<?> p : pathToRoot) {
-      Package pack = p.getPackage();
-      final String packageName;
-      if (pack == null) {
-        String className = p.getName();
-        int lastDot = className.lastIndexOf('.');
-        if (lastDot != -1) {
-          packageName = className.substring(0, lastDot);
-        } else {
-          packageName = "";
-        }
-      } else {
-        packageName = pack.getName();
-      }
-      String[] packageList = packageName.split(regexp);
-      packageList = Arrays.copyOf(packageList, packageList.length);
+    // So, even though grafting arbitrary DAGs together can give us cycles, Java
+    // seems
+    // to have our back on this one.
+    register(c.getEnclosingClass());
 
+    Package pack = c.getPackage();
+    if (pack != null) { // We're in an enclosing class, and we just registered
+                        // it above!
+      String[] packageList = pack.getName().split(regexp);
       for (int i = 0; i < packageList.length; i++) {
         try {
           registerPackage(Arrays.copyOf(packageList, i + 1));
@@ -255,14 +228,37 @@ public class TypeHierarchy {
               + ", which this method should have registered.", e);
         }
       }
-      // Now, register the class.
-      registerClass(p);
-      // Check for Namespace annotation, and register the namespace here (or at
-      // the end of registerClass)
     }
+    // Now, register the class. This has to be after the above so we know our
+    // parents (superclasses and enclosing packages) are already registered.
+    Node n = registerClass(c);
+
+    // Finally, do things that might introduce cycles that invlove c.
+    // This has to be below registerClass, which ensures that any cycles
+    // this stuff introduces are broken.
     for (Class<?> inner_class : c.getDeclaredClasses()) {
-      registerImpl(inner_class);
+      register(inner_class);
     }
+    if (n instanceof ClassNode) {
+      ClassNode<?> cls = (ClassNode<?>) n;
+      for (ConstructorDef<?> def : cls.injectableConstructors) {
+        for (ConstructorArg arg : def.args) {
+          try {
+            getNode(arg.type);
+          } catch (NameResolutionException e) {
+            register(arg.type);
+          }
+        }
+      }
+    } else if (n instanceof NamedParameterNode) {
+      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      try {
+        getNode(np.argClass);
+      } catch (NameResolutionException e) {
+        register(np.argClass);
+      }
+    }
+    return n;
   }
 
   /**
@@ -271,20 +267,20 @@ public class TypeHierarchy {
    * @param c
    */
   @SuppressWarnings("unchecked")
-  private <T, U extends T> void registerClass(Class<U> c) {
+  private <T, U extends T> Node registerClass(final Class<U> c) {
     if (c.isArray()) {
       throw new UnsupportedOperationException("Can't register array types");
     }
     try {
-      getNode(c);
-      return;
+      return getNode(c);
     } catch (NameResolutionException e) {
     }
 
     // TODO: Constructor arguments can pull in classes. The walk of
-    // those dependencies belongs in register(), but is spread out below.
-    Namespace nsAnnotation = c.getAnnotation(Namespace.class);
-    Node n;
+    // those dependencies belongs in register(), but is in buildPathToNode
+    // instead.
+    final Namespace nsAnnotation = c.getAnnotation(Namespace.class);
+    final Node n;
     if (nsAnnotation == null) {
       n = buildPathToNode(c, false);
     } else {
@@ -315,6 +311,8 @@ public class TypeHierarchy {
         }
       }
     }
+    registeredClasses.add(c);
+    return n;
   }
 
   private <T, U extends T> void putImpl(ClassNode<T> superclass,
@@ -337,55 +335,6 @@ public class TypeHierarchy {
       return (ClassNode<T>[]) l.toArray(new ClassNode[0]);
     } else {
       return (ClassNode<T>[]) new ClassNode[0];
-    }
-  }
-
-  private void findUnresolvedClasses(Node root, Set<Class<?>> unresolved) {
-    if (root instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) (root);
-      try {
-        getNode(np.argClass);
-      } catch (NameResolutionException e) {
-        unresolved.add(np.argClass);
-      }
-    } else if (root instanceof ClassNode) {
-      ClassNode<?> cls = (ClassNode<?>) root;
-      for (ConstructorDef def : cls.injectableConstructors) {
-        for (ConstructorArg arg : def.args) {
-          try {
-            getNode(arg.type);
-          } catch (NameResolutionException e) {
-            unresolved.add(arg.type);
-          }
-        }
-      }
-      /*
-       * Class<?> zuper = cls.clazz.getSuperclass(); if (zuper != null) { try {
-       * getNode(zuper); } catch (NameResolutionException e) {
-       * unresolved.add(zuper); } } Class<?>[] interfaces =
-       * cls.clazz.getInterfaces(); for (Class<?> i : interfaces) { try {
-       * getNode(i); } catch (NameResolutionException e) { unresolved.add(i); }
-       * }
-       */
-    }
-    if (root.children != null) {
-      for (Node n : root.children.values()) {
-        findUnresolvedClasses(n, unresolved);
-      }
-    }
-  }
-
-  private Class<?>[] findUnresolvedClasses() {
-    Set<Class<?>> unresolved = new HashSet<Class<?>>();
-    findUnresolvedClasses(namespace, unresolved);
-    return unresolved.toArray(new Class<?>[0]);
-  }
-
-  private void resolveAllClasses() {
-    for (Class<?>[] classes = findUnresolvedClasses(); classes.length > 0; classes = findUnresolvedClasses()) {
-      for (Class<?> c : classes) {
-        registerImpl(c);
-      }
     }
   }
 
@@ -420,8 +369,6 @@ public class TypeHierarchy {
   public abstract class Node {
     protected final Node parent;
     protected final String name;
-
-    public abstract Node deepCopy(Node newParent);
 
     String getFullName() {
       if (parent == null) {
@@ -508,22 +455,13 @@ public class TypeHierarchy {
     PackageNode(Node parent, String name) {
       super(parent, name);
     }
-
-    @Override
-    public Node deepCopy(Node newParent) {
-      PackageNode ret = new PackageNode(newParent, getName());
-      for (Node n : children.values()) {
-        n.deepCopy(ret);
-      }
-      return ret;
-    }
   }
-
+  @SuppressWarnings("unchecked")
   public class ClassNode<T> extends Node {
     private final Class<T> clazz;
     private final boolean isPrefixTarget;
     private boolean isSingleton;
-    final ConstructorDef[] injectableConstructors;
+    final ConstructorDef<T>[] injectableConstructors;
 
     public Class<T> getClazz() {
       return clazz;
@@ -541,27 +479,17 @@ public class TypeHierarchy {
       return isSingleton;
     }
 
-    public ConstructorDef[] getInjectableConstructors() {
+    public ConstructorDef<T>[] getInjectableConstructors() {
       return injectableConstructors;
     }
 
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
-      for (ConstructorDef c : injectableConstructors) {
+      for (ConstructorDef<T> c : injectableConstructors) {
         sb.append(c.toString() + ", ");
       }
       return sb.toString();
-    }
-
-    @Override
-    public Node deepCopy(Node newParent) {
-      ClassNode<T> ret = new ClassNode<T>(newParent, getClazz(),
-          getIsPrefixTarget(), getIsSingleton());
-      for (Node n : children.values()) {
-        n.deepCopy(ret);
-      }
-      return ret;
     }
 
     public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget,
@@ -579,10 +507,8 @@ public class TypeHierarchy {
         }
       }
 
-      // boolean injectAllConstructors = (clazz.getAnnotation(Inject.class) !=
-      // null);
-      Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-      List<ConstructorDef> injectableConstructors = new ArrayList<ConstructorDef>();
+      Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
+      List<ConstructorDef<T>> injectableConstructors = new ArrayList<ConstructorDef<T>>();
       /*
        * if (injectAllConstructors && !injectable) { throw new
        * IllegalArgumentException(
@@ -625,6 +551,8 @@ public class TypeHierarchy {
                 try {
                   n = getNode(named.value());
                 } catch (NameResolutionException e) {
+                  // TODO want to get rid of hacky buildPathToNode call; move
+                  // static checks to new phase of register().
                   n = buildPathToNode(named.value(), false);
                 }
                 if (!(n instanceof NamedParameterNode)) {
@@ -642,7 +570,7 @@ public class TypeHierarchy {
             }
             args[i] = new ConstructorArg(paramTypes[i], named);
           }
-          ConstructorDef def = new ConstructorDef(args, constructors[k]);
+          ConstructorDef<T> def = new ConstructorDef<T>(args, constructors[k]);
           if (injectableConstructors.contains(def)) {
             throw new IllegalStateException(
                 "Ambiguous boundConstructors detected in class " + clazz + ": "
@@ -654,21 +582,12 @@ public class TypeHierarchy {
         }
       }
       this.injectableConstructors = injectableConstructors
-          .toArray(new ConstructorDef[0]);
+          .toArray((ConstructorDef<T>[])new ConstructorDef[0]);
     }
   }
 
   public class NamespaceNode<T> extends Node {
     private ClassNode<T> target;
-
-    @Override
-    public Node deepCopy(Node newParent) {
-      NamespaceNode<T> ret = new NamespaceNode<T>(parent, name, target);
-      for (Node n : children.values()) {
-        n.deepCopy(ret);
-      }
-      return ret;
-    }
 
     public NamespaceNode(Node parent, String name, ClassNode<T> target) {
       super(parent, name);
@@ -714,7 +633,6 @@ public class TypeHierarchy {
     final Class<T> argClass;
     final Object defaultInstance;
 
-    
     /*
      * NamedParameterNode(NamedParameter n, Class<?> nameClazz) {
      * super(nameClazz); children = null; this.namedParameter = n; this.argClass
@@ -737,23 +655,15 @@ public class TypeHierarchy {
       return this.namedParameter.equals(n.namedParameter);
     }
 
-    @Override
-    public Node deepCopy(Node newParent) {
-      NamedParameterNode<T> ret = new NamedParameterNode<T>(newParent, clazz, namedParameter, argClass, defaultInstance);
-      for (Node n : children.values()) {
-        n.deepCopy(ret);
-      }
-      return ret;
-    }
-
-    private NamedParameterNode(Node parent, Class<? extends Name<T>> clazz, NamedParameter namedParameter, Class<T> argClass, Object defaultInstance) {
+    private NamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
+        NamedParameter namedParameter, Class<T> argClass, Object defaultInstance) {
       super(parent, clazz);
       this.clazz = clazz;
       this.namedParameter = namedParameter;
       this.argClass = argClass;
       this.defaultInstance = defaultInstance;
     }
-    
+
     @SuppressWarnings("unchecked")
     NamedParameterNode(Node parent, Class<? extends Name<T>> clazz) {
       super(parent, clazz);
@@ -910,9 +820,9 @@ public class TypeHierarchy {
     }
   }
 
-  public class ConstructorDef {
+  public class ConstructorDef<T> {
     final ConstructorArg[] args;
-    final Constructor<?> constructor;
+    final Constructor<T> constructor;
 
     public Class<?> getConstructor() {
       return constructor.getDeclaringClass();
@@ -935,7 +845,7 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
-    ConstructorDef(ConstructorArg[] args, Constructor<?> constructor) {
+    ConstructorDef(ConstructorArg[] args, Constructor<T> constructor) {
       this.args = args;
       this.constructor = constructor;
       constructor.setAccessible(true);
@@ -952,8 +862,8 @@ public class TypeHierarchy {
     }
 
     /**
-     * Check to see if two boundConstructors take indistinguishable arguments. If so
-     * (and they are in the same class), then this would lead to ambiguous
+     * Check to see if two boundConstructors take indistinguishable arguments.
+     * If so (and they are in the same class), then this would lead to ambiguous
      * injection targets, and we want to fail fast.
      * 
      * TODO could be faster. Currently O(n^2) in number of parameters.
@@ -961,7 +871,7 @@ public class TypeHierarchy {
      * @param def
      * @return
      */
-    boolean equalsIgnoreOrder(ConstructorDef def) {
+    boolean equalsIgnoreOrder(ConstructorDef<?> def) {
       if (args.length != def.args.length) {
         return false;
       }
@@ -981,10 +891,10 @@ public class TypeHierarchy {
 
     @Override
     public boolean equals(Object o) {
-      return equalsIgnoreOrder((ConstructorDef) o);
+      return equalsIgnoreOrder((ConstructorDef<?>) o);
     }
 
-    public boolean isMoreSpecificThan(ConstructorDef def) {
+    public boolean isMoreSpecificThan(ConstructorDef<?> def) {
       for (int i = 0; i < args.length; i++) {
         boolean found = false;
         for (int j = 0; j < def.args.length; j++) {

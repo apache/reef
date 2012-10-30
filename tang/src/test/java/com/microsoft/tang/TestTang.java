@@ -32,7 +32,7 @@ public class TestTang {
   @Test(expected = IllegalArgumentException.class)
   public void testRepeatedAmbiguousArgs() {
     Tang t = new Tang();
-    t.register(RepeatedAmbiguousArgs.class);
+    t.namespace.register(RepeatedAmbiguousArgs.class);
   }
   @Test
   public void testRepeatedOKArgs() throws NameResolutionException, ReflectiveOperationException {

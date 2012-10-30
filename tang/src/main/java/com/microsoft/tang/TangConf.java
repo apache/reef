@@ -11,7 +11,7 @@ public class TangConf {
 
   TangConf(Tang tang) {
     if(tang.dirtyBit) { throw new IllegalStateException("Can't build TangConf from dirty Tang object!"); }
-    this.tang = tang.deepCopy();
+    this.tang = new Tang(tang);
   }
 
   public TangInjector injector() {
