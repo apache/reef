@@ -8,16 +8,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.microsoft.tang.TypeHierarchy;
-import com.microsoft.tang.TypeHierarchy.ClassNode;
-import com.microsoft.tang.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.TypeHierarchy.NamespaceNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.TypeHierarchy;
+import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
+import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
+import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.implementation.TypeHierarchy.NamespaceNode;
 
 public class TestTypeHierarchy {
     TypeHierarchy ns;

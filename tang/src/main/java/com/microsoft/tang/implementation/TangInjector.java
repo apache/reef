@@ -1,27 +1,27 @@
-package com.microsoft.tang;
+package com.microsoft.tang.implementation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.microsoft.tang.InjectionPlan.AmbiguousInjectionPlan;
-import com.microsoft.tang.InjectionPlan.InfeasibleInjectionPlan;
-import com.microsoft.tang.InjectionPlan.Instance;
-import com.microsoft.tang.TypeHierarchy.ClassNode;
-import com.microsoft.tang.TypeHierarchy.ConstructorArg;
-import com.microsoft.tang.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.TypeHierarchy.NamespaceNode;
-import com.microsoft.tang.TypeHierarchy.Node;
-import com.microsoft.tang.TypeHierarchy.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.InjectionPlan.InfeasibleInjectionPlan;
+import com.microsoft.tang.implementation.InjectionPlan.Instance;
+import com.microsoft.tang.implementation.InjectionPlan.AmbiguousInjectionPlan;
+import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
+import com.microsoft.tang.implementation.TypeHierarchy.ConstructorArg;
+import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
+import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.implementation.TypeHierarchy.NamespaceNode;
+import com.microsoft.tang.implementation.TypeHierarchy.Node;
+import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
 
 public class TangInjector {
   private final TangConf tc;
   
-  TangInjector(TangConf tc) {
+  public TangInjector(TangConf tc) {
     this.tc = tc;
   }
   private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,

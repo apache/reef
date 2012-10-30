@@ -1,4 +1,4 @@
-package com.microsoft.tang;
+package com.microsoft.tang.implementation;
 
 import java.io.File;
 import java.util.Collection;
@@ -18,17 +18,17 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import com.microsoft.tang.TypeHierarchy.ClassNode;
-import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.TypeHierarchy.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
+import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.implementation.TypeHierarchy.Node;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class Tang {
-  final TypeHierarchy namespace = new TypeHierarchy();
+  public final TypeHierarchy namespace = new TypeHierarchy();
   final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();

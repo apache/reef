@@ -1,4 +1,4 @@
-package com.microsoft.tang;
+package com.microsoft.tang.implementation;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -118,11 +118,11 @@ public class TypeHierarchy {
     }
   }
 
-  Node getNode(Class<?> clazz) throws NameResolutionException {
+  public Node getNode(Class<?> clazz) throws NameResolutionException {
     return getNode(clazz.getName());
   }
 
-  Node getNode(String name) throws NameResolutionException {
+  public Node getNode(String name) throws NameResolutionException {
     String[] path = name.split(regexp);
     return getNode(name, path, path.length);
   }
@@ -379,7 +379,7 @@ public class TypeHierarchy {
       }
     }
 
-    Map<String, Node> children = new HashMap<String, Node>();
+    public Map<String, Node> children = new HashMap<String, Node>();
 
     Node(Node parent, Class<?> name) {
       this.parent = parent;
@@ -462,7 +462,7 @@ public class TypeHierarchy {
     private final Class<T> clazz;
     private final boolean isPrefixTarget;
     private boolean isSingleton;
-    final ConstructorDef<T>[] injectableConstructors;
+    public final ConstructorDef<T>[] injectableConstructors;
 
     public Class<T> getClazz() {
       return clazz;

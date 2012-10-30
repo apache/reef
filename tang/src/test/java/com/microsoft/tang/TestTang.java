@@ -11,6 +11,8 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.Tang;
+import com.microsoft.tang.implementation.TangInjector;
 
 public class TestTang {
   @Before
