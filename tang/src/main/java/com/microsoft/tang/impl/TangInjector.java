@@ -19,7 +19,7 @@ import com.microsoft.tang.impl.TypeHierarchy.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
-public class TangInjector implements Injector {
+public class TangInjector {
   private final TangConf tc;
   
   TangInjector(TangConf tc) {
@@ -156,7 +156,6 @@ public class TangInjector implements Injector {
    * @throws NameResolutionException
    * @throws ReflectiveOperationException
    */
-    @Override
   public <U> U getInstance(Class<U> clazz) throws NameResolutionException,
       ReflectiveOperationException {
     tc.tang.namespace.register(clazz);
@@ -173,7 +172,6 @@ public class TangInjector implements Injector {
 
 
   @SuppressWarnings("unchecked")
-    @Override
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
       throws ReflectiveOperationException, NameResolutionException {
     InjectionPlan<T> plan = (InjectionPlan<T>)getInjectionPlan(clazz.getName());
@@ -224,7 +222,6 @@ public class TangInjector implements Injector {
    * @throws NameResolutionException
    */
   @SuppressWarnings("unchecked")
-    @Override
   public <T> void bindVolatileInstance(Class<T> c, T o) {
     tc.tang.dirtyBit = true;
     Node n = tc.tang.namespace.register(c);

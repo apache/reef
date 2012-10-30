@@ -16,35 +16,46 @@
 package com.microsoft.tang;
 
 import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
 /**
- *
+ * 
  * @author Markus Weimer <mweimer@microsoft.com>
  */
+// TODO: Add examples to the javadoc above
 public interface Injector {
 
     /**
-     * Note: if you call this method, then you may no longer serialize this tang
-     * to a config file.
+     * Binds the given object to the class for the lifetime of this Injector.
      *
-     * @param c
-     * @param o
-     * @throws NameResolutionException
+     * @param <T>
+     * @param clazz
+     * @param object
+     * @throws BindException
      */
-    public <T> void bindVolatileInstance(final Class<T> c, T o);
+    public <T> void bindVolatileInstance(final Class<T> clazz, T object) throws BindException;
 
     /**
-     * Get a new instance of the class clazz.
+     * Gets an Instance of the class configured as the implementation for the
+     * given interface class.
      *
+     * @param <U>
+     * @param clazz
+     * @return an Instance of the class configured as the implementation for the
+     * given interface class.
+     * @throws InjectionException
+     */
+    public <U> U getInstance(final Class<U> clazz) throws InjectionException;
+
+    /**
+     * Gets the value stored for the given named parameter.
+     * 
+     * @param <T>
      * @param clazz
      * @return
-     * @throws NameResolutionException
-     * @throws ReflectiveOperationException
+     * @throws InjectionException
      */
-    public <U> U getInstance(final Class<U> clazz) throws NameResolutionException, ReflectiveOperationException;
-
-    
-    public <T> T getNamedParameter(final Class<? extends Name<T>> clazz) throws ReflectiveOperationException, NameResolutionException;
-    
+    public <T> T getNamedParameter(final Class<? extends Name<T>> clazz) throws InjectionException;
 }
