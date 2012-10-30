@@ -5,15 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.microsoft.tang.Configuration;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
 
-public class TangConf {
+public class ConfigurationImpl implements Configuration {
   public final ConfigurationBuilderImpl tang;
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
 
-  TangConf(ConfigurationBuilderImpl tang) {
-    if(tang.dirtyBit) { throw new IllegalStateException("Can't build TangConf from dirty ConfigurationBuilderImpl object!"); }
+  ConfigurationImpl(ConfigurationBuilderImpl tang) {
+    if(tang.dirtyBit) { throw new IllegalStateException("Can't build ConfigurationImpl from dirty ConfigurationBuilderImpl object!"); }
     this.tang = new ConfigurationBuilderImpl(tang);
   }
 
@@ -21,6 +22,10 @@ public class TangConf {
     return new TangInjector(this);
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Configuration#writeConfigurationFile(java.io.PrintStream)
+   */
+  @Override
   public void writeConfigurationFile(PrintStream s) {
     if (tang.dirtyBit) {
       throw new IllegalStateException(
@@ -68,7 +73,7 @@ public class TangConf {
     }
     return ret;
   }
-  static public TangConf processConfiguration(Map<String, String> conf) throws ReflectiveOperationException {
+  static public Configuration processConfiguration(Map<String, String> conf) throws ReflectiveOperationException {
     ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     for(Entry<String,String> e : conf.entrySet()) {
       if(SINGLETON.equals(e.getValue())) {

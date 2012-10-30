@@ -19,9 +19,9 @@ import com.microsoft.tang.implementation.TypeHierarchy.Node;
 import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
 
 public class TangInjector {
-  private final TangConf tc;
+  private final ConfigurationImpl tc;
   
-  public TangInjector(TangConf tc) {
+  public TangInjector(ConfigurationImpl tc) {
     this.tc = tc;
   }
   private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,

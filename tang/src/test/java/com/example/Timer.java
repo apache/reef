@@ -5,9 +5,9 @@ import javax.inject.Inject;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
-import com.microsoft.tang.implementation.TangConf;
+import com.microsoft.tang.implementation.InjectionPlan;
+import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.implementation.TangInjector;
 import com.microsoft.tang.implementation.TypeHierarchy;
 
@@ -31,7 +31,7 @@ public class Timer {
     typeHierarchy.register(Timer.class);
     ConfigurationBuilderImpl tang = new ConfigurationBuilderImpl();
     tang.register(Timer.class);
-    TangConf conf = tang.build();
+    ConfigurationImpl conf = tang.build();
     TangInjector injector = conf.injector();
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());

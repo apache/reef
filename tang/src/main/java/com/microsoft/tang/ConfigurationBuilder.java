@@ -5,7 +5,7 @@ import org.apache.commons.cli.ParseException;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.TangConf;
+import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl.CommandLineCallback;
 import com.microsoft.tang.ExternalConstructor;
 
@@ -21,7 +21,7 @@ public interface ConfigurationBuilder {
    * 
    * @param conf
    */
-  public void addConfiguration(final TangConf conf);
+  public void addConfiguration(final ConfigurationImpl conf);
 
   /**
    * Bind classes to each other, based on their full class names.
@@ -94,7 +94,7 @@ public interface ConfigurationBuilder {
   public abstract <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v);
 
-  public abstract TangConf build();
+  public abstract Configuration build();
 
   /**
    * TODO move this somewhere else.

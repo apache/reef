@@ -49,15 +49,15 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     addConfiguration(t);
   }
 
-  public ConfigurationBuilderImpl(TangConf... tangs) {
-    for (TangConf tc : tangs) {
+  public ConfigurationBuilderImpl(ConfigurationImpl... tangs) {
+    for (ConfigurationImpl tc : tangs) {
       addConfiguration(tc.tang);
     }
   }
 
 //  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
-  public void addConfiguration(TangConf tc) {
+  public void addConfiguration(ConfigurationImpl tc) {
     addConfiguration(tc.tang);
   }
   private void addConfiguration(ConfigurationBuilderImpl t) {
@@ -103,7 +103,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     namespace.register(c);
   }
 
-  public static TangInjector newInjector(TangConf... args) {
+  public static TangInjector newInjector(ConfigurationImpl... args) {
     return args[0].tang.build().injector();
   }
 
@@ -315,7 +315,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  static public TangConf tangConfFromConfigurationFile(File configFileName)
+  static public com.microsoft.tang.Configuration tangConfFromConfigurationFile(File configFileName)
       throws ConfigurationException, ReflectiveOperationException {
     return tangFromConfigurationFile(configFileName).build();
   }
@@ -324,7 +324,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    * @see com.microsoft.tang.implementation.ConfigurationBuilder#forkConf()
    */
   @Override
-  public TangConf build() {
+  public ConfigurationImpl build() {
     return forkConfImpl(); // XXX new ConfigurationBuilderImpl(this).forkConfImpl();
   }
 
@@ -387,8 +387,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     return t;
   }
 
-  private TangConf forkConfImpl() {
-    return new TangConf(this);
+  private ConfigurationImpl forkConfImpl() {
+    return new ConfigurationImpl(this);
   }
 
 }

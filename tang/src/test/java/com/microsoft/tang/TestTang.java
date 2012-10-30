@@ -27,7 +27,7 @@ public class TestTang {
   }
   @Test(expected = InvocationTargetException.class)
   public void testNotSingleton() throws NameResolutionException, ReflectiveOperationException {
-    ConfigurationBuilder t = new ConfigurationBuilderImpl();
+    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
     TangInjector injector = new TangInjector(t.build());
     injector.getInstance(TwoSingletons.class);
   }
