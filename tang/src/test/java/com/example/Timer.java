@@ -2,14 +2,16 @@ package com.example;
 
 import javax.inject.Inject;
 
-import com.microsoft.tang.impl.InjectionPlan;
-import com.microsoft.tang.impl.Tang;
-import com.microsoft.tang.impl.TangConf;
-import com.microsoft.tang.impl.TangInjector;
-import com.microsoft.tang.impl.TypeHierarchy;
+import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
+import com.microsoft.tang.implementation.InjectionPlan;
+import com.microsoft.tang.implementation.ConfigurationImpl;
+import com.microsoft.tang.implementation.InjectorImpl;
+import com.microsoft.tang.implementation.TypeHierarchy;
 
 public class Timer {
   @NamedParameter(default_value="10",
@@ -27,12 +29,11 @@ public class Timer {
   }
   
   public static void main(String[] args) throws Exception {
-    TypeHierarchy typeHierarchy = new TypeHierarchy();
-    typeHierarchy.register(Timer.class);
-    Tang tang = new Tang();
-    tang.register(Timer.class);
-    TangConf conf = tang.forkConf();
-    TangInjector injector = conf.injector();
+    Tang tang = Tang.Factory.getTang();
+    ConfigurationBuilderImpl cb = (ConfigurationBuilderImpl)tang.newConfigurationBuilder();
+    cb.register(Timer.class);
+    ConfigurationImpl conf = cb.build();
+    InjectorImpl injector = conf.injector();
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());

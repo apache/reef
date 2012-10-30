@@ -1,74 +1,117 @@
-/*
- * Copyright 2012 Microsoft.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.microsoft.tang;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
+
 import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.ConfigurationImpl;
+import com.microsoft.tang.implementation.ConfigurationBuilderImpl.CommandLineCallback;
+import com.microsoft.tang.ExternalConstructor;
 
 /**
- * A builder for TANG Configurations.
- *
- * @author Markus Weimer <mweimer@microsoft.com>
+ * A builder for TANG configurations.
+ * 
+ * @author sears
+ * 
  */
 public interface ConfigurationBuilder {
+  /**
+   * Add all configuration parameters from the given Configuration object.
+   * 
+   * @param conf
+   */
+  public void addConfiguration(final ConfigurationImpl conf);
 
-    /**
-     * Add all configuration parameters from the given Configuration object.
-     *
-     * @param conf
-     */
-    public void addConfiguration(final Configuration conf) throws BindException;
+  /**
+   * Bind classes to each other, based on their full class names.
+   * 
+   * @param iface
+   * @param impl
+   * @throws ClassNotFoundException
+   */
+  public <T> void bind(String iface, String impl) throws ClassNotFoundException;
 
-    /**
-     * Binds the Class impl as the implementation of the interface iface
-     *
-     * @param <T>
-     * @param iface
-     * @param impl
-     * @throws BindException
-     */
-    public <T> void bindImplementation(final Class<T> iface, final Class<? extends T> impl) throws BindException;
+  /**
+   * Bind named parameters, implementations or external constructors, depending
+   * on the types of the classes passed in.
+   * 
+   * @param iface
+   * @param impl
+   */
+  public <T> void bind(Class<T> iface, Class<?> impl);
 
-    /**
-     * Same as bindImplementation, but with Singleton semantics. Only one object
-     * of impl will be created.
-     *
-     * @param <T>
-     * @param iface
-     * @param impl
-     * @throws BindException
-     */
-    public <T> void bindSingletonImplementation(final Class<T> iface, final Class<? extends T> impl) throws BindException;
+  /**
+   * Binds the Class impl as the implementation of the interface iface
+   * 
+   * @param <T>
+   * @param iface
+   * @param impl
+   */
+  public <T> void bindImplementation(Class<T> iface, Class<? extends T> impl);
 
-    /**
-     * Binds the String value to the named parameter name.
-     *
-     * @param <T>
-     * @param name
-     * @param value
-     * @throws BindException
-     */
-    public <T> void bindNamedParameter(final Class<? extends Name<T>> name, final String value) throws BindException;
+  /**
+   * Bind iface to impl, ensuring that all injections of iface return the same
+   * instance of impl. Note that directly injecting an impl (and injecting
+   * classes not bound "through" iface") will still create additional impl
+   * instances.
+   * 
+   * If you want to ensure that impl is a singleton instead, use the single
+   * argument version.
+   * 
+   * @param <T>
+   * @param iface
+   * @param impl
+   * @throws BindException
+   */
+  public abstract <T> void bindSingletonImplementation(Class<T> iface,
+      Class<? extends T> impl) throws ReflectiveOperationException;
 
-    public <T> void bindConstructor(Class<T> iface, Class<? extends ExternalConstructor<? extends T>> constructor) throws BindException;
+  /**
+   * Same as bindSingletonImplementation, except that the singleton class is
+   * bound to itself.
+   * 
+   * @param <T>
+   * @param impl
+   * @throws BindException
+   */
+  public abstract <T> void bindSingleton(Class<T> iface)
+      throws ReflectiveOperationException;
 
-    /**
-     * Builds the immutable Configuration object.
-     *
-     * @return a new immutable Configuration object
-     */
-    public Configuration build();
+  /**
+   * Set the value of a named parameter.
+   * 
+   * @param name
+   *          The dummy class that serves as the name of this parameter.
+   * @param value
+   *          A string representing the value of the parameter. Reef must know
+   *          how to parse the parameter's type.
+   * @throws NameResolutionException
+   */
+  public abstract <T> void bindNamedParameter(Class<? extends Name<T>> name,
+      String value);
+
+  public abstract <T> void bindConstructor(Class<T> c,
+      Class<? extends ExternalConstructor<? extends T>> v);
+
+  public abstract Configuration build();
+
+  /**
+   * TODO move this somewhere else.
+   * 
+   * @param option
+   * @param cb
+   */
+  public void addCommandLineOption(Option option, CommandLineCallback cb);
+
+  /**
+   * TODO move this somewhere else.
+   * 
+   * @param args
+   * @throws NumberFormatException
+   * @throws ParseException
+   */
+  public <T> void processCommandLine(String[] args)
+      throws NumberFormatException, ParseException;
+
 }
