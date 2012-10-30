@@ -1,10 +1,6 @@
 package com.microsoft.tang.exceptions;
 
-/**
- *
- * @author mweimer
- */
-public class NameResolutionException extends BindException {
+public class NameResolutionException extends Exception {
   private static final long serialVersionUID = 1L;
 
     public NameResolutionException(String name, String longestPrefix) {

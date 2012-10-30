@@ -1,4 +1,4 @@
-package com.microsoft.tang.impl;
+package com.microsoft.tang;
 
 import java.io.IOException;
 import java.io.OutputStream;

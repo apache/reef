@@ -1,21 +1,20 @@
-package com.microsoft.tang.impl;
+package com.microsoft.tang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.microsoft.tang.impl.InjectionPlan.AmbiguousInjectionPlan;
-import com.microsoft.tang.impl.InjectionPlan.InfeasibleInjectionPlan;
-import com.microsoft.tang.impl.InjectionPlan.Instance;
-import com.microsoft.tang.Injector;
-import com.microsoft.tang.impl.TypeHierarchy.ClassNode;
-import com.microsoft.tang.impl.TypeHierarchy.ConstructorArg;
-import com.microsoft.tang.impl.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.impl.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.impl.TypeHierarchy.NamespaceNode;
-import com.microsoft.tang.impl.TypeHierarchy.Node;
-import com.microsoft.tang.impl.TypeHierarchy.PackageNode;
+import com.microsoft.tang.InjectionPlan.AmbiguousInjectionPlan;
+import com.microsoft.tang.InjectionPlan.InfeasibleInjectionPlan;
+import com.microsoft.tang.InjectionPlan.Instance;
+import com.microsoft.tang.TypeHierarchy.ClassNode;
+import com.microsoft.tang.TypeHierarchy.ConstructorArg;
+import com.microsoft.tang.TypeHierarchy.ConstructorDef;
+import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.TypeHierarchy.NamespaceNode;
+import com.microsoft.tang.TypeHierarchy.Node;
+import com.microsoft.tang.TypeHierarchy.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
@@ -222,7 +221,7 @@ public class TangInjector {
    * @throws NameResolutionException
    */
   @SuppressWarnings("unchecked")
-  public <T> void bindVolatileInstance(Class<T> c, T o) {
+  public <T> void bindVolatialeInstance(Class<T> c, T o) {
     tc.tang.dirtyBit = true;
     Node n = tc.tang.namespace.register(c);
     if (n instanceof NamedParameterNode) {

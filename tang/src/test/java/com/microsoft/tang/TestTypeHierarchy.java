@@ -1,4 +1,4 @@
-package com.microsoft.tang.impl;
+package com.microsoft.tang;
 
 import javax.inject.Inject;
 
@@ -8,11 +8,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.microsoft.tang.impl.TypeHierarchy;
-import com.microsoft.tang.impl.TypeHierarchy.ClassNode;
-import com.microsoft.tang.impl.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.impl.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.impl.TypeHierarchy.NamespaceNode;
+import com.microsoft.tang.TypeHierarchy;
+import com.microsoft.tang.TypeHierarchy.ClassNode;
+import com.microsoft.tang.TypeHierarchy.ConstructorDef;
+import com.microsoft.tang.TypeHierarchy.NamedParameterNode;
+import com.microsoft.tang.TypeHierarchy.NamespaceNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;

@@ -1,4 +1,4 @@
-package com.microsoft.tang.impl;
+package com.microsoft.tang;
 
 public abstract class InjectionPlan<T> {
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>() {
