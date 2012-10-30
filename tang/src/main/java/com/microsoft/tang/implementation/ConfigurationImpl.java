@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation;
 
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,8 @@ public class ConfigurationImpl implements Configuration {
    * @see com.microsoft.tang.implementation.Configuration#writeConfigurationFile(java.io.PrintStream)
    */
   @Override
-  public void writeConfigurationFile(PrintStream s) {
+  public void writeConfigurationFile(OutputStream o) {
+    PrintStream s = new PrintStream(o);
     if (tang.dirtyBit) {
       throw new IllegalStateException(
           "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object.  Refusing to serialize it!");

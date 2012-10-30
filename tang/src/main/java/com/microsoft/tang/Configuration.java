@@ -1,6 +1,6 @@
 package com.microsoft.tang;
 
-import java.io.PrintStream;
+import java.io.OutputStream;
 
 /**
  * TANG Configuration object.
@@ -18,6 +18,6 @@ public interface Configuration {
    * @param s
    * @throws IOException
    */
-  public abstract void writeConfigurationFile(PrintStream s);
+  public abstract void writeConfigurationFile(OutputStream s);
 
 }
