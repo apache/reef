@@ -16,10 +16,7 @@ public class TangImpl implements Tang {
   // TODO: implement classloader support for tang.
   @Override
   public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loaders) {
-    if (loaders.length != 0) {
-      throw new UnsupportedOperationException("loaders not implemented");
-    }
-    return new ConfigurationBuilderImpl();
+    return new ConfigurationBuilderImpl(loaders);
   }
 
 }

@@ -20,6 +20,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
@@ -29,8 +30,10 @@ public class TypeHierarchy {
   // There are third party libraries that would help, but they can fail if the
   // relevant jar has not yet been loaded.
 
+  // TODO: TypeHierarchy should use monotonic data structures.
   private final PackageNode namespace;
   final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
+  // TODO: Monotonic multi-map
   private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new HashMap<ClassNode<?>, List<ClassNode<?>>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new HashMap<String, NamedParameterNode<?>>();
   final static String regexp = "[\\.\\$]";
@@ -38,9 +41,10 @@ public class TypeHierarchy {
   public TypeHierarchy() {
     namespace = new PackageNode(null, "");
   }
+
   @SuppressWarnings("unchecked")
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
-      ClassNode<T> classNode) {
+      ClassNode<T> classNode) throws BindException {
     String[] path = conf.value().split(regexp);
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
@@ -50,9 +54,9 @@ public class TypeHierarchy {
       } else {
         root = root.get(path[i]);
         if (!(root instanceof NamespaceNode)) {
-          throw new IllegalArgumentException(
-              "Attempt to register namespace inside of " + root
-                  + " namespaces and java packages/classes cannot overlap.");
+          // TODO: Unit test for namespace inside of package.
+          throw new BindException("Attempt to register namespace inside of "
+              + root + " namespaces and java packages/classes cannot overlap.");
         }
       }
     }
@@ -70,17 +74,17 @@ public class TypeHierarchy {
         classNode.put(child);
       }
     } else {
-      throw new IllegalArgumentException(
-          "Attempt to register namespace on top of " + n
-              + " namespaces and java packages/classes cannot overlap.");
+      // TODO: Unit test for namespace colliding with java package.
+      throw new BindException("Attempt to register namespace on top of " + n
+          + " namespaces and java packages/classes cannot overlap.");
     }
     return ret;
   }
 
-  private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget) {
+  private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget)
+      throws BindException {
     String[] path = clazz.getName().split(regexp);
     Node root = namespace;
-    // Node ret = null;
     for (int i = 0; i < path.length - 1; i++) {
       root = root.get(path[i]);
     }
@@ -94,7 +98,8 @@ public class TypeHierarchy {
       return new ClassNode<U>(parent, clazz, isPrefixTarget, false);
     } else {
       if (isPrefixTarget) {
-        throw new IllegalStateException(clazz
+        // TODO: Unit test for @Namespace @NamedParameter on same class
+        throw new BindException(clazz
             + " cannot be both a namespace and parameter.");
       }
       @SuppressWarnings("unchecked")
@@ -103,9 +108,16 @@ public class TypeHierarchy {
           (Class<? extends Name<T>>) clazz);
       String shortName = np.getShortName();
       if (shortName != null) {
-        Node oldNode = shortNames.put(shortName, np);
+        NamedParameterNode<?> oldNode = shortNames.put(shortName, np);
         if (oldNode != null) {
-          throw new IllegalStateException();
+          if (oldNode.getNameClass() == np.getNameClass()) {
+            throw new IllegalStateException("Tried to double bind "
+                + oldNode.getNameClass() + " to short name " + shortName);
+          }
+          // TODO: Unit test for conflicting short names
+          throw new BindException("Named parameters " + oldNode.getNameClass()
+              + " and " + np.getNameClass() + " have the same short name: "
+              + shortName);
         }
       }
       return np;
@@ -179,7 +191,7 @@ public class TypeHierarchy {
     new PackageNode(parent, packageName[packageName.length - 1]);
   }
 
-  public Node register(Class<?> c) {
+  public Node register(Class<?> c) throws BindException {
     if (c == null) {
       return null;
     }
@@ -239,10 +251,13 @@ public class TypeHierarchy {
       for (ConstructorDef<?> def : cls.injectableConstructors) {
         for (ConstructorArg arg : def.args) {
           register(arg.type);
-          if(arg.name != null) {
-            NamedParameterNode<?> np = (NamedParameterNode<?>)register(arg.name.value());
-            if(!ReflectionUtilities.isCoercable(arg.type, np.getArgClass())) {
-              throw new IllegalArgumentException(
+          if (arg.name != null) {
+            NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.name
+                .value());
+            if (!ReflectionUtilities.isCoercable(arg.type, np.getArgClass())) {
+              // TODO unit test for incompatible named parameter type +
+              // constructor type
+              throw new BindException(
                   "Incompatible argument type.  Constructor expects "
                       + arg.type + " but " + np.getName() + " is a "
                       + np.getArgClass());
@@ -252,11 +267,7 @@ public class TypeHierarchy {
       }
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      try {
-        getNode(np.argClass);
-      } catch (NameResolutionException e) {
-        register(np.argClass);
-      }
+      register(np.argClass);
     }
     return n;
   }
@@ -267,9 +278,10 @@ public class TypeHierarchy {
    * @param c
    */
   @SuppressWarnings("unchecked")
-  private <T, U extends T> Node registerClass(final Class<U> c) {
+  private <T, U extends T> Node registerClass(final Class<U> c)
+      throws BindException {
     if (c.isArray()) {
-      throw new UnsupportedOperationException("Can't register array types");
+      throw new BindException("Can't register array types");
     }
     try {
       return getNode(c);
@@ -286,9 +298,9 @@ public class TypeHierarchy {
     } else {
       n = buildPathToNode(c, true);
       if (n instanceof NamedParameterNode) {
-        throw new IllegalArgumentException("Found namespace annotation "
-            + nsAnnotation + " with target " + n
-            + " which is a named parameter.");
+        // TODO: Unit test for namespace targets named parameter.
+        throw new BindException("Found namespace annotation " + nsAnnotation
+            + " with target " + n + " which is a named parameter.");
       }
       registerNamespace(nsAnnotation, (ClassNode<?>) n);
     }
@@ -323,7 +335,6 @@ public class TypeHierarchy {
       knownImpls.put(superclass, s);
     }
     if (!s.contains(impl)) {
-      // System.out.println("putImpl: " + impl + " implements " + superclass);
       s.add(impl);
     }
   }
@@ -406,13 +417,6 @@ public class TypeHierarchy {
       }
     }
 
-    /*
-     * public void addNamedParameter(NamedParameter name, Class<?> nameClazz) {
-     * put(new NamedParameterNode(name, nameClazz));
-     * 
-     * }
-     */
-
     public String toIndentedString(int level) {
       StringBuilder sb = new StringBuilder();
       for (int i = 0; i < level; i++) {
@@ -450,6 +454,7 @@ public class TypeHierarchy {
       super(parent, name);
     }
   }
+
   @SuppressWarnings("unchecked")
   public class ClassNode<T> extends Node {
     private final Class<T> clazz;
@@ -487,7 +492,7 @@ public class TypeHierarchy {
     }
 
     public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget,
-        boolean isSingleton) {
+        boolean isSingleton) throws BindException {
       super(parent, clazz);
       this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
@@ -501,23 +506,21 @@ public class TypeHierarchy {
         }
       }
 
-      Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
+      Constructor<T>[] constructors = (Constructor<T>[]) clazz
+          .getDeclaredConstructors();
       List<ConstructorDef<T>> injectableConstructors = new ArrayList<ConstructorDef<T>>();
-      /*
-       * if (injectAllConstructors && !injectable) { throw new
-       * IllegalArgumentException(
-       * "Cannot @Inject non-static member/local class: " + clazz); }
-       */
 
       for (int k = 0; k < constructors.length; k++) {
 
         if (constructors[k].getAnnotation(Inject.class) != null) {
           if (!injectable) {
-            throw new IllegalArgumentException(
+            // TODO: Unit test inject non-static member fails on register.
+            throw new BindException(
                 "Cannot @Inject non-static member/local class: " + clazz);
           }
           // go through the constructor arguments.
           if (constructors[k].isSynthetic()) {
+            // Not sure if we *can* unit test this one.
             throw new IllegalStateException(
                 "Synthetic constructor was annotated with @Inject!");
           }
@@ -546,7 +549,7 @@ public class TypeHierarchy {
           }
           ConstructorDef<T> def = new ConstructorDef<T>(args, constructors[k]);
           if (injectableConstructors.contains(def)) {
-            throw new IllegalStateException(
+            throw new BindException(
                 "Ambiguous boundConstructors detected in class " + clazz + ": "
                     + def + " differs from some other " + " constructor only "
                     + "by parameter order.");
@@ -556,7 +559,7 @@ public class TypeHierarchy {
         }
       }
       this.injectableConstructors = injectableConstructors
-          .toArray((ConstructorDef<T>[])new ConstructorDef[0]);
+          .toArray((ConstructorDef<T>[]) new ConstructorDef[0]);
     }
   }
 
@@ -607,12 +610,6 @@ public class TypeHierarchy {
     final Class<T> argClass;
     final Object defaultInstance;
 
-    /*
-     * NamedParameterNode(NamedParameter n, Class<?> nameClazz) {
-     * super(nameClazz); children = null; this.namedParameter = n; this.argClass
-     * = n.type(); }
-     */
-
     public boolean isAsSpecificAs(NamedParameterNode<?> n) {
       if (!argClass.equals(n.argClass)) {
         return false;
@@ -639,15 +636,17 @@ public class TypeHierarchy {
     }
 
     @SuppressWarnings("unchecked")
-    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz) {
+    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz)
+        throws BindException {
       super(parent, clazz);
       this.clazz = clazz;
 
       for (Constructor<?> c : clazz.getDeclaredConstructors()) {
         for (Annotation a : c.getDeclaredAnnotations()) {
           if (a instanceof Inject) {
-            throw new IllegalStateException(
-                "Detected illegal @Injectable parameter class");
+            // TODO unit test for Injectable NamedParameter annotation,
+            throw new BindException("Named Parameter " + clazz.getName()
+                + " has @Injectable constructor.  This is not allowed.");
           }
         }
       }
@@ -661,7 +660,9 @@ public class TypeHierarchy {
         if (genericNameType instanceof ParameterizedType) {
           ParameterizedType ptype = (ParameterizedType) genericNameType;
           if (ptype.getRawType() != Name.class) {
-            throw new IllegalArgumentException();
+            // TODO unit test for non Name<?> NamedParameter annotation,
+            throw new BindException("@NamedParameter class " + clazz.getName()
+                + " does not implement Name<?>");
           }
           try {
             Type t = ptype.getActualTypeArguments()[0];
@@ -674,16 +675,16 @@ public class TypeHierarchy {
             }
             parameterClass = (Class<T>) t;
           } catch (ClassCastException e) {
+            // TODO: Torture this logic with strange Name<> generic types.
             throw new IllegalArgumentException();
           }
         } else {
           throw new IllegalArgumentException();
         }
       } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException(
-            "NamedParameter "
-                + clazz
-                + " must have exactly one super interface: A name with a concrete type parameter.");
+        throw new IllegalArgumentException("NamedParameter " + clazz
+            + " must have exactly one super interface: "
+            + "A name with a concrete type parameter.");
       }
 
       this.namedParameter = clazz.getAnnotation(NamedParameter.class);
@@ -810,7 +811,7 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
-    ConstructorDef(ConstructorArg[] args, Constructor<T> constructor) {
+    ConstructorDef(ConstructorArg[] args, Constructor<T> constructor) throws BindException {
       this.args = args;
       this.constructor = constructor;
       constructor.setAccessible(true);
@@ -818,7 +819,8 @@ public class TypeHierarchy {
       for (int i = 0; i < this.args.length; i++) {
         for (int j = i + 1; j < this.args.length; j++) {
           if (this.args[i].toString().equals(this.args[j].toString())) {
-            throw new IllegalArgumentException(
+            // TODO Unit test repeated constructor arg
+            throw new BindException(
                 "Repeated constructor parameter detected.  "
                     + "Cannot inject this constructor.");
           }

@@ -124,7 +124,7 @@ public interface ConfigurationBuilder {
   public Configuration build();
 
   /**
-   * TODO move this somewhere else.
+   * TODO Eliminate apache cli Option from Tang API.
    * 
    * @param option
    * @param cb
