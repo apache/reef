@@ -19,5 +19,5 @@ public interface ExternalConstructor<T> {
    * 
    * @return a new, distinct instance of T.
    */
-  T newInstance();
+  public T newInstance();
 }

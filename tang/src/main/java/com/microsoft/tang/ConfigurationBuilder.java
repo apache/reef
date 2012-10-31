@@ -1,5 +1,8 @@
 package com.microsoft.tang;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
@@ -7,7 +10,6 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl.CommandLineCallback;
 import com.microsoft.tang.ExternalConstructor;
 
@@ -32,7 +34,8 @@ public interface ConfigurationBuilder {
    * @param impl
    * @throws ClassNotFoundException
    */
-  public <T> void bind(String iface, String impl) throws ClassNotFoundException, BindException;
+  public <T> void bind(String iface, String impl)
+      throws ClassNotFoundException, BindException;
 
   /**
    * Bind named parameters, implementations or external constructors, depending
@@ -50,7 +53,8 @@ public interface ConfigurationBuilder {
    * @param iface
    * @param impl
    */
-  public <T> void bindImplementation(Class<T> iface, Class<? extends T> impl) throws BindException;
+  public <T> void bindImplementation(Class<T> iface, Class<? extends T> impl)
+      throws BindException;
 
   /**
    * Bind iface to impl, ensuring that all injections of iface return the same
@@ -66,7 +70,7 @@ public interface ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
-  public abstract <T> void bindSingletonImplementation(Class<T> iface,
+  public <T> void bindSingletonImplementation(Class<T> iface,
       Class<? extends T> impl) throws BindException;
 
   /**
@@ -77,7 +81,7 @@ public interface ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
-  public abstract <T> void bindSingleton(Class<T> iface) throws BindException;
+  public <T> void bindSingleton(Class<T> iface) throws BindException;
 
   /**
    * Set the value of a named parameter.
@@ -89,13 +93,13 @@ public interface ConfigurationBuilder {
    *          how to parse the parameter's type.
    * @throws NameResolutionException
    */
-  public abstract <T> void bindNamedParameter(Class<? extends Name<T>> name,
-      String value) throws BindException, InjectionException;
+  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value)
+      throws BindException, InjectionException;
 
-  public abstract <T> void bindConstructor(Class<T> c,
+  public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
 
-  public abstract Configuration build();
+  public Configuration build();
 
   /**
    * TODO move this somewhere else.
@@ -106,13 +110,13 @@ public interface ConfigurationBuilder {
   public void addCommandLineOption(Option option, CommandLineCallback cb);
 
   /**
-   * TODO move this somewhere else.
-   * 
    * @param args
+   * @throws IOException 
    * @throws NumberFormatException
    * @throws ParseException
    */
-  public <T> void processCommandLine(String[] args)
-      throws NumberFormatException, ParseException;
+  public <T> void processCommandLine(String[] args) throws BindException, IOException, ParseException;
 
+  public void processConfigFile(final File istream) throws IOException,
+      BindException, ParseException;
 }

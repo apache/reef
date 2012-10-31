@@ -18,7 +18,7 @@ public interface Injector {
    * @throws NameResolutionException
    * @throws ReflectiveOperationException
    */
-  public abstract <U> U getInstance(Class<U> iface) throws BindException,
+  public <U> U getInstance(Class<U> iface) throws BindException,
       InjectionException;
 
   /**
@@ -30,19 +30,33 @@ public interface Injector {
    *         given interface class.
    * @throws InjectionException
    */
-  public abstract <T> T getNamedParameter(Class<? extends Name<T>> name)
+  public <T> T getNamedParameter(Class<? extends Name<T>> name)
       throws BindException, InjectionException;
 
   /**
    * Binds the given object to the class. Note that this only affects objects
-   * created by this Injector (which cannot be serialized back to a
-   * configuration file).
+   * created by the returned Injector and its children. Also, like all
+   * Injectors, none of those objects can be serialized back to a configuration
+   * file).
    * 
    * @param iface
    * @param inst
+   * @return A copy of this injector that reflects the new binding.
    * @throws NameResolutionException
    */
-  public abstract <T> void bindVolatialeInstance(Class<T> iface, T inst)
+  public <T> Injector bindVolatialeInstance(Class<T> iface, T inst)
       throws BindException, InjectionException;
+  /**
+   * Create a new child Injector that inherits the singleton instances created
+   * by this Injector, but reflects additional Configuration objects.  This can
+   * be used to create trees of Injectors that obey hierarchical scoping rules.
+   * 
+   * Except for the fact that the child Injector will have references to this
+   * injector's singletons, the returned Injector is equivalent to the one you
+   * would get by using ConfigurationBuilder to build a merged Configuration,
+   * and then using the merged Configuration to create an Injector. Injectors
+   * returned by ConfigurationBuilders are always independent, and so never
+   * share references to the same singleton instances.
+   */
 
 }

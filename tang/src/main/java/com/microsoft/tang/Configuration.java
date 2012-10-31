@@ -18,6 +18,6 @@ public interface Configuration {
    * @param s
    * @throws IOException
    */
-  public abstract void writeConfigurationFile(OutputStream s);
+  public void writeConfigurationFile(OutputStream s);
 
 }

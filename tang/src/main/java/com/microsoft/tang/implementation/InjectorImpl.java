@@ -1,6 +1,7 @@
 package com.microsoft.tang.implementation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -226,7 +227,7 @@ public class InjectorImpl implements Injector {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> void bindVolatialeInstance(Class<T> c, T o) {
+  public <T> InjectorImpl bindVolatialeInstance(Class<T> c, T o) {
     tc.dirtyBit = true;
     Node n = tc.namespace.register(c);
     if (n instanceof NamedParameterNode) {
@@ -239,6 +240,7 @@ public class InjectorImpl implements Injector {
       throw new IllegalArgumentException(
           "Expected Class or NamedParameter, but " + c + " is neither.");
     }
+    throw new UnsupportedOperationException("Need to update bindVolatileInstance for the new API");
   }
 
 }

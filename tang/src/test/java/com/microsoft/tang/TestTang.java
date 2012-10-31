@@ -40,7 +40,7 @@ public class TestTang {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testRepeatedAmbiguousArgs() {
+  public void testRepeatedAmbiguousArgs() throws BindException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     ((ConfigurationBuilderImpl)t).register(RepeatedAmbiguousArgs.class);
   }

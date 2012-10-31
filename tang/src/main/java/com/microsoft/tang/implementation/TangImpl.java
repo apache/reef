@@ -23,7 +23,10 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public ConfigurationBuilder newConfigurationBuilder() {
+  public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loaders) {
+    if (loaders.length != 0) {
+      throw new UnsupportedOperationException("loaders not implemented");
+    }
     return new ConfigurationBuilderImpl();
   }
 

@@ -1,6 +1,8 @@
 package com.microsoft.tang.implementation;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,64 +35,75 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private final ConfigurationImpl conf = new ConfigurationImpl();
+
   ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
     addConfiguration(t);
   }
 
-  ConfigurationBuilderImpl() {}
+  ConfigurationBuilderImpl() {
+  }
+
   ConfigurationBuilderImpl(Configuration... tangs) {
     for (Configuration tc : tangs) {
-      addConfiguration(((ConfigurationImpl)tc));
+      addConfiguration(((ConfigurationImpl) tc));
     }
   }
 
-  //  @SuppressWarnings({"unchecked", "rawtypes"})
+  // @SuppressWarnings({"unchecked", "rawtypes"})
   private void addConfiguration(ConfigurationBuilderImpl tc) {
     addConfiguration(tc.conf);
   }
 
   @Override
   public void addConfiguration(Configuration ti) {
-    ConfigurationImpl t = (ConfigurationImpl)ti;
+    ConfigurationImpl t = (ConfigurationImpl) ti;
     if (t.dirtyBit) {
-      throw new IllegalArgumentException("Cannot copy a dirty ConfigurationBuilderImpl");
+      throw new IllegalArgumentException(
+          "Cannot copy a dirty ConfigurationBuilderImpl");
     }
     try {
       for (Class<?> c : t.namespace.registeredClasses) {
         register(c);
       }
-      // Note: The commented out lines would be faster, but, for testing purposes, 
-      // we run through the high-level bind(), which dispatches to the correct call.
+      // Note: The commented out lines would be faster, but, for testing
+      // purposes,
+      // we run through the high-level bind(), which dispatches to the correct
+      // call.
       for (ClassNode<?> cn : t.boundImpls.keySet()) {
         bind(cn.getClazz(), t.boundImpls.get(cn));
-//        bindImplementation((Class<?>) cn.getClazz(), (Class) t.boundImpls.get(cn));
+        // bindImplementation((Class<?>) cn.getClazz(), (Class)
+        // t.boundImpls.get(cn));
       }
       for (ClassNode<?> cn : t.boundConstructors.keySet()) {
         bind(cn.getClazz(), t.boundConstructors.get(cn));
-//        bindConstructor((Class<?>) cn.getClazz(), (Class) t.boundConstructors.get(cn));
+        // bindConstructor((Class<?>) cn.getClazz(), (Class)
+        // t.boundConstructors.get(cn));
       }
       for (ClassNode<?> cn : t.singletons) {
         try {
           bindSingleton(cn.getClazz());
-        } catch(BindException e) {
-          throw new IllegalStateException("Unexpected BindException when copying ConfigurationBuilderImpl", e);
+        } catch (BindException e) {
+          throw new IllegalStateException(
+              "Unexpected BindException when copying ConfigurationBuilderImpl",
+              e);
         }
       }
       for (NamedParameterNode<?> np : t.namedParameters.keySet()) {
         bind(np.getNameClass().getName(), t.namedParameters.get(np));
-//        bindParameter(np.getNameClass(), t.namedParameters.get(np));
+        // bindParameter(np.getNameClass(), t.namedParameters.get(np));
       }
     } catch (ReflectiveOperationException e) {
       throw new IllegalStateException(
-          "Encountered reflection error when copying a ConfigurationBuilderImpl: ", e);
+          "Encountered reflection error when copying a ConfigurationBuilderImpl: ",
+          e);
     }
   }
 
   /**
    * Needed when you want to make a class available for injection, but don't
    * want to bind a subclass to its implementation. Without this call, by the
-   * time injector.newInstance() is called, ConfigurationBuilderImpl has been locked down, and the
-   * class won't be found.
+   * time injector.newInstance() is called, ConfigurationBuilderImpl has been
+   * locked down, and the class won't be found.
    * 
    * @param c
    */
@@ -126,8 +139,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   Map<Option, CommandLineCallback> applicationOptions = new HashMap<Option, CommandLineCallback>();
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#addCommandLineOption(org.apache.commons.cli.Option, com.microsoft.tang.implementation.ConfigurationBuilderImpl.CommandLineCallback)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#addCommandLineOption
+   * (org.apache.commons.cli.Option,
+   * com.microsoft.tang.implementation.ConfigurationBuilderImpl
+   * .CommandLineCallback)
    */
   @Override
   public void addCommandLineOption(Option option, CommandLineCallback cb) {
@@ -135,12 +154,16 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     applicationOptions.put(option, cb);
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#processCommandLine(java.lang.String[])
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#processCommandLine
+   * (java.lang.String[])
    */
   @Override
-  public <T> void processCommandLine(String[] args)
-      throws NumberFormatException, ParseException {
+  public <T> void processCommandLine(String[] args) throws IOException,
+    BindException, ParseException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
     o.addOption(helpFlag);
@@ -171,13 +194,18 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bind(java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#bind(java.lang.String
+   * , java.lang.String)
    */
   @Override
   public <T> void bind(String key, String value) throws ClassNotFoundException {
     if (conf.sealed)
-      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
+      throw new IllegalStateException(
+          "Can't bind to sealed ConfigurationBuilderImpl!");
     Node n = conf.namespace.register(Class.forName(key));
     /*
      * String longVal = shortNames.get(value); if (longVal != null) value =
@@ -189,27 +217,38 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       bind(((ClassNode<?>) n).getClazz(), Class.forName(value));
     }
   }
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bind(java.lang.Class, java.lang.Class)
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#bind(java.lang.Class
+   * , java.lang.Class)
    */
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bind(Class<T> c, Class<?> val) {
     if (ExternalConstructor.class.isAssignableFrom(val)
         && (!ExternalConstructor.class.isAssignableFrom(c))) {
-      bindConstructor(c, (Class<? extends ExternalConstructor<? extends T>>)val);
+      bindConstructor(c,
+          (Class<? extends ExternalConstructor<? extends T>>) val);
     } else {
-      bindImplementation(c, (Class<? extends T>)val);
+      bindImplementation(c, (Class<? extends T>) val);
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindImplementation(java.lang.Class, java.lang.Class)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#bindImplementation
+   * (java.lang.Class, java.lang.Class)
    */
   @Override
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d) {
     if (conf.sealed)
-      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
+      throw new IllegalStateException(
+          "Can't bind to sealed ConfigurationBuilderImpl!");
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
@@ -218,7 +257,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     Node n = conf.namespace.register(c);
     conf.namespace.register(d);
 
-    
     if (n instanceof ClassNode) {
       conf.boundImpls.put((ClassNode<?>) n, d);
     } else {
@@ -231,20 +269,26 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   private <T> void bindParameter(NamedParameterNode<T> name, String value) {
     if (conf.sealed)
-      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
+      throw new IllegalStateException(
+          "Can't bind to sealed ConfigurationBuilderImpl!");
     T o = ReflectionUtilities.parse(name.argClass, value);
     conf.namedParameters.put(name, value);
     conf.namedParameterInstances.put(name, o);
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindParameter(java.lang.Class, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#bindParameter(java
+   * .lang.Class, java.lang.String)
    */
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s) {
     if (conf.sealed)
-      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
+      throw new IllegalStateException(
+          "Can't bind to sealed ConfigurationBuilderImpl!");
     Node np = conf.namespace.register(name);
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>) np, s);
@@ -257,25 +301,35 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindSingleton(java.lang.Class)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#bindSingleton(java
+   * .lang.Class)
    */
   @Override
   public <T> void bindSingleton(Class<T> c) throws BindException {
     if (conf.sealed)
-      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
+      throw new IllegalStateException(
+          "Can't bind to sealed ConfigurationBuilderImpl!");
     bindSingletonImplementation(c, c);
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindSingleton(java.lang.Class, java.lang.Class)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#bindSingleton(java
+   * .lang.Class, java.lang.Class)
    */
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
       throws BindException {
     if (conf.sealed)
-      throw new IllegalStateException("Can't bind to sealed ConfigurationBuilderImpl!");
+      throw new IllegalStateException(
+          "Can't bind to sealed ConfigurationBuilderImpl!");
 
     Node n = conf.namespace.register(c);
     conf.namespace.register(d);
@@ -293,9 +347,12 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.ConfigurationBuilder#bindConstructor(java.lang.Class, java.lang.Class)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.microsoft.tang.implementation.ConfigurationBuilder#bindConstructor(
+   * java.lang.Class, java.lang.Class)
    */
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -304,7 +361,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     System.err
         .println("Warning: ExternalConstructors aren't implemented at the moment");
     try {
-      conf.boundConstructors.put((ClassNode<?>) conf.namespace.register(c), (Class) v);
+      conf.boundConstructors.put((ClassNode<?>) conf.namespace.register(c),
+          (Class) v);
     } catch (ClassCastException e) {
       throw new IllegalArgumentException(
           "Cannot register external class constructor for " + c
@@ -312,12 +370,15 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  static public com.microsoft.tang.Configuration tangConfFromConfigurationFile(File configFileName)
-      throws ConfigurationException, BindException, ReflectiveOperationException {
-    return tangFromConfigurationFile(configFileName).build();
-  }
+//  static public com.microsoft.tang.Configuration tangConfFromConfigurationFile(
+//      File configFileName) throws ConfigurationException, BindException,
+//      ReflectiveOperationException {
+//    return tangFromConfigurationFile(configFileName).build();
+//  }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.microsoft.tang.implementation.ConfigurationBuilder#forkConf()
    */
   @Override
@@ -326,19 +387,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     return b.conf;
   }
 
-  static private <T> ConfigurationBuilder tangFromConfigurationFile(File configFileName)
-      throws ConfigurationException, ClassNotFoundException, BindException {
-    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
-
-    PropertiesConfiguration conf = new PropertiesConfiguration(configFileName);
-    Iterator<String> it = conf.getKeys();
-
+  @Override
+  public void processConfigFile(File file) throws IOException,
+      BindException {
+    PropertiesConfiguration confFile;
+    try {
+      confFile = new PropertiesConfiguration(file);
+    } catch (ConfigurationException e) {
+      throw new BindException("Problem parsing config file", e);
+    }
+    Iterator<String> it = confFile.getKeys();
     Map<String, String> shortNames = new HashMap<String, String>();
 
     while (it.hasNext()) {
       String key = it.next();
       String longName = shortNames.get(key);
-      String[] values = conf.getStringArray(key);
+      String[] values = confFile.getStringArray(key);
       if (longName != null) {
         // System.err.println("Mapped " + key + " to " + longName);
         key = longName;
@@ -354,10 +418,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
                 "Can't import=tang.singleton.  Makes no sense");
           }
           try {
-            t.conf.namespace.register(Class.forName(value));
+            this.conf.namespace.register(Class.forName(value));
             String[] tok = value.split(TypeHierarchy.regexp);
             try {
-              t.conf.namespace.getNode(tok[tok.length - 1]);
+              this.conf.namespace.getNode(tok[tok.length - 1]);
               throw new IllegalArgumentException("Conflict on short name: "
                   + tok[tok.length - 1]);
             } catch (NameResolutionException e) {
@@ -378,21 +442,25 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
             final Class<?> c;
             try {
               c = Class.forName(key);
-            } catch(ClassNotFoundException e) {
-              throw new BindException("Could not find class to be bound as singleton", e);
+            } catch (ClassNotFoundException e) {
+              throw new BindException(
+                  "Could not find class to be bound as singleton", e);
             }
-            t.bindSingleton(c);
+            bindSingleton(c);
           } else {
-            t.bind(key, value);
+            try {
+              bind(key, value);
+            } catch(ClassNotFoundException e) {
+              throw new BindException("Could not find class mentioned by config file", e);
+            }
           }
         }
       }
     }
-    return t;
   }
 
-//  private ConfigurationImpl forkConfImpl() {
-//    return conf.newConfigurationImpl(this);
-//  }
+  // private ConfigurationImpl forkConfImpl() {
+  // return conf.newConfigurationImpl(this);
+  // }
 
 }
