@@ -2,12 +2,10 @@ package com.microsoft.tang.implementation;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -29,33 +27,35 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
-import com.microsoft.tang.util.MonotonicMap;
-import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private final ConfigurationImpl conf = new ConfigurationImpl();
 
   ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
-    addConfiguration(t);
+    try {
+      addConfiguration(t);
+    } catch(BindException e) {
+      throw new IllegalStateException("Could not copy builder", e);
+    }
   }
 
   ConfigurationBuilderImpl() {
   }
 
-  ConfigurationBuilderImpl(Configuration... tangs) {
+  ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
     for (Configuration tc : tangs) {
       addConfiguration(((ConfigurationImpl) tc));
     }
   }
 
   // @SuppressWarnings({"unchecked", "rawtypes"})
-  private void addConfiguration(ConfigurationBuilderImpl tc) {
+  private void addConfiguration(ConfigurationBuilderImpl tc) throws BindException {
     addConfiguration(tc.conf);
   }
 
   @Override
-  public void addConfiguration(Configuration ti) {
+  public void addConfiguration(Configuration ti) throws BindException {
     ConfigurationImpl t = (ConfigurationImpl) ti;
     if (t.dirtyBit) {
       throw new IllegalArgumentException(
@@ -163,7 +163,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    */
   @Override
   public <T> void processCommandLine(String[] args) throws IOException,
-    BindException {
+      BindException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
     o.addOption(helpFlag);
@@ -171,7 +171,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     CommandLine cl;
     try {
       cl = g.parse(o, args);
-    } catch(ParseException e) {
+    } catch (ParseException e) {
       throw new IOException("Could not parse config file", e);
     }
     if (cl.hasOption("?")) {
@@ -207,7 +207,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    * , java.lang.String)
    */
   @Override
-  public <T> void bind(String key, String value) throws ClassNotFoundException {
+  public <T> void bind(String key, String value) throws ClassNotFoundException, BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
@@ -232,7 +232,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> void bind(Class<T> c, Class<?> val) {
+  public <T> void bind(Class<T> c, Class<?> val) throws BindException {
     if (ExternalConstructor.class.isAssignableFrom(val)
         && (!ExternalConstructor.class.isAssignableFrom(c))) {
       bindConstructor(c,
@@ -250,7 +250,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    * (java.lang.Class, java.lang.Class)
    */
   @Override
-  public <T> void bindImplementation(Class<T> c, Class<? extends T> d) {
+  public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
+      throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
@@ -265,10 +266,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (n instanceof ClassNode) {
       conf.boundImpls.put((ClassNode<?>) n, d);
     } else {
-      // TODO need new exception type here.
-      throw new IllegalArgumentException(
-          "Detected type mismatch.  Expected ClassNode, but namespace contains a "
-              + n);
+      throw new BindException(
+          "Detected type mismatch.  bindImplementation needs a ClassNode, but "
+              + "namespace contains a " + n);
     }
   }
 
@@ -290,7 +290,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s) {
+  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
+      throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
@@ -298,9 +299,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>) np, s);
     } else {
-      // TODO add support for setting default *instance* of class.
-      // TODO need new exception type here.
-      throw new IllegalArgumentException(
+      throw new BindException(
           "Detected type mismatch when setting named parameter " + name
               + "  Expected NamedParameterNode, but namespace contains a " + np);
     }
@@ -375,11 +374,12 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-//  static public com.microsoft.tang.Configuration tangConfFromConfigurationFile(
-//      File configFileName) throws ConfigurationException, BindException,
-//      ReflectiveOperationException {
-//    return tangFromConfigurationFile(configFileName).build();
-//  }
+  // static public com.microsoft.tang.Configuration
+  // tangConfFromConfigurationFile(
+  // File configFileName) throws ConfigurationException, BindException,
+  // ReflectiveOperationException {
+  // return tangFromConfigurationFile(configFileName).build();
+  // }
 
   /*
    * (non-Javadoc)
@@ -393,8 +393,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void processConfigFile(File file) throws IOException,
-      BindException {
+  public void processConfigFile(File file) throws IOException, BindException {
     PropertiesConfiguration confFile;
     try {
       confFile = new PropertiesConfiguration(file);
@@ -455,8 +454,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           } else {
             try {
               bind(key, value);
-            } catch(ClassNotFoundException e) {
-              throw new BindException("Could not find class mentioned by config file", e);
+            } catch (ClassNotFoundException e) {
+              throw new BindException(
+                  "Could not find class mentioned by config file", e);
             }
           }
         }

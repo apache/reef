@@ -1,11 +1,11 @@
 package com.microsoft.tang.implementation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
@@ -42,8 +42,7 @@ public class InjectorImpl implements Injector {
     }
   }
 
-  private void buildInjectionPlan(String name, Map<String, InjectionPlan<?>> memo) 
-    throws BindException {
+  private void buildInjectionPlan(String name, Map<String, InjectionPlan<?>> memo) {
     if (memo.containsKey(name)) {
       if (InjectionPlan.BUILDING == memo.get(name)) {
         throw new IllegalStateException(
@@ -57,7 +56,7 @@ public class InjectorImpl implements Injector {
     try {
       n = tc.namespace.getNode(name);
     } catch(NameResolutionException e) {
-      throw new BindException("Unregistered class", e);
+      throw new IllegalArgumentException("Unregistered class", e);
     }
     final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
@@ -132,14 +131,13 @@ public class InjectorImpl implements Injector {
    * @return
    * @throws NameResolutionException
    */
-  public InjectionPlan<?> getInjectionPlan(String name) throws BindException {
+  public InjectionPlan<?> getInjectionPlan(String name) {
     Map<String, InjectionPlan<?>> memo = new HashMap<String, InjectionPlan<?>>();
     buildInjectionPlan(name, memo);
     return memo.get(name);
   }
   @SuppressWarnings("unchecked")
-  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name)
-      throws BindException {
+  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) {
     return (InjectionPlan<T>)getInjectionPlan(name.getName());
   }
 
@@ -159,7 +157,7 @@ public class InjectorImpl implements Injector {
    * @see com.microsoft.tang.implementation.Injector#getInstance(java.lang.Class)
    */
   @Override
-  public <U> U getInstance(Class<U> clazz) throws BindException, InjectionException {
+  public <U> U getInstance(Class<U> clazz) throws InjectionException {
     tc.namespace.register(clazz);
     if (!tc.sealed) {
       tc.sealed = true;
@@ -179,7 +177,7 @@ public class InjectorImpl implements Injector {
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
-      throws BindException, InjectionException {
+      throws InjectionException {
     InjectionPlan<T> plan = (InjectionPlan<T>)getInjectionPlan(clazz.getName());
     return (T) injectFromPlan(plan);
   }
@@ -241,6 +239,11 @@ public class InjectorImpl implements Injector {
           "Expected Class or NamedParameter, but " + c + " is neither.");
     }
     throw new UnsupportedOperationException("Need to update bindVolatileInstance for the new API");
+  }
+  @Override
+  public Injector createChildInjector(Configuration... configurations) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
   }
 
 }

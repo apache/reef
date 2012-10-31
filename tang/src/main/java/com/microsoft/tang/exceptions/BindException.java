@@ -5,4 +5,7 @@ public class BindException extends Exception {
   public BindException(String msg, Throwable cause) {
     super(msg,cause);
   }
+  public BindException(String msg) {
+    super(msg);
+  }
 }

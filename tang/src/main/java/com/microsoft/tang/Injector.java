@@ -1,7 +1,6 @@
 package com.microsoft.tang;
 
 import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
@@ -18,8 +17,7 @@ public interface Injector {
    * @throws NameResolutionException
    * @throws ReflectiveOperationException
    */
-  public <U> U getInstance(Class<U> iface) throws BindException,
-      InjectionException;
+  public <U> U getInstance(Class<U> iface) throws InjectionException;
 
   /**
    * Gets the value stored for the given named parameter.
@@ -31,7 +29,7 @@ public interface Injector {
    * @throws InjectionException
    */
   public <T> T getNamedParameter(Class<? extends Name<T>> name)
-      throws BindException, InjectionException;
+      throws InjectionException;
 
   /**
    * Binds the given object to the class. Note that this only affects objects
@@ -45,7 +43,7 @@ public interface Injector {
    * @throws NameResolutionException
    */
   public <T> Injector bindVolatialeInstance(Class<T> iface, T inst)
-      throws BindException, InjectionException;
+      throws InjectionException;
   /**
    * Create a new child Injector that inherits the singleton instances created
    * by this Injector, but reflects additional Configuration objects.  This can
@@ -58,5 +56,5 @@ public interface Injector {
    * returned by ConfigurationBuilders are always independent, and so never
    * share references to the same singleton instances.
    */
-
+  public Injector createChildInjector(Configuration...configurations);
 }

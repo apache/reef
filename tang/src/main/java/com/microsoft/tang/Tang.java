@@ -1,8 +1,5 @@
 package com.microsoft.tang;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.implementation.TangImpl;
 
@@ -13,17 +10,16 @@ public interface Tang {
    * 
    * @param confs
    * @return
-   * @throws BindException
+   * @throws BindException If the confs conflict, a BindException will be thrown.
    */
-  public Injector newInjector(final Configuration... confs);
+  public Injector newInjector(final Configuration... confs) throws BindException;
 
   /**
    * Create a new ConfigurationBuilder
    * 
    * @return a new ConfigurationBuilder
    */
-  public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loader)
-      throws BindException;
+  public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loader);
 
   /**
    * Access to a ConfigurationBuilderImpl implementation

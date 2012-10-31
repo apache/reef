@@ -776,15 +776,6 @@ public class TypeHierarchy {
       return name == null ? type.getName() : name.value().getName();
     }
 
-    // TODO: Delete this method if we finalize the "class as name" approach to
-    // named parameters
-    /*
-     * String getFullyQualifiedName(Class<?> targetClass) { String name =
-     * getName(); if (!name.contains(".")) { name = targetClass.getName() + "."
-     * + name; throw new IllegalStateException("Should be dead code now!"); }
-     * return name; }
-     */
-
     ConstructorArg(Class<?> argType) {
       this.type = argType;
       this.name = null;
