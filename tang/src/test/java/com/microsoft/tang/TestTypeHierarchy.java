@@ -12,6 +12,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.TypeHierarchy;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
@@ -30,7 +31,7 @@ public class TestTypeHierarchy {
         ns = null;
     }
     @Test
-    public void testJavaString() throws NameResolutionException {
+    public void testJavaString() throws NameResolutionException, BindException {
         ns.register(String.class);
         Assert.assertNotNull(ns.getNode("java"));
         Assert.assertNotNull(ns.getNode("java.lang"));
@@ -50,7 +51,7 @@ public class TestTypeHierarchy {
         }
     }
     @Test
-    public void testSimpleConstructors() throws NameResolutionException {
+    public void testSimpleConstructors() throws NameResolutionException, BindException {
         ns.register(SimpleConstructors.class);
         Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
         ClassNode<?> cls = (ClassNode<?>)ns.getNode(SimpleConstructors.class);
@@ -60,41 +61,40 @@ public class TestTypeHierarchy {
         
     }
     @Test
-    public void testNamedParameterConstructors() {
+    public void testNamedParameterConstructors() throws BindException {
         ns.register(NamedParameterConstructors.class);
     }
-    @Test(expected = UnsupportedOperationException.class)
-    public void testArray() {
+    @Test(expected = BindException.class)
+    public void testArray() throws BindException {
         ns.register(new String[0].getClass());
     }
     @Test
-    public void testMetadata() throws NameResolutionException {
+    public void testMetadata() throws NameResolutionException, BindException {
         ns.register(Metadata.class);
         Assert.assertNotNull(ns.getNode(Metadata.class));
         Assert.assertFalse(ns.getNode("foo.bar") instanceof NamedParameterNode);
         Assert.assertTrue(ns.getNode("foo.bar.Quuz") instanceof NamedParameterNode);
         Assert.assertTrue(((ClassNode<?>)ns.getNode(Metadata.class)).getIsPrefixTarget());
     }
-    @Test(expected = IllegalArgumentException.class)
-    public void testRepeatConstructorArg() {
+    @Test(expected = BindException.class)
+    public void testRepeatConstructorArg() throws BindException {
         ns.register(RepeatConstructorArg.class);
     }
     @Test
-    public void testResolveDependencies() throws NameResolutionException {
+    public void testResolveDependencies() throws NameResolutionException, BindException {
         ns.register(SimpleConstructors.class);
         Assert.assertNotNull(ns.getNode(String.class));
     }
     @Test
-    public void testDocumentedLocalNamedParameter() {
+    public void testDocumentedLocalNamedParameter() throws BindException {
       ns.register(DocumentedLocalNamedParameter.class);
     }
-    // TODO need better exception type for conflicting named parameters
-    @Test(expected = IllegalArgumentException.class)
-    public void testConflictingLocalNamedParameter() {
+    @Test(expected = BindException.class)
+    public void testConflictingLocalNamedParameter() throws BindException {
       ns.register(ConflictingLocalNamedParameter.class);
     }
     @Test
-    public void testInconvenientNamespaceRegistrationOrder() throws NameResolutionException {
+    public void testInconvenientNamespaceRegistrationOrder() throws NameResolutionException, BindException {
       ns.register(InconvenientNamespaceRegistrationOrder1.class);
       Assert.assertTrue(ns.getNode("a.b") instanceof NamespaceNode);
       ns.register(InconvenientNamespaceRegistrationOrder2.class);

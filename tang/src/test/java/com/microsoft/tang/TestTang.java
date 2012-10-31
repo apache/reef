@@ -26,6 +26,7 @@ public class TestTang {
   public void testSingleton() throws BindException, InjectionException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
+    t.register(TwoSingletons.class);
     tang.newInjector(t.build()).getInstance(TwoSingletons.class);
   }
 
@@ -33,11 +34,12 @@ public class TestTang {
   public void testNotSingleton() throws NameResolutionException,
       ReflectiveOperationException, BindException, InjectionException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
+    t.register(TwoSingletons.class);
     InjectorImpl injector = new InjectorImpl(((ConfigurationBuilderImpl)t).build());
     injector.getInstance(TwoSingletons.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = BindException.class)
   public void testRepeatedAmbiguousArgs() throws BindException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     ((ConfigurationBuilderImpl)t).register(RepeatedAmbiguousArgs.class);

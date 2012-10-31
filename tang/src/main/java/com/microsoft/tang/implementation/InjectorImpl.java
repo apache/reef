@@ -58,7 +58,7 @@ public class InjectorImpl implements Injector {
     try {
       n = tc.namespace.getNode(name);
     } catch (NameResolutionException e) {
-      throw new IllegalArgumentException("Unregistered class", e);
+      throw new IllegalArgumentException("Unregistered class" + name, e);
     }
     final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
@@ -158,7 +158,6 @@ public class InjectorImpl implements Injector {
 
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
-    tc.namespace.register(clazz);
     if (!tc.sealed) {
       tc.sealed = true;
       for (ClassNode<?> cn : tc.singletons) {
@@ -218,9 +217,16 @@ public class InjectorImpl implements Injector {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> InjectorImpl bindVolatileInstance(Class<T> c, T o) {
+  public <T> InjectorImpl bindVolatileInstance(Class<T> c, T o)
+      throws InjectionException {
     tc.dirtyBit = true;
-    Node n = tc.namespace.register(c);
+    Node n;
+    try {
+      n = tc.namespace.getNode(c);
+    } catch(NameResolutionException e) {
+      // TODO Unit test for bindVolatileInstance to unknown class.
+      throw new InjectionException("Can't bind to unknown class " + c, e);
+    }
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<T> np = (NamedParameterNode<T>) n;
       tc.namedParameterInstances.put(np, o);
@@ -252,7 +258,11 @@ public class InjectorImpl implements Injector {
     for (Entry<ClassNode<?>, Object> e : tc.singletonInstances.entrySet()) {
       @SuppressWarnings("unchecked")
       Class<Object> clazz = (Class<Object>) e.getKey().getClazz();
-      i.bindVolatileInstance(clazz, e.getValue());
+      try {
+        i.bindVolatileInstance(clazz, e.getValue());
+      } catch(InjectionException f) {
+        throw new IllegalStateException("Could not copy reference to volatile instance.", f.getCause());
+      }
     }
     return i;
   }

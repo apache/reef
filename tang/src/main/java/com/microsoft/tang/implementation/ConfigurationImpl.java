@@ -5,11 +5,9 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ExternalConstructor;
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
@@ -26,10 +24,24 @@ public class ConfigurationImpl implements Configuration {
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
+  final ClassLoader[] loaders;
+  
+  Class<?> classForName(String name) throws ClassNotFoundException {
+    if(loaders != null) {
+        for(ClassLoader loader : loaders) {
+        try {
+          return loader.loadClass(name);
+        } catch(ClassNotFoundException e) { }
+      }
+    }
+    return Class.forName(name);
+  }
+  
   boolean sealed = false;
   boolean dirtyBit = false;
 
   
+  public final static String IMPORT = "import";
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
 
@@ -37,6 +49,13 @@ public class ConfigurationImpl implements Configuration {
 //    if(dirtyBit) { throw new IllegalStateException("Can't build ConfigurationImpl from dirty ConfigurationBuilderImpl object!"); }
 //    this = new ConfigurationBuilderImpl(tang);
 //  }
+
+  public ConfigurationImpl() {
+    this.loaders = null;
+  }
+  public ConfigurationImpl(ClassLoader[] loaders) {
+    this.loaders = loaders;
+  }
 
   public InjectorImpl injector() {
     return new InjectorImpl(this);
@@ -93,18 +112,5 @@ public class ConfigurationImpl implements Configuration {
       ret.put(opt.getFullName(), SINGLETON);
     }
     return ret;
-  }
-  static public Configuration processConfiguration(Map<String, String> conf) throws BindException, ClassNotFoundException {
-    ConfigurationBuilderImpl t = new ConfigurationBuilderImpl();
-    for(Entry<String,String> e : conf.entrySet()) {
-      if(SINGLETON.equals(e.getValue())) {
-        t.bindSingleton(Class.forName(e.getKey()));
-      } else if(REGISTERED.equals(e.getValue())) {
-        t.register(Class.forName(e.getKey()));
-      } else {
-        t.bind(e.getKey(), e.getValue());
-      }
-    }
-    return t.build();
   }
 }
