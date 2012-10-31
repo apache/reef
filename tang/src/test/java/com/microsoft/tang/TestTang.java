@@ -25,18 +25,15 @@ public class TestTang {
   }
 
   @Test
-  public void testSingleton() throws NameResolutionException,
-      ReflectiveOperationException,
-      InjectionException {
+  public void testSingleton() throws BindException, InjectionException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
     tang.newInjector(t.build()).getInstance(TwoSingletons.class);
   }
 
-  @Test(expected = InvocationTargetException.class)
+  @Test(expected = InjectionException.class)
   public void testNotSingleton() throws NameResolutionException,
-      ReflectiveOperationException,
-      InjectionException {
+      ReflectiveOperationException, BindException, InjectionException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     InjectorImpl injector = new InjectorImpl(((ConfigurationBuilderImpl)t).build());
     injector.getInstance(TwoSingletons.class);
@@ -49,10 +46,7 @@ public class TestTang {
   }
 
   @Test
-  public void testRepeatedOKArgs() throws NameResolutionException,
-      ReflectiveOperationException,
-      BindException,
-      InjectionException {
+  public void testRepeatedOKArgs() throws BindException, InjectionException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindNamedParameter(RepeatedNamedArgs.A.class, "1");
     t.bindNamedParameter(RepeatedNamedArgs.B.class, "2");
