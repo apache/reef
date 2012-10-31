@@ -1,6 +1,7 @@
 package com.microsoft.tang;
 
 import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
@@ -42,11 +43,12 @@ public interface Injector {
    * @return A copy of this injector that reflects the new binding.
    * @throws NameResolutionException
    */
-  public <T> Injector bindVolatialeInstance(Class<T> iface, T inst)
+  public <T> Injector bindVolatileInstance(Class<T> iface, T inst)
       throws InjectionException;
+
   /**
    * Create a new child Injector that inherits the singleton instances created
-   * by this Injector, but reflects additional Configuration objects.  This can
+   * by this Injector, but reflects additional Configuration objects. This can
    * be used to create trees of Injectors that obey hierarchical scoping rules.
    * 
    * Except for the fact that the child Injector will have references to this
@@ -55,6 +57,11 @@ public interface Injector {
    * and then using the merged Configuration to create an Injector. Injectors
    * returned by ConfigurationBuilders are always independent, and so never
    * share references to the same singleton instances.
+   * 
+   * @throws BindException
+   *           If any of the configurations conflict with each other, or the
+   *           existing Injector's Configuration.
    */
-  public Injector createChildInjector(Configuration...configurations);
+  public Injector createChildInjector(Configuration... configurations)
+      throws BindException;
 }
