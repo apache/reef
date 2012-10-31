@@ -1,7 +1,5 @@
 package com.microsoft.tang;
 
-import java.lang.reflect.InvocationTargetException;
-
 import javax.inject.Inject;
 
 import org.junit.Before;

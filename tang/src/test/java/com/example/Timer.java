@@ -2,7 +2,6 @@ package com.example;
 
 import javax.inject.Inject;
 
-import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -11,7 +10,6 @@ import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.implementation.InjectorImpl;
-import com.microsoft.tang.implementation.TypeHierarchy;
 
 public class Timer {
   @NamedParameter(default_value="10",

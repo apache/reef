@@ -42,7 +42,7 @@
     </plugins>
     </build>
     <dependencies>
-        <dependency>
+<!--        <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-asl</artifactId>
                 <version>1.9.9</version>
@@ -56,7 +56,7 @@
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-xc</artifactId>
                 <version>1.9.9</version>
-        </dependency>
+        </dependency> -->
         <dependency>
                 <groupId>commons-configuration</groupId>
                 <artifactId>commons-configuration</artifactId>
