@@ -163,12 +163,17 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    */
   @Override
   public <T> void processCommandLine(String[] args) throws IOException,
-    BindException, ParseException {
+    BindException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
     o.addOption(helpFlag);
     Parser g = new GnuParser();
-    CommandLine cl = g.parse(o, args);
+    CommandLine cl;
+    try {
+      cl = g.parse(o, args);
+    } catch(ParseException e) {
+      throw new IOException("Could not parse config file", e);
+    }
     if (cl.hasOption("?")) {
       HelpFormatter help = new HelpFormatter();
       help.printHelp("reef", o);

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
@@ -115,8 +114,8 @@ public interface ConfigurationBuilder {
    * @throws NumberFormatException
    * @throws ParseException
    */
-  public <T> void processCommandLine(String[] args) throws BindException, IOException, ParseException;
+  public <T> void processCommandLine(String[] args) throws BindException, IOException;
 
   public void processConfigFile(final File istream) throws IOException,
-      BindException, ParseException;
+      BindException;
 }
