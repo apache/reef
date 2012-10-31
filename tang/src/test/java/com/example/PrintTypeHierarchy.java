@@ -11,6 +11,5 @@ public class PrintTypeHierarchy {
       ns.register(ReflectionUtilities.classForName(s));
     }
     System.out.print(ns.toPrettyString());
-    ns.writeJson(System.out);
   }
 }

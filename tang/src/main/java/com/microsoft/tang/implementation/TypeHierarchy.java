@@ -1,7 +1,5 @@
 package com.microsoft.tang.implementation;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -16,10 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -364,12 +358,6 @@ public class TypeHierarchy {
    */
   public String toPrettyString() {
     return namespace.toIndentedString(0);
-  }
-
-  public void writeJson(OutputStream out) throws JsonGenerationException,
-      JsonMappingException, IOException {
-    ObjectMapper map = new ObjectMapper();
-    map.defaultPrettyPrintingWriter().writeValue(out, this);
   }
 
   public abstract class Node {
