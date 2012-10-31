@@ -244,10 +244,15 @@ public class TypeHierarchy {
       ClassNode<?> cls = (ClassNode<?>) n;
       for (ConstructorDef<?> def : cls.injectableConstructors) {
         for (ConstructorArg arg : def.args) {
-          try {
-            getNode(arg.type);
-          } catch (NameResolutionException e) {
-            register(arg.type);
+          register(arg.type);
+          if(arg.name != null) {
+            NamedParameterNode<?> np = (NamedParameterNode<?>)register(arg.name.value());
+            if(!ReflectionUtilities.isCoercable(arg.type, np.getArgClass())) {
+              throw new IllegalArgumentException(
+                  "Incompatible argument type.  Constructor expects "
+                      + arg.type + " but " + np.getName() + " is a "
+                      + np.getArgClass());
+            }
           }
         }
       }
@@ -547,26 +552,6 @@ public class TypeHierarchy {
               Annotation annotation = paramAnnotations[i][j];
               if (annotation instanceof Parameter) {
                 named = (Parameter) annotation;
-                // Register the Parameter type, if necessary.
-                Node n;
-                try {
-                  n = getNode(named.value());
-                } catch (NameResolutionException e) {
-                  // TODO want to get rid of hacky buildPathToNode call; move
-                  // static checks to new phase of register().
-                  n = buildPathToNode(named.value(), false);
-                }
-                if (!(n instanceof NamedParameterNode)) {
-                  throw new IllegalStateException();
-                }
-                NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-                if (!ReflectionUtilities
-                    .isCoercable(paramTypes[i], np.argClass)) {
-                  throw new IllegalArgumentException(
-                      "Incompatible argument type.  Constructor expects "
-                          + paramTypes[i] + " but " + np.name + " is a "
-                          + np.argClass);
-                }
               }
             }
             args[i] = new ConstructorArg(paramTypes[i], named);

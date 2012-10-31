@@ -27,6 +27,29 @@ public interface ConfigurationBuilder {
   public void addConfiguration(final Configuration c) throws BindException;
 
   /**
+   * Ask Tang to register a class. This does not create any new bindings, but
+   * has a number important side effects.
+   * 
+   * In particular, it causes any @Namespace and @NamedParameter annotations to
+   * be processed, which, in turn makes the Namespace available to configuration
+   * files, and makes any short_names defined by the @NamedParameter annotations
+   * to become available to command line parsers.
+   * 
+   * When registering a class, Tang transitively registers any enclosing and
+   * enclosed classes as well.  So, if you have one class with that contains many
+   * \@NamedParameter classes, you only need to call register on the enclosing
+   * class.
+   * 
+   * In addition to registering the class, this method also checks to make sure
+   * the class is consistent with itself and the rest of the Tang classes that
+   * have been registered.
+   * 
+   * @param c
+   * @throws BindException
+   */
+  public void register(Class<?> c) throws BindException;
+
+  /**
    * Bind classes to each other, based on their full class names.
    * 
    * @param iface
@@ -110,11 +133,12 @@ public interface ConfigurationBuilder {
 
   /**
    * @param args
-   * @throws IOException 
+   * @throws IOException
    * @throws NumberFormatException
    * @throws ParseException
    */
-  public <T> void processCommandLine(String[] args) throws BindException, IOException;
+  public <T> void processCommandLine(String[] args) throws BindException,
+      IOException;
 
   public void processConfigFile(final File istream) throws IOException,
       BindException;

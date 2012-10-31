@@ -107,7 +107,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    * 
    * @param c
    */
-  public void register(Class<?> c) {
+  @Override
+  public void register(Class<?> c) throws BindException {
     conf.namespace.register(c);
   }
 
