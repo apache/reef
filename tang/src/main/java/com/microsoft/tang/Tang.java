@@ -18,17 +18,6 @@ public interface Tang {
   public Injector newInjector(final Configuration... confs);
 
   /**
-   * Reads a configuration from an InputStream
-   * 
-   * @param istream
-   * @return
-   * @throws IOException
-   * @deprecated
-   */
-  public Configuration configurationFromStream(final InputStream istream)
-      throws IOException;
-
-  /**
    * Create a new ConfigurationBuilder
    * 
    * @return a new ConfigurationBuilder
