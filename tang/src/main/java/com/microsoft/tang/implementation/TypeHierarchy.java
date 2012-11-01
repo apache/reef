@@ -5,11 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,21 +18,21 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TypeHierarchy {
-  // TODO: Want to add a "register namespace" method, but Java is not designed
+  // TODO Want to add a "register namespace" method, but Java is not designed
   // to support such things.
   // There are third party libraries that would help, but they can fail if the
   // relevant jar has not yet been loaded.
 
-  // TODO: TypeHierarchy should use monotonic data structures.
   private final PackageNode namespace;
-  final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
-  // TODO: Monotonic multi-map
-  private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new HashMap<ClassNode<?>, List<ClassNode<?>>>();
-  private final Map<String, NamedParameterNode<?>> shortNames = new HashMap<String, NamedParameterNode<?>>();
+  private final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
+  private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
+  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
   final static String regexp = "[\\.\\$]";
 
   public TypeHierarchy() {
@@ -108,7 +105,7 @@ public class TypeHierarchy {
           (Class<? extends Name<T>>) clazz);
       String shortName = np.getShortName();
       if (shortName != null) {
-        NamedParameterNode<?> oldNode = shortNames.put(shortName, np);
+        NamedParameterNode<?> oldNode = shortNames.get(shortName);
         if (oldNode != null) {
           if (oldNode.getNameClass() == np.getNameClass()) {
             throw new IllegalStateException("Tried to double bind "
@@ -119,6 +116,7 @@ public class TypeHierarchy {
               + " and " + np.getNameClass() + " have the same short name: "
               + shortName);
         }
+        shortNames.put(shortName, np);
       }
       return np;
     }
@@ -255,7 +253,7 @@ public class TypeHierarchy {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.name
                 .value());
             if (!ReflectionUtilities.isCoercable(arg.type, np.getArgClass())) {
-              // TODO unit test for incompatible named parameter type +
+              // TODO: unit test for incompatible named parameter type +
               // constructor type
               throw new BindException(
                   "Incompatible argument type.  Constructor expects "
@@ -288,9 +286,6 @@ public class TypeHierarchy {
     } catch (NameResolutionException e) {
     }
 
-    // TODO: Constructor arguments can pull in classes. The walk of
-    // those dependencies belongs in register(), but is in buildPathToNode
-    // instead.
     final Namespace nsAnnotation = c.getAnnotation(Namespace.class);
     final Node n;
     if (nsAnnotation == null) {
@@ -329,24 +324,30 @@ public class TypeHierarchy {
 
   private <T, U extends T> void putImpl(ClassNode<T> superclass,
       ClassNode<U> impl) {
-    List<ClassNode<?>> s = knownImpls.get(superclass);
-    if (s == null) {
-      s = new ArrayList<ClassNode<?>>();
-      knownImpls.put(superclass, s);
-    }
-    if (!s.contains(impl)) {
-      s.add(impl);
-    }
+    knownImpls.put(superclass,  impl);
+//    List<ClassNode<?>> s = knownImpls.get(superclass);
+//    if (s == null) {
+//      s = new ArrayList<ClassNode<?>>();
+//      knownImpls.put(superclass, s);
+//    }
+//    if (!s.contains(impl)) {
+//      s.add(impl);
+//    }
   }
 
   @SuppressWarnings("unchecked")
   <T> ClassNode<T>[] getKnownImpls(ClassNode<T> c) {
-    List<ClassNode<?>> l = knownImpls.get(c);
+    return knownImpls.getValuesForKey(c).toArray(new ClassNode[0]);
+/*    List<ClassNode<?>> l = knownImpls.get(c);
     if (l != null) {
       return (ClassNode<T>[]) l.toArray(new ClassNode[0]);
     } else {
       return (ClassNode<T>[]) new ClassNode[0];
-    }
+    } */
+  }
+
+  public Set<Class<?>> getRegisteredClasses() {
+    return registeredClasses;
   }
 
   public PackageNode getNamespace() {
@@ -383,7 +384,7 @@ public class TypeHierarchy {
       }
     }
 
-    public Map<String, Node> children = new HashMap<String, Node>();
+    public Map<String, Node> children = new MonotonicMap<String, Node>();
 
     Node(Node parent, Class<?> name) {
       this.parent = parent;
@@ -410,11 +411,7 @@ public class TypeHierarchy {
     }
 
     void put(Node n) {
-      Node old = children.put(n.name, n);
-      if (old != null) {
-        throw new IllegalStateException(
-            "Attempt to register node that already exists!");
-      }
+      children.put(n.name, n);
     }
 
     public String toIndentedString(int level) {
@@ -508,7 +505,7 @@ public class TypeHierarchy {
 
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
-      List<ConstructorDef<T>> injectableConstructors = new ArrayList<ConstructorDef<T>>();
+      MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<ConstructorDef<T>>();
 
       for (int k = 0; k < constructors.length; k++) {
 
@@ -644,7 +641,7 @@ public class TypeHierarchy {
       for (Constructor<?> c : clazz.getDeclaredConstructors()) {
         for (Annotation a : c.getDeclaredAnnotations()) {
           if (a instanceof Inject) {
-            // TODO unit test for Injectable NamedParameter annotation,
+            // TODO: unit test for Injectable NamedParameter annotation,
             throw new BindException("Named Parameter " + clazz.getName()
                 + " has @Injectable constructor.  This is not allowed.");
           }
@@ -660,7 +657,7 @@ public class TypeHierarchy {
         if (genericNameType instanceof ParameterizedType) {
           ParameterizedType ptype = (ParameterizedType) genericNameType;
           if (ptype.getRawType() != Name.class) {
-            // TODO unit test for non Name<?> NamedParameter annotation,
+            // TODO: unit test for non Name<?> NamedParameter annotation,
             throw new BindException("@NamedParameter class " + clazz.getName()
                 + " does not implement Name<?>");
           }
@@ -675,7 +672,7 @@ public class TypeHierarchy {
             }
             parameterClass = (Class<T>) t;
           } catch (ClassCastException e) {
-            // TODO: Torture this logic with strange Name<> generic types.
+            // TODO: Unit test to torture this logic with strange Name<> generic types.
             throw new IllegalArgumentException();
           }
         } else {
@@ -819,7 +816,7 @@ public class TypeHierarchy {
       for (int i = 0; i < this.args.length; i++) {
         for (int j = i + 1; j < this.args.length; j++) {
           if (this.args[i].toString().equals(this.args[j].toString())) {
-            // TODO Unit test repeated constructor arg
+            // TODO: Unit test repeated constructor arg
             throw new BindException(
                 "Repeated constructor parameter detected.  "
                     + "Cannot inject this constructor.");

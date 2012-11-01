@@ -224,7 +224,7 @@ public class InjectorImpl implements Injector {
     try {
       n = tc.namespace.getNode(c);
     } catch(NameResolutionException e) {
-      // TODO Unit test for bindVolatileInstance to unknown class.
+      // TODO: Unit test for bindVolatileInstance to unknown class.
       throw new InjectionException("Can't bind to unknown class " + c, e);
     }
     if (n instanceof NamedParameterNode) {

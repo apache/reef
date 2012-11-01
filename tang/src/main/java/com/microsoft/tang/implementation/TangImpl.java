@@ -13,7 +13,6 @@ public class TangImpl implements Tang {
     return new InjectorImpl(new ConfigurationBuilderImpl(confs).build());
   }
 
-  // TODO: implement classloader support for tang.
   @Override
   public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loaders) {
     return new ConfigurationBuilderImpl(loaders);

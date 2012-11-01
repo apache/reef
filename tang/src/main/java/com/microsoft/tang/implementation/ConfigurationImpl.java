@@ -96,7 +96,7 @@ public class ConfigurationImpl implements Configuration {
     }
 
     Map<String, String> ret = new HashMap<String, String>();
-    for (Class<?> opt : namespace.registeredClasses) {
+    for (Class<?> opt : namespace.getRegisteredClasses()) {
       ret.put(opt.getName(), REGISTERED);
     }
     for (Node opt : boundImpls.keySet()) {
