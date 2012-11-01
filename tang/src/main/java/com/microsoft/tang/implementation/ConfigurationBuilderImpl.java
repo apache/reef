@@ -191,7 +191,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  @Override
   public <T> void bind(String key, String value) throws ClassNotFoundException,
       BindException {
     if (conf.sealed)
@@ -209,7 +208,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  @Override
   @SuppressWarnings("unchecked")
   public <T> void bind(Class<T> c, Class<?> val) throws BindException {
     if (ExternalConstructor.class.isAssignableFrom(val)

@@ -50,25 +50,6 @@ public interface ConfigurationBuilder {
   public void register(Class<?> c) throws BindException;
 
   /**
-   * Bind classes to each other, based on their full class names.
-   * 
-   * @param iface
-   * @param impl
-   * @throws ClassNotFoundException
-   */
-  public <T> void bind(String iface, String impl)
-      throws ClassNotFoundException, BindException;
-
-  /**
-   * Bind named parameters, implementations or external constructors, depending
-   * on the types of the classes passed in.
-   * 
-   * @param iface
-   * @param impl
-   */
-  public <T> void bind(Class<T> iface, Class<?> impl) throws BindException;
-
-  /**
    * Binds the Class impl as the implementation of the interface iface
    * 
    * @param <T>
