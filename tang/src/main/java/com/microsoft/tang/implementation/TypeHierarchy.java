@@ -5,10 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +19,7 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
@@ -33,7 +32,7 @@ public class TypeHierarchy {
   private final PackageNode namespace;
   final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
   // TODO: Monotonic multi-map
-  private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new MonotonicMap<ClassNode<?>, List<ClassNode<?>>>();
+  private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
   final static String regexp = "[\\.\\$]";
 
@@ -329,24 +328,26 @@ public class TypeHierarchy {
 
   private <T, U extends T> void putImpl(ClassNode<T> superclass,
       ClassNode<U> impl) {
-    List<ClassNode<?>> s = knownImpls.get(superclass);
-    if (s == null) {
-      s = new ArrayList<ClassNode<?>>();
-      knownImpls.put(superclass, s);
-    }
-    if (!s.contains(impl)) {
-      s.add(impl);
-    }
+    knownImpls.put(superclass,  impl);
+//    List<ClassNode<?>> s = knownImpls.get(superclass);
+//    if (s == null) {
+//      s = new ArrayList<ClassNode<?>>();
+//      knownImpls.put(superclass, s);
+//    }
+//    if (!s.contains(impl)) {
+//      s.add(impl);
+//    }
   }
 
   @SuppressWarnings("unchecked")
   <T> ClassNode<T>[] getKnownImpls(ClassNode<T> c) {
-    List<ClassNode<?>> l = knownImpls.get(c);
+    return knownImpls.getValuesForKey(c).toArray(new ClassNode[0]);
+/*    List<ClassNode<?>> l = knownImpls.get(c);
     if (l != null) {
       return (ClassNode<T>[]) l.toArray(new ClassNode[0]);
     } else {
       return (ClassNode<T>[]) new ClassNode[0];
-    }
+    } */
   }
 
   public PackageNode getNamespace() {
@@ -504,7 +505,7 @@ public class TypeHierarchy {
 
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
-      List<ConstructorDef<T>> injectableConstructors = new ArrayList<ConstructorDef<T>>();
+      MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<ConstructorDef<T>>();
 
       for (int k = 0; k < constructors.length; k++) {
 
