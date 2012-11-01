@@ -7,7 +7,6 @@ import org.apache.commons.cli.Option;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl.CommandLineCallback;
 import com.microsoft.tang.ExternalConstructor;
@@ -116,7 +115,7 @@ public interface ConfigurationBuilder {
    * @throws NameResolutionException
    */
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value)
-      throws BindException, InjectionException;
+      throws BindException;
 
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
