@@ -24,14 +24,13 @@ import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TypeHierarchy {
-  // TODO: Want to add a "register namespace" method, but Java is not designed
+  // TODO Want to add a "register namespace" method, but Java is not designed
   // to support such things.
   // There are third party libraries that would help, but they can fail if the
   // relevant jar has not yet been loaded.
 
   private final PackageNode namespace;
-  final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
-  // TODO: Monotonic multi-map
+  private final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
   private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
   final static String regexp = "[\\.\\$]";
@@ -254,7 +253,7 @@ public class TypeHierarchy {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.name
                 .value());
             if (!ReflectionUtilities.isCoercable(arg.type, np.getArgClass())) {
-              // TODO unit test for incompatible named parameter type +
+              // TODO: unit test for incompatible named parameter type +
               // constructor type
               throw new BindException(
                   "Incompatible argument type.  Constructor expects "
@@ -287,9 +286,6 @@ public class TypeHierarchy {
     } catch (NameResolutionException e) {
     }
 
-    // TODO: Constructor arguments can pull in classes. The walk of
-    // those dependencies belongs in register(), but is in buildPathToNode
-    // instead.
     final Namespace nsAnnotation = c.getAnnotation(Namespace.class);
     final Node n;
     if (nsAnnotation == null) {
@@ -348,6 +344,10 @@ public class TypeHierarchy {
     } else {
       return (ClassNode<T>[]) new ClassNode[0];
     } */
+  }
+
+  public Set<Class<?>> getRegisteredClasses() {
+    return registeredClasses;
   }
 
   public PackageNode getNamespace() {
@@ -641,7 +641,7 @@ public class TypeHierarchy {
       for (Constructor<?> c : clazz.getDeclaredConstructors()) {
         for (Annotation a : c.getDeclaredAnnotations()) {
           if (a instanceof Inject) {
-            // TODO unit test for Injectable NamedParameter annotation,
+            // TODO: unit test for Injectable NamedParameter annotation,
             throw new BindException("Named Parameter " + clazz.getName()
                 + " has @Injectable constructor.  This is not allowed.");
           }
@@ -657,7 +657,7 @@ public class TypeHierarchy {
         if (genericNameType instanceof ParameterizedType) {
           ParameterizedType ptype = (ParameterizedType) genericNameType;
           if (ptype.getRawType() != Name.class) {
-            // TODO unit test for non Name<?> NamedParameter annotation,
+            // TODO: unit test for non Name<?> NamedParameter annotation,
             throw new BindException("@NamedParameter class " + clazz.getName()
                 + " does not implement Name<?>");
           }
@@ -672,7 +672,7 @@ public class TypeHierarchy {
             }
             parameterClass = (Class<T>) t;
           } catch (ClassCastException e) {
-            // TODO: Torture this logic with strange Name<> generic types.
+            // TODO: Unit test to torture this logic with strange Name<> generic types.
             throw new IllegalArgumentException();
           }
         } else {
@@ -816,7 +816,7 @@ public class TypeHierarchy {
       for (int i = 0; i < this.args.length; i++) {
         for (int j = i + 1; j < this.args.length; j++) {
           if (this.args[i].toString().equals(this.args[j].toString())) {
-            // TODO Unit test repeated constructor arg
+            // TODO: Unit test repeated constructor arg
             throw new BindException(
                 "Repeated constructor parameter detected.  "
                     + "Cannot inject this constructor.");

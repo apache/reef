@@ -69,7 +69,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           "Cannot copy a dirty ConfigurationBuilderImpl");
     }
     try {
-      for (Class<?> c : t.namespace.registeredClasses) {
+      for (Class<?> c : t.namespace.getRegisteredClasses()) {
         register(c);
       }
       // Note: The commented out lines would be faster, but, for testing
