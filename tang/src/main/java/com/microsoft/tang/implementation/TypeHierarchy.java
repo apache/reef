@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +20,7 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
@@ -30,12 +30,11 @@ public class TypeHierarchy {
   // There are third party libraries that would help, but they can fail if the
   // relevant jar has not yet been loaded.
 
-  // TODO: TypeHierarchy should use monotonic data structures.
   private final PackageNode namespace;
   final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
   // TODO: Monotonic multi-map
-  private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new HashMap<ClassNode<?>, List<ClassNode<?>>>();
-  private final Map<String, NamedParameterNode<?>> shortNames = new HashMap<String, NamedParameterNode<?>>();
+  private final Map<ClassNode<?>, List<ClassNode<?>>> knownImpls = new MonotonicMap<ClassNode<?>, List<ClassNode<?>>>();
+  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
   final static String regexp = "[\\.\\$]";
 
   public TypeHierarchy() {
@@ -108,7 +107,7 @@ public class TypeHierarchy {
           (Class<? extends Name<T>>) clazz);
       String shortName = np.getShortName();
       if (shortName != null) {
-        NamedParameterNode<?> oldNode = shortNames.put(shortName, np);
+        NamedParameterNode<?> oldNode = shortNames.get(shortName);
         if (oldNode != null) {
           if (oldNode.getNameClass() == np.getNameClass()) {
             throw new IllegalStateException("Tried to double bind "
@@ -119,6 +118,7 @@ public class TypeHierarchy {
               + " and " + np.getNameClass() + " have the same short name: "
               + shortName);
         }
+        shortNames.put(shortName, np);
       }
       return np;
     }
@@ -383,7 +383,7 @@ public class TypeHierarchy {
       }
     }
 
-    public Map<String, Node> children = new HashMap<String, Node>();
+    public Map<String, Node> children = new MonotonicMap<String, Node>();
 
     Node(Node parent, Class<?> name) {
       this.parent = parent;
@@ -410,11 +410,7 @@ public class TypeHierarchy {
     }
 
     void put(Node n) {
-      Node old = children.put(n.name, n);
-      if (old != null) {
-        throw new IllegalStateException(
-            "Attempt to register node that already exists!");
-      }
+      children.put(n.name, n);
     }
 
     public String toIndentedString(int level) {
