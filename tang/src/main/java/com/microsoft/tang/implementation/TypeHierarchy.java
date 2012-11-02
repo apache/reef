@@ -39,11 +39,12 @@ public class TypeHierarchy {
     namespace = new PackageNode(null, "");
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "unused" })
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
       ClassNode<T> classNode) throws BindException {
     String[] path = conf.value().split(regexp);
     Node root = namespace;
+    // Search for the new node's parent, store it in root.
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
         Node newRoot = new NamespaceNode<T>(root, path[i]);
@@ -51,13 +52,19 @@ public class TypeHierarchy {
       } else {
         root = root.get(path[i]);
         if (!(root instanceof NamespaceNode)) {
-          // TODO: Unit test for namespace inside of package.
           throw new BindException("Attempt to register namespace inside of "
               + root + " namespaces and java packages/classes cannot overlap.");
         }
       }
     }
+    if(root instanceof NamespaceNode) {
+      Node target = ((NamespaceNode<?>)root).getTarget();
+      if(target != null) {
+        throw new BindException("Nested namespaces not implemented!");
+      }
+    }
     Node n = root.get(path[path.length - 1]);
+    // n points to the new node (if it exists)
     NamespaceNode<T> ret;
     if (n == null) {
       ret = new NamespaceNode<T>(root, path[path.length - 1], classNode);
@@ -65,17 +72,127 @@ public class TypeHierarchy {
       ret = (NamespaceNode<T>) n;
       ret.setTarget(classNode);
       for (Node child : ret.children.values()) {
-        // TODO: Better error message here. We're trying to merge two
-        // namespaces. If put throws an exception, it probably found a
-        // conflicting node name.
-        classNode.put(child);
+        if(true) {
+          // TODO: implement + test nested namespaces.
+          throw new BindException("Nested namespaces not implemented!");
+        } else {
+          // TODO: Better error message here. We're trying to merge two
+          // namespaces. If put throws an exception, it probably found a
+          // conflicting node name.
+          try {
+            classNode.put(child);
+          } catch (IllegalArgumentException e) {
+            throw new BindException("Merging children of namespace "
+                + ret.getFullName()
+                + " failed.  Detected conflicting uses of name "
+                + child.getFullName());
+          }
+        }
       }
     } else {
-      // TODO: Unit test for namespace colliding with java package.
       throw new BindException("Attempt to register namespace on top of " + n
           + " namespaces and java packages/classes cannot overlap.");
     }
     return ret;
+  }
+
+  /**
+   * @param clazz
+   * @return T if clazz implements Name<T>, null otherwise
+   * @throws BindException
+   *           If clazz's definition incorrectly uses Name or @NamedParameter
+   */
+  private Class<?> getNamedParameterTargetOrNull(Class<?> clazz)
+      throws BindException {
+    Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
+    boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
+
+    boolean isInjectable = false;
+    boolean hasConstructor = false;
+    // TODO Figure out how to properly differentiate between default and
+    // non-default zero-arg constructors?
+    Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+    if (constructors.length > 1) {
+      hasConstructor = true;
+    }
+    if (constructors.length == 1) {
+      Constructor<?> c = constructors[0];
+      Class<?>[] p = c.getParameterTypes();
+      if (p.length > 1) {
+        // Multiple args. Definitely not implicit.
+        hasConstructor = true;
+      } else if (p.length == 1) {
+        // One arg. Could be an inner class, in which case the compiler
+        // included an implicit one parameter constructor that takes the
+        // enclosing type.
+        if (p[0] != clazz.getEnclosingClass()) {
+          hasConstructor = true;
+        }
+      }
+    }
+    for (Constructor<?> c : constructors) {
+      for (Annotation a : c.getDeclaredAnnotations()) {
+        if (a instanceof Inject) {
+          isInjectable = true;
+        }
+      }
+    }
+
+    Class<?>[] allInterfaces = clazz.getInterfaces();
+    Type[] interfaces = clazz.getGenericInterfaces();
+
+    boolean hasMultipleInterfaces = (allInterfaces.length > 1);
+    boolean implementsName = false;
+    Class<?> parameterClass = null;
+    for (Type genericNameType : interfaces) {
+      if (genericNameType instanceof ParameterizedType) {
+        ParameterizedType ptype = (ParameterizedType) genericNameType;
+        if (ptype.getRawType() == Name.class) {
+          implementsName = true;
+          Type t = ptype.getActualTypeArguments()[0];
+          // It could be that the parameter is, itself a generic type. Not
+          // sure if we should support this, but we do for now.
+          if (t instanceof ParameterizedType) {
+            // Get the underlying raw type of the parameter.
+            t = ((ParameterizedType) t).getRawType();
+          }
+          parameterClass = (Class<?>) t;
+        }
+      }
+    }
+    if (npAnnotation == null) {
+      if (implementsName) {
+        throw new BindException(clazz
+            + " is missing its @NamedParameter annotation.");
+      } else {
+        return null;
+      }
+    } else {
+      if (!implementsName) {
+        throw new BindException("Found illegal @NamedParameter " + clazz
+            + " does not implement name");
+      }
+      if (hasSuperClass) {
+        throw new BindException("Named parameter " + clazz
+            + " has a superclass other than Object.");
+      }
+      if (hasConstructor || isInjectable) {
+        throw new BindException("Named parameter " + clazz + " has "
+            + (isInjectable ? "an injectable" : "a") + " constructor. "
+            + " Name parameters must not delcare any constructors.");
+      }
+      if (hasMultipleInterfaces) {
+        throw new BindException("Named parameter " + clazz + " implements "
+            + "multiple interfaces.  It is only allowed to implement Name<T>");
+      }
+      if (parameterClass == null) {
+        throw new BindException(
+            "Missing type parameter in named parameter declaration.  " + clazz
+                + " implements raw type Name, but must implement"
+                + " generic type Name<T>.");
+      }
+      return parameterClass;
+    }
   }
 
   private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget)
@@ -91,18 +208,19 @@ public class TypeHierarchy {
     }
     Node parent = root;
 
-    if (clazz.getAnnotation(NamedParameter.class) == null) {
+    Class<?> argType = getNamedParameterTargetOrNull(clazz);
+
+    if (argType == null) {
       return new ClassNode<U>(parent, clazz, isPrefixTarget, false);
     } else {
       if (isPrefixTarget) {
-        // TODO: Unit test for @Namespace @NamedParameter on same class
         throw new BindException(clazz
             + " cannot be both a namespace and parameter.");
       }
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
       NamedParameterNode<T> np = new NamedParameterNode<T>(parent,
-          (Class<? extends Name<T>>) clazz);
+          (Class<? extends Name<T>>) clazz, (Class<T>) argType);
       String shortName = np.getShortName();
       if (shortName != null) {
         NamedParameterNode<?> oldNode = shortNames.get(shortName);
@@ -111,7 +229,6 @@ public class TypeHierarchy {
             throw new IllegalStateException("Tried to double bind "
                 + oldNode.getNameClass() + " to short name " + shortName);
           }
-          // TODO: Unit test for conflicting short names
           throw new BindException("Named parameters " + oldNode.getNameClass()
               + " and " + np.getNameClass() + " have the same short name: "
               + shortName);
@@ -253,8 +370,6 @@ public class TypeHierarchy {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.name
                 .value());
             if (!ReflectionUtilities.isCoercable(arg.type, np.getArgClass())) {
-              // TODO: unit test for incompatible named parameter type +
-              // constructor type
               throw new BindException(
                   "Incompatible argument type.  Constructor expects "
                       + arg.type + " but " + np.getName() + " is a "
@@ -293,7 +408,6 @@ public class TypeHierarchy {
     } else {
       n = buildPathToNode(c, true);
       if (n instanceof NamedParameterNode) {
-        // TODO: Unit test for namespace targets named parameter.
         throw new BindException("Found namespace annotation " + nsAnnotation
             + " with target " + n + " which is a named parameter.");
       }
@@ -324,26 +438,12 @@ public class TypeHierarchy {
 
   private <T, U extends T> void putImpl(ClassNode<T> superclass,
       ClassNode<U> impl) {
-    knownImpls.put(superclass,  impl);
-//    List<ClassNode<?>> s = knownImpls.get(superclass);
-//    if (s == null) {
-//      s = new ArrayList<ClassNode<?>>();
-//      knownImpls.put(superclass, s);
-//    }
-//    if (!s.contains(impl)) {
-//      s.add(impl);
-//    }
+    knownImpls.put(superclass, impl);
   }
 
   @SuppressWarnings("unchecked")
-  <T> ClassNode<T>[] getKnownImpls(ClassNode<T> c) {
-    return knownImpls.getValuesForKey(c).toArray(new ClassNode[0]);
-/*    List<ClassNode<?>> l = knownImpls.get(c);
-    if (l != null) {
-      return (ClassNode<T>[]) l.toArray(new ClassNode[0]);
-    } else {
-      return (ClassNode<T>[]) new ClassNode[0];
-    } */
+  <T> Set<ClassNode<T>> getKnownImpls(ClassNode<T> c) {
+    return (Set<ClassNode<T>>) (Set<?>) knownImpls.getValuesForKey(c);
   }
 
   public Set<Class<?>> getRegisteredClasses() {
@@ -511,7 +611,6 @@ public class TypeHierarchy {
 
         if (constructors[k].getAnnotation(Inject.class) != null) {
           if (!injectable) {
-            // TODO: Unit test inject non-static member fails on register.
             throw new BindException(
                 "Cannot @Inject non-static member/local class: " + clazz);
           }
@@ -633,62 +732,19 @@ public class TypeHierarchy {
     }
 
     @SuppressWarnings("unchecked")
-    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz)
-        throws BindException {
+    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
+        Class<T> argClass) throws BindException {
       super(parent, clazz);
       this.clazz = clazz;
-
-      for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-        for (Annotation a : c.getDeclaredAnnotations()) {
-          if (a instanceof Inject) {
-            // TODO: unit test for Injectable NamedParameter annotation,
-            throw new BindException("Named Parameter " + clazz.getName()
-                + " has @Injectable constructor.  This is not allowed.");
-          }
-        }
-      }
-      Class<T> parameterClass;
-      try {
-        Type[] interfaces = clazz.getGenericInterfaces();
-        if (interfaces.length != 1) {
-          throw new IllegalArgumentException();
-        }
-        Type genericNameType = interfaces[0];
-        if (genericNameType instanceof ParameterizedType) {
-          ParameterizedType ptype = (ParameterizedType) genericNameType;
-          if (ptype.getRawType() != Name.class) {
-            // TODO: unit test for non Name<?> NamedParameter annotation,
-            throw new BindException("@NamedParameter class " + clazz.getName()
-                + " does not implement Name<?>");
-          }
-          try {
-            Type t = ptype.getActualTypeArguments()[0];
-            // It could be that the parameter is, itself a generic type. Not
-            // sure if we should support this, but we do for now.
-            if (t instanceof ParameterizedType) {
-              t = ((ParameterizedType) t).getRawType(); // Get the underlying
-                                                        // raw type of the
-                                                        // parameter.
-            }
-            parameterClass = (Class<T>) t;
-          } catch (ClassCastException e) {
-            // TODO: Unit test to torture this logic with strange Name<> generic types.
-            throw new IllegalArgumentException();
-          }
-        } else {
-          throw new IllegalArgumentException();
-        }
-      } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("NamedParameter " + clazz
-            + " must have exactly one super interface: "
-            + "A name with a concrete type parameter.");
-      }
-
       this.namedParameter = clazz.getAnnotation(NamedParameter.class);
-      this.argClass = parameterClass;
-      this.defaultInstance = (this.namedParameter == null || namedParameter
-          .default_value().length() == 0) ? null : ReflectionUtilities.parse(
-          this.argClass, namedParameter.default_value());
+      this.argClass = argClass;
+      if (this.namedParameter == null
+          || namedParameter.default_value().length() == 0) {
+        this.defaultInstance = null;
+      } else {
+        this.defaultInstance = ReflectionUtilities.parse(this.argClass,
+            namedParameter.default_value());
+      }
     }
 
     @Override
@@ -808,7 +864,8 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
-    ConstructorDef(ConstructorArg[] args, Constructor<T> constructor) throws BindException {
+    ConstructorDef(ConstructorArg[] args, Constructor<T> constructor)
+        throws BindException {
       this.args = args;
       this.constructor = constructor;
       constructor.setAccessible(true);
@@ -816,7 +873,6 @@ public class TypeHierarchy {
       for (int i = 0; i < this.args.length; i++) {
         for (int j = i + 1; j < this.args.length; j++) {
           if (this.args[i].toString().equals(this.args[j].toString())) {
-            // TODO: Unit test repeated constructor arg
             throw new BindException(
                 "Repeated constructor parameter detected.  "
                     + "Cannot inject this constructor.");
