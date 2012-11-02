@@ -46,6 +46,9 @@ public interface Injector {
   public <T> Injector bindVolatileInstance(Class<T> iface, T inst)
       throws InjectionException;
 
+  public <T> Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst)
+      throws InjectionException;
+
   /**
    * Create a new child Injector that inherits the singleton instances created
    * by this Injector, but reflects additional Configuration objects. This can

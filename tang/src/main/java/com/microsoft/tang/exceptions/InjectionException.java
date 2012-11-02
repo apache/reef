@@ -5,4 +5,7 @@ public class InjectionException extends Exception {
   public InjectionException(String msg, Throwable cause) {
     super(msg,cause);
   }
+  public InjectionException(String msg) {
+    super(msg);
+  }
 }
