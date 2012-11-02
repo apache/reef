@@ -179,7 +179,7 @@ public class InjectorImpl implements Injector {
 
   <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
     if (!plan.isFeasible()) {
-      throw new IllegalArgumentException("Attempt to inject infeasible plan: "
+      throw new InjectionException("Attempt to inject infeasible plan: "
           + plan.toPrettyString());
     }
     if (plan.isAmbiguous()) {
@@ -209,7 +209,7 @@ public class InjectorImpl implements Injector {
       throw new IllegalStateException(
           "Thought there was an injectable plan, but can't find it!");
     } else if (plan instanceof InfeasibleInjectionPlan) {
-      throw new IllegalArgumentException("Attempt to inject infeasible plan!");
+      throw new InjectionException("Attempt to inject infeasible plan:" + plan.toPrettyString());
     } else {
       throw new IllegalStateException("Unknown plan type: " + plan);
     }
@@ -227,22 +227,40 @@ public class InjectorImpl implements Injector {
       // TODO: Unit test for bindVolatileInstance to unknown class.
       throw new InjectionException("Can't bind to unknown class " + c, e);
     }
-    if (n instanceof NamedParameterNode) {
-      NamedParameterNode<T> np = (NamedParameterNode<T>) n;
-      tc.namedParameterInstances.put(np, o);
-    } else if(n instanceof ClassNode) {
+    
+    if(n instanceof ClassNode) {
       ClassNode<T> cn = (ClassNode<T>) n;
       cn.setIsSingleton();
       tc.singletonInstances.put(cn, o);
     } else {
       throw new IllegalArgumentException(
-          "Expected Class or NamedParameter, but " + c + " is neither.");
+          "Expected Class but got " + c + " (probably a named parameter).");
     }
     // TODO bindVolatileInstance should return new injector.
     System.err.println("WARNING: InjectorImpl.bindVolatileInstance() bug: Not copying injector, just returning it...");
     return this;
   }
-
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> InjectorImpl bindVolatileParameter(Class<? extends Name<T>> c, T o) 
+      throws InjectionException {
+    tc.dirtyBit = true;
+    Node n;
+    try {
+      n = tc.namespace.getNode(c);
+    } catch(NameResolutionException e) {
+      throw new InjectionException("Can't bind to unknown name " + c, e);
+    }
+    if (n instanceof NamedParameterNode) {
+      NamedParameterNode<T> np = (NamedParameterNode<T>) n;
+      tc.namedParameterInstances.put(np, o);
+    } else {
+      throw new IllegalArgumentException("Expected Name, got " + c + " (probably a class)" );
+    }
+    // TODO bindVolatileParameter should return new injector.
+    System.err.println("WARNING: InjectorImpl.bindVolatileParameter() bug: Not copying injector, just returning it...");
+    return this;
+  }
   @Override
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {
