@@ -11,9 +11,6 @@ import org.junit.Test;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
-import com.microsoft.tang.implementation.InjectorImpl;
-
 
 public class TweetExample {
   private static interface TweetFactory {
@@ -90,12 +87,12 @@ public class TweetExample {
 
   @Test
   public void test() throws Exception {
-    ConfigurationBuilderImpl t = (ConfigurationBuilderImpl)tang.newConfigurationBuilder();
+    ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(Tweeter.class);
     t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
     t.bindImplementation(SMS.class, MockSMS.class);
     t.bindNamedParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString());
-    Tweeter tw = (Tweeter) new InjectorImpl(t.build()).getInstance(Tweeter.class);
+    Tweeter tw = (Tweeter) tang.newInjector(t.build()).getInstance(Tweeter.class);
     tw.sendMessage();
   }
 

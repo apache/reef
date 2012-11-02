@@ -33,8 +33,7 @@ public class TypeHierarchy {
   private final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
   private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
-  final static String regexp = "[\\.\\$]";
-
+  
   public TypeHierarchy() {
     namespace = new PackageNode(null, "");
   }
@@ -42,7 +41,7 @@ public class TypeHierarchy {
   @SuppressWarnings({ "unchecked", "unused" })
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
       ClassNode<T> classNode) throws BindException {
-    String[] path = conf.value().split(regexp);
+    String[] path = conf.value().split(ReflectionUtilities.regexp);
     Node root = namespace;
     // Search for the new node's parent, store it in root.
     for (int i = 0; i < path.length - 1; i++) {
@@ -57,9 +56,9 @@ public class TypeHierarchy {
         }
       }
     }
-    if(root instanceof NamespaceNode) {
-      Node target = ((NamespaceNode<?>)root).getTarget();
-      if(target != null) {
+    if (root instanceof NamespaceNode) {
+      Node target = ((NamespaceNode<?>) root).getTarget();
+      if (target != null) {
         throw new BindException("Nested namespaces not implemented!");
       }
     }
@@ -72,7 +71,7 @@ public class TypeHierarchy {
       ret = (NamespaceNode<T>) n;
       ret.setTarget(classNode);
       for (Node child : ret.children.values()) {
-        if(true) {
+        if (true) {
           // TODO: implement + test nested namespaces.
           throw new BindException("Nested namespaces not implemented!");
         } else {
@@ -197,7 +196,7 @@ public class TypeHierarchy {
 
   private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget)
       throws BindException {
-    String[] path = clazz.getName().split(regexp);
+    String[] path = clazz.getName().split(ReflectionUtilities.regexp);
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       root = root.get(path[i]);
@@ -244,7 +243,7 @@ public class TypeHierarchy {
   }
 
   public Node getNode(String name) throws NameResolutionException {
-    String[] path = name.split(regexp);
+    String[] path = name.split(ReflectionUtilities.regexp);
     return getNode(name, path, path.length);
   }
 
@@ -340,7 +339,7 @@ public class TypeHierarchy {
     Package pack = c.getPackage();
     if (pack != null) { // We're in an enclosing class, and we just registered
                         // it above!
-      String[] packageList = pack.getName().split(regexp);
+      String[] packageList = pack.getName().split(ReflectionUtilities.regexp);
       for (int i = 0; i < packageList.length; i++) {
         try {
           registerPackage(Arrays.copyOf(packageList, i + 1));
@@ -476,6 +475,23 @@ public class TypeHierarchy {
     protected final Node parent;
     protected final String name;
 
+    @Override
+    public boolean equals(Object o) {
+      Node n = (Node) o;
+      final boolean parentsEqual;
+      if (n.parent == this.parent) {
+        parentsEqual = true;
+      } else if (n.parent == null) {
+        parentsEqual = false;
+      } else {
+        parentsEqual = n.parent.equals(this.parent);
+      }
+      if (!parentsEqual) {
+        return false;
+      }
+      return this.name.equals(n.name);
+    }
+
     String getFullName() {
       if (parent == null) {
         return name;
@@ -488,7 +504,11 @@ public class TypeHierarchy {
 
     Node(Node parent, Class<?> name) {
       this.parent = parent;
-      this.name = name.getSimpleName();
+      this.name = ReflectionUtilities.getSimpleName(name);
+      if (this.name.length() == 0) {
+        throw new IllegalArgumentException(
+            "Zero length ClassName means bad news");
+      }
       if (parent != null) {
         parent.put(this);
       }
@@ -498,6 +518,10 @@ public class TypeHierarchy {
       this.parent = parent;
       this.name = name;
       if (parent != null) {
+        if (name.length() == 0) {
+          throw new IllegalArgumentException(
+              "Zero length child name means bad news");
+        }
         parent.put(this);
       }
     }
@@ -530,11 +554,12 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      return "[" + this.getClass().getSimpleName() + " " + name + "]";
+      return "[" + ReflectionUtilities.getSimpleName(this.getClass()) + " '" + getFullName()
+          + "']";
     }
 
     public String getType() {
-      return this.getClass().getSimpleName();
+      return ReflectionUtilities.getSimpleName(this.getClass());
     }
 
     public String getName() {
@@ -582,7 +607,7 @@ public class TypeHierarchy {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
-      if(injectableConstructors != null) {
+      if (injectableConstructors != null) {
         for (ConstructorDef<T> c : injectableConstructors) {
           sb.append(c.toString() + ", ");
         }
@@ -735,7 +760,6 @@ public class TypeHierarchy {
       this.defaultInstance = defaultInstance;
     }
 
-    @SuppressWarnings("unchecked")
     NamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
         Class<T> argClass) throws BindException {
       super(parent, clazz);
@@ -753,7 +777,7 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      String ret = argClass.getSimpleName();
+      String ret = ReflectionUtilities.getSimpleName(argClass);
       if (namedParameter == null) {
         ret = ret + " " + name;
       } else {
@@ -819,8 +843,8 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      return name == null ? type.getSimpleName()
-          : (type.getSimpleName() + " " + name.value().getSimpleName());
+      return name == null ? ReflectionUtilities.getSimpleName(type)
+          : ReflectionUtilities.getSimpleName(type) + " " + ReflectionUtilities.getSimpleName(name.value());
     }
 
     @Override

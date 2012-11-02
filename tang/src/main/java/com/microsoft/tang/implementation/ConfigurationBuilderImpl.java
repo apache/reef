@@ -364,7 +364,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           }
           try {
             this.conf.namespace.register(conf.classForName(value));
-            String[] tok = value.split(TypeHierarchy.regexp);
+            String[] tok = value.split(ReflectionUtilities.regexp);
             try {
               this.conf.namespace.getNode(tok[tok.length - 1]);
               throw new IllegalArgumentException("Conflict on short name: "
