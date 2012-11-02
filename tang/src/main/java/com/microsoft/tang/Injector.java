@@ -41,13 +41,13 @@ public interface Injector {
    * @param iface
    * @param inst
    * @return A copy of this injector that reflects the new binding.
-   * @throws NameResolutionException
+   * @throws BindException
    */
   public <T> Injector bindVolatileInstance(Class<T> iface, T inst)
-      throws InjectionException;
+      throws BindException;
 
   public <T> Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst)
-      throws InjectionException;
+      throws BindException;
 
   /**
    * Create a new child Injector that inherits the singleton instances created
