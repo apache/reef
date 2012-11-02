@@ -230,6 +230,7 @@ public class InjectorImpl implements Injector {
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<T> np = (NamedParameterNode<T>) n;
       tc.namedParameterInstances.put(np, o);
+    } else if(n instanceof ClassNode) {
       ClassNode<T> cn = (ClassNode<T>) n;
       cn.setIsSingleton();
       tc.singletonInstances.put(cn, o);
@@ -237,8 +238,9 @@ public class InjectorImpl implements Injector {
       throw new IllegalArgumentException(
           "Expected Class or NamedParameter, but " + c + " is neither.");
     }
-    throw new UnsupportedOperationException(
-        "Need to update bindVolatileInstance for the new API");
+    // TODO bindVolatileInstance should return new injector.
+    System.err.println("WARNING: InjectorImpl.bindVolatileInstance() bug: Not copying injector, just returning it...");
+    return this;
   }
 
   @Override

@@ -68,41 +68,35 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throw new IllegalArgumentException(
           "Cannot copy a dirty ConfigurationBuilderImpl");
     }
-    try {
-      for (Class<?> c : t.namespace.getRegisteredClasses()) {
-        register(c);
+    for (Class<?> c : t.namespace.getRegisteredClasses()) {
+      register(c);
+    }
+    // Note: The commented out lines would be faster, but, for testing
+    // purposes,
+    // we run through the high-level bind(), which dispatches to the correct
+    // call.
+    for (ClassNode<?> cn : t.boundImpls.keySet()) {
+      bind(cn.getClazz(), t.boundImpls.get(cn));
+      // bindImplementation((Class<?>) cn.getClazz(), (Class)
+      // t.boundImpls.get(cn));
+    }
+    for (ClassNode<?> cn : t.boundConstructors.keySet()) {
+      bind(cn.getClazz(), t.boundConstructors.get(cn));
+      // bindConstructor((Class<?>) cn.getClazz(), (Class)
+      // t.boundConstructors.get(cn));
+    }
+    for (ClassNode<?> cn : t.singletons) {
+      try {
+        bindSingleton(cn.getClazz());
+      } catch (BindException e) {
+        throw new IllegalStateException(
+            "Unexpected BindException when copying ConfigurationBuilderImpl",
+            e);
       }
-      // Note: The commented out lines would be faster, but, for testing
-      // purposes,
-      // we run through the high-level bind(), which dispatches to the correct
-      // call.
-      for (ClassNode<?> cn : t.boundImpls.keySet()) {
-        bind(cn.getClazz(), t.boundImpls.get(cn));
-        // bindImplementation((Class<?>) cn.getClazz(), (Class)
-        // t.boundImpls.get(cn));
-      }
-      for (ClassNode<?> cn : t.boundConstructors.keySet()) {
-        bind(cn.getClazz(), t.boundConstructors.get(cn));
-        // bindConstructor((Class<?>) cn.getClazz(), (Class)
-        // t.boundConstructors.get(cn));
-      }
-      for (ClassNode<?> cn : t.singletons) {
-        try {
-          bindSingleton(cn.getClazz());
-        } catch (BindException e) {
-          throw new IllegalStateException(
-              "Unexpected BindException when copying ConfigurationBuilderImpl",
-              e);
-        }
-      }
-      for (NamedParameterNode<?> np : t.namedParameters.keySet()) {
-        bind(np.getNameClass().getName(), t.namedParameters.get(np));
-        // bindParameter(np.getNameClass(), t.namedParameters.get(np));
-      }
-    } catch (ReflectiveOperationException e) {
-      throw new IllegalStateException(
-          "Encountered reflection error when copying a ConfigurationBuilderImpl: ",
-          e);
+    }
+    for (NamedParameterNode<?> np : t.namedParameters.keySet()) {
+      bind(np.getNameClass().getName(), t.namedParameters.get(np));
+      // bindParameter(np.getNameClass(), t.namedParameters.get(np));
     }
   }
 
@@ -192,12 +186,16 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public <T> void bind(String key, String value) throws ClassNotFoundException,
-      BindException {
+  public <T> void bind(String key, String value) throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
-    Node n = conf.namespace.register(conf.classForName(key));
+    Node n;
+    try {
+      n = conf.namespace.register(conf.classForName(key));
+    } catch(ClassNotFoundException e) {
+      throw new BindException("Could not find class " + key);
+    }
     /*
      * String longVal = shortNames.get(value); if (longVal != null) value =
      * longVal;
@@ -205,7 +203,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
-      bind(((ClassNode<?>) n).getClazz(), conf.classForName(value));
+      Class<?> v;
+      try {
+        v = conf.classForName(value);
+      } catch(ClassNotFoundException e) {
+        throw new BindException("Could not find class " + value);
+      }
+      bind(((ClassNode<?>) n).getClazz(), v);
     }
   }
 
@@ -332,6 +336,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     } catch (ConfigurationException e) {
       throw new BindException("Problem parsing config file", e);
     }
+    processConfigFile(confFile);
+  }
+  public void processConfigFile(PropertiesConfiguration confFile) throws IOException, BindException {
     Iterator<String> it = confFile.getKeys();
     Map<String, String> shortNames = new HashMap<String, String>();
 
@@ -392,12 +399,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
             }
             bindSingleton(c);
           } else {
-            try {
-              bind(key, value);
-            } catch (ClassNotFoundException e) {
-              throw new BindException(
-                  "Could not find class mentioned by config file", e);
-            }
+            bind(key, value);
           }
         }
       }
