@@ -582,8 +582,12 @@ public class TypeHierarchy {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
-      for (ConstructorDef<T> c : injectableConstructors) {
-        sb.append(c.toString() + ", ");
+      if(injectableConstructors != null) {
+        for (ConstructorDef<T> c : injectableConstructors) {
+          sb.append(c.toString() + ", ");
+        }
+      } else {
+        sb.append("OBJECT BUILD IN PROGRESS!  BAD NEWS!");
       }
       return sb.toString();
     }

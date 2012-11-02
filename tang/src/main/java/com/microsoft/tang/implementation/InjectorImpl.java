@@ -58,7 +58,7 @@ public class InjectorImpl implements Injector {
     try {
       n = tc.namespace.getNode(name);
     } catch (NameResolutionException e) {
-      throw new IllegalArgumentException("Unregistered class" + name, e);
+      throw new IllegalArgumentException("Unregistered class " + name, e);
     }
     final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
