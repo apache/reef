@@ -1,6 +1,7 @@
 package com.microsoft.tang.implementation;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -350,7 +351,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void processConfigFile(File file) throws IOException, BindException {
+  public void addConfiguration(File file) throws IOException, BindException {
     PropertiesConfiguration confFile;
     try {
       confFile = new PropertiesConfiguration(file);
@@ -359,6 +360,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
     processConfigFile(confFile);
   }
+  
+  @Override
+  public final void addConfiguration(String conf) throws BindException {
+	  try {
+		File tmp = File.createTempFile("tang", "tmp");
+		FileOutputStream fos = new FileOutputStream(tmp);
+		fos.write(conf.getBytes());
+		fos.close();
+		addConfiguration(tmp);
+		tmp.delete();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+  }
+  
+  
   public void processConfigFile(PropertiesConfiguration confFile) throws IOException, BindException {
     Iterator<String> it = confFile.getKeys();
     Map<String, String> shortNames = new HashMap<String, String>();
