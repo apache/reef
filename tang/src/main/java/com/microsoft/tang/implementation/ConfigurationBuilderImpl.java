@@ -1,6 +1,7 @@
 package com.microsoft.tang.implementation;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,7 +21,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
-import com.microsoft.tang.Injector;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
@@ -49,6 +49,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     conf = new ConfigurationImpl(loaders);
   }
 
+  ConfigurationBuilderImpl(Configuration tang) {
+    try {
+      conf = new ConfigurationImpl();
+      addConfiguration(tang);
+    } catch(BindException e) {
+      throw new IllegalStateException("Error copying Configuration.", e);
+    }
+  }
   ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
     conf = new ConfigurationImpl();
     for (Configuration tc : tangs) {
@@ -63,40 +71,58 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public void addConfiguration(Configuration ti) throws BindException {
-    ConfigurationImpl t = (ConfigurationImpl) ti;
-    if (t.dirtyBit) {
+    ConfigurationImpl old = (ConfigurationImpl) ti;
+    if (old.dirtyBit) {
       throw new IllegalArgumentException(
           "Cannot copy a dirty ConfigurationBuilderImpl");
     }
-    for (Class<?> c : t.namespace.getRegisteredClasses()) {
+    for (Class<?> c : old.namespace.getRegisteredClasses()) {
       register(c);
     }
     // Note: The commented out lines would be faster, but, for testing
     // purposes,
     // we run through the high-level bind(), which dispatches to the correct
     // call.
-    for (ClassNode<?> cn : t.boundImpls.keySet()) {
-      bind(cn.getClazz(), t.boundImpls.get(cn));
+    for (ClassNode<?> cn : old.boundImpls.keySet()) {
+      bind(cn.getClazz(), old.boundImpls.get(cn));
       // bindImplementation((Class<?>) cn.getClazz(), (Class)
       // t.boundImpls.get(cn));
     }
-    for (ClassNode<?> cn : t.boundConstructors.keySet()) {
-      bind(cn.getClazz(), t.boundConstructors.get(cn));
+    for (ClassNode<?> cn : old.boundConstructors.keySet()) {
+      bind(cn.getClazz(), old.boundConstructors.get(cn));
       // bindConstructor((Class<?>) cn.getClazz(), (Class)
       // t.boundConstructors.get(cn));
     }
-    for (ClassNode<?> cn : t.singletons) {
+    for (ClassNode<?> cn : old.singletons) {
       try {
-        bindSingleton(cn.getClazz());
+        Class<?> clazz = cn.getClazz();
+        Object o = old.singletonInstances.get(cn);
+        if(o != null) {
+          ClassNode<?> new_cn= (ClassNode<?>)conf.namespace.register(clazz);
+          new_cn.setIsSingleton();
+          conf.singletons.add(new_cn);
+          conf.singletonInstances.put(new_cn, o);
+        } else {
+          bindSingleton(clazz);
+        }
       } catch (BindException e) {
         throw new IllegalStateException(
             "Unexpected BindException when copying ConfigurationBuilderImpl",
             e);
       }
     }
-    for (NamedParameterNode<?> np : t.namedParameters.keySet()) {
-      bind(np.getNameClass().getName(), t.namedParameters.get(np));
-      // bindParameter(np.getNameClass(), t.namedParameters.get(np));
+    // The namedParameters set contains the strings that can be used to instantiate new
+    // named parameter instances.  Create new ones where we can.
+    for (NamedParameterNode<?> np : old.namedParameters.keySet()) {
+      bind(np.getNameClass().getName(), old.namedParameters.get(np));
+    }
+    // Copy references to the remaining (which must have been set with bindVolatileParameter())
+    for (NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
+      if(!old.namedParameters.containsKey(np)) {
+        Object o = old.namedParameterInstances.get(np);
+        NamedParameterNode<?> new_np= (NamedParameterNode<?>)conf.namespace.register(np.getNameClass());
+        conf.namedParameterInstances.put(new_np, o);
+      }
     }
   }
 
@@ -111,10 +137,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void register(Class<?> c) throws BindException {
     conf.namespace.register(c);
-  }
-
-  public static Injector newInjector(ConfigurationImpl... args) {
-    return args[0].injector();
   }
 
   private Options getCommandLineOptions() {
@@ -321,7 +343,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
               + " (which is probably a named parameter)");
     }
   }
-
+  
   @Override
   public ConfigurationImpl build() {
     ConfigurationBuilderImpl b = new ConfigurationBuilderImpl(this);
@@ -329,7 +351,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void processConfigFile(File file) throws IOException, BindException {
+  public void addConfiguration(File file) throws IOException, BindException {
     PropertiesConfiguration confFile;
     try {
       confFile = new PropertiesConfiguration(file);
@@ -338,6 +360,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
     processConfigFile(confFile);
   }
+  
+  @Override
+  public final void addConfiguration(String conf) throws BindException {
+	  try {
+		File tmp = File.createTempFile("tang", "tmp");
+		FileOutputStream fos = new FileOutputStream(tmp);
+		fos.write(conf.getBytes());
+		fos.close();
+		addConfiguration(tmp);
+		tmp.delete();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+  }
+  
+  
   public void processConfigFile(PropertiesConfiguration confFile) throws IOException, BindException {
     Iterator<String> it = confFile.getKeys();
     Map<String, String> shortNames = new HashMap<String, String>();

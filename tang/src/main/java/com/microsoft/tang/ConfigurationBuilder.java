@@ -24,6 +24,10 @@ public interface ConfigurationBuilder {
    * @param c
    */
   public void addConfiguration(final Configuration c) throws BindException;
+  
+  public void addConfiguration(final File istream) throws IOException, BindException;
+
+  public void addConfiguration(final String istream) throws BindException;
 
   /**
    * Ask Tang to register a class. This does not create any new bindings, but
@@ -139,6 +143,4 @@ public interface ConfigurationBuilder {
   public <T> void processCommandLine(String[] args) throws BindException,
       IOException;
 
-  public void processConfigFile(final File istream) throws IOException,
-      BindException;
 }

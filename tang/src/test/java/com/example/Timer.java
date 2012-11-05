@@ -31,7 +31,7 @@ public class Timer {
     ConfigurationBuilderImpl cb = (ConfigurationBuilderImpl)tang.newConfigurationBuilder();
     cb.register(Timer.class);
     ConfigurationImpl conf = cb.build();
-    InjectorImpl injector = conf.injector();
+    InjectorImpl injector = (InjectorImpl)tang.newInjector(conf);
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
