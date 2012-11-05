@@ -5,11 +5,12 @@ import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.InjectionException;
 
 public class TangImpl implements Tang {
 
   @Override
-  public Injector newInjector(Configuration... confs) throws BindException {
+  public Injector newInjector(Configuration... confs) throws BindException, InjectionException {
     return new InjectorImpl(new ConfigurationBuilderImpl(confs).build());
   }
 

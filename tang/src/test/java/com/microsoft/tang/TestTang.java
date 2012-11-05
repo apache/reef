@@ -89,7 +89,7 @@ public class TestTang {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(OneNamedSingletonArgs.class);
     Injector i = tang.newInjector(t.build());
-    i.bindVolatileParameter(OneNamedSingletonArgs.A.class, i.getInstance(MustBeSingleton.class));
+    i = i.bindVolatileParameter(OneNamedSingletonArgs.A.class, i.getInstance(MustBeSingleton.class));
     i.getInstance(OneNamedSingletonArgs.class);
   }
   @Test
@@ -99,8 +99,8 @@ public class TestTang {
     t.bindSingleton(MustBeSingleton.class);
     t.register(RepeatedNamedSingletonArgs.class);
     Injector i = tang.newInjector(t.build());
-    i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class, i.getInstance(MustBeSingleton.class));
-    i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class, i.getInstance(MustBeSingleton.class));
+    i = i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class, i.getInstance(MustBeSingleton.class));
+    i = i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class, i.getInstance(MustBeSingleton.class));
     i.getInstance(RepeatedNamedSingletonArgs.class);
   }
 
@@ -150,9 +150,10 @@ public class TestTang {
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
     Injector i = tang.newInjector(cb.build());
-    i.bindVolatileParameter(OneNamedStringArg.A.class, "volatile");
-    Assert.assertEquals("volatile", i.getInstance(OneNamedStringArg.class).s);
-  }
+    Injector j = i.bindVolatileParameter(OneNamedStringArg.A.class, "volatile");
+    Assert.assertEquals("default", i.getInstance(OneNamedStringArg.class).s);
+    Assert.assertEquals("volatile", j.getInstance(OneNamedStringArg.class).s);
+    }
   @Test
   public void testTwoNamedStringArgsBind() throws BindException, InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
@@ -175,10 +176,15 @@ public class TestTang {
     Assert.assertEquals("defaultA", a.a);
     Assert.assertEquals("defaultB", a.b);
     Injector i = tang.newInjector(cb.build());
-    i.bindVolatileParameter(TwoNamedStringArgs.A.class, "not defaultA");
-    i.bindVolatileParameter(TwoNamedStringArgs.B.class, "not defaultB");
-    Assert.assertEquals("not defaultA", i.getInstance(TwoNamedStringArgs.class).a);
-    Assert.assertEquals("not defaultB", i.getInstance(TwoNamedStringArgs.class).b);
+    Injector j = i.bindVolatileParameter(TwoNamedStringArgs.A.class, "not defaultA");
+    Injector k = j.bindVolatileParameter(TwoNamedStringArgs.B.class, "not defaultB");
+    Assert.assertEquals("defaultA", i.getInstance(TwoNamedStringArgs.class).a);
+    Assert.assertEquals("defaultB", i.getInstance(TwoNamedStringArgs.class).b);
+    Assert.assertEquals("not defaultA", j.getInstance(TwoNamedStringArgs.class).a);
+    Assert.assertEquals("defaultB", j.getInstance(TwoNamedStringArgs.class).b);
+    Assert.assertEquals("not defaultA", k.getInstance(TwoNamedStringArgs.class).a);
+    Assert.assertEquals("not defaultB", k.getInstance(TwoNamedStringArgs.class).b);
+
   }
   @Test(expected = BindException.class)
   public void testTwoNamedStringArgsReBindVolatileFail() throws BindException, InjectionException {

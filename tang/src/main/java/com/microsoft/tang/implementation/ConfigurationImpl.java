@@ -45,11 +45,6 @@ public class ConfigurationImpl implements Configuration {
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
 
-//  ConfigurationImpl(ConfigurationBuilderImpl tang) {
-//    if(dirtyBit) { throw new IllegalStateException("Can't build ConfigurationImpl from dirty ConfigurationBuilderImpl object!"); }
-//    this = new ConfigurationBuilderImpl(tang);
-//  }
-
   public ConfigurationImpl() {
     this.loaders = null;
   }
@@ -57,13 +52,6 @@ public class ConfigurationImpl implements Configuration {
     this.loaders = loaders;
   }
 
-  public InjectorImpl injector() {
-    return new InjectorImpl(this);
-  }
-
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.Configuration#writeConfigurationFile(java.io.PrintStream)
-   */
   @Override
   public void writeConfigurationFile(OutputStream o) {
     PrintStream s = new PrintStream(o);

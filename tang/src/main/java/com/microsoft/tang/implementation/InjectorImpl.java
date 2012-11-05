@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
@@ -26,8 +25,15 @@ import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
 public class InjectorImpl implements Injector {
   private final ConfigurationImpl tc;
 
-  public InjectorImpl(ConfigurationImpl tc) {
-    this.tc = tc;
+  public InjectorImpl(ConfigurationImpl old_tc)
+      throws InjectionException, BindException {
+    tc = new ConfigurationBuilderImpl(old_tc).build();
+    for (ClassNode<?> cn : tc.singletons) {
+      if(!tc.singletonInstances.containsKey(cn)) {
+        Object o = getInstance(cn.getClazz());
+        tc.singletonInstances.put(cn, o);
+      }
+    }
   }
 
   private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,
@@ -158,13 +164,6 @@ public class InjectorImpl implements Injector {
 
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
-    if (!tc.sealed) {
-      tc.sealed = true;
-      for (ClassNode<?> cn : tc.singletons) {
-        Object o = getInstance(cn.getClazz());
-        tc.singletonInstances.put(cn, o);
-      }
-    }
     InjectionPlan<U> plan = getInjectionPlan(clazz);
     return injectFromPlan(plan);
   }
@@ -216,11 +215,41 @@ public class InjectorImpl implements Injector {
     }
   }
 
+  private static InjectorImpl copy(InjectorImpl old,
+      Configuration... configurations) {
+    final InjectorImpl i;
+    try {
+      final ConfigurationBuilderImpl cb = new ConfigurationBuilderImpl(old.tc);
+      for (Configuration c : configurations) {
+        cb.addConfiguration(c);
+      }
+      i = new InjectorImpl(cb.build());
+    } catch (BindException | InjectionException e) {
+      throw new IllegalStateException(
+          "Unexpected error copying configuration!", e);
+    }
+    return i;
+  }
+
+
   @Override
-  @SuppressWarnings("unchecked")
   public <T> InjectorImpl bindVolatileInstance(Class<T> c, T o)
       throws BindException {
-    tc.dirtyBit = true;
+    InjectorImpl ret = copy(this);
+    ret.bindVolatileInstanceNoCopy(c, o);
+    return ret;
+  }
+
+  @Override
+  public <T> InjectorImpl bindVolatileParameter(Class<? extends Name<T>> c, T o)
+      throws BindException {
+    InjectorImpl ret = copy(this);
+    ret.bindVolatileParameterNoCopy(c, o);
+    return ret;
+  }
+
+  <T> void bindVolatileInstanceNoCopy(Class<T> c, T o)
+      throws BindException {
     Node n;
     try {
       n = tc.namespace.getNode(c);
@@ -230,24 +259,22 @@ public class InjectorImpl implements Injector {
     }
 
     if (n instanceof ClassNode) {
-      ClassNode<T> cn = (ClassNode<T>) n;
+      ClassNode<?> cn = (ClassNode<?>) n;
       cn.setIsSingleton();
+      Object old = tc.singletonInstances.get(cn);
+      if (old != null) {
+        throw new BindException("Attempt to re-bind singleton.  Old value was "
+            + old + " new value is " + o);
+      }
       tc.singletonInstances.put(cn, o);
     } else {
       throw new IllegalArgumentException("Expected Class but got " + c
           + " (probably a named parameter).");
     }
-    // TODO bindVolatileInstance should return new injector.
-    System.err
-        .println("WARNING: InjectorImpl.bindVolatileInstance() bug: Not copying injector, just returning it...");
-    return this;
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> InjectorImpl bindVolatileParameter(Class<? extends Name<T>> c, T o)
+  <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
       throws BindException {
-    tc.dirtyBit = true;
     Node n;
     try {
       n = tc.namespace.getNode(c);
@@ -255,7 +282,7 @@ public class InjectorImpl implements Injector {
       throw new BindException("Can't bind to unknown name " + c, e);
     }
     if (n instanceof NamedParameterNode) {
-      NamedParameterNode<T> np = (NamedParameterNode<T>) n;
+      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = tc.namedParameterInstances.get(np);
       if (old != null) {
         throw new BindException(
@@ -267,37 +294,15 @@ public class InjectorImpl implements Injector {
       throw new IllegalArgumentException("Expected Name, got " + c
           + " (probably a class)");
     }
-    // TODO bindVolatileParameter should return new injector.
-    System.err
-        .println("WARNING: InjectorImpl.bindVolatileParameter() bug: Not copying injector, just returning it...");
-    return this;
   }
 
+  
   @Override
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {
-    ConfigurationBuilderImpl cb = new ConfigurationBuilderImpl();
-    try {
-      cb.addConfiguration(this.tc);
-    } catch (BindException e) {
-      throw new IllegalStateException(
-          "Hit BindException when copying configuration.  Can't happen.", e);
-    }
-    for (Configuration c : configurations) {
-      cb.addConfiguration(c);
-    }
-    InjectorImpl i = new InjectorImpl(cb.build());
-    for (Entry<ClassNode<?>, Object> e : tc.singletonInstances.entrySet()) {
-      @SuppressWarnings("unchecked")
-      Class<Object> clazz = (Class<Object>) e.getKey().getClazz();
-      try {
-        i.bindVolatileInstance(clazz, e.getValue());
-      } catch (BindException f) {
-        throw new IllegalStateException(
-            "Could not copy reference to volatile instance.", f.getCause());
-      }
-    }
-    return i;
+    InjectorImpl ret;
+    ret = copy(this);
+    return ret;
   }
 
 }
