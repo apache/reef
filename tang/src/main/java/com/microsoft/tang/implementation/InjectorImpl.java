@@ -301,7 +301,7 @@ public class InjectorImpl implements Injector {
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {
     InjectorImpl ret;
-    ret = copy(this);
+    ret = copy(this, configurations);
     return ret;
   }
 
