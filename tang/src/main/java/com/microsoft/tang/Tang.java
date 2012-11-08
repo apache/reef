@@ -13,10 +13,13 @@ public interface Tang {
    * 
    * @param confs
    * @return
-   * @throws BindException If the confs conflict, a BindException will be thrown.
-   * @throws InjectionException If any singletons fail to inject.
+   * @throws BindException
+   *           If the confs conflict, a BindException will be thrown.
+   * @throws InjectionException
+   *           If any singletons fail to inject.
    */
-  public Injector newInjector(final Configuration... confs) throws BindException, InjectionException;
+  public Injector newInjector(final Configuration... confs)
+      throws BindException, InjectionException;
 
   /**
    * Create a new ConfigurationBuilder
@@ -26,6 +29,28 @@ public interface Tang {
   public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loader);
 
   /**
+   * Create a new ConfigurationBuilder
+   * 
+   * @return a new ConfigurationBuilder
+   */
+  public ConfigurationBuilder newConfigurationBuilder(Configuration... confs)
+      throws BindException;
+
+  /**
+   * Create a new ConfigurationBuilder
+   * 
+   * @return a new ConfigurationBuilder
+   */
+  public ConfigurationBuilder newConfigurationBuilder(ClassLoader[] loaders,
+      Configuration[] confs) throws BindException;
+  /**
+   * Create a new ConfigurationBuilder
+   * 
+   * @return a new ConfigurationBuilder
+   */
+  public ConfigurationBuilder newConfigurationBuilder();
+
+  /**
    * Access to a ConfigurationBuilderImpl implementation
    */
   public final class Factory {
@@ -33,4 +58,6 @@ public interface Tang {
       return new TangImpl();
     }
   }
+
+
 }
