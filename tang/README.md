@@ -5,6 +5,42 @@ Tang is a simple dependency injection framework that emphasizes configuration
 and explicit documentation over executing application-specific code when binding
 implementations and invoking object constructors.
 
+
+   * [Defining configuration parameters](#configuration)
+   * [Instantiating objects with Tang](#injection)
+   * [Specifying default configurations](#static-configuration)
+   * [Creating sets of similar injectors](#child-injectors)
+   * [Dynamically setting parameters and choosing implementations](#bind)
+   * [Distributed dependency injection](#distributed-dependency-injection)
+   * [Using the injection plan API to choose between multiple implementations](#injection-plans)
+   * [Language interoperability](#language-interoperability)
+
+Configuration
+-------------
+
+Injection
+---------
+
+Static configuration
+--------------------
+
+Child injectors
+---------------
+
+Bind
+----
+
+Distributed dependency injection
+--------------------------------
+
+Injection plan
+--------------
+
+Language interoperability
+-------------------------
+
+
+
 Passing configuration parameters to objects
 -------------------------------------------
 
