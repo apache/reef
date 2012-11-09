@@ -3,6 +3,8 @@ and explicit documentation over executing application-specific code when binding
 implementations and invoking object constructors.
 
 Outline
+-------
+
    * [Introduction](#introduction)
    * [Defining configuration parameters](#configuration)
    * [Instantiating objects with Tang](#injection)
@@ -36,30 +38,6 @@ Tutorial
 Configuration
 -------------
 
-Injection
----------
-
-Static configuration
---------------------
-
-Child injectors
----------------
-
-Bind
-----
-
-Distributed dependency injection
---------------------------------
-
-Injection plans
----------------
-
-Language interoperability
--------------------------
-
-Passing configuration parameters to objects
--------------------------------------------
-
 Suppose you are implementing a new class, and would like to 
 automatically pass configuration parameters to it at runtime:
 
@@ -78,16 +56,9 @@ public class Timer {
   }
 }
 ```
-Tang encourages applications to use Plain Old Java (POJO) objects, and emphasizes the
-use of immutable state for configuration parameters.  This reduces boiler plate (there is
-no need for extra setter methods), and does not interfere with encapsulation (the 
-parameters are private).  Furthermore, it is trivial for well-written classes to ensure
-that all objects are completely and properly instantiated; they simply need to check 
-constructor parameters as any other POJO would.
+Tang encourages applications to use Plain Old Java (POJO) objects, and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields, and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated; they simply need to check constructor parameters as any other POJO would.
 
-In order for Tang to instantiate an object, we need to annotate the constructor with an
-@Inject annotation.  While we're out it, we'll define a configuration parameter, allowing
-us to specify seconds on the command line, and in a config file.
+In order for Tang to instantiate an object, we need to annotate the constructor with an @Inject annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line, and in a config file.
 
 ```java
 package com.example;
@@ -99,9 +70,9 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 
 public class Timer {
-  @NamedParameter(type=int.class, default_value="10",
+  @NamedParameter(default_value="10",
       doc="Number of seconds to sleep", short_name="sec")
-  class Seconds implements Name {}
+  class Seconds implements Name<Integer> {}
   private final int seconds;
 
   @Inject
@@ -114,23 +85,18 @@ public class Timer {
   }
 }
 ```
-A few things happened here.  First, we create the new configuration parameter
-by declaring a dummy class that implements Tang's "Name" interface.  This class
-is annotated with "@NamedParameter", which specifies:
+A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's "Name" interface.  Name is a generic type, with a single mandatory parameter that specifies the type of object to be passed in.  So, the Seconds class declares a parameter called "Seconds" that expects Integer values.
 
- * type: The type of the configuration parameter, which must match the type taken by the constructor.  This is needed because one @NamedParameter may be passed into multiple constructors.
- * default_value (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files, and on the command line), and pass it into the constructor.
- * short_name (optional): The name of the command line parameter.
+All instances of Name must be annotated with @NamedParamter, which takes a number of options:
+ * default_value (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.
+ * short_name (optional): The name of the command line option associated with this parameter.  If ommitted, no command line option will be created.
  * doc (optional): Human readable documentation, describing the purpose of the parameter.
 
-Next, the @Inject annotation flags the constructor so that Tang will consider it
-when attempting to instantiate this class.  Finally, the @Parameter annotation
-takes the class associated with the configuration parameter.  Using a dummy class
-allows IDEs to autocomplete configuration parameter names, and lets the compiler
-confirm them as well.
+Next, the @Inject annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the @Parameter annotation takes the class associated with the configuration parameter.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well.
 
-Of course, in isolation, this example is incomplete; we need a main() method to 
-invoke tang, and instantiate our timer:
+Injection
+---------
+Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; at runtime, we need a way to invoke Tang, and to tell it to instantiate our objects.  This process is called injection.
 
 ```java
 ...
@@ -153,6 +119,31 @@ We do this by instantiating a new TypeHierarchy object.  The only class we're in
 so we pass Timer.class into typeHierarchy.register().  Next, we pass typeHierarchy into Tang's constructor,
 and ask Tang to instantiate a new Timer object.  Tang automatically passes 10, the default_value field of
 Seconds into Timer's constructor, so the call to sleep() takes 10 seconds to complete.
+
+Static configuration
+--------------------
+
+Child injectors
+---------------
+
+Bind
+----
+
+Distributed dependency injection
+--------------------------------
+
+Injection plans
+---------------
+
+Language interoperability
+-------------------------
+
+Passing configuration parameters to objects
+-------------------------------------------
+
+
+
+
 
 More complicated examples
 -------------------------
