@@ -132,15 +132,6 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
    * To obtain an instance of Injector, we pass our Configuration object into tang.newInjector().
    * Finally, we call injector.getInstance(Timer.class).  Internally, this method considers all possible injection plans for Timer.class.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an InjectionException.
 
-
-
-
-In order to use Tang, we first build a database of classes that it should consider for use at runtime.
-We do this by instantiating a new TypeHierarchy object.  The only class we're interested in is our new Timer,
-so we pass Timer.class into typeHierarchy.register().  Next, we pass typeHierarchy into Tang's constructor,
-and ask Tang to instantiate a new Timer object.  Tang automatically passes 10, the default_value field of
-Seconds into Timer's constructor, so the call to sleep() takes 10 seconds to complete.
-
 Static configuration
 --------------------
 
