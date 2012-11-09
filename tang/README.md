@@ -1,11 +1,10 @@
-Tang
-====
 
 Tang is a simple dependency injection framework that emphasizes configuration
 and explicit documentation over executing application-specific code when binding
 implementations and invoking object constructors.
 
-
+Outline
+   * [Introduction](#introduction)
    * [Defining configuration parameters](#configuration)
    * [Instantiating objects with Tang](#injection)
    * [Specifying default configurations](#static-configuration)
@@ -14,6 +13,26 @@ implementations and invoking object constructors.
    * [Distributed dependency injection](#distributed-dependency-injection)
    * [Using the injection plan API to choose between multiple implementations](#injection-plans)
    * [Language interoperability](#language-interoperability)
+
+Introduction
+============
+
+Tang is a new type of dependency injection framework.  It encourages application developers to specify default implementations and constructor parameters in terms of configurations, avoiding the need for a number of subtle (and often confusing) dependency injection software patterns. Tang's configurations are "just data," and can be read and written in human readable formats.  Furthermore, they include documentation facilities, and automatic command line and configuration file parsing.  From an end-user perspective, this takes a lot of the guesswork out of configuration file formats.
+
+Although Tang surfaces a text-based interface for end-users of the applications built atop it, all configuration options and their types are specified in terms of Java classes and annotations.  This allows the Java compiler to statically check a range of properties important to Tang, eliminating broad classes of runtime errors.   Furthermore, upon loading a class that will be involved in dependency injection, Tang performs a number of additional consistency checks, allowing it to detect inconsistent usage of configuration parameters, naming conflicts and so on.  These checks can be run independently of the application's runtime environment, and can find problems both in the Java-level implementation of the system, and with user-provided configuration files.  The tools (v2) [1] that perform these checks are designed to run as a post-processing step of projects built atop Tang.  Like the Java compiler checks, this prevents such errors from making it to production environments.  It also prevents such errors from being exposed to application logic or end-users, greatly simplifying applications built atop Tang.
+
+In addition to improving end-user's interactions with applications, our configuration-centric approach to dependency injection enables a number of advanced features not supported by existing dependency injection frameworks:
+
+   * Distributed injection: Tang's InjectionPlan API allows machines to compute injection plans locally, based on code that will be shipped and run elsewhere.  These injection plans can be checked for feasibility and then shipped to the machine that will run the code in question.  In keeping with Tang's philosophy of catching errors early, this limits the responsibility of handling most dependency injection problems to a single software component running on a single machine.
+   * Multi-language injection (v2):  Tang's TypeHierarchy API encodes the relationship between interfaces, implementation classes, and constructors in a language-independent fashion.  Computation of InjectionPlan objects (and the related consistency checks) occurs atop this language-independent abstraction, allowing Injection Plans that span language boundaries.
+   * Ambiguous injection (v2): Tang injection plans are encoded in a format that is designed to cope with ambiguous injection plans.  In situations where more than one implementation is available, Tang allows the code that invoked it to examine the possibilities, and choose the most appropriate course of action.
+
+Taken together, these properties greatly simplify dependency injection in distributed environments.  Tang eliminates large classes of runtime configuration problems (which can be extremely difficult to debug in distributed environments), and provides facilities to make it easy for higher-level code to use information about the current runtime environment to choose the appropriate course of action.  
+
+We expect Tang to be used in environments that are dominated by "plugin"-style APIs with many alternative implementations.  Tang cleanly separates concerns over configuration management, dependency injection, and object implementations.  This hides most of the complexity of dependency injection from plugin implementers.  It also prevents plugin implementations from inadvertently breaking the high-level semantics that allow Tang to perform extensive static checking and to provide clean semantics in distributed, heterogeneous environments.
+
+Tutorial
+========
 
 Configuration
 -------------
@@ -38,8 +57,6 @@ Injection plan
 
 Language interoperability
 -------------------------
-
-
 
 Passing configuration parameters to objects
 -------------------------------------------
