@@ -191,14 +191,18 @@ InjectionPlan objects explain what Tang would do to instantiate a new object, bu
 Add the following lines to the Timer example;
 
 ````java
-    InjectionPlan ip = tang.getInjectionPlan("com.example.Timer");
-    System.out.println(InjectionPlan.prettyPrint(ip));
+import com.microsoft.tang.implementation.InjectionPlan;
+import com.microsoft.tang.implementation.InjectorImpl;
+...
+    InjectorImpl injector = (InjectorImpl)tang.newInjector(conf);
+    InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
+    System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
 ````
 
 Running the program now produces a bit of additional output:
 ````
-com.example.Timer(int @Parameter(Seconds) 10)
+new Timer(Integer Seconds = 10)
 Number of plans:1
 ````
 
@@ -208,105 +212,5 @@ InjectionPlan explains what would happen if you asked Tang to take some action, 
 into Tang's view of the object hierarchy, parameter defaults and so on.  TypeHierarchy object encode
 the state that Tang gets from .class files, including class inheritance relationships, parameter annotations, and so on.
 
-In the example above, TypeHierarchy walks the class definition for Timer, looking
-for superclasses, interfaces, and classes referenced by its constructors.  In this case, there is nothing too
-interesting to find.  To take a look, add a call to '''typeHierarchy.writeJson(System.err)''' after the call
-to register.  You should see something like this on stderr:
-
-```json
-{
-  "namespace" : {
-    "name" : "",
-    "children" : [ {
-      "name" : "com",
-      "children" : [ {
-        "name" : "example",
-        "children" : [ {
-          "name" : "Timer",
-          "children" : [ {
-            "name" : "Seconds",
-            "children" : [ ],
-            "argClass" : "int",
-            "defaultInstance" : 10,
-            "shortName" : "sec",
-            "documentation" : "Number of seconds to sleep",
-            "nameClass" : "com.example.Timer$Seconds",
-            "type" : "NamedParameterNode"
-          } ],
-          "clazz" : "com.example.Timer",
-          "isPrefixTarget" : false,
-          "injectableConstructors" : [ {
-            "args" : [ {
-              "type" : "int",
-              "name" : "com.example.Timer$Seconds"
-            } ],
-            "constructor" : "com.example.Timer"
-          } ],
-          "type" : "ClassNode"
-        } ],
-        "type" : "PackageNode"
-      }, {
-        "name" : "microsoft",
-        "children" : [ {
-          "name" : "tang",
-          "children" : [ {
-            "name" : "annotations",
-            "children" : [ {
-              "name" : "Name",
-              "children" : [ ],
-              "clazz" : "com.microsoft.tang.annotations.Name",
-              "isPrefixTarget" : false,
-              "injectableConstructors" : [ ],
-              "type" : "ClassNode"
-            } ],
-            "type" : "PackageNode"
-          } ],
-          "type" : "PackageNode"
-        } ],
-        "type" : "PackageNode"
-      } ],
-      "type" : "PackageNode"
-    }, {
-      "name" : "java",
-      "children" : [ {
-        "name" : "lang",
-        "children" : [ {
-          "name" : "Object",
-          "children" : [ ],
-          "clazz" : "java.lang.Object",
-          "isPrefixTarget" : false,
-          "injectableConstructors" : [ ],
-          "type" : "ClassNode"
-        } ],
-        "type" : "PackageNode"
-      } ],
-      "type" : "PackageNode"
-    } ],
-    "type" : "PackageNode"
-  },
-  "namedParameterNodes" : [ {
-    "name" : "Seconds",
-    "children" : [ ],
-    "argClass" : "int",
-    "defaultInstance" : 10,
-    "shortName" : "sec",
-    "documentation" : "Number of seconds to sleep",
-    "nameClass" : "com.example.Timer$Seconds",
-    "type" : "NamedParameterNode"
-  } ]
-}
-```
-This is quite verbose, but is simply saying that Tang found (in order): com.example.Timer,
-com.example.Timer.Seconds (note that Tang's state mirrors the Java package hierarchy, so
-Timer is an ancestor of Seconds).  It also pulled in Seconds' superclass,
-com.microsoft.tang.annotations.Name, and java.lang.Object.  A second JSON element,
-"namedParameterNodes" documents the named parameters that have been discovered so far.  
-
-Note that, as of the writing of this document, the JSON format is incomplete, and is
-expected to change over time.
-
-### Tang (TODO)
-
-Tang objects encode state that is derived dynamically.  This include information from
-command line parameters configuration files, and from application-level calls to
-setDefaultImpl() and setNamedParameter().  Methods to dump / read this information are coming soon.
+Internally, in the example above, TypeHierarchy walks the class definition for Timer, looking
+for superclasses, interfaces, and classes referenced by its constructors.
