@@ -167,10 +167,8 @@ In the timer example, we specified a default value for the Sleep parameter.  If 
 to getInstance() would have thrown an exception:
 ````
 Exception in thread "main"
-java.lang.IllegalArgumentException: Attempt to inject infeasible plan: com.example.Timer(int @Parameter(Seconds) null)
-  at com.microsoft.tang.Tang.injectFromPlan(Tang.java:315)
-	at com.microsoft.tang.Tang.getInstance(Tang.java:311)
-	at com.example.Timer.main(Timer.java:35)
+java.lang.IllegalArgumentException: Attempt to inject infeasible plan: com.example.Timer(Integer Seconds = null)
+...
 ````
 Since Tang refuses to inject null values into object
 constructors, the plan to invoke Timer(null) is considered infeasible.  Note that this error message enumerates all
