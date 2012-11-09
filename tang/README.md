@@ -96,7 +96,7 @@ Next, the @Inject annotation flags the constructor so that Tang will consider it
 
 Injection
 ---------
-Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; at runtime, we need a way to invoke Tang, and to tell it to instantiate our objects.  This process is called injection.
+Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; at runtime, we need a way to invoke Tang, and to tell it to instantiate our objects.  This process is called _injection_, and we have gone to great efforts to make it as straightforward as possible in Tang.
 
 ```java
 ...
