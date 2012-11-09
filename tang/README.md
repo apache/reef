@@ -6,9 +6,9 @@ Outline
 -------
 
    * [Introduction](#introduction)
-   * [Defining configuration parameters](#configuration)
+   * [Defining configuration parameters](#configuration-parameters)
    * [Instantiating objects with Tang](#injection)
-   * [Specifying default configurations](#static-configuration)
+   * [Processing configuration options](#processing-configurations)
    * [Creating sets of similar injectors](#child-injectors)
    * [Dynamically setting parameters and choosing implementations](#bind)
    * [Distributed dependency injection](#distributed-dependency-injection)
@@ -35,8 +35,8 @@ We expect Tang to be used in environments that are dominated by "plugin"-style A
 Tutorial
 ========
 
-Configuration
--------------
+Configuration Parameters
+------------------------
 
 Suppose you are implementing a new class, and would like to 
 automatically pass configuration parameters to it at runtime:
@@ -132,8 +132,8 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
    * To obtain an instance of Injector, we pass our Configuration object into tang.newInjector().
    * Finally, we call injector.getInstance(Timer.class).  Internally, this method considers all possible injection plans for Timer.class.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an InjectionException.
 
-Static configuration
---------------------
+Processing configurations
+-------------------------
 
 Child injectors
 ---------------
