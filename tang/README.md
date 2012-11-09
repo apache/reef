@@ -178,9 +178,7 @@ possible injection plans.  If Timer had more constructors or implementations
 those would be enumerated here as well.  Similarly, if more than one feasible plan existed, Tang would refuse to perform
 the injection, and throw a similar exception.
 
-In both cases, the solution is to set Tang parameters to create a single feasible plan.  tang.setDefaultImpl() allows you
-to hardcode Tang to use a particular implementation of a class/interface (and automatically registers its parameters with Tang).
-Similarly, tang.setNamedParameter() lets you set named parameters, and override default values.
+In both cases, the solution is to set additional configuration parameters to create a single feasible plan.  This can be done using any of the methods described above.
 
 Looking under the hood
 ----------------------
