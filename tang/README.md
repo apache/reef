@@ -104,19 +104,34 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.InjectionException;
+
 ...
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
     ConfigurationBuilder cb = (ConfigurationBuilder)tang.newConfigurationBuilder();
     cb.register(Timer.class);
     Configuration conf = cb.build();
     Injector injector = tang.newInjector(conf);
     Timer timer = injector.getInstance(Timer.class);
-    System.out.println("Tick...");
-    timer.sleep();
-    System.out.println("Tock.");
+    
+    try {
+      System.out.println("Tick...");
+      timer.sleep();
+      System.out.println("Tock.");
+    } catch(InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 ```
+The first step in using Tang is to get a handle to a Tang object by calling "Tang.Factory.getTang()".  Having obtained a handle, we run through each of the phases of a Tang injection:
+   * We use _ConfigurationBuilder_ objects to tell Tang about the class hierarchy that it will be using to inject objects and (in later examples) to register the contents of configuration files, override default configuration values, and to set default implementations of classes.
+   * For this example, we simply call the cb.register(Class<?>) method in ConfigurationBuilder.  We pass in Timer.class, which tells Tang to process Timer, as well as any superclasses and internal classes (such as our parameter class, Seconds).
+   * We call build() on the ConfigurationBuilder, creating an immutable Configuration object.  At this point, Tang ensures that all of the classes it has encountered so far are consistent with each other, and that they are suitable for injection.  When Tang encounters conflicting classes or configuration files, it throws a BindException to indicate that the problem is due to configuration issues. Note that ConfigurationBuilder and Configuration do not determine whether or not a particular injection will succeed; that is the business of the _Injector_.
+   * To obtain an instance of Injector, we pass our Configuration object into tang.newInjector().
+   * Finally, we call injector.getInstance(Timer.class).  Internally, this method considers all possible injection plans for Timer.class.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an InjectionException.
+
 
 
 
