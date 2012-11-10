@@ -134,6 +134,11 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
 
 Processing configurations
 -------------------------
+Tang configuration information can be divided into two categories.  The first type, _paramteters_, pass values such as strings an integers into constructors.  Users of Tang encode configuration parameters as strings, allowing them to be stored in configuration files, and passed in on the command line.  The second type of configuration option, _implementation bindings_, are used to tell Tang which implementation should be used when an instance of an interface is requested.  Like configuration parameters, implementation bindings are expressible as strings: Tang configuration files simply contain the raw (without the generic parameters) name of the Java Classes to be bound together.
+
+[TODO: not done describing types of configuration options.  Need to explain how binding works, introduce singletons, constructor wrappers]
+
+[TODO: explain processCommandLine(), addConfiguration(File) and addConfiguration(Configuration)]
 
 Distributed dependency injection
 --------------------------------
