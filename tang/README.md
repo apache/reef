@@ -134,9 +134,47 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
 
 Processing configurations
 -------------------------
-Tang configuration information can be divided into two categories.  The first type, _paramteters_, pass values such as strings an integers into constructors.  Users of Tang encode configuration parameters as strings, allowing them to be stored in configuration files, and passed in on the command line.  The second type of configuration option, _implementation bindings_, are used to tell Tang which implementation should be used when an instance of an interface is requested.  Like configuration parameters, implementation bindings are expressible as strings: Tang configuration files simply contain the raw (without the generic parameters) name of the Java Classes to be bound together.
+We begin by explaining how Tang processes configuration files, and then move on to a number of more advanced topics, such as programatically specifying configuration options, and use cases that arise in more complex Tang use cases.
 
-[TODO: not done describing types of configuration options.  Need to explain how binding works, introduce singletons, constructor wrappers]
+Tang configuration information can be divided into two categories.  The first type, _parameters_, pass values such as strings and integers into constructors.  Users of Tang encode configuration parameters as strings, allowing them to be stored in configuration files, and passed in on the command line.
+
+The second type of configuration option, _implementation bindings_, are used to tell Tang which implementation should be used when an instance of an interface is requested.  Like configuration parameters, implementation bindings are expressible as strings: Tang configuration files simply contain the raw (without the generic parameters) name of the Java Classes to be bound together.
+
+New parameters are created and passed into constructors as in the example above, by creating implementations of Name<T>, and adding @NamedParameter, @Parameter and @Inject annotations as necessary.  Specifying implementations for interfaces is a bit more involved, as a number of subtle use cases arise.
+
+The common case is to simply bind an implementation to an interface.  This is done in configuration files as follows:
+
+```properties
+com.examples.Interface=com.examples.Implementation
+```
+
+this tells Tang to create a new Implementation each time it wants to invoke a constructor that asks for an instance of Interface.  In most circumstances, Implementation extends or implements Interface.  In such cases, Tang makes sure that Implementation contains at least one constructor with an @Inject annotation, and performs the binding.
+
+### Singleton classes
+
+Sometimes, it is necessary to ensure that only one instance of a particular implementation is created at runtime.  This is done as follows:
+
+```properties
+com.examples.Implementation=singleton
+```
+
+[todo: explain algorithm that resolves singletons]
+
+(See [child injectors](#child-injectors) below for information about more complicated use cases, such as grouping injectors into scopes that share singleton instances.)
+
+### Using external constructors to inject legacy code
+
+Tang's _ExternalConstructor_ API supports injection of legacy code.  If Implementation does not subclass Interface, Tang checks to see if it subclasses ExternalConstructor<? extends Interface> instead.  If so, Tang checks that Implementation has an @Inject annotation on at least one constructor, and performs the binding as usual.  At injection time, Tang injects Implementation as though it implemented Interface, and then calls newInstance(), which returns the value to be injected.  Note that ExternalConstructor objects are single-use: newInstance() will only be called once.  If the ExternalConstructor class is marked as a singleton, Tang internally retains the return value of newInstance(), exactly as if the object had been created with a regular constructor.
+
+### Registering classes
+
+When Tang processes a class file, it performs a range of checks to ensure that annotations are being properly and consistently applied.  You can tell Tang to register a class (and run these checks) using the following syntax:
+
+```properties
+com.Examples.MyClass=registered
+```
+
+Doing this also ensures that any @Inject-able constructors in the class will be available to injectors created by this Tang instance.
 
 [TODO: explain processCommandLine(), addConfiguration(File) and addConfiguration(Configuration)]
 
