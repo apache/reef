@@ -9,9 +9,9 @@ Outline
    * [Defining configuration parameters](#configuration-parameters)
    * [Instantiating objects with Tang](#injection)
    * [Processing configuration options](#processing-configurations)
-   * [Creating sets of similar injectors](#child-injectors)
-   * [Dynamically setting parameters and choosing implementations](#bind)
    * [Distributed dependency injection](#distributed-dependency-injection)
+   * [Dynamically setting parameters and choosing implementations](#bind)
+   * [Creating sets of similar injectors](#child-injectors)
    * [Using the injection plan API to choose between multiple implementations](#injection-plans)
    * [Language interoperability](#language-interoperability)
 
@@ -135,9 +135,6 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
 Processing configurations
 -------------------------
 
-Child injectors
----------------
-
 Distributed dependency injection
 --------------------------------
 In Tang, distributed injection is performed by writing Tang's current state out to configuration files, shipping them to remote machines, and using the configuration file to instantiate an identical Tang instance on the remote machine.  Two methods support such use cases.  The first is part of the Configuration API, and writes a well-formed configuration file to an output stream.  Its method signature is self explanatory:
@@ -178,6 +175,18 @@ Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst) throws Bi
 Note that these methods return new Injector objects.  Tang Injectors are immutable, and the original Injector is not modified by these calls.
 
 A final method, _getNamedParameter()_, is sometimes useful when dealing with instances of objects used for Tang injections.  Unlike getInstance(), which performs a normal injection, getNamedParameter() instantiates an object in the same way as it would during an injection, as it prepares to pass a configuration paramter to a constructor (note that whether a new instance of the parameter is instantiated for each constructor invocation is not specified by the Tang API, so while the object returned likely ".equals()" the one that would be passed to a constructor, it may or may not "==" it.
+
+Child injectors
+---------------
+Although extremely useful, features such as singletons and volatile parameters create a new problem.  Tang Configuration objects are designed to be built up from trees of related (but non-conflicting) configuration files, command line parameters, and so on.
+
+One common use for singleton objects is to establish session or runtime _context objects_ that are used to track application state or implement network connection pools that should be available across multiple injections.  Without child injectors, such patterns would be impossible with Tang.  In order to avoid situations in which modules accidentally specify conflicting values for configuration parameters, Tang ensures that, once set, no implementation binding or parameter setting can be undone or overwritten.  The problem is that, in order to perform an Injection, the application must specify a complete configuration, hardcoding all future injections to return equivalent arguments.  This makes it impossible to pass request-level or activity-level parameters into future injected objects!
+
+To get around the problem, Tang provides _child injectors_.  Child injectors are built by merging injectors with additional configuration objects.  Any singletons and volatile instances that have been set in the original (parent) injector will be shared with the child injectors.  As with "bindVolatile...()", createChildInjector() does not mutate the parent object, but instead merges the configuration with a new copy.
+
+Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use bindVolatile...() to pass in an instance directly (use of bindVolatile...() is discouraged, but often necessary).  Then, use createChildInjector() to create one new injector for each configuration.  
+
+Since createChildInjector() does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
 
 Injection plans
 ---------------
