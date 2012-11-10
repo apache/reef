@@ -138,28 +138,54 @@ Processing configurations
 Child injectors
 ---------------
 
-Bind
-----
-
 Distributed dependency injection
 --------------------------------
+In Tang, distributed injection is performed by writing Tang's current state out to configuration files, shipping them to remote machines, and using the configuration file to instantiate an identical Tang instance on the remote machine.  Two methods support such use cases.  The first is part of the Configuration API, and writes a well-formed configuration file to an output stream.  Its method signature is self explanatory:
+
+```java
+public void writeConfigurationFile(OutputStream s)
+```
+
+Reading the file back is the responsibility of ConfigurationBuilder.  The following methods read the file line by line, merging the Configuration options they find with the current state of the ConfigurationBuilder.  If a conflicting or already-set option is encountered, processing halts on the line that caused the problem, and a BindException is thrown:
+
+```java
+public void addConfiguration(final File istream) throws IOException, BindException;
+public void addConfiguration(final String istream) throws BindException;
+```
+
+Bind
+----
+Sometimes it is necessary to compute configuration information at runtime, and pass the result into Tang.  Tang provides two types of _bind()_ methods for such purposes.  The first reside in _configurationBuilder()_, and are designed to preserve Tang's ability to write back the resulting configuration to a file.  Like configuration files, these methods can tell Tang which implementation should be used for a given interface, provide strings to be parsed into configuration parameters, and so on:
+
+```java
+void bind(String iface, String impl) throws ClassNotFoundException;
+void bind(Class<T> iface, Class<?> impl);
+void bindImplementation(Class<T> iface, Class<? extends T> impl);
+void bindSingletonImplementation(Class<T> iface, Class<? extends T> impl);
+void bindSingleton(Class<T> iface) throws BindException;
+void bindNamedParameter(Class<? extends Name<T>> name, String value);
+void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v);
+```
+Each of these methods throws BindException as well as the exceptions mentioned above, and behaves identically to the
+analogous configuration file primitives discussed above.  Note that, when possible, adding final [StaticConfiguration](static-configuration) objects to class definitions objects is always preferable to writing a method that invokes bind...() directly.
+
+The second class of bind operations allow callers to pass object instances to Tang directly.  This prevents it from writing back its current state to a configuration file.  Because these methods are incompatible with writing configuration files, their names contain the word "Volatile", and they are part of the Injector API instead of ConfigurationBuilder.  Injectors cannot be serialized, and they are not allowed to modify the Configuration object that was used to create them, making it impossible to use the Tang API to write volatile objects to disk.
+
+```java
+Injector bindVolatileInstance(Class<T> iface, T inst) throws BindException;
+Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst) throws BindException;
+```
+Note that these methods return new Injector objects.  Tang Injectors are immutable, and the original Injector is not modified by these calls.
+
+A final method, _getNamedParameter()_, is sometimes useful when dealing with instances of objects used for Tang injections.  Unlike getInstance(), which performs a normal injection, getNamedParameter() instantiates an object in the same way as it would during an injection, as it prepares to pass a configuration paramter to a constructor (note that whether a new instance of the parameter is instantiated for each constructor invocation is not specified by the Tang API, so while the object returned likely ".equals()" the one that would be passed to a constructor, it may or may not "==" it.
 
 Injection plans
 ---------------
+[Coming soon]
 
 Language interoperability
 -------------------------
-
-Passing configuration parameters to objects
--------------------------------------------
-
-
-
-
-
-More complicated examples
--------------------------
-Suppose we had multiple implementations of the timer example (TODO)
+[Coming soon]
 
 When things go wrong
 --------------------
