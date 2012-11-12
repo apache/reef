@@ -400,8 +400,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
             throw new BindException("Could not find class " + key
                 + " from config file", e);
           }
-        }
-        if (key.equals(ConfigurationImpl.IMPORT)) {
+        } else if (key.equals(ConfigurationImpl.IMPORT)) {
           if (isSingleton) {
             throw new IllegalArgumentException("Can't "
                 + ConfigurationImpl.IMPORT + "=" + ConfigurationImpl.SINGLETON
