@@ -1,6 +1,4 @@
-Tang is a simple dependency injection framework that emphasizes configuration
-and explicit documentation over executing application-specific code when binding
-implementations and invoking object constructors.
+Tang is a simple dependency injection framework that emphasizes configuration and explicit documentation over executing application-specific code when binding implementations and invoking object constructors.
 
 Outline
 -------
@@ -38,8 +36,7 @@ Tutorial
 Configuration Parameters
 ------------------------
 
-Suppose you are implementing a new class, and would like to 
-automatically pass configuration parameters to it at runtime:
+Suppose you are implementing a new class, and would like to automatically pass configuration parameters to it at runtime:
 
 ```java
 package com.example;
@@ -89,7 +86,7 @@ A few things happened here.  First, we create the new configuration parameter by
 
 All instances of Name must be annotated with @NamedParamter, which takes a number of options:
  * default_value (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.
- * short_name (optional): The name of the command line option associated with this parameter.  If ommitted, no command line option will be created.
+ * short_name (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.
  * doc (optional): Human readable documentation, describing the purpose of the parameter.
 
 Next, the @Inject annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the @Parameter annotation takes the class associated with the configuration parameter.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well.
@@ -134,7 +131,7 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
 
 Processing configurations
 -------------------------
-We begin by explaining how Tang processes configuration files, and then move on to a number of more advanced topics, such as programatically specifying configuration options, and use cases that arise in more complex Tang use cases.
+We begin by explaining how Tang processes configuration files, and then move on to a number of more advanced topics, such as programmatically specifying configuration options, and use cases that arise in more complex Tang use cases.
 
 Tang configuration information can be divided into two categories.  The first type, _parameters_, pass values such as strings and integers into constructors.  Users of Tang encode configuration parameters as strings, allowing them to be stored in configuration files, and passed in on the command line.
 
@@ -180,7 +177,7 @@ Doing this also ensures that any @Inject-able constructors in the class will be 
 
 Distributed dependency injection
 --------------------------------
-In Tang, distributed injection is performed by writing Tang's current state out to configuration files, shipping them to remote machines, and using the configuration file to instantiate an identical Tang instance on the remote machine.  Two methods support such use cases.  The first is part of the Configuration API, and writes a well-formed configuration file to an output stream.  Its method signature is self explanatory:
+In Tang, distributed injection is performed by writing Tang's current state out to configuration files, shipping them to remote machines, and using the configuration file to instantiate an identical Tang instance on the remote machine.  Two methods support such use cases.  The first is part of the Configuration API, and writes a well-formed configuration file to an output stream.  Its method signature is self-explanatory:
 
 ```java
 public void writeConfigurationFile(OutputStream s)
@@ -206,8 +203,7 @@ void bindSingleton(Class<T> iface) throws BindException;
 void bindNamedParameter(Class<? extends Name<T>> name, String value);
 void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v);
 ```
-Each of these methods throws BindException as well as the exceptions mentioned above, and behaves identically to the
-analogous configuration file primitives discussed above.  Note that, when possible, adding final [StaticConfiguration](static-configuration) objects to class definitions objects is always preferable to writing a method that invokes bind...() directly.
+Each of these methods throws BindException as well as the exceptions mentioned above, and behaves identically to the analogous configuration file primitives discussed above.  Note that, when possible, adding final [StaticConfiguration](static-configuration) objects to class definitions objects is always preferable to writing a method that invokes bind...() directly.
 
 The second class of bind operations allow callers to pass object instances to Tang directly.  This prevents it from writing back its current state to a configuration file.  Because these methods are incompatible with writing configuration files, their names contain the word "Volatile", and they are part of the Injector API instead of ConfigurationBuilder.  Injectors cannot be serialized, and they are not allowed to modify the Configuration object that was used to create them, making it impossible to use the Tang API to write volatile objects to disk.
 
@@ -217,7 +213,7 @@ Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst) throws Bi
 ```
 Note that these methods return new Injector objects.  Tang Injectors are immutable, and the original Injector is not modified by these calls.
 
-A final method, _getNamedParameter()_, is sometimes useful when dealing with instances of objects used for Tang injections.  Unlike getInstance(), which performs a normal injection, getNamedParameter() instantiates an object in the same way as it would during an injection, as it prepares to pass a configuration paramter to a constructor (note that whether a new instance of the parameter is instantiated for each constructor invocation is not specified by the Tang API, so while the object returned likely ".equals()" the one that would be passed to a constructor, it may or may not "==" it.
+A final method, _getNamedParameter()_, is sometimes useful when dealing with instances of objects used for Tang injections.  Unlike getInstance(), which performs a normal injection, getNamedParameter() instantiates an object in the same way as it would during an injection, as it prepares to pass a configuration parameter to a constructor (note that whether a new instance of the parameter is instantiated for each constructor invocation is not specified by the Tang API, so while the object returned likely ".equals()" the one that would be passed to a constructor, it may or may not "==" it.
 
 Child injectors
 ---------------
@@ -248,11 +244,7 @@ Exception in thread "main"
 java.lang.IllegalArgumentException: Attempt to inject infeasible plan: com.example.Timer(Integer Seconds = null)
 ...
 ````
-Since Tang refuses to inject null values into object
-constructors, the plan to invoke Timer(null) is considered infeasible.  Note that this error message enumerates all
-possible injection plans.  If Timer had more constructors or implementations
-those would be enumerated here as well.  Similarly, if more than one feasible plan existed, Tang would refuse to perform
-the injection, and throw a similar exception.
+Since Tang refuses to inject null values into object constructors, the plan to invoke Timer(null) is considered infeasible.  Note that this error message enumerates all possible injection plans.  If Timer had more constructors or implementations those would be enumerated here as well.  Similarly, if more than one feasible plan existed, Tang would refuse to perform the injection, and throw a similar exception.
 
 In both cases, the solution is to set additional configuration parameters to create a single feasible plan.  This can be done using any of the methods described above.
 
@@ -282,9 +274,6 @@ Number of plans:1
 
 ### TypeHierachy
 
-InjectionPlan explains what would happen if you asked Tang to take some action, but it doesn't provide much insight
-into Tang's view of the object hierarchy, parameter defaults and so on.  TypeHierarchy object encode
-the state that Tang gets from .class files, including class inheritance relationships, parameter annotations, and so on.
+InjectionPlan explains what would happen if you asked Tang to take some action, but it doesn't provide much insight into Tang's view of the object hierarchy, parameter defaults and so on.  TypeHierarchy object encode the state that Tang gets from .class files, including class inheritance relationships, parameter annotations, and so on.
 
-Internally, in the example above, TypeHierarchy walks the class definition for Timer, looking
-for superclasses, interfaces, and classes referenced by its constructors.
+Internally, in the example above, TypeHierarchy walks the class definition for Timer, looking for superclasses, interfaces, and classes referenced by its constructors.
