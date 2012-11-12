@@ -12,7 +12,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 
-public class TweetExample {
+public class TestTweetExample {
   private static interface TweetFactory {
     public String getTweet();
   }
