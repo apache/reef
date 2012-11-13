@@ -492,7 +492,7 @@ public class TypeHierarchy {
       return this.name.equals(n.name);
     }
 
-    String getFullName() {
+    public String getFullName() {
       if (parent == null) {
         return name;
       } else {
@@ -608,7 +608,11 @@ public class TypeHierarchy {
     public ConstructorDef<T>[] getInjectableConstructors() {
       return injectableConstructors;
     }
-
+    @Override
+    public String getFullName() {
+      return clazz.getName();
+    }
+    
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
@@ -789,6 +793,11 @@ public class TypeHierarchy {
         ret = ret + " " + name;
       }
       return ret;
+    }
+
+    @Override
+    public String getFullName() {
+      return clazz.getName();
     }
 
     public Class<T> getArgClass() {

@@ -22,6 +22,7 @@ import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
 import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.implementation.TypeHierarchy.NamespaceNode;
+import com.microsoft.tang.implementation.TypeHierarchy.Node;
 
 public class TestTypeHierarchy {
   TypeHierarchy ns;
@@ -267,14 +268,31 @@ public class TestTypeHierarchy {
     ns.register(OverlappingNamespaces.class);
     ns.register(OverlappingNamespaces3.class);
   }
+
   @Test(expected = BindException.class)
   public void testConflictingShortNames() throws BindException {
     ns.register(ShortNameFooA.class);
     ns.register(ShortNameFooB.class);
   }
+
   @Test
   public void testOKShortNames() throws BindException {
     ns.register(ShortNameFooA.class);
+  }
+
+  @Test
+  public void testRoundTripInnerClassNames() throws BindException, ClassNotFoundException {
+    Node n = ns.register(Nested.Inner.class);
+    Class.forName(n.getFullName());
+  }
+  @Test
+  public void testRoundTripAnonInnerClassNames() throws BindException, ClassNotFoundException {
+    Node n = ns.register(AnonNested.x.getClass());
+    Node m = ns.register(AnonNested.y.getClass());
+    Assert.assertNotSame(n.getFullName(), m.getFullName());
+    Class<?> c = Class.forName(n.getFullName());
+    Class<?> d = Class.forName(m.getFullName());
+    Assert.assertNotSame(c, d);
   }
 }
 
@@ -508,7 +526,31 @@ class OverlappingNamespaces2 {
 @Namespace("X.A")
 class OverlappingNamespaces3 {
 }
+
 @NamedParameter(short_name = "foo")
-class ShortNameFooA implements Name<String> {}
+class ShortNameFooA implements Name<String> {
+}
+
 @NamedParameter(short_name = "foo")
-class ShortNameFooB implements Name<Integer> {}
+class ShortNameFooB implements Name<Integer> {
+}
+
+class Nested {
+  class Inner {
+  }
+}
+
+class AnonNested {
+  static interface X {
+  }
+
+  static X x = new X() {
+    @SuppressWarnings("unused")
+    int i;
+  };
+  static X y = new X() {
+    @SuppressWarnings("unused")
+    int j;
+  };
+
+}
