@@ -2,7 +2,10 @@ package com.microsoft.tang.implementation;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +27,7 @@ public class ConfigurationImpl implements Configuration {
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
-  final ClassLoader[] loaders;
+  final List<ClassLoader> loaders = new ArrayList<ClassLoader>();
   
   Class<?> classForName(String name) throws ClassNotFoundException {
     if(loaders != null) {
@@ -46,10 +49,9 @@ public class ConfigurationImpl implements Configuration {
   public final static String SINGLETON = "singleton";
 
   public ConfigurationImpl() {
-    this.loaders = null;
   }
-  public ConfigurationImpl(ClassLoader[] loaders) {
-    this.loaders = loaders;
+  public ConfigurationImpl(List<ClassLoader> loaders) {
+    this.loaders.addAll(loaders);
   }
 
   @Override

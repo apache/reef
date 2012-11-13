@@ -3,6 +3,7 @@ package com.microsoft.tang.implementation;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +34,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private final ConfigurationImpl conf;
 
   ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
-    conf = new ConfigurationImpl(t.conf.loaders);
+    conf = new ConfigurationImpl();
     try {
       addConfiguration(t);
     } catch (BindException e) {
@@ -46,7 +47,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   ConfigurationBuilderImpl(ClassLoader... loaders) {
-    conf = new ConfigurationImpl(loaders);
+    conf = new ConfigurationImpl(Arrays.asList(loaders));
   }
 
   ConfigurationBuilderImpl(Configuration tang) {
@@ -76,6 +77,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throw new IllegalArgumentException(
           "Cannot copy a dirty ConfigurationBuilderImpl");
     }
+    conf.loaders.addAll(old.loaders);
+    
     for (Class<?> c : old.namespace.getRegisteredClasses()) {
       register(c);
     }
