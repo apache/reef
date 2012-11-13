@@ -2,13 +2,13 @@ package com.example;
 
 import javax.inject.Inject;
 
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.InjectionPlan;
-import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.implementation.InjectorImpl;
 
 public class Timer {
@@ -22,15 +22,15 @@ public class Timer {
     this.seconds = seconds;
   }
 
-  public void sleep() throws Exception {
+  public void sleep() throws InterruptedException {
     java.lang.Thread.sleep(seconds * 1000);
   }
   
   public static void main(String[] args) throws Exception {
     Tang tang = Tang.Factory.getTang();
-    ConfigurationBuilderImpl cb = (ConfigurationBuilderImpl)tang.newConfigurationBuilder();
+    ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(Timer.class);
-    ConfigurationImpl conf = cb.build();
+    Configuration conf = cb.build();
     InjectorImpl injector = (InjectorImpl)tang.newInjector(conf);
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());
