@@ -496,7 +496,12 @@ public class TypeHierarchy {
       if (parent == null) {
         return name;
       } else {
-        return parent.getFullName() + "." + name;
+        String parentName = parent.getFullName();
+        if(parentName.length() == 0) {
+          return name;
+        } else {
+          return parent.getFullName() + "." + name;
+        }
       }
     }
 
