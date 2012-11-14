@@ -29,8 +29,8 @@ public class ConfigurationImpl implements Configuration {
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
-  private final MonotonicSet<URL> jars;
-  private ClassLoader loader;
+  private final List<URL> jars;
+  private URLClassLoader loader;
 
   public URL[] getJars() {
     return jars.toArray(new URL[0]);
@@ -48,26 +48,26 @@ public class ConfigurationImpl implements Configuration {
   public final static String SINGLETON = "singleton";
 
   public ConfigurationImpl(URL... jars) {
-    this.jars = new MonotonicSet<>();
-    this.loader = this.getClass().getClassLoader();
-    addJars(jars);
+    this.jars = new ArrayList<>(Arrays.asList(jars));
+    this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
 
   public ConfigurationImpl(ClassLoader loader, URL... jars) {
-    this.jars = new MonotonicSet<URL>(Arrays.asList(jars));
+    this.jars = new ArrayList<URL>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, loader);
   }
 
   public void addJars(URL... j) {
     List<URL> newJars = new ArrayList<>();
     for (URL u : j) {
-      if (!newJars.contains(u)) {
+      if (!this.jars.contains(u)) {
         newJars.add(u);
+        this.jars.add(u);
       }
     }
-    if (newJars.size() != 0) {
-      jars.addAllIgnoreDuplicates(newJars);
-    }
+    // Note, URL class loader first looks in its parent, then in the array of
+    // URLS passed in, in order. So, this line is equivalent to "reaching into"
+    // URLClassLoader and adding the URLS to the end of the array.
     this.loader = new URLClassLoader(newJars.toArray(new URL[0]), this.loader);
   }
 
