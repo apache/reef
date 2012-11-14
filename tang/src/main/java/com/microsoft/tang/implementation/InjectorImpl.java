@@ -28,12 +28,6 @@ public class InjectorImpl implements Injector {
   public InjectorImpl(ConfigurationImpl old_tc) throws InjectionException,
       BindException {
     tc = new ConfigurationBuilderImpl(old_tc).build();
-    for (ClassNode<?> cn : tc.singletons) {
-      if (!tc.singletonInstances.containsKey(cn)) {
-        Object o = getInstance(cn.getClazz());
-        tc.singletonInstances.put(cn, o);
-      }
-    }
   }
 
   private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,
@@ -167,8 +161,21 @@ public class InjectorImpl implements Injector {
     return p.isInjectable();
   }
 
+  boolean populated = false;
+  private void populateSingletons() throws InjectionException {
+    if(!populated) {
+      populated = true;
+      for (ClassNode<?> cn : tc.singletons) {
+        if (!tc.singletonInstances.containsKey(cn)) {
+          Object o = getInstance(cn.getClazz());
+          tc.singletonInstances.put(cn, o);
+        }
+      }
+    }
+  }
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
+    populateSingletons();
     InjectionPlan<U> plan = getInjectionPlan(clazz);
     return injectFromPlan(plan);
   }
@@ -176,6 +183,7 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   @Override
   public <U> U getInstance(String clazz) throws InjectionException {
+    populateSingletons();
     InjectionPlan<?> plan = getInjectionPlan(clazz);
     return (U) injectFromPlan(plan);
   }
