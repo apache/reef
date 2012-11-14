@@ -332,10 +332,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     ClassNode<T> cn = (ClassNode<T>) n;
     cn.setIsSingleton();
     conf.singletons.add(cn);
-    if (c != d) {
-      // Note: d is *NOT* necessarily a singleton.
-      conf.boundImpls.put(cn, d);
-    }
+    conf.boundImpls.put(cn, d);
   }
 
   @Override
