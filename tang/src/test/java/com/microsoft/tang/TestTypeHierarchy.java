@@ -99,7 +99,10 @@ public class TestTypeHierarchy {
   public void testRepeatConstructorArgClasses() throws BindException {
     ns.register(RepeatConstructorArgClasses.class);
   }
-
+  @Test
+  public void testLeafRepeatedConstructorArgClasses() throws BindException {
+    ns.register(LeafRepeatedConstructorArgClasses.class);
+  }
   @Test
   public void testNamedRepeatConstructorArgClasses() throws BindException {
     ns.register(NamedRepeatConstructorArgClasses.class);
@@ -351,6 +354,12 @@ class RepeatConstructorArgClasses {
   public @Inject
   RepeatConstructorArgClasses(A x, A y) {
   }
+}
+
+class LeafRepeatedConstructorArgClasses {
+  static class A { class AA { }}
+  static class B { class AA { }}
+  static class C { @Inject C(A.AA a, B.AA b) { }}
 }
 
 @NamedParameter()

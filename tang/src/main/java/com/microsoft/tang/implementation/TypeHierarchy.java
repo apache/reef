@@ -559,12 +559,12 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      return "[" + ReflectionUtilities.getSimpleName(this.getClass()) + " '" + getFullName()
+      return "[" + ReflectionUtilities.getFullName(this.getClass()) + " '" + getFullName()
           + "']";
     }
 
     public String getType() {
-      return ReflectionUtilities.getSimpleName(this.getClass());
+      return ReflectionUtilities.getFullName(this.getClass());
     }
 
     public String getName() {
@@ -866,8 +866,8 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      return name == null ? ReflectionUtilities.getSimpleName(type)
-          : ReflectionUtilities.getSimpleName(type) + " " + ReflectionUtilities.getSimpleName(name.value());
+      return name == null ? ReflectionUtilities.getFullName(type)
+          : ReflectionUtilities.getFullName(type) + " " + ReflectionUtilities.getFullName(name.value());
     }
 
     @Override
@@ -923,10 +923,10 @@ public class TypeHierarchy {
 
       for (int i = 0; i < this.args.length; i++) {
         for (int j = i + 1; j < this.args.length; j++) {
-          if (this.args[i].toString().equals(this.args[j].toString())) {
+          if (this.args[i].equals(this.args[j])) {
             throw new BindException(
                 "Repeated constructor parameter detected.  "
-                    + "Cannot inject this constructor.");
+                    + "Cannot inject constructor" + constructor);
           }
         }
       }

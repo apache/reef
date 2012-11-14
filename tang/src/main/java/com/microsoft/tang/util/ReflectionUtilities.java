@@ -126,4 +126,7 @@ public class ReflectionUtilities {
     String[] nameArray = name.getName().split(regexp);
     return nameArray[nameArray.length - 1];
   }
+  public static String getFullName(Class<?> name) {
+    return name.getName();
+  }
 }
