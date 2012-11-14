@@ -2,6 +2,8 @@ package com.microsoft.tang;
 
 import java.io.ByteArrayOutputStream;
 
+import javax.inject.Inject;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -24,5 +26,24 @@ public class TestConfFileParser {
     String out = os.toString();
     Assert.assertEquals(in, out);
   }
-
+  @Test
+  public void testBindSingleton() throws BindException {
+    // TODO: This likely only passes on windows, as it relies on newlines
+    // being \r\n, and on java.lang.Object having a lower hash code than
+    // com.microsoft.tang.TestConfFileParser
+    Tang t = Tang.Factory.getTang();
+    ConfigurationBuilder cb = t.newConfigurationBuilder();
+    //cb.bindSingletonImplementation(SingleTest.A.class, SingleTest.B.class);
+    cb.bindSingleton(SingleTest.A.class);
+    cb.bindImplementation(SingleTest.A.class, SingleTest.B.class);
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    cb.build().writeConfigurationFile(os);
+    String out = os.toString();
+    String in = "xxx";
+    Assert.assertEquals(in, out);
+  }
+}
+class SingleTest {
+  static class A{}
+  static class B extends A{ @Inject B() {} }
 }

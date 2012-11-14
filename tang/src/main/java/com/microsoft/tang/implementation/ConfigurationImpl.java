@@ -89,10 +89,30 @@ public class ConfigurationImpl implements Configuration {
       throw new IllegalStateException(
           "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object.  Refusing to serialize it!");
     }
-    Map<String, String> effectiveConfiguration = getConfiguration();
-    for (String k : effectiveConfiguration.keySet()) {
-      // XXX escaping of strings!!!
-      s.println(k + "=" + effectiveConfiguration.get(k));
+    
+    for (Class<?> opt : namespace.getRegisteredClasses()) {
+      try {
+        Node n = namespace.getNode(opt);
+        if(n instanceof NamedParameterNode) {
+          // XXX escaping of strings!!!
+          s.println(opt.getName() + "=" + REGISTERED);
+        }
+      } catch (NameResolutionException e) {
+        throw new IllegalStateException("Found partially registered class?", e);
+      }
+    }
+    for (Node opt : boundImpls.keySet()) {
+      s.println(opt.getFullName() + "=" + boundImpls.get(opt).getName());
+    }
+    for (Node opt : boundConstructors.keySet()) {
+      s.println(opt.getFullName() + "=" + boundConstructors.get(opt).getName());
+    }
+    for (Node opt : namedParameters.keySet()) {
+      s.println(opt.getFullName() + "=" + namedParameters.get(opt));
+    }
+    for (Node opt : singletons) {
+      //ret.put(opt.getFullName(), SINGLETON);
+      s.println(opt.getFullName() + "=" + SINGLETON);
     }
   }
 
@@ -107,7 +127,7 @@ public class ConfigurationImpl implements Configuration {
    * 
    * @return a String to String map
    */
-  public Map<String, String> getConfiguration() {
+  private Map<String, String> getConfiguration() {
     if (dirtyBit) {
       throw new IllegalStateException(
           "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object; no introspection allowed!");
