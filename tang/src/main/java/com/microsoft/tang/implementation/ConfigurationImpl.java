@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
@@ -103,12 +104,16 @@ public class ConfigurationImpl implements Configuration {
     }
 
     Map<String, String> ret = new HashMap<String, String>();
-//    for (Class<?> opt : namespace.getRegisteredClasses()) {
-//      Node n = namespace.getNode(opt);
-//      if(n instanceof NamedParameterNode) {
-//        ret.put(opt.getName(), REGISTERED);
-//      }
-//    }
+    for (Class<?> opt : namespace.getRegisteredClasses()) {
+      try {
+        Node n = namespace.getNode(opt);
+        if(n instanceof NamedParameterNode) {
+          ret.put(opt.getName(), REGISTERED);
+        }
+      } catch (NameResolutionException e) {
+        throw new IllegalStateException("Found partially registered class?", e);
+      }
+    }
     for (Node opt : boundImpls.keySet()) {
       ret.put(opt.getFullName(), boundImpls.get(opt).getName());
     }
