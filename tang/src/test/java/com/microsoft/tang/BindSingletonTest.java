@@ -7,8 +7,12 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.junit.Test;
 
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 
@@ -94,20 +98,6 @@ public class BindSingletonTest {
       i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
       i.getInstance(LateBoundVolatile.B.class);
     }
-    
-    @Test public void testTysonLateBoundVolatileInstance() throws BindException, InjectionException, IOException {
-        ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-        cb.bindSingletonImplementation(LateBoundVolatile.A.class, LateBoundVolatile.B.class);
-        File tmp = File.createTempFile(null, null);
-        cb.build().writeConfigurationFile(tmp);
-        
-        
-        ConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
-        cb2.addConfiguration(tmp);
-        Injector i = Tang.Factory.getTang().newInjector(cb2.build());
-        i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
-        i.getInstance(LateBoundVolatile.A.class);
-      }
 }
 
 class LateBoundVolatile {
