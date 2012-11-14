@@ -685,7 +685,12 @@ public class TypeHierarchy {
             }
             args[i] = new ConstructorArg(paramTypes[i], named);
           }
-          ConstructorDef<T> def = new ConstructorDef<T>(args, constructors[k]);
+          ConstructorDef<T> def;
+          try {
+            def = new ConstructorDef<T>(args, constructors[k]);
+          } catch(BindException e) {
+            throw new BindException("Detected bad constructor in " + constructors[k] + " in "+ clazz, e);
+          }
           if (injectableConstructors.contains(def)) {
             throw new BindException(
                 "Ambiguous boundConstructors detected in class " + clazz + ": "
