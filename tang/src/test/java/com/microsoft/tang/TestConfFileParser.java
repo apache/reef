@@ -39,7 +39,7 @@ public class TestConfFileParser {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     cb.build().writeConfigurationFile(os);
     String out = os.toString();
-    String in = "xxx";
+    String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\r\ncom.microsoft.tang.SingleTest$A=singleton\r\n";
     Assert.assertEquals(in, out);
   }
 }
