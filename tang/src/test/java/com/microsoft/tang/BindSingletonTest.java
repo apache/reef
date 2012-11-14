@@ -13,7 +13,7 @@ import com.microsoft.tang.exceptions.InjectionException;
 
 public class BindSingletonTest {
 
-    public static Configuration roundtrip(final Configuration conf) {
+    private static Configuration roundtrip(final Configuration conf) {
         try {
             final File f = File.createTempFile("TANGConf-", ".conf");
             conf.writeConfigurationFile(f);
@@ -26,15 +26,11 @@ public class BindSingletonTest {
     }
 
     public static class A {
-
         @Inject
-        public A(){
-            
+        public A() {
+            // Intentionally blank
         }
-        @SuppressWarnings("static-method")
-        public void print() {
-            System.err.println("A");
-        }
+
     }
 
     public static class B extends A {
@@ -42,13 +38,12 @@ public class BindSingletonTest {
         public B() {
             // intentionally blank
         }
-
-        @Override
-        public void print() {
-            System.err.println("B");
-        }
     }
 
+    
+    
+    
+    @SuppressWarnings("static-method")
     @Test
     public void testSingletonRoundTrip() throws BindException, InjectionException {
 
@@ -64,6 +59,14 @@ public class BindSingletonTest {
         assertTrue("Two singletons should be the same", a1 == a2);
         assertTrue("Both instances should be of class B", a1 instanceof B);
         assertTrue("Both instances should be of class B", a2 instanceof B);
+
+        final Injector injector2 = Tang.Factory.getTang().newInjector(src);
+        final A a3 = injector2.getInstance(A.class);
+        assertTrue("Two different injectors should return two different singletons", a3 != a1);
+
+        final Injector injector3 = injector2.createChildInjector();
+        final A a4 = injector3.getInstance(A.class);
+        assertTrue("Child Injectors should return the same singletons as their parents", a3 == a4);
     }
 
 }
