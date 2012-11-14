@@ -164,7 +164,7 @@ public abstract class InjectionPlan<T> {
     public int getNumAlternatives() {
       return 0;
     }
-
+    // XXX better error message here!
     @Override
     public String toString() {
       return "(no injectors for " + name + ")";

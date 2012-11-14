@@ -1,5 +1,6 @@
 package com.microsoft.tang;
 
+import java.io.File;
 import java.io.OutputStream;
 
 /**
@@ -17,7 +18,13 @@ public interface Configuration {
    * 
    * @param s
    * @throws IOException
+   * @deprecated
    */
   public void writeConfigurationFile(OutputStream s);
 
+  /**
+   * Writes this Configuration to the given OutputStream.
+   * 
+   */
+  public void writeConfigurationFile(File f);
 }

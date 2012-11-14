@@ -1,5 +1,7 @@
 package com.microsoft.tang.implementation;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
@@ -72,6 +74,12 @@ public class ConfigurationImpl implements Configuration {
     this.loader = new URLClassLoader(newJars.toArray(new URL[0]), this.loader);
   }
 
+  @Override
+  public void writeConfigurationFile(File f) {
+    OutputStream o = new FileOutputStream(f);
+    writeConfigurationFile(o);
+    o.close();
+  }
   @Override
   public void writeConfigurationFile(OutputStream o) {
     PrintStream s = new PrintStream(o);

@@ -323,6 +323,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     cn.setIsSingleton();
     conf.singletons.add(cn);
   }
+
   @Override
   public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
         throws BindException {
