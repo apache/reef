@@ -3,6 +3,7 @@ package com.microsoft.tang;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -93,6 +94,20 @@ public class BindSingletonTest {
       i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
       i.getInstance(LateBoundVolatile.B.class);
     }
+    
+    @Test public void testTysonLateBoundVolatileInstance() throws BindException, InjectionException, IOException {
+        ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+        cb.bindSingletonImplementation(LateBoundVolatile.A.class, LateBoundVolatile.B.class);
+        File tmp = File.createTempFile(null, null);
+        cb.build().writeConfigurationFile(tmp);
+        
+        
+        ConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
+        cb2.addConfiguration(tmp);
+        Injector i = Tang.Factory.getTang().newInjector(cb2.build());
+        i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+        i.getInstance(LateBoundVolatile.A.class);
+      }
 }
 
 class LateBoundVolatile {
