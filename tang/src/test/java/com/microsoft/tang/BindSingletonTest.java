@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.junit.Test;
 
 import com.microsoft.tang.annotations.Name;
@@ -78,8 +77,8 @@ public class BindSingletonTest {
       Tang tang = Tang.Factory.getTang();
       ConfigurationBuilder cb = tang.newConfigurationBuilder();
       cb.bindSingletonImplementation(LateBoundVolatile.A.class, LateBoundVolatile.B.class);
-      Injector i = tang.newInjector(cb.build());
-      i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+      final Injector i = tang.newInjector(cb.build());
+      i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
       i.getInstance(LateBoundVolatile.A.class);
     }
     @Test public void testLateBoundVolatileInstanceWithSingletonY() throws BindException, InjectionException {
@@ -87,7 +86,7 @@ public class BindSingletonTest {
       ConfigurationBuilder cb = tang.newConfigurationBuilder();
       cb.bindSingleton(LateBoundVolatile.C.class);
       Injector i = tang.newInjector(cb.build());
-      i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+      i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
       i.getInstance(LateBoundVolatile.C.class);
     }
     @Test public void testLateBoundVolatileInstanceWithSingletonZ() throws BindException, InjectionException {
@@ -95,7 +94,7 @@ public class BindSingletonTest {
       ConfigurationBuilder cb = tang.newConfigurationBuilder();
       cb.bindSingletonImplementation(LateBoundVolatile.B.class, LateBoundVolatile.B.class);
       Injector i = tang.newInjector(cb.build());
-      i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+      i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
       i.getInstance(LateBoundVolatile.B.class);
     }
 }
