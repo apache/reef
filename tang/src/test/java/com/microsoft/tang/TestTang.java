@@ -201,6 +201,12 @@ public class TestTang {
     Assert.assertEquals("not defaultA", i.getInstance(TwoNamedStringArgs.class).a);
     Assert.assertEquals("not defaultB", i.getInstance(TwoNamedStringArgs.class).b);
   }
+  @Test
+  public void testBextendsAinjectA() throws BindException, InjectionException {
+    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    cb.bind(BextendsAinjectA.A.class,BextendsAinjectA.A.class);
+    tang.newInjector(cb.build()).getInstance(BextendsAinjectA.A.class);
+  }
 }
 
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
@@ -299,4 +305,8 @@ class TwoNamedStringArgs {
     this.a = a;
     this.b = b;
   }
+}
+class BextendsAinjectA {
+  static class A { @Inject A() { } }
+  static class B extends A { }
 }

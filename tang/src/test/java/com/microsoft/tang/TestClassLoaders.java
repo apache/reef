@@ -3,6 +3,8 @@ package com.microsoft.tang;
 import java.io.File;
 import java.net.MalformedURLException;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import com.microsoft.tang.exceptions.BindException;
@@ -55,5 +57,23 @@ public class TestClassLoaders {
     cbA.register("com.example.B");
 
     t.newInjector(cbA.build());
+  }
+  @Test
+  public void testTwoChildrenOneJarDifferentTypes()
+      throws MalformedURLException, InjectionException, BindException,
+      ClassNotFoundException {
+    Tang t = Tang.Factory.getTang();
+    ConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
+        "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
+        .toURL());
+    ConfigurationBuilder cbA2 = t.newConfigurationBuilder(new File(
+        "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
+        .toURL());
+    cbA1.register("com.example.A");
+    cbA1.bind("com.example.A", "com.example.B");
+    cbA2.bind("com.example.A", "com.example.B");
+    Object o = t.newInjector(cbA1.build()).getInstance("com.example.A");
+    Object p = t.newInjector(cbA2.build()).getInstance("com.example.A");
+    Assert.assertNotSame(o.getClass(), p.getClass());
   }
 }
