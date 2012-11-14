@@ -52,6 +52,8 @@ public interface ConfigurationBuilder {
    */
   public void register(Class<?> c) throws BindException;
 
+  public void register(String c) throws BindException;
+
   /**
    * Bind classes to each other, based on their full class names.
    * 
