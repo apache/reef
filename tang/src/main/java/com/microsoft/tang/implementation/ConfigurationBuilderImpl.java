@@ -306,23 +306,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> void bindSingleton(Class<T> c) throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
-    bindSingletonNoImpl(c, c);
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> ClassNode<T> bindSingletonNoImpl(Class<T> c, Class<? extends T> d)
-      throws BindException {
-    if (conf.sealed)
-      throw new IllegalStateException(
-          "Can't bind to sealed ConfigurationBuilderImpl!");
 
     Node n = conf.namespace.register(c);
-    conf.namespace.register(d);
 
     if (!(n instanceof ClassNode)) {
       throw new IllegalArgumentException("Can't bind singleton to " + n
@@ -331,13 +322,12 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     ClassNode<T> cn = (ClassNode<T>) n;
     cn.setIsSingleton();
     conf.singletons.add(cn);
-    return cn;
   }
   @Override
   public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
         throws BindException {
-      ClassNode<T> cn = bindSingletonNoImpl(c,d);
-      conf.boundImpls.put(cn, d);
+      bindSingleton(c);
+      bindImplementation(c, d);
   }
 
   @Override
