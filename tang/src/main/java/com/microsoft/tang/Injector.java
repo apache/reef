@@ -44,10 +44,10 @@ public interface Injector {
    * @return A copy of this injector that reflects the new binding.
    * @throws BindException
    */
-  public <T> Injector bindVolatileInstance(Class<T> iface, T inst)
+  public <T> void bindVolatileInstance(Class<T> iface, T inst)
       throws BindException;
 
-  public <T> Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst)
+  public <T> void bindVolatileParameter(Class<? extends Name<T>> iface, T inst)
       throws BindException;
 
   /**

@@ -252,19 +252,15 @@ public class InjectorImpl implements Injector {
   }
 
   @Override
-  public <T> InjectorImpl bindVolatileInstance(Class<T> c, T o)
+  public <T> void bindVolatileInstance(Class<T> c, T o)
       throws BindException {
-    InjectorImpl ret = copy(this);
-    ret.bindVolatileInstanceNoCopy(c, o);
-    return ret;
+    bindVolatileInstanceNoCopy(c, o);
   }
 
   @Override
-  public <T> InjectorImpl bindVolatileParameter(Class<? extends Name<T>> c, T o)
+  public <T> void bindVolatileParameter(Class<? extends Name<T>> c, T o)
       throws BindException {
-    InjectorImpl ret = copy(this);
-    ret.bindVolatileParameterNoCopy(c, o);
-    return ret;
+    bindVolatileParameterNoCopy(c, o);
   }
 
   <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
