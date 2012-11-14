@@ -1,5 +1,7 @@
 package com.microsoft.tang.implementation;
 
+import java.net.URL;
+
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Injector;
@@ -18,16 +20,16 @@ public class TangImpl implements Tang {
   @Override
   public ConfigurationBuilder newConfigurationBuilder() {
     try {
-      return newConfigurationBuilder(new ClassLoader[0], new Configuration[0]);
+      return newConfigurationBuilder(new URL[0], new Configuration[0]);
     } catch (BindException e) {
       throw new IllegalStateException(
           "Caught unexpeceted bind exception!  Implementation bug.", e);
     }
   }
   @Override
-  public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loaders) {
+  public ConfigurationBuilder newConfigurationBuilder(URL... jars) {
     try {
-      return newConfigurationBuilder(loaders, new Configuration[0]);
+      return newConfigurationBuilder(jars, new Configuration[0]);
     } catch (BindException e) {
       throw new IllegalStateException(
           "Caught unexpeceted bind exception!  Implementation bug.", e);
@@ -37,14 +39,14 @@ public class TangImpl implements Tang {
   @Override
   public ConfigurationBuilder newConfigurationBuilder(Configuration... confs)
       throws BindException {
-    return newConfigurationBuilder(new ClassLoader[0], confs);
+    return newConfigurationBuilder(new URL[0], confs);
 
   }
 
   @Override
-  public ConfigurationBuilder newConfigurationBuilder(ClassLoader[] loaders,
+  public ConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs) throws BindException {
-    ConfigurationBuilderImpl cb = new ConfigurationBuilderImpl(loaders);
+    ConfigurationBuilderImpl cb = new ConfigurationBuilderImpl(jars);
     for (Configuration c : confs) {
       cb.addConfiguration(c);
     }

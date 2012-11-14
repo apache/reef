@@ -1,5 +1,7 @@
 package com.microsoft.tang;
 
+import java.net.URL;
+
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.implementation.TangImpl;
@@ -26,7 +28,7 @@ public interface Tang {
    * 
    * @return a new ConfigurationBuilder
    */
-  public ConfigurationBuilder newConfigurationBuilder(ClassLoader... loader);
+  public ConfigurationBuilder newConfigurationBuilder(URL... jars);
 
   /**
    * Create a new ConfigurationBuilder
@@ -41,7 +43,7 @@ public interface Tang {
    * 
    * @return a new ConfigurationBuilder
    */
-  public ConfigurationBuilder newConfigurationBuilder(ClassLoader[] loaders,
+  public ConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs) throws BindException;
   /**
    * Create a new ConfigurationBuilder

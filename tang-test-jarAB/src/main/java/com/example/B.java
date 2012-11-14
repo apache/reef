@@ -1,5 +1,7 @@
 package com.example;
 
-public class B extends A {
+import javax.inject.Inject;
 
+public class B extends A {
+  @Inject public B() { }
 }

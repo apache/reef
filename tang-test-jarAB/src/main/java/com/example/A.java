@@ -1,5 +1,7 @@
 package com.example;
 
-public class A {
+import javax.inject.Inject;
 
+public class A {
+  @Inject public A() {}
 }

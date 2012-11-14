@@ -2,6 +2,8 @@ package com.microsoft.tang.implementation;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,35 +25,50 @@ public class ConfigurationImpl implements Configuration {
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();
   final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<NamedParameterNode<?>, String>();
-  
+
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
-  final List<ClassLoader> loaders = new ArrayList<ClassLoader>();
-  
-  Class<?> classForName(String name) throws ClassNotFoundException {
-    if(loaders != null) {
-        for(ClassLoader loader : loaders) {
-        try {
-          return loader.loadClass(name);
-        } catch(ClassNotFoundException e) { }
-      }
-    }
-    return Class.forName(name);
+  private final List<URL> jars;
+  private URLClassLoader loader;
+
+  public URL[] getJars() {
+    return jars.toArray(new URL[0]);
   }
-  
+
+  Class<?> classForName(String name) throws ClassNotFoundException {
+    return loader.loadClass(name);
+  }
+
   boolean sealed = false;
   boolean dirtyBit = false;
 
-  
   public final static String IMPORT = "import";
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
 
-  public ConfigurationImpl() {
+  public ConfigurationImpl(URL... jars) {
+    this.jars = new ArrayList<>(Arrays.asList(jars));
+    this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
-  public ConfigurationImpl(List<ClassLoader> loaders) {
-    this.loaders.addAll(loaders);
+
+  public ConfigurationImpl(ClassLoader loader, URL... jars) {
+    this.jars = new ArrayList<URL>(Arrays.asList(jars));
+    this.loader = new URLClassLoader(jars, loader);
+  }
+
+  public void addJars(URL... j) {
+    List<URL> newJars = new ArrayList<>();
+    for (URL u : j) {
+      if (!this.jars.contains(u)) {
+        newJars.add(u);
+        this.jars.add(u);
+      }
+    }
+    // Note, URL class loader first looks in its parent, then in the array of
+    // URLS passed in, in order. So, this line is equivalent to "reaching into"
+    // URLClassLoader and adding the URLS to the end of the array.
+    this.loader = new URLClassLoader(newJars.toArray(new URL[0]), this.loader);
   }
 
   @Override
@@ -69,13 +86,13 @@ public class ConfigurationImpl implements Configuration {
   }
 
   /**
-   * Obtain the effective configuration of this ConfigurationBuilderImpl instance. This consists
-   * of string-string pairs that could be dumped directly to a Properties
-   * file, for example. Currently, this method does not return information
-   * about default parameter values that were specified by parameter
-   * annotations, or about the auto-discovered stuff in TypeHierarchy. All of
-   * that should be automatically imported as these keys are parsed on the
-   * other end.
+   * Obtain the effective configuration of this ConfigurationBuilderImpl
+   * instance. This consists of string-string pairs that could be dumped
+   * directly to a Properties file, for example. Currently, this method does not
+   * return information about default parameter values that were specified by
+   * parameter annotations, or about the auto-discovered stuff in TypeHierarchy.
+   * All of that should be automatically imported as these keys are parsed on
+   * the other end.
    * 
    * @return a String to String map
    */
@@ -86,9 +103,9 @@ public class ConfigurationImpl implements Configuration {
     }
 
     Map<String, String> ret = new HashMap<String, String>();
-    for (Class<?> opt : namespace.getRegisteredClasses()) {
-      ret.put(opt.getName(), REGISTERED);
-    }
+//    for (Class<?> opt : namespace.getRegisteredClasses()) {
+//      ret.put(opt.getName(), REGISTERED);
+//    }
     for (Node opt : boundImpls.keySet()) {
       ret.put(opt.getFullName(), boundImpls.get(opt).getName());
     }

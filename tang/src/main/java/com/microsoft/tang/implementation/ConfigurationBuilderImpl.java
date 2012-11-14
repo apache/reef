@@ -3,7 +3,7 @@ package com.microsoft.tang.implementation;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,8 +46,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     conf = new ConfigurationImpl();
   }
 
-  ConfigurationBuilderImpl(ClassLoader... loaders) {
-    conf = new ConfigurationImpl(Arrays.asList(loaders));
+  ConfigurationBuilderImpl(URL... jars) {
+    conf = new ConfigurationImpl(jars);
   }
 
   ConfigurationBuilderImpl(Configuration tang) {
@@ -77,7 +77,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throw new IllegalArgumentException(
           "Cannot copy a dirty ConfigurationBuilderImpl");
     }
-    conf.loaders.addAll(old.loaders);
+    conf.addJars(old.getJars());
     
     for (Class<?> c : old.namespace.getRegisteredClasses()) {
       register(c);
@@ -140,6 +140,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void register(Class<?> c) throws BindException {
     conf.namespace.register(c);
+  }
+  public void register(String s)  throws BindException {
+    try {
+      conf.namespace.register(conf.classForName(s));
+    } catch(ClassNotFoundException e) {
+      throw new BindException("Could not register class", e);
+    }
   }
 
   private Options getCommandLineOptions() {

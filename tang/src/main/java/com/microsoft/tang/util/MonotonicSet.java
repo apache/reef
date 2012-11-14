@@ -6,6 +6,14 @@ import java.util.HashSet;
 public class MonotonicSet<T> extends HashSet<T> {
   private static final long serialVersionUID = 1L;
 
+  public MonotonicSet() {
+    super();
+  }
+
+  public MonotonicSet(Collection<T> c) {
+    addAll(c);
+  }
+
   @Override
   public boolean add(T e) {
     if (super.contains(e)) {
@@ -40,7 +48,20 @@ public class MonotonicSet<T> extends HashSet<T> {
 
   @Override
   public boolean addAll(Collection<? extends T> c) {
-    throw new UnsupportedOperationException(
-        "addAll() not implemennted for MonotonicSet.");
+    for (T t : c) {
+      add(t);
+    }
+    return c.size() != 0;
+  }
+
+  public boolean addAllIgnoreDuplicates(Collection<? extends T> c) {
+    boolean ret = false;
+    for (T t : c) {
+      if (!contains(t)) {
+        add(t);
+        ret = true;
+      }
+    }
+    return ret;
   }
 }

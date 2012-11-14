@@ -25,11 +25,11 @@ import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
 public class InjectorImpl implements Injector {
   private final ConfigurationImpl tc;
 
-  public InjectorImpl(ConfigurationImpl old_tc)
-      throws InjectionException, BindException {
+  public InjectorImpl(ConfigurationImpl old_tc) throws InjectionException,
+      BindException {
     tc = new ConfigurationBuilderImpl(old_tc).build();
     for (ClassNode<?> cn : tc.singletons) {
-      if(!tc.singletonInstances.containsKey(cn)) {
+      if (!tc.singletonInstances.containsKey(cn)) {
         Object o = getInstance(cn.getClazz());
         tc.singletonInstances.put(cn, o);
       }
@@ -81,14 +81,19 @@ public class InjectorImpl implements Injector {
       } else if (tc.boundConstructors.containsKey(cn)) {
         throw new UnsupportedOperationException("Vivifiers aren't working yet!");
         // ip = new Instance(cn, null);
-      } else if (tc.boundImpls.containsKey(cn)) {
+      } else if (tc.boundImpls.containsKey(cn)
+          && !tc.boundImpls.get(cn).equals(cn.getClazz())) {
         String implName = tc.boundImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
         ip = memo.get(implName);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<ClassNode<?>>();
-        for (ClassNode<?> c : tc.namespace.getKnownImpls(cn)) {
-          classNodes.add(c);
+        if (tc.boundImpls.get(cn) == null) {
+          // if we're here, and there is a bound impl, then we're bound to ourselves,
+          // so skip this loop.
+          for (ClassNode<?> c : tc.namespace.getKnownImpls(cn)) {
+            classNodes.add(c);
+          }
         }
         classNodes.add(cn);
         List<InjectionPlan<?>> sub_ips = new ArrayList<InjectionPlan<?>>();
@@ -168,6 +173,13 @@ public class InjectorImpl implements Injector {
     return injectFromPlan(plan);
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <U> U getInstance(String clazz) throws InjectionException {
+    InjectionPlan<?> plan = getInjectionPlan(clazz);
+    return (U) injectFromPlan(plan);
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
@@ -231,7 +243,6 @@ public class InjectorImpl implements Injector {
     return i;
   }
 
-
   @Override
   public <T> InjectorImpl bindVolatileInstance(Class<T> c, T o)
       throws BindException {
@@ -248,8 +259,7 @@ public class InjectorImpl implements Injector {
     return ret;
   }
 
-  <T> void bindVolatileInstanceNoCopy(Class<T> c, T o)
-      throws BindException {
+  <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
     Node n;
     try {
       n = tc.namespace.getNode(c);
@@ -296,7 +306,6 @@ public class InjectorImpl implements Injector {
     }
   }
 
-  
   @Override
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {

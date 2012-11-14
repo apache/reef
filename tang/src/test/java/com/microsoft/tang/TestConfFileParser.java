@@ -17,7 +17,7 @@ public class TestConfFileParser {
     // com.microsoft.tang.TestConfFileParser
     Tang t = Tang.Factory.getTang();
     ConfigurationBuilder cb = t.newConfigurationBuilder();
-    String in = "java.lang.Object=registered\r\ncom.microsoft.tang.TestConfFileParser=com.microsoft.tang.TestConfFileParser\r\n";
+    String in = "com.microsoft.tang.TestConfFileParser=com.microsoft.tang.TestConfFileParser\r\n";
     cb.addConfiguration(in);
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     cb.build().writeConfigurationFile(os);
