@@ -610,7 +610,11 @@ public class TypeHierarchy {
     }
     @Override
     public String getFullName() {
-      return clazz.getName();
+      if(clazz.isPrimitive()) {
+        return super.getFullName();
+      } else {
+        return clazz.getName();
+      }
     }
     
     @Override
