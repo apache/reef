@@ -68,5 +68,35 @@ public class BindSingletonTest {
         final A a4 = injector3.getInstance(A.class);
         assertTrue("Child Injectors should return the same singletons as their parents", a3 == a4);
     }
+    
+    @Test public void testLateBoundVolatilteInstanceWithSingleton() throws BindException, InjectionException {
+      Tang tang = Tang.Factory.getTang();
+      ConfigurationBuilder cb = tang.newConfigurationBuilder();
+      cb.bindSingletonImplementation(LateBoundVolatile.A.class, LateBoundVolatile.B.class);
+      Injector i = tang.newInjector(cb.build());
+      i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+      LateBoundVolatile.A a = i.getInstance(LateBoundVolatile.A.class);
+    }
+    @Test public void testLateBoundOneVolatilteInstanceWithSingleton() throws BindException, InjectionException {
+      Tang tang = Tang.Factory.getTang();
+      ConfigurationBuilder cb = tang.newConfigurationBuilder();
+      cb.bindSingleton(LateBoundVolatile.C.class);
+      Injector i = tang.newInjector(cb.build());
+      i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+      LateBoundVolatile.C a = i.getInstance(LateBoundVolatile.C.class);
+    }
+    @Test public void testLateBoundXXVolatilteInstanceWithSingleton() throws BindException, InjectionException {
+      Tang tang = Tang.Factory.getTang();
+      ConfigurationBuilder cb = tang.newConfigurationBuilder();
+      cb.bindSingletonImplementation(LateBoundVolatile.B.class, LateBoundVolatile.B.class);
+      Injector i = tang.newInjector(cb.build());
+      i = i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+      LateBoundVolatile.A a = i.getInstance(LateBoundVolatile.B.class);
+    }
+}
 
+class LateBoundVolatile {
+  static class A {}
+  static class B extends A { @Inject B(C c) { } }
+  static class C { }
 }
