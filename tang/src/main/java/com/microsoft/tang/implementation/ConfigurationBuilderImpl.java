@@ -311,12 +311,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
-    bindSingletonImplementation(c, c);
+    bindSingletonNoImpl(c, c);
   }
 
-  @Override
   @SuppressWarnings("unchecked")
-  public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
+  private <T> ClassNode<T> bindSingletonNoImpl(Class<T> c, Class<? extends T> d)
       throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
@@ -332,7 +331,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     ClassNode<T> cn = (ClassNode<T>) n;
     cn.setIsSingleton();
     conf.singletons.add(cn);
-    conf.boundImpls.put(cn, d);
+    return cn;
+  }
+  @Override
+  public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
+        throws BindException {
+      ClassNode<T> cn = bindSingletonNoImpl(c,d);
+      conf.boundImpls.put(cn, d);
   }
 
   @Override
