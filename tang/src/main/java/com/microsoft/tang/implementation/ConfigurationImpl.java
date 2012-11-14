@@ -1,7 +1,9 @@
 package com.microsoft.tang.implementation;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
@@ -75,7 +77,7 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public void writeConfigurationFile(File f) {
+  public void writeConfigurationFile(File f) throws IOException {
     OutputStream o = new FileOutputStream(f);
     writeConfigurationFile(o);
     o.close();
