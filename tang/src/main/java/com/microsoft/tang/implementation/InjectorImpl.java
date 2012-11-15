@@ -54,7 +54,7 @@ public class InjectorImpl implements Injector {
       }
     }
     memo.put(name, InjectionPlan.BUILDING);
-    Node n;
+    Node n; // TODO: Register the node here (to bring into line with bindVolatile(...)
     try {
       n = tc.namespace.getNode(name);
     } catch (NameResolutionException e) {
