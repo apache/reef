@@ -54,7 +54,7 @@ public class InjectorImpl implements Injector {
       }
     }
     memo.put(name, InjectionPlan.BUILDING);
-    Node n;
+    Node n; // TODO: Register the node here (to bring into line with bindVolatile(...)
     try {
       n = tc.namespace.getNode(name);
     } catch (NameResolutionException e) {
@@ -264,13 +264,13 @@ public class InjectorImpl implements Injector {
   }
 
   <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
-    Node n;
-    try {
+    Node n = tc.namespace.register(c);
+    /* try {
       n = tc.namespace.getNode(c);
     } catch (NameResolutionException e) {
       // TODO: Unit test for bindVolatileInstance to unknown class.
-      throw new BindException("Can't bind to unknown class " + c, e);
-    }
+      throw new BindException("Can't bind to unknown class " + c.getName(), e);
+    } */
 
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
@@ -289,12 +289,12 @@ public class InjectorImpl implements Injector {
 
   <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
       throws BindException {
-    Node n;
-    try {
+    Node n = tc.namespace.register(c);
+    /*try {
       n = tc.namespace.getNode(c);
     } catch (NameResolutionException e) {
-      throw new BindException("Can't bind to unknown name " + c, e);
-    }
+      throw new BindException("Can't bind to unknown name " + c.getName(), e);
+    }*/
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = tc.namedParameterInstances.get(np);
