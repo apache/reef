@@ -2,27 +2,14 @@ package com.microsoft.tang;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-
 import javax.inject.Inject;
 
 import org.junit.Test;
+
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 
 public class BindSingletonTest {
-
-    private static Configuration roundtrip(final Configuration conf) {
-        try {
-            final File f = File.createTempFile("TANGConf-", ".conf");
-            conf.writeConfigurationFile(f);
-            final ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
-            b.addConfiguration(f);
-            return b.build();
-        } catch (final Exception e) {
-            throw new RuntimeException("Unable to roundtrip a TANG Configuration.", e);
-        }
-    }
 
     public static class A {
         @Inject
@@ -39,9 +26,6 @@ public class BindSingletonTest {
         }
     }
 
-    
-    
-    
     @SuppressWarnings("static-method")
     @Test
     public void testSingletonRoundTrip() throws BindException, InjectionException {
@@ -50,7 +34,7 @@ public class BindSingletonTest {
         b.bindSingletonImplementation(A.class, B.class);
         final Configuration src = b.build();
 
-        final Configuration dest = roundtrip(src);
+        final Configuration dest = Utils.roundtrip(src);
         final Injector i = Tang.Factory.getTang().newInjector(dest);
         final A a1 = i.getInstance(A.class);
         final A a2 = i.getInstance(A.class);
@@ -67,35 +51,48 @@ public class BindSingletonTest {
         final A a4 = injector3.getInstance(A.class);
         assertTrue("Child Injectors should return the same singletons as their parents", a3 == a4);
     }
-    
-    @Test public void testLateBoundVolatileInstanceWithSingletonX() throws BindException, InjectionException {
-      Tang tang = Tang.Factory.getTang();
-      ConfigurationBuilder cb = tang.newConfigurationBuilder();
-      cb.bindSingletonImplementation(LateBoundVolatile.A.class, LateBoundVolatile.B.class);
-      final Injector i = tang.newInjector(cb.build());
-      i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
-      i.getInstance(LateBoundVolatile.A.class);
+
+    @Test
+    public void testLateBoundVolatileInstanceWithSingletonX() throws BindException, InjectionException {
+        Tang tang = Tang.Factory.getTang();
+        ConfigurationBuilder cb = tang.newConfigurationBuilder();
+        cb.bindSingletonImplementation(LateBoundVolatile.A.class, LateBoundVolatile.B.class);
+        final Injector i = tang.newInjector(cb.build());
+        i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+        i.getInstance(LateBoundVolatile.A.class);
     }
-    @Test public void testLateBoundVolatileInstanceWithSingletonY() throws BindException, InjectionException {
-      Tang tang = Tang.Factory.getTang();
-      ConfigurationBuilder cb = tang.newConfigurationBuilder();
-      cb.bindSingleton(LateBoundVolatile.C.class);
-      Injector i = tang.newInjector(cb.build());
-      i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
-      i.getInstance(LateBoundVolatile.C.class);
+
+    @Test
+    public void testLateBoundVolatileInstanceWithSingletonY() throws BindException, InjectionException {
+        Tang tang = Tang.Factory.getTang();
+        ConfigurationBuilder cb = tang.newConfigurationBuilder();
+        cb.bindSingleton(LateBoundVolatile.C.class);
+        Injector i = tang.newInjector(cb.build());
+        i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+        i.getInstance(LateBoundVolatile.C.class);
     }
-    @Test public void testLateBoundVolatileInstanceWithSingletonZ() throws BindException, InjectionException {
-      Tang tang = Tang.Factory.getTang();
-      ConfigurationBuilder cb = tang.newConfigurationBuilder();
-      cb.bindSingletonImplementation(LateBoundVolatile.B.class, LateBoundVolatile.B.class);
-      Injector i = tang.newInjector(cb.build());
-      i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
-      i.getInstance(LateBoundVolatile.B.class);
+
+    @Test
+    public void testLateBoundVolatileInstanceWithSingletonZ() throws BindException, InjectionException {
+        Tang tang = Tang.Factory.getTang();
+        ConfigurationBuilder cb = tang.newConfigurationBuilder();
+        cb.bindSingletonImplementation(LateBoundVolatile.B.class, LateBoundVolatile.B.class);
+        Injector i = tang.newInjector(cb.build());
+        i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
+        i.getInstance(LateBoundVolatile.B.class);
     }
 }
 
 class LateBoundVolatile {
-  static class A {}
-  static class B extends A { @Inject B(C c) { } }
-  static class C { }
+    static class A {
+    }
+
+    static class B extends A {
+        @Inject
+        B(C c) {
+        }
+    }
+
+    static class C {
+    }
 }
