@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,12 +80,27 @@ public class ConfigurationImpl implements Configuration {
     writeConfigurationFile(o);
     o.close();
   }
+
   @Override
   public void writeConfigurationFile(OutputStream o) {
     PrintStream p = new PrintStream(o);
     p.print(toConfigurationString());
     p.flush();
   }
+
+  /**
+   * Obtain the effective configuration of this ConfigurationBuilderImpl
+   * instance. This consists of string-string pairs that could be written
+   * directly to a Properties file, for example. Currently, this method does not
+   * return information about default parameter values that were specified by
+   * parameter annotations, or about the auto-discovered stuff in TypeHierarchy.
+   * All of that should be automatically imported as these keys are parsed on
+   * the other end.
+   * 
+   * @return A string containing enough information to rebuild this
+   *         configuration object (assuming the same classes / jars are
+   *         available when the string is parsed by Tang).
+   */
   @Override
   public String toConfigurationString() {
     StringBuilder s = new StringBuilder();
@@ -95,11 +109,11 @@ public class ConfigurationImpl implements Configuration {
       throw new IllegalStateException(
           "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object.  Refusing to serialize it!");
     }
-    
+
     for (Class<?> opt : namespace.getRegisteredClasses()) {
       try {
         Node n = namespace.getNode(opt);
-        if(n instanceof NamedParameterNode) {
+        if (n instanceof NamedParameterNode) {
           // XXX escaping of strings!!!
           s.append(n.getFullName() + "=" + REGISTERED + "\n");
         }
@@ -111,58 +125,16 @@ public class ConfigurationImpl implements Configuration {
       s.append(opt.getFullName() + "=" + boundImpls.get(opt).getName() + "\n");
     }
     for (Node opt : boundConstructors.keySet()) {
-      s.append(opt.getFullName() + "=" + boundConstructors.get(opt).getName() + "\n");
+      s.append(opt.getFullName() + "=" + boundConstructors.get(opt).getName()
+          + "\n");
     }
     for (Node opt : namedParameters.keySet()) {
       s.append(opt.getFullName() + "=" + namedParameters.get(opt) + "\n");
     }
     for (Node opt : singletons) {
-      //ret.put(opt.getFullName(), SINGLETON);
+      // ret.put(opt.getFullName(), SINGLETON);
       s.append(opt.getFullName() + "=" + SINGLETON + "\n");
     }
     return s.toString();
-  }
-
-  /**
-   * Obtain the effective configuration of this ConfigurationBuilderImpl
-   * instance. This consists of string-string pairs that could be dumped
-   * directly to a Properties file, for example. Currently, this method does not
-   * return information about default parameter values that were specified by
-   * parameter annotations, or about the auto-discovered stuff in TypeHierarchy.
-   * All of that should be automatically imported as these keys are parsed on
-   * the other end.
-   * 
-   * @return a String to String map
-   */
-  private Map<String, String> getConfiguration() {
-    if (dirtyBit) {
-      throw new IllegalStateException(
-          "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object; no introspection allowed!");
-    }
-
-    Map<String, String> ret = new HashMap<String, String>();
-    for (Class<?> opt : namespace.getRegisteredClasses()) {
-      try {
-        Node n = namespace.getNode(opt);
-        if(n instanceof NamedParameterNode) {
-          ret.put(opt.getName(), REGISTERED);
-        }
-      } catch (NameResolutionException e) {
-        throw new IllegalStateException("Found partially registered class?", e);
-      }
-    }
-    for (Node opt : boundImpls.keySet()) {
-      ret.put(opt.getFullName(), boundImpls.get(opt).getName());
-    }
-    for (Node opt : boundConstructors.keySet()) {
-      ret.put(opt.getFullName(), boundConstructors.get(opt).getName());
-    }
-    for (Node opt : namedParameters.keySet()) {
-      ret.put(opt.getFullName(), namedParameters.get(opt));
-    }
-    for (Node opt : singletons) {
-      ret.put(opt.getFullName(), SINGLETON);
-    }
-    return ret;
   }
 }

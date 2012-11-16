@@ -1,7 +1,5 @@
 package com.microsoft.tang;
 
-import java.io.ByteArrayOutputStream;
-
 import javax.inject.Inject;
 
 import junit.framework.Assert;
@@ -21,9 +19,7 @@ public class TestConfFileParser {
     ConfigurationBuilder cb = t.newConfigurationBuilder();
     String in = "com.microsoft.tang.TestConfFileParser=com.microsoft.tang.TestConfFileParser\n";
     cb.addConfiguration(in);
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    cb.build().writeConfigurationFile(os);
-    String out = os.toString();
+    String out = cb.build().toConfigurationString();
     Assert.assertEquals(in, out);
   }
   @Test
@@ -36,9 +32,8 @@ public class TestConfFileParser {
     //cb.bindSingletonImplementation(SingleTest.A.class, SingleTest.B.class);
     cb.bindSingleton(SingleTest.A.class);
     cb.bindImplementation(SingleTest.A.class, SingleTest.B.class);
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    cb.build().writeConfigurationFile(os);
-    String out = os.toString();
+    
+    String out = cb.build().toConfigurationString();
     String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\ncom.microsoft.tang.SingleTest$A=singleton\n";
     Assert.assertEquals(in, out);
   }
