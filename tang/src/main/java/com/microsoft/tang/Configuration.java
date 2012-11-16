@@ -29,4 +29,9 @@ public interface Configuration {
    * 
    */
   public void writeConfigurationFile(File f) throws IOException;
+  /**
+   * Return a String representation of this Configuration that is suitable
+   * for parsing by ConfigurationBuilder.addConfiguration
+   */
+  public String getConfigurationString();
 }

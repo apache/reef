@@ -33,7 +33,7 @@ public class TypeHierarchy {
   private final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
   private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
-  
+
   public TypeHierarchy() {
     namespace = new PackageNode(null, "");
   }
@@ -493,16 +493,27 @@ public class TypeHierarchy {
     }
 
     public String getFullName() {
+      final String ret;
       if (parent == null) {
-        return name;
+        if (name == "") {
+          ret = "[root node]";
+        } else {
+          throw new IllegalStateException(
+              "can't have node with name and null parent!");
+        }
       } else {
         String parentName = parent.getFullName();
-        if(parentName.length() == 0) {
-          return name;
+        if (parentName.length() == 0) {
+          ret = name;
         } else {
-          return parent.getFullName() + "." + name;
+          ret = parent.getFullName() + "." + name;
         }
       }
+      if (ret.length() == 0) {
+        throw new IllegalStateException(
+            "getFullName() ended up with an empty string!");
+      }
+      return ret;
     }
 
     public Map<String, Node> children = new MonotonicMap<String, Node>();
@@ -559,8 +570,8 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      return "[" + ReflectionUtilities.getFullName(this.getClass()) + " '" + getFullName()
-          + "']";
+      return "[" + ReflectionUtilities.getFullName(this.getClass()) + " '"
+          + getFullName() + "']";
     }
 
     public String getType() {
@@ -608,15 +619,16 @@ public class TypeHierarchy {
     public ConstructorDef<T>[] getInjectableConstructors() {
       return injectableConstructors;
     }
+
     @Override
     public String getFullName() {
-      if(clazz.isPrimitive()) {
+      if (clazz.isPrimitive()) {
         return super.getFullName();
       } else {
         return clazz.getName();
       }
     }
-    
+
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
@@ -688,8 +700,9 @@ public class TypeHierarchy {
           ConstructorDef<T> def;
           try {
             def = new ConstructorDef<T>(args, constructors[k]);
-          } catch(BindException e) {
-            throw new BindException("Detected bad constructor in " + constructors[k] + " in "+ clazz, e);
+          } catch (BindException e) {
+            throw new BindException("Detected bad constructor in "
+                + constructors[k] + " in " + clazz, e);
           }
           if (injectableConstructors.contains(def)) {
             throw new BindException(
@@ -867,7 +880,8 @@ public class TypeHierarchy {
     @Override
     public String toString() {
       return name == null ? ReflectionUtilities.getFullName(type)
-          : ReflectionUtilities.getFullName(type) + " " + ReflectionUtilities.getFullName(name.value());
+          : ReflectionUtilities.getFullName(type) + " "
+              + ReflectionUtilities.getFullName(name.value());
     }
 
     @Override

@@ -83,7 +83,14 @@ public class ConfigurationImpl implements Configuration {
   }
   @Override
   public void writeConfigurationFile(OutputStream o) {
-    PrintStream s = new PrintStream(o);
+    PrintStream p = new PrintStream(o);
+    p.print(getConfigurationString());
+    p.flush();
+  }
+  @Override
+  public String getConfigurationString() {
+    StringBuilder s = new StringBuilder();
+
     if (dirtyBit) {
       throw new IllegalStateException(
           "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object.  Refusing to serialize it!");
@@ -94,25 +101,26 @@ public class ConfigurationImpl implements Configuration {
         Node n = namespace.getNode(opt);
         if(n instanceof NamedParameterNode) {
           // XXX escaping of strings!!!
-          s.println(opt.getName() + "=" + REGISTERED);
+          s.append(n.getFullName() + "=" + REGISTERED + "\n");
         }
       } catch (NameResolutionException e) {
         throw new IllegalStateException("Found partially registered class?", e);
       }
     }
     for (Node opt : boundImpls.keySet()) {
-      s.println(opt.getFullName() + "=" + boundImpls.get(opt).getName());
+      s.append(opt.getFullName() + "=" + boundImpls.get(opt).getName() + "\n");
     }
     for (Node opt : boundConstructors.keySet()) {
-      s.println(opt.getFullName() + "=" + boundConstructors.get(opt).getName());
+      s.append(opt.getFullName() + "=" + boundConstructors.get(opt).getName() + "\n");
     }
     for (Node opt : namedParameters.keySet()) {
-      s.println(opt.getFullName() + "=" + namedParameters.get(opt));
+      s.append(opt.getFullName() + "=" + namedParameters.get(opt) + "\n");
     }
     for (Node opt : singletons) {
       //ret.put(opt.getFullName(), SINGLETON);
-      s.println(opt.getFullName() + "=" + SINGLETON);
+      s.append(opt.getFullName() + "=" + SINGLETON + "\n");
     }
+    return s.toString();
   }
 
   /**

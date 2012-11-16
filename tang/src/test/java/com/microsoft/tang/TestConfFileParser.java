@@ -19,7 +19,7 @@ public class TestConfFileParser {
     // com.microsoft.tang.TestConfFileParser
     Tang t = Tang.Factory.getTang();
     ConfigurationBuilder cb = t.newConfigurationBuilder();
-    String in = "com.microsoft.tang.TestConfFileParser=com.microsoft.tang.TestConfFileParser\r\n";
+    String in = "com.microsoft.tang.TestConfFileParser=com.microsoft.tang.TestConfFileParser\n";
     cb.addConfiguration(in);
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     cb.build().writeConfigurationFile(os);
@@ -39,7 +39,7 @@ public class TestConfFileParser {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     cb.build().writeConfigurationFile(os);
     String out = os.toString();
-    String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\r\ncom.microsoft.tang.SingleTest$A=singleton\r\n";
+    String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\ncom.microsoft.tang.SingleTest$A=singleton\n";
     Assert.assertEquals(in, out);
   }
 }
