@@ -45,8 +45,32 @@ public class TestNamedParameterRoundTrip {
             assertEquals(eps, readEps, 1e-12);
             assertEquals(d, readD);
         }
+                
+        
         {
             final Injector i = Tang.Factory.getTang().newInjector(Utils.roundtrip(conf));
+
+            final int readD = i.getNamedParameter(Dimensionality.class).intValue();
+            final double readEps = i.getNamedParameter(Eps.class).doubleValue();
+
+            assertEquals(eps, readEps, 1e-12);
+            assertEquals(d, readD);
+        }
+        
+        {
+            final Injector parent = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+            final Injector i = parent.createChildInjector(conf);
+
+            final int readD = i.getNamedParameter(Dimensionality.class).intValue();
+            final double readEps = i.getNamedParameter(Eps.class).doubleValue();
+
+            assertEquals(eps, readEps, 1e-12);
+            assertEquals(d, readD);
+        }
+        
+        {
+            final Injector parent = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+            final Injector i = parent.createChildInjector(Utils.roundtrip(conf));
 
             final int readD = i.getNamedParameter(Dimensionality.class).intValue();
             final double readEps = i.getNamedParameter(Eps.class).doubleValue();
