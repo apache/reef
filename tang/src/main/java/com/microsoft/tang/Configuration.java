@@ -33,5 +33,5 @@ public interface Configuration {
    * Return a String representation of this Configuration that is suitable
    * for parsing by ConfigurationBuilder.addConfiguration
    */
-  public String getConfigurationString();
+  public String toConfigurationString();
 }

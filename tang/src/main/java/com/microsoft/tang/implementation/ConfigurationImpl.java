@@ -84,11 +84,11 @@ public class ConfigurationImpl implements Configuration {
   @Override
   public void writeConfigurationFile(OutputStream o) {
     PrintStream p = new PrintStream(o);
-    p.print(getConfigurationString());
+    p.print(toConfigurationString());
     p.flush();
   }
   @Override
-  public String getConfigurationString() {
+  public String toConfigurationString() {
     StringBuilder s = new StringBuilder();
 
     if (dirtyBit) {
