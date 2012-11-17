@@ -1,5 +1,7 @@
 package com.microsoft.tang.implementation;
 
+import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
+
 public abstract class InjectionPlan<T> {
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>() {
     @Override
@@ -65,15 +67,43 @@ public abstract class InjectionPlan<T> {
 
   @Override
   public abstract String toString();
-
+  final public static class DelegatedImpl<T> extends InjectionPlan<T> {
+    final InjectionPlan<? extends T> impl;
+    final ClassNode<T> cn;
+    public DelegatedImpl(ClassNode<T> cn, InjectionPlan<? extends T> impl) {
+      this.cn = cn;
+      this.impl = impl;
+    }
+    public ClassNode<T> getNode() {
+      return cn;
+    }
+    @Override
+    public int getNumAlternatives() {
+      return impl.getNumAlternatives();
+    }
+    @Override
+    public boolean isAmbiguous() {
+      return impl.isAmbiguous();
+    }
+    @Override
+    public boolean isInjectable() {
+      return impl.isInjectable();
+    }
+    @Override
+    public String toString() {
+      return "(" + cn + " provided by " + impl.toString() + ")";
+    }
+  }
+  
   final public static class Constructor<T> extends InjectionPlan<T> {
     final TypeHierarchy.ConstructorDef<T> constructor;
     final InjectionPlan<?>[] args;
     final int numAlternatives;
     final boolean isAmbiguous;
     final boolean isInjectable;
+    final ClassNode<T> cn;
     
-    public Constructor(TypeHierarchy.ConstructorDef<T> constructor,
+    public Constructor(ClassNode<T> cn, TypeHierarchy.ConstructorDef<T> constructor,
         InjectionPlan<?>[] args) {
       this.constructor = constructor;
       this.args = args;
@@ -88,8 +118,11 @@ public abstract class InjectionPlan<T> {
       this.numAlternatives = numAlternatives;
       this.isAmbiguous = isAmbiguous;
       this.isInjectable = isInjectable;
+      this.cn = cn;
     }
 
+    public ClassNode<T> getNode() { return cn; }
+    
     @Override
     public int getNumAlternatives() {
       return numAlternatives;

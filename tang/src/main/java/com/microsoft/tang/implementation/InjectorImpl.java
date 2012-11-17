@@ -11,6 +11,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.InjectionPlan.DelegatedImpl;
 import com.microsoft.tang.implementation.InjectionPlan.InfeasibleInjectionPlan;
 import com.microsoft.tang.implementation.InjectionPlan.Instance;
 import com.microsoft.tang.implementation.InjectionPlan.AmbiguousInjectionPlan;
@@ -23,6 +24,13 @@ import com.microsoft.tang.implementation.TypeHierarchy.Node;
 import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
 
 public class InjectorImpl implements Injector {
+  private class SingletonInjectionException extends InjectionException {
+    private static final long serialVersionUID = 1L;
+
+    SingletonInjectionException(String s) {
+      super(s);
+    }
+  }
   private final ConfigurationImpl tc;
 
   public InjectorImpl(ConfigurationImpl old_tc) throws InjectionException,
@@ -43,6 +51,7 @@ public class InjectorImpl implements Injector {
     }
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private void buildInjectionPlan(String name,
       Map<String, InjectionPlan<?>> memo) {
     if (memo.containsKey(name)) {
@@ -54,7 +63,8 @@ public class InjectorImpl implements Injector {
       }
     }
     memo.put(name, InjectionPlan.BUILDING);
-    Node n; // TODO: Register the node here (to bring into line with bindVolatile(...)
+    Node n; // TODO: Register the node here (to bring into line with
+            // bindVolatile(...)
     try {
       n = tc.namespace.getNode(name);
     } catch (NameResolutionException e) {
@@ -79,11 +89,13 @@ public class InjectorImpl implements Injector {
           && !tc.boundImpls.get(cn).equals(cn.getClazz())) {
         String implName = tc.boundImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
-        ip = memo.get(implName);
+        ip = new InjectionPlan.DelegatedImpl(cn, memo.get(implName));
+        memo.put(cn.getClazz().getName(), ip);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<ClassNode<?>>();
         if (tc.boundImpls.get(cn) == null) {
-          // if we're here, and there is a bound impl, then we're bound to ourselves,
+          // if we're here, and there is a bound impl, then we're bound to
+          // ourselves,
           // so skip this loop.
           for (ClassNode<?> c : tc.namespace.getKnownImpls(cn)) {
             classNodes.add(c);
@@ -100,9 +112,8 @@ public class InjectorImpl implements Injector {
               buildInjectionPlan(argName, memo);
               args.add(memo.get(argName));
             }
-            @SuppressWarnings({ "rawtypes", "unchecked" })
             InjectionPlan.Constructor constructor = new InjectionPlan.Constructor(
-                def, args.toArray(new InjectionPlan[0]));
+                thisCN, def, args.toArray(new InjectionPlan[0]));
             constructors.add(constructor);
           }
           sub_ips
@@ -162,13 +173,32 @@ public class InjectorImpl implements Injector {
   }
 
   boolean populated = false;
+
   private void populateSingletons() throws InjectionException {
-    if(!populated) {
+    if (!populated) {
       populated = true;
-      for (ClassNode<?> cn : tc.singletons) {
-        if (!tc.singletonInstances.containsKey(cn)) {
-          Object o = getInstance(cn.getClazz());
-          tc.singletonInstances.put(cn, o);
+      boolean stillHope = true;
+      boolean allSucceeded = false;
+      while (!allSucceeded) {
+        boolean oneSucceeded = false;
+        allSucceeded = true;
+        for (ClassNode<?> cn : tc.singletons) {
+          if (!tc.singletonInstances.containsKey(cn)) {
+            try {
+              getInstance(cn.getClazz());
+              System.err.println("success " + cn);
+              oneSucceeded = true;
+            } catch (SingletonInjectionException e) {
+              System.err.println("failure " + cn);
+              allSucceeded = false;
+              if (!stillHope) {
+                throw e;
+              }
+            }
+          }
+        }
+        if (!oneSucceeded) {
+          stillHope = false;
         }
       }
     }
@@ -207,14 +237,32 @@ public class InjectorImpl implements Injector {
     }
     if (plan instanceof InjectionPlan.Instance) {
       return ((InjectionPlan.Instance<T>) plan).instance;
+    } else if (plan instanceof InjectionPlan.DelegatedImpl) {
+      InjectionPlan.DelegatedImpl<T> delegated = (DelegatedImpl<T>) plan;
+      if(tc.singletonInstances.containsKey(delegated.getNode())) {
+        throw new SingletonInjectionException("Attempt to re-instantiate singleton: " + delegated.getNode());
+      }
+      T ret = injectFromPlan(delegated.impl);
+      if(tc.singletons.contains(delegated.getNode())) {
+        tc.singletonInstances.put(delegated.getNode(), ret);
+      }
+      return ret;
     } else if (plan instanceof InjectionPlan.Constructor) {
       InjectionPlan.Constructor<T> constructor = (InjectionPlan.Constructor<T>) plan;
+      if(tc.singletonInstances.containsKey(constructor.getNode())) {
+        throw new SingletonInjectionException("Attempt to re-instantiate singleton: " + constructor.getNode());
+      }
       Object[] args = new Object[constructor.args.length];
       for (int i = 0; i < constructor.args.length; i++) {
         args[i] = injectFromPlan(constructor.args[i]);
       }
       try {
-        return constructor.constructor.constructor.newInstance(args);
+        T ret = constructor.constructor.constructor.newInstance(args);
+        if(tc.singletons.contains(constructor.getNode())) {
+          tc.singletonInstances.put(constructor.getNode(), ret);
+        }
+        System.err.println("returning a new " + constructor.getNode());
+        return ret;
       } catch (ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor", e);
       }
@@ -252,8 +300,7 @@ public class InjectorImpl implements Injector {
   }
 
   @Override
-  public <T> void bindVolatileInstance(Class<T> c, T o)
-      throws BindException {
+  public <T> void bindVolatileInstance(Class<T> c, T o) throws BindException {
     bindVolatileInstanceNoCopy(c, o);
   }
 
@@ -265,12 +312,11 @@ public class InjectorImpl implements Injector {
 
   <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
     Node n = tc.namespace.register(c);
-    /* try {
-      n = tc.namespace.getNode(c);
-    } catch (NameResolutionException e) {
-      // TODO: Unit test for bindVolatileInstance to unknown class.
-      throw new BindException("Can't bind to unknown class " + c.getName(), e);
-    } */
+    /*
+     * try { n = tc.namespace.getNode(c); } catch (NameResolutionException e) {
+     * // TODO: Unit test for bindVolatileInstance to unknown class. throw new
+     * BindException("Can't bind to unknown class " + c.getName(), e); }
+     */
 
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
@@ -290,11 +336,11 @@ public class InjectorImpl implements Injector {
   <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
       throws BindException {
     Node n = tc.namespace.register(c);
-    /*try {
-      n = tc.namespace.getNode(c);
-    } catch (NameResolutionException e) {
-      throw new BindException("Can't bind to unknown name " + c.getName(), e);
-    }*/
+    /*
+     * try { n = tc.namespace.getNode(c); } catch (NameResolutionException e) {
+     * throw new BindException("Can't bind to unknown name " + c.getName(), e);
+     * }
+     */
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = tc.namedParameterInstances.get(np);

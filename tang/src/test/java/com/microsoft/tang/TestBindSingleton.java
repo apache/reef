@@ -4,6 +4,9 @@ import static org.junit.Assert.assertTrue;
 
 import javax.inject.Inject;
 
+import junit.framework.Assert;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import com.microsoft.tang.exceptions.BindException;
@@ -11,6 +14,23 @@ import com.microsoft.tang.exceptions.InjectionException;
 
 public class TestBindSingleton {
 
+    @Before
+    public void before() {
+      InbredSingletons.A.count = 0;
+      InbredSingletons.B.count = 0;
+      InbredSingletons.C.count = 0;
+
+      IncestuousSingletons.A.count = 0;
+      IncestuousSingletons.B.count = 0;
+      IncestuousSingletons.BN.count = 0;
+      IncestuousSingletons.C.count = 0;
+
+      IncestuousInterfaceSingletons.A.count = 0;
+      IncestuousInterfaceSingletons.B.count = 0;
+      IncestuousInterfaceSingletons.BN.count = 0;
+      IncestuousInterfaceSingletons.C.count = 0;
+}
+  
     public static class A {
         @Inject
         public A() {
@@ -26,22 +46,24 @@ public class TestBindSingleton {
         }
     }
 
-    @SuppressWarnings("static-method")
     @Test
     public void testSingletonRoundTrip() throws BindException, InjectionException {
 
         final ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
         b.bindSingletonImplementation(A.class, B.class);
         final Configuration src = b.build();
-
-        final Configuration dest = Utils.roundtrip(src);
-        final Injector i = Tang.Factory.getTang().newInjector(dest);
+        
+        final ConfigurationBuilder dest = Tang.Factory.getTang().newConfigurationBuilder();
+        dest.addConfiguration(src.toConfigurationString());
+        final Injector i = Tang.Factory.getTang().newInjector(dest.build());
         final A a1 = i.getInstance(A.class);
         final A a2 = i.getInstance(A.class);
-
+        final B b1 = i.getInstance(B.class);
+        
         assertTrue("Two singletons should be the same", a1 == a2);
         assertTrue("Both instances should be of class B", a1 instanceof B);
         assertTrue("Both instances should be of class B", a2 instanceof B);
+        assertTrue("Singleton and not singleton should not be the same", a1 != b1);
 
         final Injector injector2 = Tang.Factory.getTang().newInjector(src);
         final A a3 = injector2.getInstance(A.class);
@@ -81,6 +103,58 @@ public class TestBindSingleton {
         i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
         i.getInstance(LateBoundVolatile.B.class);
     }
+    @Test
+    public void testInbredSingletons() throws BindException, InjectionException {
+      Tang t = Tang.Factory.getTang();
+      ConfigurationBuilder b = t.newConfigurationBuilder();
+      b.bindSingletonImplementation(InbredSingletons.A.class, InbredSingletons.A.class);
+      b.bindSingletonImplementation(InbredSingletons.B.class, InbredSingletons.B.class);
+      b.bindSingletonImplementation(InbredSingletons.C.class, InbredSingletons.C.class);
+      Injector i = t.newInjector(b.build());
+      i.getInstance(InbredSingletons.A.class);
+    }
+    @Test
+    public void testIncestuousSingletons() throws BindException, InjectionException {
+      Tang t = Tang.Factory.getTang();
+      ConfigurationBuilder b = t.newConfigurationBuilder();
+      b.bindSingletonImplementation(IncestuousSingletons.A.class, IncestuousSingletons.A.class);
+      b.bindSingletonImplementation(IncestuousSingletons.B.class, IncestuousSingletons.B.class);
+      b.bindSingletonImplementation(IncestuousSingletons.C.class, IncestuousSingletons.C.class);
+      Injector i = t.newInjector(b.build());
+      i.getInstance(IncestuousSingletons.A.class);
+    }
+    @Test
+    public void testIncestuousSingletons2() throws BindException, InjectionException {
+      Tang t = Tang.Factory.getTang();
+      ConfigurationBuilder b = t.newConfigurationBuilder();
+      b.bindSingletonImplementation(IncestuousSingletons.A.class, IncestuousSingletons.A.class);
+      b.bindImplementation(IncestuousSingletons.B.class, IncestuousSingletons.BN.class);
+      b.bindSingletonImplementation(IncestuousSingletons.C.class, IncestuousSingletons.C.class);
+      Injector i = t.newInjector(b.build());
+      i.getInstance(IncestuousSingletons.A.class);
+    }
+    @Test
+    public void testIncestuousInterfaceSingletons() throws BindException, InjectionException {
+      Tang t = Tang.Factory.getTang();
+      ConfigurationBuilder b = t.newConfigurationBuilder();
+      b.bindSingletonImplementation(IncestuousInterfaceSingletons.AI.class, IncestuousInterfaceSingletons.A.class);
+      b.bindSingletonImplementation(IncestuousInterfaceSingletons.BI.class, IncestuousInterfaceSingletons.BN.class);
+      b.bindSingletonImplementation(IncestuousInterfaceSingletons.CI.class, IncestuousInterfaceSingletons.C.class);
+      Injector i = t.newInjector(b.build());
+      i.getInstance(IncestuousInterfaceSingletons.AI.class);
+    }
+    @Test
+    public void testIncestuousInterfaceSingletons2() throws BindException, InjectionException {
+      Tang t = Tang.Factory.getTang();
+      ConfigurationBuilder b = t.newConfigurationBuilder();
+      b.bindSingletonImplementation(IncestuousInterfaceSingletons.AI.class, IncestuousInterfaceSingletons.A.class);
+      b.bindImplementation(IncestuousInterfaceSingletons.BI.class, IncestuousInterfaceSingletons.B.class);
+      // TODO: Should we require bind(A,B), then bind(B,B) if B has subclasses?
+      b.bindImplementation(IncestuousInterfaceSingletons.B.class, IncestuousInterfaceSingletons.B.class);
+      b.bindSingletonImplementation(IncestuousInterfaceSingletons.CI.class, IncestuousInterfaceSingletons.C.class);
+      Injector i = t.newInjector(b.build());
+      i.getInstance(IncestuousInterfaceSingletons.AI.class);
+    }
 }
 
 class LateBoundVolatile {
@@ -95,4 +169,59 @@ class LateBoundVolatile {
 
     static class C {
     }
+}
+class InbredSingletons {
+  static class A {
+    static int count = 0;
+    @Inject A(B b) { Assert.assertEquals(0, count); count++; }
+  }
+  static class B {
+    static int count = 0;
+    @Inject B(C c) { Assert.assertEquals(0, count); count++; }
+  }
+  static class C {
+    static int count = 0;
+    @Inject C() { Assert.assertEquals(0, count); count++; }
+  }
+}
+class IncestuousSingletons {
+  static class A {
+    static int count = 0;
+    @Inject A(C c, B b) { Assert.assertEquals(0, count); count++; }
+  }
+  static class B {
+    static int count = 0;
+    protected B() {}
+    @Inject B(C c) { Assert.assertEquals(0, count); count++; }
+  }
+  static class BN extends B {
+    static int count = 0;
+    @Inject BN(C c) { super(); Assert.assertEquals(0, count); count++; }
+  }
+  static class C {
+    static int count = 0;
+    @Inject C() { Assert.assertEquals(0, count); count++; }
+  }
+}
+class IncestuousInterfaceSingletons {
+  interface AI {}
+  interface BI {}
+  interface CI {}
+  static class A implements AI {
+    static int count = 0;
+    @Inject A(CI c, BI b) { Assert.assertEquals(0, count); count++; }
+  }
+  static class B implements BI {
+    static int count = 0;
+    protected B() {}
+    @Inject B(CI c) { Assert.assertEquals(0, count); count++; }
+  }
+  static class BN extends B {
+    static int count = 0;
+    @Inject BN(CI c) { super(); Assert.assertEquals(0, count); count++; }
+  }
+  static class C implements CI {
+    static int count = 0;
+    @Inject C() { Assert.assertEquals(0, count); count++; }
+  }
 }
