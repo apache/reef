@@ -335,8 +335,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
-    System.err
-        .println("Warning: ExternalConstructors aren't implemented at the moment");
+    //System.err
+    //    .println("Warning: ExternalConstructors aren't implemented at the moment");
     try {
       conf.boundConstructors.put((ClassNode<?>) conf.namespace.register(c),
           (Class) v);

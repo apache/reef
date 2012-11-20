@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
@@ -83,7 +84,10 @@ public class InjectorImpl implements Injector {
       if (tc.singletonInstances.containsKey(cn)) {
         ip = new Instance<Object>(cn, tc.singletonInstances.get(cn));
       } else if (tc.boundConstructors.containsKey(cn)) {
-        throw new UnsupportedOperationException("Vivifiers aren't working yet!");
+        String constructorName = tc.boundConstructors.get(cn).getName();
+        buildInjectionPlan(constructorName, memo);
+        ip = new InjectionPlan.DelegatedImpl(cn, memo.get(constructorName));
+        memo.put(cn.getClazz().getName(), ip);
         // ip = new Instance(cn, null);
       } else if (tc.boundImpls.containsKey(cn)
           && !tc.boundImpls.get(cn).equals(cn.getClazz())) {
@@ -186,10 +190,10 @@ public class InjectorImpl implements Injector {
           if (!tc.singletonInstances.containsKey(cn)) {
             try {
               getInstance(cn.getClazz());
-              System.err.println("success " + cn);
+              //System.err.println("success " + cn);
               oneSucceeded = true;
             } catch (SingletonInjectionException e) {
-              System.err.println("failure " + cn);
+              //System.err.println("failure " + cn);
               allSucceeded = false;
               if (!stillHope) {
                 throw e;
@@ -226,6 +230,7 @@ public class InjectorImpl implements Injector {
     return (T) injectFromPlan(plan);
   }
 
+  @SuppressWarnings("unchecked")
   <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
     if (!plan.isFeasible()) {
       throw new InjectionException("Attempt to inject infeasible plan: "
@@ -238,15 +243,19 @@ public class InjectorImpl implements Injector {
     if (plan instanceof InjectionPlan.Instance) {
       return ((InjectionPlan.Instance<T>) plan).instance;
     } else if (plan instanceof InjectionPlan.DelegatedImpl) {
-      InjectionPlan.DelegatedImpl<T> delegated = (DelegatedImpl<T>) plan;
+      InjectionPlan.DelegatedImpl<?> delegated = (DelegatedImpl<?>) plan;
       if(tc.singletonInstances.containsKey(delegated.getNode())) {
         throw new SingletonInjectionException("Attempt to re-instantiate singleton: " + delegated.getNode());
       }
-      T ret = injectFromPlan(delegated.impl);
+      Object ret = injectFromPlan(delegated.impl);
       if(tc.singletons.contains(delegated.getNode())) {
         tc.singletonInstances.put(delegated.getNode(), ret);
       }
-      return ret;
+      if(ret instanceof ExternalConstructor) { // TODO: Check "T" in "instanceof ExternalConstructor<T>"
+        return ((ExternalConstructor<T>)ret).newInstance(); // TODO fix up generic types for injectFromPlan with external constructor!
+      } else {
+        return (T) ret;
+      }
     } else if (plan instanceof InjectionPlan.Constructor) {
       InjectionPlan.Constructor<T> constructor = (InjectionPlan.Constructor<T>) plan;
       if(tc.singletonInstances.containsKey(constructor.getNode())) {
@@ -261,7 +270,7 @@ public class InjectorImpl implements Injector {
         if(tc.singletons.contains(constructor.getNode())) {
           tc.singletonInstances.put(constructor.getNode(), ret);
         }
-        System.err.println("returning a new " + constructor.getNode());
+        //System.err.println("returning a new " + constructor.getNode());
         return ret;
       } catch (ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor", e);

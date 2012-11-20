@@ -57,21 +57,19 @@ public class TestTang {
 
   // NamedParameter A has no default_value, so this should throw.
   @Test(expected = InjectionException.class)
-  public void testOneNamedFailArgs() throws BindException,
-      InjectionException {
+  public void testOneNamedFailArgs() throws BindException, InjectionException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(OneNamedSingletonArgs.class);
-    tang.newInjector(t.build())
-        .getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
+
   @Test(expected = InjectionException.class)
-  public void testOneNamedOKArgs() throws BindException,
-      InjectionException {
+  public void testOneNamedOKArgs() throws BindException, InjectionException {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(OneNamedSingletonArgs.class);
-    tang.newInjector(t.build())
-        .getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
+
   // NamedParameter A has no default_value, so this should throw
   @Test(expected = InjectionException.class)
   public void testOneNamedSingletonFailArgs() throws BindException,
@@ -79,9 +77,9 @@ public class TestTang {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
     t.register(OneNamedSingletonArgs.class);
-    tang.newInjector(t.build())
-        .getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
+
   // NamedParameter A get's bound to a volatile, so this should succeed.
   @Test
   public void testOneNamedSingletonOKArgs() throws BindException,
@@ -89,9 +87,11 @@ public class TestTang {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(OneNamedSingletonArgs.class);
     final Injector i = tang.newInjector(t.build());
-    i.bindVolatileParameter(OneNamedSingletonArgs.A.class, i.getInstance(MustBeSingleton.class));
+    i.bindVolatileParameter(OneNamedSingletonArgs.A.class,
+        i.getInstance(MustBeSingleton.class));
     i.getInstance(OneNamedSingletonArgs.class);
   }
+
   @Test
   public void testRepeatedNamedOKArgs() throws BindException,
       InjectionException {
@@ -99,8 +99,10 @@ public class TestTang {
     t.bindSingleton(MustBeSingleton.class);
     t.register(RepeatedNamedSingletonArgs.class);
     final Injector i = tang.newInjector(t.build());
-    i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class, i.getInstance(MustBeSingleton.class));
-    i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class, i.getInstance(MustBeSingleton.class));
+    i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
+        i.getInstance(MustBeSingleton.class));
+    i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class,
+        i.getInstance(MustBeSingleton.class));
     i.getInstance(RepeatedNamedSingletonArgs.class);
   }
 
@@ -111,81 +113,108 @@ public class TestTang {
     ConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(RepeatedNamedSingletonArgs.class);
     Injector i = tang.newInjector(t.build());
-    i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class, i.getInstance(MustBeSingleton.class));
-    i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class, i.getInstance(MustBeSingleton.class));
+    i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
+        i.getInstance(MustBeSingleton.class));
+    i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class,
+        i.getInstance(MustBeSingleton.class));
     i.getInstance(RepeatedNamedSingletonArgs.class);
   }
+
   @Test
-  public void testStraightforwardBuild() throws BindException, InjectionException {
+  public void testStraightforwardBuild() throws BindException,
+      InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bind(Interf.class, Impl.class);
     tang.newInjector(cb.build()).getInstance(Interf.class);
   }
+
   @Test(expected = BindException.class)
-  public void testOneNamedStringArgCantRebind() throws BindException, InjectionException {
+  public void testOneNamedStringArgCantRebind() throws BindException,
+      InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(OneNamedStringArg.class);
-    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(OneNamedStringArg.class);
+    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
+        OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
     cb.bindNamedParameter(OneNamedStringArg.A.class, "not default");
     Injector i = tang.newInjector(cb.build());
-    Assert.assertEquals("not default", i.getInstance(OneNamedStringArg.class).s);
+    Assert
+        .assertEquals("not default", i.getInstance(OneNamedStringArg.class).s);
     i.bindVolatileParameter(OneNamedStringArg.A.class, "volatile");
     Assert.assertEquals("volatile", i.getInstance(OneNamedStringArg.class).s);
   }
+
   @Test
-  public void testOneNamedStringArgBind() throws BindException, InjectionException {
+  public void testOneNamedStringArgBind() throws BindException,
+      InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(OneNamedStringArg.class);
-    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(OneNamedStringArg.class);
+    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
+        OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
     cb.bindNamedParameter(OneNamedStringArg.A.class, "not default");
     Injector i = tang.newInjector(cb.build());
-    Assert.assertEquals("not default", i.getInstance(OneNamedStringArg.class).s);
+    Assert
+        .assertEquals("not default", i.getInstance(OneNamedStringArg.class).s);
   }
+
   @Test
-  public void testOneNamedStringArgVolatile() throws BindException, InjectionException {
+  public void testOneNamedStringArgVolatile() throws BindException,
+      InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(OneNamedStringArg.class);
-    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(OneNamedStringArg.class);
+    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
+        OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
     Injector i = tang.newInjector(cb.build());
     i.bindVolatileParameter(OneNamedStringArg.A.class, "volatile");
     Assert.assertEquals("volatile", i.getInstance(OneNamedStringArg.class).s);
-    }
+  }
+
   @Test
-  public void testTwoNamedStringArgsBind() throws BindException, InjectionException {
+  public void testTwoNamedStringArgsBind() throws BindException,
+      InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(TwoNamedStringArgs.class);
-    TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(TwoNamedStringArgs.class);
+    TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
+        TwoNamedStringArgs.class);
     Assert.assertEquals("defaultA", a.a);
     Assert.assertEquals("defaultB", a.b);
     cb.bindNamedParameter(TwoNamedStringArgs.A.class, "not defaultA");
     cb.bindNamedParameter(TwoNamedStringArgs.B.class, "not defaultB");
     Injector i = tang.newInjector(cb.build());
-    Assert.assertEquals("not defaultA", i.getInstance(TwoNamedStringArgs.class).a);
-    Assert.assertEquals("not defaultB", i.getInstance(TwoNamedStringArgs.class).b);
+    Assert.assertEquals("not defaultA",
+        i.getInstance(TwoNamedStringArgs.class).a);
+    Assert.assertEquals("not defaultB",
+        i.getInstance(TwoNamedStringArgs.class).b);
   }
 
   @Test
-  public void testTwoNamedStringArgsBindVolatile() throws BindException, InjectionException {
+  public void testTwoNamedStringArgsBindVolatile() throws BindException,
+      InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(TwoNamedStringArgs.class);
-    TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(TwoNamedStringArgs.class);
+    TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
+        TwoNamedStringArgs.class);
     Assert.assertEquals("defaultA", a.a);
     Assert.assertEquals("defaultB", a.b);
     final Injector i = tang.newInjector(cb.build());
     i.bindVolatileParameter(TwoNamedStringArgs.A.class, "not defaultA");
     i.bindVolatileParameter(TwoNamedStringArgs.B.class, "not defaultB");
-    Assert.assertEquals("not defaultA", i.getInstance(TwoNamedStringArgs.class).a);
-    Assert.assertEquals("not defaultB", i.getInstance(TwoNamedStringArgs.class).b);
+    Assert.assertEquals("not defaultA",
+        i.getInstance(TwoNamedStringArgs.class).a);
+    Assert.assertEquals("not defaultB",
+        i.getInstance(TwoNamedStringArgs.class).b);
 
   }
+
   @Test(expected = BindException.class)
-  public void testTwoNamedStringArgsReBindVolatileFail() throws BindException, InjectionException {
+  public void testTwoNamedStringArgsReBindVolatileFail() throws BindException,
+      InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(TwoNamedStringArgs.class);
-    TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(TwoNamedStringArgs.class);
+    TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
+        TwoNamedStringArgs.class);
     Assert.assertEquals("defaultA", a.a);
     Assert.assertEquals("defaultB", a.b);
     cb.bindNamedParameter(TwoNamedStringArgs.A.class, "not defaultA");
@@ -194,19 +223,39 @@ public class TestTang {
     i.bindVolatileParameter(TwoNamedStringArgs.A.class, "not defaultA");
     i.bindVolatileParameter(TwoNamedStringArgs.B.class, "not defaultB");
   }
+
   @Test
   public void testBextendsAinjectA() throws BindException, InjectionException {
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.bind(BextendsAinjectA.A.class,BextendsAinjectA.A.class);
+    cb.bind(BextendsAinjectA.A.class, BextendsAinjectA.A.class);
     tang.newInjector(cb.build()).getInstance(BextendsAinjectA.A.class);
+  }
+  
+  @Test
+  public void testExternalConstructor() throws BindException, InjectionException {
+    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    cb.bindConstructor(ExternalConstructorExample.Legacy.class, ExternalConstructorExample.LegacyWrapper.class);
+    Injector i = tang.newInjector(cb.build());
+    i.bindVolatileInstance(Integer.class, 42);
+    i.bindVolatileInstance(String.class, "The meaning of life is ");
+    ExternalConstructorExample.Legacy l = i.getInstance(ExternalConstructorExample.Legacy.class);
+    Assert.assertEquals(new Integer(42), l.x);
+    Assert.assertEquals("The meaning of life is ", l.y);
+    
   }
 }
 
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
-class Param implements Name<Integer> {}
-interface Interf { }
+class Param implements Name<Integer> {
+}
+
+interface Interf {
+}
+
 class Impl implements Interf {
-  @Inject Impl(@Parameter(Param.class) int p) { } 
+  @Inject
+  Impl(@Parameter(Param.class) int p) {
+  }
 }
 
 class MustBeSingleton {
@@ -267,6 +316,7 @@ class RepeatedNamedSingletonArgs {
       @Parameter(B.class) MustBeSingleton b) {
   }
 }
+
 class OneNamedSingletonArgs {
   @NamedParameter()
   class A implements Name<MustBeSingleton> {
@@ -280,26 +330,75 @@ class OneNamedSingletonArgs {
   OneNamedSingletonArgs(@Parameter(A.class) MustBeSingleton a) {
   }
 }
+
 class OneNamedStringArg {
-  @NamedParameter(default_value="default")
-  class A implements Name<String> {}
+  @NamedParameter(default_value = "default")
+  class A implements Name<String> {
+  }
+
   public final String s;
-  @Inject OneNamedStringArg(@Parameter(A.class) String s) { this.s = s;}
+
+  @Inject
+  OneNamedStringArg(@Parameter(A.class) String s) {
+    this.s = s;
+  }
 }
+
 class TwoNamedStringArgs {
-  @NamedParameter(default_value="defaultA")
-  class A implements Name<String> {}
-  @NamedParameter(default_value="defaultB")
-  class B implements Name<String> {}
+  @NamedParameter(default_value = "defaultA")
+  class A implements Name<String> {
+  }
+
+  @NamedParameter(default_value = "defaultB")
+  class B implements Name<String> {
+  }
+
   public final String a;
   public final String b;
-  @Inject TwoNamedStringArgs(@Parameter(A.class) String a,
-      @Parameter(B.class) String b) {
+
+  @Inject
+  TwoNamedStringArgs(@Parameter(A.class) String a, @Parameter(B.class) String b) {
     this.a = a;
     this.b = b;
   }
 }
+
 class BextendsAinjectA {
-  static class A { @Inject A() { } }
-  static class B extends A { }
+  static class A {
+    @Inject
+    A() {
+    }
+  }
+
+  static class B extends A {
+  }
+}
+
+class ExternalConstructorExample {
+  class Legacy {
+    final Integer x;
+    final String y;
+
+    public Legacy(Integer x, String y) {
+      this.x = x;
+      this.y = y;
+    }
+  }
+
+  static class LegacyWrapper implements ExternalConstructor<Legacy> {
+    final Integer x;
+    final String y;
+
+    @Inject
+    LegacyWrapper(Integer x, String y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    @Override
+    public Legacy newInstance() {
+      return new ExternalConstructorExample().new Legacy(x, y);
+    }
+
+  }
 }
