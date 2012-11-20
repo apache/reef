@@ -18,7 +18,6 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
