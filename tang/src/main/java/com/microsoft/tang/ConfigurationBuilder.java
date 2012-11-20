@@ -53,6 +53,14 @@ public interface ConfigurationBuilder {
   public void register(Class<?> c) throws BindException;
 
   public void register(String c) throws BindException;
+  /**
+   * Force Tang to treat the specified constructor as though it had an @Inject
+   * annotation.
+   * @param c The class the constructor instantiates.
+   * @param args The arguments taken by the constructor, in declaration order.
+   */
+  public <T> void registerLegacyConstructor(Class<?> c, Class<?>... args) throws BindException;
+  
 
   /**
    * Bind classes to each other, based on their full class names.

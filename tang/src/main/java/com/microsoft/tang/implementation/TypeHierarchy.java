@@ -18,6 +18,7 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
@@ -628,7 +629,19 @@ public class TypeHierarchy {
         return clazz.getName();
       }
     }
-
+    private boolean isInjectionCandidate(Class<?> clazz) {
+      final boolean injectable;
+      if (clazz.isLocalClass() || clazz.isMemberClass()) {
+        if (!Modifier.isStatic(clazz.getModifiers())) {
+          injectable = false;
+        } else {
+          injectable = true;
+        }
+      } else {
+        injectable = true;
+      }
+      return injectable;
+    }
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
@@ -650,12 +663,7 @@ public class TypeHierarchy {
       this.isSingleton = isSingleton;
 
       // Don't support non-static member classes with @Inject annotations.
-      boolean injectable = true;
-      if (clazz.isLocalClass() || clazz.isMemberClass()) {
-        if (!Modifier.isStatic(clazz.getModifiers())) {
-          injectable = false;
-        }
-      }
+      final boolean injectable = isInjectionCandidate(clazz);
 
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
@@ -993,5 +1001,4 @@ public class TypeHierarchy {
       return args.length > def.args.length;
     }
   }
-
 }

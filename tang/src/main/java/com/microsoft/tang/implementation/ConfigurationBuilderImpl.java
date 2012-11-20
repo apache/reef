@@ -149,6 +149,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
+  @Override
+  public <T> void registerLegacyConstructor(Class<?> c, Class<?>... args) throws BindException {
+    throw new UnsupportedOperationException();
+  }
+  
   private Options getCommandLineOptions() {
     Options opts = new Options();
     Collection<NamedParameterNode<?>> namedParameters = conf.namespace
