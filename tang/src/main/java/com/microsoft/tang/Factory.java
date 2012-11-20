@@ -1,5 +1,5 @@
 package com.microsoft.tang;
 
 public interface Factory<T, U> {
-  public T newInstance(U arg);
+  public T create(U arg);
 }
