@@ -68,4 +68,16 @@ public interface Injector {
    */
   public Injector createChildInjector(Configuration... configurations)
       throws BindException;
+  /**
+   * Returns true if this Injector is able to instantiate the object
+   * named by name.
+   * 
+   * @param name
+   * @return
+   * @throws BindException
+   */
+  boolean isInjectable(String name) throws BindException;
+  boolean isParameterSet(String name) throws BindException;
+  boolean isInjectable(Class<?> clazz) throws BindException;
+  boolean isParameterSet(Class<? extends Name<?>> name) throws BindException;
 }
