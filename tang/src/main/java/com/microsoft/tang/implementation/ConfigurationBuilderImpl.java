@@ -3,6 +3,7 @@ package com.microsoft.tang.implementation;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -127,6 +128,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         conf.namedParameterInstances.put(new_np, o);
       }
     }
+    for (ClassNode<?> cn : old.legacyConstructors.keySet()) {
+      registerLegacyConstructor(cn.getClazz(), old.legacyConstructors.get(cn).constructor.getParameterTypes());
+    }
   }
 
   /**
@@ -150,8 +154,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public <T> void registerLegacyConstructor(Class<?> c, Class<?>... args) throws BindException {
-    throw new UnsupportedOperationException();
+  public <T> void registerLegacyConstructor(Class<T> c, final Class<?>... args) throws BindException {
+    @SuppressWarnings("unchecked")
+    ClassNode<T> cn = (ClassNode<T>) conf.namespace.register(c);
+    conf.legacyConstructors.put(cn, cn.createConstructorDef(args));
   }
   
   private Options getCommandLineOptions() {
@@ -340,8 +346,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
-    //System.err
-    //    .println("Warning: ExternalConstructors aren't implemented at the moment");
+
+    conf.namespace.register(v);
     try {
       conf.boundConstructors.put((ClassNode<?>) conf.namespace.register(c),
           (Class) v);
@@ -432,6 +438,24 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           } catch (ClassNotFoundException e) {
             throw new BindException("Could not find class " + value
                 + " in config file", e);
+          }
+        } else if(value.startsWith(ConfigurationImpl.INIT)) {
+          String parseValue = value.substring(ConfigurationImpl.INIT.length(), value.length());
+          parseValue = parseValue.replaceAll("^[\\s\\(]+", "");
+          parseValue = parseValue.replaceAll("[\\s\\)]+$", "");
+          String[] classes = parseValue.split("[\\s\\-]+");
+          Class<?>[] clazzes = new Class[classes.length];
+          for(int i = 0; i < classes.length; i++) {
+            try {
+              clazzes[i] = conf.classForName(classes[i]);
+            } catch (ClassNotFoundException e) {
+              throw new BindException("Could not find arg " + classes[i] + " of constructor for " + key);
+            }
+          }
+          try {
+            registerLegacyConstructor(conf.classForName(key), clazzes);
+          } catch (ClassNotFoundException e) {
+            throw new BindException("Could not find class " + key + " when trying to register legacy constructor " + value);
           }
         } else {
           if (isSingleton) {

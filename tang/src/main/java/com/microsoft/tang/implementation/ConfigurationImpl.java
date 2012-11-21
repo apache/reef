@@ -17,6 +17,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
+import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
 import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
 import com.microsoft.tang.util.MonotonicMap;
@@ -28,7 +29,8 @@ public class ConfigurationImpl implements Configuration {
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();
   final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<NamedParameterNode<?>, String>();
-
+  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<ClassNode<?>, ConstructorDef<?>>();
+  
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
@@ -49,6 +51,7 @@ public class ConfigurationImpl implements Configuration {
   public final static String IMPORT = "import";
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
+  public final static String INIT = "<init>";
 
   public ConfigurationImpl(URL... jars) {
     this.jars = new ArrayList<>(Arrays.asList(jars));
@@ -135,6 +138,18 @@ public class ConfigurationImpl implements Configuration {
       // ret.put(opt.getFullName(), SINGLETON);
       s.append(opt.getFullName() + "=" + SINGLETON + "\n");
     }
+    for (ClassNode<?> cn : legacyConstructors.keySet()) {
+      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", legacyConstructors.get(cn).constructor.getParameterTypes()) + ")");
+    }
     return s.toString();
+  }
+  private String join(String sep, Class<?>[] types) {
+    if(types.length == 0) { return ""; }
+    StringBuilder sb = new StringBuilder();
+    sb.append(types[0].getName());
+    for(int i = 1; i < types.length; i++) {
+      sb.append(sep + types[i].getName());
+    }
+    return sb.toString();
   }
 }

@@ -628,7 +628,7 @@ public class TypeHierarchy {
         return clazz.getName();
       }
     }
-    private boolean isInjectionCandidate(Class<?> clazz) {
+    public boolean isInjectionCandidate() {
       final boolean injectable;
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
         if (!Modifier.isStatic(clazz.getModifiers())) {
@@ -654,6 +654,49 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
+    public ConstructorDef<T> createConstructorDef(Class<?>... paramTypes) throws BindException {
+      if (!isInjectionCandidate()) {
+        throw new BindException(
+            "Cannot @Inject non-static member/local class: " + clazz);
+      }
+      try {
+        return createConstructorDef(clazz.getConstructor(paramTypes));
+      } catch(NoSuchMethodException e) {
+        throw new BindException("Could not find requested constructor for class " + clazz, e);
+      }
+    }
+    private ConstructorDef<T> createConstructorDef(Constructor<T> constructor) throws BindException {
+      // We don't support non-static member classes with @Inject annotations.
+      if (!isInjectionCandidate()) {
+        throw new BindException(
+            "Cannot @Inject non-static member/local class: " + clazz);
+      }
+      Class<?>[] paramTypes = constructor.getParameterTypes();
+      Annotation[][] paramAnnotations = constructor
+          .getParameterAnnotations();
+      if (paramTypes.length != paramAnnotations.length) {
+        throw new IllegalStateException();
+      }
+      ConstructorArg[] args = new ConstructorArg[paramTypes.length];
+      for (int i = 0; i < paramTypes.length; i++) {
+        // if there is an appropriate annotation, use that.
+        Parameter named = null;
+        for (int j = 0; j < paramAnnotations[i].length; j++) {
+          Annotation annotation = paramAnnotations[i][j];
+          if (annotation instanceof Parameter) {
+            named = (Parameter) annotation;
+          }
+        }
+        args[i] = new ConstructorArg(paramTypes[i], named);
+      }
+      try {
+        return new ConstructorDef<T>(args, constructor);
+      } catch (BindException e) {
+        throw new BindException("Detected bad constructor in "
+            + constructor + " in " + clazz, e);
+      }
+    }
+    
     public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget,
         boolean isSingleton) throws BindException {
       super(parent, clazz);
@@ -661,8 +704,6 @@ public class TypeHierarchy {
       this.isPrefixTarget = isPrefixTarget;
       this.isSingleton = isSingleton;
 
-      // Don't support non-static member classes with @Inject annotations.
-      final boolean injectable = isInjectionCandidate(clazz);
 
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
@@ -671,10 +712,6 @@ public class TypeHierarchy {
       for (int k = 0; k < constructors.length; k++) {
 
         if (constructors[k].getAnnotation(Inject.class) != null) {
-          if (!injectable) {
-            throw new BindException(
-                "Cannot @Inject non-static member/local class: " + clazz);
-          }
           // go through the constructor arguments.
           if (constructors[k].isSynthetic()) {
             // Not sure if we *can* unit test this one.
@@ -686,31 +723,7 @@ public class TypeHierarchy {
           // parameters
           // The injectableConstructors set checks for ambiguous
           // boundConstructors.
-          Class<?>[] paramTypes = constructors[k].getParameterTypes();
-          Annotation[][] paramAnnotations = constructors[k]
-              .getParameterAnnotations();
-          if (paramTypes.length != paramAnnotations.length) {
-            throw new IllegalStateException();
-          }
-          ConstructorArg[] args = new ConstructorArg[paramTypes.length];
-          for (int i = 0; i < paramTypes.length; i++) {
-            // if there is an appropriate annotation, use that.
-            Parameter named = null;
-            for (int j = 0; j < paramAnnotations[i].length; j++) {
-              Annotation annotation = paramAnnotations[i][j];
-              if (annotation instanceof Parameter) {
-                named = (Parameter) annotation;
-              }
-            }
-            args[i] = new ConstructorArg(paramTypes[i], named);
-          }
-          ConstructorDef<T> def;
-          try {
-            def = new ConstructorDef<T>(args, constructors[k]);
-          } catch (BindException e) {
-            throw new BindException("Detected bad constructor in "
-                + constructors[k] + " in " + clazz, e);
-          }
+          ConstructorDef<T> def = createConstructorDef(constructors[k]);
           if (injectableConstructors.contains(def)) {
             throw new BindException(
                 "Ambiguous boundConstructors detected in class " + clazz + ": "
