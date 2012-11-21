@@ -1,6 +1,8 @@
 package com.microsoft.tang.implementation;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +110,14 @@ public class InjectorImpl implements Injector {
         classNodes.add(cn);
         List<InjectionPlan<?>> sub_ips = new ArrayList<InjectionPlan<?>>();
         for (ClassNode<?> thisCN : classNodes) {
-          List<InjectionPlan<?>> constructors = new ArrayList<InjectionPlan<?>>();
-          for (ConstructorDef<?> def : thisCN.injectableConstructors) {
+          final List<InjectionPlan<?>> constructors = new ArrayList<InjectionPlan<?>>();
+          final List<ConstructorDef<?>> constructorList = new ArrayList<>();
+          if(tc.legacyConstructors.containsKey(thisCN)) {
+            constructorList.add(tc.legacyConstructors.get(thisCN));
+          }
+          constructorList.addAll(Arrays.asList(thisCN.injectableConstructors));
+          
+          for (ConstructorDef<?> def : constructorList) {
             List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
             for (ConstructorArg arg : def.args) {
               String argName = arg.getName(); // getFullyQualifiedName(thisCN.clazz);

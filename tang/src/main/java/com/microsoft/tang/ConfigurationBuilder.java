@@ -59,7 +59,7 @@ public interface ConfigurationBuilder {
    * @param c The class the constructor instantiates.
    * @param args The arguments taken by the constructor, in declaration order.
    */
-  public <T> void registerLegacyConstructor(Class<?> c, Class<?>... args) throws BindException;
+  public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args) throws BindException;
   
 
   /**

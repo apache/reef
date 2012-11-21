@@ -243,6 +243,23 @@ public class TestTang {
     Assert.assertEquals("The meaning of life is ", l.y);
     
   }
+  @Test
+  public void testLegacyConstructor() throws BindException, InjectionException {
+    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    cb.registerLegacyConstructor(LegacyConstructor.class, Integer.class, String.class);
+    cb.bind(LegacyConstructor.class, LegacyConstructor.class);
+    String confString = cb.build().toConfigurationString(); 
+    ConfigurationBuilder cb2 = tang.newConfigurationBuilder();
+    //System.err.println(confString);
+    cb2.addConfiguration(confString);
+    Injector i = tang.newInjector(cb2.build());
+    i.bindVolatileInstance(Integer.class, 42);
+    i.bindVolatileInstance(String.class, "The meaning of life is ");
+    LegacyConstructor l = i.getInstance(LegacyConstructor.class);
+    Assert.assertEquals(new Integer(42), l.x);
+    Assert.assertEquals("The meaning of life is ", l.y);
+    
+  }
 }
 
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
@@ -400,5 +417,14 @@ class ExternalConstructorExample {
       return new ExternalConstructorExample().new Legacy(x, y);
     }
 
+  }
+}
+class LegacyConstructor {
+  final Integer x;
+  final String y;
+
+  public LegacyConstructor(Integer x, String y) {
+    this.x = x;
+    this.y = y;
   }
 }
