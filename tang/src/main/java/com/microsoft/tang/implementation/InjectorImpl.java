@@ -34,6 +34,7 @@ public class InjectorImpl implements Injector {
       super(s);
     }
   }
+
   private final ConfigurationImpl tc;
 
   public InjectorImpl(ConfigurationImpl old_tc) throws InjectionException,
@@ -112,11 +113,11 @@ public class InjectorImpl implements Injector {
         for (ClassNode<?> thisCN : classNodes) {
           final List<InjectionPlan<?>> constructors = new ArrayList<InjectionPlan<?>>();
           final List<ConstructorDef<?>> constructorList = new ArrayList<>();
-          if(tc.legacyConstructors.containsKey(thisCN)) {
+          if (tc.legacyConstructors.containsKey(thisCN)) {
             constructorList.add(tc.legacyConstructors.get(thisCN));
           }
           constructorList.addAll(Arrays.asList(thisCN.injectableConstructors));
-          
+
           for (ConstructorDef<?> def : constructorList) {
             List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
             for (ConstructorArg arg : def.args) {
@@ -172,15 +173,31 @@ public class InjectorImpl implements Injector {
   }
 
   /**
-   * Returns true if ConfigurationBuilderImpl is ready to instantiate the object
-   * named by name.
-   * 
-   * @param name
-   * @return
-   * @throws NameResolutionException
+   * XXX Check isInjectable/isParameterSet for side effects. We can't call
+   * populateSingletons() when this is called.
    */
+  @Override
   public boolean isInjectable(String name) throws BindException {
     InjectionPlan<?> p = getInjectionPlan(name);
+    return p.isInjectable();
+  }
+
+  @Override
+  public boolean isInjectable(Class<?> clazz) throws BindException {
+    InjectionPlan<?> p = getInjectionPlan(clazz.getName());
+    return p.isInjectable();
+  }
+
+  @Override
+  public boolean isParameterSet(String name) throws BindException {
+    InjectionPlan<?> p = getInjectionPlan(name);
+    return p.isInjectable();
+  }
+
+  @Override
+  public boolean isParameterSet(Class<? extends Name<?>> name)
+      throws BindException {
+    InjectionPlan<?> p = getInjectionPlan(name.getName());
     return p.isInjectable();
   }
 
@@ -198,10 +215,10 @@ public class InjectorImpl implements Injector {
           if (!tc.singletonInstances.containsKey(cn)) {
             try {
               getInstance(cn.getClazz());
-              //System.err.println("success " + cn);
+              // System.err.println("success " + cn);
               oneSucceeded = true;
             } catch (SingletonInjectionException e) {
-              //System.err.println("failure " + cn);
+              // System.err.println("failure " + cn);
               allSucceeded = false;
               if (!stillHope) {
                 throw e;
@@ -215,6 +232,7 @@ public class InjectorImpl implements Injector {
       }
     }
   }
+
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
     populateSingletons();
@@ -252,22 +270,27 @@ public class InjectorImpl implements Injector {
       return ((InjectionPlan.Instance<T>) plan).instance;
     } else if (plan instanceof InjectionPlan.DelegatedImpl) {
       InjectionPlan.DelegatedImpl<?> delegated = (DelegatedImpl<?>) plan;
-      if(tc.singletonInstances.containsKey(delegated.getNode())) {
-        throw new SingletonInjectionException("Attempt to re-instantiate singleton: " + delegated.getNode());
+      if (tc.singletonInstances.containsKey(delegated.getNode())) {
+        throw new SingletonInjectionException(
+            "Attempt to re-instantiate singleton: " + delegated.getNode());
       }
       Object ret = injectFromPlan(delegated.impl);
-      if(tc.singletons.contains(delegated.getNode())) {
+      if (tc.singletons.contains(delegated.getNode())) {
         tc.singletonInstances.put(delegated.getNode(), ret);
       }
-      if(ret instanceof ExternalConstructor) { // TODO: Check "T" in "instanceof ExternalConstructor<T>"
-        return ((ExternalConstructor<T>)ret).newInstance(); // TODO fix up generic types for injectFromPlan with external constructor!
+      // TODO: Check "T" in "instanceof ExternalConstructor<T>"
+      if (ret instanceof ExternalConstructor) {
+        // TODO fix up generic types for injectFromPlan with external
+        // constructor!
+        return ((ExternalConstructor<T>) ret).newInstance();
       } else {
         return (T) ret;
       }
     } else if (plan instanceof InjectionPlan.Constructor) {
       InjectionPlan.Constructor<T> constructor = (InjectionPlan.Constructor<T>) plan;
-      if(tc.singletonInstances.containsKey(constructor.getNode())) {
-        throw new SingletonInjectionException("Attempt to re-instantiate singleton: " + constructor.getNode());
+      if (tc.singletonInstances.containsKey(constructor.getNode())) {
+        throw new SingletonInjectionException(
+            "Attempt to re-instantiate singleton: " + constructor.getNode());
       }
       Object[] args = new Object[constructor.args.length];
       for (int i = 0; i < constructor.args.length; i++) {
@@ -275,10 +298,10 @@ public class InjectorImpl implements Injector {
       }
       try {
         T ret = constructor.constructor.constructor.newInstance(args);
-        if(tc.singletons.contains(constructor.getNode())) {
+        if (tc.singletons.contains(constructor.getNode())) {
           tc.singletonInstances.put(constructor.getNode(), ret);
         }
-        //System.err.println("returning a new " + constructor.getNode());
+        // System.err.println("returning a new " + constructor.getNode());
         return ret;
       } catch (ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor", e);
