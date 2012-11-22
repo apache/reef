@@ -21,7 +21,7 @@ public interface Tang {
    *           If any singletons fail to inject.
    */
   public Injector newInjector(final Configuration... confs)
-      throws BindException, InjectionException;
+      throws BindException;
 
   /**
    * Create a new ConfigurationBuilder

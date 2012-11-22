@@ -1,6 +1,5 @@
 package com.microsoft.tang.implementation;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,8 +36,7 @@ public class InjectorImpl implements Injector {
 
   private final ConfigurationImpl tc;
 
-  public InjectorImpl(ConfigurationImpl old_tc) throws InjectionException,
-      BindException {
+  public InjectorImpl(ConfigurationImpl old_tc) throws BindException {
     tc = new ConfigurationBuilderImpl(old_tc).build();
   }
 
@@ -172,10 +170,6 @@ public class InjectorImpl implements Injector {
     return (InjectionPlan<T>) getInjectionPlan(name.getName());
   }
 
-  /**
-   * XXX Check isInjectable/isParameterSet for side effects. We can't call
-   * populateSingletons() when this is called.
-   */
   @Override
   public boolean isInjectable(String name) throws BindException {
     InjectionPlan<?> p = getInjectionPlan(name);
@@ -332,7 +326,7 @@ public class InjectorImpl implements Injector {
         cb.addConfiguration(c);
       }
       i = new InjectorImpl(cb.build());
-    } catch (BindException | InjectionException e) {
+    } catch (BindException e) {
       throw new IllegalStateException(
           "Unexpected error copying configuration!", e);
     }

@@ -2,6 +2,8 @@ package com.microsoft.tang;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.BrokenBarrierException;
+
 import javax.inject.Inject;
 
 import junit.framework.Assert;
@@ -190,6 +192,35 @@ public class TestBindSingleton {
         IncestuousInterfaceSingletons.C.class);
     Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousInterfaceSingletons.AI.class);
+  }
+
+  @Test
+  public void testIsBrokenClassInjectable() throws BindException {
+    Tang t = Tang.Factory.getTang();
+    ConfigurationBuilder b = t.newConfigurationBuilder();
+    b.bind(IsBrokenClassInjectable.class, IsBrokenClassInjectable.class);
+    Assert.assertTrue(t.newInjector(b.build()).isInjectable(
+        IsBrokenClassInjectable.class));
+  }
+
+  @Test
+  public void testIsBrokenSingletonClassInjectable() throws BindException {
+    Tang t = Tang.Factory.getTang();
+    ConfigurationBuilder b = t.newConfigurationBuilder();
+    b.bindSingletonImplementation(IsBrokenClassInjectable.class,
+        IsBrokenClassInjectable.class);
+    Assert.assertTrue(t.newInjector(b.build()).isInjectable(
+        IsBrokenClassInjectable.class));
+  }
+  @Test(expected=InjectionException.class)
+  public void testBrokenSingletonClassCantInject() throws BindException, InjectionException {
+    Tang t = Tang.Factory.getTang();
+    ConfigurationBuilder b = t.newConfigurationBuilder();
+    b.bindSingletonImplementation(IsBrokenClassInjectable.class,
+        IsBrokenClassInjectable.class);
+    Assert.assertTrue(t.newInjector(b.build()).isInjectable(
+        IsBrokenClassInjectable.class));
+    t.newInjector(b.build()).getInstance(IsBrokenClassInjectable.class);
   }
 }
 
