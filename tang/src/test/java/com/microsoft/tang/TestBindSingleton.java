@@ -2,8 +2,6 @@ package com.microsoft.tang;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.concurrent.BrokenBarrierException;
-
 import javax.inject.Inject;
 
 import junit.framework.Assert;
