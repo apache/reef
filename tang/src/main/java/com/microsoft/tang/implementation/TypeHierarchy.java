@@ -628,6 +628,7 @@ public class TypeHierarchy {
         return clazz.getName();
       }
     }
+
     public boolean isInjectionCandidate() {
       final boolean injectable;
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
@@ -641,6 +642,7 @@ public class TypeHierarchy {
       }
       return injectable;
     }
+
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
@@ -654,26 +656,29 @@ public class TypeHierarchy {
       return sb.toString();
     }
 
-    public ConstructorDef<T> createConstructorDef(Class<?>... paramTypes) throws BindException {
+    public ConstructorDef<T> createConstructorDef(Class<?>... paramTypes)
+        throws BindException {
       if (!isInjectionCandidate()) {
         throw new BindException(
             "Cannot @Inject non-static member/local class: " + clazz);
       }
       try {
         return createConstructorDef(clazz.getConstructor(paramTypes));
-      } catch(NoSuchMethodException e) {
-        throw new BindException("Could not find requested constructor for class " + clazz, e);
+      } catch (NoSuchMethodException e) {
+        throw new BindException(
+            "Could not find requested constructor for class " + clazz, e);
       }
     }
-    private ConstructorDef<T> createConstructorDef(Constructor<T> constructor) throws BindException {
+
+    private ConstructorDef<T> createConstructorDef(Constructor<T> constructor)
+        throws BindException {
       // We don't support non-static member classes with @Inject annotations.
       if (!isInjectionCandidate()) {
         throw new BindException(
             "Cannot @Inject non-static member/local class: " + clazz);
       }
       Class<?>[] paramTypes = constructor.getParameterTypes();
-      Annotation[][] paramAnnotations = constructor
-          .getParameterAnnotations();
+      Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
       if (paramTypes.length != paramAnnotations.length) {
         throw new IllegalStateException();
       }
@@ -692,18 +697,17 @@ public class TypeHierarchy {
       try {
         return new ConstructorDef<T>(args, constructor);
       } catch (BindException e) {
-        throw new BindException("Detected bad constructor in "
-            + constructor + " in " + clazz, e);
+        throw new BindException("Detected bad constructor in " + constructor
+            + " in " + clazz, e);
       }
     }
-    
+
     public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget,
         boolean isSingleton) throws BindException {
       super(parent, clazz);
       this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
       this.isSingleton = isSingleton;
-
 
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
@@ -821,8 +825,14 @@ public class TypeHierarchy {
           || namedParameter.default_value().length() == 0) {
         this.defaultInstance = null;
       } else {
-        this.defaultInstance = ReflectionUtilities.parse(this.argClass,
-            namedParameter.default_value());
+        try {
+          this.defaultInstance = ReflectionUtilities.parse(this.argClass,
+              namedParameter.default_value());
+        } catch (UnsupportedOperationException e) {
+          throw new BindException("Could not register NamedParameterNode for "
+              + clazz.getName() + ".  Default value "
+              + namedParameter.default_value() + " failed to parse.", e);
+        }
       }
     }
 
