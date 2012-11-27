@@ -90,14 +90,25 @@ final public class StaticConfiguration {
   public static final class BindNamedParameter implements BindInterface {
     final Class<? extends Name<?>> name;
     final String value;
+    final Class<?> impl;
     public <T> BindNamedParameter(Class<? extends Name<T>> name, String value) {
       this.name = name;
       this.value = value;
+      this.impl = null;
+    }
+    public <T> BindNamedParameter(Class<? extends Name<T>> name, Class<T> impl) {
+      this.name = name;
+      this.impl = impl;
+      this.value = null;
     }
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void configure(ConfigurationBuilder cb) throws BindException {
-      cb.bindNamedParameter((Class)name,  value);
+      if(value != null) {
+        cb.bindNamedParameter((Class)name,  value);
+      } else {
+        cb.bindNamedParameter((Class)name, (Class)impl);
+      }
     }
   }
   public static final class BindConstructor implements BindInterface {
