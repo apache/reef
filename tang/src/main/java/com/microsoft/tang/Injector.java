@@ -20,7 +20,7 @@ public interface Injector {
    */
   public <U> U getInstance(Class<U> iface) throws InjectionException;
   public <U> U getInstance(String iface) throws InjectionException;
-
+  public <U> U getNamedInstance(Class<? extends Name<U>> iface) throws InjectionException;
   /**
    * Gets the value stored for the given named parameter.
    * 

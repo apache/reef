@@ -3,7 +3,6 @@ package com.microsoft.tang.implementation;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -290,12 +289,20 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
               + "namespace contains a " + n);
     }
   }
-
-  private <T> void bindParameter(NamedParameterNode<T> name, String value) {
+  private <T> void bindParameter(NamedParameterNode<T> name, String value) throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
-    T o = ReflectionUtilities.parse(name.argClass, value);
+    T o;
+    try {
+      o = ReflectionUtilities.parse(name.argClass, value);
+    } catch(UnsupportedOperationException e) {
+      try {
+        o = (T)conf.classForName(value);
+      } catch (ClassNotFoundException e1) {
+        throw new BindException("Do not know how to parse a " + name.argClass + " Furthermore, could not bind it to an implementation with name " + value);
+      }
+    }
     conf.namedParameters.put(name, value);
     conf.namedParameterInstances.put(name, o);
   }
@@ -315,6 +322,25 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           "Detected type mismatch when setting named parameter " + name
               + "  Expected NamedParameterNode, but namespace contains a " + np);
     }
+  }
+
+  @Override
+  public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
+      Class<? extends T> impl) throws BindException {
+    if (conf.sealed)
+        throw new IllegalStateException(
+            "Can't bind to sealed ConfigurationBuilderImpl!");
+    Node n = conf.namespace.register(iface);
+    conf.namespace.register(impl);
+    if(n instanceof NamedParameterNode) {
+      bindParameter((NamedParameterNode<?>) n, impl.getName());
+    } else {
+      throw new BindException(
+          "Detected type mismatch when setting named parameter " + iface
+              + "  Expected NamedParameterNode, but namespace contains a " + n);
+    }
+    
+    
   }
 
   @SuppressWarnings("unchecked")

@@ -30,6 +30,7 @@ public class Timer {
     Tang tang = Tang.Factory.getTang();
     ConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(Timer.class);
+    cb.processCommandLine(args);
     Configuration conf = cb.build();
     InjectorImpl injector = (InjectorImpl)tang.newInjector(conf);
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);

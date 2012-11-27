@@ -130,7 +130,7 @@ public interface ConfigurationBuilder {
    */
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value)
       throws BindException;
-
+  public <T> void bindNamedParameter(Class<? extends Name<T>> iface, Class<? extends T> impl) throws BindException;
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
 
