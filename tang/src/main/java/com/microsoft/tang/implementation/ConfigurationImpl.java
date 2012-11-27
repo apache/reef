@@ -34,6 +34,7 @@ public class ConfigurationImpl implements Configuration {
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
+
   private final List<URL> jars;
   private URLClassLoader loader;
 

@@ -260,6 +260,19 @@ public class TestTang {
     Assert.assertEquals("The meaning of life is ", l.y);
     
   }
+  @Test
+  public void testNamedImpl() throws BindException, InjectionException {
+    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    cb.bindNamedParameter(NamedImpl.AImplName.class, NamedImpl.Aimpl.class);
+    cb.bindNamedParameter(NamedImpl.BImplName.class, NamedImpl.Bimpl.class);
+    Injector i = tang.newInjector(cb.build());
+    NamedImpl.Aimpl a1 = (NamedImpl.Aimpl)i.getNamedInstance(NamedImpl.AImplName.class);
+    NamedImpl.Aimpl a2 = (NamedImpl.Aimpl)i.getNamedInstance(NamedImpl.AImplName.class);
+    NamedImpl.Bimpl b1 = (NamedImpl.Bimpl)i.getNamedInstance(NamedImpl.BImplName.class);
+    NamedImpl.Bimpl b2 = (NamedImpl.Bimpl)i.getNamedInstance(NamedImpl.BImplName.class);
+    Assert.assertNotSame(a1, a2);
+    Assert.assertNotSame(b1, b2);
+  }
 }
 
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
@@ -426,5 +439,20 @@ class LegacyConstructor {
   public LegacyConstructor(Integer x, String y) {
     this.x = x;
     this.y = y;
+  }
+}
+class NamedImpl {
+  @NamedParameter
+  static class AImplName implements Name<A> {}
+  @NamedParameter
+  static class BImplName implements Name<A> {}
+  static interface A {}
+  static class Aimpl implements A { @Inject Aimpl() { } }
+  static class Bimpl implements A { @Inject Bimpl() { } }
+  static class ABtaker {
+    @Inject ABtaker(@Parameter(AImplName.class) A a, @Parameter(BImplName.class) A b) {
+      Assert.assertTrue("AImplName must be instance of Aimpl", a instanceof Aimpl);
+      Assert.assertTrue("BImplName must be instance of Bimpl", b instanceof Bimpl);
+    }
   }
 }

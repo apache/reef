@@ -79,7 +79,13 @@ public class InjectorImpl implements Injector {
       if (instance == null) {
         instance = np.defaultInstance;
       }
-      ip = new Instance<Object>(np, instance);
+      if(instance instanceof Class) {
+        String implName = ((Class) instance).getName();
+        buildInjectionPlan(implName, memo);
+        ip = new InjectionPlan.DelegatedImpl(np, memo.get(implName));
+      } else {
+        ip = new Instance<Object>(np, instance);
+      }
     } else if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (tc.singletonInstances.containsKey(cn)) {
@@ -233,6 +239,13 @@ public class InjectorImpl implements Injector {
     InjectionPlan<U> plan = getInjectionPlan(clazz);
     return injectFromPlan(plan);
   }
+  @Override
+  public <U> U getNamedInstance(Class<? extends Name<U>> clazz) throws InjectionException {
+    populateSingletons();
+    @SuppressWarnings("unchecked")
+    InjectionPlan<U> plan = (InjectionPlan<U>) getInjectionPlan(clazz.getName());
+    return injectFromPlan(plan);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -270,7 +283,8 @@ public class InjectorImpl implements Injector {
       }
       Object ret = injectFromPlan(delegated.impl);
       if (tc.singletons.contains(delegated.getNode())) {
-        tc.singletonInstances.put(delegated.getNode(), ret);
+        // Cast is safe since singletons is of type Set<ClassNode<?>>
+        tc.singletonInstances.put((ClassNode<?>)delegated.getNode(), ret);
       }
       // TODO: Check "T" in "instanceof ExternalConstructor<T>"
       if (ret instanceof ExternalConstructor) {
