@@ -50,10 +50,8 @@ public interface ConfigurationBuilder {
    * @param c
    * @throws BindException
    */
-  @Deprecated
   public void register(Class<?> c) throws BindException;
 
-  @Deprecated
   public void register(String c) throws BindException;
   /**
    * Force Tang to treat the specified constructor as though it had an @Inject
@@ -61,7 +59,6 @@ public interface ConfigurationBuilder {
    * @param c The class the constructor instantiates.
    * @param args The arguments taken by the constructor, in declaration order.
    */
-  @Deprecated
   public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args) throws BindException;
   
 
@@ -72,7 +69,6 @@ public interface ConfigurationBuilder {
    * @param impl
    * @throws ClassNotFoundException
    */
-  @Deprecated
   public <T> void bind(String iface, String impl)
       throws ClassNotFoundException, BindException;
 
@@ -83,7 +79,6 @@ public interface ConfigurationBuilder {
    * @param iface
    * @param impl
    */
-  @Deprecated
   public <T> void bind(Class<T> iface, Class<?> impl) throws BindException;
 
   /**
@@ -93,7 +88,6 @@ public interface ConfigurationBuilder {
    * @param iface
    * @param impl
    */
-  @Deprecated
   public <T> void bindImplementation(Class<T> iface, Class<? extends T> impl)
       throws BindException;
 
@@ -111,7 +105,6 @@ public interface ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
-  @Deprecated
   public <T> void bindSingletonImplementation(Class<T> iface,
       Class<? extends T> impl) throws BindException;
 
@@ -123,7 +116,6 @@ public interface ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
-  @Deprecated
   public <T> void bindSingleton(Class<T> iface) throws BindException;
 
   /**
@@ -136,11 +128,9 @@ public interface ConfigurationBuilder {
    *          how to parse the parameter's type.
    * @throws NameResolutionException
    */
-  @Deprecated
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value)
       throws BindException;
 
-  @Deprecated
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
 

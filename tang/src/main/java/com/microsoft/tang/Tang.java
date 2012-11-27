@@ -51,7 +51,6 @@ public interface Tang {
    * @return a new ConfigurationBuilder
    *
    */
-  @Deprecated
   public ConfigurationBuilder newConfigurationBuilder();
 
   /**
