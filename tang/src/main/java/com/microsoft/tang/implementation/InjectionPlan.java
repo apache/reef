@@ -1,6 +1,7 @@
 package com.microsoft.tang.implementation;
 
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
+import com.microsoft.tang.implementation.TypeHierarchy.Node;
 
 public abstract class InjectionPlan<T> {
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>() {
@@ -69,12 +70,12 @@ public abstract class InjectionPlan<T> {
   public abstract String toString();
   final public static class DelegatedImpl<T> extends InjectionPlan<T> {
     final InjectionPlan<? extends T> impl;
-    final ClassNode<T> cn;
-    public DelegatedImpl(ClassNode<T> cn, InjectionPlan<? extends T> impl) {
+    final Node cn;
+    public DelegatedImpl(Node cn, InjectionPlan<? extends T> impl) {
       this.cn = cn;
       this.impl = impl;
     }
-    public ClassNode<T> getNode() {
+    public Node getNode() {
       return cn;
     }
     @Override
