@@ -292,6 +292,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
               + "namespace contains a " + n);
     }
   }
+  @SuppressWarnings("unchecked")
   private <T> void bindParameter(NamedParameterNode<T> name, String value) throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
