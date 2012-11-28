@@ -305,6 +305,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
     conf.namedParameters.put(name, value);
     conf.namedParameterInstances.put(name, o);
+    if(o instanceof Class) {
+      register((Class<?>)o);
+    }
   }
 
   @Override
