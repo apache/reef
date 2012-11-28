@@ -398,6 +398,9 @@ public class InjectorImpl implements Injector {
                 + " new value is " + o);
       }
       tc.namedParameterInstances.put(np, o);
+      if(o instanceof Class) {
+        tc.namespace.register((Class<?>) o);
+      }
     } else {
       throw new IllegalArgumentException("Expected Name, got " + c
           + " (probably a class)");
