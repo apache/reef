@@ -96,7 +96,7 @@ final public class StaticConfiguration {
       this.value = value;
       this.impl = null;
     }
-    public <T> BindNamedParameter(Class<? extends Name<T>> name, Class<T> impl) {
+    public <T> BindNamedParameter(Class<? extends Name<T>> name, Class<? extends T> impl) {
       this.name = name;
       this.impl = impl;
       this.value = null;

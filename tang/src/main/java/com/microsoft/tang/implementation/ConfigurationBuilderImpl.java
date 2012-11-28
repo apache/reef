@@ -125,6 +125,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         Object o = old.namedParameterInstances.get(np);
         NamedParameterNode<?> new_np= (NamedParameterNode<?>)conf.namespace.register(np.getNameClass());
         conf.namedParameterInstances.put(new_np, o);
+        if(o instanceof Class) {
+          register((Class<?>)o);
+        }
       }
     }
     for (ClassNode<?> cn : old.legacyConstructors.keySet()) {
@@ -305,6 +308,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
     conf.namedParameters.put(name, value);
     conf.namedParameterInstances.put(name, o);
+    if(o instanceof Class) {
+      register((Class<?>)o);
+    }
   }
 
   @Override
