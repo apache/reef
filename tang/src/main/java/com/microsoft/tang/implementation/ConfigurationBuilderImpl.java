@@ -13,6 +13,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Parser;
@@ -162,6 +163,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     conf.legacyConstructors.put(cn, cn.createConstructorDef(args));
   }
   
+  @SuppressWarnings("static-access")
   private Options getCommandLineOptions() {
     Options opts = new Options();
     Collection<NamedParameterNode<?>> namedParameters = conf.namespace
@@ -169,9 +171,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     for (NamedParameterNode<?> param : namedParameters) {
       String shortName = param.getShortName();
       if (shortName != null) {
-        // opts.addOption(OptionBuilder.withLongOpt(shortName).hasArg()
-        // .withDescription(param.toString()).create());
-        opts.addOption(shortName, true, param.toString());
+        opts.addOption(OptionBuilder
+            .withArgName(param.getArgClass().getSimpleName() + "=" + param.getDefaultInstance())
+            .hasArg()
+            .withDescription(param.getDocumentation() + "\n" + param.getFullName())
+            .create(param.getShortName()));
       }
     }
     for (Option o : applicationOptions.keySet()) {
@@ -193,7 +197,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public <T> void processCommandLine(String[] args) throws IOException,
+  public <T> boolean processCommandLine(String[] args) throws IOException,
       BindException {
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
@@ -208,19 +212,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (cl.hasOption("?")) {
       HelpFormatter help = new HelpFormatter();
       help.printHelp("reef", o);
-      return;
+      return false;
     }
-    for (Object ob : o.getOptions()) {
-      Option option = (Option) ob;
+    for (Option option : cl.getOptions()) {
       String shortName = option.getOpt();
       String value = option.getValue();
-      // System.out.println("Got option " + shortName + " = " + value);
-      // if(cl.hasOption(shortName)) {
 
       NamedParameterNode<T> n = conf.namespace.getNodeFromShortName(shortName);
       if (n != null && value != null) {
-        // XXX completely untested.
-
         if (applicationOptions.containsKey(option)) {
           applicationOptions.get(option).process(option);
         } else {
@@ -228,6 +227,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         }
       }
     }
+    return true;
   }
 
   @Override
@@ -241,10 +241,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     } catch(ClassNotFoundException e) {
       throw new BindException("Could not find class " + key);
     }
-    /*
-     * String longVal = shortNames.get(value); if (longVal != null) value =
-     * longVal;
-     */
     if (n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
