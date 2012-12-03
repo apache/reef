@@ -145,12 +145,13 @@ public interface ConfigurationBuilder {
   public void addCommandLineOption(Option option, CommandLineCallback cb);
 
   /**
+   * @return true if the command line parsing succeeded, false (or exception) otherwise.
    * @param args
    * @throws IOException
    * @throws NumberFormatException
    * @throws ParseException
    */
-  public <T> void processCommandLine(String[] args) throws BindException,
+  public <T> boolean processCommandLine(String[] args) throws BindException,
       IOException;
 
 }
