@@ -5,8 +5,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +33,15 @@ public class TypeHierarchy {
   // relevant jar has not yet been loaded.
 
   private final PackageNode namespace;
-  private final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>();
+  private final class ClassComparator implements Comparator<Class<?>> {
+
+    @Override
+    public int compare(Class<?> arg0, Class<?> arg1) {
+      return arg0.getName().compareTo(arg1.getName());
+    }
+    
+  }
+  private final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>(new ClassComparator());
   private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
 
@@ -471,7 +482,7 @@ public class TypeHierarchy {
     return namespace.toIndentedString(0);
   }
 
-  public abstract class Node {
+  public abstract class Node implements Comparable<Node> {
     protected final Node parent;
     protected final String name;
 
@@ -584,6 +595,30 @@ public class TypeHierarchy {
 
     public Collection<Node> getChildren() {
       return children.values();
+    }
+
+    private void getAncestors(List<Node> ancestors) {
+      if(parent != null) { parent.getAncestors(); }
+      ancestors.add(this);
+    }
+    private Node[] getAncestors() {
+      List<Node> ancestors = new ArrayList<>();
+      getAncestors(ancestors);
+      return ancestors.toArray(new Node[0]);
+    }
+    
+    @Override
+    public int compareTo(Node n) {
+      return getFullName().compareTo(n.getFullName());
+//      Node[] myAncestors = getAncestors();
+//      Node[] nAncestors = n.getAncestors();
+//      
+//      int minLen = myAncestors.length < nAncestors.length ? myAncestors.length : nAncestors.length;
+//      for(int i = 0; i < minLen; i++) {
+//        int cmp = myAncestors[i].getName().compareTo(nAncestors[i].getName());
+//        if(cmp != 0) { return cmp; }
+//      }
+//      return myAncestors.length < nAncestors.length ? -1 : (myAncestors.length == nAncestors.length ? 0 : 1);
     }
   }
 
@@ -934,7 +969,7 @@ public class TypeHierarchy {
     }
   }
 
-  public class ConstructorDef<T> {
+  public class ConstructorDef<T> implements Comparable<ConstructorDef<?>> {
     final ConstructorArg[] args;
     final Constructor<T> constructor;
 
@@ -1021,6 +1056,11 @@ public class TypeHierarchy {
           return false;
       }
       return args.length > def.args.length;
+    }
+
+    @Override
+    public int compareTo(ConstructorDef<?> o) {
+      return constructor.toString().compareTo(o.constructor.toString());
     }
   }
 }

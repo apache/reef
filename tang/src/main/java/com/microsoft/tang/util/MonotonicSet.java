@@ -1,9 +1,10 @@
 package com.microsoft.tang.util;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.TreeSet;
 
-public class MonotonicSet<T> extends HashSet<T> {
+public class MonotonicSet<T> extends TreeSet<T> {
   private static final long serialVersionUID = 1L;
 
   public MonotonicSet() {
@@ -12,6 +13,9 @@ public class MonotonicSet<T> extends HashSet<T> {
 
   public MonotonicSet(Collection<T> c) {
     addAll(c);
+  }
+  public MonotonicSet(Comparator<T> c) {
+    super(c);
   }
 
   @Override

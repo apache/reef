@@ -1,9 +1,9 @@
 package com.microsoft.tang.util;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class MonotonicMap<T, U> extends HashMap<T, U> {
+public class MonotonicMap<T, U> extends TreeMap<T, U> {
   private static final long serialVersionUID = 1L;
 
   @Override
