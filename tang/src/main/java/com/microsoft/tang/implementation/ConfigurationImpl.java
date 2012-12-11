@@ -140,7 +140,7 @@ public class ConfigurationImpl implements Configuration {
       s.append(opt.getFullName() + "=" + SINGLETON + "\n");
     }
     for (ClassNode<?> cn : legacyConstructors.keySet()) {
-      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", legacyConstructors.get(cn).constructor.getParameterTypes()) + ")");
+      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", legacyConstructors.get(cn).getConstructor().getParameterTypes()) + ")");
     }
     return s.toString();
   }
