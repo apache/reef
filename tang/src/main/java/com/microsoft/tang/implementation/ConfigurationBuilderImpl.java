@@ -43,10 +43,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  ConfigurationBuilderImpl() {
-    conf = new ConfigurationImpl();
-  }
-
   ConfigurationBuilderImpl(URL... jars) {
     conf = new ConfigurationImpl(jars);
   }
@@ -103,7 +99,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         Object o = old.singletonInstances.get(cn);
         if(o != null) {
           ClassNode<?> new_cn= (ClassNode<?>)conf.namespace.register(clazz);
-          new_cn.setIsSingleton();
           conf.singletons.add(new_cn);
           conf.singletonInstances.put(new_cn, o);
         } else {
@@ -132,7 +127,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       }
     }
     for (ClassNode<?> cn : old.legacyConstructors.keySet()) {
-      registerLegacyConstructor(cn.getClazz(), old.legacyConstructors.get(cn).constructor.getParameterTypes());
+      registerLegacyConstructor(cn.getClazz(), old.legacyConstructors.get(cn).getConstructor().getParameterTypes());
     }
   }
 
@@ -223,7 +218,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         if (applicationOptions.containsKey(option)) {
           applicationOptions.get(option).process(option);
         } else {
-          bindNamedParameter(n.clazz, value);
+          bindNamedParameter(n.getNameClass(), value);
         }
       }
     }
@@ -295,12 +290,12 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           "Can't bind to sealed ConfigurationBuilderImpl!");
     T o;
     try {
-      o = ReflectionUtilities.parse(name.argClass, value);
+      o = ReflectionUtilities.parse(name.getArgClass(), value);
     } catch(UnsupportedOperationException e) {
       try {
         o = (T)conf.classForName(value);
       } catch (ClassNotFoundException e1) {
-        throw new BindException("Do not know how to parse a " + name.argClass + " Furthermore, could not bind it to an implementation with name " + value);
+        throw new BindException("Do not know how to parse a " + name.getArgClass() + " Furthermore, could not bind it to an implementation with name " + value);
       }
     }
     conf.namedParameters.put(name, value);
@@ -360,7 +355,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           + " try bindParameter() instead.");
     }
     ClassNode<T> cn = (ClassNode<T>) n;
-    cn.setIsSingleton();
     conf.singletons.add(cn);
   }
 

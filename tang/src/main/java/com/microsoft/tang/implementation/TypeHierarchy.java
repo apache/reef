@@ -5,11 +5,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -221,7 +219,7 @@ public class TypeHierarchy {
     Class<?> argType = getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
-      return new ClassNode<U>(parent, clazz, isPrefixTarget, false);
+      return new ClassNode<U>(parent, clazz, isPrefixTarget);
     } else {
       if (isPrefixTarget) {
         throw new BindException(clazz
@@ -373,8 +371,8 @@ public class TypeHierarchy {
     }
     if (n instanceof ClassNode) {
       ClassNode<?> cls = (ClassNode<?>) n;
-      for (ConstructorDef<?> def : cls.injectableConstructors) {
-        for (ConstructorArg arg : def.args) {
+      for (ConstructorDef<?> def : cls.getInjectableConstructors()) {
+        for (ConstructorArg arg : def.getArgs()) {
           register(arg.type);
           if (arg.name != null) {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.name
@@ -390,7 +388,7 @@ public class TypeHierarchy {
       }
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      register(np.argClass);
+      register(np.getArgClass());
     }
     return n;
   }
@@ -585,40 +583,13 @@ public class TypeHierarchy {
           + getFullName() + "']";
     }
 
-    public String getType() {
-      return ReflectionUtilities.getFullName(this.getClass());
-    }
-
     public String getName() {
       return name;
     }
 
-    public Collection<Node> getChildren() {
-      return children.values();
-    }
-
-    private void getAncestors(List<Node> ancestors) {
-      if(parent != null) { parent.getAncestors(); }
-      ancestors.add(this);
-    }
-    private Node[] getAncestors() {
-      List<Node> ancestors = new ArrayList<>();
-      getAncestors(ancestors);
-      return ancestors.toArray(new Node[0]);
-    }
-    
     @Override
     public int compareTo(Node n) {
       return getFullName().compareTo(n.getFullName());
-//      Node[] myAncestors = getAncestors();
-//      Node[] nAncestors = n.getAncestors();
-//      
-//      int minLen = myAncestors.length < nAncestors.length ? myAncestors.length : nAncestors.length;
-//      for(int i = 0; i < minLen; i++) {
-//        int cmp = myAncestors[i].getName().compareTo(nAncestors[i].getName());
-//        if(cmp != 0) { return cmp; }
-//      }
-//      return myAncestors.length < nAncestors.length ? -1 : (myAncestors.length == nAncestors.length ? 0 : 1);
     }
   }
 
@@ -632,8 +603,7 @@ public class TypeHierarchy {
   public class ClassNode<T> extends Node {
     private final Class<T> clazz;
     private final boolean isPrefixTarget;
-    private boolean isSingleton;
-    public final ConstructorDef<T>[] injectableConstructors;
+    private final ConstructorDef<T>[] injectableConstructors;
 
     public Class<T> getClazz() {
       return clazz;
@@ -641,14 +611,6 @@ public class TypeHierarchy {
 
     public boolean getIsPrefixTarget() {
       return isPrefixTarget;
-    }
-
-    public void setIsSingleton() {
-      isSingleton = true;
-    }
-
-    public boolean getIsSingleton() {
-      return isSingleton;
     }
 
     public ConstructorDef<T>[] getInjectableConstructors() {
@@ -681,8 +643,8 @@ public class TypeHierarchy {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder(super.toString() + ": ");
-      if (injectableConstructors != null) {
-        for (ConstructorDef<T> c : injectableConstructors) {
+      if (getInjectableConstructors() != null) {
+        for (ConstructorDef<T> c : getInjectableConstructors()) {
           sb.append(c.toString() + ", ");
         }
       } else {
@@ -737,12 +699,10 @@ public class TypeHierarchy {
       }
     }
 
-    public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget,
-        boolean isSingleton) throws BindException {
+    public ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
       super(parent, clazz);
       this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
-      this.isSingleton = isSingleton;
 
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
@@ -820,40 +780,15 @@ public class TypeHierarchy {
   }
 
   public class NamedParameterNode<T> extends Node {
-    final Class<? extends Name<T>> clazz;
+    private final Class<? extends Name<T>> nameClass;
     private final NamedParameter namedParameter;
-    final Class<T> argClass;
-    final Object defaultInstance;
-
-    public boolean isAsSpecificAs(NamedParameterNode<?> n) {
-      if (!argClass.equals(n.argClass)) {
-        return false;
-      }
-      if (!name.equals(n.name)) {
-        return false;
-      }
-      if (n.namedParameter == null) {
-        return true;
-      }
-      if (this.namedParameter == null) {
-        return false;
-      }
-      return this.namedParameter.equals(n.namedParameter);
-    }
-
-    private NamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
-        NamedParameter namedParameter, Class<T> argClass, Object defaultInstance) {
-      super(parent, clazz);
-      this.clazz = clazz;
-      this.namedParameter = namedParameter;
-      this.argClass = argClass;
-      this.defaultInstance = defaultInstance;
-    }
+    private final Class<T> argClass;
+    private final T defaultInstance;
 
     NamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
         Class<T> argClass) throws BindException {
       super(parent, clazz);
-      this.clazz = clazz;
+      this.nameClass = clazz;
       this.namedParameter = clazz.getAnnotation(NamedParameter.class);
       this.argClass = argClass;
       if (this.namedParameter == null
@@ -861,7 +796,7 @@ public class TypeHierarchy {
         this.defaultInstance = null;
       } else {
         try {
-          this.defaultInstance = ReflectionUtilities.parse(this.argClass,
+          this.defaultInstance = ReflectionUtilities.parse(this.getArgClass(),
               namedParameter.default_value());
         } catch (UnsupportedOperationException e) {
           throw new BindException("Could not register NamedParameterNode for "
@@ -873,7 +808,7 @@ public class TypeHierarchy {
 
     @Override
     public String toString() {
-      String ret = ReflectionUtilities.getSimpleName(argClass);
+      String ret = ReflectionUtilities.getSimpleName(getArgClass());
       if (namedParameter == null) {
         ret = ret + " " + name;
       } else {
@@ -884,7 +819,7 @@ public class TypeHierarchy {
 
     @Override
     public String getFullName() {
-      return clazz.getName();
+      return getNameClass().getName();
     }
 
     public Class<T> getArgClass() {
@@ -892,10 +827,10 @@ public class TypeHierarchy {
     }
 
     public Class<? extends Name<T>> getNameClass() {
-      return clazz;
+      return nameClass;
     }
 
-    public Object getDefaultInstance() {
+    public T getDefaultInstance() {
       return defaultInstance;
     }
 
@@ -921,20 +856,11 @@ public class TypeHierarchy {
   }
 
   public class ConstructorArg {
-    final Class<?> type;
-    final Parameter name;
-
-    public String getType() {
-      return type.toString();
-    }
+    private final Class<?> type;
+    private final Parameter name;
 
     public String getName() {
       return name == null ? type.getName() : name.value().getName();
-    }
-
-    ConstructorArg(Class<?> argType) {
-      this.type = argType;
-      this.name = null;
     }
 
     ConstructorArg(Class<?> type, Parameter name) {
@@ -970,25 +896,25 @@ public class TypeHierarchy {
   }
 
   public class ConstructorDef<T> implements Comparable<ConstructorDef<?>> {
-    final ConstructorArg[] args;
-    final Constructor<T> constructor;
-
-    public Class<?> getConstructor() {
-      return constructor.getDeclaringClass();
-    }
+    private final ConstructorArg[] args;
+    private final Constructor<T> constructor;
 
     public ConstructorArg[] getArgs() {
       return args;
     }
 
+    Constructor<T> getConstructor() {
+      return constructor;
+    }
+
     @Override
     public String toString() {
-      if (args.length == 0) {
+      if (getArgs().length == 0) {
         return "()";
       }
-      StringBuilder sb = new StringBuilder("(" + args[0]);
-      for (int i = 1; i < args.length; i++) {
-        sb.append("," + args[i]);
+      StringBuilder sb = new StringBuilder("(" + getArgs()[0]);
+      for (int i = 1; i < getArgs().length; i++) {
+        sb.append("," + getArgs()[i]);
       }
       sb.append(")");
       return sb.toString();
@@ -1000,9 +926,9 @@ public class TypeHierarchy {
       this.constructor = constructor;
       constructor.setAccessible(true);
 
-      for (int i = 0; i < this.args.length; i++) {
-        for (int j = i + 1; j < this.args.length; j++) {
-          if (this.args[i].equals(this.args[j])) {
+      for (int i = 0; i < this.getArgs().length; i++) {
+        for (int j = i + 1; j < this.getArgs().length; j++) {
+          if (this.getArgs()[i].equals(this.getArgs()[j])) {
             throw new BindException(
                 "Repeated constructor parameter detected.  "
                     + "Cannot inject constructor" + constructor);
@@ -1022,13 +948,13 @@ public class TypeHierarchy {
      * @return
      */
     boolean equalsIgnoreOrder(ConstructorDef<?> def) {
-      if (args.length != def.args.length) {
+      if (getArgs().length != def.getArgs().length) {
         return false;
       }
-      for (int i = 0; i < args.length; i++) {
+      for (int i = 0; i < getArgs().length; i++) {
         boolean found = false;
-        for (int j = 0; j < args.length; j++) {
-          if (args[i].getName().equals(args[j].getName())) {
+        for (int j = 0; j < getArgs().length; j++) {
+          if (getArgs()[i].getName().equals(getArgs()[j].getName())) {
             found = true;
           }
         }
@@ -1045,22 +971,22 @@ public class TypeHierarchy {
     }
 
     public boolean isMoreSpecificThan(ConstructorDef<?> def) {
-      for (int i = 0; i < args.length; i++) {
+      for (int i = 0; i < getArgs().length; i++) {
         boolean found = false;
-        for (int j = 0; j < def.args.length; j++) {
-          if (args[i].equals(def.args[j])) {
+        for (int j = 0; j < def.getArgs().length; j++) {
+          if (getArgs()[i].equals(def.getArgs()[j])) {
             found = true;
           }
         }
         if (found == false)
           return false;
       }
-      return args.length > def.args.length;
+      return getArgs().length > def.getArgs().length;
     }
 
     @Override
     public int compareTo(ConstructorDef<?> o) {
-      return constructor.toString().compareTo(o.constructor.toString());
+      return getConstructor().toString().compareTo(o.getConstructor().toString());
     }
   }
 }

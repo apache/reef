@@ -141,7 +141,7 @@ public abstract class InjectionPlan<T> {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("new " + constructor.constructor.getDeclaringClass().getSimpleName()
+      StringBuilder sb = new StringBuilder("new " + constructor.getConstructor().getDeclaringClass().getSimpleName()
           + "(");
       if (args.length == 0) {
       } else if (args.length == 1) {

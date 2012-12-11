@@ -77,7 +77,7 @@ public class InjectorImpl implements Injector {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object instance = tc.namedParameterInstances.get(n);
       if (instance == null) {
-        instance = np.defaultInstance;
+        instance = np.getDefaultInstance();
       }
       if(instance instanceof Class) {
         String implName = ((Class) instance).getName();
@@ -120,11 +120,11 @@ public class InjectorImpl implements Injector {
           if (tc.legacyConstructors.containsKey(thisCN)) {
             constructorList.add(tc.legacyConstructors.get(thisCN));
           }
-          constructorList.addAll(Arrays.asList(thisCN.injectableConstructors));
+          constructorList.addAll(Arrays.asList(thisCN.getInjectableConstructors()));
 
           for (ConstructorDef<?> def : constructorList) {
             List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
-            for (ConstructorArg arg : def.args) {
+            for (ConstructorArg arg : def.getArgs()) {
               String argName = arg.getName(); // getFullyQualifiedName(thisCN.clazz);
               buildInjectionPlan(argName, memo);
               args.add(memo.get(argName));
@@ -184,8 +184,7 @@ public class InjectorImpl implements Injector {
 
   @Override
   public boolean isInjectable(Class<?> clazz) throws BindException {
-    InjectionPlan<?> p = getInjectionPlan(clazz.getName());
-    return p.isInjectable();
+    return isInjectable(clazz.getName());
   }
 
   @Override
@@ -197,8 +196,7 @@ public class InjectorImpl implements Injector {
   @Override
   public boolean isParameterSet(Class<? extends Name<?>> name)
       throws BindException {
-    InjectionPlan<?> p = getInjectionPlan(name.getName());
-    return p.isInjectable();
+    return isParameterSet(name.getName());
   }
 
   boolean populated = false;
@@ -305,7 +303,7 @@ public class InjectorImpl implements Injector {
         args[i] = injectFromPlan(constructor.args[i]);
       }
       try {
-        T ret = constructor.constructor.constructor.newInstance(args);
+        T ret = constructor.constructor.getConstructor().newInstance(args);
         if (tc.singletons.contains(constructor.getNode())) {
           tc.singletonInstances.put(constructor.getNode(), ret);
         }
@@ -368,7 +366,6 @@ public class InjectorImpl implements Injector {
 
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
-      cn.setIsSingleton();
       Object old = tc.singletonInstances.get(cn);
       if (old != null) {
         throw new BindException("Attempt to re-bind singleton.  Old value was "
