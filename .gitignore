@@ -1,7 +1,6 @@
 tmp
 .DS_Store
 target
-bin
 generated
 .settings
 .classpath
