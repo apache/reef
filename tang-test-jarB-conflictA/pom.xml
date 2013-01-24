@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>tang-test-jarB-conflictA</artifactId>
-    <name>Tang Test Jar A</name>
+    <name>Tang Test Jar B conflict A</name>
     <url>http://www.microsoft.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

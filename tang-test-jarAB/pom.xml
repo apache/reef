@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>tang-test-jarAB</artifactId>
-    <name>Tang Test Jar A</name>
+    <name>Tang Test Jar AB</name>
     <url>http://www.microsoft.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
