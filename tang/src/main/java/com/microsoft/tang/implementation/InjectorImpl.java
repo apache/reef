@@ -14,7 +14,6 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.InjectionPlan.DelegatedImpl;
-import com.microsoft.tang.implementation.InjectionPlan.InfeasibleInjectionPlan;
 import com.microsoft.tang.implementation.InjectionPlan.Instance;
 import com.microsoft.tang.implementation.InjectionPlan.AmbiguousInjectionPlan;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
@@ -40,10 +39,11 @@ public class InjectorImpl implements Injector {
     tc = new ConfigurationBuilderImpl(old_tc).build();
   }
 
+  @SuppressWarnings("unchecked")
   private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,
       List<InjectionPlan<?>> list, boolean forceAmbiguous) {
     if (list.size() == 0) {
-      return new InfeasibleInjectionPlan<Object>(infeasibleName);
+      return new AmbiguousInjectionPlan<>(new InjectionPlan[0]);
     } else if ((!forceAmbiguous) && list.size() == 1) {
       return list.get(0);
     } else {
@@ -314,16 +314,18 @@ public class InjectorImpl implements Injector {
       }
     } else if (plan instanceof AmbiguousInjectionPlan) {
       AmbiguousInjectionPlan<T> ambiguous = (AmbiguousInjectionPlan<T>) plan;
-      for (InjectionPlan<? extends T> p : ambiguous.alternatives) {
-        if (p.isInjectable() && !p.isAmbiguous()) {
-          return injectFromPlan(p);
+      if(ambiguous.getNumAlternatives() == 0) {
+        throw new InjectionException("Attempt to inject infeasible plan:"
+            + plan.toPrettyString());
+      } else {
+        for (InjectionPlan<? extends T> p : ambiguous.alternatives) {
+          if (p.isInjectable() && !p.isAmbiguous()) {
+            return injectFromPlan(p);
+          }
         }
+        throw new IllegalStateException(
+            "Thought there was an injectable plan, but can't find it!");
       }
-      throw new IllegalStateException(
-          "Thought there was an injectable plan, but can't find it!");
-    } else if (plan instanceof InfeasibleInjectionPlan) {
-      throw new InjectionException("Attempt to inject infeasible plan:"
-          + plan.toPrettyString());
     } else {
       throw new IllegalStateException("Unknown plan type: " + plan);
     }

@@ -187,50 +187,25 @@ public abstract class InjectionPlan<T> {
     }
   }
 
-  final public static class InfeasibleInjectionPlan<T> extends InjectionPlan<T> {
-    final String name;
-
-    public InfeasibleInjectionPlan(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public int getNumAlternatives() {
-      return 0;
-    }
-    // XXX better error message here!
-    @Override
-    public String toString() {
-      return "(no injectors for " + name + ")";
-    }
-
-    @Override
-    public boolean isAmbiguous() {
-      return false;
-    }
-
-    @Override
-    public boolean isInjectable() {
-      return false;
-    }
-  }
-
   final public static class AmbiguousInjectionPlan<T> extends InjectionPlan<T> {
     final InjectionPlan<? extends T>[] alternatives;
     final int numAlternatives;
-    final boolean isInjectable;
-    final boolean isAmbiguous;
-    
+    final int selectedIndex;
+    public AmbiguousInjectionPlan(int selectedIndex, InjectionPlan<? extends T>[] alternatives) {
+      this.alternatives = alternatives;
+      if(selectedIndex < 0 || selectedIndex >= alternatives.length) {
+        throw new ArrayIndexOutOfBoundsException();
+      }
+      this.selectedIndex = selectedIndex;
+      this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
+    }
     public AmbiguousInjectionPlan(InjectionPlan<? extends T>[] alternatives) {
       this.alternatives = alternatives;
+      this.selectedIndex = -1;
       int numAlternatives = 0;
-      boolean isInjectable = true;
-      this.isAmbiguous = true;
       for (InjectionPlan<? extends T> a : alternatives) {
         numAlternatives += a.getNumAlternatives();
-        if(!a.isInjectable()) isInjectable = false;
       }
-      this.isInjectable = isInjectable;
       this.numAlternatives = numAlternatives;
     }
 
@@ -244,12 +219,15 @@ public abstract class InjectionPlan<T> {
      */
     @Override
     public boolean isAmbiguous() {
-      return true;
+      if(selectedIndex == -1) {
+        return true;
+      }
+      return alternatives[selectedIndex].isAmbiguous();
     }
 
     @Override
     public boolean isInjectable() {
-      return isInjectable;
+      return false;
     }
 
     @Override
