@@ -13,9 +13,6 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.InjectionPlan.DelegatedImpl;
-import com.microsoft.tang.implementation.InjectionPlan.Instance;
-import com.microsoft.tang.implementation.InjectionPlan.AmbiguousInjectionPlan;
 import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.implementation.TypeHierarchy.ConstructorArg;
 import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
@@ -40,21 +37,20 @@ public class InjectorImpl implements Injector {
   }
 
   @SuppressWarnings("unchecked")
-  private InjectionPlan<?> wrapInjectionPlans(String infeasibleName,
+  private InjectionPlan<?> wrapInjectionPlans(Node infeasibleNode,
       List<InjectionPlan<?>> list, boolean forceAmbiguous) {
     if (list.size() == 0) {
-      return new AmbiguousInjectionPlan<>(new InjectionPlan[0]);
+      return new InjectionPlan.Subplan<>(infeasibleNode);
     } else if ((!forceAmbiguous) && list.size() == 1) {
       return list.get(0);
     } else {
-      InjectionPlan<?>[] injectionPlans = (InjectionPlan<?>[]) new InjectionPlan[0];
-      return new InjectionPlan.AmbiguousInjectionPlan<Object>(
-          list.toArray(injectionPlans));
+      return new InjectionPlan.Subplan<>(infeasibleNode,
+          list.toArray(new InjectionPlan[0]));
     }
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private void buildInjectionPlan(String name,
+  private void buildInjectionPlan(final String name,
       Map<String, InjectionPlan<?>> memo) {
     if (memo.containsKey(name)) {
       if (InjectionPlan.BUILDING == memo.get(name)) {
@@ -65,7 +61,7 @@ public class InjectorImpl implements Injector {
       }
     }
     memo.put(name, InjectionPlan.BUILDING);
-    Node n; // TODO: Register the node here (to bring into line with
+    final Node n; // TODO: Register the node here (to bring into line with
             // bindVolatile(...)
     try {
       n = tc.namespace.getNode(name);
@@ -82,25 +78,25 @@ public class InjectorImpl implements Injector {
       if(instance instanceof Class) {
         String implName = ((Class) instance).getName();
         buildInjectionPlan(implName, memo);
-        ip = new InjectionPlan.DelegatedImpl(np, memo.get(implName));
+        ip = new InjectionPlan.Subplan<>(np, 0, memo.get(implName));
       } else {
-        ip = new Instance<Object>(np, instance);
+        ip = new InjectionPlan.Instance<Object>(np, instance);
       }
     } else if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (tc.singletonInstances.containsKey(cn)) {
-        ip = new Instance<Object>(cn, tc.singletonInstances.get(cn));
+        ip = new InjectionPlan.Instance<Object>(cn, tc.singletonInstances.get(cn));
       } else if (tc.boundConstructors.containsKey(cn)) {
         String constructorName = tc.boundConstructors.get(cn).getName();
         buildInjectionPlan(constructorName, memo);
-        ip = new InjectionPlan.DelegatedImpl(cn, memo.get(constructorName));
+        ip = new InjectionPlan.Subplan(cn, 0, memo.get(constructorName));
         memo.put(cn.getClazz().getName(), ip);
         // ip = new Instance(cn, null);
       } else if (tc.boundImpls.containsKey(cn)
           && !tc.boundImpls.get(cn).equals(cn.getClazz())) {
         String implName = tc.boundImpls.get(cn).getName();
         buildInjectionPlan(implName, memo);
-        ip = new InjectionPlan.DelegatedImpl(cn, memo.get(implName));
+        ip = new InjectionPlan.Subplan(cn, 0, memo.get(implName));
         memo.put(cn.getClazz().getName(), ip);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<ClassNode<?>>();
@@ -134,13 +130,13 @@ public class InjectorImpl implements Injector {
             constructors.add(constructor);
           }
           sub_ips
-              .add(wrapInjectionPlans(thisCN.getName(), constructors, false));
+              .add(wrapInjectionPlans(thisCN, constructors, false));
         }
         if (classNodes.size() == 1
             && classNodes.get(0).getClazz().getName().equals(name)) {
-          ip = wrapInjectionPlans(name, sub_ips, false);
+          ip = wrapInjectionPlans(n, sub_ips, false);
         } else {
-          ip = wrapInjectionPlans(name, sub_ips, true);
+          ip = wrapInjectionPlans(n, sub_ips, true);
         }
       }
     } else if (n instanceof PackageNode) {
@@ -273,25 +269,6 @@ public class InjectorImpl implements Injector {
     }
     if (plan instanceof InjectionPlan.Instance) {
       return ((InjectionPlan.Instance<T>) plan).instance;
-    } else if (plan instanceof InjectionPlan.DelegatedImpl) {
-      InjectionPlan.DelegatedImpl<?> delegated = (DelegatedImpl<?>) plan;
-      if (tc.singletonInstances.containsKey(delegated.getNode())) {
-        throw new SingletonInjectionException(
-            "Attempt to re-instantiate singleton: " + delegated.getNode());
-      }
-      Object ret = injectFromPlan(delegated.impl);
-      if (tc.singletons.contains(delegated.getNode())) {
-        // Cast is safe since singletons is of type Set<ClassNode<?>>
-        tc.singletonInstances.put((ClassNode<?>)delegated.getNode(), ret);
-      }
-      // TODO: Check "T" in "instanceof ExternalConstructor<T>"
-      if (ret instanceof ExternalConstructor) {
-        // TODO fix up generic types for injectFromPlan with external
-        // constructor!
-        return ((ExternalConstructor<T>) ret).newInstance();
-      } else {
-        return (T) ret;
-      }
     } else if (plan instanceof InjectionPlan.Constructor) {
       InjectionPlan.Constructor<T> constructor = (InjectionPlan.Constructor<T>) plan;
       if (tc.singletonInstances.containsKey(constructor.getNode())) {
@@ -312,19 +289,34 @@ public class InjectorImpl implements Injector {
       } catch (ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor", e);
       }
-    } else if (plan instanceof AmbiguousInjectionPlan) {
-      AmbiguousInjectionPlan<T> ambiguous = (AmbiguousInjectionPlan<T>) plan;
-      if(ambiguous.getNumAlternatives() == 0) {
-        throw new InjectionException("Attempt to inject infeasible plan:"
-            + plan.toPrettyString());
-      } else {
-        for (InjectionPlan<? extends T> p : ambiguous.alternatives) {
-          if (p.isInjectable() && !p.isAmbiguous()) {
-            return injectFromPlan(p);
-          }
+    } else if (plan instanceof InjectionPlan.Subplan) {
+      InjectionPlan.Subplan<T> ambiguous = (InjectionPlan.Subplan<T>) plan;
+      if(ambiguous.isInjectable()) {
+        if (tc.singletonInstances.containsKey(ambiguous.getNode())) {
+          throw new SingletonInjectionException(
+              "Attempt to re-instantiate singleton: " + ambiguous.getNode());
         }
-        throw new IllegalStateException(
-            "Thought there was an injectable plan, but can't find it!");
+        Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
+        if (tc.singletons.contains(ambiguous.getNode())) {
+          // Cast is safe since singletons is of type Set<ClassNode<?>>
+          tc.singletonInstances.put((ClassNode<?>)ambiguous.getNode(), ret);
+        }
+        // TODO: Check "T" in "instanceof ExternalConstructor<T>"
+        if (ret instanceof ExternalConstructor) {
+          // TODO fix up generic types for injectFromPlan with external
+          // constructor!
+          return ((ExternalConstructor<T>) ret).newInstance();
+        } else {
+          return (T) ret;
+        }
+      } else {
+        if(ambiguous.getNumAlternatives() == 0) {
+          throw new InjectionException("Attempt to inject infeasible plan:"
+              + plan.toPrettyString());
+        } else {
+          throw new InjectionException("Attempt to inject ambiguous plan:"
+              + plan.toPrettyString());
+        }
       }
     } else {
       throw new IllegalStateException("Unknown plan type: " + plan);
@@ -383,11 +375,6 @@ public class InjectorImpl implements Injector {
   <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
       throws BindException {
     Node n = tc.namespace.register(c);
-    /*
-     * try { n = tc.namespace.getNode(c); } catch (NameResolutionException e) {
-     * throw new BindException("Can't bind to unknown name " + c.getName(), e);
-     * }
-     */
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = tc.namedParameterInstances.get(np);

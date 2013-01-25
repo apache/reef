@@ -65,36 +65,6 @@ public abstract class InjectionPlan<T> {
     }
     return pretty.toString();
   }
-
-  @Override
-  public abstract String toString();
-  final public static class DelegatedImpl<T> extends InjectionPlan<T> {
-    final InjectionPlan<? extends T> impl;
-    final Node cn;
-    public DelegatedImpl(Node cn, InjectionPlan<? extends T> impl) {
-      this.cn = cn;
-      this.impl = impl;
-    }
-    public Node getNode() {
-      return cn;
-    }
-    @Override
-    public int getNumAlternatives() {
-      return impl.getNumAlternatives();
-    }
-    @Override
-    public boolean isAmbiguous() {
-      return impl.isAmbiguous();
-    }
-    @Override
-    public boolean isInjectable() {
-      return impl.isInjectable();
-    }
-    @Override
-    public String toString() {
-      return "(" + cn + " provided by " + impl.toString() + ")";
-    }
-  }
   
   final public static class Constructor<T> extends InjectionPlan<T> {
     final TypeHierarchy.ConstructorDef<T> constructor;
@@ -187,11 +157,13 @@ public abstract class InjectionPlan<T> {
     }
   }
 
-  final public static class AmbiguousInjectionPlan<T> extends InjectionPlan<T> {
+  final public static class Subplan<T> extends InjectionPlan<T> {
     final InjectionPlan<? extends T>[] alternatives;
+    final Node node;
     final int numAlternatives;
     final int selectedIndex;
-    public AmbiguousInjectionPlan(int selectedIndex, InjectionPlan<? extends T>[] alternatives) {
+    public Subplan(Node node, int selectedIndex, @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
+      this.node = node;
       this.alternatives = alternatives;
       if(selectedIndex < 0 || selectedIndex >= alternatives.length) {
         throw new ArrayIndexOutOfBoundsException();
@@ -199,7 +171,8 @@ public abstract class InjectionPlan<T> {
       this.selectedIndex = selectedIndex;
       this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
     }
-    public AmbiguousInjectionPlan(InjectionPlan<? extends T>[] alternatives) {
+    public Subplan(Node node, @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
+      this.node = node;
       this.alternatives = alternatives;
       this.selectedIndex = -1;
       int numAlternatives = 0;
@@ -227,7 +200,11 @@ public abstract class InjectionPlan<T> {
 
     @Override
     public boolean isInjectable() {
-      return false;
+      if(selectedIndex == -1) {
+        return false;
+      } else {
+        return alternatives[selectedIndex].isInjectable();
+      }
     }
 
     @Override
@@ -244,6 +221,14 @@ public abstract class InjectionPlan<T> {
       sb.append("]");
       return sb.toString();
     }
+    public InjectionPlan<? extends T> getDelegatedPlan() {
+      if(selectedIndex == -1) {
+        throw new IllegalStateException();
+      } else {
+        return alternatives[selectedIndex];
+      }
+    }
+    public Node getNode() { return node; }
 
   }
 }
