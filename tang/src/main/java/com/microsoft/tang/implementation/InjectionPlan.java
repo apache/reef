@@ -4,7 +4,8 @@ import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
 
 public abstract class InjectionPlan<T> {
-  static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>() {
+  final Node node;
+  static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
     @Override
     public int getNumAlternatives() {
       throw new UnsupportedOperationException();
@@ -25,7 +26,12 @@ public abstract class InjectionPlan<T> {
       throw new UnsupportedOperationException();
     }
   };
-
+  public InjectionPlan(Node node) {
+    this.node = node;
+  }
+  public Node getNode() {
+    return node;
+  }
   public abstract int getNumAlternatives();
 
   public boolean isFeasible() {
@@ -72,10 +78,10 @@ public abstract class InjectionPlan<T> {
     final int numAlternatives;
     final boolean isAmbiguous;
     final boolean isInjectable;
-    final ClassNode<T> cn;
     
     public Constructor(ClassNode<T> cn, TypeHierarchy.ConstructorDef<T> constructor,
         InjectionPlan<?>[] args) {
+      super(cn);
       this.constructor = constructor;
       this.args = args;
       int numAlternatives = 1;
@@ -89,10 +95,11 @@ public abstract class InjectionPlan<T> {
       this.numAlternatives = numAlternatives;
       this.isAmbiguous = isAmbiguous;
       this.isInjectable = isInjectable;
-      this.cn = cn;
     }
 
-    public ClassNode<T> getNode() { return cn; }
+    @SuppressWarnings("unchecked")
+    @Override
+    public ClassNode<T> getNode() { return (ClassNode<T>) node; }
     
     @Override
     public int getNumAlternatives() {
@@ -128,11 +135,10 @@ public abstract class InjectionPlan<T> {
   }
 
   final public static class Instance<T> extends InjectionPlan<T> {
-    final TypeHierarchy.Node name;
     final T instance;
 
     public Instance(TypeHierarchy.Node name, T instance) {
-      this.name = name;
+      super(name);
       this.instance = instance;
     }
 
@@ -143,7 +149,7 @@ public abstract class InjectionPlan<T> {
 
     @Override
     public String toString() {
-      return name + " = " + instance;
+      return getNode() + " = " + instance;
     }
 
     @Override
@@ -159,11 +165,10 @@ public abstract class InjectionPlan<T> {
 
   final public static class Subplan<T> extends InjectionPlan<T> {
     final InjectionPlan<? extends T>[] alternatives;
-    final Node node;
     final int numAlternatives;
     final int selectedIndex;
     public Subplan(Node node, int selectedIndex, @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
-      this.node = node;
+      super(node);
       this.alternatives = alternatives;
       if(selectedIndex < 0 || selectedIndex >= alternatives.length) {
         throw new ArrayIndexOutOfBoundsException();
@@ -172,7 +177,7 @@ public abstract class InjectionPlan<T> {
       this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
     }
     public Subplan(Node node, @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
-      this.node = node;
+      super(node);
       this.alternatives = alternatives;
       this.selectedIndex = -1;
       int numAlternatives = 0;
@@ -228,7 +233,5 @@ public abstract class InjectionPlan<T> {
         return alternatives[selectedIndex];
       }
     }
-    public Node getNode() { return node; }
-
   }
 }
