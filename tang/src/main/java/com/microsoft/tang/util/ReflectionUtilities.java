@@ -1,7 +1,17 @@
 package com.microsoft.tang.util;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
+
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.exceptions.BindException;
 
 public class ReflectionUtilities {
   public final static String regexp = "[\\.\\$]";
@@ -53,8 +63,7 @@ public class ReflectionUtilities {
     }
     return to.isAssignableFrom(from);
   }
-
-  public static Class<?> classForName(String name)
+  public static Class<?> classForName(String name, ClassLoader loader)
       throws ClassNotFoundException {
     if (name.equals("boolean")) {
       return boolean.class;
@@ -75,8 +84,7 @@ public class ReflectionUtilities {
     } else if (name.equals("void")) {
       return void.class;
     } else {
-      // TODO: Might need to used passed in ClassLoaders here!
-      return Class.forName(name);
+      return loader.loadClass(name);
     }
   }
 
@@ -128,5 +136,104 @@ public class ReflectionUtilities {
   }
   public static String getFullName(Class<?> name) {
     return name.getName();
+  }
+
+  /**
+   * @param clazz
+   * @return T if clazz implements Name<T>, null otherwise
+   * @throws BindException
+   *           If clazz's definition incorrectly uses Name or @NamedParameter
+   */
+  static public Class<?> getNamedParameterTargetOrNull(Class<?> clazz)
+      throws BindException {
+    Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
+    boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
+  
+    boolean isInjectable = false;
+    boolean hasConstructor = false;
+    // TODO Figure out how to properly differentiate between default and
+    // non-default zero-arg constructors?
+    Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+    if (constructors.length > 1) {
+      hasConstructor = true;
+    }
+    if (constructors.length == 1) {
+      Constructor<?> c = constructors[0];
+      Class<?>[] p = c.getParameterTypes();
+      if (p.length > 1) {
+        // Multiple args. Definitely not implicit.
+        hasConstructor = true;
+      } else if (p.length == 1) {
+        // One arg. Could be an inner class, in which case the compiler
+        // included an implicit one parameter constructor that takes the
+        // enclosing type.
+        if (p[0] != clazz.getEnclosingClass()) {
+          hasConstructor = true;
+        }
+      }
+    }
+    for (Constructor<?> c : constructors) {
+      for (Annotation a : c.getDeclaredAnnotations()) {
+        if (a instanceof Inject) {
+          isInjectable = true;
+        }
+      }
+    }
+  
+    Class<?>[] allInterfaces = clazz.getInterfaces();
+    Type[] interfaces = clazz.getGenericInterfaces();
+  
+    boolean hasMultipleInterfaces = (allInterfaces.length > 1);
+    boolean implementsName = false;
+    Class<?> parameterClass = null;
+    for (Type genericNameType : interfaces) {
+      if (genericNameType instanceof ParameterizedType) {
+        ParameterizedType ptype = (ParameterizedType) genericNameType;
+        if (ptype.getRawType() == Name.class) {
+          implementsName = true;
+          Type t = ptype.getActualTypeArguments()[0];
+          // It could be that the parameter is, itself a generic type. Not
+          // sure if we should support this, but we do for now.
+          if (t instanceof ParameterizedType) {
+            // Get the underlying raw type of the parameter.
+            t = ((ParameterizedType) t).getRawType();
+          }
+          parameterClass = (Class<?>) t;
+        }
+      }
+    }
+    if (npAnnotation == null) {
+      if (implementsName) {
+        throw new BindException(clazz
+            + " is missing its @NamedParameter annotation.");
+      } else {
+        return null;
+      }
+    } else {
+      if (!implementsName) {
+        throw new BindException("Found illegal @NamedParameter " + clazz
+            + " does not implement name");
+      }
+      if (hasSuperClass) {
+        throw new BindException("Named parameter " + clazz
+            + " has a superclass other than Object.");
+      }
+      if (hasConstructor || isInjectable) {
+        throw new BindException("Named parameter " + clazz + " has "
+            + (isInjectable ? "an injectable" : "a") + " constructor. "
+            + " Name parameters must not delcare any constructors.");
+      }
+      if (hasMultipleInterfaces) {
+        throw new BindException("Named parameter " + clazz + " implements "
+            + "multiple interfaces.  It is only allowed to implement Name<T>");
+      }
+      if (parameterClass == null) {
+        throw new BindException(
+            "Missing type parameter in named parameter declaration.  " + clazz
+                + " implements raw type Name, but must implement"
+                + " generic type Name<T>.");
+      }
+      return parameterClass;
+    }
   }
 }

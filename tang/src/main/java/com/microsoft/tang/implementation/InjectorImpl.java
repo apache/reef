@@ -20,6 +20,7 @@ import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
 import com.microsoft.tang.implementation.TypeHierarchy.NamespaceNode;
 import com.microsoft.tang.implementation.TypeHierarchy.Node;
 import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public class InjectorImpl implements Injector {
   private class SingletonInjectionException extends InjectionException {
@@ -351,7 +352,7 @@ public class InjectorImpl implements Injector {
   }
 
   <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
-    Node n = tc.namespace.register(c);
+    Node n = tc.namespace.register(ReflectionUtilities.getFullName(c));
     /*
      * try { n = tc.namespace.getNode(c); } catch (NameResolutionException e) {
      * // TODO: Unit test for bindVolatileInstance to unknown class. throw new
@@ -374,7 +375,7 @@ public class InjectorImpl implements Injector {
 
   <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
       throws BindException {
-    Node n = tc.namespace.register(c);
+    Node n = tc.namespace.register(ReflectionUtilities.getFullName(c));
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = tc.namedParameterInstances.get(np);
@@ -385,7 +386,7 @@ public class InjectorImpl implements Injector {
       }
       tc.namedParameterInstances.put(np, o);
       if(o instanceof Class) {
-        tc.namespace.register((Class<?>) o);
+        tc.namespace.register(ReflectionUtilities.getFullName((Class<?>) o));
       }
     } else {
       throw new IllegalArgumentException("Expected Name, got " + c

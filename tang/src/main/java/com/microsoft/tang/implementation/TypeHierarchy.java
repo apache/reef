@@ -3,11 +3,13 @@ package com.microsoft.tang.implementation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +32,17 @@ public class TypeHierarchy {
   // There are third party libraries that would help, but they can fail if the
   // relevant jar has not yet been loaded.
 
+  private URLClassLoader loader;
+  private final List<URL> jars;
+
+  public URL[] getJars() {
+    return jars.toArray(new URL[0]);
+  }
+
+  Class<?> classForName(String name) throws ClassNotFoundException {
+    return ReflectionUtilities.classForName(name, loader);
+  }
+
   private final PackageNode namespace;
   private final class ClassComparator implements Comparator<Class<?>> {
 
@@ -43,8 +56,30 @@ public class TypeHierarchy {
   private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
 
-  public TypeHierarchy() {
-    namespace = new PackageNode(null, "");
+  public TypeHierarchy(URL... jars) {
+    this.namespace = new PackageNode(null, "");
+    this.jars = new ArrayList<>(Arrays.asList(jars));
+    this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
+  }
+
+  public TypeHierarchy(ClassLoader loader, URL... jars) {
+    this.namespace = new PackageNode(null, "");
+    this.jars = new ArrayList<URL>(Arrays.asList(jars));
+    this.loader = new URLClassLoader(jars, loader);
+  }
+
+  public void addJars(URL... j) {
+    List<URL> newJars = new ArrayList<>();
+    for (URL u : j) {
+      if (!this.jars.contains(u)) {
+        newJars.add(u);
+        this.jars.add(u);
+      }
+    }
+    // Note, URL class loader first looks in its parent, then in the array of
+    // URLS passed in, in order. So, this line is equivalent to "reaching into"
+    // URLClassLoader and adding the URLS to the end of the array.
+    this.loader = new URLClassLoader(newJars.toArray(new URL[0]), this.loader);
   }
 
   @SuppressWarnings({ "unchecked", "unused" })
@@ -104,105 +139,6 @@ public class TypeHierarchy {
     return ret;
   }
 
-  /**
-   * @param clazz
-   * @return T if clazz implements Name<T>, null otherwise
-   * @throws BindException
-   *           If clazz's definition incorrectly uses Name or @NamedParameter
-   */
-  private Class<?> getNamedParameterTargetOrNull(Class<?> clazz)
-      throws BindException {
-    Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
-    boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
-
-    boolean isInjectable = false;
-    boolean hasConstructor = false;
-    // TODO Figure out how to properly differentiate between default and
-    // non-default zero-arg constructors?
-    Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-    if (constructors.length > 1) {
-      hasConstructor = true;
-    }
-    if (constructors.length == 1) {
-      Constructor<?> c = constructors[0];
-      Class<?>[] p = c.getParameterTypes();
-      if (p.length > 1) {
-        // Multiple args. Definitely not implicit.
-        hasConstructor = true;
-      } else if (p.length == 1) {
-        // One arg. Could be an inner class, in which case the compiler
-        // included an implicit one parameter constructor that takes the
-        // enclosing type.
-        if (p[0] != clazz.getEnclosingClass()) {
-          hasConstructor = true;
-        }
-      }
-    }
-    for (Constructor<?> c : constructors) {
-      for (Annotation a : c.getDeclaredAnnotations()) {
-        if (a instanceof Inject) {
-          isInjectable = true;
-        }
-      }
-    }
-
-    Class<?>[] allInterfaces = clazz.getInterfaces();
-    Type[] interfaces = clazz.getGenericInterfaces();
-
-    boolean hasMultipleInterfaces = (allInterfaces.length > 1);
-    boolean implementsName = false;
-    Class<?> parameterClass = null;
-    for (Type genericNameType : interfaces) {
-      if (genericNameType instanceof ParameterizedType) {
-        ParameterizedType ptype = (ParameterizedType) genericNameType;
-        if (ptype.getRawType() == Name.class) {
-          implementsName = true;
-          Type t = ptype.getActualTypeArguments()[0];
-          // It could be that the parameter is, itself a generic type. Not
-          // sure if we should support this, but we do for now.
-          if (t instanceof ParameterizedType) {
-            // Get the underlying raw type of the parameter.
-            t = ((ParameterizedType) t).getRawType();
-          }
-          parameterClass = (Class<?>) t;
-        }
-      }
-    }
-    if (npAnnotation == null) {
-      if (implementsName) {
-        throw new BindException(clazz
-            + " is missing its @NamedParameter annotation.");
-      } else {
-        return null;
-      }
-    } else {
-      if (!implementsName) {
-        throw new BindException("Found illegal @NamedParameter " + clazz
-            + " does not implement name");
-      }
-      if (hasSuperClass) {
-        throw new BindException("Named parameter " + clazz
-            + " has a superclass other than Object.");
-      }
-      if (hasConstructor || isInjectable) {
-        throw new BindException("Named parameter " + clazz + " has "
-            + (isInjectable ? "an injectable" : "a") + " constructor. "
-            + " Name parameters must not delcare any constructors.");
-      }
-      if (hasMultipleInterfaces) {
-        throw new BindException("Named parameter " + clazz + " implements "
-            + "multiple interfaces.  It is only allowed to implement Name<T>");
-      }
-      if (parameterClass == null) {
-        throw new BindException(
-            "Missing type parameter in named parameter declaration.  " + clazz
-                + " implements raw type Name, but must implement"
-                + " generic type Name<T>.");
-      }
-      return parameterClass;
-    }
-  }
-
   private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget)
       throws BindException {
     String[] path = clazz.getName().split(ReflectionUtilities.regexp);
@@ -216,7 +152,7 @@ public class TypeHierarchy {
     }
     Node parent = root;
 
-    Class<?> argType = getNamedParameterTargetOrNull(clazz);
+    Class<?> argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
       return new ClassNode<U>(parent, clazz, isPrefixTarget);
@@ -247,7 +183,7 @@ public class TypeHierarchy {
     }
   }
 
-  public Node getNode(Class<?> clazz) throws NameResolutionException {
+  private Node getNode(Class<?> clazz) throws NameResolutionException {
     return getNode(clazz.getName());
   }
 
@@ -314,8 +250,11 @@ public class TypeHierarchy {
     new PackageNode(parent, packageName[packageName.length - 1]);
   }
 
-  public Node register(Class<?> c) throws BindException {
-    if (c == null) {
+  public Node register(String s) throws BindException {
+    final Class<?> c;
+    try {
+      c = classForName(s);
+    } catch (ClassNotFoundException e1) {
       return null;
     }
     try {
@@ -326,10 +265,10 @@ public class TypeHierarchy {
     // First, walk up the class hierarchy, registering all out parents. This
     // can't be loopy.
     if (c.getSuperclass() != null) {
-      register(c.getSuperclass());
+      register(ReflectionUtilities.getFullName(c.getSuperclass()));
     }
     for (Class<?> i : c.getInterfaces()) {
-      register(i);
+      register(ReflectionUtilities.getFullName(i));
     }
     // Now, we'd like to register our enclosing classes. This turns out to be
     // safe.
@@ -343,8 +282,10 @@ public class TypeHierarchy {
     // So, even though grafting arbitrary DAGs together can give us cycles, Java
     // seems
     // to have our back on this one.
-    register(c.getEnclosingClass());
-
+    Class<?> enclosing = c.getEnclosingClass();
+    if(enclosing != null) {
+      register(ReflectionUtilities.getFullName(enclosing));
+    }
     Package pack = c.getPackage();
     if (pack != null) { // We're in an enclosing class, and we just registered
                         // it above!
@@ -367,16 +308,16 @@ public class TypeHierarchy {
     // This has to be below registerClass, which ensures that any cycles
     // this stuff introduces are broken.
     for (Class<?> inner_class : c.getDeclaredClasses()) {
-      register(inner_class);
+      register(ReflectionUtilities.getFullName(inner_class));
     }
     if (n instanceof ClassNode) {
       ClassNode<?> cls = (ClassNode<?>) n;
       for (ConstructorDef<?> def : cls.getInjectableConstructors()) {
         for (ConstructorArg arg : def.getArgs()) {
-          register(arg.type);
+          register(ReflectionUtilities.getFullName(arg.type));
           if (arg.name != null) {
-            NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.name
-                .value());
+            NamedParameterNode<?> np = (NamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.name
+                .value()));
             if (!ReflectionUtilities.isCoercable(arg.type, np.getArgClass())) {
               throw new BindException(
                   "Incompatible argument type.  Constructor expects "
@@ -388,7 +329,7 @@ public class TypeHierarchy {
       }
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      register(np.getArgClass());
+      register(ReflectionUtilities.getFullName(np.getArgClass()));
     }
     return n;
   }
@@ -454,8 +395,12 @@ public class TypeHierarchy {
     return (Set<ClassNode<T>>) (Set<?>) knownImpls.getValuesForKey(c);
   }
 
-  public Set<Class<?>> getRegisteredClasses() {
-    return registeredClasses;
+  public Set<String> getRegisteredClassNames() {
+    Set<String> s = new MonotonicSet<String>();
+    for(Class<?> c : registeredClasses) {
+      s.add(ReflectionUtilities.getFullName(c));
+    }
+    return s;
   }
 
   public PackageNode getNamespace() {

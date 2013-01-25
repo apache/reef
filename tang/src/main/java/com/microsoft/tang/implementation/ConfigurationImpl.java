@@ -6,10 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +20,7 @@ import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
-  final TypeHierarchy namespace = new TypeHierarchy();
+  final TypeHierarchy namespace;
   final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<ClassNode<?>, Class<?>>();
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<ClassNode<?>, Class<ExternalConstructor<?>>>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<ClassNode<?>>();
@@ -35,17 +31,6 @@ public class ConfigurationImpl implements Configuration {
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<ClassNode<?>, Object>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<NamedParameterNode<?>, Object>();
 
-  private final List<URL> jars;
-  private URLClassLoader loader;
-
-  public URL[] getJars() {
-    return jars.toArray(new URL[0]);
-  }
-
-  Class<?> classForName(String name) throws ClassNotFoundException {
-    return loader.loadClass(name);
-  }
-
   boolean sealed = false;
   boolean dirtyBit = false;
 
@@ -55,29 +40,23 @@ public class ConfigurationImpl implements Configuration {
   public final static String INIT = "<init>";
 
   public ConfigurationImpl(URL... jars) {
-    this.jars = new ArrayList<>(Arrays.asList(jars));
-    this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
+    this.namespace = new TypeHierarchy(jars);
   }
 
   public ConfigurationImpl(ClassLoader loader, URL... jars) {
-    this.jars = new ArrayList<URL>(Arrays.asList(jars));
-    this.loader = new URLClassLoader(jars, loader);
+    this.namespace = new TypeHierarchy(loader, jars);
   }
 
+  @Deprecated
   public void addJars(URL... j) {
-    List<URL> newJars = new ArrayList<>();
-    for (URL u : j) {
-      if (!this.jars.contains(u)) {
-        newJars.add(u);
-        this.jars.add(u);
-      }
-    }
-    // Note, URL class loader first looks in its parent, then in the array of
-    // URLS passed in, in order. So, this line is equivalent to "reaching into"
-    // URLClassLoader and adding the URLS to the end of the array.
-    this.loader = new URLClassLoader(newJars.toArray(new URL[0]), this.loader);
+    this.namespace.addJars(j);
+  }
+  @Deprecated
+  public URL[] getJars() {
+    return this.namespace.getJars();
   }
 
+  
   @Override
   public void writeConfigurationFile(File f) throws IOException {
     OutputStream o = new FileOutputStream(f);
@@ -114,7 +93,7 @@ public class ConfigurationImpl implements Configuration {
           "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object.  Refusing to serialize it!");
     }
 
-    for (Class<?> opt : namespace.getRegisteredClasses()) {
+    for (String opt : namespace.getRegisteredClassNames()) {
       try {
         Node n = namespace.getNode(opt);
         if (n instanceof NamedParameterNode) {
