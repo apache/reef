@@ -29,7 +29,7 @@
 								<exec executable="protoc">
 									<arg value="--proto_path=src/main/proto/" />
 									<arg value="--java_out=target/generated-sources/proto" />
-									<arg value="src/main/proto/*.proto" />
+									<arg value="src/main/proto/injection_plan.proto" />
 								</exec>
 							</tasks>
 							<sourceRoot>target/generated-sources/proto</sourceRoot>
