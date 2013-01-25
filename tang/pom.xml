@@ -16,20 +16,49 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<build>
-		<resources>
-			<resource>
-				<targetPath>META-INF/conf</targetPath>
-				<filtering>false</filtering>
-				<directory>${basedir}/src/main/conf</directory>
-				<includes>
-					<include>*.xml</include>
-					<include>*.properties</include>
-				</includes>
-				<excludes>
-				</excludes>
-			</resource>
-		</resources>
-		<plugins>
+			<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<tasks>
+								<mkdir dir="target/generated-sources/proto" />
+								<exec executable="protoc">
+									<arg value="--proto_path=src/main/proto/" />
+									<arg value="--java_out=target/generated-sources/proto" />
+									<arg value="src/main/proto/*.proto" />
+								</exec>
+							</tasks>
+							<sourceRoot>target/generated-sources/proto</sourceRoot>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-sources/proto</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<!-- NOTE: We don't need a groupId specification because the group is 
 					org.apache.maven.plugins ...which is assumed by default. -->
@@ -54,6 +83,11 @@
 			<artifactId>mockito-core</artifactId>
 			<version>1.9.0</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>2.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-configuration</groupId>
