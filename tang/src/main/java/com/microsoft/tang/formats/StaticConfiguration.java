@@ -1,5 +1,9 @@
-package com.microsoft.tang;
+package com.microsoft.tang.formats;
 
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 

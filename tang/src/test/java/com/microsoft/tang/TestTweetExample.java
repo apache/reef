@@ -8,12 +8,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.microsoft.tang.StaticConfiguration.BindImplementation;
-import com.microsoft.tang.StaticConfiguration.BindNamedParameter;
-import com.microsoft.tang.StaticConfiguration.Register;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.formats.StaticConfiguration;
+import com.microsoft.tang.formats.StaticConfiguration.BindImplementation;
+import com.microsoft.tang.formats.StaticConfiguration.BindNamedParameter;
+import com.microsoft.tang.formats.StaticConfiguration.Register;
 
 public class TestTweetExample {
   private static interface TweetFactory {

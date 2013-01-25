@@ -462,13 +462,11 @@ public class TypeHierarchy {
     return namespace;
   }
 
-  public Collection<NamedParameterNode<?>> getNamedParameterNodes() {
-    return shortNames.values();
+  public Collection<String> getShortNames() {
+    return shortNames.keySet();
   }
-
-  @SuppressWarnings("unchecked")
-  public <T> NamedParameterNode<T> getNodeFromShortName(String shortName) {
-    return (NamedParameterNode<T>) shortNames.get(shortName);
+  public String resolveShortName(String shortName) {
+    return ((NamedParameterNode<?>) shortNames.get(shortName)).getFullName();
   }
 
   /**

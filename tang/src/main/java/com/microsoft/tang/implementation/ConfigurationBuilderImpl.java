@@ -9,14 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.Parser;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
@@ -158,72 +150,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     conf.legacyConstructors.put(cn, cn.createConstructorDef(args));
   }
   
-  @SuppressWarnings("static-access")
-  private Options getCommandLineOptions() {
-    Options opts = new Options();
-    Collection<NamedParameterNode<?>> namedParameters = conf.namespace
-        .getNamedParameterNodes();
-    for (NamedParameterNode<?> param : namedParameters) {
-      String shortName = param.getShortName();
-      if (shortName != null) {
-        opts.addOption(OptionBuilder
-            .withArgName(param.getArgClass().getSimpleName() + "=" + param.getDefaultInstance())
-            .hasArg()
-            .withDescription(param.getDocumentation() + "\n" + param.getFullName())
-            .create(param.getShortName()));
-      }
-    }
-    for (Option o : applicationOptions.keySet()) {
-      opts.addOption(o);
-    }
-    return opts;
-  }
-
-  public interface CommandLineCallback {
-    public void process(Option option);
-  }
-
-  Map<Option, CommandLineCallback> applicationOptions = new HashMap<Option, CommandLineCallback>();
-
-  @Override
-  public void addCommandLineOption(Option option, CommandLineCallback cb) {
-    // TODO: Check for conflicting options.
-    applicationOptions.put(option, cb);
-  }
-
-  @Override
-  public <T> boolean processCommandLine(String[] args) throws IOException,
-      BindException {
-    Options o = getCommandLineOptions();
-    Option helpFlag = new Option("?", "help");
-    o.addOption(helpFlag);
-    Parser g = new GnuParser();
-    CommandLine cl;
-    try {
-      cl = g.parse(o, args);
-    } catch (ParseException e) {
-      throw new IOException("Could not parse config file", e);
-    }
-    if (cl.hasOption("?")) {
-      HelpFormatter help = new HelpFormatter();
-      help.printHelp("reef", o);
-      return false;
-    }
-    for (Option option : cl.getOptions()) {
-      String shortName = option.getOpt();
-      String value = option.getValue();
-
-      NamedParameterNode<T> n = conf.namespace.getNodeFromShortName(shortName);
-      if (n != null && value != null) {
-        if (applicationOptions.containsKey(option)) {
-          applicationOptions.get(option).process(option);
-        } else {
-          bindNamedParameter(n.getNameClass(), value);
-        }
-      }
-    }
-    return true;
-  }
 
   @Override
   public <T> void bind(String key, String value) throws BindException {
@@ -496,5 +422,40 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         }
       }
     }
+  }
+
+  @Override
+  public Collection<String> getShortNames() {
+    return conf.namespace.getShortNames();
+  }
+
+  @Override
+  public String resolveShortName(String shortName) throws BindException {
+    String ret = conf.namespace.resolveShortName(shortName);
+    if(ret == null) {
+      throw new BindException("Could not find requested shortName:" + shortName);
+    }
+    return ret;
+  }
+
+  @Override
+  public String classPrettyDefaultString(String longName) throws BindException {
+    try {
+      NamedParameterNode<?> param = (NamedParameterNode<?>)conf.namespace.getNode(longName);
+      return param.getArgClass().getSimpleName() + "=" + param.getDefaultInstance();
+    } catch (NameResolutionException e) {
+      throw new BindException("Couldn't find " + longName + " when looking for default value", e);
+    }
+  }
+
+  @Override
+  public String classPrettyDescriptionString(String longName) throws BindException {
+    try {
+      NamedParameterNode<?> param = (NamedParameterNode<?>)conf.namespace.getNode(longName);
+      return param.getDocumentation() + "\n" + param.getFullName();
+    } catch (NameResolutionException e) {
+      throw new BindException("Couldn't find " + longName + " when looking for documentation string", e);
+    }
+    
   }
 }

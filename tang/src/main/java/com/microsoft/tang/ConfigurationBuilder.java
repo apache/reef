@@ -2,13 +2,11 @@ package com.microsoft.tang;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.cli.Option;
+import java.util.Collection;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.ConfigurationBuilderImpl.CommandLineCallback;
 import com.microsoft.tang.ExternalConstructor;
 
 /**
@@ -24,8 +22,9 @@ public interface ConfigurationBuilder {
    * @param c
    */
   public void addConfiguration(final Configuration c) throws BindException;
-  
-  public void addConfiguration(final File istream) throws IOException, BindException;
+
+  public void addConfiguration(final File istream) throws IOException,
+      BindException;
 
   public void addConfiguration(final String istream) throws BindException;
 
@@ -39,7 +38,7 @@ public interface ConfigurationBuilder {
    * to become available to command line parsers.
    * 
    * When registering a class, Tang transitively registers any enclosing and
-   * enclosed classes as well.  So, if you have one class with that contains many
+   * enclosed classes as well. So, if you have one class with that contains many
    * \@NamedParameter classes, you only need to call register on the enclosing
    * class.
    * 
@@ -53,14 +52,18 @@ public interface ConfigurationBuilder {
   public void register(Class<?> c) throws BindException;
 
   public void register(String c) throws BindException;
+
   /**
    * Force Tang to treat the specified constructor as though it had an @Inject
    * annotation.
-   * @param c The class the constructor instantiates.
-   * @param args The arguments taken by the constructor, in declaration order.
+   * 
+   * @param c
+   *          The class the constructor instantiates.
+   * @param args
+   *          The arguments taken by the constructor, in declaration order.
    */
-  public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args) throws BindException;
-  
+  public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args)
+      throws BindException;
 
   /**
    * Bind classes to each other, based on their full class names.
@@ -130,28 +133,21 @@ public interface ConfigurationBuilder {
    */
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value)
       throws BindException;
-  public <T> void bindNamedParameter(Class<? extends Name<T>> iface, Class<? extends T> impl) throws BindException;
+
+  public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
+      Class<? extends T> impl) throws BindException;
+
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
 
+  public Collection<String> getShortNames();
+
+  public String resolveShortName(String shortName) throws BindException;
+
+  public String classPrettyDefaultString(String longName) throws BindException;
+
+  public String classPrettyDescriptionString(String longName) throws BindException;
+
   public Configuration build();
-
-  /**
-   * TODO Eliminate apache cli Option from Tang API.
-   * 
-   * @param option
-   * @param cb
-   */
-  public void addCommandLineOption(Option option, CommandLineCallback cb);
-
-  /**
-   * @return true if the command line parsing succeeded, false (or exception) otherwise.
-   * @param args
-   * @throws IOException
-   * @throws NumberFormatException
-   * @throws ParseException
-   */
-  public <T> boolean processCommandLine(String[] args) throws BindException,
-      IOException;
 
 }

@@ -3,7 +3,10 @@ package com.microsoft.tang;
 import javax.inject.Inject;
 
 import org.junit.Test;
-import static com.microsoft.tang.StaticConfiguration.*;
+
+import com.microsoft.tang.formats.StaticConfiguration;
+
+import static com.microsoft.tang.formats.StaticConfiguration.*;
 
 public class TestStaticConfiguration {
   /**
