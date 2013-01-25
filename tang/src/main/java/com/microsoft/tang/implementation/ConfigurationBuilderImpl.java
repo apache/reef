@@ -18,9 +18,8 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
-import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.implementation.TypeHierarchy.Node;
+import com.microsoft.tang.implementation.Node.ClassNode;
+import com.microsoft.tang.implementation.Node.NamedParameterNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {

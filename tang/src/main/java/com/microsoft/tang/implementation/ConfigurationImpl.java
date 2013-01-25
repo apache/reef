@@ -12,10 +12,9 @@ import java.util.Set;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
-import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.implementation.TypeHierarchy.Node;
+import com.microsoft.tang.implementation.Node.ClassNode;
+import com.microsoft.tang.implementation.Node.ConstructorDef;
+import com.microsoft.tang.implementation.Node.NamedParameterNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 

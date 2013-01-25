@@ -1,7 +1,7 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
-import com.microsoft.tang.implementation.TypeHierarchy.Node;
+import com.microsoft.tang.implementation.Node.ClassNode;
+import com.microsoft.tang.implementation.Node.ConstructorDef;
 
 public abstract class InjectionPlan<T> {
   final Node node;
@@ -73,13 +73,13 @@ public abstract class InjectionPlan<T> {
   }
   
   final public static class Constructor<T> extends InjectionPlan<T> {
-    final TypeHierarchy.ConstructorDef<T> constructor;
+    final ConstructorDef<T> constructor;
     final InjectionPlan<?>[] args;
     final int numAlternatives;
     final boolean isAmbiguous;
     final boolean isInjectable;
     
-    public Constructor(ClassNode<T> cn, TypeHierarchy.ConstructorDef<T> constructor,
+    public Constructor(ClassNode<T> cn, ConstructorDef<T> constructor,
         InjectionPlan<?>[] args) {
       super(cn);
       this.constructor = constructor;
@@ -137,7 +137,7 @@ public abstract class InjectionPlan<T> {
   final public static class Instance<T> extends InjectionPlan<T> {
     final T instance;
 
-    public Instance(TypeHierarchy.Node name, T instance) {
+    public Instance(Node name, T instance) {
       super(name);
       this.instance = instance;
     }

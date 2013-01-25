@@ -13,13 +13,12 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
-import com.microsoft.tang.implementation.TypeHierarchy.ConstructorArg;
-import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.implementation.TypeHierarchy.NamespaceNode;
-import com.microsoft.tang.implementation.TypeHierarchy.Node;
-import com.microsoft.tang.implementation.TypeHierarchy.PackageNode;
+import com.microsoft.tang.implementation.Node.ClassNode;
+import com.microsoft.tang.implementation.Node.ConstructorArg;
+import com.microsoft.tang.implementation.Node.ConstructorDef;
+import com.microsoft.tang.implementation.Node.NamedParameterNode;
+import com.microsoft.tang.implementation.Node.NamespaceNode;
+import com.microsoft.tang.implementation.Node.PackageNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class InjectorImpl implements Injector {

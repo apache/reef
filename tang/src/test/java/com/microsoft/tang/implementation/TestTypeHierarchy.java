@@ -1,4 +1,4 @@
-package com.microsoft.tang;
+package com.microsoft.tang.implementation;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,12 +17,10 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.TypeHierarchy;
-import com.microsoft.tang.implementation.TypeHierarchy.ClassNode;
-import com.microsoft.tang.implementation.TypeHierarchy.ConstructorDef;
-import com.microsoft.tang.implementation.TypeHierarchy.NamedParameterNode;
-import com.microsoft.tang.implementation.TypeHierarchy.NamespaceNode;
-import com.microsoft.tang.implementation.TypeHierarchy.Node;
+import com.microsoft.tang.implementation.Node.ClassNode;
+import com.microsoft.tang.implementation.Node.ConstructorDef;
+import com.microsoft.tang.implementation.Node.NamedParameterNode;
+import com.microsoft.tang.implementation.Node.NamespaceNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTypeHierarchy {
