@@ -12,14 +12,18 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.NamedParameterNode;
+import com.microsoft.tang.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.Node.ClassNode;
-import com.microsoft.tang.implementation.Node.NamedParameterNode;
+import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
+import com.microsoft.tang.implementation.JavaNode.JavaConstructorDef;
+import com.microsoft.tang.implementation.JavaNode.JavaNamedParameterNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
@@ -74,22 +78,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     // purposes,
     // we run through the high-level bind(), which dispatches to the correct
     // call.
-    for (ClassNode<?> cn : old.boundImpls.keySet()) {
+    for (JavaClassNode<?> cn : old.boundImpls.keySet()) {
       bind(cn.getClazz(), old.boundImpls.get(cn));
       // bindImplementation((Class<?>) cn.getClazz(), (Class)
       // t.boundImpls.get(cn));
     }
-    for (ClassNode<?> cn : old.boundConstructors.keySet()) {
+    for (JavaClassNode<?> cn : old.boundConstructors.keySet()) {
       bind(cn.getClazz(), old.boundConstructors.get(cn));
       // bindConstructor((Class<?>) cn.getClazz(), (Class)
       // t.boundConstructors.get(cn));
     }
-    for (ClassNode<?> cn : old.singletons) {
+    for (JavaClassNode<?> cn : old.singletons) {
       try {
         Class<?> clazz = cn.getClazz();
         Object o = old.singletonInstances.get(cn);
         if(o != null) {
-          ClassNode<?> new_cn= (ClassNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(clazz));
+          JavaClassNode<?> new_cn= (JavaClassNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(clazz));
           conf.singletons.add(new_cn);
           conf.singletonInstances.put(new_cn, o);
         } else {
@@ -103,22 +107,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
     // The namedParameters set contains the strings that can be used to instantiate new
     // named parameter instances.  Create new ones where we can.
-    for (NamedParameterNode<?> np : old.namedParameters.keySet()) {
+    for (JavaNamedParameterNode<?> np : old.namedParameters.keySet()) {
       bind(np.getNameClass().getName(), old.namedParameters.get(np));
     }
     // Copy references to the remaining (which must have been set with bindVolatileParameter())
-    for (NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
+    for (JavaNamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
       if(!old.namedParameters.containsKey(np)) {
         Object o = old.namedParameterInstances.get(np);
-        NamedParameterNode<?> new_np= (NamedParameterNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(np.getNameClass()));
+        JavaNamedParameterNode<?> new_np= (JavaNamedParameterNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(np.getNameClass()));
         conf.namedParameterInstances.put(new_np, o);
         if(o instanceof Class) {
           register((Class<?>)o);
         }
       }
     }
-    for (ClassNode<?> cn : old.legacyConstructors.keySet()) {
-      registerLegacyConstructor(cn.getClazz(), old.legacyConstructors.get(cn).getConstructor().getParameterTypes());
+    for (JavaClassNode<?> cn : old.legacyConstructors.keySet()) {
+      registerLegacyConstructor(cn.getClazz(), ((JavaConstructorDef<?>)old.legacyConstructors.get(cn)).getConstructor().getParameterTypes());
     }
   }
 
@@ -141,7 +145,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public <T> void registerLegacyConstructor(Class<T> c, final Class<?>... args) throws BindException {
     @SuppressWarnings("unchecked")
-    ClassNode<T> cn = (ClassNode<T>) conf.namespace.register(ReflectionUtilities.getFullName(c));
+    JavaClassNode<T> cn = (JavaClassNode<T>) conf.namespace.register(ReflectionUtilities.getFullName(c));
     conf.legacyConstructors.put(cn, cn.createConstructorDef(args));
   }
   
@@ -153,7 +157,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           "Can't bind to sealed ConfigurationBuilderImpl!");
     Node n = conf.namespace.register(key);
     if (n instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<?>) n, value);
+      bindParameter((JavaNamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
       Class<?> v;
       try {
@@ -161,7 +165,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       } catch(ClassNotFoundException e) {
         throw new BindException("Could not find class " + value);
       }
-      bind(((ClassNode<?>) n).getClazz(), v);
+      bind(((JavaClassNode<?>) n).getClazz(), v);
     }
   }
 
@@ -192,7 +196,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     conf.namespace.register(ReflectionUtilities.getFullName(d));
 
     if (n instanceof ClassNode) {
-      conf.boundImpls.put((ClassNode<?>) n, d);
+      conf.boundImpls.put((JavaClassNode<?>) n, d);
     } else {
       throw new BindException(
           "Detected type mismatch.  bindImplementation needs a ClassNode, but "
@@ -200,7 +204,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
   @SuppressWarnings("unchecked")
-  private <T> void bindParameter(NamedParameterNode<T> name, String value) throws BindException {
+  private <T> void bindParameter(JavaNamedParameterNode<T> name, String value) throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
@@ -230,7 +234,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           "Can't bind to sealed ConfigurationBuilderImpl!");
     Node np = conf.namespace.register(ReflectionUtilities.getFullName(name));
     if (np instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<T>) np, s);
+      bindParameter((JavaNamedParameterNode<T>) np, s);
     } else {
       throw new BindException(
           "Detected type mismatch when setting named parameter " + name
@@ -247,7 +251,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     Node n = conf.namespace.register(ReflectionUtilities.getFullName(iface));
     conf.namespace.register(ReflectionUtilities.getFullName(impl));
     if(n instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<?>) n, impl.getName());
+      bindParameter((JavaNamedParameterNode<?>) n, impl.getName());
     } else {
       throw new BindException(
           "Detected type mismatch when setting named parameter " + iface
@@ -270,7 +274,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throw new IllegalArgumentException("Can't bind singleton to " + n
           + " try bindParameter() instead.");
     }
-    ClassNode<T> cn = (ClassNode<T>) n;
+    JavaClassNode<T> cn = (JavaClassNode<T>) n;
     conf.singletons.add(cn);
   }
 
@@ -288,7 +292,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
     conf.namespace.register(ReflectionUtilities.getFullName(v));
     try {
-      conf.boundConstructors.put((ClassNode<?>) conf.namespace.register(ReflectionUtilities.getFullName(c)),
+      conf.boundConstructors.put((JavaClassNode<?>) conf.namespace.register(ReflectionUtilities.getFullName(c)),
           (Class) v);
     } catch (ClassCastException e) {
       throw new IllegalArgumentException(
@@ -421,7 +425,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public String classPrettyDefaultString(String longName) throws BindException {
     try {
-      NamedParameterNode<?> param = (NamedParameterNode<?>)conf.namespace.getNode(longName);
+      JavaNamedParameterNode<?> param = (JavaNamedParameterNode<?>)conf.namespace.getNode(longName);
       return param.getArgClass().getSimpleName() + "=" + param.getDefaultInstance();
     } catch (NameResolutionException e) {
       throw new BindException("Couldn't find " + longName + " when looking for default value", e);
@@ -431,7 +435,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public String classPrettyDescriptionString(String longName) throws BindException {
     try {
-      NamedParameterNode<?> param = (NamedParameterNode<?>)conf.namespace.getNode(longName);
+      JavaNamedParameterNode<?> param = (JavaNamedParameterNode<?>)conf.namespace.getNode(longName);
       return param.getDocumentation() + "\n" + param.getFullName();
     } catch (NameResolutionException e) {
       throw new BindException("Couldn't find " + longName + " when looking for documentation string", e);

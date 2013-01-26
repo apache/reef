@@ -11,24 +11,26 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.microsoft.tang.ClassNode;
+import com.microsoft.tang.ConstructorDef;
+import com.microsoft.tang.NamedParameterNode;
+import com.microsoft.tang.NamespaceNode;
+import com.microsoft.tang.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.Node.ClassNode;
-import com.microsoft.tang.implementation.Node.ConstructorDef;
-import com.microsoft.tang.implementation.Node.NamedParameterNode;
-import com.microsoft.tang.implementation.Node.NamespaceNode;
+import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTypeHierarchy {
-  TypeHierarchy ns;
+  ClassHierarchyImpl ns;
 
   @Before
   public void setUp() throws Exception {
-    ns = new TypeHierarchy();
+    ns = new ClassHierarchyImpl();
   }
 
   @After
@@ -66,7 +68,7 @@ public class TestTypeHierarchy {
       BindException {
     register(SimpleConstructors.class);
     Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
-    ClassNode<?> cls = (ClassNode<?>) ns.getNode(ReflectionUtilities.getFullName(SimpleConstructors.class));
+    JavaClassNode<?> cls = (JavaClassNode<?>) ns.getNode(ReflectionUtilities.getFullName(SimpleConstructors.class));
     Assert.assertTrue(cls.children.size() == 0);
     ConstructorDef<?> def[] = cls.getInjectableConstructors();
     Assert.assertEquals(3, def.length);

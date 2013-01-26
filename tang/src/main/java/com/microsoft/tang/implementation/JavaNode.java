@@ -7,6 +7,13 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import com.microsoft.tang.ClassNode;
+import com.microsoft.tang.ConstructorArg;
+import com.microsoft.tang.ConstructorDef;
+import com.microsoft.tang.NamedParameterNode;
+import com.microsoft.tang.NamespaceNode;
+import com.microsoft.tang.Node;
+import com.microsoft.tang.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -15,21 +22,29 @@ import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public abstract class Node implements Comparable<Node> {
+public abstract class JavaNode implements Node {
   @SuppressWarnings("unchecked")
-  public static class ClassNode<T> extends Node {
+  static class JavaClassNode<T> extends JavaNode implements ClassNode<T> {
     private final Class<T> clazz;
     private final boolean isPrefixTarget;
-    private final ConstructorDef<T>[] injectableConstructors;
+    private final JavaConstructorDef<T>[] injectableConstructors;
   
     Class<T> getClazz() {
       return clazz;
     }
   
+    /* (non-Javadoc)
+     * @see com.microsoft.tang.implementation.ClassNode#getIsPrefixTarget()
+     */
+    @Override
     public boolean getIsPrefixTarget() {
       return isPrefixTarget;
     }
   
+    /* (non-Javadoc)
+     * @see com.microsoft.tang.implementation.ClassNode#getInjectableConstructors()
+     */
+    @Override
     public ConstructorDef<T>[] getInjectableConstructors() {
       return injectableConstructors;
     }
@@ -43,7 +58,7 @@ public abstract class Node implements Comparable<Node> {
       }
     }
   
-    public boolean isInjectionCandidate() {
+    private boolean isInjectionCandidate() {
       final boolean injectable;
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
         if (!Modifier.isStatic(clazz.getModifiers())) {
@@ -106,17 +121,17 @@ public abstract class Node implements Comparable<Node> {
             named = (Parameter) annotation;
           }
         }
-        args[i] = new ConstructorArg(paramTypes[i], named);
+        args[i] = new JavaConstructorArg(paramTypes[i], named);
       }
       try {
-        return new ConstructorDef<T>(args, constructor);
+        return new JavaConstructorDef<T>(args, constructor);
       } catch (BindException e) {
         throw new BindException("Detected bad constructor in " + constructor
             + " in " + clazz, e);
       }
     }
   
-    ClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
+    JavaClassNode(JavaNode parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
       super(parent, clazz);
       this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
@@ -151,25 +166,28 @@ public abstract class Node implements Comparable<Node> {
         }
       }
       this.injectableConstructors = injectableConstructors
-          .toArray((ConstructorDef<T>[]) new ConstructorDef[0]);
+          .toArray((JavaConstructorDef<T>[]) new JavaConstructorDef[0]);
     }
   }
 
-  public static class ConstructorArg {
+  static class JavaConstructorArg implements ConstructorArg {
     private final Class<?> type;
     private final Parameter name;
   
+    @Override
     public String getName() {
       return name == null ? type.getName() : name.value().getName();
     }
+    @Override
     public Parameter getNamedParameter() {
       return name;
     }
+    @Override
     @Deprecated
     public Class<?> getType() {
       return type;
     }
-    ConstructorArg(Class<?> type, Parameter name) {
+    JavaConstructorArg(Class<?> type, Parameter name) {
       this.type = type;
       this.name = name;
     }
@@ -183,7 +201,7 @@ public abstract class Node implements Comparable<Node> {
   
     @Override
     public boolean equals(Object o) {
-      ConstructorArg arg = (ConstructorArg) o;
+      JavaConstructorArg arg = (JavaConstructorArg) o;
       if (!type.equals(arg.type)) {
         return false;
       }
@@ -201,10 +219,11 @@ public abstract class Node implements Comparable<Node> {
     }
   }
 
-  public static class ConstructorDef<T> implements Comparable<ConstructorDef<?>> {
+  static class JavaConstructorDef<T> implements ConstructorDef<T> {
     private final ConstructorArg[] args;
     private final Constructor<T> constructor;
   
+    @Override
     public ConstructorArg[] getArgs() {
       return args;
     }
@@ -215,7 +234,8 @@ public abstract class Node implements Comparable<Node> {
   
     @Override
     public String toString() {
-      if (getArgs().length == 0) {
+      return getConstructor().toString();
+/*      if (getArgs().length == 0) {
         return "()";
       }
       StringBuilder sb = new StringBuilder("(" + getArgs()[0]);
@@ -223,10 +243,10 @@ public abstract class Node implements Comparable<Node> {
         sb.append("," + getArgs()[i]);
       }
       sb.append(")");
-      return sb.toString();
+      return sb.toString(); */
     }
   
-    ConstructorDef(ConstructorArg[] args, Constructor<T> constructor)
+    JavaConstructorDef(ConstructorArg[] args, Constructor<T> constructor)
         throws BindException {
       this.args = args;
       this.constructor = constructor;
@@ -276,6 +296,7 @@ public abstract class Node implements Comparable<Node> {
       return equalsIgnoreOrder((ConstructorDef<?>) o);
     }
   
+    @Override
     public boolean isMoreSpecificThan(ConstructorDef<?> def) {
       for (int i = 0; i < getArgs().length; i++) {
         boolean found = false;
@@ -292,17 +313,17 @@ public abstract class Node implements Comparable<Node> {
   
     @Override
     public int compareTo(ConstructorDef<?> o) {
-      return getConstructor().toString().compareTo(o.getConstructor().toString());
+      return toString().compareTo(o.toString());
     }
   }
 
-  public static class NamedParameterNode<T> extends Node {
+  static class JavaNamedParameterNode<T> extends JavaNode implements NamedParameterNode<T> {
     private final Class<? extends Name<T>> nameClass;
     private final NamedParameter namedParameter;
     private final Class<T> argClass;
     private final T defaultInstance;
   
-    NamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
+    JavaNamedParameterNode(JavaNode parent, Class<? extends Name<T>> clazz,
         Class<T> argClass) throws BindException {
       super(parent, clazz);
       this.nameClass = clazz;
@@ -351,6 +372,7 @@ public abstract class Node implements Comparable<Node> {
       return defaultInstance;
     }
   
+    @Override
     public String getDocumentation() {
       if (namedParameter != null) {
         return namedParameter.doc();
@@ -362,6 +384,7 @@ public abstract class Node implements Comparable<Node> {
     /*
      * public NamedParameter getNamedParameter() { return namedParameter; }
      */
+    @Override
     public String getShortName() {
       if (namedParameter.short_name() != null
           && namedParameter.short_name().length() == 0) {
@@ -372,10 +395,10 @@ public abstract class Node implements Comparable<Node> {
   
   }
 
-  public static class NamespaceNode<T> extends Node {
+  static class JavaNamespaceNode<T> extends JavaNode implements NamespaceNode<T> {
     private ClassNode<T> target;
   
-    public NamespaceNode(Node parent, String name, ClassNode<T> target) {
+    public JavaNamespaceNode(JavaNode parent, String name, JavaClassNode<T> target) {
       super(parent, name);
       if (target != null && (!target.isPrefixTarget)) {
         throw new IllegalStateException();
@@ -383,21 +406,23 @@ public abstract class Node implements Comparable<Node> {
       this.target = target;
     }
   
-    public NamespaceNode(Node parent, String name) {
+    public JavaNamespaceNode(JavaNode parent, String name) {
       super(parent, name);
     }
   
+    @Override
     public void setTarget(ClassNode<T> target) {
       if (this.target != null) {
         throw new IllegalStateException("Attempt to set namespace target from "
             + this.target + " to " + target);
       }
       this.target = target;
-      if (!target.isPrefixTarget) {
+      if (!target.getIsPrefixTarget()) {
         throw new IllegalStateException();
       }
     }
   
+    @Override
     public Node getTarget() {
       return target;
     }
@@ -413,8 +438,8 @@ public abstract class Node implements Comparable<Node> {
   
   }
 
-  public static class PackageNode extends Node {
-    PackageNode(Node parent, String name) {
+  static class JavaPackageNode extends JavaNode implements PackageNode {
+    JavaPackageNode(JavaNode parent, String name) {
       super(parent, name);
     }
   }
@@ -424,7 +449,7 @@ public abstract class Node implements Comparable<Node> {
 
   @Override
   public boolean equals(Object o) {
-    Node n = (Node) o;
+    JavaNode n = (JavaNode) o;
     final boolean parentsEqual;
     if (n.parent == this.parent) {
       parentsEqual = true;
@@ -439,6 +464,10 @@ public abstract class Node implements Comparable<Node> {
     return this.name.equals(n.name);
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Node#getFullName()
+   */
+  @Override
   public String getFullName() {
     final String ret;
     if (parent == null) {
@@ -463,9 +492,9 @@ public abstract class Node implements Comparable<Node> {
     return ret;
   }
 
-  public Map<String, Node> children = new MonotonicMap<String, Node>();
+  public Map<String, JavaNode> children = new MonotonicMap<String, JavaNode>();
 
-  Node(Node parent, Class<?> name) {
+  JavaNode(JavaNode parent, Class<?> name) {
     this.parent = parent;
     this.name = ReflectionUtilities.getSimpleName(name);
     if (this.name.length() == 0) {
@@ -477,7 +506,7 @@ public abstract class Node implements Comparable<Node> {
     }
   }
 
-  Node(Node parent, String name) {
+  JavaNode(JavaNode parent, String name) {
     this.parent = parent;
     this.name = name;
     if (parent != null) {
@@ -489,18 +518,21 @@ public abstract class Node implements Comparable<Node> {
     }
   }
 
+  @Override
   public boolean contains(String key) {
     return children.containsKey(key);
   }
 
-  public Node get(String key) {
+  @Override
+  public JavaNode get(String key) {
     return children.get(key);
   }
 
-  void put(Node n) {
+  void put(JavaNode n) {
     children.put(n.name, n);
   }
 
+  @Override
   public String toIndentedString(int level) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < level; i++) {
@@ -521,6 +553,7 @@ public abstract class Node implements Comparable<Node> {
         + getFullName() + "']";
   }
 
+  @Override
   public String getName() {
     return name;
   }

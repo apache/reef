@@ -11,22 +11,28 @@ import java.util.Map;
 import java.util.Set;
 
 
+import com.microsoft.tang.ClassHierarchy;
+import com.microsoft.tang.ClassNode;
+import com.microsoft.tang.ConstructorArg;
+import com.microsoft.tang.ConstructorDef;
+import com.microsoft.tang.NamedParameterNode;
+import com.microsoft.tang.NamespaceNode;
+import com.microsoft.tang.Node;
+import com.microsoft.tang.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.implementation.Node.ClassNode;
-import com.microsoft.tang.implementation.Node.ConstructorArg;
-import com.microsoft.tang.implementation.Node.ConstructorDef;
-import com.microsoft.tang.implementation.Node.NamedParameterNode;
-import com.microsoft.tang.implementation.Node.NamespaceNode;
-import com.microsoft.tang.implementation.Node.PackageNode;
+import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
+import com.microsoft.tang.implementation.JavaNode.JavaNamedParameterNode;
+import com.microsoft.tang.implementation.JavaNode.JavaNamespaceNode;
+import com.microsoft.tang.implementation.JavaNode.JavaPackageNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class TypeHierarchy {
+public class ClassHierarchyImpl implements ClassHierarchy {
   // TODO Want to add a "register namespace" method, but Java is not designed
   // to support such things.
   // There are third party libraries that would help, but they can fail if the
@@ -43,7 +49,7 @@ public class TypeHierarchy {
     return ReflectionUtilities.classForName(name, loader);
   }
 
-  private final PackageNode namespace;
+  private final JavaPackageNode namespace;
   private final class ClassComparator implements Comparator<Class<?>> {
 
     @Override
@@ -52,18 +58,18 @@ public class TypeHierarchy {
     }
     
   }
-  private final Set<Class<?>> registeredClasses = new MonotonicSet<Class<?>>(new ClassComparator());
-  private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<ClassNode<?>, ClassNode<?>>();
-  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<String, NamedParameterNode<?>>();
+  private final Set<Class<?>> registeredClasses = new MonotonicSet<>(new ClassComparator());
+  private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<>();
+  private final Map<String, JavaNamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
-  public TypeHierarchy(URL... jars) {
-    this.namespace = new PackageNode(null, "");
+  public ClassHierarchyImpl(URL... jars) {
+    this.namespace = new JavaPackageNode(null, "");
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
 
-  TypeHierarchy(ClassLoader loader, URL... jars) {
-    this.namespace = new PackageNode(null, "");
+  ClassHierarchyImpl(ClassLoader loader, URL... jars) {
+    this.namespace = new JavaPackageNode(null, "");
     this.jars = new ArrayList<URL>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, loader);
   }
@@ -84,13 +90,13 @@ public class TypeHierarchy {
 
   @SuppressWarnings({ "unchecked", "unused" })
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
-      ClassNode<T> classNode) throws BindException {
+      JavaClassNode<T> classNode) throws BindException {
     String[] path = conf.value().split(ReflectionUtilities.regexp);
-    Node root = namespace;
+    JavaNode root = namespace;
     // Search for the new node's parent, store it in root.
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
-        Node newRoot = new NamespaceNode<T>(root, path[i]);
+        JavaNode newRoot = new JavaNamespaceNode<T>(root, path[i]);
         root = newRoot;
       } else {
         root = root.get(path[i]);
@@ -108,13 +114,13 @@ public class TypeHierarchy {
     }
     Node n = root.get(path[path.length - 1]);
     // n points to the new node (if it exists)
-    NamespaceNode<T> ret;
+    JavaNamespaceNode<T> ret;
     if (n == null) {
-      ret = new NamespaceNode<T>(root, path[path.length - 1], classNode);
+      ret = new JavaNamespaceNode<T>(root, path[path.length - 1], classNode);
     } else if (n instanceof NamespaceNode) {
-      ret = (NamespaceNode<T>) n;
+      ret = (JavaNamespaceNode<T>) n;
       ret.setTarget(classNode);
-      for (Node child : ret.children.values()) {
+      for (JavaNode child : ret.children.values()) {
         if (true) {
           // TODO: implement + test nested namespaces.
           throw new BindException("Nested namespaces not implemented!");
@@ -142,7 +148,7 @@ public class TypeHierarchy {
   private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget)
       throws BindException {
     String[] path = clazz.getName().split(ReflectionUtilities.regexp);
-    Node root = namespace;
+    JavaNode root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       root = root.get(path[i]);
     }
@@ -150,12 +156,12 @@ public class TypeHierarchy {
     if (root == null) {
       throw new NullPointerException();
     }
-    Node parent = root;
+    JavaNode parent = root;
 
     Class<?> argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
-      return new ClassNode<U>(parent, clazz, isPrefixTarget);
+      return new JavaClassNode<U>(parent, clazz, isPrefixTarget);
     } else {
       if (isPrefixTarget) {
         throw new BindException(clazz
@@ -163,11 +169,11 @@ public class TypeHierarchy {
       }
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
-      NamedParameterNode<T> np = new NamedParameterNode<T>(parent,
+      JavaNamedParameterNode<T> np = new JavaNamedParameterNode<T>(parent,
           (Class<? extends Name<T>>) clazz, (Class<T>) argType);
       String shortName = np.getShortName();
       if (shortName != null) {
-        NamedParameterNode<?> oldNode = shortNames.get(shortName);
+        JavaNamedParameterNode<?> oldNode = shortNames.get(shortName);
         if (oldNode != null) {
           if (oldNode.getNameClass() == np.getNameClass()) {
             throw new IllegalStateException("Tried to double bind "
@@ -240,16 +246,20 @@ public class TypeHierarchy {
     } catch (NameResolutionException e) {
     }
 
-    final PackageNode parent;
+    final JavaPackageNode parent;
     if (packageName.length == 1) {
       parent = namespace;
     } else {
-      parent = (PackageNode) getNode(arrayToDotString(packageName,
+      parent = (JavaPackageNode) getNode(arrayToDotString(packageName,
           packageName.length - 1));
     }
-    new PackageNode(parent, packageName[packageName.length - 1]);
+    new JavaPackageNode(parent, packageName[packageName.length - 1]);
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Namespace#register(java.lang.String)
+   */
+  @Override
   public Node register(String s) throws BindException {
     final Class<?> c;
     try {
@@ -316,7 +326,7 @@ public class TypeHierarchy {
         for (ConstructorArg arg : def.getArgs()) {
           register(ReflectionUtilities.getFullName(arg.getType()));
           if (arg.getNamedParameter() != null) {
-            NamedParameterNode<?> np = (NamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.getNamedParameter()
+            JavaNamedParameterNode<?> np = (JavaNamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.getNamedParameter()
                 .value()));
             if (!ReflectionUtilities.isCoercable(arg.getType(), np.getArgClass())) {
               throw new BindException(
@@ -328,7 +338,7 @@ public class TypeHierarchy {
         }
       }
     } else if (n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      JavaNamedParameterNode<?> np = (JavaNamedParameterNode<?>) n;
       register(ReflectionUtilities.getFullName(np.getArgClass()));
     }
     return n;
@@ -360,7 +370,7 @@ public class TypeHierarchy {
         throw new BindException("Found namespace annotation " + nsAnnotation
             + " with target " + n + " which is a named parameter.");
       }
-      registerNamespace(nsAnnotation, (ClassNode<?>) n);
+      registerNamespace(nsAnnotation, (JavaClassNode<?>) n);
     }
 
     if (n instanceof ClassNode) {
@@ -407,18 +417,25 @@ public class TypeHierarchy {
     return namespace;
   }
 
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Namespace#getShortNames()
+   */
+  @Override
   public Collection<String> getShortNames() {
     return shortNames.keySet();
   }
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Namespace#resolveShortName(java.lang.String)
+   */
+  @Override
   public String resolveShortName(String shortName) {
-    return ((NamedParameterNode<?>) shortNames.get(shortName)).getFullName();
+    return ((JavaNamedParameterNode<?>) shortNames.get(shortName)).getFullName();
   }
 
-  /**
-   * TODO: Fix up output of TypeHierarchy!
-   * 
-   * @return
+  /* (non-Javadoc)
+   * @see com.microsoft.tang.implementation.Namespace#toPrettyString()
    */
+  @Override
   public String toPrettyString() {
     return namespace.toIndentedString(0);
   }

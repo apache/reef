@@ -6,19 +6,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConstructorArg;
+import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Injector;
+import com.microsoft.tang.NamedParameterNode;
+import com.microsoft.tang.NamespaceNode;
+import com.microsoft.tang.Node;
+import com.microsoft.tang.PackageNode;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.Node.ClassNode;
-import com.microsoft.tang.implementation.Node.ConstructorArg;
-import com.microsoft.tang.implementation.Node.ConstructorDef;
-import com.microsoft.tang.implementation.Node.NamedParameterNode;
-import com.microsoft.tang.implementation.Node.NamespaceNode;
-import com.microsoft.tang.implementation.Node.PackageNode;
+import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
+import com.microsoft.tang.implementation.JavaNode.JavaConstructorDef;
+import com.microsoft.tang.implementation.JavaNode.JavaNamedParameterNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class InjectorImpl implements Injector {
@@ -70,7 +74,7 @@ public class InjectorImpl implements Injector {
     }
     final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      JavaNamedParameterNode<?> np = (JavaNamedParameterNode<?>) n;
       Object instance = tc.namedParameterInstances.get(n);
       if (instance == null) {
         instance = np.getDefaultInstance();
@@ -83,7 +87,7 @@ public class InjectorImpl implements Injector {
         ip = new InjectionPlan.Instance<Object>(np, instance);
       }
     } else if (n instanceof ClassNode) {
-      ClassNode<?> cn = (ClassNode<?>) n;
+      JavaClassNode<?> cn = (JavaClassNode<?>) n;
       if (tc.singletonInstances.containsKey(cn)) {
         ip = new InjectionPlan.Instance<Object>(cn, tc.singletonInstances.get(cn));
       } else if (tc.boundConstructors.containsKey(cn)) {
@@ -99,7 +103,7 @@ public class InjectorImpl implements Injector {
         ip = new InjectionPlan.Subplan(cn, 0, memo.get(implName));
         memo.put(cn.getClazz().getName(), ip);
       } else {
-        List<ClassNode<?>> classNodes = new ArrayList<ClassNode<?>>();
+        List<ClassNode<?>> classNodes = new ArrayList<>();
         if (tc.boundImpls.get(cn) == null) {
           // if we're here, and there is a bound impl, then we're bound to
           // ourselves,
@@ -133,7 +137,7 @@ public class InjectorImpl implements Injector {
               .add(wrapInjectionPlans(thisCN, constructors, false));
         }
         if (classNodes.size() == 1
-            && classNodes.get(0).getClazz().getName().equals(name)) {
+            && classNodes.get(0).getFullName()/*getClazz().getName()*/.equals(name)) {
           ip = wrapInjectionPlans(n, sub_ips, false);
         } else {
           ip = wrapInjectionPlans(n, sub_ips, true);
@@ -205,7 +209,7 @@ public class InjectorImpl implements Injector {
       while (!allSucceeded) {
         boolean oneSucceeded = false;
         allSucceeded = true;
-        for (ClassNode<?> cn : tc.singletons) {
+        for (JavaClassNode<?> cn : tc.singletons) {
           if (!tc.singletonInstances.containsKey(cn)) {
             try {
               getInstance(cn.getClazz());
@@ -280,7 +284,7 @@ public class InjectorImpl implements Injector {
         args[i] = injectFromPlan(constructor.args[i]);
       }
       try {
-        T ret = constructor.constructor.getConstructor().newInstance(args);
+        T ret = ((JavaConstructorDef<T>)constructor.constructor).getConstructor().newInstance(args);
         if (tc.singletons.contains(constructor.getNode())) {
           tc.singletonInstances.put(constructor.getNode(), ret);
         }
@@ -299,7 +303,7 @@ public class InjectorImpl implements Injector {
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
         if (tc.singletons.contains(ambiguous.getNode())) {
           // Cast is safe since singletons is of type Set<ClassNode<?>>
-          tc.singletonInstances.put((ClassNode<?>)ambiguous.getNode(), ret);
+          tc.singletonInstances.put((JavaClassNode<?>)ambiguous.getNode(), ret);
         }
         // TODO: Check "T" in "instanceof ExternalConstructor<T>"
         if (ret instanceof ExternalConstructor) {
@@ -359,7 +363,7 @@ public class InjectorImpl implements Injector {
      */
 
     if (n instanceof ClassNode) {
-      ClassNode<?> cn = (ClassNode<?>) n;
+      JavaClassNode<?> cn = (JavaClassNode<?>) n;
       Object old = tc.singletonInstances.get(cn);
       if (old != null) {
         throw new BindException("Attempt to re-bind singleton.  Old value was "
@@ -376,7 +380,7 @@ public class InjectorImpl implements Injector {
       throws BindException {
     Node n = tc.namespace.register(ReflectionUtilities.getFullName(c));
     if (n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      JavaNamedParameterNode<?> np = (JavaNamedParameterNode<?>) n;
       Object old = tc.namedParameterInstances.get(np);
       if (old != null) {
         throw new BindException(

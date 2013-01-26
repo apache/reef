@@ -1,11 +1,11 @@
 package com.example;
 
-import com.microsoft.tang.implementation.TypeHierarchy;
+import com.microsoft.tang.implementation.ClassHierarchyImpl;
 
 public class PrintTypeHierarchy {
 
   public static void main(String[] args) throws Exception {
-    TypeHierarchy ns = new TypeHierarchy();
+    ClassHierarchyImpl ns = new ClassHierarchyImpl();
     for (String s : args) {
       ns.register(s);
     }
