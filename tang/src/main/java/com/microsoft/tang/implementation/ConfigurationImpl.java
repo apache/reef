@@ -9,29 +9,27 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
+import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
-import com.microsoft.tang.implementation.JavaNode.JavaConstructorDef;
-import com.microsoft.tang.implementation.JavaNode.JavaNamedParameterNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
   final ClassHierarchyImpl namespace;
-  final Map<JavaClassNode<?>, Class<?>> boundImpls = new MonotonicMap<>();
-  final Map<JavaClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
-  final Set<JavaClassNode<?>> singletons = new MonotonicSet<>();
-  final Map<JavaNamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
-  final Map<JavaClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
+  final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<>();
+  final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
+  final Set<ClassNode<?>> singletons = new MonotonicSet<>();
+  final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
+  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
   
   // *Not* serialized.
-  final Map<JavaClassNode<?>, Object> singletonInstances = new MonotonicMap<JavaClassNode<?>, Object>();
-  final Map<JavaNamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<JavaNamedParameterNode<?>, Object>();
+  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
+  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
 
   boolean sealed = false;
   boolean dirtyBit = false;
@@ -120,9 +118,9 @@ public class ConfigurationImpl implements Configuration {
       // ret.put(opt.getFullName(), SINGLETON);
       s.append(opt.getFullName() + "=" + SINGLETON + "\n");
     }
-    for (JavaClassNode<?> cn : legacyConstructors.keySet()) {
+    for (ClassNode<?> cn : legacyConstructors.keySet()) {
       // TODO remove cast to JavaConstructorDef!
-      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", ((JavaConstructorDef<?>)legacyConstructors.get(cn)).getConstructor().getParameterTypes()) + ")");
+      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", legacyConstructors.get(cn).getConstructor().getParameterTypes()) + ")");
     }
     return s.toString();
   }

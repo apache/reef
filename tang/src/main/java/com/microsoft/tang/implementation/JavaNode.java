@@ -3,6 +3,7 @@ package com.microsoft.tang.implementation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -23,27 +24,47 @@ import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public abstract class JavaNode implements Node {
+  public static <T> ClassNode<T> createClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
+    return new JavaClassNode<>(parent, clazz, isPrefixTarget);
+  }
+  public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
+      Class<T> argClass) throws BindException {
+    return new JavaNamedParameterNode<>(parent, clazz, argClass);
+  }
+  public static <T> NamespaceNode<T> createNamespaceNode(Node root, String name, ClassNode<T> target) {
+    return new JavaNamespaceNode<>(root, name, target);
+  }
+  public static NamespaceNode<?> createNamespaceNode(Node root, String name) {
+    return new JavaNamespaceNode<>(root, name);
+  }
+  public static PackageNode createPackageNode() {
+    return new JavaPackageNode(null, "");
+  }
+  public static PackageNode createPackageNode(Node parent, String name) {
+    return new JavaPackageNode(parent, name);
+  }
+  @Override
+  public Collection<Node> getChildren() {
+    return children.values();
+  }
   @SuppressWarnings("unchecked")
-  static class JavaClassNode<T> extends JavaNode implements ClassNode<T> {
+  private static class JavaClassNode<T> extends JavaNode implements ClassNode<T> {
+    
     private final Class<T> clazz;
     private final boolean isPrefixTarget;
     private final JavaConstructorDef<T>[] injectableConstructors;
-  
-    Class<T> getClazz() {
+
+    
+    @Override
+    public Class<T> getClazz() {
       return clazz;
     }
-  
-    /* (non-Javadoc)
-     * @see com.microsoft.tang.implementation.ClassNode#getIsPrefixTarget()
-     */
+
     @Override
     public boolean getIsPrefixTarget() {
       return isPrefixTarget;
     }
-  
-    /* (non-Javadoc)
-     * @see com.microsoft.tang.implementation.ClassNode#getInjectableConstructors()
-     */
+
     @Override
     public ConstructorDef<T>[] getInjectableConstructors() {
       return injectableConstructors;
@@ -84,8 +105,8 @@ public abstract class JavaNode implements Node {
       }
       return sb.toString();
     }
-  
-    ConstructorDef<T> createConstructorDef(Class<?>... paramTypes)
+    @Override
+    public ConstructorDef<T> createConstructorDef(Class<?>... paramTypes)
         throws BindException {
       if (!isInjectionCandidate()) {
         throw new BindException(
@@ -131,7 +152,7 @@ public abstract class JavaNode implements Node {
       }
     }
   
-    JavaClassNode(JavaNode parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
+    private JavaClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
       super(parent, clazz);
       this.clazz = clazz;
       this.isPrefixTarget = isPrefixTarget;
@@ -170,7 +191,7 @@ public abstract class JavaNode implements Node {
     }
   }
 
-  static class JavaConstructorArg implements ConstructorArg {
+  private static class JavaConstructorArg implements ConstructorArg {
     private final Class<?> type;
     private final Parameter name;
   
@@ -219,7 +240,7 @@ public abstract class JavaNode implements Node {
     }
   }
 
-  static class JavaConstructorDef<T> implements ConstructorDef<T> {
+  private static class JavaConstructorDef<T> implements ConstructorDef<T> {
     private final ConstructorArg[] args;
     private final Constructor<T> constructor;
   
@@ -227,8 +248,8 @@ public abstract class JavaNode implements Node {
     public ConstructorArg[] getArgs() {
       return args;
     }
-  
-    Constructor<T> getConstructor() {
+    @Override
+    public Constructor<T> getConstructor() {
       return constructor;
     }
   
@@ -317,13 +338,13 @@ public abstract class JavaNode implements Node {
     }
   }
 
-  static class JavaNamedParameterNode<T> extends JavaNode implements NamedParameterNode<T> {
+  private static class JavaNamedParameterNode<T> extends JavaNode implements NamedParameterNode<T> {
     private final Class<? extends Name<T>> nameClass;
     private final NamedParameter namedParameter;
     private final Class<T> argClass;
     private final T defaultInstance;
   
-    JavaNamedParameterNode(JavaNode parent, Class<? extends Name<T>> clazz,
+    JavaNamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
         Class<T> argClass) throws BindException {
       super(parent, clazz);
       this.nameClass = clazz;
@@ -359,19 +380,15 @@ public abstract class JavaNode implements Node {
     public String getFullName() {
       return getNameClass().getName();
     }
-  
-    Class<T> getArgClass() {
+    @Override
+    public Class<T> getArgClass() {
       return argClass;
     }
-  
-    Class<? extends Name<T>> getNameClass() {
+    @Override
+    public Class<? extends Name<T>> getNameClass() {
       return nameClass;
     }
-  
-    T getDefaultInstance() {
-      return defaultInstance;
-    }
-  
+
     @Override
     public String getDocumentation() {
       if (namedParameter != null) {
@@ -392,22 +409,30 @@ public abstract class JavaNode implements Node {
       }
       return namedParameter.short_name();
     }
-  
+
+    @Override
+    public String getDefaultInstanceAsString() {
+      return namedParameter.default_value();
+    }
+    @Override
+    public T getDefaultInstance() {
+      return defaultInstance;
+    }
   }
 
-  static class JavaNamespaceNode<T> extends JavaNode implements NamespaceNode<T> {
+  private static class JavaNamespaceNode<T> extends JavaNode implements NamespaceNode<T> {
     private ClassNode<T> target;
   
-    public JavaNamespaceNode(JavaNode parent, String name, JavaClassNode<T> target) {
-      super(parent, name);
-      if (target != null && (!target.isPrefixTarget)) {
+    public JavaNamespaceNode(Node root, String name, ClassNode<T> target) {
+      super(root, name);
+      if (target != null && (!target.getIsPrefixTarget())) {
         throw new IllegalStateException();
       }
       this.target = target;
     }
   
-    public JavaNamespaceNode(JavaNode parent, String name) {
-      super(parent, name);
+    public JavaNamespaceNode(Node root, String name) {
+      super(root, name);
     }
   
     @Override
@@ -438,8 +463,8 @@ public abstract class JavaNode implements Node {
   
   }
 
-  static class JavaPackageNode extends JavaNode implements PackageNode {
-    JavaPackageNode(JavaNode parent, String name) {
+  private static class JavaPackageNode extends JavaNode implements PackageNode {
+    JavaPackageNode(Node parent, String name) {
       super(parent, name);
     }
   }
@@ -492,9 +517,9 @@ public abstract class JavaNode implements Node {
     return ret;
   }
 
-  public Map<String, JavaNode> children = new MonotonicMap<String, JavaNode>();
+  public Map<String, Node> children = new MonotonicMap<>();
 
-  JavaNode(JavaNode parent, Class<?> name) {
+  JavaNode(Node parent, Class<?> name) {
     this.parent = parent;
     this.name = ReflectionUtilities.getSimpleName(name);
     if (this.name.length() == 0) {
@@ -506,7 +531,7 @@ public abstract class JavaNode implements Node {
     }
   }
 
-  JavaNode(JavaNode parent, String name) {
+  JavaNode(Node parent, String name) {
     this.parent = parent;
     this.name = name;
     if (parent != null) {
@@ -524,12 +549,13 @@ public abstract class JavaNode implements Node {
   }
 
   @Override
-  public JavaNode get(String key) {
+  public Node get(String key) {
     return children.get(key);
   }
 
-  void put(JavaNode n) {
-    children.put(n.name, n);
+  @Override
+  public void put(Node n) {
+    children.put(n.getName(), n);
   }
 
   @Override

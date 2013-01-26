@@ -22,7 +22,6 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTypeHierarchy {
@@ -68,8 +67,8 @@ public class TestTypeHierarchy {
       BindException {
     register(SimpleConstructors.class);
     Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
-    JavaClassNode<?> cls = (JavaClassNode<?>) ns.getNode(ReflectionUtilities.getFullName(SimpleConstructors.class));
-    Assert.assertTrue(cls.children.size() == 0);
+    ClassNode<?> cls = (ClassNode<?>) ns.getNode(ReflectionUtilities.getFullName(SimpleConstructors.class));
+    Assert.assertTrue(cls.getChildren().size() == 0);
     ConstructorDef<?> def[] = cls.getInjectableConstructors();
     Assert.assertEquals(3, def.length);
 

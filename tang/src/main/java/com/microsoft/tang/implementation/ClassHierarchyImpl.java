@@ -23,10 +23,6 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
-import com.microsoft.tang.implementation.JavaNode.JavaNamedParameterNode;
-import com.microsoft.tang.implementation.JavaNode.JavaNamespaceNode;
-import com.microsoft.tang.implementation.JavaNode.JavaPackageNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
@@ -49,7 +45,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return ReflectionUtilities.classForName(name, loader);
   }
 
-  private final JavaPackageNode namespace;
+  private final PackageNode namespace;
   private final class ClassComparator implements Comparator<Class<?>> {
 
     @Override
@@ -60,16 +56,16 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
   private final Set<Class<?>> registeredClasses = new MonotonicSet<>(new ClassComparator());
   private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<>();
-  private final Map<String, JavaNamedParameterNode<?>> shortNames = new MonotonicMap<>();
+  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
   public ClassHierarchyImpl(URL... jars) {
-    this.namespace = new JavaPackageNode(null, "");
+    this.namespace = JavaNode.createPackageNode();
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
 
   ClassHierarchyImpl(ClassLoader loader, URL... jars) {
-    this.namespace = new JavaPackageNode(null, "");
+    this.namespace = JavaNode.createPackageNode();
     this.jars = new ArrayList<URL>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, loader);
   }
@@ -90,13 +86,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   @SuppressWarnings({ "unchecked", "unused" })
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
-      JavaClassNode<T> classNode) throws BindException {
+     ClassNode<T> classNode) throws BindException {
     String[] path = conf.value().split(ReflectionUtilities.regexp);
-    JavaNode root = namespace;
+    Node root = namespace;
     // Search for the new node's parent, store it in root.
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
-        JavaNode newRoot = new JavaNamespaceNode<T>(root, path[i]);
+        Node newRoot = JavaNode.createNamespaceNode(root, path[i]);
         root = newRoot;
       } else {
         root = root.get(path[i]);
@@ -114,13 +110,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
     Node n = root.get(path[path.length - 1]);
     // n points to the new node (if it exists)
-    JavaNamespaceNode<T> ret;
+    NamespaceNode<T> ret;
     if (n == null) {
-      ret = new JavaNamespaceNode<T>(root, path[path.length - 1], classNode);
+      ret = JavaNode.createNamespaceNode(root, path[path.length - 1], classNode);
     } else if (n instanceof NamespaceNode) {
-      ret = (JavaNamespaceNode<T>) n;
+      ret = (NamespaceNode<T>) n;
       ret.setTarget(classNode);
-      for (JavaNode child : ret.children.values()) {
+      for (Node child : ret.getChildren()) {
         if (true) {
           // TODO: implement + test nested namespaces.
           throw new BindException("Nested namespaces not implemented!");
@@ -129,7 +125,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
           // namespaces. If put throws an exception, it probably found a
           // conflicting node name.
           try {
-            classNode.put(child);
+            ((JavaNode)classNode).put(child);
           } catch (IllegalArgumentException e) {
             throw new BindException("Merging children of namespace "
                 + ret.getFullName()
@@ -148,7 +144,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget)
       throws BindException {
     String[] path = clazz.getName().split(ReflectionUtilities.regexp);
-    JavaNode root = namespace;
+    Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       root = root.get(path[i]);
     }
@@ -156,12 +152,12 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     if (root == null) {
       throw new NullPointerException();
     }
-    JavaNode parent = root;
+    Node parent = root;
 
     Class<?> argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
-      return new JavaClassNode<U>(parent, clazz, isPrefixTarget);
+      return JavaNode.createClassNode(parent, clazz, isPrefixTarget);
     } else {
       if (isPrefixTarget) {
         throw new BindException(clazz
@@ -169,11 +165,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       }
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
-      JavaNamedParameterNode<T> np = new JavaNamedParameterNode<T>(parent,
+      NamedParameterNode<T> np = JavaNode.createNamedParameterNode(parent,
           (Class<? extends Name<T>>) clazz, (Class<T>) argType);
       String shortName = np.getShortName();
       if (shortName != null) {
-        JavaNamedParameterNode<?> oldNode = shortNames.get(shortName);
+        NamedParameterNode<?> oldNode = shortNames.get(shortName);
         if (oldNode != null) {
           if (oldNode.getNameClass() == np.getNameClass()) {
             throw new IllegalStateException("Tried to double bind "
@@ -246,14 +242,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     } catch (NameResolutionException e) {
     }
 
-    final JavaPackageNode parent;
+    final PackageNode parent;
     if (packageName.length == 1) {
       parent = namespace;
     } else {
-      parent = (JavaPackageNode) getNode(arrayToDotString(packageName,
+      parent = (PackageNode) getNode(arrayToDotString(packageName,
           packageName.length - 1));
     }
-    new JavaPackageNode(parent, packageName[packageName.length - 1]);
+    JavaNode.createPackageNode(parent, packageName[packageName.length - 1]);
   }
 
   /* (non-Javadoc)
@@ -326,7 +322,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         for (ConstructorArg arg : def.getArgs()) {
           register(ReflectionUtilities.getFullName(arg.getType()));
           if (arg.getNamedParameter() != null) {
-            JavaNamedParameterNode<?> np = (JavaNamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.getNamedParameter()
+            NamedParameterNode<?> np = (NamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.getNamedParameter()
                 .value()));
             if (!ReflectionUtilities.isCoercable(arg.getType(), np.getArgClass())) {
               throw new BindException(
@@ -338,7 +334,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         }
       }
     } else if (n instanceof NamedParameterNode) {
-      JavaNamedParameterNode<?> np = (JavaNamedParameterNode<?>) n;
+      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       register(ReflectionUtilities.getFullName(np.getArgClass()));
     }
     return n;
@@ -370,7 +366,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         throw new BindException("Found namespace annotation " + nsAnnotation
             + " with target " + n + " which is a named parameter.");
       }
-      registerNamespace(nsAnnotation, (JavaClassNode<?>) n);
+      registerNamespace(nsAnnotation, (ClassNode<?>) n);
     }
 
     if (n instanceof ClassNode) {
@@ -417,24 +413,16 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return namespace;
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.Namespace#getShortNames()
-   */
   @Override
   public Collection<String> getShortNames() {
     return shortNames.keySet();
   }
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.Namespace#resolveShortName(java.lang.String)
-   */
+
   @Override
   public String resolveShortName(String shortName) {
-    return ((JavaNamedParameterNode<?>) shortNames.get(shortName)).getFullName();
+    return shortNames.get(shortName).getFullName();
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.Namespace#toPrettyString()
-   */
   @Override
   public String toPrettyString() {
     return namespace.toIndentedString(0);

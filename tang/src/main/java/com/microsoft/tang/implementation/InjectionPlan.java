@@ -3,8 +3,6 @@ package com.microsoft.tang.implementation;
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.Node;
-import com.microsoft.tang.implementation.JavaNode.JavaClassNode;
-import com.microsoft.tang.implementation.JavaNode.JavaConstructorDef;
 
 public abstract class InjectionPlan<T> {
   final Node node;
@@ -102,7 +100,7 @@ public abstract class InjectionPlan<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public JavaClassNode<T> getNode() { return (JavaClassNode<T>) node; }
+    public ClassNode<T> getNode() { return (ClassNode<T>) node; }
     
     @Override
     public int getNumAlternatives() {
@@ -121,7 +119,7 @@ public abstract class InjectionPlan<T> {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("new " + ((JavaConstructorDef<?>)constructor).getConstructor().getDeclaringClass().getSimpleName()
+      StringBuilder sb = new StringBuilder("new " + constructor.getConstructor().getDeclaringClass().getSimpleName()
           + "(");
       if (args.length == 0) {
       } else if (args.length == 1) {
