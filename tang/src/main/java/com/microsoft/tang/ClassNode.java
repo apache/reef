@@ -10,5 +10,5 @@ public interface ClassNode<T> extends Node {
   public ConstructorDef<T>[] getInjectableConstructors();
 
   @Deprecated // should take an array of nodes instead.
-  public ConstructorDef<T> createConstructorDef(Class<?>... args) throws BindException;
+  public ConstructorDef<T> getConstructorDef(Class<?>... args) throws BindException;
 }

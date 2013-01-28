@@ -3,6 +3,7 @@ package com.microsoft.tang.implementation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -49,11 +50,11 @@ public abstract class JavaNode implements Node {
   }
   @SuppressWarnings("unchecked")
   private static class JavaClassNode<T> extends JavaNode implements ClassNode<T> {
-    private final Class<T> clazz;
     private final boolean injectable;
     private final String fullName;
     private final boolean isPrefixTarget;
     private final ConstructorDef<T>[] injectableConstructors;
+    private final ConstructorDef<T>[] allConstructors;
 
     @Override
     public boolean getIsPrefixTarget() {
@@ -89,28 +90,23 @@ public abstract class JavaNode implements Node {
     // TODO: Instead of keeping clazz around, we need to remember all of the constructors for
     // the class, and have a method that forces the "injectable" bit on the constructors to be true.
     @Override
-    public ConstructorDef<T> createConstructorDef(Class<?>... paramTypes)
+    public ConstructorDef<T> getConstructorDef(Class<?>... paramTypes)
         throws BindException {
       if (!isInjectionCandidate()) {
         throw new BindException(
             "Cannot @Inject non-static member/local class: " + getFullName());
       }
-      try {
-        ConstructorDef<T> constructor = createConstructorDef(clazz.getConstructor(paramTypes));
-        for(ConstructorDef<T> c : getInjectableConstructors()) {
-          if(constructor.equals(c)) { return c; }
-        }
-        return constructor;
-      } catch (NoSuchMethodException e) {
-        throw new BindException(
-            "Could not find requested constructor for class " + getFullName(), e);
+      for(ConstructorDef<T> c : allConstructors) {
+        if(c.takesParameters(paramTypes)) { return c; }
       }
+      throw new BindException(
+          "Could not find requested constructor for class " + getFullName());
     }
   
-    private ConstructorDef<T> createConstructorDef(Constructor<T> constructor)
+    private ConstructorDef<T> createConstructorDef(Constructor<T> constructor, boolean injectable)
         throws BindException {
-      // We don't support non-static member classes with @Inject annotations.
-      if (!isInjectionCandidate()) {
+      // We don't support injection of non-static member classes with @Inject annotations.
+      if (injectable && !isInjectionCandidate()) {
         throw new BindException(
             "Cannot @Inject non-static member/local class: " + getFullName());
       }
@@ -132,7 +128,7 @@ public abstract class JavaNode implements Node {
         args[i] = new JavaConstructorArg(paramTypes[i], named);
       }
       try {
-        return new JavaConstructorDef<T>(args, constructor);
+        return new JavaConstructorDef<T>(args, constructor, injectable);
       } catch (BindException e) {
         throw new BindException("Detected bad constructor in " + constructor
             + " in " + getFullName(), e);
@@ -141,7 +137,6 @@ public abstract class JavaNode implements Node {
   
     private JavaClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
       super(parent, ReflectionUtilities.getSimpleName(clazz));
-      this.clazz = clazz;
       
       if (clazz.isLocalClass() || clazz.isMemberClass()) {
         if (!Modifier.isStatic(clazz.getModifiers())) {
@@ -158,23 +153,22 @@ public abstract class JavaNode implements Node {
   
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
-      MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<ConstructorDef<T>>();
-  
+      MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<>();
+      ArrayList<ConstructorDef<T>> allConstructors = new ArrayList<>();
       for (int k = 0; k < constructors.length; k++) {
-  
-        if (constructors[k].getAnnotation(Inject.class) != null) {
-          // go through the constructor arguments.
-          if (constructors[k].isSynthetic()) {
-            // Not sure if we *can* unit test this one.
-            throw new IllegalStateException(
-                "Synthetic constructor was annotated with @Inject!");
-          }
-  
-          // ConstructorDef's constructor checks for duplicate
-          // parameters
-          // The injectableConstructors set checks for ambiguous
-          // boundConstructors.
-          ConstructorDef<T> def = createConstructorDef(constructors[k]);
+        boolean injectable = (constructors[k].getAnnotation(Inject.class) != null);
+        if (injectable && constructors[k].isSynthetic()) {
+          // Not sure if we *can* unit test this one.
+          throw new IllegalStateException(
+              "Synthetic constructor was annotated with @Inject!");
+        }
+
+        // ConstructorDef's constructor checks for duplicate
+        // parameters
+        // The injectableConstructors set checks for ambiguous
+        // boundConstructors.
+        ConstructorDef<T> def = createConstructorDef(constructors[k], injectable);
+        if (injectable) {
           if (injectableConstructors.contains(def)) {
             throw new BindException(
                 "Ambiguous boundConstructors detected in class " + clazz + ": "
@@ -184,9 +178,11 @@ public abstract class JavaNode implements Node {
             injectableConstructors.add(def);
           }
         }
+        allConstructors.add(def);
       }
       this.injectableConstructors = injectableConstructors
-          .toArray((JavaConstructorDef<T>[]) new JavaConstructorDef[0]);
+          .toArray(new JavaConstructorDef[0]);
+      this.allConstructors = allConstructors.toArray(new JavaConstructorDef[0]);
     }
   }
 
@@ -266,21 +262,32 @@ public abstract class JavaNode implements Node {
       return sb.toString(); */
     }
   
-    JavaConstructorDef(ConstructorArg[] args, Constructor<T> constructor)
+    JavaConstructorDef(ConstructorArg[] args, Constructor<T> constructor, boolean injectable)
         throws BindException {
       this.args = args;
       this.constructor = constructor;
       constructor.setAccessible(true);
-  
-      for (int i = 0; i < this.getArgs().length; i++) {
-        for (int j = i + 1; j < this.getArgs().length; j++) {
-          if (this.getArgs()[i].equals(this.getArgs()[j])) {
-            throw new BindException(
-                "Repeated constructor parameter detected.  "
-                    + "Cannot inject constructor" + constructor);
+      if(injectable) {
+        for (int i = 0; i < this.getArgs().length; i++) {
+          for (int j = i + 1; j < this.getArgs().length; j++) {
+            if (this.getArgs()[i].equals(this.getArgs()[j])) {
+              throw new BindException(
+                  "Repeated constructor parameter detected.  "
+                      + "Cannot inject constructor" + constructor);
+            }
           }
         }
       }
+    }
+    @Override
+    public boolean takesParameters(Class<?>[] paramTypes) {
+      if(paramTypes.length != args.length) {
+        return false;
+      }
+      for(int i = 0; i < paramTypes.length; i++) {
+        if(!ReflectionUtilities.isCoercable(args[i].getType(), paramTypes[i])) { return false; }
+      }
+      return true;
     }
   
     /**

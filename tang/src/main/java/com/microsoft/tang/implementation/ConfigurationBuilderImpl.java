@@ -147,7 +147,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void registerLegacyConstructor(String s, final Class<?>... args) throws BindException {
     ClassNode<?> cn = (ClassNode<?>) conf.namespace.register(s);
-    conf.legacyConstructors.put(cn, cn.createConstructorDef(args));
+    conf.legacyConstructors.put(cn, cn.getConstructorDef(args));
   }
   
   @Override
