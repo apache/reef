@@ -64,6 +64,8 @@ public interface ConfigurationBuilder {
    */
   public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args)
       throws BindException;
+  public void registerLegacyConstructor(String s, Class<?>... args)
+      throws BindException;
 
   /**
    * Bind classes to each other, based on their full class names.
@@ -73,6 +75,9 @@ public interface ConfigurationBuilder {
    * @throws ClassNotFoundException
    */
   public <T> void bind(String iface, String impl)
+      throws ClassNotFoundException, BindException;
+  @Deprecated
+  public <T> void bind(String iface, Class<?> impl)
       throws ClassNotFoundException, BindException;
 
   /**
@@ -120,6 +125,7 @@ public interface ConfigurationBuilder {
    * @throws BindException
    */
   public <T> void bindSingleton(Class<T> iface) throws BindException;
+  public void bindSingleton(String iface) throws BindException;
 
   /**
    * Set the value of a named parameter.

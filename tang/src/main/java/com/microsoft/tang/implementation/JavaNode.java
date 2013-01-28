@@ -49,16 +49,11 @@ public abstract class JavaNode implements Node {
   }
   @SuppressWarnings("unchecked")
   private static class JavaClassNode<T> extends JavaNode implements ClassNode<T> {
-    
     private final Class<T> clazz;
+    private final boolean injectable;
+    private final String fullName;
     private final boolean isPrefixTarget;
-    private final JavaConstructorDef<T>[] injectableConstructors;
-
-    
-    @Override
-    public Class<T> getClazz() {
-      return clazz;
-    }
+    private final ConstructorDef<T>[] injectableConstructors;
 
     @Override
     public boolean getIsPrefixTarget() {
@@ -72,24 +67,10 @@ public abstract class JavaNode implements Node {
   
     @Override
     public String getFullName() {
-      if (clazz.isPrimitive()) {
-        return super.getFullName();
-      } else {
-        return clazz.getName();
-      }
+      return fullName;
     }
   
     private boolean isInjectionCandidate() {
-      final boolean injectable;
-      if (clazz.isLocalClass() || clazz.isMemberClass()) {
-        if (!Modifier.isStatic(clazz.getModifiers())) {
-          injectable = false;
-        } else {
-          injectable = true;
-        }
-      } else {
-        injectable = true;
-      }
       return injectable;
     }
   
@@ -105,18 +86,24 @@ public abstract class JavaNode implements Node {
       }
       return sb.toString();
     }
+    // TODO: Instead of keeping clazz around, we need to remember all of the constructors for
+    // the class, and have a method that forces the "injectable" bit on the constructors to be true.
     @Override
     public ConstructorDef<T> createConstructorDef(Class<?>... paramTypes)
         throws BindException {
       if (!isInjectionCandidate()) {
         throw new BindException(
-            "Cannot @Inject non-static member/local class: " + clazz);
+            "Cannot @Inject non-static member/local class: " + getFullName());
       }
       try {
-        return createConstructorDef(clazz.getConstructor(paramTypes));
+        ConstructorDef<T> constructor = createConstructorDef(clazz.getConstructor(paramTypes));
+        for(ConstructorDef<T> c : getInjectableConstructors()) {
+          if(constructor.equals(c)) { return c; }
+        }
+        return constructor;
       } catch (NoSuchMethodException e) {
         throw new BindException(
-            "Could not find requested constructor for class " + clazz, e);
+            "Could not find requested constructor for class " + getFullName(), e);
       }
     }
   
@@ -125,7 +112,7 @@ public abstract class JavaNode implements Node {
       // We don't support non-static member classes with @Inject annotations.
       if (!isInjectionCandidate()) {
         throw new BindException(
-            "Cannot @Inject non-static member/local class: " + clazz);
+            "Cannot @Inject non-static member/local class: " + getFullName());
       }
       Class<?>[] paramTypes = constructor.getParameterTypes();
       Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
@@ -148,14 +135,26 @@ public abstract class JavaNode implements Node {
         return new JavaConstructorDef<T>(args, constructor);
       } catch (BindException e) {
         throw new BindException("Detected bad constructor in " + constructor
-            + " in " + clazz, e);
+            + " in " + getFullName(), e);
       }
     }
   
     private JavaClassNode(Node parent, Class<T> clazz, boolean isPrefixTarget) throws BindException {
-      super(parent, clazz);
+      super(parent, ReflectionUtilities.getSimpleName(clazz));
       this.clazz = clazz;
+      
+      if (clazz.isLocalClass() || clazz.isMemberClass()) {
+        if (!Modifier.isStatic(clazz.getModifiers())) {
+          this.injectable = false;
+        } else {
+          this.injectable = true;
+        }
+      } else {
+        this.injectable = true;
+      }
+
       this.isPrefixTarget = isPrefixTarget;
+      this.fullName = ReflectionUtilities.getFullName(clazz);
   
       Constructor<T>[] constructors = (Constructor<T>[]) clazz
           .getDeclaredConstructors();
@@ -346,7 +345,7 @@ public abstract class JavaNode implements Node {
   
     JavaNamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
         Class<T> argClass) throws BindException {
-      super(parent, clazz);
+      super(parent, ReflectionUtilities.getSimpleName(clazz));
       this.nameClass = clazz;
       this.namedParameter = clazz.getAnnotation(NamedParameter.class);
       this.argClass = argClass;
@@ -518,18 +517,6 @@ public abstract class JavaNode implements Node {
   }
 
   public Map<String, Node> children = new MonotonicMap<>();
-
-  JavaNode(Node parent, Class<?> name) {
-    this.parent = parent;
-    this.name = ReflectionUtilities.getSimpleName(name);
-    if (this.name.length() == 0) {
-      throw new IllegalArgumentException(
-          "Zero length ClassName means bad news");
-    }
-    if (parent != null) {
-      parent.put(this);
-    }
-  }
 
   JavaNode(Node parent, String name) {
     this.parent = parent;

@@ -21,6 +21,7 @@ import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
   final ClassHierarchyImpl namespace;
+  // TODO: Change to Map<ClassNode, ClassNode>
   final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<>();
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<>();

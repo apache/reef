@@ -131,8 +131,12 @@ public class ReflectionUtilities {
    * @return
    */
   public static String getSimpleName(Class<?> name) {
-    String[] nameArray = name.getName().split(regexp);
-    return nameArray[nameArray.length - 1];
+    final String[] nameArray = name.getName().split(regexp);
+    final String ret = nameArray[nameArray.length - 1];
+    if(ret.length() == 0) {
+      throw new IllegalArgumentException("Class " + name + " has zero-length simple name.  Can't happen?!?");
+    }
+    return ret;
   }
   public static String getFullName(Class<?> name) {
     return name.getName();

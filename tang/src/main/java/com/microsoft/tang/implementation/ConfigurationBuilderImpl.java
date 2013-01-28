@@ -76,25 +76,25 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     // we run through the high-level bind(), which dispatches to the correct
     // call.
     for (ClassNode<?> cn : old.boundImpls.keySet()) {
-      bind(cn.getClazz(), old.boundImpls.get(cn));
+      bind(cn.getFullName(), ReflectionUtilities.getFullName(old.boundImpls.get(cn)));
       // bindImplementation((Class<?>) cn.getClazz(), (Class)
       // t.boundImpls.get(cn));
     }
     for (ClassNode<?> cn : old.boundConstructors.keySet()) {
-      bind(cn.getClazz(), old.boundConstructors.get(cn));
+      bind(cn.getFullName(), old.boundConstructors.get(cn));
       // bindConstructor((Class<?>) cn.getClazz(), (Class)
       // t.boundConstructors.get(cn));
     }
     for (ClassNode<?> cn : old.singletons) {
       try {
-        Class<?> clazz = cn.getClazz();
+        String fullName = cn.getFullName();
         Object o = old.singletonInstances.get(cn);
         if(o != null) {
-          ClassNode<?> new_cn= (ClassNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(clazz));
+          ClassNode<?> new_cn= (ClassNode<?>)conf.namespace.register(fullName);
           conf.singletons.add(new_cn);
           conf.singletonInstances.put(new_cn, o);
         } else {
-          bindSingleton(clazz);
+          bindSingleton(fullName);
         }
       } catch (BindException e) {
         throw new IllegalStateException(
@@ -119,7 +119,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       }
     }
     for (ClassNode<?> cn : old.legacyConstructors.keySet()) {
-      registerLegacyConstructor(cn.getClazz(), old.legacyConstructors.get(cn).getConstructor().getParameterTypes());
+      registerLegacyConstructor(cn.getFullName(), old.legacyConstructors.get(cn).getConstructor().getParameterTypes());
     }
   }
 
@@ -141,12 +141,19 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public <T> void registerLegacyConstructor(Class<T> c, final Class<?>... args) throws BindException {
-    @SuppressWarnings("unchecked")
-    ClassNode<T> cn = (ClassNode<T>) conf.namespace.register(ReflectionUtilities.getFullName(c));
+    String s = ReflectionUtilities.getFullName(c);
+    registerLegacyConstructor(s, args);
+  }
+  @Override
+  public void registerLegacyConstructor(String s, final Class<?>... args) throws BindException {
+    ClassNode<?> cn = (ClassNode<?>) conf.namespace.register(s);
     conf.legacyConstructors.put(cn, cn.createConstructorDef(args));
   }
   
-
+  @Override
+  public <T> void bind(String key, Class<?> value) throws BindException {
+    bind(key, ReflectionUtilities.getFullName(value));
+  }
   @Override
   public <T> void bind(String key, String value) throws BindException {
     if (conf.sealed)
@@ -157,12 +164,18 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
       Class<?> v;
+      Class<?> k;
       try {
         v = conf.namespace.classForName(value);
       } catch(ClassNotFoundException e) {
         throw new BindException("Could not find class " + value);
       }
-      bind(((ClassNode<?>) n).getClazz(), v);
+      try {
+        k = conf.namespace.classForName(key);
+      } catch(ClassNotFoundException e) {
+        throw new BindException("Could not find class " + key);
+      }
+      bind(k, v);
     }
   }
 
@@ -258,20 +271,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> void bindSingleton(Class<T> c) throws BindException {
     if (conf.sealed)
       throw new IllegalStateException(
           "Can't bind to sealed ConfigurationBuilderImpl!");
+    bindSingleton(ReflectionUtilities.getFullName(c));
+  }
 
-    Node n = conf.namespace.register(ReflectionUtilities.getFullName(c));
-
+  @Override
+  public void bindSingleton(String s) throws BindException {
+    Node n = conf.namespace.register(s);
     if (!(n instanceof ClassNode)) {
       throw new IllegalArgumentException("Can't bind singleton to " + n
           + " try bindParameter() instead.");
     }
-    ClassNode<T> cn = (ClassNode<T>) n;
+    ClassNode<?> cn = (ClassNode<?>) n;
     conf.singletons.add(cn);
   }
 
