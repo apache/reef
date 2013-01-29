@@ -106,13 +106,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     // The namedParameters set contains the strings that can be used to instantiate new
     // named parameter instances.  Create new ones where we can.
     for (NamedParameterNode<?> np : old.namedParameters.keySet()) {
-      bind(np.getNameClass().getName(), old.namedParameters.get(np));
+      bind(np.getFullName(), old.namedParameters.get(np));
     }
     // Copy references to the remaining (which must have been set with bindVolatileParameter())
     for (NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
       if(!old.namedParameters.containsKey(np)) {
         Object o = old.namedParameterInstances.get(np);
-        NamedParameterNode<?> new_np= (NamedParameterNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(np.getNameClass()));
+        NamedParameterNode<?> new_np= (NamedParameterNode<?>)conf.namespace.register(np.getFullName());
         conf.namedParameterInstances.put(new_np, o);
         if(o instanceof Class) {
           register((Class<?>)o);
@@ -146,7 +146,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     registerLegacyConstructor(s, args);
   }
   @Override
-  public void registerLegacyConstructor(ClassNode c, final ConstructorArg... args) throws BindException {
+  public void registerLegacyConstructor(ClassNode<?> c, final ConstructorArg... args) throws BindException {
     String cn[] = new String[args.length];
     for(int i = 0; i < args.length; i++) {
       cn[i] = args[i].getType();
@@ -246,12 +246,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           "Can't bind to sealed ConfigurationBuilderImpl!");
     T o;
     try {
-      o = ReflectionUtilities.parse(name.getArgClass(), value);
+      o = ReflectionUtilities.parse((Class<T>)conf.namespace.classForName(name.getFullArgName()), value);
+    } catch(ClassNotFoundException e) {
+      throw new BindException("Can't parse unknown class " + name.getFullArgName());
     } catch(UnsupportedOperationException e) {
       try {
         o = (T)conf.namespace.classForName(value);
       } catch (ClassNotFoundException e1) {
-        throw new BindException("Do not know how to parse a " + name.getArgClass() + " Furthermore, could not bind it to an implementation with name " + value);
+        throw new BindException("Do not know how to parse a " + name.getFullArgName() + " Furthermore, could not bind it to an implementation with name " + value);
       }
     }
     conf.namedParameters.put(name, value);
@@ -464,7 +466,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public String classPrettyDefaultString(String longName) throws BindException {
     try {
       NamedParameterNode<?> param = (NamedParameterNode<?>)conf.namespace.getNode(longName);
-      return param.getArgClass().getSimpleName() + "=" + param.getDefaultInstanceAsString();
+      return param.getSimpleArgName() + "=" + param.getDefaultInstanceAsString();
     } catch (NameResolutionException e) {
       throw new BindException("Couldn't find " + longName + " when looking for default value", e);
     }

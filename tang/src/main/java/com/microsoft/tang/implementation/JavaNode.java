@@ -349,63 +349,71 @@ public abstract class JavaNode implements Node {
   }
 
   private static class JavaNamedParameterNode<T> extends JavaNode implements NamedParameterNode<T> {
-    private final Class<? extends Name<T>> nameClass;
-    private final NamedParameter namedParameter;
-    private final Class<T> argClass;
+    private final String fullName;
+    private final String fullArgName;
+    private final String simpleArgName;
+    private final String documentation;
     private final T defaultInstance;
+    private final String shortName;
+    private final String defaultInstanceAsString;
   
     JavaNamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
         Class<T> argClass) throws BindException {
       super(parent, ReflectionUtilities.getSimpleName(clazz));
-      this.nameClass = clazz;
-      this.namedParameter = clazz.getAnnotation(NamedParameter.class);
-      this.argClass = argClass;
-      if (this.namedParameter == null
+      this.fullName = ReflectionUtilities.getFullName(clazz);
+      NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
+      this.fullArgName = ReflectionUtilities.getFullName(argClass);
+      this.simpleArgName = ReflectionUtilities.getSimpleName(argClass);
+      if (namedParameter == null
           || namedParameter.default_value().length() == 0) {
         this.defaultInstance = null;
+        this.defaultInstanceAsString = null;
       } else {
         try {
-          this.defaultInstance = ReflectionUtilities.parse(this.getArgClass(),
+          this.defaultInstance = ReflectionUtilities.parse(argClass,
               namedParameter.default_value());
+          this.defaultInstanceAsString = namedParameter.default_value();
         } catch (UnsupportedOperationException e) {
           throw new BindException("Could not register NamedParameterNode for "
               + clazz.getName() + ".  Default value "
               + namedParameter.default_value() + " failed to parse.", e);
         }
       }
+      if (namedParameter != null) {
+        this.documentation = namedParameter.doc();
+        if (namedParameter.short_name() != null
+            && namedParameter.short_name().length() == 0) {
+          this.shortName = null;
+        } else {
+          this.shortName = namedParameter.short_name();
+        }
+      } else {
+        this.documentation = "";
+        this.shortName = null;
+      }
     }
   
     @Override
     public String toString() {
-      String ret = ReflectionUtilities.getSimpleName(getArgClass());
-      if (namedParameter == null) {
-        ret = ret + " " + name;
-      } else {
-        ret = ret + " " + name;
-      }
-      return ret;
+      return getSimpleArgName() + " " + getName();
     }
   
     @Override
     public String getFullName() {
-      return getNameClass().getName();
+      return fullName;
     }
     @Override
-    public Class<T> getArgClass() {
-      return argClass;
+    public String getSimpleArgName() {
+      return simpleArgName;
     }
     @Override
-    public Class<? extends Name<T>> getNameClass() {
-      return nameClass;
+    public String getFullArgName() {
+      return fullArgName;
     }
 
     @Override
     public String getDocumentation() {
-      if (namedParameter != null) {
-        return namedParameter.doc();
-      } else {
-        return "";
-      }
+      return documentation;
     }
   
     /*
@@ -413,16 +421,12 @@ public abstract class JavaNode implements Node {
      */
     @Override
     public String getShortName() {
-      if (namedParameter.short_name() != null
-          && namedParameter.short_name().length() == 0) {
-        return null;
-      }
-      return namedParameter.short_name();
+      return shortName;
     }
 
     @Override
     public String getDefaultInstanceAsString() {
-      return namedParameter.default_value();
+      return defaultInstanceAsString;
     }
     @Override
     public T getDefaultInstance() {

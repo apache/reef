@@ -171,12 +171,12 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       if (shortName != null) {
         NamedParameterNode<?> oldNode = shortNames.get(shortName);
         if (oldNode != null) {
-          if (oldNode.getNameClass() == np.getNameClass()) {
+          if (oldNode.getFullName().equals(np.getFullName())) {
             throw new IllegalStateException("Tried to double bind "
-                + oldNode.getNameClass() + " to short name " + shortName);
+                + oldNode.getFullName() + " to short name " + shortName);
           }
-          throw new BindException("Named parameters " + oldNode.getNameClass()
-              + " and " + np.getNameClass() + " have the same short name: "
+          throw new BindException("Named parameters " + oldNode.getFullName()
+              + " and " + np.getFullName() + " have the same short name: "
               + shortName);
         }
         shortNames.put(shortName, np);
@@ -325,11 +325,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.getNamedParameter()
                 .value()));
             try {
-              if (!ReflectionUtilities.isCoercable(classForName(arg.getType()), np.getArgClass())) {
+              if (!ReflectionUtilities.isCoercable(classForName(arg.getType()), classForName(np.getFullArgName()))) {
                 throw new BindException(
                     "Incompatible argument type.  Constructor expects "
                         + arg.getType() + " but " + np.getName() + " is a "
-                        + np.getArgClass());
+                        + np.getFullArgName());
               }
             } catch (ClassNotFoundException e) {
               throw new BindException("Constructor refers to unknown class " + arg.getType(), e);
@@ -339,7 +339,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       }
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      register(ReflectionUtilities.getFullName(np.getArgClass()));
+      register(np.getFullArgName());
     }
     return n;
   }
