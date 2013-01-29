@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -257,7 +258,18 @@ public class InjectorImpl implements Injector {
     InjectionPlan<T> plan = (InjectionPlan<T>) getInjectionPlan(clazz.getName());
     return (T) injectFromPlan(plan);
   }
-
+  private <T> Constructor<T> getConstructor(ConstructorDef<T> constructor) throws ClassNotFoundException, NoSuchMethodException, SecurityException {
+    @SuppressWarnings("unchecked")
+    Class<T> clazz = (Class<T>)tc.namespace.classForName(constructor.getClassName());
+    ConstructorArg[] args = constructor.getArgs();
+    Class<?> parameterTypes[] = new Class[args.length];
+    for(int i = 0; i < args.length; i++) {
+      parameterTypes[i] = tc.namespace.classForName(args[i].getType());
+    }
+    Constructor<T> cons = clazz.getDeclaredConstructor(parameterTypes);
+    cons.setAccessible(true);
+    return cons;
+  }
   @SuppressWarnings("unchecked")
   <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
     if (!plan.isFeasible()) {
@@ -281,7 +293,7 @@ public class InjectorImpl implements Injector {
         args[i] = injectFromPlan(constructor.args[i]);
       }
       try {
-        T ret = ((ConstructorDef<T>)constructor.constructor).getConstructor().newInstance(args);
+        T ret = getConstructor((ConstructorDef<T>)constructor.constructor).newInstance(args);
         if (tc.singletons.contains(constructor.getNode())) {
           tc.singletonInstances.put(constructor.getNode(), ret);
         }

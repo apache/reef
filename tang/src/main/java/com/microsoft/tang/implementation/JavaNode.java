@@ -129,7 +129,7 @@ public abstract class JavaNode implements Node {
         args[i] = new JavaConstructorArg(ReflectionUtilities.getFullName(paramTypes[i]), named);
       }
       try {
-        return new JavaConstructorDef<T>(args, constructor, injectable);
+        return new JavaConstructorDef<T>(ReflectionUtilities.getFullName(constructor.getDeclaringClass()), args, injectable);
       } catch (BindException e) {
         throw new BindException("Detected bad constructor in " + constructor
             + " in " + getFullName(), e);
@@ -237,34 +237,47 @@ public abstract class JavaNode implements Node {
 
   private static class JavaConstructorDef<T> implements ConstructorDef<T> {
     private final ConstructorArg[] args;
-    private final Constructor<T> constructor;
+    private final String className;
   
     @Override
     public ConstructorArg[] getArgs() {
       return args;
     }
     @Override
-    public Constructor<T> getConstructor() {
-      return constructor;
+    public String getClassName() {
+      return className;
     }
-  
+    private String join(String sep, Object[] vals) {
+      if(vals.length != 0) {
+        StringBuilder sb = new StringBuilder(vals[0].toString());
+        for(int i = 1; i < vals.length; i++) {
+          sb.append(sep + vals);
+        }
+        return sb.toString();
+      } else {
+        return "";
+      }
+    }
     @Override
     public String toString() {
-      return getConstructor().toString();
+      StringBuilder sb = new StringBuilder(className);
+      sb.append("(");
+      sb.append(join(",", args));
+      sb.append(")");
+      return sb.toString();
     }
   
-    JavaConstructorDef(ConstructorArg[] args, Constructor<T> constructor, boolean injectable)
+    JavaConstructorDef(String className, ConstructorArg[] args, /*Constructor<T> constructor, */boolean injectable)
         throws BindException {
+      this.className = className;
       this.args = args;
-      this.constructor = constructor;
-      constructor.setAccessible(true);
       if(injectable) {
         for (int i = 0; i < this.getArgs().length; i++) {
           for (int j = i + 1; j < this.getArgs().length; j++) {
             if (this.getArgs()[i].equals(this.getArgs()[j])) {
               throw new BindException(
                   "Repeated constructor parameter detected.  "
-                      + "Cannot inject constructor" + constructor);
+                      + "Cannot inject constructor" + toString());
             }
           }
         }
