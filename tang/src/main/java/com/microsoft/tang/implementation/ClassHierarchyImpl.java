@@ -340,9 +340,20 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       register(np.getFullArgName());
+      try {
+        String defaultString = np.getDefaultInstanceAsString();
+        if(defaultString != null) {
+          defaultNamedParameterInstances.put(np, 
+              ReflectionUtilities.parse(classForName(np.getFullArgName()),
+              defaultString));
+        }
+      } catch (ClassNotFoundException e) {
+        throw new BindException("Named paramter " + np + " refers to unknown class " + np.getFullArgName(), e);
+      }
     }
     return n;
   }
+  final Map<NamedParameterNode<?>, Object> defaultNamedParameterInstances = new MonotonicMap<>();
 
   /**
    * Assumes that all of the parents of c have been registered already.

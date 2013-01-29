@@ -9,9 +9,6 @@ public interface NamedParameterNode<T> extends Node {
   
   public String getDefaultInstanceAsString();
 
-  @Deprecated
-  public T getDefaultInstance();
-
   String getSimpleArgName();
 
   String getFullArgName();

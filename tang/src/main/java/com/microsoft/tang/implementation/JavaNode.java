@@ -353,7 +353,6 @@ public abstract class JavaNode implements Node {
     private final String fullArgName;
     private final String simpleArgName;
     private final String documentation;
-    private final T defaultInstance;
     private final String shortName;
     private final String defaultInstanceAsString;
   
@@ -366,12 +365,9 @@ public abstract class JavaNode implements Node {
       this.simpleArgName = ReflectionUtilities.getSimpleName(argClass);
       if (namedParameter == null
           || namedParameter.default_value().length() == 0) {
-        this.defaultInstance = null;
         this.defaultInstanceAsString = null;
       } else {
         try {
-          this.defaultInstance = ReflectionUtilities.parse(argClass,
-              namedParameter.default_value());
           this.defaultInstanceAsString = namedParameter.default_value();
         } catch (UnsupportedOperationException e) {
           throw new BindException("Could not register NamedParameterNode for "
@@ -415,10 +411,7 @@ public abstract class JavaNode implements Node {
     public String getDocumentation() {
       return documentation;
     }
-  
-    /*
-     * public NamedParameter getNamedParameter() { return namedParameter; }
-     */
+
     @Override
     public String getShortName() {
       return shortName;
@@ -427,10 +420,6 @@ public abstract class JavaNode implements Node {
     @Override
     public String getDefaultInstanceAsString() {
       return defaultInstanceAsString;
-    }
-    @Override
-    public T getDefaultInstance() {
-      return defaultInstance;
     }
   }
 

@@ -75,7 +75,10 @@ public class InjectorImpl implements Injector {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object instance = tc.namedParameterInstances.get(n);
       if (instance == null) {
-        instance = np.getDefaultInstance();
+        // Arguably, we should instantiate default instances in InjectorImpl
+        // (instead of in ClassHierarchy), but we want ClassHierarchy to check
+        // that the default string parses correctly.
+        instance = tc.namespace.defaultNamedParameterInstances.get(n);
       }
       if(instance instanceof Class) {
         String implName = ((Class) instance).getName();
