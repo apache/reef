@@ -15,11 +15,13 @@ import com.microsoft.tang.NamespaceNode;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.PackageNode;
 import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.implementation.ClassNodeImpl;
 import com.microsoft.tang.implementation.ConstructorArgImpl;
 import com.microsoft.tang.implementation.ConstructorDefImpl;
+import com.microsoft.tang.implementation.NamedParameterNodeImpl;
 import com.microsoft.tang.implementation.NamespaceNodeImpl;
 import com.microsoft.tang.implementation.PackageNodeImpl;
 import com.microsoft.tang.util.MonotonicSet;
@@ -83,9 +85,41 @@ public class JavaNodeFactory {
         allConstructors.toArray(new ConstructorDefImpl[0]));
   }
 
-  public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
-      Class<? extends Name<T>> clazz, Class<T> argClass) throws BindException {
-    return new JavaNamedParameterNode<>(parent, clazz, argClass);
+  public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
+      Class<T> argClass) throws BindException {
+    final String simpleName = ReflectionUtilities.getSimpleName(clazz);
+    final String fullName = ReflectionUtilities.getFullName(clazz);
+    NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
+    final String fullArgName = ReflectionUtilities.getFullName(argClass);
+    final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
+    final String defaultInstanceAsString;
+    if (namedParameter == null
+        || namedParameter.default_value().length() == 0) {
+      defaultInstanceAsString = null;
+    } else {
+      try {
+        defaultInstanceAsString = namedParameter.default_value();
+      } catch (UnsupportedOperationException e) {
+        throw new BindException("Could not register NamedParameterNode for "
+            + clazz.getName() + ".  Default value "
+            + namedParameter.default_value() + " failed to parse.", e);
+      }
+    }
+    final String documentation;
+    final String shortName;
+    if (namedParameter != null) {
+      documentation = namedParameter.doc();
+      if (namedParameter.short_name() != null
+          && namedParameter.short_name().length() == 0) {
+        shortName = null;
+      } else {
+        shortName = namedParameter.short_name();
+      }
+    } else {
+      documentation = "";
+      shortName = null;
+    }
+    return new NamedParameterNodeImpl<>(parent, simpleName, fullName, fullArgName, simpleArgName, documentation, shortName, defaultInstanceAsString);
   }
 
   public static <T> NamespaceNode<T> createNamespaceNode(Node root,
