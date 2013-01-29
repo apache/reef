@@ -51,6 +51,7 @@ public abstract class JavaNode implements Node {
   @SuppressWarnings("unchecked")
   private static class JavaClassNode<T> extends JavaNode implements ClassNode<T> {
     private final boolean injectable;
+    // TODO: Would like to get rid of fullName in JavaClassNode, but getting "." vs "$" right in classnames is tricky.
     private final String fullName;
     private final boolean isPrefixTarget;
     private final ConstructorDef<T>[] injectableConstructors;
@@ -90,7 +91,7 @@ public abstract class JavaNode implements Node {
     // TODO: Instead of keeping clazz around, we need to remember all of the constructors for
     // the class, and have a method that forces the "injectable" bit on the constructors to be true.
     @Override
-    public ConstructorDef<T> getConstructorDef(Class<?>... paramTypes)
+    public ConstructorDef<T> getConstructorDef(ClassNode<?>... paramTypes)
         throws BindException {
       if (!isInjectionCandidate()) {
         throw new BindException(
@@ -125,7 +126,7 @@ public abstract class JavaNode implements Node {
             named = (Parameter) annotation;
           }
         }
-        args[i] = new JavaConstructorArg(paramTypes[i], named);
+        args[i] = new JavaConstructorArg(ReflectionUtilities.getFullName(paramTypes[i]), named);
       }
       try {
         return new JavaConstructorDef<T>(args, constructor, injectable);
@@ -187,31 +188,30 @@ public abstract class JavaNode implements Node {
   }
 
   private static class JavaConstructorArg implements ConstructorArg {
-    private final Class<?> type;
+    private final String type;
     private final Parameter name;
   
     @Override
     public String getName() {
-      return name == null ? type.getName() : name.value().getName();
+      return name == null ? type : ReflectionUtilities.getFullName(name.value());
     }
     @Override
     public Parameter getNamedParameter() {
       return name;
     }
     @Override
-    @Deprecated
-    public Class<?> getType() {
+    public String getType() {
       return type;
     }
-    JavaConstructorArg(Class<?> type, Parameter name) {
+    JavaConstructorArg(String type, Parameter name) {
       this.type = type;
       this.name = name;
     }
   
     @Override
     public String toString() {
-      return name == null ? ReflectionUtilities.getFullName(type)
-          : ReflectionUtilities.getFullName(type) + " "
+      return name == null ? type
+          : type + " "
               + ReflectionUtilities.getFullName(name.value());
     }
   
@@ -251,15 +251,6 @@ public abstract class JavaNode implements Node {
     @Override
     public String toString() {
       return getConstructor().toString();
-/*      if (getArgs().length == 0) {
-        return "()";
-      }
-      StringBuilder sb = new StringBuilder("(" + getArgs()[0]);
-      for (int i = 1; i < getArgs().length; i++) {
-        sb.append("," + getArgs()[i]);
-      }
-      sb.append(")");
-      return sb.toString(); */
     }
   
     JavaConstructorDef(ConstructorArg[] args, Constructor<T> constructor, boolean injectable)
@@ -280,12 +271,12 @@ public abstract class JavaNode implements Node {
       }
     }
     @Override
-    public boolean takesParameters(Class<?>[] paramTypes) {
+    public boolean takesParameters(ClassNode<?>[] paramTypes) {
       if(paramTypes.length != args.length) {
         return false;
       }
       for(int i = 0; i < paramTypes.length; i++) {
-        if(!ReflectionUtilities.isCoercable(args[i].getType(), paramTypes[i])) { return false; }
+        if(!args[i].getType().equals(paramTypes[i].getFullName())) { return false; }
       }
       return true;
     }
@@ -495,9 +486,6 @@ public abstract class JavaNode implements Node {
     return this.name.equals(n.name);
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.tang.implementation.Node#getFullName()
-   */
   @Override
   public String getFullName() {
     final String ret;
@@ -510,15 +498,14 @@ public abstract class JavaNode implements Node {
       }
     } else {
       String parentName = parent.getFullName();
-      if (parentName.length() == 0) {
+      if (name == "") {
+        throw new IllegalStateException("non-root node had empty name.  Parent is " + parentName);
+      }
+      if(parentName.startsWith("[")) {
         ret = name;
       } else {
-        ret = parent.getFullName() + "." + name;
+        ret = parentName + "." + name;
       }
-    }
-    if (ret.length() == 0) {
-      throw new IllegalStateException(
-          "getFullName() ended up with an empty string!");
     }
     return ret;
   }

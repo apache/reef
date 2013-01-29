@@ -62,8 +62,16 @@ public interface ConfigurationBuilder {
    * @param args
    *          The arguments taken by the constructor, in declaration order.
    */
+  void registerLegacyConstructor(ClassNode<?> cn, ClassNode<?>... args)
+      throws BindException;
+  void registerLegacyConstructor(String cn, String... args)
+      throws BindException;
+  void registerLegacyConstructor(ClassNode<?> c, ConstructorArg... args)
+      throws BindException;
+  @Deprecated
   public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args)
       throws BindException;
+  @Deprecated
   public void registerLegacyConstructor(String s, Class<?>... args)
       throws BindException;
 
@@ -155,5 +163,7 @@ public interface ConfigurationBuilder {
   public String classPrettyDescriptionString(String longName) throws BindException;
 
   public Configuration build();
+
+
 
 }

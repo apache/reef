@@ -8,7 +8,6 @@ public interface ConstructorArg {
 
   public Parameter getNamedParameter();
 
-  @Deprecated
-  public Class<?> getType();
+  public String getType();
 
 }

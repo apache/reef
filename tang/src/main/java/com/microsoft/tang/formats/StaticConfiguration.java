@@ -6,6 +6,7 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 
 final public class StaticConfiguration {
@@ -39,7 +40,11 @@ final public class StaticConfiguration {
     }
     @Override
     public void configure(ConfigurationBuilder cb) throws BindException {
-      cb.registerLegacyConstructor(c, args);
+      String[] s = new String[args.length];
+      for(int i = 0; i < s.length; i++) {
+        s[i] = ReflectionUtilities.getFullName(args[i]);
+      }
+      cb.registerLegacyConstructor(ReflectionUtilities.getFullName(c), s);
     }
     
   }

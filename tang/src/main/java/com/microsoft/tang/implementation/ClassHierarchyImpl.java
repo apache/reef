@@ -320,15 +320,19 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       ClassNode<?> cls = (ClassNode<?>) n;
       for (ConstructorDef<?> def : cls.getInjectableConstructors()) {
         for (ConstructorArg arg : def.getArgs()) {
-          register(ReflectionUtilities.getFullName(arg.getType()));
+          register(arg.getType());
           if (arg.getNamedParameter() != null) {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.getNamedParameter()
                 .value()));
-            if (!ReflectionUtilities.isCoercable(arg.getType(), np.getArgClass())) {
-              throw new BindException(
-                  "Incompatible argument type.  Constructor expects "
-                      + arg.getType() + " but " + np.getName() + " is a "
-                      + np.getArgClass());
+            try {
+              if (!ReflectionUtilities.isCoercable(classForName(arg.getType()), np.getArgClass())) {
+                throw new BindException(
+                    "Incompatible argument type.  Constructor expects "
+                        + arg.getType() + " but " + np.getName() + " is a "
+                        + np.getArgClass());
+              }
+            } catch (ClassNotFoundException e) {
+              throw new BindException("Constructor refers to unknown class " + arg.getType(), e);
             }
           }
         }

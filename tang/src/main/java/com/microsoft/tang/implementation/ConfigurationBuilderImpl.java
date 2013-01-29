@@ -15,6 +15,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.ConstructorArg;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.Node;
@@ -119,7 +120,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       }
     }
     for (ClassNode<?> cn : old.legacyConstructors.keySet()) {
-      registerLegacyConstructor(cn.getFullName(), old.legacyConstructors.get(cn).getConstructor().getParameterTypes());
+      registerLegacyConstructor(cn, old.legacyConstructors.get(cn).getArgs());
     }
   }
 
@@ -145,8 +146,33 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     registerLegacyConstructor(s, args);
   }
   @Override
+  public void registerLegacyConstructor(ClassNode c, final ConstructorArg... args) throws BindException {
+    String cn[] = new String[args.length];
+    for(int i = 0; i < args.length; i++) {
+      cn[i] = args[i].getType();
+    }
+    registerLegacyConstructor(c.getFullName(), cn);
+  }
+  @Override
+  public void registerLegacyConstructor(String s, final String... args) throws BindException {
+    ClassNode<?> cn = (ClassNode<?>) conf.namespace.register(s);
+    ClassNode<?>[] cnArgs = new ClassNode[args.length];
+    for(int i = 0; i < args.length; i++) {
+      cnArgs[i] = (ClassNode<?>)conf.namespace.register(args[i]);
+    }
+    registerLegacyConstructor(cn, cnArgs);
+  }
+  @Override
   public void registerLegacyConstructor(String s, final Class<?>... args) throws BindException {
     ClassNode<?> cn = (ClassNode<?>) conf.namespace.register(s);
+    ClassNode<?>[] cnArgs = new ClassNode[args.length];
+    for(int i = 0; i < args.length; i++) {
+      cnArgs[i] = (ClassNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(args[i]));
+    }
+    registerLegacyConstructor(cn, cnArgs);
+  }
+  @Override
+  public void registerLegacyConstructor(ClassNode<?> cn, final ClassNode<?>... args) throws BindException {
     conf.legacyConstructors.put(cn, cn.getConstructorDef(args));
   }
   

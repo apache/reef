@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConstructorArg;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.NamedParameterNode;
@@ -120,17 +121,16 @@ public class ConfigurationImpl implements Configuration {
       s.append(opt.getFullName() + "=" + SINGLETON + "\n");
     }
     for (ClassNode<?> cn : legacyConstructors.keySet()) {
-      // TODO remove cast to JavaConstructorDef!
-      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", legacyConstructors.get(cn).getConstructor().getParameterTypes()) + ")");
+      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", legacyConstructors.get(cn).getArgs()) + ")");
     }
     return s.toString();
   }
-  private String join(String sep, Class<?>[] types) {
+  private String join(String sep, ConstructorArg[] types) {
     if(types.length == 0) { return ""; }
     StringBuilder sb = new StringBuilder();
-    sb.append(types[0].getName());
+    sb.append(types[0].getType());
     for(int i = 1; i < types.length; i++) {
-      sb.append(sep + types[i].getName());
+      sb.append(sep + types[i].getType());
     }
     return sb.toString();
   }

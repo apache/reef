@@ -11,6 +11,6 @@ public interface ConstructorDef<T> extends Comparable<ConstructorDef<?>> {
   @Deprecated
   public Constructor<T> getConstructor();
 
-  public boolean takesParameters(Class<?>[] paramTypes);
+  public boolean takesParameters(ClassNode<?>[] paramTypes);
 
 }
