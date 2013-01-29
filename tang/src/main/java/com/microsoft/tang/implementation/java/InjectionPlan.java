@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation;
+package com.microsoft.tang.implementation.java;
 
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.ConstructorDef;

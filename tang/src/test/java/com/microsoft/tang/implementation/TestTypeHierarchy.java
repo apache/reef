@@ -22,6 +22,7 @@ import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTypeHierarchy {

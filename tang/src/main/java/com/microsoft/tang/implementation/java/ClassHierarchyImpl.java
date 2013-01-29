@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation;
+package com.microsoft.tang.implementation.java;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -23,6 +23,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.implementation.AbstractNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
@@ -59,18 +60,18 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
   public ClassHierarchyImpl(URL... jars) {
-    this.namespace = JavaNode.createPackageNode();
+    this.namespace = JavaNodeFactory.createPackageNode();
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
 
-  ClassHierarchyImpl(ClassLoader loader, URL... jars) {
-    this.namespace = JavaNode.createPackageNode();
+  public ClassHierarchyImpl(ClassLoader loader, URL... jars) {
+    this.namespace = JavaNodeFactory.createPackageNode();
     this.jars = new ArrayList<URL>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, loader);
   }
 
-  void addJars(URL... j) {
+  public void addJars(URL... j) {
     List<URL> newJars = new ArrayList<>();
     for (URL u : j) {
       if (!this.jars.contains(u)) {
@@ -92,7 +93,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     // Search for the new node's parent, store it in root.
     for (int i = 0; i < path.length - 1; i++) {
       if (!root.contains(path[i])) {
-        Node newRoot = JavaNode.createNamespaceNode(root, path[i]);
+        Node newRoot = JavaNodeFactory.createNamespaceNode(root, path[i]);
         root = newRoot;
       } else {
         root = root.get(path[i]);
@@ -112,7 +113,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     // n points to the new node (if it exists)
     NamespaceNode<T> ret;
     if (n == null) {
-      ret = JavaNode.createNamespaceNode(root, path[path.length - 1], classNode);
+      ret = JavaNodeFactory.createNamespaceNode(root, path[path.length - 1], classNode);
     } else if (n instanceof NamespaceNode) {
       ret = (NamespaceNode<T>) n;
       ret.setTarget(classNode);
@@ -125,7 +126,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
           // namespaces. If put throws an exception, it probably found a
           // conflicting node name.
           try {
-            ((JavaNode)classNode).put(child);
+            ((AbstractNode)classNode).put(child);
           } catch (IllegalArgumentException e) {
             throw new BindException("Merging children of namespace "
                 + ret.getFullName()
@@ -157,7 +158,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     Class<?> argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
-      return JavaNode.createClassNode(parent, clazz, isPrefixTarget);
+      return JavaNodeFactory.createClassNode(parent, clazz, isPrefixTarget);
     } else {
       if (isPrefixTarget) {
         throw new BindException(clazz
@@ -165,7 +166,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       }
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
-      NamedParameterNode<T> np = JavaNode.createNamedParameterNode(parent,
+      NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(parent,
           (Class<? extends Name<T>>) clazz, (Class<T>) argType);
       String shortName = np.getShortName();
       if (shortName != null) {
@@ -189,7 +190,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return getNode(clazz.getName());
   }
 
-  Node getNode(String name) throws NameResolutionException {
+  public Node getNode(String name) throws NameResolutionException {
     String[] path = name.split(ReflectionUtilities.regexp);
     return getNode(name, path, path.length);
   }
@@ -249,7 +250,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       parent = (PackageNode) getNode(arrayToDotString(packageName,
           packageName.length - 1));
     }
-    JavaNode.createPackageNode(parent, packageName[packageName.length - 1]);
+    JavaNodeFactory.createPackageNode(parent, packageName[packageName.length - 1]);
   }
 
   /* (non-Javadoc)
@@ -321,9 +322,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       for (ConstructorDef<?> def : cls.getInjectableConstructors()) {
         for (ConstructorArg arg : def.getArgs()) {
           register(arg.getType());
-          if (arg.getNamedParameter() != null) {
-            NamedParameterNode<?> np = (NamedParameterNode<?>) register(ReflectionUtilities.getFullName(arg.getNamedParameter()
-                .value()));
+          if (arg.getNamedParameterName() != null) {
+            NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.getNamedParameterName());
             try {
               if (!ReflectionUtilities.isCoercable(classForName(arg.getType()), classForName(np.getFullArgName()))) {
                 throw new BindException(
@@ -416,7 +416,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return (Set<ClassNode<T>>) (Set<?>) knownImpls.getValuesForKey(c);
   }
 
-  Set<String> getRegisteredClassNames() {
+  public Set<String> getRegisteredClassNames() {
     Set<String> s = new MonotonicSet<String>();
     for(Class<?> c : registeredClasses) {
       s.add(ReflectionUtilities.getFullName(c));

@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation;
+package com.microsoft.tang.implementation.java;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +27,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private final ConfigurationImpl conf;
 
-  ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
+  public ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
     conf = new ConfigurationImpl();
     try {
       addConfiguration(t);
@@ -36,11 +36,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  ConfigurationBuilderImpl(URL... jars) {
+  public ConfigurationBuilderImpl(URL... jars) {
     conf = new ConfigurationImpl(jars);
   }
 
-  ConfigurationBuilderImpl(Configuration tang) {
+  public ConfigurationBuilderImpl(Configuration tang) {
     try {
       conf = new ConfigurationImpl();
       addConfiguration(tang);
@@ -48,7 +48,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throw new IllegalStateException("Error copying Configuration.", e);
     }
   }
-  ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
+  public ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
     conf = new ConfigurationImpl();
     for (Configuration tc : tangs) {
       addConfiguration(((ConfigurationImpl) tc));

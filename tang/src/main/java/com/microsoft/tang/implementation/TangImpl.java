@@ -7,6 +7,8 @@ import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.implementation.java.ConfigurationBuilderImpl;
+import com.microsoft.tang.implementation.java.InjectorImpl;
 
 public class TangImpl implements Tang {
 
@@ -44,7 +46,7 @@ public class TangImpl implements Tang {
   @Override
   public ConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs) throws BindException {
-    ConfigurationBuilderImpl cb = new ConfigurationBuilderImpl(jars);
+    ConfigurationBuilder cb = new ConfigurationBuilderImpl(jars);
     for (Configuration c : confs) {
       cb.addConfiguration(c);
     }

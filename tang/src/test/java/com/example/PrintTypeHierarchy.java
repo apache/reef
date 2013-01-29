@@ -1,6 +1,6 @@
 package com.example;
 
-import com.microsoft.tang.implementation.ClassHierarchyImpl;
+import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 
 public class PrintTypeHierarchy {
 

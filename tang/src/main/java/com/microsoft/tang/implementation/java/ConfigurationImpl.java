@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation;
+package com.microsoft.tang.implementation.java;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +21,7 @@ import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
+  // TODO: None of these should be public!
   final ClassHierarchyImpl namespace;
   // TODO: Change to Map<ClassNode, ClassNode>
   final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<>();
@@ -49,14 +50,14 @@ public class ConfigurationImpl implements Configuration {
     this.namespace = new ClassHierarchyImpl(loader, jars);
   }
 
-  @Deprecated
-  public void addJars(URL... j) {
-    this.namespace.addJars(j);
-  }
-  @Deprecated
-  public URL[] getJars() {
-    return this.namespace.getJars();
-  }
+//  @Deprecated
+//  public void addJars(URL... j) {
+//    this.namespace.addJars(j);
+//  }
+//  @Deprecated
+//  public URL[] getJars() {
+//    return this.namespace.getJars();
+//  }
 
   
   @Override
