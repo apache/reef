@@ -92,7 +92,7 @@ public class InjectorImpl implements Injector {
       if (tc.singletonInstances.containsKey(cn)) {
         ip = new InjectionPlan.Instance<Object>(cn, tc.singletonInstances.get(cn));
       } else if (tc.boundConstructors.containsKey(cn)) {
-        String constructorName = tc.boundConstructors.get(cn).getName();
+        String constructorName = tc.boundConstructors.get(cn).getFullName();
         buildInjectionPlan(constructorName, memo);
         ip = new InjectionPlan.Subplan(cn, 0, memo.get(constructorName));
         memo.put(cn.getFullName(), ip);

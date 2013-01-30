@@ -25,7 +25,7 @@ public class ConfigurationImpl implements Configuration {
   final ClassHierarchyImpl namespace;
   // TODO: Change to Map<ClassNode, ClassNode>
   final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
-  final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
+  final Map<ClassNode<?>, ClassNode<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<>();
   final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
@@ -33,9 +33,6 @@ public class ConfigurationImpl implements Configuration {
   // *Not* serialized.
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
-
-  boolean sealed = false;
-  boolean dirtyBit = false;
 
   public final static String IMPORT = "import";
   public final static String REGISTERED = "registered";
@@ -50,16 +47,6 @@ public class ConfigurationImpl implements Configuration {
     this.namespace = new ClassHierarchyImpl(loader, jars);
   }
 
-//  @Deprecated
-//  public void addJars(URL... j) {
-//    this.namespace.addJars(j);
-//  }
-//  @Deprecated
-//  public URL[] getJars() {
-//    return this.namespace.getJars();
-//  }
-
-  
   @Override
   public void writeConfigurationFile(File f) throws IOException {
     OutputStream o = new FileOutputStream(f);
@@ -91,11 +78,6 @@ public class ConfigurationImpl implements Configuration {
   public String toConfigurationString() {
     StringBuilder s = new StringBuilder();
 
-    if (dirtyBit) {
-      throw new IllegalStateException(
-          "Someone called setVolatileInstance() on this ConfigurationBuilderImpl object.  Refusing to serialize it!");
-    }
-
     for (String opt : namespace.getRegisteredClassNames()) {
       try {
         Node n = namespace.getNode(opt);
@@ -111,7 +93,7 @@ public class ConfigurationImpl implements Configuration {
       s.append(opt.getFullName() + "=" + boundImpls.get(opt).getFullName() + "\n");
     }
     for (Node opt : boundConstructors.keySet()) {
-      s.append(opt.getFullName() + "=" + boundConstructors.get(opt).getName()
+      s.append(opt.getFullName() + "=" + boundConstructors.get(opt).getFullName()
           + "\n");
     }
     for (Node opt : namedParameters.keySet()) {

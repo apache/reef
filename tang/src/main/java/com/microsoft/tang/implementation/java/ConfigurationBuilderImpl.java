@@ -63,10 +63,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void addConfiguration(Configuration ti) throws BindException {
     ConfigurationImpl old = (ConfigurationImpl) ti;
-    if (old.dirtyBit) {
-      throw new IllegalArgumentException(
-          "Cannot copy a dirty ConfigurationBuilderImpl");
-    }
     conf.namespace.addJars(old.namespace.getJars());
     
     for (String s : old.namespace.getRegisteredClassNames()) {
@@ -82,7 +78,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       // t.boundImpls.get(cn));
     }
     for (ClassNode<?> cn : old.boundConstructors.keySet()) {
-      bind(cn.getFullName(), old.boundConstructors.get(cn));
+      bind(cn.getFullName(), old.boundConstructors.get(cn).getFullName());
       // bindConstructor((Class<?>) cn.getClazz(), (Class)
       // t.boundConstructors.get(cn));
     }
@@ -182,9 +178,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
   @Override
   public <T> void bind(String key, String value) throws BindException {
-    if (conf.sealed)
-      throw new IllegalStateException(
-          "Can't bind to sealed ConfigurationBuilderImpl!");
     Node n = conf.namespace.register(key);
     if (n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, value);
@@ -220,9 +213,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
       throws BindException {
-    if (conf.sealed)
-      throw new IllegalStateException(
-          "Can't bind to sealed ConfigurationBuilderImpl!");
     if (!c.isAssignableFrom(d)) {
       throw new ClassCastException(d.getName()
           + " does not extend or implement " + c.getName());
@@ -245,9 +235,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
   @SuppressWarnings("unchecked")
   private <T> void bindParameter(NamedParameterNode<T> name, String value) throws BindException {
-    if (conf.sealed)
-      throw new IllegalStateException(
-          "Can't bind to sealed ConfigurationBuilderImpl!");
     T o;
     try {
       o = ReflectionUtilities.parse((Class<T>)conf.namespace.classForName(name.getFullArgName()), value);
@@ -271,9 +258,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @SuppressWarnings("unchecked")
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
       throws BindException {
-    if (conf.sealed)
-      throw new IllegalStateException(
-          "Can't bind to sealed ConfigurationBuilderImpl!");
     Node np = conf.namespace.register(ReflectionUtilities.getFullName(name));
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>) np, s);
@@ -287,9 +271,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
       Class<? extends T> impl) throws BindException {
-    if (conf.sealed)
-        throw new IllegalStateException(
-            "Can't bind to sealed ConfigurationBuilderImpl!");
     Node n = conf.namespace.register(ReflectionUtilities.getFullName(iface));
     conf.namespace.register(ReflectionUtilities.getFullName(impl));
     if(n instanceof NamedParameterNode) {
@@ -299,15 +280,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           "Detected type mismatch when setting named parameter " + iface
               + "  Expected NamedParameterNode, but namespace contains a " + n);
     }
-    
-    
   }
 
   @Override
   public <T> void bindSingleton(Class<T> c) throws BindException {
-    if (conf.sealed)
-      throw new IllegalStateException(
-          "Can't bind to sealed ConfigurationBuilderImpl!");
     bindSingleton(ReflectionUtilities.getFullName(c));
   }
 
@@ -330,14 +306,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
 
-    conf.namespace.register(ReflectionUtilities.getFullName(v));
+    Node m = conf.namespace.register(ReflectionUtilities.getFullName(v));
     try {
       conf.boundConstructors.put((ClassNode<?>) conf.namespace.register(ReflectionUtilities.getFullName(c)),
-          (Class) v);
+          (ClassNode<ExternalConstructor<?>>)m);
     } catch (ClassCastException e) {
       throw new IllegalArgumentException(
           "Cannot register external class constructor for " + c
