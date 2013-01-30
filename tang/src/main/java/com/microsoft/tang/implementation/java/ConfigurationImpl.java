@@ -21,9 +21,9 @@ import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
-  // TODO: None of these should be public!
+  // TODO: None of these should be public! - Move to configurationBuilder.  Have that wrap itself
+  // in a sane Configuration interface...
   final ClassHierarchyImpl namespace;
-  // TODO: Change to Map<ClassNode, ClassNode>
   final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
   final Map<ClassNode<?>, ClassNode<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<>();
