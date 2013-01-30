@@ -24,7 +24,7 @@ public class ConfigurationImpl implements Configuration {
   // TODO: None of these should be public!
   final ClassHierarchyImpl namespace;
   // TODO: Change to Map<ClassNode, ClassNode>
-  final Map<ClassNode<?>, Class<?>> boundImpls = new MonotonicMap<>();
+  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
   final Map<ClassNode<?>, Class<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
   final Set<ClassNode<?>> singletons = new MonotonicSet<>();
   final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
@@ -108,7 +108,7 @@ public class ConfigurationImpl implements Configuration {
       }
     }
     for (Node opt : boundImpls.keySet()) {
-      s.append(opt.getFullName() + "=" + boundImpls.get(opt).getName() + "\n");
+      s.append(opt.getFullName() + "=" + boundImpls.get(opt).getFullName() + "\n");
     }
     for (Node opt : boundConstructors.keySet()) {
       s.append(opt.getFullName() + "=" + boundConstructors.get(opt).getName()

@@ -77,7 +77,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     // we run through the high-level bind(), which dispatches to the correct
     // call.
     for (ClassNode<?> cn : old.boundImpls.keySet()) {
-      bind(cn.getFullName(), ReflectionUtilities.getFullName(old.boundImpls.get(cn)));
+      bind(cn.getFullName(), old.boundImpls.get(cn).getFullName());
       // bindImplementation((Class<?>) cn.getClazz(), (Class)
       // t.boundImpls.get(cn));
     }
@@ -229,10 +229,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
 
     Node n = conf.namespace.register(ReflectionUtilities.getFullName(c));
-    conf.namespace.register(ReflectionUtilities.getFullName(d));
+    Node m = conf.namespace.register(ReflectionUtilities.getFullName(d));
 
     if (n instanceof ClassNode) {
-      conf.boundImpls.put((ClassNode<?>) n, d);
+      if (m instanceof ClassNode) {
+        conf.boundImpls.put((ClassNode<?>) n, (ClassNode<?>)m);
+      } else {
+        throw new BindException("Cannot bind ClassNode " + n + " to non-ClassNode " + m);
+      }
     } else {
       throw new BindException(
           "Detected type mismatch.  bindImplementation needs a ClassNode, but "

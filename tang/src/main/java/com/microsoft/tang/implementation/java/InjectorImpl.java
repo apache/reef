@@ -98,8 +98,8 @@ public class InjectorImpl implements Injector {
         memo.put(cn.getFullName(), ip);
         // ip = new Instance(cn, null);
       } else if (tc.boundImpls.containsKey(cn)
-          && !(ReflectionUtilities.getFullName(tc.boundImpls.get(cn)).equals(cn.getFullName()))) {
-        String implName = tc.boundImpls.get(cn).getName();
+          && !(tc.boundImpls.get(cn).getFullName().equals(cn.getFullName()))) {
+        String implName = tc.boundImpls.get(cn).getFullName();
         buildInjectionPlan(implName, memo);
         ip = new InjectionPlan.Subplan(cn, 0, memo.get(implName));
         memo.put(cn.getFullName(), ip);
