@@ -14,8 +14,9 @@ public abstract class AbstractNode implements Node {
     return children.values();
   }
 
-  protected final Node parent;
-  protected final String name;
+  private final Node parent;
+  private final String name;
+  private final Map<String, Node> children = new MonotonicMap<>();
 
   @Override
   public boolean equals(Object o) {
@@ -58,8 +59,6 @@ public abstract class AbstractNode implements Node {
     }
     return ret;
   }
-
-  public Map<String, Node> children = new MonotonicMap<>();
 
   public AbstractNode(Node parent, String name) {
     this.parent = parent;

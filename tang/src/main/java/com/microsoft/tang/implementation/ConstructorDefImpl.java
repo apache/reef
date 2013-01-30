@@ -80,7 +80,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
    * @param def
    * @return
    */
-  boolean equalsIgnoreOrder(ConstructorDef<?> def) {
+  private boolean equalsIgnoreOrder(ConstructorDef<?> def) {
     if (getArgs().length != def.getArgs().length) {
       return false;
     }
