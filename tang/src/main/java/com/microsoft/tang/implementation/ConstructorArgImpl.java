@@ -10,6 +10,7 @@ public class ConstructorArgImpl implements ConstructorArg {
   public String getName() {
     return name == null ? type : name;
   }
+
   @Override
   public String getNamedParameterName() {
     return name;

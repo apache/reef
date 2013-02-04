@@ -27,12 +27,15 @@ public abstract class InjectionPlan<T> {
       throw new UnsupportedOperationException();
     }
   };
+
   public InjectionPlan(Node node) {
     this.node = node;
   }
+
   public Node getNode() {
     return node;
   }
+
   public abstract int getNumAlternatives();
 
   public boolean isFeasible() {
@@ -40,8 +43,9 @@ public abstract class InjectionPlan<T> {
   }
 
   abstract public boolean isAmbiguous();
+
   abstract public boolean isInjectable();
-  
+
   private static void newline(StringBuffer pretty, int indent) {
     pretty.append('\n');
     for (int j = 0; j < indent * 3; j++) {
@@ -72,14 +76,14 @@ public abstract class InjectionPlan<T> {
     }
     return pretty.toString();
   }
-  
+
   final public static class Constructor<T> extends InjectionPlan<T> {
     final ConstructorDef<T> constructor;
     final InjectionPlan<?>[] args;
     final int numAlternatives;
     final boolean isAmbiguous;
     final boolean isInjectable;
-    
+
     public Constructor(ClassNode<T> cn, ConstructorDef<T> constructor,
         InjectionPlan<?>[] args) {
       super(cn);
@@ -90,8 +94,10 @@ public abstract class InjectionPlan<T> {
       boolean isInjectable = true;
       for (InjectionPlan<?> a : args) {
         numAlternatives *= a.getNumAlternatives();
-        if(a.isAmbiguous()) isAmbiguous = true;
-        if(!a.isInjectable()) isInjectable = false;
+        if (a.isAmbiguous())
+          isAmbiguous = true;
+        if (!a.isInjectable())
+          isInjectable = false;
       }
       this.numAlternatives = numAlternatives;
       this.isAmbiguous = isAmbiguous;
@@ -100,8 +106,10 @@ public abstract class InjectionPlan<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ClassNode<T> getNode() { return (ClassNode<T>) node; }
-    
+    public ClassNode<T> getNode() {
+      return (ClassNode<T>) node;
+    }
+
     @Override
     public int getNumAlternatives() {
       return numAlternatives;
@@ -119,8 +127,7 @@ public abstract class InjectionPlan<T> {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("new " + getNode().getName()
-          + "(");
+      StringBuilder sb = new StringBuilder("new " + getNode().getName() + "(");
       if (args.length == 0) {
       } else if (args.length == 1) {
         sb.append(args[0]);
@@ -168,16 +175,23 @@ public abstract class InjectionPlan<T> {
     final InjectionPlan<? extends T>[] alternatives;
     final int numAlternatives;
     final int selectedIndex;
-    public Subplan(Node node, int selectedIndex, @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
+
+    public Subplan(
+        Node node,
+        int selectedIndex,
+        @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
       super(node);
       this.alternatives = alternatives;
-      if(selectedIndex < 0 || selectedIndex >= alternatives.length) {
+      if (selectedIndex < 0 || selectedIndex >= alternatives.length) {
         throw new ArrayIndexOutOfBoundsException();
       }
       this.selectedIndex = selectedIndex;
       this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
     }
-    public Subplan(Node node, @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
+
+    public Subplan(
+        Node node,
+        @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
       super(node);
       this.alternatives = alternatives;
       this.selectedIndex = -1;
@@ -192,13 +206,14 @@ public abstract class InjectionPlan<T> {
     public int getNumAlternatives() {
       return this.numAlternatives;
     }
+
     /**
-     * Even if there is only one sub-plan, it was registered as a default
-     * plan, and is therefore ambiguous.
+     * Even if there is only one sub-plan, it was registered as a default plan,
+     * and is therefore ambiguous.
      */
     @Override
     public boolean isAmbiguous() {
-      if(selectedIndex == -1) {
+      if (selectedIndex == -1) {
         return true;
       }
       return alternatives[selectedIndex].isAmbiguous();
@@ -206,7 +221,7 @@ public abstract class InjectionPlan<T> {
 
     @Override
     public boolean isInjectable() {
-      if(selectedIndex == -1) {
+      if (selectedIndex == -1) {
         return false;
       } else {
         return alternatives[selectedIndex].isInjectable();
@@ -227,8 +242,9 @@ public abstract class InjectionPlan<T> {
       sb.append("]");
       return sb.toString();
     }
+
     public InjectionPlan<? extends T> getDelegatedPlan() {
-      if(selectedIndex == -1) {
+      if (selectedIndex == -1) {
         throw new IllegalStateException();
       } else {
         return alternatives[selectedIndex];

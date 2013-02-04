@@ -15,11 +15,11 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 
 public class ConfigurationImpl implements Configuration {
   final ConfigurationBuilderImpl builder;
-  
+
   ConfigurationImpl(ConfigurationBuilderImpl builder) {
-	  this.builder = builder;
+    this.builder = builder;
   }
-  
+
   @Override
   public void writeConfigurationFile(File f) throws IOException {
     OutputStream o = new FileOutputStream(f);
@@ -56,36 +56,44 @@ public class ConfigurationImpl implements Configuration {
         Node n = builder.namespace.getNode(opt);
         if (n instanceof NamedParameterNode) {
           // XXX escaping of strings!!!
-          s.append(n.getFullName() + "=" + ConfigurationBuilderImpl.REGISTERED + "\n");
+          s.append(n.getFullName() + "=" + ConfigurationBuilderImpl.REGISTERED
+              + "\n");
         }
       } catch (NameResolutionException e) {
         throw new IllegalStateException("Found partially registered class?", e);
       }
     }
     for (Node opt : builder.boundImpls.keySet()) {
-      s.append(opt.getFullName() + "=" + builder.boundImpls.get(opt).getFullName() + "\n");
+      s.append(opt.getFullName() + "="
+          + builder.boundImpls.get(opt).getFullName() + "\n");
     }
     for (Node opt : builder.boundConstructors.keySet()) {
-      s.append(opt.getFullName() + "=" + builder.boundConstructors.get(opt).getFullName()
-          + "\n");
+      s.append(opt.getFullName() + "="
+          + builder.boundConstructors.get(opt).getFullName() + "\n");
     }
     for (Node opt : builder.namedParameters.keySet()) {
-      s.append(opt.getFullName() + "=" + builder.namedParameters.get(opt) + "\n");
+      s.append(opt.getFullName() + "=" + builder.namedParameters.get(opt)
+          + "\n");
     }
     for (Node opt : builder.singletons) {
       // ret.put(opt.getFullName(), SINGLETON);
-      s.append(opt.getFullName() + "=" + ConfigurationBuilderImpl.SINGLETON + "\n");
+      s.append(opt.getFullName() + "=" + ConfigurationBuilderImpl.SINGLETON
+          + "\n");
     }
     for (ClassNode<?> cn : builder.legacyConstructors.keySet()) {
-      s.append(cn.getFullName() + "=" + ConfigurationBuilderImpl.INIT + "(" + join("-", builder.legacyConstructors.get(cn).getArgs()) + ")");
+      s.append(cn.getFullName() + "=" + ConfigurationBuilderImpl.INIT + "("
+          + join("-", builder.legacyConstructors.get(cn).getArgs()) + ")");
     }
     return s.toString();
   }
+
   private String join(String sep, ConstructorArg[] types) {
-    if(types.length == 0) { return ""; }
+    if (types.length == 0) {
+      return "";
+    }
     StringBuilder sb = new StringBuilder();
     sb.append(types[0].getType());
-    for(int i = 1; i < types.length; i++) {
+    for (int i = 1; i < types.length; i++) {
       sb.append(sep + types[i].getType());
     }
     return sb.toString();

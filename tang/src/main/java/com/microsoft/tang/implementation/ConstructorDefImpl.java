@@ -40,8 +40,8 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
     return sb.toString();
   }
 
-  public ConstructorDefImpl(String className, ConstructorArg[] args, boolean injectable)
-      throws BindException {
+  public ConstructorDefImpl(String className, ConstructorArg[] args,
+      boolean injectable) throws BindException {
     this.className = className;
     this.args = args;
     if (injectable) {

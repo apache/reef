@@ -19,8 +19,12 @@ public interface Injector {
    * @throws ReflectiveOperationException
    */
   public <U> U getInstance(Class<U> iface) throws InjectionException;
+
   public <U> U getInstance(String iface) throws InjectionException;
-  public <U> U getNamedInstance(Class<? extends Name<U>> iface) throws InjectionException;
+
+  public <U> U getNamedInstance(Class<? extends Name<U>> iface)
+      throws InjectionException;
+
   /**
    * Gets the value stored for the given named parameter.
    * 
@@ -68,16 +72,20 @@ public interface Injector {
    */
   public Injector createChildInjector(Configuration... configurations)
       throws BindException;
+
   /**
-   * Returns true if this Injector is able to instantiate the object
-   * named by name.
+   * Returns true if this Injector is able to instantiate the object named by
+   * name.
    * 
    * @param name
    * @return
    * @throws BindException
    */
   boolean isInjectable(String name) throws BindException;
+
   boolean isParameterSet(String name) throws BindException;
+
   boolean isInjectable(Class<?> clazz) throws BindException;
+
   boolean isParameterSet(Class<? extends Name<?>> name) throws BindException;
 }

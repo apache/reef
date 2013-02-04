@@ -36,7 +36,7 @@ public class JavaNodeFactory {
     final boolean injectable;
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
-  
+
     if (clazz.isLocalClass() || clazz.isMemberClass()) {
       if (!Modifier.isStatic(clazz.getModifiers())) {
         injectable = false;
@@ -46,7 +46,7 @@ public class JavaNodeFactory {
     } else {
       injectable = true;
     }
-  
+
     Constructor<T>[] constructors = (Constructor<T>[]) clazz
         .getDeclaredConstructors();
     MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<>();
@@ -59,7 +59,7 @@ public class JavaNodeFactory {
         throw new IllegalStateException(
             "Synthetic constructor was annotated with @Inject!");
       }
-  
+
       // ConstructorDef's constructor checks for duplicate
       // parameters
       // The injectableConstructors set checks for ambiguous
@@ -78,23 +78,22 @@ public class JavaNodeFactory {
       }
       allConstructors.add(def);
     }
-    
+
     return new ClassNodeImpl<T>(parent, simpleName, fullName, injectable,
         isPrefixTarget,
         injectableConstructors.toArray(new ConstructorDefImpl[0]),
         allConstructors.toArray(new ConstructorDefImpl[0]));
   }
 
-  public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent, Class<? extends Name<T>> clazz,
-      Class<T> argClass) throws BindException {
+  public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
+      Class<? extends Name<T>> clazz, Class<T> argClass) throws BindException {
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
     NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
     final String fullArgName = ReflectionUtilities.getFullName(argClass);
     final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
     final String defaultInstanceAsString;
-    if (namedParameter == null
-        || namedParameter.default_value().length() == 0) {
+    if (namedParameter == null || namedParameter.default_value().length() == 0) {
       defaultInstanceAsString = null;
     } else {
       try {
@@ -119,7 +118,9 @@ public class JavaNodeFactory {
       documentation = "";
       shortName = null;
     }
-    return new NamedParameterNodeImpl<>(parent, simpleName, fullName, fullArgName, simpleArgName, documentation, shortName, defaultInstanceAsString);
+    return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
+        fullArgName, simpleArgName, documentation, shortName,
+        defaultInstanceAsString);
   }
 
   public static <T> NamespaceNode<T> createNamespaceNode(Node root,
@@ -139,9 +140,9 @@ public class JavaNodeFactory {
     return new PackageNodeImpl(parent, name);
   }
 
-  private static <T> ConstructorDef<T> createConstructorDef(boolean isClassInjectionCandidate,
-      Constructor<T> constructor, boolean injectable)
-      throws BindException {
+  private static <T> ConstructorDef<T> createConstructorDef(
+      boolean isClassInjectionCandidate, Constructor<T> constructor,
+      boolean injectable) throws BindException {
     // We don't support injection of non-static member classes with @Inject
     // annotations.
     if (injectable && !isClassInjectionCandidate) {
@@ -164,8 +165,8 @@ public class JavaNodeFactory {
         }
       }
       args[i] = new ConstructorArgImpl(
-          ReflectionUtilities.getFullName(paramTypes[i]), 
-          named == null ? null : ReflectionUtilities.getFullName(named.value()));
+          ReflectionUtilities.getFullName(paramTypes[i]), named == null ? null
+              : ReflectionUtilities.getFullName(named.value()));
     }
     try {
       return new ConstructorDefImpl<T>(
@@ -173,7 +174,8 @@ public class JavaNodeFactory {
           args, injectable);
     } catch (BindException e) {
       throw new BindException("Detected bad constructor in " + constructor
-          + " in " + ReflectionUtilities.getFullName(constructor.getDeclaringClass()), e);
+          + " in "
+          + ReflectionUtilities.getFullName(constructor.getDeclaringClass()), e);
     }
   }
 

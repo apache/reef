@@ -45,11 +45,12 @@ public interface Tang {
    */
   public ConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs) throws BindException;
+
   /**
    * Create a new ConfigurationBuilder
    * 
    * @return a new ConfigurationBuilder
-   *
+   * 
    */
   public ConfigurationBuilder newConfigurationBuilder();
 
@@ -61,6 +62,5 @@ public interface Tang {
       return new TangImpl();
     }
   }
-
 
 }

@@ -26,6 +26,7 @@ public class TangImpl implements Tang {
           "Caught unexpeceted bind exception!  Implementation bug.", e);
     }
   }
+
   @Override
   public ConfigurationBuilder newConfigurationBuilder(URL... jars) {
     try {

@@ -64,13 +64,17 @@ public interface ConfigurationBuilder {
    */
   void registerLegacyConstructor(ClassNode<?> cn, ClassNode<?>... args)
       throws BindException;
+
   void registerLegacyConstructor(String cn, String... args)
       throws BindException;
+
   void registerLegacyConstructor(ClassNode<?> c, ConstructorArg... args)
       throws BindException;
+
   @Deprecated
   public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args)
       throws BindException;
+
   @Deprecated
   public void registerLegacyConstructor(String s, Class<?>... args)
       throws BindException;
@@ -84,6 +88,7 @@ public interface ConfigurationBuilder {
    */
   public <T> void bind(String iface, String impl)
       throws ClassNotFoundException, BindException;
+
   @Deprecated
   public <T> void bind(String iface, Class<?> impl)
       throws ClassNotFoundException, BindException;
@@ -133,6 +138,7 @@ public interface ConfigurationBuilder {
    * @throws BindException
    */
   public <T> void bindSingleton(Class<T> iface) throws BindException;
+
   public void bindSingleton(String iface) throws BindException;
 
   /**
@@ -160,10 +166,9 @@ public interface ConfigurationBuilder {
 
   public String classPrettyDefaultString(String longName) throws BindException;
 
-  public String classPrettyDescriptionString(String longName) throws BindException;
+  public String classPrettyDescriptionString(String longName)
+      throws BindException;
 
   public Configuration build();
-
-
 
 }

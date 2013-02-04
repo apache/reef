@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.ConstructorArg;
@@ -47,15 +46,18 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   private final PackageNode namespace;
+
   private final class ClassComparator implements Comparator<Class<?>> {
 
     @Override
     public int compare(Class<?> arg0, Class<?> arg1) {
       return arg0.getName().compareTo(arg1.getName());
     }
-    
+
   }
-  private final Set<Class<?>> registeredClasses = new MonotonicSet<>(new ClassComparator());
+
+  private final Set<Class<?>> registeredClasses = new MonotonicSet<>(
+      new ClassComparator());
   private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
@@ -87,7 +89,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   @SuppressWarnings({ "unchecked", "unused" })
   private <T> NamespaceNode<T> registerNamespace(Namespace conf,
-     ClassNode<T> classNode) throws BindException {
+      ClassNode<T> classNode) throws BindException {
     String[] path = conf.value().split(ReflectionUtilities.regexp);
     Node root = namespace;
     // Search for the new node's parent, store it in root.
@@ -113,7 +115,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     // n points to the new node (if it exists)
     NamespaceNode<T> ret;
     if (n == null) {
-      ret = JavaNodeFactory.createNamespaceNode(root, path[path.length - 1], classNode);
+      ret = JavaNodeFactory.createNamespaceNode(root, path[path.length - 1],
+          classNode);
     } else if (n instanceof NamespaceNode) {
       ret = (NamespaceNode<T>) n;
       ret.setTarget(classNode);
@@ -126,7 +129,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
           // namespaces. If put throws an exception, it probably found a
           // conflicting node name.
           try {
-            ((AbstractNode)classNode).put(child);
+            ((AbstractNode) classNode).put(child);
           } catch (IllegalArgumentException e) {
             throw new BindException("Merging children of namespace "
                 + ret.getFullName()
@@ -166,8 +169,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       }
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
-      NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(parent,
-          (Class<? extends Name<T>>) clazz, (Class<T>) argType);
+      NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(
+          parent, (Class<? extends Name<T>>) clazz, (Class<T>) argType);
       String shortName = np.getShortName();
       if (shortName != null) {
         NamedParameterNode<?> oldNode = shortNames.get(shortName);
@@ -250,10 +253,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       parent = (PackageNode) getNode(arrayToDotString(packageName,
           packageName.length - 1));
     }
-    JavaNodeFactory.createPackageNode(parent, packageName[packageName.length - 1]);
+    JavaNodeFactory.createPackageNode(parent,
+        packageName[packageName.length - 1]);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.microsoft.tang.implementation.Namespace#register(java.lang.String)
    */
   @Override
@@ -290,7 +296,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     // seems
     // to have our back on this one.
     Class<?> enclosing = c.getEnclosingClass();
-    if(enclosing != null) {
+    if (enclosing != null) {
       register(ReflectionUtilities.getFullName(enclosing));
     }
     Package pack = c.getPackage();
@@ -323,16 +329,19 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         for (ConstructorArg arg : def.getArgs()) {
           register(arg.getType());
           if (arg.getNamedParameterName() != null) {
-            NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg.getNamedParameterName());
+            NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg
+                .getNamedParameterName());
             try {
-              if (!ReflectionUtilities.isCoercable(classForName(arg.getType()), classForName(np.getFullArgName()))) {
+              if (!ReflectionUtilities.isCoercable(classForName(arg.getType()),
+                  classForName(np.getFullArgName()))) {
                 throw new BindException(
                     "Incompatible argument type.  Constructor expects "
                         + arg.getType() + " but " + np.getName() + " is a "
                         + np.getFullArgName());
               }
             } catch (ClassNotFoundException e) {
-              throw new BindException("Constructor refers to unknown class " + arg.getType(), e);
+              throw new BindException("Constructor refers to unknown class "
+                  + arg.getType(), e);
             }
           }
         }
@@ -342,17 +351,18 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       register(np.getFullArgName());
       try {
         String defaultString = np.getDefaultInstanceAsString();
-        if(defaultString != null) {
-          defaultNamedParameterInstances.put(np, 
-              ReflectionUtilities.parse(classForName(np.getFullArgName()),
-              defaultString));
+        if (defaultString != null) {
+          defaultNamedParameterInstances.put(np, ReflectionUtilities.parse(
+              classForName(np.getFullArgName()), defaultString));
         }
       } catch (ClassNotFoundException e) {
-        throw new BindException("Named paramter " + np + " refers to unknown class " + np.getFullArgName(), e);
+        throw new BindException("Named paramter " + np
+            + " refers to unknown class " + np.getFullArgName(), e);
       }
     }
     return n;
   }
+
   final Map<NamedParameterNode<?>, Object> defaultNamedParameterInstances = new MonotonicMap<>();
 
   /**
@@ -418,7 +428,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   public Set<String> getRegisteredClassNames() {
     Set<String> s = new MonotonicSet<String>();
-    for(Class<?> c : registeredClasses) {
+    for (Class<?> c : registeredClasses) {
       s.add(ReflectionUtilities.getFullName(c));
     }
     return s;

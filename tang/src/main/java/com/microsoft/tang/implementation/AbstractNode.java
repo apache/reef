@@ -102,8 +102,7 @@ public abstract class AbstractNode implements Node {
 
   @Override
   public String toString() {
-    return "[" + this.getClass().getSimpleName() + " '"
-        + getFullName() + "']";
+    return "[" + this.getClass().getSimpleName() + " '" + getFullName() + "']";
   }
 
   @Override

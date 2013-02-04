@@ -5,8 +5,7 @@ import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.exceptions.BindException;
 
-public class ClassNodeImpl<T> extends AbstractNode implements
-    ClassNode<T> {
+public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final boolean injectable;
   // TODO: Would like to get rid of fullName in JavaClassNode, but getting "."
   // vs "$" right in classnames is tricky.
@@ -36,6 +35,7 @@ public class ClassNodeImpl<T> extends AbstractNode implements
   public ConstructorDef<T>[] getInjectableConstructors() {
     return injectableConstructors;
   }
+
   @Override
   public ConstructorDef<T>[] getAllConstructors() {
     return allConstructors;
@@ -71,8 +71,8 @@ public class ClassNodeImpl<T> extends AbstractNode implements
   public ConstructorDef<T> getConstructorDef(ClassNode<?>... paramTypes)
       throws BindException {
     if (!isInjectionCandidate()) {
-      throw new BindException(
-          "Cannot @Inject non-static member/local class: " + getFullName());
+      throw new BindException("Cannot @Inject non-static member/local class: "
+          + getFullName());
     }
     for (ConstructorDef<T> c : getAllConstructors()) {
       if (c.takesParameters(paramTypes)) {
@@ -82,6 +82,5 @@ public class ClassNodeImpl<T> extends AbstractNode implements
     throw new BindException("Could not find requested constructor for class "
         + getFullName());
   }
-
 
 }

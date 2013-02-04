@@ -11,8 +11,10 @@ public class NamedParameterNodeImpl<T> extends AbstractNode implements
   private final String documentation;
   private final String shortName;
   private final String defaultInstanceAsString;
-  public NamedParameterNodeImpl(Node parent, String simpleName, String fullName, String fullArgName, String simpleArgName,
-  String documentation, String shortName, String defaultInstanceAsString) {
+
+  public NamedParameterNodeImpl(Node parent, String simpleName,
+      String fullName, String fullArgName, String simpleArgName,
+      String documentation, String shortName, String defaultInstanceAsString) {
     super(parent, simpleName);
     this.fullName = fullName;
     this.fullArgName = fullArgName;
@@ -21,6 +23,7 @@ public class NamedParameterNodeImpl<T> extends AbstractNode implements
     this.shortName = shortName;
     this.defaultInstanceAsString = defaultInstanceAsString;
   }
+
   @Override
   public String toString() {
     return getSimpleArgName() + " " + getName();
