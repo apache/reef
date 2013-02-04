@@ -5,48 +5,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.URL;
-import java.util.Map;
-import java.util.Set;
 
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConstructorArg;
-import com.microsoft.tang.ConstructorDef;
-import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.util.MonotonicMap;
-import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
-  // TODO: None of these should be public! - Move to configurationBuilder.  Have that wrap itself
-  // in a sane Configuration interface...
-  final ClassHierarchyImpl namespace;
-  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
-  final Map<ClassNode<?>, ClassNode<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
-  final Set<ClassNode<?>> singletons = new MonotonicSet<>();
-  final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
-  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
+  final ConfigurationBuilderImpl builder;
   
-  // *Not* serialized.
-  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
-  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
-
-  public final static String IMPORT = "import";
-  public final static String REGISTERED = "registered";
-  public final static String SINGLETON = "singleton";
-  public final static String INIT = "<init>";
-
-  public ConfigurationImpl(URL... jars) {
-    this.namespace = new ClassHierarchyImpl(jars);
+  ConfigurationImpl(ConfigurationBuilderImpl builder) {
+	  this.builder = builder;
   }
-
-  public ConfigurationImpl(ClassLoader loader, URL... jars) {
-    this.namespace = new ClassHierarchyImpl(loader, jars);
-  }
-
+  
   @Override
   public void writeConfigurationFile(File f) throws IOException {
     OutputStream o = new FileOutputStream(f);
@@ -78,33 +51,33 @@ public class ConfigurationImpl implements Configuration {
   public String toConfigurationString() {
     StringBuilder s = new StringBuilder();
 
-    for (String opt : namespace.getRegisteredClassNames()) {
+    for (String opt : builder.namespace.getRegisteredClassNames()) {
       try {
-        Node n = namespace.getNode(opt);
+        Node n = builder.namespace.getNode(opt);
         if (n instanceof NamedParameterNode) {
           // XXX escaping of strings!!!
-          s.append(n.getFullName() + "=" + REGISTERED + "\n");
+          s.append(n.getFullName() + "=" + ConfigurationBuilderImpl.REGISTERED + "\n");
         }
       } catch (NameResolutionException e) {
         throw new IllegalStateException("Found partially registered class?", e);
       }
     }
-    for (Node opt : boundImpls.keySet()) {
-      s.append(opt.getFullName() + "=" + boundImpls.get(opt).getFullName() + "\n");
+    for (Node opt : builder.boundImpls.keySet()) {
+      s.append(opt.getFullName() + "=" + builder.boundImpls.get(opt).getFullName() + "\n");
     }
-    for (Node opt : boundConstructors.keySet()) {
-      s.append(opt.getFullName() + "=" + boundConstructors.get(opt).getFullName()
+    for (Node opt : builder.boundConstructors.keySet()) {
+      s.append(opt.getFullName() + "=" + builder.boundConstructors.get(opt).getFullName()
           + "\n");
     }
-    for (Node opt : namedParameters.keySet()) {
-      s.append(opt.getFullName() + "=" + namedParameters.get(opt) + "\n");
+    for (Node opt : builder.namedParameters.keySet()) {
+      s.append(opt.getFullName() + "=" + builder.namedParameters.get(opt) + "\n");
     }
-    for (Node opt : singletons) {
+    for (Node opt : builder.singletons) {
       // ret.put(opt.getFullName(), SINGLETON);
-      s.append(opt.getFullName() + "=" + SINGLETON + "\n");
+      s.append(opt.getFullName() + "=" + ConfigurationBuilderImpl.SINGLETON + "\n");
     }
-    for (ClassNode<?> cn : legacyConstructors.keySet()) {
-      s.append(cn.getFullName() + "=" + INIT + "(" + join("-", legacyConstructors.get(cn).getArgs()) + ")");
+    for (ClassNode<?> cn : builder.legacyConstructors.keySet()) {
+      s.append(cn.getFullName() + "=" + ConfigurationBuilderImpl.INIT + "(" + join("-", builder.legacyConstructors.get(cn).getArgs()) + ")");
     }
     return s.toString();
   }

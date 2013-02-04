@@ -3,10 +3,8 @@ package com.microsoft.tang.implementation;
 import java.util.Collection;
 import java.util.Map;
 
-
 import com.microsoft.tang.Node;
 import com.microsoft.tang.util.MonotonicMap;
-//import com.microsoft.tang.util.ReflectionUtilities;
 
 public abstract class AbstractNode implements Node {
   @Override

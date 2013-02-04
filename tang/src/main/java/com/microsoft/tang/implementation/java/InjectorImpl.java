@@ -66,19 +66,19 @@ public class InjectorImpl implements Injector {
     final Node n; // TODO: Register the node here (to bring into line with
             // bindVolatile(...)
     try {
-      n = tc.namespace.getNode(name);
+      n = tc.builder.namespace.getNode(name);
     } catch (NameResolutionException e) {
       throw new IllegalArgumentException("Unregistered class " + name, e);
     }
     final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object instance = tc.namedParameterInstances.get(n);
+      Object instance = tc.builder.namedParameterInstances.get(n);
       if (instance == null) {
         // Arguably, we should instantiate default instances in InjectorImpl
         // (instead of in ClassHierarchy), but we want ClassHierarchy to check
         // that the default string parses correctly.
-        instance = tc.namespace.defaultNamedParameterInstances.get(n);
+        instance = tc.builder.namespace.defaultNamedParameterInstances.get(n);
       }
       if(instance instanceof Class) {
         String implName = ((Class) instance).getName();
@@ -89,27 +89,27 @@ public class InjectorImpl implements Injector {
       }
     } else if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
-      if (tc.singletonInstances.containsKey(cn)) {
-        ip = new InjectionPlan.Instance<Object>(cn, tc.singletonInstances.get(cn));
-      } else if (tc.boundConstructors.containsKey(cn)) {
-        String constructorName = tc.boundConstructors.get(cn).getFullName();
+      if (tc.builder.singletonInstances.containsKey(cn)) {
+        ip = new InjectionPlan.Instance<Object>(cn, tc.builder.singletonInstances.get(cn));
+      } else if (tc.builder.boundConstructors.containsKey(cn)) {
+        String constructorName = tc.builder.boundConstructors.get(cn).getFullName();
         buildInjectionPlan(constructorName, memo);
         ip = new InjectionPlan.Subplan(cn, 0, memo.get(constructorName));
         memo.put(cn.getFullName(), ip);
         // ip = new Instance(cn, null);
-      } else if (tc.boundImpls.containsKey(cn)
-          && !(tc.boundImpls.get(cn).getFullName().equals(cn.getFullName()))) {
-        String implName = tc.boundImpls.get(cn).getFullName();
+      } else if (tc.builder.boundImpls.containsKey(cn)
+          && !(tc.builder.boundImpls.get(cn).getFullName().equals(cn.getFullName()))) {
+        String implName = tc.builder.boundImpls.get(cn).getFullName();
         buildInjectionPlan(implName, memo);
         ip = new InjectionPlan.Subplan(cn, 0, memo.get(implName));
         memo.put(cn.getFullName(), ip);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<>();
-        if (tc.boundImpls.get(cn) == null) {
+        if (tc.builder.boundImpls.get(cn) == null) {
           // if we're here, and there is a bound impl, then we're bound to
           // ourselves,
           // so skip this loop.
-          for (ClassNode<?> c : tc.namespace.getKnownImpls(cn)) {
+          for (ClassNode<?> c : tc.builder.namespace.getKnownImpls(cn)) {
             classNodes.add(c);
           }
         }
@@ -118,8 +118,8 @@ public class InjectorImpl implements Injector {
         for (ClassNode<?> thisCN : classNodes) {
           final List<InjectionPlan<?>> constructors = new ArrayList<InjectionPlan<?>>();
           final List<ConstructorDef<?>> constructorList = new ArrayList<>();
-          if (tc.legacyConstructors.containsKey(thisCN)) {
-            constructorList.add(tc.legacyConstructors.get(thisCN));
+          if (tc.builder.legacyConstructors.containsKey(thisCN)) {
+            constructorList.add(tc.builder.legacyConstructors.get(thisCN));
           }
           constructorList.addAll(Arrays.asList(thisCN.getInjectableConstructors()));
 
@@ -210,8 +210,8 @@ public class InjectorImpl implements Injector {
       while (!allSucceeded) {
         boolean oneSucceeded = false;
         allSucceeded = true;
-        for (ClassNode<?> cn : tc.singletons) {
-          if (!tc.singletonInstances.containsKey(cn)) {
+        for (ClassNode<?> cn : tc.builder.singletons) {
+          if (!tc.builder.singletonInstances.containsKey(cn)) {
             try {
               getInstance(cn.getFullName());//getClazz());
               // System.err.println("success " + cn);
@@ -263,11 +263,11 @@ public class InjectorImpl implements Injector {
   }
   private <T> Constructor<T> getConstructor(ConstructorDef<T> constructor) throws ClassNotFoundException, NoSuchMethodException, SecurityException {
     @SuppressWarnings("unchecked")
-    Class<T> clazz = (Class<T>)tc.namespace.classForName(constructor.getClassName());
+    Class<T> clazz = (Class<T>)tc.builder.namespace.classForName(constructor.getClassName());
     ConstructorArg[] args = constructor.getArgs();
     Class<?> parameterTypes[] = new Class[args.length];
     for(int i = 0; i < args.length; i++) {
-      parameterTypes[i] = tc.namespace.classForName(args[i].getType());
+      parameterTypes[i] = tc.builder.namespace.classForName(args[i].getType());
     }
     Constructor<T> cons = clazz.getDeclaredConstructor(parameterTypes);
     cons.setAccessible(true);
@@ -287,7 +287,7 @@ public class InjectorImpl implements Injector {
       return ((InjectionPlan.Instance<T>) plan).instance;
     } else if (plan instanceof InjectionPlan.Constructor) {
       InjectionPlan.Constructor<T> constructor = (InjectionPlan.Constructor<T>) plan;
-      if (tc.singletonInstances.containsKey(constructor.getNode())) {
+      if (tc.builder.singletonInstances.containsKey(constructor.getNode())) {
         throw new SingletonInjectionException(
             "Attempt to re-instantiate singleton: " + constructor.getNode());
       }
@@ -297,8 +297,8 @@ public class InjectorImpl implements Injector {
       }
       try {
         T ret = getConstructor((ConstructorDef<T>)constructor.constructor).newInstance(args);
-        if (tc.singletons.contains(constructor.getNode())) {
-          tc.singletonInstances.put(constructor.getNode(), ret);
+        if (tc.builder.singletons.contains(constructor.getNode())) {
+          tc.builder.singletonInstances.put(constructor.getNode(), ret);
         }
         // System.err.println("returning a new " + constructor.getNode());
         return ret;
@@ -308,14 +308,14 @@ public class InjectorImpl implements Injector {
     } else if (plan instanceof InjectionPlan.Subplan) {
       InjectionPlan.Subplan<T> ambiguous = (InjectionPlan.Subplan<T>) plan;
       if(ambiguous.isInjectable()) {
-        if (tc.singletonInstances.containsKey(ambiguous.getNode())) {
+        if (tc.builder.singletonInstances.containsKey(ambiguous.getNode())) {
           throw new SingletonInjectionException(
               "Attempt to re-instantiate singleton: " + ambiguous.getNode());
         }
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
-        if (tc.singletons.contains(ambiguous.getNode())) {
+        if (tc.builder.singletons.contains(ambiguous.getNode())) {
           // Cast is safe since singletons is of type Set<ClassNode<?>>
-          tc.singletonInstances.put((ClassNode<?>)ambiguous.getNode(), ret);
+          tc.builder.singletonInstances.put((ClassNode<?>)ambiguous.getNode(), ret);
         }
         // TODO: Check "T" in "instanceof ExternalConstructor<T>"
         if (ret instanceof ExternalConstructor) {
@@ -367,7 +367,7 @@ public class InjectorImpl implements Injector {
   }
 
   <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
-    Node n = tc.namespace.register(ReflectionUtilities.getFullName(c));
+    Node n = tc.builder.namespace.register(ReflectionUtilities.getFullName(c));
     /*
      * try { n = tc.namespace.getNode(c); } catch (NameResolutionException e) {
      * // TODO: Unit test for bindVolatileInstance to unknown class. throw new
@@ -376,12 +376,12 @@ public class InjectorImpl implements Injector {
 
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
-      Object old = tc.singletonInstances.get(cn);
+      Object old = tc.builder.singletonInstances.get(cn);
       if (old != null) {
         throw new BindException("Attempt to re-bind singleton.  Old value was "
             + old + " new value is " + o);
       }
-      tc.singletonInstances.put(cn, o);
+      tc.builder.singletonInstances.put(cn, o);
     } else {
       throw new IllegalArgumentException("Expected Class but got " + c
           + " (probably a named parameter).");
@@ -390,18 +390,18 @@ public class InjectorImpl implements Injector {
 
   <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
       throws BindException {
-    Node n = tc.namespace.register(ReflectionUtilities.getFullName(c));
+    Node n = tc.builder.namespace.register(ReflectionUtilities.getFullName(c));
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object old = tc.namedParameterInstances.get(np);
+      Object old = tc.builder.namedParameterInstances.get(np);
       if (old != null) {
         throw new BindException(
             "Attempt to re-bind named parameter.  Old value was " + old
                 + " new value is " + o);
       }
-      tc.namedParameterInstances.put(np, o);
+      tc.builder.namedParameterInstances.put(np, o);
       if(o instanceof Class) {
-        tc.namespace.register(ReflectionUtilities.getFullName((Class<?>) o));
+        tc.builder.namespace.register(ReflectionUtilities.getFullName((Class<?>) o));
       }
     } else {
       throw new IllegalArgumentException("Expected Name, got " + c

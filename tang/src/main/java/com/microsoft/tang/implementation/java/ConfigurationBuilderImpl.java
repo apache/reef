@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -16,19 +17,46 @@ import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ConstructorArg;
+import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
-  private final ConfigurationImpl conf;
+	  // TODO: None of these should be public! - Move to configurationBuilder.  Have that wrap itself
+	  // in a sane Configuration interface...
+	  final ClassHierarchyImpl namespace;
+	  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
+	  final Map<ClassNode<?>, ClassNode<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
+	  final Set<ClassNode<?>> singletons = new MonotonicSet<>();
+	  final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
+	  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
+	  
+	  // *Not* serialized.
+	  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
+	  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
+
+	  public final static String IMPORT = "import";
+	  public final static String REGISTERED = "registered";
+	  public final static String SINGLETON = "singleton";
+	  public final static String INIT = "<init>";
+
+	  public ConfigurationBuilderImpl(URL... jars) {
+	    this.namespace = new ClassHierarchyImpl(jars);
+	  }
+
+	  public ConfigurationBuilderImpl(ClassLoader loader, URL... jars) {
+	    this.namespace = new ClassHierarchyImpl(loader, jars);
+	  }
 
   public ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
-    conf = new ConfigurationImpl();
+	  this.namespace = new ClassHierarchyImpl();
     try {
       addConfiguration(t);
     } catch (BindException e) {
@@ -36,60 +64,48 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  public ConfigurationBuilderImpl(URL... jars) {
-    conf = new ConfigurationImpl(jars);
-  }
-
-  public ConfigurationBuilderImpl(Configuration tang) {
-    try {
-      conf = new ConfigurationImpl();
-      addConfiguration(tang);
-    } catch(BindException e) {
-      throw new IllegalStateException("Error copying Configuration.", e);
-    }
-  }
   public ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
-    conf = new ConfigurationImpl();
+	  this.namespace = new ClassHierarchyImpl();
     for (Configuration tc : tangs) {
       addConfiguration(((ConfigurationImpl) tc));
     }
   }
 
-  private void addConfiguration(ConfigurationBuilderImpl tc)
+  @Override
+  public void addConfiguration(Configuration conf)
       throws BindException {
-    addConfiguration(tc.conf);
+	  // XXX remove cast!
+    addConfiguration(((ConfigurationImpl)conf).builder);
   }
 
-  @Override
-  public void addConfiguration(Configuration ti) throws BindException {
-    ConfigurationImpl old = (ConfigurationImpl) ti;
-    conf.namespace.addJars(old.namespace.getJars());
+  private void addConfiguration(ConfigurationBuilderImpl builder) throws BindException {
+    namespace.addJars(builder.namespace.getJars());
     
-    for (String s : old.namespace.getRegisteredClassNames()) {
+    for (String s : builder.namespace.getRegisteredClassNames()) {
       register(s);
     }
     // Note: The commented out lines would be faster, but, for testing
     // purposes,
     // we run through the high-level bind(), which dispatches to the correct
     // call.
-    for (ClassNode<?> cn : old.boundImpls.keySet()) {
-      bind(cn.getFullName(), old.boundImpls.get(cn).getFullName());
+    for (ClassNode<?> cn : builder.boundImpls.keySet()) {
+      bind(cn.getFullName(), builder.boundImpls.get(cn).getFullName());
       // bindImplementation((Class<?>) cn.getClazz(), (Class)
       // t.boundImpls.get(cn));
     }
-    for (ClassNode<?> cn : old.boundConstructors.keySet()) {
-      bind(cn.getFullName(), old.boundConstructors.get(cn).getFullName());
+    for (ClassNode<?> cn : builder.boundConstructors.keySet()) {
+      bind(cn.getFullName(), builder.boundConstructors.get(cn).getFullName());
       // bindConstructor((Class<?>) cn.getClazz(), (Class)
       // t.boundConstructors.get(cn));
     }
-    for (ClassNode<?> cn : old.singletons) {
+    for (ClassNode<?> cn : builder.singletons) {
       try {
         String fullName = cn.getFullName();
-        Object o = old.singletonInstances.get(cn);
+        Object o = builder.singletonInstances.get(cn);
         if(o != null) {
-          ClassNode<?> new_cn= (ClassNode<?>)conf.namespace.register(fullName);
-          conf.singletons.add(new_cn);
-          conf.singletonInstances.put(new_cn, o);
+          ClassNode<?> new_cn= (ClassNode<?>)namespace.register(fullName);
+          singletons.add(new_cn);
+          singletonInstances.put(new_cn, o);
         } else {
           bindSingleton(fullName);
         }
@@ -101,22 +117,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
     // The namedParameters set contains the strings that can be used to instantiate new
     // named parameter instances.  Create new ones where we can.
-    for (NamedParameterNode<?> np : old.namedParameters.keySet()) {
-      bind(np.getFullName(), old.namedParameters.get(np));
+    for (NamedParameterNode<?> np : builder.namedParameters.keySet()) {
+      bind(np.getFullName(), builder.namedParameters.get(np));
     }
     // Copy references to the remaining (which must have been set with bindVolatileParameter())
-    for (NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
-      if(!old.namedParameters.containsKey(np)) {
-        Object o = old.namedParameterInstances.get(np);
-        NamedParameterNode<?> new_np= (NamedParameterNode<?>)conf.namespace.register(np.getFullName());
-        conf.namedParameterInstances.put(new_np, o);
+    for (NamedParameterNode<?> np : builder.namedParameterInstances.keySet()) {
+      if(!builder.namedParameters.containsKey(np)) {
+        Object o = builder.namedParameterInstances.get(np);
+        NamedParameterNode<?> new_np= (NamedParameterNode<?>)namespace.register(np.getFullName());
+        namedParameterInstances.put(new_np, o);
         if(o instanceof Class) {
           register((Class<?>)o);
         }
       }
     }
-    for (ClassNode<?> cn : old.legacyConstructors.keySet()) {
-      registerLegacyConstructor(cn, old.legacyConstructors.get(cn).getArgs());
+    for (ClassNode<?> cn : builder.legacyConstructors.keySet()) {
+      registerLegacyConstructor(cn, builder.legacyConstructors.get(cn).getArgs());
     }
   }
 
@@ -130,10 +146,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
    */
   @Override
   public void register(Class<?> c) throws BindException {
-    conf.namespace.register(ReflectionUtilities.getFullName(c));
+    namespace.register(ReflectionUtilities.getFullName(c));
   }
   public void register(String s)  throws BindException {
-    conf.namespace.register(s);
+    namespace.register(s);
   }
 
   @Override
@@ -151,25 +167,25 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
   @Override
   public void registerLegacyConstructor(String s, final String... args) throws BindException {
-    ClassNode<?> cn = (ClassNode<?>) conf.namespace.register(s);
+    ClassNode<?> cn = (ClassNode<?>) namespace.register(s);
     ClassNode<?>[] cnArgs = new ClassNode[args.length];
     for(int i = 0; i < args.length; i++) {
-      cnArgs[i] = (ClassNode<?>)conf.namespace.register(args[i]);
+      cnArgs[i] = (ClassNode<?>)namespace.register(args[i]);
     }
     registerLegacyConstructor(cn, cnArgs);
   }
   @Override
   public void registerLegacyConstructor(String s, final Class<?>... args) throws BindException {
-    ClassNode<?> cn = (ClassNode<?>) conf.namespace.register(s);
+    ClassNode<?> cn = (ClassNode<?>) namespace.register(s);
     ClassNode<?>[] cnArgs = new ClassNode[args.length];
     for(int i = 0; i < args.length; i++) {
-      cnArgs[i] = (ClassNode<?>)conf.namespace.register(ReflectionUtilities.getFullName(args[i]));
+      cnArgs[i] = (ClassNode<?>)namespace.register(ReflectionUtilities.getFullName(args[i]));
     }
     registerLegacyConstructor(cn, cnArgs);
   }
   @Override
   public void registerLegacyConstructor(ClassNode<?> cn, final ClassNode<?>... args) throws BindException {
-    conf.legacyConstructors.put(cn, cn.getConstructorDef(args));
+    legacyConstructors.put(cn, cn.getConstructorDef(args));
   }
   
   @Override
@@ -178,19 +194,19 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
   @Override
   public <T> void bind(String key, String value) throws BindException {
-    Node n = conf.namespace.register(key);
+    Node n = namespace.register(key);
     if (n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
       Class<?> v;
       Class<?> k;
       try {
-        v = conf.namespace.classForName(value);
+        v = namespace.classForName(value);
       } catch(ClassNotFoundException e) {
         throw new BindException("Could not find class " + value);
       }
       try {
-        k = conf.namespace.classForName(key);
+        k = namespace.classForName(key);
       } catch(ClassNotFoundException e) {
         throw new BindException("Could not find class " + key);
       }
@@ -218,12 +234,12 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           + " does not extend or implement " + c.getName());
     }
 
-    Node n = conf.namespace.register(ReflectionUtilities.getFullName(c));
-    Node m = conf.namespace.register(ReflectionUtilities.getFullName(d));
+    Node n = namespace.register(ReflectionUtilities.getFullName(c));
+    Node m = namespace.register(ReflectionUtilities.getFullName(d));
 
     if (n instanceof ClassNode) {
       if (m instanceof ClassNode) {
-        conf.boundImpls.put((ClassNode<?>) n, (ClassNode<?>)m);
+        boundImpls.put((ClassNode<?>) n, (ClassNode<?>)m);
       } else {
         throw new BindException("Cannot bind ClassNode " + n + " to non-ClassNode " + m);
       }
@@ -237,18 +253,18 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private <T> void bindParameter(NamedParameterNode<T> name, String value) throws BindException {
     T o;
     try {
-      o = ReflectionUtilities.parse((Class<T>)conf.namespace.classForName(name.getFullArgName()), value);
+      o = ReflectionUtilities.parse((Class<T>)namespace.classForName(name.getFullArgName()), value);
     } catch(ClassNotFoundException e) {
       throw new BindException("Can't parse unknown class " + name.getFullArgName());
     } catch(UnsupportedOperationException e) {
       try {
-        o = (T)conf.namespace.classForName(value);
+        o = (T)namespace.classForName(value);
       } catch (ClassNotFoundException e1) {
         throw new BindException("Do not know how to parse a " + name.getFullArgName() + " Furthermore, could not bind it to an implementation with name " + value);
       }
     }
-    conf.namedParameters.put(name, value);
-    conf.namedParameterInstances.put(name, o);
+    namedParameters.put(name, value);
+    namedParameterInstances.put(name, o);
     if(o instanceof Class) {
       register((Class<?>)o);
     }
@@ -258,7 +274,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @SuppressWarnings("unchecked")
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
       throws BindException {
-    Node np = conf.namespace.register(ReflectionUtilities.getFullName(name));
+    Node np = namespace.register(ReflectionUtilities.getFullName(name));
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>) np, s);
     } else {
@@ -271,8 +287,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
       Class<? extends T> impl) throws BindException {
-    Node n = conf.namespace.register(ReflectionUtilities.getFullName(iface));
-    conf.namespace.register(ReflectionUtilities.getFullName(impl));
+    Node n = namespace.register(ReflectionUtilities.getFullName(iface));
+    namespace.register(ReflectionUtilities.getFullName(impl));
     if(n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, impl.getName());
     } else {
@@ -289,13 +305,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public void bindSingleton(String s) throws BindException {
-    Node n = conf.namespace.register(s);
+    Node n = namespace.register(s);
     if (!(n instanceof ClassNode)) {
       throw new IllegalArgumentException("Can't bind singleton to " + n
           + " try bindParameter() instead.");
     }
     ClassNode<?> cn = (ClassNode<?>) n;
-    conf.singletons.add(cn);
+    singletons.add(cn);
   }
 
   @Override
@@ -310,9 +326,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
 
-    Node m = conf.namespace.register(ReflectionUtilities.getFullName(v));
+    Node m = namespace.register(ReflectionUtilities.getFullName(v));
     try {
-      conf.boundConstructors.put((ClassNode<?>) conf.namespace.register(ReflectionUtilities.getFullName(c)),
+      boundConstructors.put((ClassNode<?>) namespace.register(ReflectionUtilities.getFullName(c)),
           (ClassNode<ExternalConstructor<?>>)m);
     } catch (ClassCastException e) {
       throw new IllegalArgumentException(
@@ -323,8 +339,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   
   @Override
   public ConfigurationImpl build() {
-    ConfigurationBuilderImpl b = new ConfigurationBuilderImpl(this);
-    return b.conf;
+    return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
   }
 
   @Override
@@ -367,21 +382,21 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       }
       for (String value : values) {
         boolean isSingleton = false;
-        if (value.equals(ConfigurationImpl.SINGLETON)) {
+        if (value.equals(SINGLETON)) {
           isSingleton = true;
         }
-        if (value.equals(ConfigurationImpl.REGISTERED)) {
-          this.conf.namespace.register(key);
-        } else if (key.equals(ConfigurationImpl.IMPORT)) {
+        if (value.equals(REGISTERED)) {
+          this.namespace.register(key);
+        } else if (key.equals(IMPORT)) {
           if (isSingleton) {
             throw new IllegalArgumentException("Can't "
-                + ConfigurationImpl.IMPORT + "=" + ConfigurationImpl.SINGLETON
+                + IMPORT + "=" + SINGLETON
                 + ".  Makes no sense");
           }
-          this.conf.namespace.register(value);
+          this.namespace.register(value);
           String[] tok = value.split(ReflectionUtilities.regexp);
           try {
-            this.conf.namespace.getNode(tok[tok.length - 1]);
+            this.namespace.getNode(tok[tok.length - 1]);
             throw new IllegalArgumentException("Conflict on short name: "
                 + tok[tok.length - 1]);
           } catch (NameResolutionException e) {
@@ -392,21 +407,21 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
                   + value);
             }
           }
-        } else if(value.startsWith(ConfigurationImpl.INIT)) {
-          String parseValue = value.substring(ConfigurationImpl.INIT.length(), value.length());
+        } else if(value.startsWith(INIT)) {
+          String parseValue = value.substring(INIT.length(), value.length());
           parseValue = parseValue.replaceAll("^[\\s\\(]+", "");
           parseValue = parseValue.replaceAll("[\\s\\)]+$", "");
           String[] classes = parseValue.split("[\\s\\-]+");
           Class<?>[] clazzes = new Class[classes.length];
           for(int i = 0; i < classes.length; i++) {
             try {
-              clazzes[i] = conf.namespace.classForName(classes[i]);
+              clazzes[i] = namespace.classForName(classes[i]);
             } catch (ClassNotFoundException e) {
               throw new BindException("Could not find arg " + classes[i] + " of constructor for " + key);
             }
           }
           try {
-            registerLegacyConstructor(conf.namespace.classForName(key), clazzes);
+            registerLegacyConstructor(namespace.classForName(key), clazzes);
           } catch (ClassNotFoundException e) {
             throw new BindException("Could not find class " + key + " when trying to register legacy constructor " + value);
           }
@@ -414,7 +429,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           if (isSingleton) {
             final Class<?> c;
             try {
-              c = conf.namespace.classForName(key);
+              c = namespace.classForName(key);
             } catch (ClassNotFoundException e) {
               throw new BindException(
                   "Could not find class to be bound as singleton", e);
@@ -430,12 +445,12 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public Collection<String> getShortNames() {
-    return conf.namespace.getShortNames();
+    return namespace.getShortNames();
   }
 
   @Override
   public String resolveShortName(String shortName) throws BindException {
-    String ret = conf.namespace.resolveShortName(shortName);
+    String ret = namespace.resolveShortName(shortName);
     if(ret == null) {
       throw new BindException("Could not find requested shortName:" + shortName);
     }
@@ -445,7 +460,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public String classPrettyDefaultString(String longName) throws BindException {
     try {
-      NamedParameterNode<?> param = (NamedParameterNode<?>)conf.namespace.getNode(longName);
+      NamedParameterNode<?> param = (NamedParameterNode<?>)namespace.getNode(longName);
       return param.getSimpleArgName() + "=" + param.getDefaultInstanceAsString();
     } catch (NameResolutionException e) {
       throw new BindException("Couldn't find " + longName + " when looking for default value", e);
@@ -455,7 +470,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public String classPrettyDescriptionString(String longName) throws BindException {
     try {
-      NamedParameterNode<?> param = (NamedParameterNode<?>)conf.namespace.getNode(longName);
+      NamedParameterNode<?> param = (NamedParameterNode<?>)namespace.getNode(longName);
       return param.getDocumentation() + "\n" + param.getFullName();
     } catch (NameResolutionException e) {
       throw new BindException("Couldn't find " + longName + " when looking for documentation string", e);
