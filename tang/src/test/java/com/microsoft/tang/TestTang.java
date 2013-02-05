@@ -13,6 +13,7 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTang {
@@ -256,10 +257,10 @@ public class TestTang {
         ReflectionUtilities.getFullName(Integer.class),
         ReflectionUtilities.getFullName(String.class));
     cb.bind(LegacyConstructor.class, LegacyConstructor.class);
-    String confString = cb.build().toConfigurationString();
+    String confString = ConfigurationFile.toConfigurationString(cb.build());
     ConfigurationBuilder cb2 = tang.newConfigurationBuilder();
     // System.err.println(confString);
-    cb2.addConfiguration(confString);
+    ConfigurationFile.addConfiguration(cb2, confString);
     Injector i = tang.newInjector(cb2.build());
     i.bindVolatileInstance(Integer.class, 42);
     i.bindVolatileInstance(String.class, "The meaning of life is ");

@@ -8,6 +8,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.tang.formats.ConfigurationFile;
 
 public class TestNamedParameterRoundTrip {
 
@@ -47,7 +48,7 @@ public class TestNamedParameterRoundTrip {
         
         {
             ConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
-            roundTrip.addConfiguration(conf.toConfigurationString());
+            ConfigurationFile.addConfiguration(roundTrip, ConfigurationFile.toConfigurationString(conf));
             final Injector i = Tang.Factory.getTang().newInjector(roundTrip.build());
 
             final int readD = i.getNamedParameter(Dimensionality.class).intValue();
@@ -71,7 +72,8 @@ public class TestNamedParameterRoundTrip {
         {
             final Injector parent = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
             final ConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
-            roundTrip.addConfiguration(conf.toConfigurationString());
+            ConfigurationFile.addConfiguration(roundTrip,
+                ConfigurationFile.toConfigurationString(conf));
             final Injector i = parent.createChildInjector(roundTrip.build());
 
             final int readD = i.getNamedParameter(Dimensionality.class).intValue();

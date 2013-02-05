@@ -7,6 +7,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.ConfigurationFile;
 
 public class TestConfFileParser {
 
@@ -18,8 +19,8 @@ public class TestConfFileParser {
     Tang t = Tang.Factory.getTang();
     ConfigurationBuilder cb = t.newConfigurationBuilder();
     String in = "com.microsoft.tang.TestConfFileParser=com.microsoft.tang.TestConfFileParser\n";
-    cb.addConfiguration(in);
-    String out = cb.build().toConfigurationString();
+    ConfigurationFile.addConfiguration(cb, in);
+    String out = ConfigurationFile.toConfigurationString(cb.build());
     Assert.assertEquals(in, out);
   }
   @Test
@@ -33,7 +34,7 @@ public class TestConfFileParser {
     cb.bindSingleton(SingleTest.A.class);
     cb.bindImplementation(SingleTest.A.class, SingleTest.B.class);
     
-    String out = cb.build().toConfigurationString();
+    String out = ConfigurationFile.toConfigurationString(cb.build());
     String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\ncom.microsoft.tang.SingleTest$A=singleton\n";
     Assert.assertEquals(in, out);
   }

@@ -1,17 +1,9 @@
 package com.microsoft.tang.implementation.java;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
@@ -31,12 +23,12 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 	  // TODO: None of these should be public! - Move to configurationBuilder.  Have that wrap itself
 	  // in a sane Configuration interface...
-	  final ClassHierarchyImpl namespace;
-	  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
-	  final Map<ClassNode<?>, ClassNode<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
-	  final Set<ClassNode<?>> singletons = new MonotonicSet<>();
-	  final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
-	  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
+	  public final ClassHierarchyImpl namespace;
+	  public final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
+	  public final Map<ClassNode<?>, ClassNode<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
+	  public final Set<ClassNode<?>> singletons = new MonotonicSet<>();
+	  public final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
+	  public final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
 	  
 	  // *Not* serialized.
 	  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
@@ -47,6 +39,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 	  public final static String SINGLETON = "singleton";
 	  public final static String INIT = "<init>";
 
+	  public ConfigurationBuilderImpl() {
+	    this.namespace = new ClassHierarchyImpl();
+	  }
 	  public ConfigurationBuilderImpl(URL... jars) {
 	    this.namespace = new ClassHierarchyImpl(jars);
 	  }
@@ -340,107 +335,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public ConfigurationImpl build() {
     return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
-  }
-
-  @Override
-  public void addConfiguration(File file) throws IOException, BindException {
-    PropertiesConfiguration confFile;
-    try {
-      confFile = new PropertiesConfiguration(file);
-    } catch (ConfigurationException e) {
-      throw new BindException("Problem parsing config file", e);
-    }
-    processConfigFile(confFile);
-  }
-  
-  @Override
-  public final void addConfiguration(String conf) throws BindException {
-	  try {
-		File tmp = File.createTempFile("tang", "tmp");
-		FileOutputStream fos = new FileOutputStream(tmp);
-		fos.write(conf.getBytes());
-		fos.close();
-		addConfiguration(tmp);
-		tmp.delete();
-	} catch (IOException e) {
-		e.printStackTrace();
-	}
-  }
-  
-  
-  public void processConfigFile(PropertiesConfiguration confFile) throws IOException, BindException {
-    Iterator<String> it = confFile.getKeys();
-    Map<String, String> shortNames = new HashMap<String, String>();
-
-    while (it.hasNext()) {
-      String key = it.next();
-      String longName = shortNames.get(key);
-      String[] values = confFile.getStringArray(key);
-      if (longName != null) {
-        // System.err.println("Mapped " + key + " to " + longName);
-        key = longName;
-      }
-      for (String value : values) {
-        boolean isSingleton = false;
-        if (value.equals(SINGLETON)) {
-          isSingleton = true;
-        }
-        if (value.equals(REGISTERED)) {
-          this.namespace.register(key);
-        } else if (key.equals(IMPORT)) {
-          if (isSingleton) {
-            throw new IllegalArgumentException("Can't "
-                + IMPORT + "=" + SINGLETON
-                + ".  Makes no sense");
-          }
-          this.namespace.register(value);
-          String[] tok = value.split(ReflectionUtilities.regexp);
-          try {
-            this.namespace.getNode(tok[tok.length - 1]);
-            throw new IllegalArgumentException("Conflict on short name: "
-                + tok[tok.length - 1]);
-          } catch (NameResolutionException e) {
-            String oldValue = shortNames.put(tok[tok.length - 1], value);
-            if (oldValue != null) {
-              throw new IllegalArgumentException("Name conflict.  "
-                  + tok[tok.length - 1] + " maps to " + oldValue + " and "
-                  + value);
-            }
-          }
-        } else if(value.startsWith(INIT)) {
-          String parseValue = value.substring(INIT.length(), value.length());
-          parseValue = parseValue.replaceAll("^[\\s\\(]+", "");
-          parseValue = parseValue.replaceAll("[\\s\\)]+$", "");
-          String[] classes = parseValue.split("[\\s\\-]+");
-          Class<?>[] clazzes = new Class[classes.length];
-          for(int i = 0; i < classes.length; i++) {
-            try {
-              clazzes[i] = namespace.classForName(classes[i]);
-            } catch (ClassNotFoundException e) {
-              throw new BindException("Could not find arg " + classes[i] + " of constructor for " + key);
-            }
-          }
-          try {
-            registerLegacyConstructor(namespace.classForName(key), clazzes);
-          } catch (ClassNotFoundException e) {
-            throw new BindException("Could not find class " + key + " when trying to register legacy constructor " + value);
-          }
-        } else {
-          if (isSingleton) {
-            final Class<?> c;
-            try {
-              c = namespace.classForName(key);
-            } catch (ClassNotFoundException e) {
-              throw new BindException(
-                  "Could not find class to be bound as singleton", e);
-            }
-            bindSingleton(c);
-          } else {
-            bind(key, value);
-          }
-        }
-      }
-    }
   }
 
   @Override

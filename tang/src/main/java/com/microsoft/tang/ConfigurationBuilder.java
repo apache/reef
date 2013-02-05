@@ -1,7 +1,5 @@
 package com.microsoft.tang;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 
 import com.microsoft.tang.annotations.Name;
@@ -22,11 +20,6 @@ public interface ConfigurationBuilder {
    * @param c
    */
   public void addConfiguration(final Configuration c) throws BindException;
-
-  public void addConfiguration(final File istream) throws IOException,
-      BindException;
-
-  public void addConfiguration(final String istream) throws BindException;
 
   /**
    * Ask Tang to register a class. This does not create any new bindings, but

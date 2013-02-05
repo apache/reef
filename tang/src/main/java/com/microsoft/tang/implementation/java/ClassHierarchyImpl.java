@@ -41,7 +41,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return jars.toArray(new URL[0]);
   }
 
-  Class<?> classForName(String name) throws ClassNotFoundException {
+  public Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
   }
 

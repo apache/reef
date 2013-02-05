@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.tang.formats.ConfigurationFile;
 
 public class TestBindSingleton {
 
@@ -56,7 +57,7 @@ public class TestBindSingleton {
 
     final ConfigurationBuilder dest = Tang.Factory.getTang()
         .newConfigurationBuilder();
-    dest.addConfiguration(src.toConfigurationString());
+    ConfigurationFile.addConfiguration(dest, ConfigurationFile.toConfigurationString(src));
     final Injector i = Tang.Factory.getTang().newInjector(dest.build());
     final A a1 = i.getInstance(A.class);
     final A a2 = i.getInstance(A.class);
