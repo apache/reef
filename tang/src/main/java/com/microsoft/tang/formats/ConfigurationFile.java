@@ -31,7 +31,8 @@ public class ConfigurationFile {
    * @throws IOException
    * 
    */
-  public static void writeConfigurationFile(Configuration c, File f) throws IOException {
+  public static void writeConfigurationFile(Configuration c, File f)
+      throws IOException {
     OutputStream o = new FileOutputStream(f);
     writeConfigurationFile(c, o);
     o.close();
@@ -50,7 +51,8 @@ public class ConfigurationFile {
     p.flush();
   }
 
-  public static void addConfiguration(ConfigurationBuilder conf, File file) throws IOException, BindException {
+  public static void addConfiguration(ConfigurationBuilder conf, File file)
+      throws IOException, BindException {
     PropertiesConfiguration confFile;
     try {
       confFile = new PropertiesConfiguration(file);
@@ -59,29 +61,30 @@ public class ConfigurationFile {
     }
     processConfigFile(conf, confFile);
   }
-  
-  public static void addConfiguration(ConfigurationBuilder conf, String s) throws BindException {
-          try {
-                File tmp = File.createTempFile("tang", "tmp");
-                FileOutputStream fos = new FileOutputStream(tmp);
-                fos.write(s.getBytes());
-                fos.close();
-                addConfiguration(conf, tmp);
-                tmp.delete();
-        } catch (IOException e) {
-                e.printStackTrace();
-        }
+
+  public static void addConfiguration(ConfigurationBuilder conf, String s)
+      throws BindException {
+    try {
+      File tmp = File.createTempFile("tang", "tmp");
+      FileOutputStream fos = new FileOutputStream(tmp);
+      fos.write(s.getBytes());
+      fos.close();
+      addConfiguration(conf, tmp);
+      tmp.delete();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
-  
-  
-  public static void processConfigFile(ConfigurationBuilder conf, PropertiesConfiguration confFile) throws IOException, BindException {
+
+  public static void processConfigFile(ConfigurationBuilder conf,
+      PropertiesConfiguration confFile) throws IOException, BindException {
     ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) conf;
     Iterator<String> it = confFile.getKeys();
-    Map<String, String> shortNames = new HashMap<String, String>();
+    Map<String, String> importedNames = new HashMap<String, String>();
 
     while (it.hasNext()) {
       String key = it.next();
-      String longName = shortNames.get(key);
+      String longName = importedNames.get(key);
       String[] values = confFile.getStringArray(key);
       if (longName != null) {
         // System.err.println("Mapped " + key + " to " + longName);
@@ -93,55 +96,38 @@ public class ConfigurationFile {
           isSingleton = true;
         }
         if (value.equals(ConfigurationBuilderImpl.REGISTERED)) {
-          ci.namespace.register(key);
+          ci.register(key);
         } else if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           if (isSingleton) {
             throw new IllegalArgumentException("Can't "
-                + ConfigurationBuilderImpl.IMPORT + "=" + ConfigurationBuilderImpl.SINGLETON
-                + ".  Makes no sense");
+                + ConfigurationBuilderImpl.IMPORT + "="
+                + ConfigurationBuilderImpl.SINGLETON + ".  Makes no sense");
           }
-          ci.namespace.register(value);
+          ci.register(value);
           String[] tok = value.split(ReflectionUtilities.regexp);
           try {
-            ci.namespace.getNode(tok[tok.length - 1]);
+            // ci.namespace.getNode(tok[tok.length - 1]);
+            ci.register(tok[tok.length - 1]);
             throw new IllegalArgumentException("Conflict on short name: "
                 + tok[tok.length - 1]);
-          } catch (NameResolutionException e) {
-            String oldValue = shortNames.put(tok[tok.length - 1], value);
+          } catch (BindException e) {
+            String oldValue = importedNames.put(tok[tok.length - 1], value);
             if (oldValue != null) {
               throw new IllegalArgumentException("Name conflict.  "
                   + tok[tok.length - 1] + " maps to " + oldValue + " and "
                   + value);
             }
           }
-        } else if(value.startsWith(ConfigurationBuilderImpl.INIT)) {
-          String parseValue = value.substring(ConfigurationBuilderImpl.INIT.length(), value.length());
+        } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
+          String parseValue = value.substring(
+              ConfigurationBuilderImpl.INIT.length(), value.length());
           parseValue = parseValue.replaceAll("^[\\s\\(]+", "");
           parseValue = parseValue.replaceAll("[\\s\\)]+$", "");
           String[] classes = parseValue.split("[\\s\\-]+");
-          Class<?>[] clazzes = new Class[classes.length];
-          for(int i = 0; i < classes.length; i++) {
-            try {
-              clazzes[i] =ci.namespace.classForName(classes[i]);
-            } catch (ClassNotFoundException e) {
-              throw new BindException("Could not find arg " + classes[i] + " of constructor for " + key);
-            }
-          }
-          try {
-            ci.registerLegacyConstructor(ci.namespace.classForName(key), clazzes);
-          } catch (ClassNotFoundException e) {
-            throw new BindException("Could not find class " + key + " when trying to register legacy constructor " + value);
-          }
+          ci.registerLegacyConstructor(key, classes);
         } else {
           if (isSingleton) {
-            final Class<?> c;
-            try {
-              c = ci.namespace.classForName(key);
-            } catch (ClassNotFoundException e) {
-              throw new BindException(
-                  "Could not find class to be bound as singleton", e);
-            }
-            ci.bindSingleton(c);
+            ci.bindSingleton(key);
           } else {
             ci.bind(key, value);
           }
@@ -149,8 +135,6 @@ public class ConfigurationFile {
       }
     }
   }
-
-
 
   /**
    * Obtain the effective configuration of this ConfigurationBuilderImpl
@@ -166,19 +150,17 @@ public class ConfigurationFile {
    *         available when the string is parsed by Tang).
    */
   public static String toConfigurationString(Configuration c) {
-    ConfigurationImpl conf = (ConfigurationImpl)c;
+    ConfigurationImpl conf = (ConfigurationImpl) c;
     StringBuilder s = new StringBuilder();
 
-    for (String opt : conf.builder.namespace.getRegisteredClassNames()) {
+    for (String shrt : conf.builder.getShortNames()) {
       try {
-        Node n = conf.builder.namespace.getNode(opt);
-        if (n instanceof NamedParameterNode) {
-          // XXX escaping of strings!!!
-          s.append(n.getFullName() + "=" + ConfigurationBuilderImpl.REGISTERED
-              + "\n");
-        }
-      } catch (NameResolutionException e) {
-        throw new IllegalStateException("Found partially registered class?", e);
+        String lng = conf.builder.resolveShortName(shrt);
+        s.append(lng + "=" + ConfigurationBuilderImpl.REGISTERED + "\n");
+      } catch (BindException e) {
+        throw new IllegalStateException(
+            "Found partially registered class?  shortName" + shrt
+                + " did not resolve to anything", e);
       }
     }
     for (Node opt : conf.builder.boundImpls.keySet()) {
