@@ -8,8 +8,8 @@ package com.microsoft.tang.annotations;
  * instantiates the outer class and then uses the resulting instance to
  * instantiate each inner class.
  * 
- * Classes annotated with this target must have at least one non-static inner
- * class and no static inner classes.  The inner classes must not declare any
+ * Classes annotated in this way must have at least one non-static inner class
+ * and no static inner classes. The inner classes must not declare any
  * constructors.
  * 
  * @author sears
