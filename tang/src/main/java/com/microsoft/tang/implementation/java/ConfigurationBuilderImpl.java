@@ -33,7 +33,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
 
   // *Not* serialized.
-  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
+//  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
 
   public final static String IMPORT = "import";
@@ -99,14 +99,15 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     for (ClassNode<?> cn : builder.singletons) {
       try {
         String fullName = cn.getFullName();
-        Object o = builder.singletonInstances.get(cn);
+        bindSingleton(fullName);
+/*        Object o = builder.singletonInstances.get(cn);
         if (o != null) {
           ClassNode<?> new_cn = (ClassNode<?>) namespace.register(fullName);
           singletons.add(new_cn);
           singletonInstances.put(new_cn, o);
         } else {
           bindSingleton(fullName);
-        }
+        } */
       } catch (BindException e) {
         throw new IllegalStateException(
             "Unexpected BindException when copying ConfigurationBuilderImpl", e);

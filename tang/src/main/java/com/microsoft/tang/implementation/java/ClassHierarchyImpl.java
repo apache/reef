@@ -422,7 +422,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   @SuppressWarnings("unchecked")
-  <T> Set<ClassNode<T>> getKnownImpls(ClassNode<T> c) {
+  @Override
+  public <T> Set<ClassNode<T>> getKnownImplementations(ClassNode<T> c) {
     return (Set<ClassNode<T>>) (Set<?>) knownImpls.getValuesForKey(c);
   }
 
