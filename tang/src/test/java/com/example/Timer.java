@@ -10,8 +10,6 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.tang.implementation.InjectionPlan;
-import com.microsoft.tang.implementation.java.ConfigurationBuilderImpl;
-import com.microsoft.tang.implementation.java.InjectionPlanBuilder;
 import com.microsoft.tang.implementation.java.InjectorImpl;
 
 public class Timer {
@@ -37,7 +35,7 @@ public class Timer {
     cl.processCommandLine(args);
     Configuration conf = cb.build();
     InjectorImpl injector = (InjectorImpl)tang.newInjector(conf);
-    InjectionPlan<Timer> ip = new InjectionPlanBuilder(conf).getInjectionPlan(Timer.class);
+    InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
     Timer timer = injector.getInstance(Timer.class);
