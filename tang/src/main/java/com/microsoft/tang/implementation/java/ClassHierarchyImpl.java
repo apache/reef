@@ -45,6 +45,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return ReflectionUtilities.classForName(name, loader);
   }
 
+  @SuppressWarnings("unchecked")
+  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
+    return (T)parse(name.getFullArgName(), value);
+  }
+  public Object parse(String name, String value) throws BindException {
+    try {
+      try {
+        return ReflectionUtilities.parse(classForName(name), value);
+      } catch (UnsupportedOperationException e) {
+        return classForName(value);
+      }
+    } catch (ClassNotFoundException e) {
+      throw new BindException("Could not parse type " + name + ".  Value was " + value);
+    }
+  }
+  
   private final PackageNode namespace;
 
   private final class ClassComparator implements Comparator<Class<?>> {

@@ -32,10 +32,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
   public final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
 
-  // *Not* serialized.
-//  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
-  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
-
   public final static String IMPORT = "import";
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
@@ -100,14 +96,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       try {
         String fullName = cn.getFullName();
         bindSingleton(fullName);
-/*        Object o = builder.singletonInstances.get(cn);
-        if (o != null) {
-          ClassNode<?> new_cn = (ClassNode<?>) namespace.register(fullName);
-          singletons.add(new_cn);
-          singletonInstances.put(new_cn, o);
-        } else {
-          bindSingleton(fullName);
-        } */
       } catch (BindException e) {
         throw new IllegalStateException(
             "Unexpected BindException when copying ConfigurationBuilderImpl", e);
@@ -118,19 +106,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     // named parameter instances. Create new ones where we can.
     for (NamedParameterNode<?> np : builder.namedParameters.keySet()) {
       bind(np.getFullName(), builder.namedParameters.get(np));
-    }
-    // Copy references to the remaining (which must have been set with
-    // bindVolatileParameter())
-    for (NamedParameterNode<?> np : builder.namedParameterInstances.keySet()) {
-      if (!builder.namedParameters.containsKey(np)) {
-        Object o = builder.namedParameterInstances.get(np);
-        NamedParameterNode<?> new_np = (NamedParameterNode<?>) namespace
-            .register(np.getFullName());
-        namedParameterInstances.put(new_np, o);
-        if (o instanceof Class) {
-          register((Class<?>) o);
-        }
-      }
     }
     for (ClassNode<?> cn : builder.legacyConstructors.keySet()) {
       registerLegacyConstructor(cn, builder.legacyConstructors.get(cn)
@@ -265,31 +240,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
-    T o;
-    try {
-      o = ReflectionUtilities.parse(
-          (Class<T>) namespace.classForName(name.getFullArgName()), value);
-    } catch (ClassNotFoundException e) {
-      throw new BindException("Can't parse unknown class "
-          + name.getFullArgName());
-    } catch (UnsupportedOperationException e) {
-      try {
-        o = (T) namespace.classForName(value);
-      } catch (ClassNotFoundException e1) {
-        throw new BindException("Do not know how to parse a "
-            + name.getFullArgName()
-            + " Furthermore, could not bind it to an implementation with name "
-            + value);
-      }
-    }
-    namedParameters.put(name, value);
-    namedParameterInstances.put(name, o);
+    T o = namespace.parse(name, value);
     if (o instanceof Class) {
       register((Class<?>) o);
     }
+    namedParameters.put(name, value);
   }
 
   @Override

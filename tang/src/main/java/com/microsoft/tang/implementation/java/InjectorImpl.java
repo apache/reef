@@ -31,6 +31,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class InjectorImpl implements Injector {
 
   final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
+  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
 
   private class SingletonInjectionException extends InjectionException {
     private static final long serialVersionUID = 1L;
@@ -99,12 +100,27 @@ public class InjectorImpl implements Injector {
     final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object instance = cbi.namedParameterInstances.get(n);
+      Object instance = namedParameterInstances.get(n);
       if (instance == null) {
-        // Arguably, we should instantiate default instances in InjectorImpl
-        // (instead of in ClassHierarchy), but we want ClassHierarchy to check
-        // that the default string parses correctly.
-        instance = javaNamespace.defaultNamedParameterInstances.get(n);
+        String value = cbi.namedParameters.get(n);
+        if(value != null) {
+          try {
+            instance = javaNamespace.parse(np, value);
+          } catch (BindException e) {
+            throw new IllegalStateException("Could not parse pre-validated value", e);
+          }
+          namedParameterInstances.put(np, instance);
+          if (instance instanceof Class) {
+            try {
+              cbi.register((Class<?>) instance);
+            } catch (BindException e) {
+              throw new IllegalStateException("Could not register class " + instance
+                  + " which should have already been registered!");
+            }
+          }
+        } else {
+          instance = javaNamespace.defaultNamedParameterInstances.get(n);
+        }
       }
       if (instance instanceof Class) {
         String implName = ((Class) instance).getName();
@@ -383,7 +399,7 @@ public class InjectorImpl implements Injector {
   }
 
   private static InjectorImpl copy(InjectorImpl old,
-      Configuration... configurations) {
+      Configuration... configurations) throws BindException {
     final InjectorImpl i;
     try {
       final ConfigurationBuilderImpl cb = new ConfigurationBuilderImpl(old.cbi);
@@ -403,6 +419,18 @@ public class InjectorImpl implements Injector {
       } catch (BindException e) {
         throw new IllegalStateException("Could not resolve name "
             + cn.getFullName() + " when copying injector");
+      }
+    }
+    // Copy references to the remaining (which must have been set with
+    // bindVolatileParameter())
+    for (NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
+      // if (!builder.namedParameters.containsKey(np)) {
+      Object o = old.namedParameterInstances.get(np);
+      NamedParameterNode<?> new_np = (NamedParameterNode<?>) i.namespace
+          .register(np.getFullName());
+      i.namedParameterInstances.put(new_np, o);
+      if (o instanceof Class) {
+        i.namespace.register(ReflectionUtilities.getFullName((Class<?>) o));
       }
     }
     return i;
@@ -446,13 +474,16 @@ public class InjectorImpl implements Injector {
     Node n = namespace.register(ReflectionUtilities.getFullName(c));
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object old = cbi.namedParameterInstances.get(np);
+      Object old = cbi.namedParameters.get(np);
+      if(old == null) {
+        old = namedParameterInstances.get(np);
+      }
       if (old != null) {
         throw new BindException(
             "Attempt to re-bind named parameter.  Old value was " + old
                 + " new value is " + o);
       }
-      cbi.namedParameterInstances.put(np, o);
+      namedParameterInstances.put(np, o);
       if (o instanceof Class) {
         namespace.register(ReflectionUtilities.getFullName((Class<?>) o));
       }
