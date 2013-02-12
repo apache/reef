@@ -9,7 +9,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.CommandLine;
-import com.microsoft.tang.implementation.java.InjectionPlan;
+import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.java.InjectorImpl;
 
 public class Timer {

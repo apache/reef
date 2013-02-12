@@ -1,6 +1,5 @@
 package com.microsoft.tang.implementation.java;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,9 +20,35 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.Constructor;
+import com.microsoft.tang.implementation.InjectionPlan;
+import com.microsoft.tang.implementation.Subplan;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class InjectorImpl implements Injector {
+  static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
+    @Override
+    public int getNumAlternatives() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String toString() {
+      return "BUILDING INJECTION PLAN";
+    }
+
+    @Override
+    public boolean isAmbiguous() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isInjectable() {
+      throw new UnsupportedOperationException();
+    }
+  };
+
+	
   private class SingletonInjectionException extends InjectionException {
     private static final long serialVersionUID = 1L;
 
@@ -42,11 +67,11 @@ public class InjectorImpl implements Injector {
   private InjectionPlan<?> wrapInjectionPlans(Node infeasibleNode,
       List<InjectionPlan<?>> list, boolean forceAmbiguous) {
     if (list.size() == 0) {
-      return new InjectionPlan.Subplan<>(infeasibleNode);
+      return new Subplan<>(infeasibleNode);
     } else if ((!forceAmbiguous) && list.size() == 1) {
       return list.get(0);
     } else {
-      return new InjectionPlan.Subplan<>(infeasibleNode,
+      return new Subplan<>(infeasibleNode,
           list.toArray(new InjectionPlan[0]));
     }
   }
@@ -55,14 +80,14 @@ public class InjectorImpl implements Injector {
   private void buildInjectionPlan(final String name,
       Map<String, InjectionPlan<?>> memo) {
     if (memo.containsKey(name)) {
-      if (InjectionPlan.BUILDING == memo.get(name)) {
+      if (BUILDING == memo.get(name)) {
         throw new IllegalStateException("Detected loopy constructor involving "
             + name);
       } else {
         return;
       }
     }
-    memo.put(name, InjectionPlan.BUILDING);
+    memo.put(name, BUILDING);
     final Node n; // TODO: Register the node here (to bring into line with
     // bindVolatile(...)
     try {
@@ -83,20 +108,20 @@ public class InjectorImpl implements Injector {
       if (instance instanceof Class) {
         String implName = ((Class) instance).getName();
         buildInjectionPlan(implName, memo);
-        ip = new InjectionPlan.Subplan<>(np, 0, memo.get(implName));
+        ip = new Subplan<>(np, 0, memo.get(implName));
       } else {
-        ip = new InjectionPlan.Instance<Object>(np, instance);
+        ip = new JavaInstance<Object>(np, instance);
       }
     } else if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (tc.builder.singletonInstances.containsKey(cn)) {
-        ip = new InjectionPlan.Instance<Object>(cn,
+        ip = new JavaInstance<Object>(cn,
             tc.builder.singletonInstances.get(cn));
       } else if (tc.builder.boundConstructors.containsKey(cn)) {
         String constructorName = tc.builder.boundConstructors.get(cn)
             .getFullName();
         buildInjectionPlan(constructorName, memo);
-        ip = new InjectionPlan.Subplan(cn, 0, memo.get(constructorName));
+        ip = new Subplan(cn, 0, memo.get(constructorName));
         memo.put(cn.getFullName(), ip);
         // ip = new Instance(cn, null);
       } else if (tc.builder.boundImpls.containsKey(cn)
@@ -104,7 +129,7 @@ public class InjectorImpl implements Injector {
               .getFullName()))) {
         String implName = tc.builder.boundImpls.get(cn).getFullName();
         buildInjectionPlan(implName, memo);
-        ip = new InjectionPlan.Subplan(cn, 0, memo.get(implName));
+        ip = new Subplan(cn, 0, memo.get(implName));
         memo.put(cn.getFullName(), ip);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<>();
@@ -134,7 +159,7 @@ public class InjectorImpl implements Injector {
               buildInjectionPlan(argName, memo);
               args.add(memo.get(argName));
             }
-            InjectionPlan.Constructor constructor = new InjectionPlan.Constructor(
+            Constructor constructor = new Constructor(
                 thisCN, def, args.toArray(new InjectionPlan[0]));
             constructors.add(constructor);
           }
@@ -268,7 +293,7 @@ public class InjectorImpl implements Injector {
     return (T) injectFromPlan(plan);
   }
 
-  private <T> Constructor<T> getConstructor(ConstructorDef<T> constructor)
+  private <T> java.lang.reflect.Constructor<T> getConstructor(ConstructorDef<T> constructor)
       throws ClassNotFoundException, NoSuchMethodException, SecurityException {
     @SuppressWarnings("unchecked")
     Class<T> clazz = (Class<T>) tc.builder.namespace.classForName(constructor
@@ -278,7 +303,7 @@ public class InjectorImpl implements Injector {
     for (int i = 0; i < args.length; i++) {
       parameterTypes[i] = tc.builder.namespace.classForName(args[i].getType());
     }
-    Constructor<T> cons = clazz.getDeclaredConstructor(parameterTypes);
+    java.lang.reflect.Constructor<T> cons = clazz.getDeclaredConstructor(parameterTypes);
     cons.setAccessible(true);
     return cons;
   }
@@ -293,20 +318,20 @@ public class InjectorImpl implements Injector {
       throw new IllegalArgumentException("Attempt to inject ambiguous plan: "
           + plan.toPrettyString());
     }
-    if (plan instanceof InjectionPlan.Instance) {
-      return ((InjectionPlan.Instance<T>) plan).instance;
-    } else if (plan instanceof InjectionPlan.Constructor) {
-      InjectionPlan.Constructor<T> constructor = (InjectionPlan.Constructor<T>) plan;
+    if (plan instanceof JavaInstance) {
+      return ((JavaInstance<T>) plan).instance;
+    } else if (plan instanceof Constructor) {
+      Constructor<T> constructor = (Constructor<T>) plan;
       if (tc.builder.singletonInstances.containsKey(constructor.getNode())) {
         throw new SingletonInjectionException(
             "Attempt to re-instantiate singleton: " + constructor.getNode());
       }
-      Object[] args = new Object[constructor.args.length];
-      for (int i = 0; i < constructor.args.length; i++) {
-        args[i] = injectFromPlan(constructor.args[i]);
+      Object[] args = new Object[constructor.getArgs().length];
+      for (int i = 0; i < constructor.getArgs().length; i++) {
+        args[i] = injectFromPlan(constructor.getArgs()[i]);
       }
       try {
-        T ret = getConstructor((ConstructorDef<T>) constructor.constructor)
+        T ret = getConstructor((ConstructorDef<T>) constructor.getConstructorDef())
             .newInstance(args);
         if (tc.builder.singletons.contains(constructor.getNode())) {
           tc.builder.singletonInstances.put(constructor.getNode(), ret);
@@ -316,8 +341,8 @@ public class InjectorImpl implements Injector {
       } catch (ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor", e);
       }
-    } else if (plan instanceof InjectionPlan.Subplan) {
-      InjectionPlan.Subplan<T> ambiguous = (InjectionPlan.Subplan<T>) plan;
+    } else if (plan instanceof Subplan) {
+      Subplan<T> ambiguous = (Subplan<T>) plan;
       if (ambiguous.isInjectable()) {
         if (tc.builder.singletonInstances.containsKey(ambiguous.getNode())) {
           throw new SingletonInjectionException(
