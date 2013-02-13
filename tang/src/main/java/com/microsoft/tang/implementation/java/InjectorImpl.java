@@ -9,7 +9,7 @@ import java.util.Map;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.ConstructorArg;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
@@ -41,7 +41,7 @@ public class InjectorImpl implements Injector {
     }
   }
 
-  final ConfigurationBuilder cb;
+  final JavaConfigurationBuilder cb;
   final ConfigurationBuilderImpl cbi;
   final ClassHierarchy namespace;
   final ClassHierarchyImpl javaNamespace;

@@ -27,10 +27,10 @@ public class TestClassLoaders {
       ClassNotFoundException, BindException, InjectionException {
     Tang t = Tang.Factory.getTang();
 
-    ConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
+    JavaConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
         "../tang-test-jarA/target/tang-test-jarA-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    ConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
+    JavaConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
         "../tang-test-jarB/target/tang-test-jarB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA.addConfiguration(cbB.build());
@@ -45,10 +45,10 @@ public class TestClassLoaders {
   public void testTwoClasses() throws MalformedURLException,
       ClassNotFoundException, BindException, InjectionException {
     Tang t = Tang.Factory.getTang();
-    ConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
+    JavaConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    ConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
+    JavaConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA.addConfiguration(cbB.build());
@@ -64,10 +64,10 @@ public class TestClassLoaders {
       throws MalformedURLException, InjectionException, BindException,
       ClassNotFoundException {
     Tang t = Tang.Factory.getTang();
-    ConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
+    JavaConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    ConfigurationBuilder cbA2 = t.newConfigurationBuilder(new File(
+    JavaConfigurationBuilder cbA2 = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA1.register("com.example.A");

@@ -28,14 +28,14 @@ public interface Tang {
    * 
    * @return a new ConfigurationBuilder
    */
-  public ConfigurationBuilder newConfigurationBuilder(URL... jars);
+  public JavaConfigurationBuilder newConfigurationBuilder(URL... jars);
 
   /**
    * Create a new ConfigurationBuilder
    * 
    * @return a new ConfigurationBuilder
    */
-  public ConfigurationBuilder newConfigurationBuilder(Configuration... confs)
+  public JavaConfigurationBuilder newConfigurationBuilder(Configuration... confs)
       throws BindException;
 
   /**
@@ -43,7 +43,7 @@ public interface Tang {
    * 
    * @return a new ConfigurationBuilder
    */
-  public ConfigurationBuilder newConfigurationBuilder(URL[] jars,
+  public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs) throws BindException;
 
   /**
@@ -52,7 +52,7 @@ public interface Tang {
    * @return a new ConfigurationBuilder
    * 
    */
-  public ConfigurationBuilder newConfigurationBuilder();
+  public JavaConfigurationBuilder newConfigurationBuilder();
 
   /**
    * Access to a ConfigurationBuilderImpl implementation

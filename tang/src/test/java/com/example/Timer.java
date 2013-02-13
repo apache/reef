@@ -3,7 +3,7 @@ package com.example;
 import javax.inject.Inject;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -29,7 +29,7 @@ public class Timer {
   
   public static void main(String[] args) throws Exception {
     Tang tang = Tang.Factory.getTang();
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(Timer.class);
     CommandLine cl = new CommandLine(cb);
     cl.processCommandLine(args);

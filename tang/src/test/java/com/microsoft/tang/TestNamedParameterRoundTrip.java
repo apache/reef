@@ -30,7 +30,7 @@ public class TestNamedParameterRoundTrip {
     public void testRoundTrip() throws BindException, InjectionException {
         final int d = 10;
         final double eps = 1e-5;
-        final ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
+        final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
         b.bindNamedParameter(Dimensionality.class, String.valueOf(d));
         b.bindNamedParameter(Eps.class, String.valueOf(eps));
         final Configuration conf = b.build();
@@ -47,7 +47,7 @@ public class TestNamedParameterRoundTrip {
                 
         
         {
-            ConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
+            JavaConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
             ConfigurationFile.addConfiguration(roundTrip, ConfigurationFile.toConfigurationString(conf));
             final Injector i = Tang.Factory.getTang().newInjector(roundTrip.build());
 
@@ -71,7 +71,7 @@ public class TestNamedParameterRoundTrip {
         
         {
             final Injector parent = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
-            final ConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
+            final JavaConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
             ConfigurationFile.addConfiguration(roundTrip,
                 ConfigurationFile.toConfigurationString(conf));
             final Injector i = parent.createChildInjector(roundTrip.build());

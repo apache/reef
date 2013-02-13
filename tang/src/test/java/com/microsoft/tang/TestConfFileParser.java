@@ -17,7 +17,7 @@ public class TestConfFileParser {
     // being \r\n, and on java.lang.Object having a lower hash code than
     // com.microsoft.tang.TestConfFileParser
     Tang t = Tang.Factory.getTang();
-    ConfigurationBuilder cb = t.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = t.newConfigurationBuilder();
     String in = "com.microsoft.tang.TestConfFileParser=com.microsoft.tang.TestConfFileParser\n";
     ConfigurationFile.addConfiguration(cb, in);
     String out = ConfigurationFile.toConfigurationString(cb.build());
@@ -29,7 +29,7 @@ public class TestConfFileParser {
     // being \r\n, and on java.lang.Object having a lower hash code than
     // com.microsoft.tang.TestConfFileParser
     Tang t = Tang.Factory.getTang();
-    ConfigurationBuilder cb = t.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = t.newConfigurationBuilder();
     //cb.bindSingletonImplementation(SingleTest.A.class, SingleTest.B.class);
     cb.bindSingleton(SingleTest.A.class);
     cb.bindImplementation(SingleTest.A.class, SingleTest.B.class);

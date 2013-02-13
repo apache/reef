@@ -1,17 +1,21 @@
 package com.microsoft.tang.formats;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-
+/**
+ * TODO Move to implementation.java
+ * @author sears
+ *
+ */
 final public class StaticConfiguration {
   public interface BindInterface {
-    void configure(ConfigurationBuilder cb) throws BindException;
+    void configure(JavaConfigurationBuilder cb) throws BindException;
   }
   public static final class AddConfiguration implements BindInterface {
     final StaticConfiguration sc;
@@ -19,7 +23,7 @@ final public class StaticConfiguration {
       this.sc = sc;
     }
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       cb.addConfiguration(sc.build());
     }
   }
@@ -27,7 +31,7 @@ final public class StaticConfiguration {
     final Class<?> clazz;
     public Register(Class<?> clazz) { this.clazz = clazz; }
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       cb.register(clazz);
     }
   }
@@ -39,7 +43,7 @@ final public class StaticConfiguration {
       this.args = args;
     }
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       String[] s = new String[args.length];
       for(int i = 0; i < s.length; i++) {
         s[i] = ReflectionUtilities.getFullName(args[i]);
@@ -56,7 +60,7 @@ final public class StaticConfiguration {
       this.impl = impl;
     }
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       cb.bind(inter,  impl);
     }
   }
@@ -69,7 +73,7 @@ final public class StaticConfiguration {
     }
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       cb.bindImplementation((Class)inter,  (Class)impl);
     }
   }
@@ -82,7 +86,7 @@ final public class StaticConfiguration {
     }
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       cb.bindSingletonImplementation((Class)inter, (Class)impl);
     }
   }
@@ -92,7 +96,7 @@ final public class StaticConfiguration {
       this.singleton = singleton;
     }
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       cb.bindSingleton(singleton);
     }
   }
@@ -112,7 +116,7 @@ final public class StaticConfiguration {
     }
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       if(value != null) {
         cb.bindNamedParameter((Class)name,  value);
       } else {
@@ -129,7 +133,7 @@ final public class StaticConfiguration {
     }
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void configure(ConfigurationBuilder cb) throws BindException {
+    public void configure(JavaConfigurationBuilder cb) throws BindException {
       cb.bindConstructor((Class)inter, (Class)constructor);
     }
   }
@@ -142,7 +146,7 @@ final public class StaticConfiguration {
   
   public Configuration build() throws BindException {
     if(memo == null) {
-      ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+      JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
       for(BindInterface bi : b) {
         bi.configure(cb);
       }

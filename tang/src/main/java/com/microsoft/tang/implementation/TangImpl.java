@@ -3,7 +3,7 @@ package com.microsoft.tang.implementation;
 import java.net.URL;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
@@ -18,7 +18,7 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public ConfigurationBuilder newConfigurationBuilder() {
+  public JavaConfigurationBuilder newConfigurationBuilder() {
     try {
       return newConfigurationBuilder(new URL[0], new Configuration[0]);
     } catch (BindException e) {
@@ -28,7 +28,7 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public ConfigurationBuilder newConfigurationBuilder(URL... jars) {
+  public JavaConfigurationBuilder newConfigurationBuilder(URL... jars) {
     try {
       return newConfigurationBuilder(jars, new Configuration[0]);
     } catch (BindException e) {
@@ -38,16 +38,16 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public ConfigurationBuilder newConfigurationBuilder(Configuration... confs)
+  public JavaConfigurationBuilder newConfigurationBuilder(Configuration... confs)
       throws BindException {
     return newConfigurationBuilder(new URL[0], confs);
 
   }
 
   @Override
-  public ConfigurationBuilder newConfigurationBuilder(URL[] jars,
+  public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs) throws BindException {
-    ConfigurationBuilder cb = new ConfigurationBuilderImpl(jars);
+    JavaConfigurationBuilder cb = new ConfigurationBuilderImpl(jars);
     for (Configuration c : confs) {
       cb.addConfiguration(c);
     }

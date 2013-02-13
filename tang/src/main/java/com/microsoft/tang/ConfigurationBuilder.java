@@ -2,18 +2,11 @@ package com.microsoft.tang;
 
 import java.util.Collection;
 
-import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.ExternalConstructor;
 
-/**
- * A builder for TANG configurations.
- * 
- * @author sears
- * 
- */
+
 public interface ConfigurationBuilder {
+
   /**
    * Add all configuration parameters from the given Configuration object.
    * 
@@ -38,12 +31,7 @@ public interface ConfigurationBuilder {
    * In addition to registering the class, this method also checks to make sure
    * the class is consistent with itself and the rest of the Tang classes that
    * have been registered.
-   * 
-   * @param c
-   * @throws BindException
    */
-  public void register(Class<?> c) throws BindException;
-
   public void register(String c) throws BindException;
 
   /**
@@ -59,18 +47,10 @@ public interface ConfigurationBuilder {
       throws BindException;
 
   void registerLegacyConstructor(String cn, String... args)
-      throws BindException;
+  throws BindException;
 
   void registerLegacyConstructor(ClassNode<?> c, ConstructorArg... args)
-      throws BindException;
-
-  @Deprecated
-  public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args)
-      throws BindException;
-
-  @Deprecated
-  public void registerLegacyConstructor(String s, Class<?>... args)
-      throws BindException;
+  throws BindException;
 
   /**
    * Bind classes to each other, based on their full class names.
@@ -82,76 +62,7 @@ public interface ConfigurationBuilder {
   public <T> void bind(String iface, String impl)
       throws ClassNotFoundException, BindException;
 
-  @Deprecated
-  public <T> void bind(String iface, Class<?> impl)
-      throws ClassNotFoundException, BindException;
-
-  /**
-   * Bind named parameters, implementations or external constructors, depending
-   * on the types of the classes passed in.
-   * 
-   * @param iface
-   * @param impl
-   */
-  public <T> void bind(Class<T> iface, Class<?> impl) throws BindException;
-
-  /**
-   * Binds the Class impl as the implementation of the interface iface
-   * 
-   * @param <T>
-   * @param iface
-   * @param impl
-   */
-  public <T> void bindImplementation(Class<T> iface, Class<? extends T> impl)
-      throws BindException;
-
-  /**
-   * Bind iface to impl, ensuring that all injections of iface return the same
-   * instance of impl. Note that directly injecting an impl (and injecting
-   * classes not bound "through" iface") will still create additional impl
-   * instances.
-   * 
-   * If you want to ensure that impl is a singleton instead, use the single
-   * argument version.
-   * 
-   * @param <T>
-   * @param iface
-   * @param impl
-   * @throws BindException
-   */
-  public <T> void bindSingletonImplementation(Class<T> iface,
-      Class<? extends T> impl) throws BindException;
-
-  /**
-   * Same as bindSingletonImplementation, except that the singleton class is
-   * bound to itself.
-   * 
-   * @param <T>
-   * @param impl
-   * @throws BindException
-   */
-  public <T> void bindSingleton(Class<T> iface) throws BindException;
-
   public void bindSingleton(String iface) throws BindException;
-
-  /**
-   * Set the value of a named parameter.
-   * 
-   * @param name
-   *          The dummy class that serves as the name of this parameter.
-   * @param value
-   *          A string representing the value of the parameter. Reef must know
-   *          how to parse the parameter's type.
-   * @throws NameResolutionException
-   */
-  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value)
-      throws BindException;
-
-  public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
-      Class<? extends T> impl) throws BindException;
-
-  public <T> void bindConstructor(Class<T> c,
-      Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
 
   public Collection<String> getShortNames();
 
@@ -160,7 +71,7 @@ public interface ConfigurationBuilder {
   public String classPrettyDefaultString(String longName) throws BindException;
 
   public String classPrettyDescriptionString(String longName)
-      throws BindException;
+  throws BindException;
 
   public Configuration build();
 

@@ -3,7 +3,7 @@ package com.example;
 import javax.inject.Inject;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
@@ -30,7 +30,7 @@ public class TimerV1 {
   
   public static void main(String[] args) throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
-    ConfigurationBuilder cb = (ConfigurationBuilder)tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = (JavaConfigurationBuilder)tang.newConfigurationBuilder();
     cb.register(TimerV1.class);
     Configuration conf = cb.build();
     Injector injector = tang.newInjector(conf);

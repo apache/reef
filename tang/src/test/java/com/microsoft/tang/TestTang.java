@@ -27,7 +27,7 @@ public class TestTang {
 
   @Test
   public void testSingleton() throws BindException, InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
     t.register(TwoSingletons.class);
     tang.newInjector(t.build()).getInstance(TwoSingletons.class);
@@ -36,7 +36,7 @@ public class TestTang {
   @Test(expected = InjectionException.class)
   public void testNotSingleton() throws NameResolutionException,
       ReflectiveOperationException, BindException, InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(TwoSingletons.class);
     Injector injector = tang.newInjector(t.build());
     injector.getInstance(TwoSingletons.class);
@@ -44,13 +44,13 @@ public class TestTang {
 
   @Test(expected = BindException.class)
   public void testRepeatedAmbiguousArgs() throws BindException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(RepeatedAmbiguousArgs.class);
   }
 
   @Test
   public void testRepeatedOKArgs() throws BindException, InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindNamedParameter(RepeatedNamedArgs.A.class, "1");
     t.bindNamedParameter(RepeatedNamedArgs.B.class, "2");
     Injector injector = tang.newInjector(t.build());
@@ -60,14 +60,14 @@ public class TestTang {
   // NamedParameter A has no default_value, so this should throw.
   @Test(expected = InjectionException.class)
   public void testOneNamedFailArgs() throws BindException, InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(OneNamedSingletonArgs.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
 
   @Test(expected = InjectionException.class)
   public void testOneNamedOKArgs() throws BindException, InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(OneNamedSingletonArgs.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
@@ -76,7 +76,7 @@ public class TestTang {
   @Test(expected = InjectionException.class)
   public void testOneNamedSingletonFailArgs() throws BindException,
       InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
     t.register(OneNamedSingletonArgs.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
@@ -86,7 +86,7 @@ public class TestTang {
   @Test
   public void testOneNamedSingletonOKArgs() throws BindException,
       InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(OneNamedSingletonArgs.class);
     final Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(OneNamedSingletonArgs.A.class,
@@ -97,7 +97,7 @@ public class TestTang {
   @Test
   public void testRepeatedNamedOKArgs() throws BindException,
       InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
     t.register(RepeatedNamedSingletonArgs.class);
     final Injector i = tang.newInjector(t.build());
@@ -112,7 +112,7 @@ public class TestTang {
   @Test(expected = InjectionException.class)
   public void testRepeatedNamedFailArgs() throws BindException,
       InjectionException {
-    ConfigurationBuilder t = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.register(RepeatedNamedSingletonArgs.class);
     Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
@@ -125,7 +125,7 @@ public class TestTang {
   @Test
   public void testStraightforwardBuild() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bind(Interf.class, Impl.class);
     tang.newInjector(cb.build()).getInstance(Interf.class);
   }
@@ -133,7 +133,7 @@ public class TestTang {
   @Test(expected = BindException.class)
   public void testOneNamedStringArgCantRebind() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(OneNamedStringArg.class);
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
@@ -149,7 +149,7 @@ public class TestTang {
   @Test
   public void testOneNamedStringArgBind() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(OneNamedStringArg.class);
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
@@ -163,7 +163,7 @@ public class TestTang {
   @Test
   public void testOneNamedStringArgVolatile() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(OneNamedStringArg.class);
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
@@ -176,7 +176,7 @@ public class TestTang {
   @Test
   public void testTwoNamedStringArgsBind() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(TwoNamedStringArgs.class);
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
@@ -194,7 +194,7 @@ public class TestTang {
   @Test
   public void testTwoNamedStringArgsBindVolatile() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(TwoNamedStringArgs.class);
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
@@ -213,7 +213,7 @@ public class TestTang {
   @Test(expected = BindException.class)
   public void testTwoNamedStringArgsReBindVolatileFail() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.register(TwoNamedStringArgs.class);
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
@@ -228,7 +228,7 @@ public class TestTang {
 
   @Test
   public void testBextendsAinjectA() throws BindException, InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bind(BextendsAinjectA.A.class, BextendsAinjectA.A.class);
     tang.newInjector(cb.build()).getInstance(BextendsAinjectA.A.class);
   }
@@ -236,7 +236,7 @@ public class TestTang {
   @Test
   public void testExternalConstructor() throws BindException,
       InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindConstructor(ExternalConstructorExample.Legacy.class,
         ExternalConstructorExample.LegacyWrapper.class);
     Injector i = tang.newInjector(cb.build());
@@ -251,14 +251,14 @@ public class TestTang {
 
   @Test
   public void testLegacyConstructor() throws BindException, InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.registerLegacyConstructor(
         ReflectionUtilities.getFullName(LegacyConstructor.class),
         ReflectionUtilities.getFullName(Integer.class),
         ReflectionUtilities.getFullName(String.class));
     cb.bind(LegacyConstructor.class, LegacyConstructor.class);
     String confString = ConfigurationFile.toConfigurationString(cb.build());
-    ConfigurationBuilder cb2 = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb2 = tang.newConfigurationBuilder();
     // System.err.println(confString);
     ConfigurationFile.addConfiguration(cb2, confString);
     Injector i = tang.newInjector(cb2.build());
@@ -272,7 +272,7 @@ public class TestTang {
 
   @Test
   public void testNamedImpl() throws BindException, InjectionException {
-    ConfigurationBuilder cb = tang.newConfigurationBuilder();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(NamedImpl.AImplName.class, NamedImpl.Aimpl.class);
     cb.bindNamedParameter(NamedImpl.BImplName.class, NamedImpl.Bimpl.class);
     Injector i = tang.newInjector(cb.build());

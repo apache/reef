@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.ConstructorArg;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
@@ -20,7 +20,7 @@ import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class ConfigurationBuilderImpl implements ConfigurationBuilder {
+public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
   // TODO: None of these should be public! - Move to configurationBuilder. Have
   // that wrap itself
   // in a sane Configuration interface...
@@ -130,12 +130,12 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     namespace.register(s);
   }
 
-  @Override
+/*  @Override
   public <T> void registerLegacyConstructor(Class<T> c, final Class<?>... args)
       throws BindException {
     String s = ReflectionUtilities.getFullName(c);
     registerLegacyConstructor(s, args);
-  }
+  } */
 
   @Override
   public void registerLegacyConstructor(ClassNode<?> c,
@@ -158,7 +158,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     registerLegacyConstructor(cn, cnArgs);
   }
 
-  @Override
+/*  @Override
   public void registerLegacyConstructor(String s, final Class<?>... args)
       throws BindException {
     ClassNode<?> cn = (ClassNode<?>) namespace.register(s);
@@ -168,7 +168,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           .getFullName(args[i]));
     }
     registerLegacyConstructor(cn, cnArgs);
-  }
+  } */
 
   @Override
   public void registerLegacyConstructor(ClassNode<?> cn,
@@ -176,10 +176,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     legacyConstructors.put(cn, cn.getConstructorDef(args));
   }
 
-  @Override
+/*  @Override
   public <T> void bind(String key, Class<?> value) throws BindException {
     bind(key, ReflectionUtilities.getFullName(value));
-  }
+  } */
 
   @Override
   public <T> void bind(String key, String value) throws BindException {
