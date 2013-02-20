@@ -7,6 +7,8 @@ import com.microsoft.tang.exceptions.BindException;
 
 public interface ConfigurationBuilder {
 
+  public void bindParser(ClassNode<?> parser) throws BindException; 
+  
   /**
    * Add all configuration parameters from the given Configuration object.
    * 

@@ -88,39 +88,6 @@ public class ReflectionUtilities {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T> T parse(Class<T> c, String s) {
-    Class<?> d = boxClass(c);
-    if (d == String.class) {
-      return (T) s;
-    }
-    if (d == Byte.class) {
-      return (T) (Byte) Byte.parseByte(s);
-    }
-    if (d == Character.class) {
-      return (T) (Character) s.charAt(0);
-    }
-    if (d == Short.class) {
-      return (T) (Short) Short.parseShort(s);
-    }
-    if (d == Integer.class) {
-      return (T) (Integer) Integer.parseInt(s);
-    }
-    if (d == Long.class) {
-      return (T) (Long) Long.parseLong(s);
-    }
-    if (d == Float.class) {
-      return (T) (Float) Float.parseFloat(s);
-    }
-    if (d == Double.class) {
-      return (T) (Double) Double.parseDouble(s);
-    }
-    if (d == Void.class) {
-      throw new ClassCastException("Can't instantiate void");
-    }
-    throw new UnsupportedOperationException("Don't know how to parse a " + c);
-  }
-
   /**
    * Get the simple name of the class. This varies from the one in Class, in
    * that it returns "1" for Classes like java.lang.String$1 In contrast,
@@ -141,7 +108,38 @@ public class ReflectionUtilities {
   public static String getFullName(Class<?> name) {
     return name.getName();
   }
-
+  /**
+   * 
+   * @param iface A generic interface; we're looking up it's first (and only) parameter.
+   * @param clazz A class that implements iface
+   * @return The class implemented by the interface, or null(?) if the instantiation was not generic.
+   * @throws IllegalArgumentException if clazz does not directly implement iface.
+   */
+  static public Class<?> getInterfaceTarget(Class<?> iface, Class<?> clazz) throws IllegalArgumentException {
+    boolean implementsIface = false;
+    Class<?> parameterClass = null;
+    Type[] interfaces = clazz.getGenericInterfaces();
+    for (Type genericNameType : interfaces) {
+      if (genericNameType instanceof ParameterizedType) {
+        ParameterizedType ptype = (ParameterizedType) genericNameType;
+        if (ptype.getRawType() == iface) {
+          implementsIface = true;
+          Type t = ptype.getActualTypeArguments()[0];
+          // It could be that the parameter is, itself a generic type. Not
+          // sure if we should support this, but we do for now.
+          if (t instanceof ParameterizedType) {
+            // Get the underlying raw type of the parameter.
+            t = ((ParameterizedType) t).getRawType();
+          }
+          parameterClass = (Class<?>) t;
+        }
+      }
+    }
+    if(!implementsIface) {
+      throw new IllegalArgumentException(clazz + " does not directly implement " + iface);
+    }
+    return parameterClass;
+  }
   /**
    * @param clazz
    * @return T if clazz implements Name<T>, null otherwise
@@ -185,27 +183,17 @@ public class ReflectionUtilities {
     }
   
     Class<?>[] allInterfaces = clazz.getInterfaces();
-    Type[] interfaces = clazz.getGenericInterfaces();
   
     boolean hasMultipleInterfaces = (allInterfaces.length > 1);
-    boolean implementsName = false;
+    boolean implementsName;
     Class<?> parameterClass = null;
-    for (Type genericNameType : interfaces) {
-      if (genericNameType instanceof ParameterizedType) {
-        ParameterizedType ptype = (ParameterizedType) genericNameType;
-        if (ptype.getRawType() == Name.class) {
-          implementsName = true;
-          Type t = ptype.getActualTypeArguments()[0];
-          // It could be that the parameter is, itself a generic type. Not
-          // sure if we should support this, but we do for now.
-          if (t instanceof ParameterizedType) {
-            // Get the underlying raw type of the parameter.
-            t = ((ParameterizedType) t).getRawType();
-          }
-          parameterClass = (Class<?>) t;
-        }
-      }
+    try {
+      parameterClass = getInterfaceTarget(Name.class, clazz);
+      implementsName = true;
+    } catch(IllegalArgumentException e) {
+      implementsName = false;
     }
+    
     if (npAnnotation == null) {
       if (implementsName) {
         throw new BindException(clazz

@@ -81,7 +81,7 @@ public class InjectorImpl implements Injector {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private void buildInjectionPlan(final String name,
-      Map<String, InjectionPlan<?>> memo) {
+      Map<String, InjectionPlan<?>> memo) throws InjectionException {
     if (memo.containsKey(name)) {
       if (BUILDING == memo.get(name)) {
         throw new IllegalStateException("Detected loopy constructor involving "
@@ -105,7 +105,7 @@ public class InjectorImpl implements Injector {
         String value = cbi.namedParameters.get(n);
         if(value != null) {
           try {
-            instance = javaNamespace.parse(np, value);
+            instance = cbi.parse(np, value);
           } catch (BindException e) {
             throw new IllegalStateException("Could not parse pre-validated value", e);
           }
@@ -119,7 +119,7 @@ public class InjectorImpl implements Injector {
             }
           }
         } else {
-          instance = javaNamespace.defaultNamedParameterInstances.get(n);
+          instance = cbi.parseDefaultValue(np);
         }
       }
       if (instance instanceof Class) {
@@ -208,21 +208,25 @@ public class InjectorImpl implements Injector {
    * @return
    * @throws NameResolutionException
    */
-  public InjectionPlan<?> getInjectionPlan(String name) {
+  public InjectionPlan<?> getInjectionPlan(String name) throws InjectionException {
     Map<String, InjectionPlan<?>> memo = new HashMap<String, InjectionPlan<?>>();
     buildInjectionPlan(name, memo);
     return memo.get(name);
   }
 
   @SuppressWarnings("unchecked")
-  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) {
+  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) throws InjectionException {
     return (InjectionPlan<T>) getInjectionPlan(name.getName());
   }
 
   @Override
   public boolean isInjectable(String name) throws BindException {
-    InjectionPlan<?> p = getInjectionPlan(name);
-    return p.isInjectable();
+    try {
+      InjectionPlan<?> p = getInjectionPlan(name);
+      return p.isInjectable();
+    } catch(InjectionException e) {
+      throw (BindException)e.getCause();
+    }
   }
 
   @Override
@@ -232,8 +236,12 @@ public class InjectorImpl implements Injector {
 
   @Override
   public boolean isParameterSet(String name) throws BindException {
-    InjectionPlan<?> p = getInjectionPlan(name);
-    return p.isInjectable();
+    try {
+      InjectionPlan<?> p = getInjectionPlan(name);
+      return p.isInjectable();
+    } catch(InjectionException e) {
+      throw (BindException)e.getCause();
+    }
   }
 
   @Override

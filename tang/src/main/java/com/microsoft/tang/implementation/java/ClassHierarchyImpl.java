@@ -22,6 +22,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.implementation.AbstractNode;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicMultiMap;
@@ -36,7 +37,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   private URLClassLoader loader;
   private final List<URL> jars;
-
+  
   URL[] getJars() {
     return jars.toArray(new URL[0]);
   }
@@ -45,22 +46,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return ReflectionUtilities.classForName(name, loader);
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
-    return (T)parse(name.getFullArgName(), value);
-  }
-  public Object parse(String name, String value) throws BindException {
-    try {
-      try {
-        return ReflectionUtilities.parse(classForName(name), value);
-      } catch (UnsupportedOperationException e) {
-        return classForName(value);
-      }
-    } catch (ClassNotFoundException e) {
-      throw new BindException("Could not parse type " + name + ".  Value was " + value);
-    }
-  }
-  
   private final PackageNode namespace;
 
   private final class ClassComparator implements Comparator<Class<?>> {
@@ -365,21 +350,9 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       register(np.getFullArgName());
-      try {
-        String defaultString = np.getDefaultInstanceAsString();
-        if (defaultString != null) {
-          defaultNamedParameterInstances.put(np, ReflectionUtilities.parse(
-              classForName(np.getFullArgName()), defaultString));
-        }
-      } catch (ClassNotFoundException e) {
-        throw new BindException("Named paramter " + np
-            + " refers to unknown class " + np.getFullArgName(), e);
-      }
     }
     return n;
   }
-
-  final Map<NamedParameterNode<?>, Object> defaultNamedParameterInstances = new MonotonicMap<>();
 
   /**
    * Assumes that all of the parents of c have been registered already.

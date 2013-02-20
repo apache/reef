@@ -15,7 +15,9 @@ import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -37,6 +39,8 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
   public final static String SINGLETON = "singleton";
   public final static String INIT = "<init>";
 
+  public final ParameterParser parameterParser = new ParameterParser();
+  
   public ConfigurationBuilderImpl() {
     this.namespace = new ClassHierarchyImpl();
   }
@@ -74,7 +78,8 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
   private void addConfiguration(ConfigurationBuilderImpl builder)
       throws BindException {
     namespace.addJars(builder.namespace.getJars());
-
+    parameterParser.mergeIn(builder.parameterParser);
+    
     for (String s : builder.namespace.getRegisteredClassNames()) {
       register(s);
     }
@@ -239,16 +244,44 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
               + "namespace contains a " + n);
     }
   }
-
+  // TODO: Fix up the exception handling surrounding parsing of values
+  <T> T parseDefaultValue(NamedParameterNode<T> name) throws InjectionException {
+    try {
+      String val = name.getDefaultInstanceAsString();
+      if(val != null) {
+        return parse(name, val);
+      } else {
+        return null;
+      }
+    } catch(BindException e) {
+      throw new InjectionException("Could not parse " + name + "=" + "value", e);
+    }
+  }
+  @SuppressWarnings("unchecked")
+  <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
+      return (T)parse(name.getFullArgName(), value);
+  }
+  Object parse(String name, String value) throws BindException {
+    try {
+      try {
+        return parameterParser.parse(namespace.classForName(name), value);
+      } catch (UnsupportedOperationException e) {
+        return namespace.classForName(value);
+      }
+    } catch (ClassNotFoundException e) {
+      throw new BindException("Could not parse type " + name + ".  Value was " + value);
+    }
+  }
+  
   private <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
-    T o = namespace.parse(name, value);
+    T o = parse(name, value);
     if (o instanceof Class) {
       register((Class<?>) o);
     }
     namedParameters.put(name, value);
   }
-
+  
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
@@ -361,5 +394,20 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
           + " when looking for documentation string", e);
     }
 
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindParser(ClassNode<?> parser) throws BindException {
+    try {
+      bindParser((Class<ExternalConstructor<?>>)namespace.classForName(parser.getFullName()));
+    } catch (ClassNotFoundException e) {
+      throw new BindException("Could not find class for parser " + parser.getFullName());
+    }
+  }
+
+  @Override
+  public void bindParser(Class<? extends ExternalConstructor<?>> ec) throws BindException {
+    parameterParser.addParser(ec);
   }
 }
