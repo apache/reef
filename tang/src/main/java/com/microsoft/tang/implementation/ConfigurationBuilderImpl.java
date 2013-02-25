@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation.java;
+package com.microsoft.tang.implementation;
 
 import java.net.URL;
 import java.util.Collection;
@@ -17,6 +17,7 @@ import com.microsoft.tang.Node;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ParameterParser;
+import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -25,7 +26,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // TODO: None of these should be public! - Move to configurationBuilder. Have
   // that wrap itself
   // in a sane Configuration interface...
-  final ClassHierarchy namespace;
+  public final ClassHierarchy namespace;
   // TODO: getBindings(), getSingletons(), getLegacyConstructors().
   public final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
   public final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
@@ -186,7 +187,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   // TODO: Fix up the exception handling surrounding parsing of values
-  <T> T parseDefaultValue(NamedParameterNode<T> name) throws InjectionException {
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws InjectionException {
     try {
       String val = name.getDefaultInstanceAsString();
       if (val != null) {
@@ -200,7 +201,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @SuppressWarnings("unchecked")
-  <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
+  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
     return (T) parse(name.getFullArgName(), value);
   }
 
@@ -217,7 +218,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  <T> void bindParameter(NamedParameterNode<T> name, String value)
+  public <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
     T o = parse(name, value);
     if (o instanceof Class) {

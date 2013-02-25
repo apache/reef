@@ -22,6 +22,8 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
+import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.implementation.Constructor;
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.Subplan;

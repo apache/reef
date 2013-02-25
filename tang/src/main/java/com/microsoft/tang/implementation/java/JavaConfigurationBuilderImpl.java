@@ -10,6 +10,8 @@ import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
+import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
