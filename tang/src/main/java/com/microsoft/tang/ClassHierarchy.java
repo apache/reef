@@ -41,4 +41,6 @@ public interface ClassHierarchy {
 
   public abstract URL[] getJars();
 
+  boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
+
 }

@@ -61,7 +61,10 @@ public interface ConfigurationBuilder {
   public <T> void bind(String iface, String impl)
       throws ClassNotFoundException, BindException;
 
+  void bind(Node key, Node value) throws BindException;
+
   public void bindSingleton(String iface) throws BindException;
+  public void bindSingleton(ClassNode<?> iface) throws BindException;
 
   public <T> void bindConstructor(ClassNode<T> k, ClassNode<? extends ExternalConstructor<? extends T>> v) throws BindException;
 
@@ -76,6 +79,10 @@ public interface ConfigurationBuilder {
 
   public Configuration build();
 
-  <T> void bind(ClassNode<T> key, ClassNode<?> value) throws BindException;
+  public <T> void bindSingletonImplementation(ClassNode<T> c, ClassNode<? extends T> d)
+      throws BindException;
+
+  public void bindSingletonImplementation(String inter, String impl)
+      throws BindException;
 
 }

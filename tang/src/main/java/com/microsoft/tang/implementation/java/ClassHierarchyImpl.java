@@ -410,4 +410,24 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   public String toPrettyString() {
     return namespace.toIndentedString(0);
   }
+  
+  @Override
+  public boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl) {
+    List<ClassNode<?>> worklist = new ArrayList<>();
+    if(impl.equals(inter)) {
+      return true;
+    }
+    worklist.add(inter);
+    while(! worklist.isEmpty()) {
+      ClassNode<?> cn = worklist.remove(worklist.size()-1);
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      Set<ClassNode<?>> impls = (Set)cn.getKnownImplementations();
+      if(impls.contains(impl)) {
+        return true;
+      }
+      worklist.addAll(impls);
+    }
+    return false;
+  }
+
 }

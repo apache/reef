@@ -12,17 +12,22 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl implements JavaConfigurationBuilder {
+public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
+    implements JavaConfigurationBuilder {
 
   public JavaConfigurationBuilderImpl(URL[] jars) {
     super(jars);
   }
+
   public JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) {
     super(impl);
   }
-  public JavaConfigurationBuilderImpl(Configuration[] confs) throws BindException {
+
+  public JavaConfigurationBuilderImpl(Configuration[] confs)
+      throws BindException {
     super(confs);
   }
+
   @Override
   public ConfigurationImpl build() {
     return new ConfigurationImpl(new JavaConfigurationBuilderImpl(this));
@@ -36,46 +41,36 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl imple
    * 
    * @param c
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> ClassNode<T> register(Class<T> c) throws BindException {
-    return (ClassNode<T>) namespace.register(ReflectionUtilities.getFullName(c));
+  public Node register(Class<?> c) throws BindException {
+    return namespace.register(ReflectionUtilities.getFullName(c));
   }
+
   @Override
-  @SuppressWarnings("unchecked")
   public <T> void bind(Class<T> c, Class<?> val) throws BindException {
-    if (ExternalConstructor.class.isAssignableFrom(val)
-        && (!ExternalConstructor.class.isAssignableFrom(c))) {
-      bindConstructor(c,
-          (Class<? extends ExternalConstructor<? extends T>>) val);
-    } else {
-      bindImplementation(c, (Class<? extends T>) val);
-    }
+    bind(register(c), register(val));
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
       throws BindException {
-    if (!c.isAssignableFrom(d)) {
-      throw new ClassCastException(d.getName()
-          + " does not extend or implement " + c.getName());
-    }
-    Node n = namespace.register(ReflectionUtilities.getFullName(c));
-    Node m =  namespace.register(ReflectionUtilities.getFullName(d));
-    if (n instanceof ClassNode) {
-      if (m instanceof ClassNode) {
-        bindImplementation((ClassNode<T>)n,(ClassNode<? extends T>)m);
-      } else {
-        throw new BindException("Cannot bind ClassNode " + n
-            + " to non-ClassNode " + m);
-      }
-    } else {
+    Node cn = register(c);
+    Node dn = register(d);
+    if (!(cn instanceof ClassNode)) {
       throw new BindException(
-          "Detected type mismatch.  bindImplementation needs a ClassNode, but "
-              + "namespace contains a " + n);
+          "bindImplementation passed interface that resolved to " + cn
+              + " expected a ClassNode<?>");
     }
+    if (!(dn instanceof ClassNode)) {
+      throw new BindException(
+          "bindImplementation passed implementation that resolved to " + dn
+              + " expected a ClassNode<?>");
+    }
+    bindImplementation((ClassNode<T>) register(c),
+        (ClassNode<? extends T>) register(d));
   }
+
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
@@ -93,46 +88,44 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl imple
   @Override
   public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
       Class<? extends T> impl) throws BindException {
-    Node n = namespace.register(ReflectionUtilities.getFullName(iface));
-    namespace.register(ReflectionUtilities.getFullName(impl));
-    if (n instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<?>) n, impl.getName());
-    } else {
-      throw new BindException(
-          "Detected type mismatch when setting named parameter " + iface
-              + "  Expected NamedParameterNode, but namespace contains a " + n);
+    Node n = register(iface);
+    if (!(n instanceof NamedParameterNode)) {
+      throw new BindException("Type mismatch when setting named parameter " + n
+          + " Expected NamedParameterNode");
     }
+    bind(register(iface), register(impl));
   }
 
   @Override
   public <T> void bindSingleton(Class<T> c) throws BindException {
     bindSingleton(ReflectionUtilities.getFullName(c));
   }
+
   @Override
   public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
       throws BindException {
     bindSingleton(c);
     bindImplementation(c, d);
   }
+
   @Override
-  public void bindParser(Class<? extends ExternalConstructor<?>> ec) throws BindException {
+  public void bindParser(Class<? extends ExternalConstructor<?>> ec)
+      throws BindException {
     parameterParser.addParser(ec);
   }
+
   @SuppressWarnings({ "unchecked" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
-
+    Node n = namespace.register(ReflectionUtilities.getFullName(c));
     Node m = namespace.register(ReflectionUtilities.getFullName(v));
-    try {
-      boundConstructors
-          .put((ClassNode<?>) namespace.register(ReflectionUtilities
-              .getFullName(c)), (ClassNode<ExternalConstructor<?>>) m);
-    } catch (ClassCastException e) {
-      throw new IllegalArgumentException(
-          "Cannot register external class constructor for " + c
-              + " (which is probably a named parameter)");
+    if(!(n instanceof ClassNode)) {
+      throw new BindException("BindConstructor got class that resolved to " + n + "; expected ClassNode");
     }
+    if(!(m instanceof ClassNode)) {
+      throw new BindException("BindConstructor got class that resolved to " + m + "; expected ClassNode");
+    }
+    bindConstructor((ClassNode<T>)n, (ClassNode<? extends ExternalConstructor<? extends T>>)m);
   }
-
 
 }

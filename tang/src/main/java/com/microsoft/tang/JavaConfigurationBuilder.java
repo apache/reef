@@ -13,17 +13,6 @@ import com.microsoft.tang.ExternalConstructor;
  * 
  */
 public interface JavaConfigurationBuilder extends ConfigurationBuilder {
-//  @Deprecated
-//  public <T> void registerLegacyConstructor(Class<T> c, Class<?>... args)
-//      throws BindException;
-//
-//  @Deprecated
-//  public void registerLegacyConstructor(String s, Class<?>... args)
-//      throws BindException;
-//
-//  @Deprecated
-//  public <T> void bind(String iface, Class<?> impl)
-//      throws ClassNotFoundException, BindException;
 
   /**
    * Bind named parameters, implementations or external constructors, depending
@@ -92,6 +81,6 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
 
   public void bindParser(Class<? extends ExternalConstructor<?>> ec) throws BindException;
   
-  public <T> ClassNode<T> register(Class<T> c) throws BindException;
+  public Node register(Class<?> c) throws BindException;
 
 }
