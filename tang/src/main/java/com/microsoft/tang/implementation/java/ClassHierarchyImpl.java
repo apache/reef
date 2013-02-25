@@ -5,10 +5,10 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ClassNode;
@@ -22,10 +22,8 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.implementation.AbstractNode;
 import com.microsoft.tang.util.MonotonicMap;
-import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
@@ -38,6 +36,10 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   private URLClassLoader loader;
   private final List<URL> jars;
   
+  private final PackageNode namespace;
+  private final TreeSet<String> registeredClasses = new MonotonicSet<>();
+  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
+
   URL[] getJars() {
     return jars.toArray(new URL[0]);
   }
@@ -45,22 +47,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   public Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
   }
-
-  private final PackageNode namespace;
-
-  private final class ClassComparator implements Comparator<Class<?>> {
-
-    @Override
-    public int compare(Class<?> arg0, Class<?> arg1) {
-      return arg0.getName().compareTo(arg1.getName());
-    }
-
-  }
-
-  private final Set<Class<?>> registeredClasses = new MonotonicSet<>(
-      new ClassComparator());
-  private final MonotonicMultiMap<ClassNode<?>, ClassNode<?>> knownImpls = new MonotonicMultiMap<>();
-  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
   public ClassHierarchyImpl(URL... jars) {
     this.namespace = JavaNodeFactory.createPackageNode();
@@ -258,11 +244,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         packageName[packageName.length - 1]);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.microsoft.tang.implementation.Namespace#register(java.lang.String)
-   */
   @Override
   public Node register(String s) throws BindException {
     final Class<?> c;
@@ -388,40 +369,25 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       Class<T> superclass = (Class<T>) c.getSuperclass();
       if (superclass != null) {
         try {
-          putImpl((ClassNode<T>) getNode(superclass), cn);
+          ((ClassNode<T>)getNode(superclass)).putImpl(cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }
       }
       for (Class<?> interf : c.getInterfaces()) {
         try {
-          putImpl((ClassNode<T>) getNode(interf), cn);
+          ((ClassNode<T>)getNode(interf)).putImpl(cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }
       }
     }
-    registeredClasses.add(c);
+    registeredClasses.add(ReflectionUtilities.getFullName(c));
     return n;
   }
 
-  private <T, U extends T> void putImpl(ClassNode<T> superclass,
-      ClassNode<U> impl) {
-    knownImpls.put(superclass, impl);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> Set<ClassNode<T>> getKnownImplementations(ClassNode<T> c) {
-    return (Set<ClassNode<T>>) (Set<?>) knownImpls.getValuesForKey(c);
-  }
-
   public Set<String> getRegisteredClassNames() {
-    Set<String> s = new MonotonicSet<String>();
-    for (Class<?> c : registeredClasses) {
-      s.add(ReflectionUtilities.getFullName(c));
-    }
-    return s;
+    return new MonotonicSet<String>(registeredClasses);
   }
 
   PackageNode getNamespace() {

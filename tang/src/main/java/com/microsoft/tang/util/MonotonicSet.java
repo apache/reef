@@ -11,7 +11,8 @@ public class MonotonicSet<T> extends TreeSet<T> {
     super();
   }
 
-  public MonotonicSet(Collection<T> c) {
+  public MonotonicSet(TreeSet<T> c) {
+    super(c.comparator());
     addAll(c);
   }
   public MonotonicSet(Comparator<T> c) {

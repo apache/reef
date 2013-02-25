@@ -147,13 +147,11 @@ public class InjectorImpl implements Injector {
         memo.put(cn.getFullName(), ip);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<>();
+        // if we're here and there is a bound impl, then we're bound to
+        // ourselves, so don't add known impls to the list of things to
+        // consider.
         if (cbi.boundImpls.get(cn) == null) {
-          // if we're here, and there is a bound impl, then we're bound to
-          // ourselves,
-          // so skip this loop.
-          for (ClassNode<?> c : namespace.getKnownImplementations(cn)) {
-            classNodes.add(c);
-          }
+          classNodes.addAll(cn.getKnownImplementations());
         }
         classNodes.add(cn);
         List<InjectionPlan<?>> sub_ips = new ArrayList<InjectionPlan<?>>();

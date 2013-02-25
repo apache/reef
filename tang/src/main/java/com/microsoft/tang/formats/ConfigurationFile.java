@@ -60,6 +60,15 @@ public class ConfigurationFile {
     processConfigFile(conf, confFile);
   }
 
+  /**
+   * 
+   * @param conf
+   *          This configuration builder will be modified to incorporate the
+   *          contents of the configuration file.
+   * @param s
+   *          A string containing the contents of the configuration file.
+   * @throws BindException
+   */
   public static void addConfiguration(ConfigurationBuilder conf, String s)
       throws BindException {
     try {

@@ -1,5 +1,7 @@
 package com.microsoft.tang;
 
+import java.util.Set;
+
 import com.microsoft.tang.exceptions.BindException;
 
 public interface ClassNode<T> extends Node {
@@ -12,5 +14,8 @@ public interface ClassNode<T> extends Node {
 
   public ConstructorDef<T>[] getAllConstructors();
 
+  public void putImpl(ClassNode<? extends T> impl);
+  public Set<ClassNode<? extends T>> getKnownImplementations();
+  
   public boolean isInjectionCandidate();
 }

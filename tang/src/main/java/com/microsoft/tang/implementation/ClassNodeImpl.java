@@ -1,9 +1,12 @@
 package com.microsoft.tang.implementation;
 
+import java.util.Set;
+
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.Node;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.util.MonotonicSet;
 
 public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final boolean injectable;
@@ -13,7 +16,8 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final boolean isPrefixTarget;
   private final ConstructorDef<T>[] injectableConstructors;
   private final ConstructorDef<T>[] allConstructors;
-
+  private final MonotonicSet<ClassNode<? extends T>> knownImpls;
+  
   public ClassNodeImpl(Node parent, String simpleName, String fullName,
       boolean injectable, boolean isPrefixTarget,
       ConstructorDef<T>[] injectableConstructors,
@@ -24,6 +28,7 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
     this.isPrefixTarget = isPrefixTarget;
     this.injectableConstructors = injectableConstructors;
     this.allConstructors = allConstructors;
+    this.knownImpls = new MonotonicSet<>();
   }
 
   @Override
@@ -83,4 +88,13 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
         + getFullName());
   }
 
+  @Override
+  public void putImpl(ClassNode<? extends T> impl) {
+    knownImpls.add(impl);
+  }
+
+  @Override
+  public Set<ClassNode<? extends T>> getKnownImplementations() {
+   return new MonotonicSet<>(knownImpls);
+  }
 }
