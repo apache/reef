@@ -1,6 +1,6 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.ConstructorArg;
+import com.microsoft.tang.types.ConstructorArg;
 
 public class ConstructorArgImpl implements ConstructorArg {
   private final String type;

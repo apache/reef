@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Set;
  
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.Node;
 
 /**
  * ClassHierarchy objects store information about the interfaces

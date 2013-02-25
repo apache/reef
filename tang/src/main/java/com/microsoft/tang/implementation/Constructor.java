@@ -1,7 +1,7 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.ClassNode;
-import com.microsoft.tang.ConstructorDef;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.ConstructorDef;
 
 final public class Constructor<T> extends InjectionPlan<T> {
     final ConstructorDef<T> constructor;

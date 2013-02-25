@@ -14,6 +14,7 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.types.ExternalConstructor;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTang {

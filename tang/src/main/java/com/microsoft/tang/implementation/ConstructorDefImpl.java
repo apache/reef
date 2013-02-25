@@ -1,9 +1,9 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.ClassNode;
-import com.microsoft.tang.ConstructorArg;
-import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.ConstructorArg;
+import com.microsoft.tang.types.ConstructorDef;
 
 public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   private final ConstructorArg[] args;

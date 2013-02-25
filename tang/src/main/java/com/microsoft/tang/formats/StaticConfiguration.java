@@ -2,10 +2,10 @@ package com.microsoft.tang.formats;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
-import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.types.ExternalConstructor;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 /**

@@ -11,11 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.microsoft.tang.ClassNode;
-import com.microsoft.tang.ConstructorDef;
-import com.microsoft.tang.NamedParameterNode;
-import com.microsoft.tang.NamespaceNode;
-import com.microsoft.tang.Node;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
@@ -23,6 +18,11 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.ConstructorDef;
+import com.microsoft.tang.types.NamedParameterNode;
+import com.microsoft.tang.types.NamespaceNode;
+import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTypeHierarchy {

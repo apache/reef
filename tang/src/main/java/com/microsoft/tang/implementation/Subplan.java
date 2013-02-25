@@ -1,6 +1,6 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.Node;
+import com.microsoft.tang.types.Node;
 
 final public class Subplan<T> extends InjectionPlan<T> {
     final InjectionPlan<? extends T>[] alternatives;

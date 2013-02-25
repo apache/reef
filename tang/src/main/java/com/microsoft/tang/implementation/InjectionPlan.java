@@ -1,6 +1,6 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.Node;
+import com.microsoft.tang.types.Node;
 
 public abstract class InjectionPlan<T> {
   final Node node;

@@ -1,8 +1,8 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.ClassNode;
-import com.microsoft.tang.NamespaceNode;
-import com.microsoft.tang.Node;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.NamespaceNode;
+import com.microsoft.tang.types.Node;
 
 public class NamespaceNodeImpl<T> extends AbstractNode implements
     NamespaceNode<T> {

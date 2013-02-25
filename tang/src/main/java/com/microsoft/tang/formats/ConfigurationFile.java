@@ -12,14 +12,14 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
-import com.microsoft.tang.ConstructorArg;
-import com.microsoft.tang.Node;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.ConfigurationImpl;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.ConstructorArg;
+import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationFile {

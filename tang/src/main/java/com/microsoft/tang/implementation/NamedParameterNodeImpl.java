@@ -1,7 +1,7 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.NamedParameterNode;
-import com.microsoft.tang.Node;
+import com.microsoft.tang.types.NamedParameterNode;
+import com.microsoft.tang.types.Node;
 
 public class NamedParameterNodeImpl<T> extends AbstractNode implements
     NamedParameterNode<T> {

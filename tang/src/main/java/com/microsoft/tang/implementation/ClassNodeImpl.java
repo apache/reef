@@ -2,10 +2,10 @@ package com.microsoft.tang.implementation;
 
 import java.util.Set;
 
-import com.microsoft.tang.ClassNode;
-import com.microsoft.tang.ConstructorDef;
-import com.microsoft.tang.Node;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.ConstructorDef;
+import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {

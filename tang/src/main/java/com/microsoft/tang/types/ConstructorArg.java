@@ -1,4 +1,4 @@
-package com.microsoft.tang;
+package com.microsoft.tang.types;
 
 public interface ConstructorArg {
 
