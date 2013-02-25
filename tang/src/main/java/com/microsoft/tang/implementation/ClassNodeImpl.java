@@ -14,17 +14,19 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   // vs "$" right in classnames is tricky.
   private final String fullName;
   private final boolean isPrefixTarget;
+  private final boolean externalConstructor;
   private final ConstructorDef<T>[] injectableConstructors;
   private final ConstructorDef<T>[] allConstructors;
   private final MonotonicSet<ClassNode<? extends T>> knownImpls;
   
   public ClassNodeImpl(Node parent, String simpleName, String fullName,
-      boolean injectable, boolean isPrefixTarget,
+      boolean injectable, boolean externalConstructor, boolean isPrefixTarget,
       ConstructorDef<T>[] injectableConstructors,
       ConstructorDef<T>[] allConstructors) {
     super(parent, simpleName);
     this.fullName = fullName;
     this.injectable = injectable;
+    this.externalConstructor = externalConstructor;
     this.isPrefixTarget = isPrefixTarget;
     this.injectableConstructors = injectableConstructors;
     this.allConstructors = allConstructors;
@@ -54,6 +56,10 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   @Override
   public boolean isInjectionCandidate() {
     return injectable;
+  }
+  @Override
+  public boolean isExternalConstructor() {
+    return externalConstructor;
   }
 
   @Override

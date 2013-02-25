@@ -5,31 +5,30 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.JavaConfigurationBuilder;
+import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ConstructorArg;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.Node;
-import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
+public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // TODO: None of these should be public! - Move to configurationBuilder. Have
   // that wrap itself
   // in a sane Configuration interface...
-  final ClassHierarchyImpl namespace;
+  final ClassHierarchy namespace;
   // TODO: getBindings(), getSingletons(), getLegacyConstructors().
   public final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
-  public final Map<ClassNode<?>, ClassNode<ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
+  public final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
   public final Set<ClassNode<?>> singletons = new MonotonicSet<>();
   public final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
   public final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
@@ -118,19 +117,6 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
     }
   }
 
-  /**
-   * Needed when you want to make a class available for injection, but don't
-   * want to bind a subclass to its implementation. Without this call, by the
-   * time injector.newInstance() is called, ConfigurationBuilderImpl has been
-   * locked down, and the class won't be found.
-   * 
-   * @param c
-   */
-  @Override
-  public void register(Class<?> c) throws BindException {
-    namespace.register(ReflectionUtilities.getFullName(c));
-  }
-
   public void register(String s) throws BindException {
     namespace.register(s);
   }
@@ -192,57 +178,35 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
     if (n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
-      Class<?> v;
+      Node m = namespace.register(value);
+      bind((ClassNode<?>)n, (ClassNode<?>)m);
+    }
+/*      Class<?> v;
       Class<?> k;
       try {
-        v = namespace.classForName(value);
+        v = ((ClassHierarchyImpl)namespace).classForName(value);
       } catch (ClassNotFoundException e) {
         throw new BindException("Could not find class " + value);
       }
       try {
-        k = namespace.classForName(key);
+        k = ((ClassHierarchyImpl)namespace).classForName(key);
       } catch (ClassNotFoundException e) {
         throw new BindException("Could not find class " + key);
       }
       bind(k, v);
-    }
+    } */
   }
-
-  @Override
   @SuppressWarnings("unchecked")
-  public <T> void bind(Class<T> c, Class<?> val) throws BindException {
-    if (ExternalConstructor.class.isAssignableFrom(val)
-        && (!ExternalConstructor.class.isAssignableFrom(c))) {
-      bindConstructor(c,
-          (Class<? extends ExternalConstructor<? extends T>>) val);
+  @Override
+  public <T> void bind(ClassNode<T> key, ClassNode<?> value) throws BindException {
+    if(value.isExternalConstructor() && !key.isExternalConstructor()) {
+      bindConstructor(key, (ClassNode<? extends ExternalConstructor<T>>)value);
     } else {
-      bindImplementation(c, (Class<? extends T>) val);
+      bindImplementation(key, (ClassNode<? extends T>)value);
     }
   }
-
-  @Override
-  public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
-      throws BindException {
-    if (!c.isAssignableFrom(d)) {
-      throw new ClassCastException(d.getName()
-          + " does not extend or implement " + c.getName());
-    }
-
-    Node n = namespace.register(ReflectionUtilities.getFullName(c));
-    Node m = namespace.register(ReflectionUtilities.getFullName(d));
-
-    if (n instanceof ClassNode) {
-      if (m instanceof ClassNode) {
-        boundImpls.put((ClassNode<?>) n, (ClassNode<?>) m);
-      } else {
-        throw new BindException("Cannot bind ClassNode " + n
-            + " to non-ClassNode " + m);
-      }
-    } else {
-      throw new BindException(
-          "Detected type mismatch.  bindImplementation needs a ClassNode, but "
-              + "namespace contains a " + n);
-    }
+  public <T> void bindImplementation(ClassNode<T> n, ClassNode<? extends T> m) throws BindException{
+    boundImpls.put((ClassNode<?>) n, (ClassNode<?>) m);
   }
   // TODO: Fix up the exception handling surrounding parsing of values
   <T> T parseDefaultValue(NamedParameterNode<T> name) throws InjectionException {
@@ -261,59 +225,27 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
   <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
       return (T)parse(name.getFullArgName(), value);
   }
-  Object parse(String name, String value) throws BindException {
+  private Object parse(String name, String value) throws BindException {
     try {
       try {
-        return parameterParser.parse(namespace.classForName(name), value);
+        return parameterParser.parse(name, value);
       } catch (UnsupportedOperationException e) {
-        return namespace.classForName(value);
+        return ((ClassHierarchyImpl)namespace).classForName(value);
       }
     } catch (ClassNotFoundException e) {
-      throw new BindException("Could not parse type " + name + ".  Value was " + value);
+      throw new BindException("Could not parse type " + name + ".  Value was " + value, e);
     }
   }
   
-  private <T> void bindParameter(NamedParameterNode<T> name, String value)
+  <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
     T o = parse(name, value);
     if (o instanceof Class) {
-      register((Class<?>) o);
+      register(ReflectionUtilities.getFullName((Class<?>) o));
     }
     namedParameters.put(name, value);
   }
   
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
-      throws BindException {
-    Node np = namespace.register(ReflectionUtilities.getFullName(name));
-    if (np instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<T>) np, s);
-    } else {
-      throw new BindException(
-          "Detected type mismatch when setting named parameter " + name
-              + "  Expected NamedParameterNode, but namespace contains a " + np);
-    }
-  }
-
-  @Override
-  public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
-      Class<? extends T> impl) throws BindException {
-    Node n = namespace.register(ReflectionUtilities.getFullName(iface));
-    namespace.register(ReflectionUtilities.getFullName(impl));
-    if (n instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<?>) n, impl.getName());
-    } else {
-      throw new BindException(
-          "Detected type mismatch when setting named parameter " + iface
-              + "  Expected NamedParameterNode, but namespace contains a " + n);
-    }
-  }
-
-  @Override
-  public <T> void bindSingleton(Class<T> c) throws BindException {
-    bindSingleton(ReflectionUtilities.getFullName(c));
-  }
 
   @Override
   public void bindSingleton(String s) throws BindException {
@@ -326,30 +258,11 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
     singletons.add(cn);
   }
 
-  @Override
-  public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
-      throws BindException {
-    bindSingleton(c);
-    bindImplementation(c, d);
-  }
 
   @Override
-  @SuppressWarnings({ "unchecked" })
-  public <T> void bindConstructor(Class<T> c,
-      Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
-
-    Node m = namespace.register(ReflectionUtilities.getFullName(v));
-    try {
-      boundConstructors
-          .put((ClassNode<?>) namespace.register(ReflectionUtilities
-              .getFullName(c)), (ClassNode<ExternalConstructor<?>>) m);
-    } catch (ClassCastException e) {
-      throw new IllegalArgumentException(
-          "Cannot register external class constructor for " + c
-              + " (which is probably a named parameter)");
-    }
+  public <T> void bindConstructor(ClassNode<T> k, ClassNode<? extends ExternalConstructor<? extends T>> v) throws BindException {
+    boundConstructors.put(k, v);
   }
-
   @Override
   public ConfigurationImpl build() {
     return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
@@ -371,43 +284,36 @@ public class ConfigurationBuilderImpl implements JavaConfigurationBuilder {
 
   @Override
   public String classPrettyDefaultString(String longName) throws BindException {
-    try {
-      NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
-          .getNode(longName);
-      return param.getSimpleArgName() + "="
-          + param.getDefaultInstanceAsString();
-    } catch (NameResolutionException e) {
+    NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
+        .register(longName);
+    if(param == null) {
       throw new BindException("Couldn't find " + longName
-          + " when looking for default value", e);
+          + " when looking for default value");
     }
+    return param.getSimpleArgName() + "="
+          + param.getDefaultInstanceAsString();
   }
 
   @Override
   public String classPrettyDescriptionString(String longName)
       throws BindException {
-    try {
-      NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
-          .getNode(longName);
-      return param.getDocumentation() + "\n" + param.getFullName();
-    } catch (NameResolutionException e) {
+    NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
+        .register(longName);
+    if(param == null) {
       throw new BindException("Couldn't find " + longName
-          + " when looking for documentation string", e);
+          + " when looking for documentation string");
     }
-
+    return param.getDocumentation() + "\n" + param.getFullName();
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public void bindParser(ClassNode<?> parser) throws BindException {
-    try {
-      bindParser((Class<ExternalConstructor<?>>)namespace.classForName(parser.getFullName()));
-    } catch (ClassNotFoundException e) {
-      throw new BindException("Could not find class for parser " + parser.getFullName());
-    }
-  }
+//  @SuppressWarnings("unchecked")
+//  @Override
+//  public void bindParser(ClassNode<?> parser) throws BindException {
+//    try {
+//      bindParser((Class<ExternalConstructor<?>>)namespace.classForName(parser.getFullName()));
+//    } catch (ClassNotFoundException e) {
+//      throw new BindException("Could not find class for parser " + parser.getFullName());
+//    }
+//  }
 
-  @Override
-  public void bindParser(Class<? extends ExternalConstructor<?>> ec) throws BindException {
-    parameterParser.addParser(ec);
-  }
 }

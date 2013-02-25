@@ -39,46 +39,49 @@ public class ParameterParser {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public <T> T parse(Class<T> c, String s) {
-    String name = ReflectionUtilities.getFullName(c);
+    Class<?> d = ReflectionUtilities.boxClass(c);
+    String name = ReflectionUtilities.getFullName(d);
+    return parse(name, s);
+  }
+  @SuppressWarnings("unchecked")
+  public <T> T parse(String name, String value) {
     if (parsers.containsKey(name)) {
       try {
-        return (T) (parsers.get(name).newInstance(s).newInstance());
+        return (T) (parsers.get(name).newInstance(value).newInstance());
       } catch (ReflectiveOperationException e) {
         throw new IllegalArgumentException("Error invoking constructor for "
             + name, e);
       }
     } else {
-      Class<?> d = ReflectionUtilities.boxClass(c);
-      if (d == String.class) {
-        return (T) s;
+      if (name.equals(String.class.getName())) {
+        return (T) value;
       }
-      if (d == Byte.class) {
-        return (T) (Byte) Byte.parseByte(s);
+      if (name.equals(Byte.class.getName())) {
+        return (T) (Byte) Byte.parseByte(value);
       }
-      if (d == Character.class) {
-        return (T) (Character) s.charAt(0);
+      if (name.equals(Character.class.getName())) {
+        return (T) (Character) value.charAt(0);
       }
-      if (d == Short.class) {
-        return (T) (Short) Short.parseShort(s);
+      if (name.equals(Short.class.getName())) {
+        return (T) (Short) Short.parseShort(value);
       }
-      if (d == Integer.class) {
-        return (T) (Integer) Integer.parseInt(s);
+      if (name.equals(Integer.class.getName())) {
+        return (T) (Integer) Integer.parseInt(value);
       }
-      if (d == Long.class) {
-        return (T) (Long) Long.parseLong(s);
+      if (name.equals(Long.class.getName())) {
+        return (T) (Long) Long.parseLong(value);
       }
-      if (d == Float.class) {
-        return (T) (Float) Float.parseFloat(s);
+      if (name.equals(Float.class.getName())) {
+        return (T) (Float) Float.parseFloat(value);
       }
-      if (d == Double.class) {
-        return (T) (Double) Double.parseDouble(s);
+      if (name.equals(Double.class.getName())) {
+        return (T) (Double) Double.parseDouble(value);
       }
-      if (d == Void.class) {
+      if (name.equals(Void.class.getName())) {
         throw new ClassCastException("Can't instantiate void");
       }
-      throw new UnsupportedOperationException("Don't know how to parse a " + c);
+      throw new UnsupportedOperationException("Don't know how to parse a " + name);
     }
   }
 

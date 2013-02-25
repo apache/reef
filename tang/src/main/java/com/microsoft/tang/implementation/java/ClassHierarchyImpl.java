@@ -40,7 +40,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   private final TreeSet<String> registeredClasses = new MonotonicSet<>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
-  URL[] getJars() {
+  @Override
+  public URL[] getJars() {
     return jars.toArray(new URL[0]);
   }
 
@@ -60,6 +61,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     this.loader = new URLClassLoader(jars, loader);
   }
 
+  @Override
   public void addJars(URL... j) {
     List<URL> newJars = new ArrayList<>();
     for (URL u : j) {

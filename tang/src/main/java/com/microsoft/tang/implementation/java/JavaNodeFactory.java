@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.ConstructorArg;
 import com.microsoft.tang.ConstructorDef;
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.NamedParameterNode;
 import com.microsoft.tang.NamespaceNode;
 import com.microsoft.tang.Node;
@@ -80,6 +81,7 @@ public class JavaNodeFactory {
     }
 
     return new ClassNodeImpl<T>(parent, simpleName, fullName, injectable,
+        ExternalConstructor.class.isAssignableFrom(clazz),
         isPrefixTarget,
         injectableConstructors.toArray(new ConstructorDefImpl[0]),
         allConstructors.toArray(new ConstructorDefImpl[0]));

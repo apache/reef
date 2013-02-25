@@ -18,4 +18,5 @@ public interface ClassNode<T> extends Node {
   public Set<ClassNode<? extends T>> getKnownImplementations();
   
   public boolean isInjectionCandidate();
+  public boolean isExternalConstructor();
 }

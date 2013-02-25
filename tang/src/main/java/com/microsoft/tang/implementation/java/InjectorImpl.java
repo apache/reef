@@ -9,7 +9,7 @@ import java.util.Map;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ClassNode;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.JavaConfigurationBuilder;
+import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ConstructorArg;
 import com.microsoft.tang.ConstructorDef;
 import com.microsoft.tang.ExternalConstructor;
@@ -41,8 +41,8 @@ public class InjectorImpl implements Injector {
     }
   }
 
-  final JavaConfigurationBuilder cb;
-  final ConfigurationBuilderImpl cbi;
+  final ConfigurationBuilder cb;
+  final JavaConfigurationBuilderImpl cbi;
   final ClassHierarchy namespace;
   final ClassHierarchyImpl javaNamespace;
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
@@ -250,9 +250,9 @@ public class InjectorImpl implements Injector {
 
   public InjectorImpl(ConfigurationImpl c) throws BindException {
     this.cb = c.builder;
-    this.cbi = c.builder;
+    this.cbi = (JavaConfigurationBuilderImpl)(c.builder);
     this.namespace = c.builder.namespace;
-    this.javaNamespace = c.builder.namespace;
+    this.javaNamespace = (ClassHierarchyImpl)c.builder.namespace;
   }
 
   boolean populated = false;
@@ -408,7 +408,7 @@ public class InjectorImpl implements Injector {
       Configuration... configurations) throws BindException {
     final InjectorImpl i;
     try {
-      final ConfigurationBuilderImpl cb = new ConfigurationBuilderImpl(old.cbi);
+      final ConfigurationBuilderImpl cb = new JavaConfigurationBuilderImpl(old.cbi);
       for (Configuration c : configurations) {
         cb.addConfiguration(c);
       }

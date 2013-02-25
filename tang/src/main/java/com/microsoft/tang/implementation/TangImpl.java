@@ -7,14 +7,14 @@ import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.implementation.java.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.java.InjectorImpl;
+import com.microsoft.tang.implementation.java.JavaConfigurationBuilderImpl;
 
 public class TangImpl implements Tang {
 
   @Override
   public Injector newInjector(Configuration... confs) throws BindException {
-    return new InjectorImpl(new ConfigurationBuilderImpl(confs).build());
+    return new InjectorImpl(new JavaConfigurationBuilderImpl(confs).build());
   }
 
   @Override
@@ -47,7 +47,7 @@ public class TangImpl implements Tang {
   @Override
   public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs) throws BindException {
-    JavaConfigurationBuilder cb = new ConfigurationBuilderImpl(jars);
+    JavaConfigurationBuilder cb = new JavaConfigurationBuilderImpl(jars);
     for (Configuration c : confs) {
       cb.addConfiguration(c);
     }

@@ -1,8 +1,9 @@
 package com.microsoft.tang;
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.Set;
-
+ 
 import com.microsoft.tang.exceptions.BindException;
 
 /**
@@ -27,11 +28,17 @@ public interface ClassHierarchy {
 
   public String resolveShortName(String shortName);
 
+  public Set<String> getRegisteredClassNames();
+  
   /**
    * TODO: Fix up output of TypeHierarchy!
    * 
    * @return
    */
   public String toPrettyString();
+
+  public abstract void addJars(URL... j);
+
+  public abstract URL[] getJars();
 
 }

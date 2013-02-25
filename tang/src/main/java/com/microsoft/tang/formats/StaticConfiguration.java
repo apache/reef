@@ -127,7 +127,7 @@ final public class StaticConfiguration {
   public static final class BindConstructor implements BindInterface {
     final Class<?> inter;
     final Class<? extends ExternalConstructor<?>> constructor;
-    public <T> BindConstructor(Class<T> inter, Class<? extends ExternalConstructor<T>> constructor) {
+    public <T> BindConstructor(Class<T> inter, Class<? extends ExternalConstructor<? extends T>> constructor) {
       this.inter = inter;
       this.constructor = constructor;
     }

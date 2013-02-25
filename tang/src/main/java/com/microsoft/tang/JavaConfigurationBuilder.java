@@ -92,6 +92,6 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
 
   public void bindParser(Class<? extends ExternalConstructor<?>> ec) throws BindException;
   
-  public void register(Class<?> c) throws BindException;
+  public <T> ClassNode<T> register(Class<T> c) throws BindException;
 
 }

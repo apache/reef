@@ -6,9 +6,6 @@ import com.microsoft.tang.exceptions.BindException;
 
 
 public interface ConfigurationBuilder {
-
-  public void bindParser(ClassNode<?> parser) throws BindException; 
-  
   /**
    * Add all configuration parameters from the given Configuration object.
    * 
@@ -66,6 +63,8 @@ public interface ConfigurationBuilder {
 
   public void bindSingleton(String iface) throws BindException;
 
+  public <T> void bindConstructor(ClassNode<T> k, ClassNode<? extends ExternalConstructor<? extends T>> v) throws BindException;
+
   public Collection<String> getShortNames();
 
   public String resolveShortName(String shortName) throws BindException;
@@ -76,5 +75,7 @@ public interface ConfigurationBuilder {
   throws BindException;
 
   public Configuration build();
+
+  <T> void bind(ClassNode<T> key, ClassNode<?> value) throws BindException;
 
 }
