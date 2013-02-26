@@ -4,13 +4,20 @@ import javax.inject.Inject;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.implementation.TangImpl;
 
 public class TestConfFileParser {
 
+  @Before
+  public void setUp() {
+    TangImpl.reset();
+  }
+  
   @Test
   public void testRoundTrip() throws BindException {
     // TODO: This likely only passes on windows, as it relies on newlines

@@ -1,12 +1,18 @@
 package com.microsoft.tang.implementation;
 
 import java.net.URL;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Map;
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.implementation.java.InjectorImpl;
 import com.microsoft.tang.implementation.java.JavaConfigurationBuilderImpl;
 
@@ -38,8 +44,8 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public JavaConfigurationBuilder newConfigurationBuilder(Configuration... confs)
-      throws BindException {
+  public JavaConfigurationBuilder newConfigurationBuilder(
+      Configuration... confs) throws BindException {
     return newConfigurationBuilder(new URL[0], confs);
 
   }
@@ -52,6 +58,52 @@ public class TangImpl implements Tang {
       cb.addConfiguration(c);
     }
     return cb;
+  }
+
+  private class SetValuedKey<T> {
+    public final Set<T> key;
+    @SafeVarargs
+    public SetValuedKey(T...ts) {
+      key = new HashSet<>(Arrays.asList(ts));
+    }
+    @Override
+    public int hashCode() {
+      int i = 0;
+      for(T t : key) {
+        i+=t.hashCode();
+      }
+      return i;
+    }
+    @Override
+    public boolean equals(Object o) {
+      @SuppressWarnings("unchecked")
+      SetValuedKey<T> other = (SetValuedKey<T>)o;
+      if(other.key.size() != this.key.size()) { return false; }
+      return key.containsAll(other.key);
+    }
+  }
+  
+  private static Map<SetValuedKey<URL>, ClassHierarchy> defaultClassHierarchy = new HashMap<>();
+
+  /**
+   * Only for testing. Deletes Tang's current database of known classes, forcing
+   * it to rebuild them over time.
+   * 
+   */
+  public static void reset() {
+   defaultClassHierarchy = new HashMap<>(); //new ClassHierarchyImpl();
+  }
+
+  @Override
+  public ClassHierarchy getDefaultClassHierarchy(URL... jars) {
+    SetValuedKey<URL> key = new SetValuedKey<>(jars);
+    
+    ClassHierarchy ret = defaultClassHierarchy.get(key);
+    if(ret == null) {
+      ret = new ClassHierarchyImpl(jars);
+      defaultClassHierarchy.put(key, ret);
+    }
+    return ret;
   }
 
 }

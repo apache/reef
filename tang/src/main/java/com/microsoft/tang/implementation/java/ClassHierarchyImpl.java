@@ -5,6 +5,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,15 +36,10 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   private URLClassLoader loader;
   private final List<URL> jars;
-  
+
   private final PackageNode namespace;
   private final TreeSet<String> registeredClasses = new MonotonicSet<>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
-
-  @Override
-  public URL[] getJars() {
-    return jars.toArray(new URL[0]);
-  }
 
   Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
@@ -53,27 +49,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     this.namespace = JavaNodeFactory.createPackageNode();
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
-  }
-
-  public ClassHierarchyImpl(ClassLoader loader, URL... jars) {
-    this.namespace = JavaNodeFactory.createPackageNode();
-    this.jars = new ArrayList<URL>(Arrays.asList(jars));
-    this.loader = new URLClassLoader(jars, loader);
-  }
-
-  @Override
-  public void addJars(URL... j) {
-    List<URL> newJars = new ArrayList<>();
-    for (URL u : j) {
-      if (!this.jars.contains(u)) {
-        newJars.add(u);
-        this.jars.add(u);
-      }
-    }
-    // Note, URL class loader first looks in its parent, then in the array of
-    // URLS passed in, in order. So, this line is equivalent to "reaching into"
-    // URLClassLoader and adding the URLS to the end of the array.
-    this.loader = new URLClassLoader(newJars.toArray(new URL[0]), this.loader);
   }
 
   @SuppressWarnings({ "unchecked", "unused" })
@@ -181,6 +156,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   private Node getNode(Class<?> clazz) throws NameResolutionException {
     return getNode(clazz.getName());
   }
+
   @Override
   public Node getNode(String name) throws NameResolutionException {
     String[] path = name.split(ReflectionUtilities.regexp);
@@ -371,14 +347,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       Class<T> superclass = (Class<T>) c.getSuperclass();
       if (superclass != null) {
         try {
-          ((ClassNode<T>)getNode(superclass)).putImpl(cn);
+          ((ClassNode<T>) getNode(superclass)).putImpl(cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }
       }
       for (Class<?> interf : c.getInterfaces()) {
         try {
-          ((ClassNode<T>)getNode(interf)).putImpl(cn);
+          ((ClassNode<T>) getNode(interf)).putImpl(cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }
@@ -410,19 +386,19 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   public String toPrettyString() {
     return namespace.toIndentedString(0);
   }
-  
+
   @Override
   public boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl) {
     List<ClassNode<?>> worklist = new ArrayList<>();
-    if(impl.equals(inter)) {
+    if (impl.equals(inter)) {
       return true;
     }
     worklist.add(inter);
-    while(! worklist.isEmpty()) {
-      ClassNode<?> cn = worklist.remove(worklist.size()-1);
+    while (!worklist.isEmpty()) {
+      ClassNode<?> cn = worklist.remove(worklist.size() - 1);
       @SuppressWarnings({ "rawtypes", "unchecked" })
-      Set<ClassNode<?>> impls = (Set)cn.getKnownImplementations();
-      if(impls.contains(impl)) {
+      Set<ClassNode<?>> impls = (Set) cn.getKnownImplementations();
+      if (impls.contains(impl)) {
         return true;
       }
       worklist.addAll(impls);
@@ -430,4 +406,28 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return false;
   }
 
+  @Override
+  public ClassHierarchy merge(ClassHierarchy ch) {
+    if(!(ch instanceof ClassHierarchyImpl)) {
+      throw new UnsupportedOperationException("Can't merge java and non-java class hierarchies yet!");
+    }
+    if(this.jars.size() == 0) {
+      return ch;
+    }
+    ClassHierarchyImpl chi = (ClassHierarchyImpl)ch;
+    HashSet<URL> otherJars = new HashSet<>();
+    otherJars.addAll(chi.jars);
+    HashSet<URL> myJars = new HashSet<>();
+    myJars.addAll(chi.jars);
+    if(myJars.containsAll(otherJars)) {
+      return this;
+    } else if(otherJars.containsAll(myJars)) {
+      return ch;
+    } else {
+      myJars.addAll(otherJars);
+      return new ClassHierarchyImpl(myJars.toArray(new URL[0]));
+    }
+    
+    
+  }
 }

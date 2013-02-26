@@ -7,10 +7,10 @@ import java.util.Map;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ParameterParser;
-import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
@@ -25,8 +25,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // TODO: None of these should be public! - Move to configurationBuilder. Have
   // that wrap itself
   // in a sane Configuration interface...
-  public final ClassHierarchy namespace;
-  // TODO: getBindings(), getSingletons(), getLegacyConstructors().
+  // TODO: Should be final again!
+  public ClassHierarchy namespace;
   public final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
   public final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
   public final MonotonicSet<ClassNode<?>> singletons = new MonotonicSet<>();
@@ -41,35 +41,38 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public final ParameterParser parameterParser = new ParameterParser();
 
   public ConfigurationBuilderImpl() {
-    this.namespace = new ClassHierarchyImpl();
+    this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
-  public ConfigurationBuilderImpl(URL... jars) {
-    this.namespace = new ClassHierarchyImpl(jars);
+  public ConfigurationBuilderImpl(URL[] jars, Configuration[] confs) throws BindException {
+    this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars);
+    for (Configuration tc : confs) {
+      addConfiguration(((ConfigurationImpl) tc));
+    }
   }
-
-  public ConfigurationBuilderImpl(ClassLoader loader, URL... jars) {
-    this.namespace = new ClassHierarchyImpl(loader, jars);
-  }
-
-  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
-    this.namespace = new ClassHierarchyImpl();
+  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t) throws BindException {
+    this.namespace = t.namespace;
     try {
       addConfiguration(t);
     } catch (BindException e) {
       throw new IllegalStateException("Could not copy builder", e);
     }
   }
+  public ConfigurationBuilderImpl(URL... jars) throws BindException {
+    this(jars, new Configuration[0]);
+  }
+
 
   public ConfigurationBuilderImpl clone() {
-    return new ConfigurationBuilderImpl(this);
+    try {
+      return new ConfigurationBuilderImpl(this);
+    } catch (BindException e) {
+      throw new IllegalStateException("Caught BindException in clone().  Can't happen(?)", e);
+    }
   }
   
   public ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
-    this.namespace = new ClassHierarchyImpl();
-    for (Configuration tc : tangs) {
-      addConfiguration(((ConfigurationImpl) tc));
-    }
+    this(new URL[0], tangs);
   }
 
   @Override
@@ -80,7 +83,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   private void addConfiguration(ConfigurationBuilderImpl builder)
       throws BindException {
-    namespace.addJars(builder.namespace.getJars());
+    namespace = namespace.merge(builder.namespace);
     parameterParser.mergeIn(builder.parameterParser);
 
     for (String s : builder.namespace.getRegisteredClassNames()) {
@@ -272,7 +275,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public ConfigurationImpl build() {
-    return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
+      return new ConfigurationImpl(this.clone());
   }
 
   @Override

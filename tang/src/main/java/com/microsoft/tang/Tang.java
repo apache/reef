@@ -63,4 +63,6 @@ public interface Tang {
     }
   }
 
+  public ClassHierarchy getDefaultClassHierarchy(URL... jars);
+
 }

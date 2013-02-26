@@ -1,7 +1,6 @@
 package com.microsoft.tang.implementation;
 
 import java.util.Collection;
-import java.util.TreeSet;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;

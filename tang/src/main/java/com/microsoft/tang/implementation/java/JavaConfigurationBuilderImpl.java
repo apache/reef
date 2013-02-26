@@ -17,11 +17,11 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
 
-  public JavaConfigurationBuilderImpl(URL[] jars) {
+  public JavaConfigurationBuilderImpl(URL[] jars) throws BindException {
     super(jars);
   }
 
-  protected JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) {
+  protected JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) throws BindException {
     super(impl);
   }
 
@@ -32,12 +32,16 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
 
   @Override
   public JavaConfigurationBuilderImpl clone() {
-    return new JavaConfigurationBuilderImpl(this);
+    try {
+      return new JavaConfigurationBuilderImpl(this);
+    } catch(BindException e) {
+      throw new IllegalStateException("Caught BindException in clone().  Can't happen(?)", e);
+    }
   }
   
   @Override
   public ConfigurationImpl build() {
-    return new ConfigurationImpl(new JavaConfigurationBuilderImpl(this));
+    return new ConfigurationImpl(clone());
   }
 
   /**

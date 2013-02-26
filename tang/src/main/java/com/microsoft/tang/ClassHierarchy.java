@@ -1,6 +1,5 @@
 package com.microsoft.tang;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.Set;
  
@@ -42,10 +41,8 @@ public interface ClassHierarchy {
    */
   public String toPrettyString();
 
-  public abstract void addJars(URL... j);
-
-  public abstract URL[] getJars();
-
   boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
+
+  public ClassHierarchy merge(ClassHierarchy ch);
 
 }
