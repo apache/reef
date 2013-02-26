@@ -43,8 +43,8 @@ public class InjectorImpl implements Injector {
     }
   }
 
-  final ConfigurationBuilder cb;
-  final JavaConfigurationBuilderImpl cbi;
+  final Configuration c;
+  final ConfigurationBuilderImpl cbi;
   final ClassHierarchy namespace;
   final ClassHierarchyImpl javaNamespace;
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
@@ -95,7 +95,7 @@ public class InjectorImpl implements Injector {
     memo.put(name, BUILDING);
     final Node n;
     try {
-      n = javaNamespace.register(name);
+      n = namespace.register(name);
     } catch (BindException e) {
       throw new IllegalArgumentException("Could not register class " + name, e);
     }
@@ -104,7 +104,7 @@ public class InjectorImpl implements Injector {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object instance = namedParameterInstances.get(n);
       if (instance == null) {
-        String value = cbi.namedParameters.get(n);
+        String value = c.getNamedParameter(np);
         if(value != null) {
           try {
             instance = cbi.parse(np, value);
@@ -112,20 +112,12 @@ public class InjectorImpl implements Injector {
             throw new IllegalStateException("Could not parse pre-validated value", e);
           }
           namedParameterInstances.put(np, instance);
-          if (instance instanceof Class) {
-            try {
-              cbi.register((Class<?>) instance);
-            } catch (BindException e) {
-              throw new IllegalStateException("Could not register class " + instance
-                  + " which should have already been registered!");
-            }
-          }
         } else {
           instance = cbi.parseDefaultValue(np);
         }
       }
-      if (instance instanceof Class) {
-        String implName = ((Class) instance).getName();
+      if (instance instanceof ClassNode) {
+        String implName = ((ClassNode<?>)instance).getFullName();
         buildInjectionPlan(implName, memo);
         ip = new Subplan<>(np, 0, memo.get(implName));
       } else {
@@ -135,15 +127,15 @@ public class InjectorImpl implements Injector {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (singletonInstances.containsKey(cn)) {
         ip = new JavaInstance<Object>(cn, singletonInstances.get(cn));
-      } else if (cbi.boundConstructors.containsKey(cn)) {
-        String constructorName = cbi.boundConstructors.get(cn).getFullName();
+      } else if (null != c.getBoundConstructor(cn)) {//cbi.boundConstructors.containsKey(cn)) {
+        String constructorName = c.getBoundConstructor(cn).getFullName();
         buildInjectionPlan(constructorName, memo);
         ip = new Subplan(cn, 0, memo.get(constructorName));
         memo.put(cn.getFullName(), ip);
         // ip = new Instance(cn, null);
-      } else if (cbi.boundImpls.containsKey(cn)
-          && !(cbi.boundImpls.get(cn).getFullName().equals(cn.getFullName()))) {
-        String implName = cbi.boundImpls.get(cn).getFullName();
+      } else if (null != c.getBoundImplementation(cn) //cbi.boundImpls.containsKey(cn)
+          && !(c.getBoundImplementation(cn).getFullName().equals(cn.getFullName()))) {
+        String implName = c.getBoundImplementation(cn).getFullName();
         buildInjectionPlan(implName, memo);
         ip = new Subplan(cn, 0, memo.get(implName));
         memo.put(cn.getFullName(), ip);
@@ -152,7 +144,7 @@ public class InjectorImpl implements Injector {
         // if we're here and there is a bound impl, then we're bound to
         // ourselves, so don't add known impls to the list of things to
         // consider.
-        if (cbi.boundImpls.get(cn) == null) {
+        if (c.getBoundImplementation(cn) == null) {
           classNodes.addAll(cn.getKnownImplementations());
         }
         classNodes.add(cn);
@@ -160,8 +152,8 @@ public class InjectorImpl implements Injector {
         for (ClassNode<?> thisCN : classNodes) {
           final List<InjectionPlan<?>> constructors = new ArrayList<InjectionPlan<?>>();
           final List<ConstructorDef<?>> constructorList = new ArrayList<>();
-          if (cbi.legacyConstructors.containsKey(thisCN)) {
-            constructorList.add(cbi.legacyConstructors.get(thisCN));
+          if (null != c.getLegacyConstructor(thisCN)) {
+            constructorList.add(c.getLegacyConstructor(thisCN));
           }
           constructorList.addAll(Arrays.asList(thisCN
               .getInjectableConstructors()));
@@ -250,11 +242,13 @@ public class InjectorImpl implements Injector {
     return isParameterSet(name.getName());
   }
 
-  public InjectorImpl(ConfigurationImpl c) throws BindException {
-    this.cb = c.builder;
-    this.cbi = (JavaConfigurationBuilderImpl)(c.builder);
-    this.namespace = c.builder.namespace;
-    this.javaNamespace = (ClassHierarchyImpl)c.builder.namespace;
+  public InjectorImpl(Configuration c) throws BindException {
+    this.c = c;
+    ConfigurationImpl ci = (ConfigurationImpl) c;
+    //this.cb = ci.builder;
+    this.cbi = (ConfigurationBuilderImpl)ci.builder;
+    this.namespace = ci.builder.namespace;
+    this.javaNamespace = (ClassHierarchyImpl)ci.builder.namespace;
   }
 
   boolean populated = false;
@@ -267,7 +261,7 @@ public class InjectorImpl implements Injector {
       while (!allSucceeded) {
         boolean oneSucceeded = false;
         allSucceeded = true;
-        for (ClassNode<?> cn : cbi.singletons) {
+        for (ClassNode<?> cn : c.getSingletons()) {
           if (!singletonInstances.containsKey(cn)) {
             try {
               getInstance(cn.getFullName());// getClazz());
@@ -364,7 +358,7 @@ public class InjectorImpl implements Injector {
         T ret = getConstructor(
             (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
             args);
-        if (cbi.singletons.contains(constructor.getNode())) {
+        if (c.isSingleton(constructor.getNode())) {
           singletonInstances.put(constructor.getNode(), ret);
         }
         // System.err.println("returning a new " + constructor.getNode());
@@ -380,7 +374,7 @@ public class InjectorImpl implements Injector {
               "Attempt to re-instantiate singleton: " + ambiguous.getNode());
         }
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
-        if (cbi.singletons.contains(ambiguous.getNode())) {
+        if (c.isSingleton(ambiguous.getNode())) {
           // Cast is safe since singletons is of type Set<ClassNode<?>>
           singletonInstances.put((ClassNode<?>) ambiguous.getNode(), ret);
         }
@@ -410,7 +404,7 @@ public class InjectorImpl implements Injector {
       Configuration... configurations) throws BindException {
     final InjectorImpl i;
     try {
-      final ConfigurationBuilderImpl cb = new JavaConfigurationBuilderImpl(old.cbi);
+      final ConfigurationBuilder cb = old.c.newBuilder();
       for (Configuration c : configurations) {
         cb.addConfiguration(c);
       }
@@ -482,7 +476,7 @@ public class InjectorImpl implements Injector {
     Node n = namespace.register(ReflectionUtilities.getFullName(c));
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object old = cbi.namedParameters.get(np);
+      Object old = this.c.getNamedParameter(np);
       if(old == null) {
         old = namedParameterInstances.get(np);
       }

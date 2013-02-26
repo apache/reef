@@ -21,7 +21,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     super(jars);
   }
 
-  public JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) {
+  protected JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) {
     super(impl);
   }
 
@@ -30,6 +30,11 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     super(confs);
   }
 
+  @Override
+  public JavaConfigurationBuilderImpl clone() {
+    return new JavaConfigurationBuilderImpl(this);
+  }
+  
   @Override
   public ConfigurationImpl build() {
     return new ConfigurationImpl(new JavaConfigurationBuilderImpl(this));

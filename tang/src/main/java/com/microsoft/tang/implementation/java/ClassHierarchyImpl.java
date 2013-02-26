@@ -45,7 +45,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return jars.toArray(new URL[0]);
   }
 
-  public Class<?> classForName(String name) throws ClassNotFoundException {
+  Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
   }
 
@@ -181,7 +181,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   private Node getNode(Class<?> clazz) throws NameResolutionException {
     return getNode(clazz.getName());
   }
-
+  @Override
   public Node getNode(String name) throws NameResolutionException {
     String[] path = name.split(ReflectionUtilities.regexp);
     return getNode(name, path, path.length);

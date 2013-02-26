@@ -3,7 +3,6 @@ package com.microsoft.tang.implementation;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -30,7 +29,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // TODO: getBindings(), getSingletons(), getLegacyConstructors().
   public final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
   public final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
-  public final Set<ClassNode<?>> singletons = new MonotonicSet<>();
+  public final MonotonicSet<ClassNode<?>> singletons = new MonotonicSet<>();
   public final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
   public final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
 
@@ -53,7 +52,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     this.namespace = new ClassHierarchyImpl(loader, jars);
   }
 
-  public ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
+  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
     this.namespace = new ClassHierarchyImpl();
     try {
       addConfiguration(t);
@@ -62,6 +61,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
+  public ConfigurationBuilderImpl clone() {
+    return new ConfigurationBuilderImpl(this);
+  }
+  
   public ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
     this.namespace = new ClassHierarchyImpl();
     for (Configuration tc : tangs) {
@@ -83,24 +86,15 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     for (String s : builder.namespace.getRegisteredClassNames()) {
       register(s);
     }
-    // Note: The commented out lines would be faster, but, for testing
-    // purposes,
-    // we run through the high-level bind(), which dispatches to the correct
-    // call.
     for (ClassNode<?> cn : builder.boundImpls.keySet()) {
       bind(cn.getFullName(), builder.boundImpls.get(cn).getFullName());
-      // bindImplementation((Class<?>) cn.getClazz(), (Class)
-      // t.boundImpls.get(cn));
     }
     for (ClassNode<?> cn : builder.boundConstructors.keySet()) {
       bind(cn.getFullName(), builder.boundConstructors.get(cn).getFullName());
-      // bindConstructor((Class<?>) cn.getClazz(), (Class)
-      // t.boundConstructors.get(cn));
     }
     for (ClassNode<?> cn : builder.singletons) {
       try {
-        String fullName = cn.getFullName();
-        bindSingleton(fullName);
+        bindSingleton(cn.getFullName());
       } catch (BindException e) {
         throw new IllegalStateException(
             "Unexpected BindException when copying ConfigurationBuilderImpl", e);
@@ -207,14 +201,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   private Object parse(String name, String value) throws BindException {
     try {
+      return parameterParser.parse(name, value);
+    } catch (UnsupportedOperationException e) {
       try {
-        return parameterParser.parse(name, value);
-      } catch (UnsupportedOperationException e) {
-        return ((ClassHierarchyImpl) namespace).classForName(value);
+        return namespace.register(value);
+      } catch (BindException e2) {
+        throw new BindException("Could not parse type " + name + ".  Value was "
+            + value, e2);
       }
-    } catch (ClassNotFoundException e) {
-      throw new BindException("Could not parse type " + name + ".  Value was "
-          + value, e);
     }
   }
 

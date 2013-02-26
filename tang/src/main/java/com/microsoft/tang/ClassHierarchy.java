@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Set;
  
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.Node;
 
@@ -24,6 +25,8 @@ import com.microsoft.tang.types.Node;
  */
 public interface ClassHierarchy {
 
+  public Node getNode(String s) throws NameResolutionException;
+  
   public Node register(String s) throws BindException;
   
   public Collection<String> getShortNames();
