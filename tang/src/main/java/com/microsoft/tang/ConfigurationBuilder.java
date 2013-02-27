@@ -5,7 +5,6 @@ import java.util.Collection;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
-import com.microsoft.tang.types.ExternalConstructor;
 import com.microsoft.tang.types.Node;
 
 

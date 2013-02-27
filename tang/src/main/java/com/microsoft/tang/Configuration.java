@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
-import com.microsoft.tang.types.ExternalConstructor;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 

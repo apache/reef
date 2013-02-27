@@ -1,4 +1,4 @@
-package com.microsoft.tang.types;
+package com.microsoft.tang;
 
 /**
  * This interface allows legacy classes to be injected by

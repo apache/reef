@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -20,7 +21,6 @@ import com.microsoft.tang.implementation.PackageNodeImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
-import com.microsoft.tang.types.ExternalConstructor;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.NamespaceNode;
 import com.microsoft.tang.types.Node;

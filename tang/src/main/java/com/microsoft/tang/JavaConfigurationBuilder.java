@@ -4,7 +4,6 @@ package com.microsoft.tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.types.ExternalConstructor;
 import com.microsoft.tang.types.Node;
 
 /**

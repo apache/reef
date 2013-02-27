@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
@@ -13,7 +14,6 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ParameterParser;
-import com.microsoft.tang.types.ExternalConstructor;
 
 public class TestParameterParser {
   @Test

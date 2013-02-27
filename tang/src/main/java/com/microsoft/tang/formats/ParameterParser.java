@@ -2,8 +2,8 @@ package com.microsoft.tang.formats;
 
 import java.lang.reflect.Constructor;
 
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.types.ExternalConstructor;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.ReflectionUtilities;
 
