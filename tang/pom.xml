@@ -30,6 +30,7 @@
 									<arg value="--proto_path=src/main/proto/" />
 									<arg value="--java_out=target/generated-sources/proto" />
 									<arg value="src/main/proto/injection_plan.proto" />
+									<arg value="src/main/proto/class_hierarchy.proto" />
 								</exec>
 							</tasks>
 							<sourceRoot>target/generated-sources/proto</sourceRoot>
