@@ -24,6 +24,8 @@ public abstract class AbstractNode implements Node {
       parentsEqual = true;
     } else if (n.parent == null) {
       parentsEqual = false;
+    } else if (this.parent == null) {
+      parentsEqual = false;
     } else {
       parentsEqual = n.parent.equals(this.parent);
     }
