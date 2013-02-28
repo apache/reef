@@ -44,7 +44,7 @@ public class InjectorImpl implements Injector {
   }
 
   final Configuration c;
-  final ConfigurationBuilderImpl cbi;
+//  final ConfigurationBuilderImpl cbi;
   final ClassHierarchy namespace;
   final ClassHierarchyImpl javaNamespace;
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
@@ -105,15 +105,15 @@ public class InjectorImpl implements Injector {
       Object instance = namedParameterInstances.get(n);
       if (instance == null) {
         String value = c.getNamedParameter(np);
-        if(value != null) {
-          try {
-            instance = cbi.parse(np, value);
-          } catch (BindException e) {
-            throw new IllegalStateException("Could not parse pre-validated value", e);
+        try {
+          if(value != null) {
+              instance = namespace.parse(np, value);
+            namedParameterInstances.put(np, instance);
+          } else {
+            instance = namespace.parseDefaultValue(np);
           }
-          namedParameterInstances.put(np, instance);
-        } else {
-          instance = cbi.parseDefaultValue(np);
+        } catch (BindException e) {
+          throw new IllegalStateException("Could not parse pre-validated value", e);
         }
       }
       if (instance instanceof ClassNode) {
@@ -246,9 +246,9 @@ public class InjectorImpl implements Injector {
     this.c = c;
     ConfigurationImpl ci = (ConfigurationImpl) c;
     //this.cb = ci.builder;
-    this.cbi = (ConfigurationBuilderImpl)ci.builder;
-    this.namespace = ci.builder.namespace;
-    this.javaNamespace = (ClassHierarchyImpl)ci.builder.namespace;
+//    this.cbi = (ConfigurationBuilderImpl)ci.builder;
+    this.namespace = c.getClassHierarchy();
+    this.javaNamespace = (ClassHierarchyImpl)this.namespace;
   }
 
   boolean populated = false;

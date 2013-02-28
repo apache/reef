@@ -122,7 +122,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   @Override
   public void bindParser(Class<? extends ExternalConstructor<?>> ec)
       throws BindException {
-    parameterParser.addParser(ec);
+    ((ClassHierarchyImpl)namespace).parameterParser.addParser(ec);
   }
 
   @SuppressWarnings({ "unchecked" })

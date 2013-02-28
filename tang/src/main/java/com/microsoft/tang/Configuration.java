@@ -1,6 +1,7 @@
 package com.microsoft.tang;
 
 import java.util.Collection;
+import java.util.Set;
 
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
@@ -30,4 +31,16 @@ public interface Configuration {
   public Collection<ClassNode<?>> getSingletons();
 
   public boolean isSingleton(Node n);
+
+  Set<ClassNode<?>> getBoundImplementations();
+
+  Set<ClassNode<?>> getBoundConstructors();
+
+  Set<NamedParameterNode<?>> getNamedParameters();
+
+  Set<ClassNode<?>> getLegacyConstructors();
+
+  Collection<String> getShortNames();
+
+  public ClassHierarchy getClassHierarchy();
 }

@@ -16,6 +16,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.implementation.AbstractNode;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
@@ -41,6 +42,39 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   private final TreeSet<String> registeredClasses = new MonotonicSet<>();
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
+  public final ParameterParser parameterParser = new ParameterParser();
+
+  // TODO: Fix up the exception handling surrounding parsing of values
+  @Override
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws BindException {
+    String val = name.getDefaultInstanceAsString();
+    if (val != null) {
+      return parse(name, val);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
+    return (T) parse(name.getFullArgName(), value);
+  }
+
+  private Object parse(String name, String value) throws BindException {
+    try {
+      return parameterParser.parse(name, value);
+    } catch (UnsupportedOperationException e) {
+      try {
+        return register(value);
+      } catch (BindException e2) {
+        throw new BindException("Could not parse type " + name + ".  Value was "
+            + value, e2);
+      }
+    }
+  }
+
+  
   Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
   }

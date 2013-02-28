@@ -19,7 +19,7 @@ import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
-import com.microsoft.tang.types.Node;
+import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationFile {
@@ -160,36 +160,30 @@ public class ConfigurationFile {
     ConfigurationImpl conf = (ConfigurationImpl) c;
     StringBuilder s = new StringBuilder();
 
-    for (String shrt : conf.builder.getShortNames()) {
-      try {
-        String lng = conf.builder.resolveShortName(shrt);
+    for (String shrt : conf.getShortNames()) {
+        String lng = conf.resolveShortName(shrt);
         s.append(lng + "=" + ConfigurationBuilderImpl.REGISTERED + "\n");
-      } catch (BindException e) {
-        throw new IllegalStateException(
-            "Found partially registered class?  shortName" + shrt
-                + " did not resolve to anything", e);
-      }
     }
-    for (Node opt : conf.builder.boundImpls.keySet()) {
+    for (ClassNode<?> opt : conf.getBoundImplementations()) {
       s.append(opt.getFullName() + "="
-          + conf.builder.boundImpls.get(opt).getFullName() + "\n");
+          + conf.getBoundImplementation(opt).getFullName() + "\n");
     }
-    for (Node opt : conf.builder.boundConstructors.keySet()) {
+    for (ClassNode<?> opt : conf.getBoundConstructors()) {
       s.append(opt.getFullName() + "="
-          + conf.builder.boundConstructors.get(opt).getFullName() + "\n");
+          + conf.getBoundConstructor(opt).getFullName() + "\n");
     }
-    for (Node opt : conf.builder.namedParameters.keySet()) {
-      s.append(opt.getFullName() + "=" + conf.builder.namedParameters.get(opt)
+    for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
+      s.append(opt.getFullName() + "=" + conf.getNamedParameter(opt)
           + "\n");
     }
-    for (Node opt : conf.builder.singletons) {
+    for (ClassNode<?> opt : conf.getSingletons()) {
       // ret.put(opt.getFullName(), SINGLETON);
       s.append(opt.getFullName() + "=" + ConfigurationBuilderImpl.SINGLETON
           + "\n");
     }
-    for (ClassNode<?> cn : conf.builder.legacyConstructors.keySet()) {
+    for (ClassNode<?> cn : conf.getLegacyConstructors()) {
       s.append(cn.getFullName() + "=" + ConfigurationBuilderImpl.INIT + "("
-          + join("-", conf.builder.legacyConstructors.get(cn).getArgs()) + ")");
+          + join("-", conf.getLegacyConstructor(cn).getArgs()) + ")");
     }
     return s.toString();
   }

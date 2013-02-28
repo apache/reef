@@ -1,7 +1,9 @@
 package com.microsoft.tang.implementation;
 
 import java.util.Collection;
+import java.util.Set;
 
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
@@ -12,7 +14,7 @@ import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
-  public final ConfigurationBuilderImpl builder;
+  final ConfigurationBuilderImpl builder;
 
   public ConfigurationImpl(ConfigurationBuilderImpl builder) {
     this.builder = builder;
@@ -30,6 +32,22 @@ public class ConfigurationImpl implements Configuration {
     return (ClassNode<? extends ExternalConstructor<T>>) builder.boundConstructors.get(cn);
   }
 
+  @Override
+  public Set<ClassNode<?>> getBoundImplementations() {
+    return builder.boundImpls.keySet();
+  }
+  @Override
+  public Set<ClassNode<?>> getBoundConstructors() {
+    return builder.boundConstructors.keySet();
+  }
+  @Override
+  public Set<NamedParameterNode<?>> getNamedParameters() {
+    return builder.namedParameters.keySet();
+  }
+  @Override
+  public Set<ClassNode<?>> getLegacyConstructors() {
+    return builder.legacyConstructors.keySet();
+  }
   @Override
   @SuppressWarnings("unchecked")
   public <T> ClassNode<? extends T> getBoundImplementation(ClassNode<T> cn) {
@@ -54,6 +72,20 @@ public class ConfigurationImpl implements Configuration {
   @Override
   public ConfigurationBuilder newBuilder() {
     return builder.clone();
+  }
+  
+  @Override
+  public Collection<String> getShortNames() {
+    return builder.getShortNames();
+  }
+
+  public String resolveShortName(String shortName) {
+    return builder.resolveShortName(shortName);
+  }
+
+  @Override
+  public ClassHierarchy getClassHierarchy() {
+    return builder.namespace;
   }
 
 }

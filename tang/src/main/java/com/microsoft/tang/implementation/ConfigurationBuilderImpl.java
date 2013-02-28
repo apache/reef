@@ -12,6 +12,7 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ParameterParser;
+import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
@@ -27,30 +28,31 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // in a sane Configuration interface...
   // TODO: Should be final again!
   public ClassHierarchy namespace;
-  public final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
-  public final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
-  public final MonotonicSet<ClassNode<?>> singletons = new MonotonicSet<>();
-  public final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
-  public final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
+  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
+  final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
+  final MonotonicSet<ClassNode<?>> singletons = new MonotonicSet<>();
+  final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
+  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
 
   public final static String IMPORT = "import";
   public final static String REGISTERED = "registered";
   public final static String SINGLETON = "singleton";
   public final static String INIT = "<init>";
 
-  public final ParameterParser parameterParser = new ParameterParser();
-
   public ConfigurationBuilderImpl() {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
-  public ConfigurationBuilderImpl(URL[] jars, Configuration[] confs) throws BindException {
+  public ConfigurationBuilderImpl(URL[] jars, Configuration[] confs)
+      throws BindException {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars);
     for (Configuration tc : confs) {
       addConfiguration(((ConfigurationImpl) tc));
     }
   }
-  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t) throws BindException {
+
+  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t)
+      throws BindException {
     this.namespace = t.namespace;
     try {
       addConfiguration(t);
@@ -58,19 +60,20 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throw new IllegalStateException("Could not copy builder", e);
     }
   }
+
   public ConfigurationBuilderImpl(URL... jars) throws BindException {
     this(jars, new Configuration[0]);
   }
-
 
   public ConfigurationBuilderImpl clone() {
     try {
       return new ConfigurationBuilderImpl(this);
     } catch (BindException e) {
-      throw new IllegalStateException("Caught BindException in clone().  Can't happen(?)", e);
+      throw new IllegalStateException(
+          "Caught BindException in clone().  Can't happen(?)", e);
     }
   }
-  
+
   public ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
     this(new URL[0], tangs);
   }
@@ -84,7 +87,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private void addConfiguration(ConfigurationBuilderImpl builder)
       throws BindException {
     namespace = namespace.merge(builder.namespace);
-    parameterParser.mergeIn(builder.parameterParser);
+    ((ClassHierarchyImpl) namespace).parameterParser
+        .mergeIn(((ClassHierarchyImpl) namespace).parameterParser);
 
     for (String s : builder.namespace.getRegisteredClassNames()) {
       register(s);
@@ -183,41 +187,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  // TODO: Fix up the exception handling surrounding parsing of values
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws InjectionException {
-    try {
-      String val = name.getDefaultInstanceAsString();
-      if (val != null) {
-        return parse(name, val);
-      } else {
-        return null;
-      }
-    } catch (BindException e) {
-      throw new InjectionException("Could not parse " + name + "=" + "value", e);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
-    return (T) parse(name.getFullArgName(), value);
-  }
-
-  private Object parse(String name, String value) throws BindException {
-    try {
-      return parameterParser.parse(name, value);
-    } catch (UnsupportedOperationException e) {
-      try {
-        return namespace.register(value);
-      } catch (BindException e2) {
-        throw new BindException("Could not parse type " + name + ".  Value was "
-            + value, e2);
-      }
-    }
-  }
-
   public <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
-    T o = parse(name, value);
+    T o = namespace.parse(name, value);
     if (o instanceof Class) {
       register(ReflectionUtilities.getFullName((Class<?>) o));
     }
@@ -275,7 +247,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public ConfigurationImpl build() {
-      return new ConfigurationImpl(this.clone());
+    return new ConfigurationImpl(this.clone());
   }
 
   @Override
@@ -284,12 +256,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public String resolveShortName(String shortName) throws BindException {
-    String ret = namespace.resolveShortName(shortName);
-    if (ret == null) {
-      throw new BindException("Could not find requested shortName:" + shortName);
-    }
-    return ret;
+  public String resolveShortName(String shortName) {
+    return namespace.resolveShortName(shortName);
   }
 
   @Override

@@ -6,6 +6,7 @@ import java.util.Set;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 
 /**
@@ -44,5 +45,9 @@ public interface ClassHierarchy {
   boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
 
   public ClassHierarchy merge(ClassHierarchy ch);
+
+  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException;
+
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws BindException;
 
 }

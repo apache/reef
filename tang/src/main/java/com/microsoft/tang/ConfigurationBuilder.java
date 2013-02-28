@@ -76,7 +76,7 @@ public interface ConfigurationBuilder {
 
   public Collection<String> getShortNames();
 
-  public String resolveShortName(String shortName) throws BindException;
+  public String resolveShortName(String shortName);
 
   public String classPrettyDefaultString(String longName) throws BindException;
 
