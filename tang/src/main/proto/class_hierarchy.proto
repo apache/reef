@@ -3,8 +3,23 @@ option java_outer_classname = "ClassHierarchyProto";
 option java_generic_services = true;
 option java_generate_equals_and_hash = true;
 
+/*
+  Node is the abstract base type for all the data encoded in a class hierarchy.
+  It is represented as an (un)tagged union, so only one of the three optional
+  fields can be non-null. 
+ */
 message Node {
+  /*
+    The short name of this node (e.g., a class name without the enclosing
+    package, or a package name without the name of the enclosing package.
+   */
   required string name = 1;
+  /*
+    For some languages it can be difficult to map from a list of nodes to
+    the correct short name, so for now, the full name is (redundantly)
+    encoded here.  In Java, the full name is a bunch of short names that
+    have been concatenated with "." and/or "$".
+   */
   required string full_name = 2;
   optional ClassNode class_node = 3;
   optional NamedParameterNode named_parameter_node = 4;
