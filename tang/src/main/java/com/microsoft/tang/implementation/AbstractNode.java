@@ -72,6 +72,11 @@ public abstract class AbstractNode implements Node {
     }
   }
 
+  @Override 
+  public Node getParent() {
+    return parent;
+  }
+  
   @Override
   public boolean contains(String key) {
     return children.containsKey(key);

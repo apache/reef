@@ -11,6 +11,7 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.implementation.ClassNodeImpl;
 import com.microsoft.tang.implementation.ConstructorArgImpl;
@@ -35,12 +36,19 @@ public class JavaNodeFactory {
       boolean isPrefixTarget) throws BindException {
     // super(parent, ReflectionUtilities.getSimpleName(clazz));
     final boolean injectable;
+    final boolean unit = clazz.isAnnotationPresent(Unit.class);
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
-
+    final boolean parentIsUnit = (parent instanceof ClassNode) ?
+        ((ClassNode<?>)parent).isUnit() : false;
+        
     if (clazz.isLocalClass() || clazz.isMemberClass()) {
       if (!Modifier.isStatic(clazz.getModifiers())) {
-        injectable = false;
+        if(parent instanceof ClassNode) {
+          injectable = ((ClassNode<?>)parent).isUnit();
+        } else {
+          injectable = false;
+        }
       } else {
         injectable = true;
       }
@@ -53,21 +61,25 @@ public class JavaNodeFactory {
     MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<>();
     ArrayList<ConstructorDef<T>> allConstructors = new ArrayList<>();
     for (int k = 0; k < constructors.length; k++) {
-      boolean constructorIsInjectable = (constructors[k]
+      boolean constructorAnnotatedInjectable = (constructors[k]
           .getAnnotation(Inject.class) != null);
-      if (constructorIsInjectable && constructors[k].isSynthetic()) {
+      if (constructorAnnotatedInjectable && constructors[k].isSynthetic()) {
         // Not sure if we *can* unit test this one.
-        throw new IllegalStateException(
+        throw new BindException(
             "Synthetic constructor was annotated with @Inject!");
       }
-
+      if (parentIsUnit && (constructorAnnotatedInjectable || constructors[k].getParameterTypes().length != 1)) {
+        throw new BindException(
+            "Detected explicit constructor in class enclosed in @Unit class " + fullName + "  Such constructors are disallowed.");
+      }
+      boolean constructorInjectable = constructorAnnotatedInjectable || parentIsUnit;
       // ConstructorDef's constructor checks for duplicate
       // parameters
       // The injectableConstructors set checks for ambiguous
       // boundConstructors.
       ConstructorDef<T> def = JavaNodeFactory.createConstructorDef(injectable,
-          constructors[k], constructorIsInjectable);
-      if (constructorIsInjectable) {
+          constructors[k], constructorAnnotatedInjectable);
+      if (constructorInjectable) {
         if (injectableConstructors.contains(def)) {
           throw new BindException(
               "Ambiguous boundConstructors detected in class " + clazz + ": "
@@ -80,7 +92,7 @@ public class JavaNodeFactory {
       allConstructors.add(def);
     }
 
-    return new ClassNodeImpl<T>(parent, simpleName, fullName, injectable,
+    return new ClassNodeImpl<T>(parent, simpleName, fullName, unit, injectable,
         ExternalConstructor.class.isAssignableFrom(clazz),
         isPrefixTarget,
         injectableConstructors.toArray(new ConstructorDefImpl[0]),

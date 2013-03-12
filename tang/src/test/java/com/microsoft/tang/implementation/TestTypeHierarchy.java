@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import junit.framework.Assert;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +16,9 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
@@ -31,12 +32,8 @@ public class TestTypeHierarchy {
 
   @Before
   public void setUp() throws Exception {
-    ns = Tang.Factory.getTang().getDefaultClassHierarchy();
-  }
-
-  @After
-  public void tearDown() throws Exception {
     TangImpl.reset();
+    ns = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
   private Node register(Class<?> c) throws BindException {
@@ -303,6 +300,19 @@ public class TestTypeHierarchy {
     Class<?> d = Class.forName(m.getFullName());
     Assert.assertNotSame(c, d);
   }
+  
+  @Test
+  public void testUnitIsInjectable() throws BindException, InjectionException {
+    ClassNode<?> n = (ClassNode<?>) register(OuterUnitTH.class);
+    Assert.assertTrue(n.isUnit());
+    Assert.assertTrue(n.isInjectionCandidate());
+  }
+
+  @Test(expected = BindException.class)
+  public void testBadUnitDecl() throws BindException, InjectionException {
+    register(OuterUnitBad.class);
+  }
+
 }
 
 class SimpleConstructors {
@@ -567,5 +577,14 @@ class AnonNested {
     @SuppressWarnings("unused")
     int j;
   };
-
+}
+@Unit
+class OuterUnitBad {
+  class InA { @Inject InA() { } }
+  class InB { }
+}
+@Unit
+class OuterUnitTH {
+  class InA { }
+  class InB { }
 }

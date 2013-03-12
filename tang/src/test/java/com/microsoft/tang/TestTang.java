@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
@@ -287,6 +288,13 @@ public class TestTang {
     Assert.assertNotSame(a1, a2);
     Assert.assertNotSame(b1, b2);
   }
+  @Test
+  public void testUnit() throws BindException, InjectionException {
+    Injector inj = tang.newInjector();
+    OuterUnit.InA a = inj.getInstance(OuterUnit.InA.class);
+    OuterUnit.InB b = inj.getInstance(OuterUnit.InB.class);
+    Assert.assertEquals(a.slf, b.slf);
+  }
 }
 
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
@@ -489,5 +497,17 @@ class NamedImpl {
       Assert.assertTrue("BImplName must be instance of Bimpl",
           b instanceof Bimpl);
     }
+  }
+}
+@Unit
+class OuterUnit {
+  final OuterUnit self;
+  @Inject
+  OuterUnit() { self = this; }
+  class InA { 
+    OuterUnit slf = self;
+  }
+  class InB {
+    OuterUnit slf = self;
   }
 }

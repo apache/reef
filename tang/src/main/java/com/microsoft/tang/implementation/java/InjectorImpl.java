@@ -15,10 +15,9 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
-import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.implementation.Constructor;
 import com.microsoft.tang.implementation.InjectionPlan;
+import com.microsoft.tang.implementation.RequiredSingleton;
 import com.microsoft.tang.implementation.Subplan;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
@@ -44,7 +43,6 @@ public class InjectorImpl implements Injector {
   }
 
   final Configuration c;
-//  final ConfigurationBuilderImpl cbi;
   final ClassHierarchy namespace;
   final ClassHierarchyImpl javaNamespace;
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
@@ -127,13 +125,13 @@ public class InjectorImpl implements Injector {
       ClassNode<?> cn = (ClassNode<?>) n;
       if (singletonInstances.containsKey(cn)) {
         ip = new JavaInstance<Object>(cn, singletonInstances.get(cn));
-      } else if (null != c.getBoundConstructor(cn)) {//cbi.boundConstructors.containsKey(cn)) {
+      } else if (null != c.getBoundConstructor(cn)) {
         String constructorName = c.getBoundConstructor(cn).getFullName();
         buildInjectionPlan(constructorName, memo);
         ip = new Subplan(cn, 0, memo.get(constructorName));
         memo.put(cn.getFullName(), ip);
         // ip = new Instance(cn, null);
-      } else if (null != c.getBoundImplementation(cn) //cbi.boundImpls.containsKey(cn)
+      } else if (null != c.getBoundImplementation(cn)
           && !(c.getBoundImplementation(cn).getFullName().equals(cn.getFullName()))) {
         String implName = c.getBoundImplementation(cn).getFullName();
         buildInjectionPlan(implName, memo);
@@ -160,8 +158,10 @@ public class InjectorImpl implements Injector {
 
           for (ConstructorDef<?> def : constructorList) {
             List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
-            for (ConstructorArg arg : def.getArgs()) {
-              String argName = arg.getName(); // getFullyQualifiedName(thisCN.clazz);
+            ConstructorArg[] defArgs = def.getArgs();
+
+            for (ConstructorArg arg : defArgs) {
+              String argName = arg.getName();
               buildInjectionPlan(argName, memo);
               args.add(memo.get(argName));
             }
@@ -171,8 +171,7 @@ public class InjectorImpl implements Injector {
           }
           sub_ips.add(wrapInjectionPlans(thisCN, constructors, false));
         }
-        if (classNodes.size() == 1 && classNodes.get(0).getFullName()
-        /* getClazz().getName() */.equals(name)) {
+        if (classNodes.size() == 1 && classNodes.get(0).getFullName().equals(name)) {
           ip = wrapInjectionPlans(n, sub_ips, false);
         } else {
           ip = wrapInjectionPlans(n, sub_ips, true);
@@ -244,9 +243,6 @@ public class InjectorImpl implements Injector {
 
   public InjectorImpl(Configuration c) throws BindException {
     this.c = c;
-    ConfigurationImpl ci = (ConfigurationImpl) c;
-    //this.cb = ci.builder;
-//    this.cbi = (ConfigurationBuilderImpl)ci.builder;
     this.namespace = c.getClassHierarchy();
     this.javaNamespace = (ClassHierarchyImpl)this.namespace;
   }
@@ -347,8 +343,13 @@ public class InjectorImpl implements Injector {
     } else if (plan instanceof Constructor) {
       Constructor<T> constructor = (Constructor<T>) plan;
       if (singletonInstances.containsKey(constructor.getNode())) {
-        throw new SingletonInjectionException(
-            "Attempt to re-instantiate singleton: " + constructor.getNode());
+        // XXX unit handling here is a hack!  (This logic should be embedded in the plan data structure!)
+        if (constructor.getNode().isUnit()) {
+          return (T)singletonInstances.get(constructor.getNode());
+        } else {
+          throw new SingletonInjectionException(
+              "Attempt to re-instantiate singleton: " + constructor.getNode());
+        }
       }
       Object[] args = new Object[constructor.getArgs().length];
       for (int i = 0; i < constructor.getArgs().length; i++) {
@@ -358,7 +359,7 @@ public class InjectorImpl implements Injector {
         T ret = getConstructor(
             (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
             args);
-        if (c.isSingleton(constructor.getNode())) {
+        if (c.isSingleton(constructor.getNode()) || constructor.getNode().isUnit()) {
           singletonInstances.put(constructor.getNode(), ret);
         }
         // System.err.println("returning a new " + constructor.getNode());
@@ -369,12 +370,18 @@ public class InjectorImpl implements Injector {
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
       if (ambiguous.isInjectable()) {
+        Node ambigNode = ambiguous.getNode();
+        boolean ambigIsUnit = ambigNode instanceof ClassNode && ((ClassNode<?>)ambigNode).isUnit(); 
         if (singletonInstances.containsKey(ambiguous.getNode())) {
-          throw new SingletonInjectionException(
-              "Attempt to re-instantiate singleton: " + ambiguous.getNode());
+          if (ambigIsUnit) {
+            return (T)singletonInstances.get(ambiguous.getNode());
+          } else {
+            throw new SingletonInjectionException(
+                "Attempt to re-instantiate singleton: " + ambiguous.getNode());
+          }
         }
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
-        if (c.isSingleton(ambiguous.getNode())) {
+        if (c.isSingleton(ambiguous.getNode()) || ambigIsUnit) {
           // Cast is safe since singletons is of type Set<ClassNode<?>>
           singletonInstances.put((ClassNode<?>) ambiguous.getNode(), ret);
         }

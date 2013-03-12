@@ -1,5 +1,10 @@
 package com.microsoft.tang.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * A TANG Unit consists of an outer class and some non-static inner classes.
  * TANG injectors automatically treat all the classes in a unit as singletons.
@@ -12,9 +17,14 @@ package com.microsoft.tang.annotations;
  * and no static inner classes. The inner classes must not declare any
  * constructors.
  * 
+ * Furthermore, classes annotated with Unit may not have injectable (or Unit)
+ * subclasses.
+ * 
  * @author sears
  * 
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Unit {
 
 }

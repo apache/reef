@@ -10,8 +10,6 @@ import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;

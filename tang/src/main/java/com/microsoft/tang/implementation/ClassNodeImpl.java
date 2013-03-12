@@ -13,18 +13,20 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   // TODO: Would like to get rid of fullName in JavaClassNode, but getting "."
   // vs "$" right in classnames is tricky.
   private final String fullName;
+  private final boolean unit;
   private final boolean isPrefixTarget;
   private final boolean externalConstructor;
   private final ConstructorDef<T>[] injectableConstructors;
   private final ConstructorDef<T>[] allConstructors;
   private final MonotonicSet<ClassNode<? extends T>> knownImpls;
-  
   public ClassNodeImpl(Node parent, String simpleName, String fullName,
-      boolean injectable, boolean externalConstructor, boolean isPrefixTarget,
+      boolean unit, boolean injectable, boolean externalConstructor,
+      boolean isPrefixTarget,
       ConstructorDef<T>[] injectableConstructors,
       ConstructorDef<T>[] allConstructors) {
     super(parent, simpleName);
     this.fullName = fullName;
+    this.unit = unit;
     this.injectable = injectable;
     this.externalConstructor = externalConstructor;
     this.isPrefixTarget = isPrefixTarget;
@@ -102,5 +104,10 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   @Override
   public Set<ClassNode<? extends T>> getKnownImplementations() {
    return new MonotonicSet<>(knownImpls);
+  }
+
+  @Override
+  public boolean isUnit() {
+    return unit;
   }
 }

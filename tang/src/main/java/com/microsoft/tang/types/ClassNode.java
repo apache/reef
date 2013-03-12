@@ -16,7 +16,7 @@ public interface ClassNode<T> extends Node {
 
   public void putImpl(ClassNode<? extends T> impl);
   public Set<ClassNode<? extends T>> getKnownImplementations();
-  
+  public boolean isUnit();
   public boolean isInjectionCandidate();
   public boolean isExternalConstructor();
 }
