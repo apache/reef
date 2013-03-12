@@ -103,7 +103,9 @@ public class ConfigurationFile {
           isSingleton = true;
         }
         if (value.equals(ConfigurationBuilderImpl.REGISTERED)) {
-          ci.register(key);
+          throw new UnsupportedOperationException("Encountered obsolete "
+              + ConfigurationBuilderImpl.REGISTERED
+              + " keyword.  Old config file?");
         } else if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           if (isSingleton) {
             throw new IllegalArgumentException("Can't "
@@ -160,10 +162,6 @@ public class ConfigurationFile {
     ConfigurationImpl conf = (ConfigurationImpl) c;
     StringBuilder s = new StringBuilder();
 
-    for (String shrt : conf.getShortNames()) {
-        String lng = conf.resolveShortName(shrt);
-        s.append(lng + "=" + ConfigurationBuilderImpl.REGISTERED + "\n");
-    }
     for (ClassNode<?> opt : conf.getBoundImplementations()) {
       s.append(opt.getFullName() + "="
           + conf.getBoundImplementation(opt).getFullName() + "\n");
@@ -173,8 +171,7 @@ public class ConfigurationFile {
           + conf.getBoundConstructor(opt).getFullName() + "\n");
     }
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
-      s.append(opt.getFullName() + "=" + conf.getNamedParameter(opt)
-          + "\n");
+      s.append(opt.getFullName() + "=" + conf.getNamedParameter(opt) + "\n");
     }
     for (ClassNode<?> opt : conf.getSingletons()) {
       // ret.put(opt.getFullName(), SINGLETON);

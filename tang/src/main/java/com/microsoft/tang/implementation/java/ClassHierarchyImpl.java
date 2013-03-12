@@ -4,7 +4,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +34,12 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   // There are third party libraries that would help, but they can fail if the
   // relevant jar has not yet been loaded.
 
-  private URLClassLoader loader;
+  private final URLClassLoader loader;
   private final List<URL> jars;
 
   private final PackageNode namespace;
   private final TreeSet<String> registeredClasses = new MonotonicSet<>();
+  // Note: this is only used to sanity check short names (so that name clashes get resolved).
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
 
   public final ParameterParser parameterParser = new ParameterParser();
@@ -188,15 +188,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   private Node getNode(Class<?> clazz) throws NameResolutionException {
-    return getNode(clazz.getName());
+    return getAlreadyBoundNode(clazz.getName());
   }
 
   @Override
   public Node getNode(String name) throws NameResolutionException {
+    try {
+      register(name);
+    } catch(BindException e) {
+      throw new NameResolutionException(e);
+    }
+    return getAlreadyBoundNode(name);
+  }
+  private Node getAlreadyBoundNode(String name) throws NameResolutionException {
     String[] path = name.split(ReflectionUtilities.regexp);
     return getNode(name, path, path.length);
   }
-
   private Node getNode(String name, String[] path, int depth)
       throws NameResolutionException {
     Node root = namespace;
@@ -240,7 +247,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       throws NameResolutionException {
 
     try {
-      getNode(arrayToDotString(packageName, packageName.length));
+      getAlreadyBoundNode(arrayToDotString(packageName, packageName.length));
       return;
     } catch (NameResolutionException e) {
     }
@@ -249,7 +256,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     if (packageName.length == 1) {
       parent = namespace;
     } else {
-      parent = (PackageNode) getNode(arrayToDotString(packageName,
+      parent = (PackageNode) getAlreadyBoundNode(arrayToDotString(packageName,
           packageName.length - 1));
     }
     JavaNodeFactory.createPackageNode(parent,
@@ -407,16 +414,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   @Override
-  public Collection<String> getShortNames() {
-    return shortNames.keySet();
-  }
-
-  @Override
-  public String resolveShortName(String shortName) {
-    return shortNames.get(shortName).getFullName();
-  }
-
-  @Override
   public String toPrettyString() {
     return namespace.toIndentedString(0);
   }
@@ -442,6 +439,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   @Override
   public ClassHierarchy merge(ClassHierarchy ch) {
+    if(this == ch) { return this; }
     if(!(ch instanceof ClassHierarchyImpl)) {
       throw new UnsupportedOperationException("Can't merge java and non-java class hierarchies yet!");
     }
@@ -452,7 +450,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     HashSet<URL> otherJars = new HashSet<>();
     otherJars.addAll(chi.jars);
     HashSet<URL> myJars = new HashSet<>();
-    myJars.addAll(chi.jars);
+    myJars.addAll(this.jars);
     if(myJars.containsAll(otherJars)) {
       return this;
     } else if(otherJars.containsAll(myJars)) {

@@ -15,14 +15,38 @@ import org.apache.commons.cli.Parser;
 
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.types.NamedParameterNode;
+import com.microsoft.tang.types.Node;
+import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public class CommandLine {
   private final ConfigurationBuilder conf;
+  private final Map<String,String> shortNames = new MonotonicMap<>();
 
   public CommandLine(ConfigurationBuilder conf) {
     this.conf = conf;
   }
-
+  public void registerShortNameOfClass(String s) throws BindException {
+    final Node n;
+    try {
+      n = conf.getClassHierarchy().getNode(s);
+    } catch(NameResolutionException e) {
+      throw new BindException("Problem loading class " + s, e);
+    }
+    if(n instanceof NamedParameterNode) {
+      NamedParameterNode<?> np = (NamedParameterNode<?>)n;
+      String shortName = np.getShortName();
+      String longName = np.getFullName();
+      shortNames.put(shortName, longName);
+    } else {
+      throw new BindException("Can't register short name for non-NamedParameterNode: " + n);
+    }
+  }
+  public void registerShortNameOfClass(Class<?> c) throws BindException {
+    registerShortNameOfClass(ReflectionUtilities.getFullName(c));
+  }
   /**
    * @param option
    * @param cb
@@ -34,19 +58,16 @@ public class CommandLine {
     // .getNamedParameterNodes();
     // for (NamedParameterNode<?> param : namedParameters) {
     // String shortName = param.getShortName();
-    for (String shortName : conf.getShortNames()) {
-      if (shortName != null) {
-        try {
-          String longName = conf.resolveShortName(shortName);
-          opts.addOption(OptionBuilder
-              .withArgName(conf.classPrettyDefaultString(longName)).hasArg()
-              .withDescription(conf.classPrettyDescriptionString(longName))
-              .create(shortName));
-        } catch (BindException e) {
-          throw new IllegalStateException(
-              "Configuration object mentioned short name " + shortName
-                  + " and then did not recognize it!", e);
-        }
+    for (String shortName : shortNames.keySet()) {
+      String longName = shortNames.get(shortName);
+      try {
+        opts.addOption(OptionBuilder
+            .withArgName(conf.classPrettyDefaultString(longName)).hasArg()
+            .withDescription(conf.classPrettyDescriptionString(longName))
+            .create(shortName));
+      } catch (BindException e) {
+        throw new IllegalStateException(
+            "Could not process " + shortName + " which is the short name of " + longName, e);
       }
     }
     for (Option o : applicationOptions.keySet()) {
@@ -99,7 +120,7 @@ public class CommandLine {
         applicationOptions.get(option).process(option);
       } else {
         try {
-          conf.bind(conf.resolveShortName(shortName), value);
+          conf.bind(shortNames.get(shortName), value);
         } catch (ClassNotFoundException e) {
           throw new BindException("Could not bind shortName " + shortName + " to value " + value, e);
         }

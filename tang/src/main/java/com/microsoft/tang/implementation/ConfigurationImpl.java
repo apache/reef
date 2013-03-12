@@ -75,15 +75,6 @@ public class ConfigurationImpl implements Configuration {
   }
   
   @Override
-  public Collection<String> getShortNames() {
-    return builder.getShortNames();
-  }
-
-  public String resolveShortName(String shortName) {
-    return builder.resolveShortName(shortName);
-  }
-
-  @Override
   public ClassHierarchy getClassHierarchy() {
     return builder.namespace;
   }

@@ -82,11 +82,10 @@
 
 
 	<modules>
-		<module>tang</module>
-		
 		<module>tang-test-jarA</module>
 		<module>tang-test-jarB</module>
 		<module>tang-test-jarAB</module>
 		<module>tang-test-jarB-conflictA</module>
+		<module>tang</module>
 	</modules>	
 </project>

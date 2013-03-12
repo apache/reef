@@ -40,7 +40,5 @@ public interface Configuration {
 
   Set<ClassNode<?>> getLegacyConstructors();
 
-  Collection<String> getShortNames();
-
   public ClassHierarchy getClassHierarchy();
 }

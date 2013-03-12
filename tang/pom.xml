@@ -160,7 +160,7 @@
 			<version>1</version>
 		</dependency>
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>tang-test-jarA</artifactId>
 			<version>${project.version}</version>
@@ -184,6 +184,6 @@
 			<artifactId>tang-test-jarB-conflictA</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency> -->
 	</dependencies>
 </project>

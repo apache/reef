@@ -17,7 +17,6 @@ import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.Constructor;
 import com.microsoft.tang.implementation.InjectionPlan;
-import com.microsoft.tang.implementation.RequiredSingleton;
 import com.microsoft.tang.implementation.Subplan;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;

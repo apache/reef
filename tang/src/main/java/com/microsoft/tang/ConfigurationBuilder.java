@@ -1,15 +1,12 @@
 package com.microsoft.tang;
 
-import java.util.Collection;
-
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.Node;
 
-
 public interface ConfigurationBuilder {
-  
+
   public ConfigurationBuilder clone();
 
   /**
@@ -36,8 +33,19 @@ public interface ConfigurationBuilder {
    * In addition to registering the class, this method also checks to make sure
    * the class is consistent with itself and the rest of the Tang classes that
    * have been registered.
+   * 
+   * @deprecated With the elimination of shortName handling from core Tang,
+   *             ClassHierarchies should now be treated as immutable. Therefore,
+   *             this method no longer has any purpose other than for testing.
    */
   public void register(String c) throws BindException;
+
+  /**
+   * @return a reference to the ClassHierarchy instance backing this
+   *         ConfigurationBuilder. No copy is made, since ClassHierarchy objects
+   *         are effectively immutable.
+   */
+  public ClassHierarchy getClassHierarchy();
 
   /**
    * Force Tang to treat the specified constructor as though it had an @Inject
@@ -52,10 +60,10 @@ public interface ConfigurationBuilder {
       throws BindException;
 
   void registerLegacyConstructor(String cn, String... args)
-  throws BindException;
+      throws BindException;
 
   void registerLegacyConstructor(ClassNode<?> c, ConstructorArg... args)
-  throws BindException;
+      throws BindException;
 
   /**
    * Bind classes to each other, based on their full class names.
@@ -70,23 +78,22 @@ public interface ConfigurationBuilder {
   void bind(Node key, Node value) throws BindException;
 
   public void bindSingleton(String iface) throws BindException;
+
   public void bindSingleton(ClassNode<?> iface) throws BindException;
 
-  public <T> void bindConstructor(ClassNode<T> k, ClassNode<? extends ExternalConstructor<? extends T>> v) throws BindException;
-
-  public Collection<String> getShortNames();
-
-  public String resolveShortName(String shortName);
+  public <T> void bindConstructor(ClassNode<T> k,
+      ClassNode<? extends ExternalConstructor<? extends T>> v)
+      throws BindException;
 
   public String classPrettyDefaultString(String longName) throws BindException;
 
   public String classPrettyDescriptionString(String longName)
-  throws BindException;
+      throws BindException;
 
   public Configuration build();
 
-  public <T> void bindSingletonImplementation(ClassNode<T> c, ClassNode<? extends T> d)
-      throws BindException;
+  public <T> void bindSingletonImplementation(ClassNode<T> c,
+      ClassNode<? extends T> d) throws BindException;
 
   public void bindSingletonImplementation(String inter, String impl)
       throws BindException;

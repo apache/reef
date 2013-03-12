@@ -1,7 +1,6 @@
 package com.microsoft.tang.implementation;
 
 import java.net.URL;
-import java.util.Collection;
 import java.util.Map;
 
 import com.microsoft.tang.ClassHierarchy;
@@ -51,9 +50,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t)
       throws BindException {
-    this.namespace = t.namespace;
+    this.namespace = t.getClassHierarchy();
     try {
-      addConfiguration(t);
+      addConfiguration(t.getClassHierarchy(), t);
     } catch (BindException e) {
       throw new IllegalStateException("Could not copy builder", e);
     }
@@ -79,18 +78,18 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void addConfiguration(Configuration conf) throws BindException {
     // XXX remove cast!
-    addConfiguration(((ConfigurationImpl) conf).builder);
+    addConfiguration(conf.getClassHierarchy(), ((ConfigurationImpl) conf).builder);
   }
 
-  private void addConfiguration(ConfigurationBuilderImpl builder)
+  private void addConfiguration(ClassHierarchy ns, ConfigurationBuilderImpl builder)
       throws BindException {
-    namespace = namespace.merge(builder.namespace);
+    namespace = namespace.merge(ns);
     ((ClassHierarchyImpl) namespace).parameterParser
         .mergeIn(((ClassHierarchyImpl) namespace).parameterParser);
 
-    for (String s : builder.namespace.getRegisteredClassNames()) {
-      register(s);
-    }
+//    for (String s : ns.getRegisteredClassNames()) {
+//      register(s);
+//    }
     for (ClassNode<?> cn : builder.boundImpls.keySet()) {
       bind(cn.getFullName(), builder.boundImpls.get(cn).getFullName());
     }
@@ -116,9 +115,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           .getArgs());
     }
   }
-
+  @Override
   public void register(String s) throws BindException {
     namespace.register(s);
+  }
+  @Override
+  public ClassHierarchy getClassHierarchy() {
+    return namespace;
   }
 
   @Override
@@ -246,16 +249,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public ConfigurationImpl build() {
     return new ConfigurationImpl(this.clone());
-  }
-
-  @Override
-  public Collection<String> getShortNames() {
-    return namespace.getShortNames();
-  }
-
-  @Override
-  public String resolveShortName(String shortName) {
-    return namespace.resolveShortName(shortName);
   }
 
   @Override
