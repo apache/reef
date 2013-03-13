@@ -31,7 +31,7 @@ public abstract class InjectionPlan<T> {
   }
 
   public String toPrettyString() {
-    String ugly = toString();
+    String ugly = node.getFullName() + ": " + toString();
     StringBuffer pretty = new StringBuffer();
     int currentIndent = 0;
     for (int i = 0; i < ugly.length(); i++) {
