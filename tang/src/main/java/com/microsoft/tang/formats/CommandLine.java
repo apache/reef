@@ -14,6 +14,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Parser;
 
 import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.NamedParameterNode;
@@ -44,7 +45,7 @@ public class CommandLine {
       throw new BindException("Can't register short name for non-NamedParameterNode: " + n);
     }
   }
-  public void registerShortNameOfClass(Class<?> c) throws BindException {
+  public void registerShortNameOfClass(Class<? extends Name<?>> c) throws BindException {
     registerShortNameOfClass(ReflectionUtilities.getFullName(c));
   }
   /**
