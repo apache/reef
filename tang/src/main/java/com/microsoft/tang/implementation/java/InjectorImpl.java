@@ -372,18 +372,31 @@ public class InjectorImpl implements Injector {
       }
       if (!singletonInstances.containsKey(constructor.getNode())) {
         try {
+          // Note: down the road, we want to make sure that constructor doesn't
+          // invoke methods on us.  We should add a 'freeze'/'unfreeze' call here
+          // to detect invocations against this object.
+          
+          // In order to handle loopy object graphs, we'll use a "FutureReference" or some
+          // such thing.  The contract is that you can't deference the FutureReference until
+          // after your constructor returns, but otherwise, it is immutable.
           T ret = getConstructor(
               (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
               args);
           if (c.isSingleton(constructor.getNode())
               || constructor.getNode().isUnit()) {
-            // There are situations where clients are creating loopy
-            // constructors, and invoking *this* injector inside the
-            // newInstance() above. In such circumstances, the nested injection
-            // could have put the instance into the singletonInstances for us.
-//            if (!singletonInstances.containsKey(constructor.getNode())) {
+            if (!singletonInstances.containsKey(constructor.getNode())) {
               singletonInstances.put(constructor.getNode(), ret);
-//            }
+            } else {
+              // There are situations where clients need to create cyclic object graphs,
+              // so they bindVolatileInstance(...,this) to the class inside their constructors.
+              // That's fine, so ignore duplicates where the references match.
+              if (singletonInstances.get(constructor.getNode()) != ret) {
+                throw new InjectionException("Invoking constructor "
+                    + constructor
+                    + " resulted in the binding of some other instance of "
+                    + constructor.getNode().getName() + " as a singleton");
+              }
+            }
           }
           // System.err.println("returning a new " + constructor.getNode());
           return ret;
