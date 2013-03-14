@@ -9,9 +9,15 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ParameterParser {
   MonotonicMap<String, Constructor<? extends ExternalConstructor<?>>> parsers = new MonotonicMap<>();
-
+ 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void addParser(Class<? extends ExternalConstructor<?>> ec) throws BindException {
-    Constructor<? extends ExternalConstructor<?>> c;
+    Class<?> tc = (Class<?>)ReflectionUtilities.getInterfaceTarget(
+        ExternalConstructor.class, ec);
+    addParser((Class)tc, (Class)ec);
+  }
+  public <T, U extends T> void addParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec) throws BindException {
+    Constructor<? extends ExternalConstructor<T>> c;
     try {
       c = ec.getConstructor(String.class);
     } catch (NoSuchMethodException e) {
@@ -19,9 +25,7 @@ public class ParameterParser {
           + ReflectionUtilities.getFullName(ec) + "(String) does not exist!", e);
     }
     c.setAccessible(true);
-    Class<?> tc = ReflectionUtilities.getInterfaceTarget(
-        ExternalConstructor.class, ec);
-    parsers.put(ReflectionUtilities.getFullName(tc), c);
+    parsers.put(ReflectionUtilities.getFullName(clazz), c);
   }
 
   public void mergeIn(ParameterParser p) {

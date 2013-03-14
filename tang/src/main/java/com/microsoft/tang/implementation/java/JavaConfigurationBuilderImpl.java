@@ -125,6 +125,12 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     ((ClassHierarchyImpl)namespace).parameterParser.addParser(ec);
   }
 
+  @Override
+  public <T, U extends T> void bindParser(Class<U> c, Class<? extends ExternalConstructor<T>> ec) 
+      throws BindException {
+    ((ClassHierarchyImpl)namespace).parameterParser.addParser(c, ec);
+  }
+
   @SuppressWarnings({ "unchecked" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException {

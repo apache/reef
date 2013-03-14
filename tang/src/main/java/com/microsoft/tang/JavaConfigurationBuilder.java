@@ -82,6 +82,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
 
   public void bindParser(Class<? extends ExternalConstructor<?>> ec) throws BindException;
+  public <T, U extends T> void bindParser(Class<U> c, Class<? extends ExternalConstructor<T>> ec) throws BindException;
   /**
    * @deprecated
    * @param c
