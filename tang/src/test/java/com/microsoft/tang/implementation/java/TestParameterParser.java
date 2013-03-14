@@ -14,6 +14,7 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ParameterParser;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestParameterParser {
   @Test
@@ -73,6 +74,30 @@ public class TestParameterParser {
     ILikeBars ilb = tang.newInjector(cb.build()).getInstance(ILikeBars.class);
     Assert.assertNotNull(ilb);
   }
+  @Test
+  public void testDelegatingParser() throws BindException, InjectionException, ClassNotFoundException {
+    Tang tang = Tang.Factory.getTang();
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+    cb.bindParser(ParseTypeA.class, TypeParser.class);
+    cb.bindParser(ParseTypeB.class, TypeParser.class);
+    
+    cb.bindParser(ParseableType.class, TypeParser.class);
+    
+    JavaConfigurationBuilder cb2 = tang.newConfigurationBuilder(cb.build());
+    
+    cb2.bind(ReflectionUtilities.getFullName(ParseName.class), "a");
+
+    ParseableType t = tang.newInjector(cb2.build()).getNamedInstance(ParseName.class);
+    Assert.assertTrue(t instanceof ParseTypeA);
+    
+    cb2 = tang.newConfigurationBuilder(cb.build());
+    
+    cb2.bind(ReflectionUtilities.getFullName(ParseNameB.class), "b");
+    cb2.bind(ReflectionUtilities.getFullName(ParseNameA.class), "a");
+    tang.newInjector(cb2.build()).getInstance(NeedsA.class);    
+    tang.newInjector(cb2.build()).getInstance(NeedsB.class);
+    
+  }
   private static class FooParser implements ExternalConstructor<Foo> {
     private final Foo foo;
     @Inject
@@ -83,7 +108,6 @@ public class TestParameterParser {
     public Foo newInstance() {
       return foo;
     }
-    
   }
   private static class BarParser implements ExternalConstructor<Foo> {
     private final Bar bar;
@@ -109,6 +133,49 @@ public class TestParameterParser {
     @Inject ILikeBars(@Parameter(SomeNamedFoo.class) Foo bar) {
       Bar b = (Bar) bar;
       Assert.assertEquals(b.s, "hdfs://woot");
+    }
+  }
+  private static class ParseableType {
+  }
+  private static class ParseTypeA extends ParseableType {
+
+  }
+  private static class ParseTypeB extends ParseableType {
+    
+  }
+  private static class TypeParser implements ExternalConstructor<ParseableType> {
+    ParseableType instance;
+    @Inject
+    public TypeParser(String s) {
+      if(s.equals("a")) { instance = new ParseTypeA(); }
+      if(s.equals("b")) { instance = new ParseTypeB(); }
+      
+    }
+    @Override
+    public ParseableType newInstance() {
+      return instance;
+    }
+  }
+  @NamedParameter()
+  private static class ParseName implements Name<ParseableType> {
+    
+  }
+  @NamedParameter()
+  private static class ParseNameA implements Name<ParseableType> {
+    
+  }
+  @NamedParameter()
+  private static class ParseNameB implements Name<ParseTypeB> {
+    
+  }
+  private static class NeedsA {
+    @Inject public NeedsA(@Parameter(ParseNameA.class) ParseableType a) {
+      Assert.assertTrue(a instanceof ParseTypeA);
+    }
+  }
+  private static class NeedsB {
+    @Inject public NeedsB(@Parameter(ParseNameB.class) ParseTypeB b) {
+      Assert.assertTrue(b instanceof ParseTypeB);
     }
   }
 }
