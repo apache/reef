@@ -93,7 +93,7 @@ public class TestParameterParser {
     cb2 = tang.newConfigurationBuilder(cb.build());
     
     cb2.bind(ReflectionUtilities.getFullName(ParseNameB.class), "b");
-    cb2.bind(ReflectionUtilities.getFullName(ParseNameA.class), "a");
+    cb2.bindNamedParameter(ParseNameA.class, "a");
     tang.newInjector(cb2.build()).getInstance(NeedsA.class);    
     tang.newInjector(cb2.build()).getInstance(NeedsB.class);
     
