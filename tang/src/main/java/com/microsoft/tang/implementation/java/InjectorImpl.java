@@ -354,17 +354,21 @@ public class InjectorImpl implements Injector {
       for (int i = 0; i < constructor.getArgs().length; i++) {
         args[i] = injectFromPlan(constructor.getArgs()[i]);
       }
-      try {
-        T ret = getConstructor(
-            (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
-            args);
-        if (c.isSingleton(constructor.getNode()) || constructor.getNode().isUnit()) {
-          singletonInstances.put(constructor.getNode(), ret);
+      if (!singletonInstances.containsKey(constructor.getNode())) {
+        try {
+          T ret = getConstructor(
+              (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
+              args);
+          if (c.isSingleton(constructor.getNode()) || constructor.getNode().isUnit()) {
+            singletonInstances.put(constructor.getNode(), ret);
+          }
+          // System.err.println("returning a new " + constructor.getNode());
+          return ret;
+        } catch (ReflectiveOperationException e) {
+          throw new InjectionException("Could not invoke constructor", e);
         }
-        // System.err.println("returning a new " + constructor.getNode());
-        return ret;
-      } catch (ReflectiveOperationException e) {
-        throw new InjectionException("Could not invoke constructor", e);
+      } else {
+        return (T)singletonInstances.get(constructor.getNode());
       }
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
