@@ -160,7 +160,7 @@ public class JavaNodeFactory {
     // We don't support injection of non-static member classes with @Inject
     // annotations.
     if (injectable && !isClassInjectionCandidate) {
-      throw new BindException("Cannot @Inject non-static member/local class: "
+      throw new BindException("Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:"
           + ReflectionUtilities.getFullName(constructor.getDeclaringClass()));
     }
     Class<?>[] paramTypes = constructor.getParameterTypes();
