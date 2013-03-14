@@ -332,6 +332,23 @@ public class InjectorImpl implements Injector {
     return cons;
   }
 
+  /**
+   * This gets really nasty now that constructors can invoke operations on us.
+   * The upshot is that we should check to see if singletons have been
+   * registered by callees after each recursive invocation of injectFromPlan or
+   * constructor invocations. The error handling currently bails if the thing we
+   * just instantiated should be discarded.
+   * 
+   * This could happen if (for instance), a constructor did a
+   * bindVolatileInstance of its own class to an instance, or somehow triggered
+   * an injection of itself with a different plan (an injection of itself with
+   * the same plan would lead to an infinite recursion, so it's not really our
+   * problem).
+   * 
+   * @param plan
+   * @return
+   * @throws InjectionException
+   */
   @SuppressWarnings("unchecked")
   <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
     if (!plan.isFeasible()) {
@@ -347,14 +364,7 @@ public class InjectorImpl implements Injector {
     } else if (plan instanceof Constructor) {
       final Constructor<T> constructor = (Constructor<T>) plan;
       if (singletonInstances.containsKey(constructor.getNode())) {
-        // XXX unit handling here is a hack! (This logic should be embedded in
-        // the plan data structure!)
-        if (constructor.getNode().isUnit()) {
-          return (T) singletonInstances.get(constructor.getNode());
-        } else {
-          throw new SingletonInjectionException(
-              "Attempt to re-instantiate singleton: " + constructor.getNode());
-        }
+        return (T) singletonInstances.get(constructor.getNode());
       }
       Object[] args = new Object[constructor.getArgs().length];
       for (int i = 0; i < constructor.getArgs().length; i++) {
@@ -369,11 +379,11 @@ public class InjectorImpl implements Injector {
               || constructor.getNode().isUnit()) {
             // There are situations where clients are creating loopy
             // constructors, and invoking *this* injector inside the
-            // newInstance() above.  In such circumstances, the nested injection
+            // newInstance() above. In such circumstances, the nested injection
             // could have put the instance into the singletonInstances for us.
-            if (!singletonInstances.containsKey(constructor.getNode())) {
+//            if (!singletonInstances.containsKey(constructor.getNode())) {
               singletonInstances.put(constructor.getNode(), ret);
-            }
+//            }
           }
           // System.err.println("returning a new " + constructor.getNode());
           return ret;
@@ -390,12 +400,7 @@ public class InjectorImpl implements Injector {
         boolean ambigIsUnit = ambigNode instanceof ClassNode
             && ((ClassNode<?>) ambigNode).isUnit();
         if (singletonInstances.containsKey(ambiguous.getNode())) {
-          if (ambigIsUnit) {
-            return (T) singletonInstances.get(ambiguous.getNode());
-          } else {
-            throw new SingletonInjectionException(
-                "Attempt to re-instantiate singleton: " + ambiguous.getNode());
-          }
+          return (T) singletonInstances.get(ambiguous.getNode());
         }
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
         if (c.isSingleton(ambiguous.getNode()) || ambigIsUnit) {
