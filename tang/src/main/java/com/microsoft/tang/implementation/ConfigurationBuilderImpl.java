@@ -207,7 +207,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     Node n = namespace.register(s);
     if (!(n instanceof ClassNode)) {
       throw new IllegalArgumentException("Can't bind singleton to " + n
-          + " try bindParameter() instead.");
+          + " try bindNamedParameter() instead (named parameters are always singletons)");
     }
     bindSingleton((ClassNode<?>) n);
   }

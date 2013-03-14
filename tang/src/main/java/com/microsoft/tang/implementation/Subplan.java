@@ -61,12 +61,13 @@ final public class Subplan<T> extends InjectionPlan<T> {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("[");
-      if (this.alternatives.length == 0) {
-        sb.append("no impls");
-      } else {
-        sb.append(alternatives[0]);
+      if(alternatives.length == 1) {
+        return getNode().getName() + " = " + alternatives[0];
+      } else if(alternatives.length == 0) {
+        return getNode().getName() + ": no injectable constructors";
       }
+      StringBuilder sb = new StringBuilder("[");
+      sb.append(getNode().getName() + " = " + alternatives[0]);
       for (int i = 1; i < alternatives.length; i++) {
         sb.append(" | " + alternatives[i]);
       }

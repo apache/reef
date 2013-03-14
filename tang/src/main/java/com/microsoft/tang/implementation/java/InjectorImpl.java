@@ -103,18 +103,19 @@ public class InjectorImpl implements Injector {
       if (instance == null) {
         String value = c.getNamedParameter(np);
         try {
-          if(value != null) {
-              instance = namespace.parse(np, value);
+          if (value != null) {
+            instance = namespace.parse(np, value);
             namedParameterInstances.put(np, instance);
           } else {
             instance = namespace.parseDefaultValue(np);
           }
         } catch (BindException e) {
-          throw new IllegalStateException("Could not parse pre-validated value", e);
+          throw new IllegalStateException(
+              "Could not parse pre-validated value", e);
         }
       }
       if (instance instanceof ClassNode) {
-        String implName = ((ClassNode<?>)instance).getFullName();
+        String implName = ((ClassNode<?>) instance).getFullName();
         buildInjectionPlan(implName, memo);
         ip = new Subplan<>(np, 0, memo.get(implName));
       } else {
@@ -131,7 +132,8 @@ public class InjectorImpl implements Injector {
         memo.put(cn.getFullName(), ip);
         // ip = new Instance(cn, null);
       } else if (null != c.getBoundImplementation(cn)
-          && !(c.getBoundImplementation(cn).getFullName().equals(cn.getFullName()))) {
+          && !(c.getBoundImplementation(cn).getFullName().equals(cn
+              .getFullName()))) {
         String implName = c.getBoundImplementation(cn).getFullName();
         buildInjectionPlan(implName, memo);
         ip = new Subplan(cn, 0, memo.get(implName));
@@ -170,7 +172,8 @@ public class InjectorImpl implements Injector {
           }
           sub_ips.add(wrapInjectionPlans(thisCN, constructors, false));
         }
-        if (classNodes.size() == 1 && classNodes.get(0).getFullName().equals(name)) {
+        if (classNodes.size() == 1
+            && classNodes.get(0).getFullName().equals(name)) {
           ip = wrapInjectionPlans(n, sub_ips, false);
         } else {
           ip = wrapInjectionPlans(n, sub_ips, true);
@@ -198,14 +201,16 @@ public class InjectorImpl implements Injector {
    * @return
    * @throws NameResolutionException
    */
-  public InjectionPlan<?> getInjectionPlan(String name) throws InjectionException {
+  public InjectionPlan<?> getInjectionPlan(String name)
+      throws InjectionException {
     Map<String, InjectionPlan<?>> memo = new HashMap<String, InjectionPlan<?>>();
     buildInjectionPlan(name, memo);
     return memo.get(name);
   }
 
   @SuppressWarnings("unchecked")
-  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) throws InjectionException {
+  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name)
+      throws InjectionException {
     return (InjectionPlan<T>) getInjectionPlan(name.getName());
   }
 
@@ -214,8 +219,8 @@ public class InjectorImpl implements Injector {
     try {
       InjectionPlan<?> p = getInjectionPlan(name);
       return p.isInjectable();
-    } catch(InjectionException e) {
-      throw (BindException)e.getCause();
+    } catch (InjectionException e) {
+      throw (BindException) e.getCause();
     }
   }
 
@@ -229,8 +234,8 @@ public class InjectorImpl implements Injector {
     try {
       InjectionPlan<?> p = getInjectionPlan(name);
       return p.isInjectable();
-    } catch(InjectionException e) {
-      throw (BindException)e.getCause();
+    } catch (InjectionException e) {
+      throw (BindException) e.getCause();
     }
   }
 
@@ -243,7 +248,7 @@ public class InjectorImpl implements Injector {
   public InjectorImpl(Configuration c) throws BindException {
     this.c = c;
     this.namespace = c.getClassHierarchy();
-    this.javaNamespace = (ClassHierarchyImpl)this.namespace;
+    this.javaNamespace = (ClassHierarchyImpl) this.namespace;
   }
 
   boolean populated = false;
@@ -340,11 +345,12 @@ public class InjectorImpl implements Injector {
     if (plan instanceof JavaInstance) {
       return ((JavaInstance<T>) plan).instance;
     } else if (plan instanceof Constructor) {
-      Constructor<T> constructor = (Constructor<T>) plan;
+      final Constructor<T> constructor = (Constructor<T>) plan;
       if (singletonInstances.containsKey(constructor.getNode())) {
-        // XXX unit handling here is a hack!  (This logic should be embedded in the plan data structure!)
+        // XXX unit handling here is a hack! (This logic should be embedded in
+        // the plan data structure!)
         if (constructor.getNode().isUnit()) {
-          return (T)singletonInstances.get(constructor.getNode());
+          return (T) singletonInstances.get(constructor.getNode());
         } else {
           throw new SingletonInjectionException(
               "Attempt to re-instantiate singleton: " + constructor.getNode());
@@ -359,8 +365,15 @@ public class InjectorImpl implements Injector {
           T ret = getConstructor(
               (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
               args);
-          if (c.isSingleton(constructor.getNode()) || constructor.getNode().isUnit()) {
-            singletonInstances.put(constructor.getNode(), ret);
+          if (c.isSingleton(constructor.getNode())
+              || constructor.getNode().isUnit()) {
+            // There are situations where clients are creating loopy
+            // constructors, and invoking *this* injector inside the
+            // newInstance() above.  In such circumstances, the nested injection
+            // could have put the instance into the singletonInstances for us.
+            if (!singletonInstances.containsKey(constructor.getNode())) {
+              singletonInstances.put(constructor.getNode(), ret);
+            }
           }
           // System.err.println("returning a new " + constructor.getNode());
           return ret;
@@ -368,16 +381,17 @@ public class InjectorImpl implements Injector {
           throw new InjectionException("Could not invoke constructor", e);
         }
       } else {
-        return (T)singletonInstances.get(constructor.getNode());
+        return (T) singletonInstances.get(constructor.getNode());
       }
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
       if (ambiguous.isInjectable()) {
         Node ambigNode = ambiguous.getNode();
-        boolean ambigIsUnit = ambigNode instanceof ClassNode && ((ClassNode<?>)ambigNode).isUnit(); 
+        boolean ambigIsUnit = ambigNode instanceof ClassNode
+            && ((ClassNode<?>) ambigNode).isUnit();
         if (singletonInstances.containsKey(ambiguous.getNode())) {
           if (ambigIsUnit) {
-            return (T)singletonInstances.get(ambiguous.getNode());
+            return (T) singletonInstances.get(ambiguous.getNode());
           } else {
             throw new SingletonInjectionException(
                 "Attempt to re-instantiate singleton: " + ambiguous.getNode());
@@ -487,7 +501,7 @@ public class InjectorImpl implements Injector {
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = this.c.getNamedParameter(np);
-      if(old == null) {
+      if (old == null) {
         old = namedParameterInstances.get(np);
       }
       if (old != null) {
