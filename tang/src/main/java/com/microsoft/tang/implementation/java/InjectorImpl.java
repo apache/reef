@@ -249,6 +249,12 @@ public class InjectorImpl implements Injector {
     this.c = c;
     this.namespace = c.getClassHierarchy();
     this.javaNamespace = (ClassHierarchyImpl) this.namespace;
+    try {
+	    this.singletonInstances.put(
+	      (ClassNode<?>)(namespace.getNode(ReflectionUtilities.getFullName(Injector.class))), this);
+    } catch(NameResolutionException e) {
+    	throw new IllegalArgumentException("Configuration's namespace has not heard of Injector!");
+    }
   }
 
   boolean populated = false;
@@ -456,13 +462,15 @@ public class InjectorImpl implements Injector {
           "Unexpected error copying configuration!", e);
     }
     for (ClassNode<?> cn : old.singletonInstances.keySet()) {
-      try {
-        ClassNode<?> new_cn = (ClassNode<?>) i.namespace.register(cn
+      if(!cn.getFullName().equals("com.microsoft.tang.Injector")) {
+        try {
+          ClassNode<?> new_cn = (ClassNode<?>) i.namespace.register(cn
             .getFullName());
-        i.singletonInstances.put(new_cn, old.singletonInstances.get(cn));
-      } catch (BindException e) {
-        throw new IllegalStateException("Could not resolve name "
-            + cn.getFullName() + " when copying injector");
+          i.singletonInstances.put(new_cn, old.singletonInstances.get(cn));
+        } catch (BindException e) {
+          throw new IllegalStateException("Could not resolve name "
+              + cn.getFullName() + " when copying injector");
+        }
       }
     }
     // Copy references to the remaining (which must have been set with
