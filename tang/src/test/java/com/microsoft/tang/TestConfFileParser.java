@@ -7,6 +7,8 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.implementation.TangImpl;
@@ -45,6 +47,21 @@ public class TestConfFileParser {
     String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\ncom.microsoft.tang.SingleTest$A=singleton\n";
     Assert.assertEquals(in, out);
   }
+  
+  @Test
+  public void testNamedParameter() throws BindException {
+    Tang t = Tang.Factory.getTang();
+    String conf = "com.microsoft.tang.TestConfFileParser$Foo=woot";
+    ConfigurationBuilder cb = t.newConfigurationBuilder();
+    ConfigurationFile.addConfiguration(cb, conf);
+    Assert.assertTrue(t.newInjector(cb.build()).isParameterSet(Foo.class));
+  }
+
+  
+}
+
+@NamedParameter
+final class Foo implements Name<String> {
 }
 class SingleTest {
   static class A{}
