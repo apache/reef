@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -26,6 +27,7 @@ import com.microsoft.tang.types.NamespaceNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class InjectorImpl implements Injector {
@@ -250,10 +252,11 @@ public class InjectorImpl implements Injector {
     this.namespace = c.getClassHierarchy();
     this.javaNamespace = (ClassHierarchyImpl) this.namespace;
     try {
-	    this.singletonInstances.put(
-	      (ClassNode<?>)(namespace.getNode(ReflectionUtilities.getFullName(Injector.class))), this);
-    } catch(NameResolutionException e) {
-    	throw new IllegalArgumentException("Configuration's namespace has not heard of Injector!");
+      this.singletonInstances.put((ClassNode<?>) (namespace
+          .getNode(ReflectionUtilities.getFullName(Injector.class))), this);
+    } catch (NameResolutionException e) {
+      throw new IllegalArgumentException(
+          "Configuration's namespace has not heard of Injector!");
     }
   }
 
@@ -379,11 +382,13 @@ public class InjectorImpl implements Injector {
       if (!singletonInstances.containsKey(constructor.getNode())) {
         try {
           // Note: down the road, we want to make sure that constructor doesn't
-          // invoke methods on us.  We should add a 'freeze'/'unfreeze' call here
+          // invoke methods on us. We should add a 'freeze'/'unfreeze' call here
           // to detect invocations against this object.
-          
-          // In order to handle loopy object graphs, we'll use a "FutureReference" or some
-          // such thing.  The contract is that you can't deference the FutureReference until
+
+          // In order to handle loopy object graphs, we'll use a
+          // "FutureReference" or some
+          // such thing. The contract is that you can't deference the
+          // FutureReference until
           // after your constructor returns, but otherwise, it is immutable.
           T ret = getConstructor(
               (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
@@ -393,8 +398,10 @@ public class InjectorImpl implements Injector {
             if (!singletonInstances.containsKey(constructor.getNode())) {
               singletonInstances.put(constructor.getNode(), ret);
             } else {
-              // There are situations where clients need to create cyclic object graphs,
-              // so they bindVolatileInstance(...,this) to the class inside their constructors.
+              // There are situations where clients need to create cyclic object
+              // graphs,
+              // so they bindVolatileInstance(...,this) to the class inside
+              // their constructors.
               // That's fine, so ignore duplicates where the references match.
               if (singletonInstances.get(constructor.getNode()) != ret) {
                 throw new InjectionException("Invoking constructor "
@@ -462,10 +469,10 @@ public class InjectorImpl implements Injector {
           "Unexpected error copying configuration!", e);
     }
     for (ClassNode<?> cn : old.singletonInstances.keySet()) {
-      if(!cn.getFullName().equals("com.microsoft.tang.Injector")) {
+      if (!cn.getFullName().equals("com.microsoft.tang.Injector")) {
         try {
           ClassNode<?> new_cn = (ClassNode<?>) i.namespace.register(cn
-            .getFullName());
+              .getFullName());
           i.singletonInstances.put(new_cn, old.singletonInstances.get(cn));
         } catch (BindException e) {
           throw new IllegalStateException("Could not resolve name "
@@ -552,5 +559,4 @@ public class InjectorImpl implements Injector {
     ret = copy(this, configurations);
     return ret;
   }
-
 }
