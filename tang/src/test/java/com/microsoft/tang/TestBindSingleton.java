@@ -92,6 +92,17 @@ public class TestBindSingleton {
     i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
     i.getInstance(LateBoundVolatile.A.class);
   }
+  
+  @Test
+  public void testMultipleInjectorInstaceWithSingleton() throws BindException, InjectionException {
+	  final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+	  cb.bindSingleton(A.class);
+	  
+	  final Injector i1 = Tang.Factory.getTang().newInjector(cb.build());
+	  final Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
+	  
+	  assertTrue("Different injectors should return different singleton object instances", i1.getInstance(A.class) != i2.getInstance(A.class));
+  }
 
   @Test
   public void testLateBoundVolatileInstanceWithSingletonY()
