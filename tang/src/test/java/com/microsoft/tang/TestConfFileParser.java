@@ -17,6 +17,7 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.implementation.TangImpl;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestConfFileParser {
 
@@ -62,6 +63,8 @@ public class TestConfFileParser {
     Assert.assertTrue(t.newInjector(cb.build()).isParameterSet(Foo.class));
   }
   
+  @NamedParameter()
+  class Foo implements Name<String> { }
   
   @NamedParameter(doc = "remote id.")
   private final static class RemoteIdentifier implements Name<String> { }
@@ -72,7 +75,7 @@ public class TestConfFileParser {
 	  final File tmp = File.createTempFile("test", "conf");
 	  final FileOutputStream fout = new FileOutputStream(tmp);
 	  
-	  final String line = RemoteIdentifier.class.getCanonicalName() + "=" + value;
+	  final String line = ReflectionUtilities.getFullName(RemoteIdentifier.class) + "=" + value;
 	  fout.write(line.getBytes());
 	  fout.close();
 	  

@@ -95,13 +95,13 @@ public class TestBindSingleton {
   
   @Test
   public void testMultipleInjectorInstaceWithSingleton() throws BindException, InjectionException {
-	  final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-	  cb.bindSingleton(A.class);
-	  
-	  final Injector i1 = Tang.Factory.getTang().newInjector(cb.build());
-	  final Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
-	  
-	  assertTrue("Different injectors should return different singleton object instances", i1.getInstance(A.class) != i2.getInstance(A.class));
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindSingleton(A.class);
+  
+    final Injector i1 = Tang.Factory.getTang().newInjector(cb.build());
+    final Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
+
+    assertTrue("Different injectors should return different singleton object instances", i1.getInstance(A.class) != i2.getInstance(A.class));
   }
 
   @Test

@@ -159,6 +159,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     } else if (n instanceof ClassNode) {
       Node m = namespace.register(value);
       bind((ClassNode<?>) n, (ClassNode<?>) m);
+    } else {
+      throw new BindException("Class " + key + " not found by bind!");
     }
   }
 
