@@ -390,6 +390,7 @@ public class InjectorImpl implements Injector {
           // such thing. The contract is that you can't deference the
           // FutureReference until
           // after your constructor returns, but otherwise, it is immutable.
+          // System.err.println("getting a new " + constructor.getConstructorDef());
           T ret = getConstructor(
               (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
               args);
