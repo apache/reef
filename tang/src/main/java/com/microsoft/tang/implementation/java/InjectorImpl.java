@@ -394,6 +394,11 @@ public class InjectorImpl implements Injector {
           T ret = getConstructor(
               (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
               args);
+          
+          if (ret instanceof ExternalConstructor) {
+        	  ret = ((ExternalConstructor<T>)ret).newInstance();
+          }
+          
           if (c.isSingleton(constructor.getNode())
               || constructor.getNode().isUnit()) {
             if (!singletonInstances.containsKey(constructor.getNode())) {
