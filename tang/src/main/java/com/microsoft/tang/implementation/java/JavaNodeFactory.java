@@ -17,13 +17,11 @@ import com.microsoft.tang.implementation.ClassNodeImpl;
 import com.microsoft.tang.implementation.ConstructorArgImpl;
 import com.microsoft.tang.implementation.ConstructorDefImpl;
 import com.microsoft.tang.implementation.NamedParameterNodeImpl;
-import com.microsoft.tang.implementation.NamespaceNodeImpl;
 import com.microsoft.tang.implementation.PackageNodeImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.NamespaceNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.util.MonotonicSet;
@@ -32,8 +30,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class JavaNodeFactory {
 
   @SuppressWarnings("unchecked")
-  static <T> ClassNodeImpl<T> createClassNode(Node parent, Class<T> clazz,
-      boolean isPrefixTarget) throws BindException {
+  static <T> ClassNodeImpl<T> createClassNode(Node parent, Class<T> clazz) throws BindException {
     // super(parent, ReflectionUtilities.getSimpleName(clazz));
     final boolean injectable;
     final boolean unit = clazz.isAnnotationPresent(Unit.class);
@@ -94,7 +91,6 @@ public class JavaNodeFactory {
 
     return new ClassNodeImpl<T>(parent, simpleName, fullName, unit, injectable,
         ExternalConstructor.class.isAssignableFrom(clazz),
-        isPrefixTarget,
         injectableConstructors.toArray(new ConstructorDefImpl[0]),
         allConstructors.toArray(new ConstructorDefImpl[0]));
   }
@@ -135,15 +131,6 @@ public class JavaNodeFactory {
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
         fullArgName, simpleArgName, documentation, shortName,
         defaultInstanceAsString);
-  }
-
-  public static <T> NamespaceNode<T> createNamespaceNode(Node root,
-      String name, ClassNode<T> target) {
-    return new NamespaceNodeImpl<>(root, name, target);
-  }
-
-  public static NamespaceNode<?> createNamespaceNode(Node root, String name) {
-    return new NamespaceNodeImpl<>(root, name);
   }
 
   public static PackageNode createPackageNode() {

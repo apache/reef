@@ -14,7 +14,6 @@ import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
@@ -22,8 +21,6 @@ import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
-import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.NamespaceNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
@@ -88,17 +85,6 @@ public class TestTypeHierarchy {
     register(new String[0].getClass());
   }
 
-  @Test
-  public void testMetadata() throws NameResolutionException, BindException {
-    register(Metadata.class);
-    Assert.assertNotNull(ns.getNode(ReflectionUtilities
-        .getFullName(Metadata.class)));
-    Assert.assertFalse(ns.getNode("foo.bar") instanceof NamedParameterNode);
-    Assert.assertTrue(ns.getNode("foo.bar.Quuz") instanceof NamedParameterNode);
-    Assert.assertTrue(((ClassNode<?>) ns.getNode(ReflectionUtilities
-        .getFullName(Metadata.class))).getIsPrefixTarget());
-  }
-
   @Test(expected = BindException.class)
   public void testRepeatConstructorArg() throws BindException {
     register(RepeatConstructorArg.class);
@@ -135,29 +121,6 @@ public class TestTypeHierarchy {
   @Test(expected = BindException.class)
   public void testNamedParameterTypeMismatch() throws BindException {
     register(NamedParameterTypeMismatch.class);
-  }
-
-  @Test(expected = BindException.class)
-  // Note: should pass when nested namespaces are working!
-  public void testInconvenientNamespaceRegistrationOrder()
-      throws NameResolutionException, BindException {
-    register(InconvenientNamespaceRegistrationOrder1.class);
-    Assert.assertTrue(ns.getNode("a.b") instanceof NamespaceNode);
-    register(InconvenientNamespaceRegistrationOrder2.class);
-    Assert.assertTrue(ns.getNode("a.b") instanceof NamespaceNode);
-    Assert.assertTrue(ns.getNode("a") instanceof NamespaceNode);
-    Assert.assertTrue(ns.getNode("a.B") instanceof NamedParameterNode);
-    Assert.assertTrue(ns.getNode("a.b.C") instanceof NamedParameterNode);
-  }
-
-  @Test(expected = BindException.class)
-  public void testNamespaceNamedParameterAnnotation() throws BindException {
-    register(NamespaceNamedParameterAnnotation.class);
-  }
-
-  @Test(expected = BindException.class)
-  public void testNamespaceNamedParameterNoAnnotation() throws BindException {
-    register(NamespaceNamedParameterNoAnnotation.class);
   }
 
   @Test(expected = BindException.class)
@@ -256,35 +219,6 @@ public class TestTypeHierarchy {
   }
 
   @Test(expected = BindException.class)
-  public void testNamespacePointsToPackage() throws BindException {
-    register(NamespacePointsToPackage.class);
-  }
-
-  @Test(expected = BindException.class)
-  // Note: This should throw a BindException when nested namespaces are
-  // implemented.
-  public void testOverlappingNamespaces2() throws BindException {
-    register(OverlappingNamespaces.class);
-    register(OverlappingNamespaces2.class);
-  }
-
-  @Test(expected = BindException.class)
-  // Note: This should throw a BindException when nested namespaces are
-  // implemented.
-  public void testOverlappingNamespaces2a() throws BindException {
-    register(OverlappingNamespaces2.class);
-    register(OverlappingNamespaces.class);
-  }
-
-  @Test(expected = BindException.class)
-  // Note: This should *not* throw a BindException when nested namespaces are
-  // implemented.
-  public void testOverlappingNamespaces3() throws BindException {
-    register(OverlappingNamespaces.class);
-    register(OverlappingNamespaces3.class);
-  }
-
-  @Test(expected = BindException.class)
   public void testConflictingShortNames() throws BindException {
     register(ShortNameFooA.class);
     register(ShortNameFooB.class);
@@ -354,21 +288,6 @@ class NamedParameterConstructors {
   }
 }
 
-@Namespace("foo.bar")
-class Metadata {
-  @NamedParameter(doc = "a baz", default_value = "woo")
-  final class Baz implements Name<String> {
-  };
-
-  @NamedParameter(doc = "a bar", default_value = "i-beam")
-  final class Bar implements Name<String> {
-  };
-
-  @NamedParameter(doc = "???")
-  final class Quuz implements Name<String> {
-  };
-}
-
 class RepeatConstructorArg {
   public @Inject
   RepeatConstructorArg(int x, int y) {
@@ -417,7 +336,6 @@ class NamedRepeatConstructorArgClasses {
   }
 }
 
-@Namespace("bar")
 class DocumentedLocalNamedParameter {
   @NamedParameter(doc = "doc stuff", default_value = "some value")
   final class Foo implements Name<String> {
@@ -428,7 +346,6 @@ class DocumentedLocalNamedParameter {
   }
 }
 
-@Namespace("baz")
 class NamedParameterTypeMismatch {
   @NamedParameter(doc = "doc.stuff", default_value = "1")
   final class Foo implements Name<Integer> {
@@ -437,29 +354,6 @@ class NamedParameterTypeMismatch {
   @Inject
   public NamedParameterTypeMismatch(@Parameter(Foo.class) String s) {
   }
-}
-
-@Namespace("a.b")
-class InconvenientNamespaceRegistrationOrder1 {
-  @NamedParameter()
-  final class C implements Name<String> {
-  }
-}
-
-@Namespace("a")
-class InconvenientNamespaceRegistrationOrder2 {
-  @NamedParameter()
-  final class B implements Name<String> {
-  }
-}
-
-@Namespace("a")
-class NamespaceNamedParameterNoAnnotation implements Name<String> {
-}
-
-@Namespace("a")
-@NamedParameter(doc = "b")
-class NamespaceNamedParameterAnnotation implements Name<String> {
 }
 
 class UnannotatedName implements Name<String> {
@@ -556,24 +450,6 @@ class InjectNonStaticLocalType {
     NonStaticLocal(NonStaticLocal x) {
     }
   }
-}
-
-@Namespace("java")
-class NamespacePointsToPackage {
-}
-
-@Namespace("X")
-class OverlappingNamespaces {
-  class A {
-  }
-}
-
-@Namespace("X.A")
-class OverlappingNamespaces2 {
-}
-
-@Namespace("X.A")
-class OverlappingNamespaces3 {
 }
 
 @NamedParameter(short_name = "foo")

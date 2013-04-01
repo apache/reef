@@ -12,16 +12,13 @@ import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.Namespace;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ParameterParser;
-import com.microsoft.tang.implementation.AbstractNode;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.NamespaceNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.util.MonotonicMap;
@@ -84,66 +81,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
-
-  @SuppressWarnings({ "unchecked", "unused" })
-  private <T> NamespaceNode<T> registerNamespace(Namespace conf,
-      ClassNode<T> classNode) throws BindException {
-    String[] path = conf.value().split(ReflectionUtilities.regexp);
-    Node root = namespace;
-    // Search for the new node's parent, store it in root.
-    for (int i = 0; i < path.length - 1; i++) {
-      if (!root.contains(path[i])) {
-        Node newRoot = JavaNodeFactory.createNamespaceNode(root, path[i]);
-        root = newRoot;
-      } else {
-        root = root.get(path[i]);
-        if (!(root instanceof NamespaceNode)) {
-          throw new BindException("Attempt to register namespace inside of "
-              + root + " namespaces and java packages/classes cannot overlap.");
-        }
-      }
-    }
-    if (root instanceof NamespaceNode) {
-      Node target = ((NamespaceNode<?>) root).getTarget();
-      if (target != null) {
-        throw new BindException("Nested namespaces not implemented!");
-      }
-    }
-    Node n = root.get(path[path.length - 1]);
-    // n points to the new node (if it exists)
-    NamespaceNode<T> ret;
-    if (n == null) {
-      ret = JavaNodeFactory.createNamespaceNode(root, path[path.length - 1],
-          classNode);
-    } else if (n instanceof NamespaceNode) {
-      ret = (NamespaceNode<T>) n;
-      ret.setTarget(classNode);
-      for (Node child : ret.getChildren()) {
-        if (true) {
-          // TODO: implement + test nested namespaces.
-          throw new BindException("Nested namespaces not implemented!");
-        } else {
-          // TODO: Better error message here. We're trying to merge two
-          // namespaces. If put throws an exception, it probably found a
-          // conflicting node name.
-          try {
-            ((AbstractNode) classNode).put(child);
-          } catch (IllegalArgumentException e) {
-            throw new BindException("Merging children of namespace "
-                + ret.getFullName()
-                + " failed.  Detected conflicting uses of name "
-                + child.getFullName());
-          }
-        }
-      }
-    } else {
-      throw new BindException("Attempt to register namespace on top of " + n
-          + " namespaces and java packages/classes cannot overlap.");
-    }
-    return ret;
-  }
-
-  private <T, U> Node buildPathToNode(Class<U> clazz, boolean isPrefixTarget)
+  private <T, U> Node buildPathToNode(Class<U> clazz)
       throws BindException {
     String[] path = clazz.getName().split(ReflectionUtilities.regexp);
     Node root = namespace;
@@ -159,12 +97,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     Class<?> argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
-      return JavaNodeFactory.createClassNode(parent, clazz, isPrefixTarget);
+      return JavaNodeFactory.createClassNode(parent, clazz);
     } else {
-      if (isPrefixTarget) {
-        throw new BindException(clazz
-            + " cannot be both a namespace and parameter.");
-      }
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
       NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(
@@ -208,12 +142,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       throws NameResolutionException {
     Node root = namespace;
     for (int i = 0; i < depth; i++) {
-      if (root instanceof NamespaceNode) {
-        NamespaceNode<?> ns = (NamespaceNode<?>) root;
-        if (ns.getTarget() != null) {
-          root = ns.getTarget();
-        }
-      }
       root = root.get(path[i]);
       if (root == null) {
         StringBuilder sb = new StringBuilder();
@@ -370,18 +298,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     } catch (NameResolutionException e) {
     }
 
-    final Namespace nsAnnotation = c.getAnnotation(Namespace.class);
-    final Node n;
-    if (nsAnnotation == null) {
-      n = buildPathToNode(c, false);
-    } else {
-      n = buildPathToNode(c, true);
-      if (n instanceof NamedParameterNode) {
-        throw new BindException("Found namespace annotation " + nsAnnotation
-            + " with target " + n + " which is a named parameter.");
-      }
-      registerNamespace(nsAnnotation, (ClassNode<?>) n);
-    }
+    final Node n = buildPathToNode(c);
 
     if (n instanceof ClassNode) {
       ClassNode<U> cn = (ClassNode<U>) n;

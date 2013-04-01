@@ -5,7 +5,6 @@ import java.util.Set;
 import com.microsoft.tang.exceptions.BindException;
 
 public interface ClassNode<T> extends Node {
-  public boolean getIsPrefixTarget();
 
   public ConstructorDef<T>[] getInjectableConstructors();
 

@@ -23,7 +23,6 @@ import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.NamespaceNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.util.MonotonicMap;
@@ -184,9 +183,6 @@ public class InjectorImpl implements Injector {
     } else if (n instanceof PackageNode) {
       throw new IllegalArgumentException(
           "Request to instantiate Java package as object");
-    } else if (n instanceof NamespaceNode) {
-      throw new IllegalArgumentException(
-          "Request to instantiate ConfigurationBuilderImpl namespace as object");
     } else {
       throw new IllegalStateException(
           "Type hierarchy contained unknown node type!:" + n);
