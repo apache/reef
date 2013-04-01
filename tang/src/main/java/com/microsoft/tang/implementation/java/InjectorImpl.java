@@ -2,10 +2,10 @@ package com.microsoft.tang.implementation.java;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -26,7 +26,6 @@ import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.util.MonotonicMap;
-import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class InjectorImpl implements Injector {
@@ -41,10 +40,17 @@ public class InjectorImpl implements Injector {
       super(s);
     }
   }
-
-  final Configuration c;
-  final ClassHierarchy namespace;
-  final ClassHierarchyImpl javaNamespace;
+  private boolean concurrentModificationGuard = false;
+  private void assertNotConcurrent() {
+    if(concurrentModificationGuard) {
+      throw new ConcurrentModificationException("Detected attempt to modify Injector from within an injected constructor!");
+    }
+  }
+  
+  
+  private final Configuration c;
+  private final ClassHierarchy namespace;
+  private final ClassHierarchyImpl javaNamespace;
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
     @Override
     public int getNumAlternatives() {
@@ -201,6 +207,7 @@ public class InjectorImpl implements Injector {
    */
   public InjectionPlan<?> getInjectionPlan(String name)
       throws InjectionException {
+    assertNotConcurrent();
     Map<String, InjectionPlan<?>> memo = new HashMap<String, InjectionPlan<?>>();
     buildInjectionPlan(name, memo);
     return memo.get(name);
@@ -209,11 +216,13 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   public <T> InjectionPlan<T> getInjectionPlan(Class<T> name)
       throws InjectionException {
+    assertNotConcurrent();
     return (InjectionPlan<T>) getInjectionPlan(name.getName());
   }
 
   @Override
   public boolean isInjectable(String name) throws BindException {
+    assertNotConcurrent();
     try {
       InjectionPlan<?> p = getInjectionPlan(name);
       return p.isInjectable();
@@ -224,11 +233,13 @@ public class InjectorImpl implements Injector {
 
   @Override
   public boolean isInjectable(Class<?> clazz) throws BindException {
+    assertNotConcurrent();
     return isInjectable(clazz.getName());
   }
 
   @Override
   public boolean isParameterSet(String name) throws BindException {
+    assertNotConcurrent();
     try {
       InjectionPlan<?> p = getInjectionPlan(name);
       return p.isInjectable();
@@ -240,6 +251,7 @@ public class InjectorImpl implements Injector {
   @Override
   public boolean isParameterSet(Class<? extends Name<?>> name)
       throws BindException {
+    assertNotConcurrent();
     return isParameterSet(name.getName());
   }
 
@@ -290,6 +302,7 @@ public class InjectorImpl implements Injector {
 
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
+    assertNotConcurrent();
     populateSingletons();
     InjectionPlan<U> plan = getInjectionPlan(clazz);
     return injectFromPlan(plan);
@@ -298,6 +311,7 @@ public class InjectorImpl implements Injector {
   @Override
   public <U> U getNamedInstance(Class<? extends Name<U>> clazz)
       throws InjectionException {
+    assertNotConcurrent();
     populateSingletons();
     @SuppressWarnings("unchecked")
     InjectionPlan<U> plan = (InjectionPlan<U>) getInjectionPlan(clazz.getName());
@@ -307,6 +321,7 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   @Override
   public <U> U getInstance(String clazz) throws InjectionException {
+    assertNotConcurrent();
     populateSingletons();
     InjectionPlan<?> plan = getInjectionPlan(clazz);
     return (U) injectFromPlan(plan);
@@ -316,6 +331,7 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
       throws InjectionException {
+    assertNotConcurrent();
     InjectionPlan<T> plan = (InjectionPlan<T>) getInjectionPlan(clazz.getName());
     return (T) injectFromPlan(plan);
   }
@@ -355,7 +371,7 @@ public class InjectorImpl implements Injector {
    * @throws InjectionException
    */
   @SuppressWarnings("unchecked")
-  <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
+  private <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
     if (!plan.isFeasible()) {
       throw new InjectionException("Attempt to inject infeasible plan: "
           + plan.toPrettyString());
@@ -387,6 +403,7 @@ public class InjectorImpl implements Injector {
           // FutureReference until
           // after your constructor returns, but otherwise, it is immutable.
           // System.err.println("getting a new " + constructor.getConstructorDef());
+          concurrentModificationGuard = true;
           T ret = getConstructor(
               (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
               args);
@@ -394,6 +411,7 @@ public class InjectorImpl implements Injector {
           if (ret instanceof ExternalConstructor) {
         	  ret = ((ExternalConstructor<T>)ret).newInstance();
           }
+          concurrentModificationGuard = false;
           
           if (c.isSingleton(constructor.getNode())
               || constructor.getNode().isUnit()) {
@@ -439,7 +457,10 @@ public class InjectorImpl implements Injector {
         if (ret instanceof ExternalConstructor) {
           // TODO fix up generic types for injectFromPlan with external
           // constructor!
-          return ((ExternalConstructor<T>) ret).newInstance();
+          concurrentModificationGuard = true;
+          T val = ((ExternalConstructor<T>) ret).newInstance();
+          concurrentModificationGuard = false;
+          return val;
         } else {
           return (T) ret;
         }
@@ -509,6 +530,7 @@ public class InjectorImpl implements Injector {
   }
 
   <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
+    assertNotConcurrent();
     Node n = namespace.register(ReflectionUtilities.getFullName(c));
     /*
      * try { n = tc.namespace.getNode(c); } catch (NameResolutionException e) {
@@ -557,6 +579,7 @@ public class InjectorImpl implements Injector {
   @Override
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {
+    assertNotConcurrent();
     InjectorImpl ret;
     ret = copy(this, configurations);
     return ret;
