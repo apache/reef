@@ -126,7 +126,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   @Override
-  public Node getNode(String name) throws NameResolutionException {
+  public synchronized Node getNode(String name) throws NameResolutionException {
     try {
       register(name);
     } catch(BindException e) {
@@ -192,7 +192,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   @Override
-  public Node register(String s) throws BindException {
+  public synchronized Node register(String s) throws BindException {
     final Class<?> c;
     try {
       c = classForName(s);
@@ -322,7 +322,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return n;
   }
 
-  public Set<String> getRegisteredClassNames() {
+  public synchronized Set<String> getRegisteredClassNames() {
     return new MonotonicSet<String>(registeredClasses);
   }
 
@@ -331,12 +331,12 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   @Override
-  public String toPrettyString() {
+  public synchronized String toPrettyString() {
     return namespace.toIndentedString(0);
   }
 
   @Override
-  public boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl) {
+  public synchronized boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl) {
     List<ClassNode<?>> worklist = new ArrayList<>();
     if (impl.equals(inter)) {
       return true;
@@ -355,7 +355,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   @Override
-  public ClassHierarchy merge(ClassHierarchy ch) {
+  public synchronized ClassHierarchy merge(ClassHierarchy ch) {
     if(this == ch) { return this; }
     if(!(ch instanceof ClassHierarchyImpl)) {
       throw new UnsupportedOperationException("Can't merge java and non-java class hierarchies yet!");
