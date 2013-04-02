@@ -10,9 +10,6 @@ import com.microsoft.tang.util.MonotonicSet;
 
 public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final boolean injectable;
-  // TODO: Would like to get rid of fullName in JavaClassNode, but getting "."
-  // vs "$" right in classnames is tricky.
-  private final String fullName;
   private final boolean unit;
   private final boolean externalConstructor;
   private final ConstructorDef<T>[] injectableConstructors;
@@ -22,8 +19,7 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
       boolean unit, boolean injectable, boolean externalConstructor,
       ConstructorDef<T>[] injectableConstructors,
       ConstructorDef<T>[] allConstructors) {
-    super(parent, simpleName);
-    this.fullName = fullName;
+    super(parent, simpleName, fullName);
     this.unit = unit;
     this.injectable = injectable;
     this.externalConstructor = externalConstructor;
@@ -40,11 +36,6 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   @Override
   public ConstructorDef<T>[] getAllConstructors() {
     return allConstructors;
-  }
-
-  @Override
-  public String getFullName() {
-    return fullName;
   }
 
   @Override

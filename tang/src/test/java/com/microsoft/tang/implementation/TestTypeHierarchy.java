@@ -44,22 +44,24 @@ public class TestTypeHierarchy {
   @Test
   public void testJavaString() throws NameResolutionException, BindException {
     register(String.class);
-    Assert.assertNotNull(ns.getNode("java"));
-    Assert.assertNotNull(ns.getNode("java.lang"));
+    Node n = null;
+    try {
+      n = ns.getNode("java");
+    } catch(NameResolutionException e) {
+    }
+    Assert.assertNull(n);
+    try {
+      n = ns.getNode("java.lang");
+    } catch(NameResolutionException e) {
+    }
+    Assert.assertNull(n);
     Assert.assertNotNull(ns.getNode("java.lang.String"));
-    // Assert.assertNotNull(ns.getNode(String.class));
     try {
       ns.getNode("com.microsoft");
       Assert.fail("Didn't get expected exception");
     } catch (NameResolutionException e) {
 
     }
-    // try {
-    // ns.getNode(ReflectionUtilities.getFullName(this.getClass()));
-    // Assert.fail("Didn't get expected exception");
-    // } catch (NameResolutionException e) {
-    //
-    // }
   }
 
   @Test

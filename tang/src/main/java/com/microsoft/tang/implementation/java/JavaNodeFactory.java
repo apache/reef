@@ -134,11 +134,7 @@ public class JavaNodeFactory {
   }
 
   public static PackageNode createPackageNode() {
-    return new PackageNodeImpl(null, "");
-  }
-
-  public static PackageNode createPackageNode(Node parent, String name) {
-    return new PackageNodeImpl(parent, name);
+    return new PackageNodeImpl(null, "", "[root node]");
   }
 
   private static <T> ConstructorDef<T> createConstructorDef(

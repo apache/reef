@@ -5,7 +5,6 @@ import com.microsoft.tang.types.Node;
 
 public class NamedParameterNodeImpl<T> extends AbstractNode implements
     NamedParameterNode<T> {
-  private final String fullName;
   private final String fullArgName;
   private final String simpleArgName;
   private final String documentation;
@@ -15,8 +14,7 @@ public class NamedParameterNodeImpl<T> extends AbstractNode implements
   public NamedParameterNodeImpl(Node parent, String simpleName,
       String fullName, String fullArgName, String simpleArgName,
       String documentation, String shortName, String defaultInstanceAsString) {
-    super(parent, simpleName);
-    this.fullName = fullName;
+    super(parent, simpleName, fullName);
     this.fullArgName = fullArgName;
     this.simpleArgName = simpleArgName;
     this.documentation = documentation;
@@ -27,11 +25,6 @@ public class NamedParameterNodeImpl<T> extends AbstractNode implements
   @Override
   public String toString() {
     return getSimpleArgName() + " " + getName();
-  }
-
-  @Override
-  public String getFullName() {
-    return fullName;
   }
 
   @Override

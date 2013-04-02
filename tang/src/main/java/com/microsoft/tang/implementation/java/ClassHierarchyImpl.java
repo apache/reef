@@ -83,7 +83,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
   private <T, U> Node buildPathToNode(Class<U> clazz)
       throws BindException {
-    String[] path = clazz.getName().split(ReflectionUtilities.regexp);
+    String[] path = clazz.getName().split("\\$");
+    
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
       root = root.get(path[i]);
@@ -122,7 +123,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
   }
 
   private Node getNode(Class<?> clazz) throws NameResolutionException {
-    return getAlreadyBoundNode(clazz.getName());
+    return getAlreadyBoundNode(ReflectionUtilities.getFullName(clazz));
   }
 
   @Override
@@ -135,19 +136,20 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return getAlreadyBoundNode(name);
   }
   private Node getAlreadyBoundNode(String name) throws NameResolutionException {
-    String[] path = name.split(ReflectionUtilities.regexp);
-    return getNode(name, path, path.length);
-  }
-  private Node getNode(String name, String[] path, int depth)
-      throws NameResolutionException {
     Node root = namespace;
-    for (int i = 0; i < depth; i++) {
-      root = root.get(path[i]);
+    String[] toks = name.split("\\$");
+    String outerClassName = toks[0];
+    root = root.get(outerClassName);
+    if(root == null) {
+      throw new NameResolutionException(name, outerClassName);
+    }
+    for (int i = 1; i < toks.length; i++) {
+      root = root.get(toks[i]);
       if (root == null) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(outerClassName);
         for (int j = 0; j < i; j++) {
-          sb.append(path[j]);
-          if (j != i - 1) {
+          sb.append(toks[j]);
+         if (j != i - 1) {
             sb.append(".");
           }
         }
@@ -155,40 +157,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       }
     }
     return root;
-  }
-
-  private String arrayToDotString(String[] array, int length) {
-    StringBuilder parentString = new StringBuilder(array[0]);
-    for (int i = 1; i < length; i++) {
-      parentString.append("." + array[i]);
-    }
-    return parentString.toString();
-  }
-
-  /**
-   * Assumes parent packages are already registered.
-   * 
-   * @param packageName
-   * @throws NameResolutionException
-   */
-  private void registerPackage(String[] packageName)
-      throws NameResolutionException {
-
-    try {
-      getAlreadyBoundNode(arrayToDotString(packageName, packageName.length));
-      return;
-    } catch (NameResolutionException e) {
-    }
-
-    final PackageNode parent;
-    if (packageName.length == 1) {
-      parent = namespace;
-    } else {
-      parent = (PackageNode) getAlreadyBoundNode(arrayToDotString(packageName,
-          packageName.length - 1));
-    }
-    JavaNodeFactory.createPackageNode(parent,
-        packageName[packageName.length - 1]);
   }
 
   @Override
@@ -228,21 +196,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     if (enclosing != null) {
       register(ReflectionUtilities.getFullName(enclosing));
     }
-    Package pack = c.getPackage();
-    if (pack != null) { // We're in an enclosing class, and we just registered
-                        // it above!
-      String[] packageList = pack.getName().split(ReflectionUtilities.regexp);
-      for (int i = 0; i < packageList.length; i++) {
-        try {
-          registerPackage(Arrays.copyOf(packageList, i + 1));
-        } catch (NameResolutionException e) {
-          throw new IllegalStateException("Could not find parent package "
-              + Arrays.toString(Arrays.copyOf(packageList, i + 1))
-              + ", which this method should have registered.", e);
-        }
-      }
-    }
-    // Now, register the class. This has to be after the above so we know our
+
+    // Now register the class. This has to be after the above so we know our
     // parents (superclasses and enclosing packages) are already registered.
     Node n = registerClass(c);
 

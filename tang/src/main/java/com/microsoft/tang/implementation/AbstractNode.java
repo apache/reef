@@ -14,7 +14,13 @@ public abstract class AbstractNode implements Node {
 
   private final Node parent;
   private final String name;
-  private final Map<String, Node> children = new MonotonicMap<>();
+  private final String fullName;
+  protected final Map<String, Node> children = new MonotonicMap<>();
+
+  @Override
+  public String getFullName() {
+    return fullName;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -35,34 +41,10 @@ public abstract class AbstractNode implements Node {
     return this.name.equals(n.name);
   }
 
-  @Override
-  public String getFullName() {
-    final String ret;
-    if (parent == null) {
-      if (name == "") {
-        ret = "[root node]";
-      } else {
-        throw new IllegalStateException(
-            "can't have node with name and null parent!");
-      }
-    } else {
-      String parentName = parent.getFullName();
-      if (name == "") {
-        throw new IllegalStateException(
-            "non-root node had empty name.  Parent is " + parentName);
-      }
-      if (parentName.startsWith("[")) {
-        ret = name;
-      } else {
-        ret = parentName + "." + name;
-      }
-    }
-    return ret;
-  }
-
-  public AbstractNode(Node parent, String name) {
+  public AbstractNode(Node parent, String name, String fullName) {
     this.parent = parent;
     this.name = name;
+    this.fullName = fullName;
     if (parent != null) {
       if (name.length() == 0) {
         throw new IllegalArgumentException(
