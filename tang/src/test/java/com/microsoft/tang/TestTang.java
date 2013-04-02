@@ -30,7 +30,6 @@ public class TestTang {
   public void testSingleton() throws BindException, InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
-    t.register(TwoSingletons.class);
     tang.newInjector(t.build()).getInstance(TwoSingletons.class);
   }
 
@@ -38,15 +37,14 @@ public class TestTang {
   public void testNotSingleton() throws NameResolutionException,
       ReflectiveOperationException, BindException, InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.register(TwoSingletons.class);
     Injector injector = tang.newInjector(t.build());
     injector.getInstance(TwoSingletons.class);
   }
 
   @Test(expected = BindException.class)
-  public void testRepeatedAmbiguousArgs() throws BindException {
+  public void testRepeatedAmbiguousArgs() throws BindException, NameResolutionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.register(RepeatedAmbiguousArgs.class);
+    t.getClassHierarchy().register(ReflectionUtilities.getFullName(RepeatedAmbiguousArgs.class));
   }
 
   @Test
@@ -62,14 +60,12 @@ public class TestTang {
   @Test(expected = InjectionException.class)
   public void testOneNamedFailArgs() throws BindException, InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.register(OneNamedSingletonArgs.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
 
   @Test(expected = InjectionException.class)
   public void testOneNamedOKArgs() throws BindException, InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.register(OneNamedSingletonArgs.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
 
@@ -79,7 +75,6 @@ public class TestTang {
       InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
-    t.register(OneNamedSingletonArgs.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
 
@@ -88,7 +83,6 @@ public class TestTang {
   public void testOneNamedSingletonOKArgs() throws BindException,
       InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.register(OneNamedSingletonArgs.class);
     final Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(OneNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
@@ -100,7 +94,6 @@ public class TestTang {
       InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
-    t.register(RepeatedNamedSingletonArgs.class);
     final Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
@@ -114,7 +107,6 @@ public class TestTang {
   public void testRepeatedNamedFailArgs() throws BindException,
       InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.register(RepeatedNamedSingletonArgs.class);
     Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
@@ -135,7 +127,6 @@ public class TestTang {
   public void testOneNamedStringArgCantRebind() throws BindException,
       InjectionException {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.register(OneNamedStringArg.class);
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
@@ -151,7 +142,6 @@ public class TestTang {
   public void testOneNamedStringArgBind() throws BindException,
       InjectionException {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.register(OneNamedStringArg.class);
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
@@ -165,7 +155,6 @@ public class TestTang {
   public void testOneNamedStringArgVolatile() throws BindException,
       InjectionException {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.register(OneNamedStringArg.class);
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
@@ -178,7 +167,6 @@ public class TestTang {
   public void testTwoNamedStringArgsBind() throws BindException,
       InjectionException {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.register(TwoNamedStringArgs.class);
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
     Assert.assertEquals("defaultA", a.a);
@@ -196,7 +184,6 @@ public class TestTang {
   public void testTwoNamedStringArgsBindVolatile() throws BindException,
       InjectionException {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.register(TwoNamedStringArgs.class);
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
     Assert.assertEquals("defaultA", a.a);
@@ -215,7 +202,6 @@ public class TestTang {
   public void testTwoNamedStringArgsReBindVolatileFail() throws BindException,
       InjectionException {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.register(TwoNamedStringArgs.class);
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
     Assert.assertEquals("defaultA", a.a);
