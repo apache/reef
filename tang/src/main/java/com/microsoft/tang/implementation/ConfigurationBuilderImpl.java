@@ -185,10 +185,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   public <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
-    T o = namespace.parse(name, value);
-    if (o instanceof Class) {
-      namespace.getNode(ReflectionUtilities.getFullName((Class<?>)o));
-    }
+    /* Parse and discard value; this is just for type checking */
+    namespace.parse(name, value);
     namedParameters.put(name, value);
   }
 

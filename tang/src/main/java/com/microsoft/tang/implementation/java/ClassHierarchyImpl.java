@@ -43,9 +43,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   public final ParameterParser parameterParser = new ParameterParser();
 
-  // TODO: Fix up the exception handling surrounding parsing of values
   @Override
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException {
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) {
     String val = name.getDefaultInstanceAsString();
     if (val != null) {
       try {
@@ -60,21 +59,26 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T parse(NamedParameterNode<T> name, String value) throws ParseException {
-    return (T) parse(name.getFullArgName(), value);
-  }
-
-  private Object parse(String name, String value) throws ParseException {
+  public <T> T parse(NamedParameterNode<T> np, String value) throws ParseException {
     try {
-      return parameterParser.parse(name, value);
-    } catch (UnsupportedOperationException e) {
+      final ClassNode<T> iface = (ClassNode<T>)getNode(np.getFullArgName());
       try {
-        // TODO this is a strange fall back case.  What should name be if we
-        // landed here?
-        return getNode(value);
-      } catch(NameResolutionException e2) {
-        throw new ParseException("Could not parse class name " + value, e2);
+        return parameterParser.parse(iface.getFullName(), value);
+      } catch (UnsupportedOperationException e) {
+        try {
+          final Node impl = getNode(value);
+          if(impl instanceof ClassNode) {
+            if(isImplementation(iface, (ClassNode<?>)impl)) {
+              return (T)impl;
+            }
+          }
+          throw new ParseException("Cannot parse implementation of named parameter " + np.getFullName() + " which takes a " + iface.getFullName() + " found non-subclass " + impl.getFullName());
+        } catch(NameResolutionException e2) {
+          throw new ParseException("Cannot parse implementation of named parameter " + np.getFullName() + " which takes a " + iface.getFullName() + " found value " + value);
+        }
       }
+    } catch(NameResolutionException e) {
+      throw new IllegalStateException("Could not parse validated NamedParameter argument type.  NamedParameter is " + np.getFullName() + " argument type is " + np.getFullArgName());
     }
   }
 

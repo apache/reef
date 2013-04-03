@@ -2,6 +2,8 @@ package com.microsoft.tang;
 
 import java.util.Set;
  
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.ParseException;
 import com.microsoft.tang.types.ClassNode;
@@ -47,6 +49,6 @@ public interface ClassHierarchy {
 
   public <T> T parse(NamedParameterNode<T> name, String value) throws ParseException;
 
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ParseException;
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
 
 }

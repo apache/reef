@@ -275,6 +275,12 @@ public class TestTang {
     Assert.assertNotSame(a1, a2);
     Assert.assertNotSame(b1, b2);
   }
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test(expected = BindException.class)
+  public void testWrongNamedImpl() throws BindException {
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+    cb.bindNamedParameter((Class)NamedImpl.AImplName.class, (Class)NamedImpl.Cimpl.class);
+  }
   @Test
   public void testUnit() throws BindException, InjectionException {
     Injector inj = tang.newInjector();
@@ -460,8 +466,14 @@ class NamedImpl {
   @NamedParameter
   static class BImplName implements Name<A> {
   }
+  @NamedParameter
+  static class CImplName implements Name<C> {
+  }
 
   static interface A {
+  }
+  static interface C {
+    
   }
 
   static class Aimpl implements A {
@@ -473,6 +485,11 @@ class NamedImpl {
   static class Bimpl implements A {
     @Inject
     Bimpl() {
+    }
+  }
+  static class Cimpl implements C {
+    @Inject
+    Cimpl() {
     }
   }
 
