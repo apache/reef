@@ -4,6 +4,7 @@ import java.net.URL;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
@@ -44,30 +45,21 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     return new ConfigurationImpl(clone());
   }
 
-  /**
-   * Needed when you want to make a class available for injection, but don't
-   * want to bind a subclass to its implementation. Without this call, by the
-   * time injector.newInstance() is called, ConfigurationBuilderImpl has been
-   * locked down, and the class won't be found.
-   * 
-   * @param c
-   */
-  @Override
-  public Node register(Class<?> c) throws BindException {
-    return namespace.register(ReflectionUtilities.getFullName(c));
+  private Node getNode(Class<?> c) {
+    return ((JavaClassHierarchy)namespace).getNode(c);
   }
-
+  
   @Override
   public <T> void bind(Class<T> c, Class<?> val) throws BindException {
-    bind(register(c), register(val));
+    bind(getNode(c), getNode(val));
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bindImplementation(Class<T> c, Class<? extends T> d)
       throws BindException {
-    Node cn = register(c);
-    Node dn = register(d);
+    Node cn = getNode(c);
+    Node dn = getNode(d);
     if (!(cn instanceof ClassNode)) {
       throw new BindException(
           "bindImplementation passed interface that resolved to " + cn
@@ -78,15 +70,14 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
           "bindImplementation passed implementation that resolved to " + dn
               + " expected a ClassNode<?>");
     }
-    bindImplementation((ClassNode<T>) register(c),
-        (ClassNode<? extends T>) register(d));
+    bindImplementation((ClassNode<T>) cn, (ClassNode<? extends T>) dn);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
       throws BindException {
-    Node np = namespace.register(ReflectionUtilities.getFullName(name));
+    Node np = getNode(name);
     if (np instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<T>) np, s);
     } else {
@@ -99,12 +90,13 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   @Override
   public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
       Class<? extends T> impl) throws BindException {
-    Node n = register(iface);
-    if (!(n instanceof NamedParameterNode)) {
-      throw new BindException("Type mismatch when setting named parameter " + n
+    Node ifaceN = getNode(iface);
+    Node implN = getNode(impl);
+    if (!(ifaceN instanceof NamedParameterNode)) {
+      throw new BindException("Type mismatch when setting named parameter " + ifaceN
           + " Expected NamedParameterNode");
     }
-    bind(register(iface), register(impl));
+    bind(ifaceN, implN);
   }
 
   @Override
@@ -134,8 +126,8 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   @SuppressWarnings({ "unchecked" })
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
-    Node n = namespace.register(ReflectionUtilities.getFullName(c));
-    Node m = namespace.register(ReflectionUtilities.getFullName(v));
+    Node n = getNode(c);
+    Node m = getNode(v);
     if(!(n instanceof ClassNode)) {
       throw new BindException("BindConstructor got class that resolved to " + n + "; expected ClassNode");
     }

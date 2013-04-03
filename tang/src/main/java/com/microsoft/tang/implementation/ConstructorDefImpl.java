@@ -1,6 +1,6 @@
 package com.microsoft.tang.implementation;
 
-import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
@@ -41,14 +41,14 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   }
 
   public ConstructorDefImpl(String className, ConstructorArg[] args,
-      boolean injectable) throws BindException {
+      boolean injectable) throws ClassHierarchyException {
     this.className = className;
     this.args = args;
     if (injectable) {
       for (int i = 0; i < this.getArgs().length; i++) {
         for (int j = i + 1; j < this.getArgs().length; j++) {
           if (this.getArgs()[i].equals(this.getArgs()[j])) {
-            throw new BindException(
+            throw new ClassHierarchyException(
                 "Repeated constructor parameter detected.  "
                     + "Cannot inject constructor" + toString());
           }

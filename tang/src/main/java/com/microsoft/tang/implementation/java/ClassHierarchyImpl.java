@@ -11,9 +11,11 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
+import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ParseException;
 import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
@@ -25,7 +27,7 @@ import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class ClassHierarchyImpl implements ClassHierarchy {
+public class ClassHierarchyImpl implements JavaClassHierarchy {
   // TODO Want to add a "register namespace" method, but Java is not designed
   // to support such things.
   // There are third party libraries that would help, but they can fail if the
@@ -43,10 +45,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   // TODO: Fix up the exception handling surrounding parsing of values
   @Override
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws BindException {
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException {
     String val = name.getDefaultInstanceAsString();
     if (val != null) {
-      return parse(name, val);
+      try {
+        return parse(name, val);
+      } catch (ParseException e) {
+        throw new ClassHierarchyException("Could not parse default value", e);
+      }
     } else {
       return null;
     }
@@ -54,25 +60,26 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException {
+  public <T> T parse(NamedParameterNode<T> name, String value) throws ParseException {
     return (T) parse(name.getFullArgName(), value);
   }
 
-  private Object parse(String name, String value) throws BindException {
+  private Object parse(String name, String value) throws ParseException {
     try {
       return parameterParser.parse(name, value);
     } catch (UnsupportedOperationException e) {
       try {
-        return register(value);
-      } catch (BindException e2) {
-        throw new BindException("Could not parse type " + name + ".  Value was "
-            + value, e2);
+        // TODO this is a strange fall back case.  What should name be if we
+        // landed here?
+        return getNode(value);
+      } catch(NameResolutionException e2) {
+        throw new ParseException("Could not parse class name " + value, e2);
       }
     }
   }
 
-  
-  Class<?> classForName(String name) throws ClassNotFoundException {
+  @Override
+  public Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
   }
 
@@ -82,7 +89,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
   private <T, U> Node buildPathToNode(Class<U> clazz)
-      throws BindException {
+      throws ClassHierarchyException {
     String[] path = clazz.getName().split("\\$");
     
     Node root = namespace;
@@ -112,7 +119,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             throw new IllegalStateException("Tried to double bind "
                 + oldNode.getFullName() + " to short name " + shortName);
           }
-          throw new BindException("Named parameters " + oldNode.getFullName()
+          throw new ClassHierarchyException("Named parameters " + oldNode.getFullName()
               + " and " + np.getFullName() + " have the same short name: "
               + shortName);
         }
@@ -122,18 +129,28 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
   }
 
-  private Node getNode(Class<?> clazz) throws NameResolutionException {
+  private Node getAlreadyBoundNode(Class<?> clazz) throws NameResolutionException {
     return getAlreadyBoundNode(ReflectionUtilities.getFullName(clazz));
   }
-
+  @Override
+  public Node getNode(Class<?> clazz) {
+    try {
+      return getNode(ReflectionUtilities.getFullName(clazz));
+    } catch(NameResolutionException e) {
+      throw new ClassHierarchyException("JavaClassHierarchy could not resolve " + clazz 
+          + " which is definitely avalable at runtime", e);
+    }
+  }
   @Override
   public synchronized Node getNode(String name) throws NameResolutionException {
-    try {
-      register(name);
-    } catch(BindException e) {
-      throw new NameResolutionException(e);
+    Node n = register(name);
+    if(n == null) {
+      // This will never succeed; it just generates a nice exception.
+      getAlreadyBoundNode(name);
+      throw new IllegalStateException("IMPLEMENTATION BUG: Register failed, "
+        + "but getAlreadyBoundNode succeeded!");
     }
-    return getAlreadyBoundNode(name);
+    return n;
   }
   private Node getAlreadyBoundNode(String name) throws NameResolutionException {
     Node root = namespace;
@@ -159,8 +176,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     return root;
   }
 
-  @Override
-  public synchronized Node register(String s) throws BindException {
+  private Node register(String s) {
     final Class<?> c;
     try {
       c = classForName(s);
@@ -168,7 +184,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       return null;
     }
     try {
-      Node n = getNode(c);
+      Node n = getAlreadyBoundNode(c);
       return n;
     } catch (NameResolutionException e) {
     }
@@ -218,13 +234,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             try {
               if (!ReflectionUtilities.isCoercable(classForName(arg.getType()),
                   classForName(np.getFullArgName()))) {
-                throw new BindException(
+                throw new ClassHierarchyException(
                     "Incompatible argument type.  Constructor expects "
                         + arg.getType() + " but " + np.getName() + " is a "
                         + np.getFullArgName());
               }
             } catch (ClassNotFoundException e) {
-              throw new BindException("Constructor refers to unknown class "
+              throw new ClassHierarchyException("Constructor refers to unknown class "
                   + arg.getType(), e);
             }
           }
@@ -244,12 +260,12 @@ public class ClassHierarchyImpl implements ClassHierarchy {
    */
   @SuppressWarnings("unchecked")
   private <T, U extends T> Node registerClass(final Class<U> c)
-      throws BindException {
+      throws ClassHierarchyException {
     if (c.isArray()) {
-      throw new BindException("Can't register array types");
+      throw new UnsupportedOperationException("Can't register array types");
     }
     try {
-      return getNode(c);
+      return getAlreadyBoundNode(c);
     } catch (NameResolutionException e) {
     }
 
@@ -260,14 +276,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
       Class<T> superclass = (Class<T>) c.getSuperclass();
       if (superclass != null) {
         try {
-          ((ClassNode<T>) getNode(superclass)).putImpl(cn);
+          ((ClassNode<T>) getAlreadyBoundNode(superclass)).putImpl(cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }
       }
       for (Class<?> interf : c.getInterfaces()) {
         try {
-          ((ClassNode<T>) getNode(interf)).putImpl(cn);
+          ((ClassNode<T>) getAlreadyBoundNode(interf)).putImpl(cn);
         } catch (NameResolutionException e) {
           throw new IllegalStateException(e);
         }

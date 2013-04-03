@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 
 public class ReflectionUtilities {
   public final static String regexp = "[\\.\\$]";
@@ -65,7 +66,9 @@ public class ReflectionUtilities {
   }
   public static Class<?> classForName(String name, ClassLoader loader)
       throws ClassNotFoundException {
-    if (name.equals("boolean")) {
+    if (name.startsWith("[")) {
+      throw new UnsupportedOperationException("No support for arrays, etc.  Name was: " + name);
+    } else if (name.equals("boolean")) {
       return boolean.class;
     } else if (name.equals("byte")) {
       return byte.class;
@@ -147,7 +150,7 @@ public class ReflectionUtilities {
    *           If clazz's definition incorrectly uses Name or @NamedParameter
    */
   static public Class<?> getNamedParameterTargetOrNull(Class<?> clazz)
-      throws BindException {
+      throws ClassHierarchyException {
     Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
     boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
   
@@ -196,31 +199,31 @@ public class ReflectionUtilities {
     
     if (npAnnotation == null) {
       if (implementsName) {
-        throw new BindException(clazz
+        throw new ClassHierarchyException(clazz
             + " is missing its @NamedParameter annotation.");
       } else {
         return null;
       }
     } else {
       if (!implementsName) {
-        throw new BindException("Found illegal @NamedParameter " + clazz
+        throw new ClassHierarchyException("Found illegal @NamedParameter " + clazz
             + " does not implement name");
       }
       if (hasSuperClass) {
-        throw new BindException("Named parameter " + clazz
+        throw new ClassHierarchyException("Named parameter " + clazz
             + " has a superclass other than Object.");
       }
       if (hasConstructor || isInjectable) {
-        throw new BindException("Named parameter " + clazz + " has "
+        throw new ClassHierarchyException("Named parameter " + clazz + " has "
             + (isInjectable ? "an injectable" : "a") + " constructor. "
             + " Name parameters must not delcare any constructors.");
       }
       if (hasMultipleInterfaces) {
-        throw new BindException("Named parameter " + clazz + " implements "
+        throw new ClassHierarchyException("Named parameter " + clazz + " implements "
             + "multiple interfaces.  It is only allowed to implement Name<T>");
       }
       if (parameterClass == null) {
-        throw new BindException(
+        throw new ClassHierarchyException(
             "Missing type parameter in named parameter declaration.  " + clazz
                 + " implements raw type Name, but must implement"
                 + " generic type Name<T>.");

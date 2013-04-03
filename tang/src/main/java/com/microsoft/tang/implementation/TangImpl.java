@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
-import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
@@ -83,7 +83,7 @@ public class TangImpl implements Tang {
     }
   }
   
-  private static Map<SetValuedKey<URL>, ClassHierarchy> defaultClassHierarchy = new HashMap<>();
+  private static Map<SetValuedKey<URL>, JavaClassHierarchy> defaultClassHierarchy = new HashMap<>();
 
   /**
    * Only for testing. Deletes Tang's current database of known classes, forcing
@@ -95,10 +95,10 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public ClassHierarchy getDefaultClassHierarchy(URL... jars) {
+  public JavaClassHierarchy getDefaultClassHierarchy(URL... jars) {
     SetValuedKey<URL> key = new SetValuedKey<>(jars);
     
-    ClassHierarchy ret = defaultClassHierarchy.get(key);
+    JavaClassHierarchy ret = defaultClassHierarchy.get(key);
     if(ret == null) {
       ret = new ClassHierarchyImpl(jars);
       defaultClassHierarchy.put(key, ret);

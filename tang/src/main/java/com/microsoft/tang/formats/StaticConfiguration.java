@@ -27,14 +27,6 @@ final public class StaticConfiguration {
       cb.addConfiguration(sc.build());
     }
   }
-  public static final class Register implements BindInterface {
-    final Class<?> clazz;
-    public Register(Class<?> clazz) { this.clazz = clazz; }
-    @Override
-    public void configure(JavaConfigurationBuilder cb) throws BindException {
-      cb.register(clazz);
-    }
-  }
   public static final class RegisterLegacyConstructor implements BindInterface {
     final Class<?> c;
     final Class<?>[] args;

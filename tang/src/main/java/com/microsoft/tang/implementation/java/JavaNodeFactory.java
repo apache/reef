@@ -12,7 +12,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
-import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.implementation.ClassNodeImpl;
 import com.microsoft.tang.implementation.ConstructorArgImpl;
 import com.microsoft.tang.implementation.ConstructorDefImpl;
@@ -30,7 +30,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class JavaNodeFactory {
 
   @SuppressWarnings("unchecked")
-  static <T> ClassNodeImpl<T> createClassNode(Node parent, Class<T> clazz) throws BindException {
+  static <T> ClassNodeImpl<T> createClassNode(Node parent, Class<T> clazz) throws ClassHierarchyException {
     // super(parent, ReflectionUtilities.getSimpleName(clazz));
     final boolean injectable;
     final boolean unit = clazz.isAnnotationPresent(Unit.class);
@@ -62,11 +62,11 @@ public class JavaNodeFactory {
           .getAnnotation(Inject.class) != null);
       if (constructorAnnotatedInjectable && constructors[k].isSynthetic()) {
         // Not sure if we *can* unit test this one.
-        throw new BindException(
+        throw new ClassHierarchyException(
             "Synthetic constructor was annotated with @Inject!");
       }
       if (parentIsUnit && (constructorAnnotatedInjectable || constructors[k].getParameterTypes().length != 1)) {
-        throw new BindException(
+        throw new ClassHierarchyException(
             "Detected explicit constructor in class enclosed in @Unit class " + fullName + "  Such constructors are disallowed.");
       }
       boolean constructorInjectable = constructorAnnotatedInjectable || parentIsUnit;
@@ -78,7 +78,7 @@ public class JavaNodeFactory {
           constructors[k], constructorAnnotatedInjectable);
       if (constructorInjectable) {
         if (injectableConstructors.contains(def)) {
-          throw new BindException(
+          throw new ClassHierarchyException(
               "Ambiguous boundConstructors detected in class " + clazz + ": "
                   + def + " differs from some other " + " constructor only "
                   + "by parameter order.");
@@ -96,7 +96,7 @@ public class JavaNodeFactory {
   }
 
   public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
-      Class<? extends Name<T>> clazz, Class<T> argClass) throws BindException {
+      Class<? extends Name<T>> clazz, Class<T> argClass) throws ClassHierarchyException {
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
     NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
@@ -106,13 +106,7 @@ public class JavaNodeFactory {
     if (namedParameter == null || namedParameter.default_value().length() == 0) {
       defaultInstanceAsString = null;
     } else {
-      try {
-        defaultInstanceAsString = namedParameter.default_value();
-      } catch (UnsupportedOperationException e) {
-        throw new BindException("Could not register NamedParameterNode for "
-            + clazz.getName() + ".  Default value "
-            + namedParameter.default_value() + " failed to parse.", e);
-      }
+      defaultInstanceAsString = namedParameter.default_value();
     }
     final String documentation;
     final String shortName;
@@ -139,11 +133,11 @@ public class JavaNodeFactory {
 
   private static <T> ConstructorDef<T> createConstructorDef(
       boolean isClassInjectionCandidate, Constructor<T> constructor,
-      boolean injectable) throws BindException {
+      boolean injectable) throws ClassHierarchyException {
     // We don't support injection of non-static member classes with @Inject
     // annotations.
     if (injectable && !isClassInjectionCandidate) {
-      throw new BindException("Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:"
+      throw new ClassHierarchyException("Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:"
           + ReflectionUtilities.getFullName(constructor.getDeclaringClass()));
     }
     Class<?>[] paramTypes = constructor.getParameterTypes();
@@ -169,8 +163,8 @@ public class JavaNodeFactory {
       return new ConstructorDefImpl<T>(
           ReflectionUtilities.getFullName(constructor.getDeclaringClass()),
           args, injectable);
-    } catch (BindException e) {
-      throw new BindException("Detected bad constructor in " + constructor
+    } catch (ClassHierarchyException e) {
+      throw new ClassHierarchyException("Detected bad constructor in " + constructor
           + " in "
           + ReflectionUtilities.getFullName(constructor.getDeclaringClass()), e);
     }

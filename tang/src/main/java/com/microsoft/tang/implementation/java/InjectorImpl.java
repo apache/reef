@@ -12,6 +12,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Injector;
+import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -50,7 +51,7 @@ public class InjectorImpl implements Injector {
   
   private final Configuration c;
   private final ClassHierarchy namespace;
-  private final ClassHierarchyImpl javaNamespace;
+  private final JavaClassHierarchy javaNamespace;
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
     @Override
     public int getNumAlternatives() {
@@ -86,23 +87,17 @@ public class InjectorImpl implements Injector {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private void buildInjectionPlan(final String name,
-      Map<String, InjectionPlan<?>> memo) throws InjectionException {
-    if (memo.containsKey(name)) {
-      if (BUILDING == memo.get(name)) {
+  private void buildInjectionPlan(final Node n,
+      Map<Node, InjectionPlan<?>> memo) {
+    if (memo.containsKey(n)) {
+      if (BUILDING == memo.get(n)) {
         throw new IllegalStateException("Detected loopy constructor involving "
-            + name);
+            + n.getFullName());
       } else {
         return;
       }
     }
-    memo.put(name, BUILDING);
-    final Node n;
-    try {
-      n = namespace.register(name);
-    } catch (BindException e) {
-      throw new IllegalArgumentException("Could not register class " + name, e);
-    }
+    memo.put(n, BUILDING);
     final InjectionPlan<?> ip;
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
@@ -122,9 +117,9 @@ public class InjectorImpl implements Injector {
         }
       }
       if (instance instanceof ClassNode) {
-        String implName = ((ClassNode<?>) instance).getFullName();
-        buildInjectionPlan(implName, memo);
-        ip = new Subplan<>(np, 0, memo.get(implName));
+        ClassNode<?> instanceCN = (ClassNode<?>)instance;
+        buildInjectionPlan(instanceCN, memo);
+        ip = new Subplan<>(np, 0, memo.get(instanceCN));
       } else {
         ip = new JavaInstance<Object>(np, instance);
       }
@@ -133,18 +128,17 @@ public class InjectorImpl implements Injector {
       if (singletonInstances.containsKey(cn)) {
         ip = new JavaInstance<Object>(cn, singletonInstances.get(cn));
       } else if (null != c.getBoundConstructor(cn)) {
-        String constructorName = c.getBoundConstructor(cn).getFullName();
-        buildInjectionPlan(constructorName, memo);
-        ip = new Subplan(cn, 0, memo.get(constructorName));
-        memo.put(cn.getFullName(), ip);
-        // ip = new Instance(cn, null);
+        ClassNode<? extends ExternalConstructor> ec = c.getBoundConstructor(cn);
+        buildInjectionPlan(ec, memo);
+        ip = new Subplan(cn, 0, memo.get(ec));
+        memo.put(cn, ip);
       } else if (null != c.getBoundImplementation(cn)
           && !(c.getBoundImplementation(cn).getFullName().equals(cn
               .getFullName()))) {
-        String implName = c.getBoundImplementation(cn).getFullName();
-        buildInjectionPlan(implName, memo);
-        ip = new Subplan(cn, 0, memo.get(implName));
-        memo.put(cn.getFullName(), ip);
+        ClassNode<?> boundImpl = c.getBoundImplementation(cn);
+        buildInjectionPlan(boundImpl, memo);
+        ip = new Subplan(cn, 0, memo.get(boundImpl));
+        memo.put(cn, ip);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<>();
         // if we're here and there is a bound impl, then we're bound to
@@ -169,9 +163,15 @@ public class InjectorImpl implements Injector {
             ConstructorArg[] defArgs = def.getArgs();
 
             for (ConstructorArg arg : defArgs) {
-              String argName = arg.getName();
-              buildInjectionPlan(argName, memo);
-              args.add(memo.get(argName));
+              try {
+                Node argNode = namespace.getNode(arg.getName());
+                buildInjectionPlan(argNode, memo);
+                args.add(memo.get(argNode));
+              } catch (NameResolutionException e) {
+                throw new IllegalStateException("Detected unresolvable "
+                    + "constructor arg while building injection plan.  "
+                    + "This should have been caught earlier!", e);
+              }
             }
             Constructor constructor = new Constructor(thisCN, def,
                 args.toArray(new InjectionPlan[0]));
@@ -180,7 +180,7 @@ public class InjectorImpl implements Injector {
           sub_ips.add(wrapInjectionPlans(thisCN, constructors, false));
         }
         if (classNodes.size() == 1
-            && classNodes.get(0).getFullName().equals(name)) {
+            && classNodes.get(0).getFullName().equals(n.getFullName())) {
           ip = wrapInjectionPlans(n, sub_ips, false);
         } else {
           ip = wrapInjectionPlans(n, sub_ips, true);
@@ -193,7 +193,7 @@ public class InjectorImpl implements Injector {
       throw new IllegalStateException(
           "Type hierarchy contained unknown node type!:" + n);
     }
-    memo.put(name, ip);
+    memo.put(n, ip);
   }
 
   /**
@@ -205,47 +205,42 @@ public class InjectorImpl implements Injector {
    * @return
    * @throws NameResolutionException
    */
-  public InjectionPlan<?> getInjectionPlan(String name)
-      throws InjectionException {
+  public InjectionPlan<?> getInjectionPlan(final Node n) {
     assertNotConcurrent();
-    Map<String, InjectionPlan<?>> memo = new HashMap<String, InjectionPlan<?>>();
-    buildInjectionPlan(name, memo);
-    return memo.get(name);
+    Map<Node, InjectionPlan<?>> memo = new HashMap<>();
+    buildInjectionPlan(n, memo);
+    return memo.get(n);
   }
 
   @SuppressWarnings("unchecked")
-  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name)
-      throws InjectionException {
+  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) {
     assertNotConcurrent();
-    return (InjectionPlan<T>) getInjectionPlan(name.getName());
+    Node n = javaNamespace.getNode(name);
+    return (InjectionPlan<T>) getInjectionPlan(n);
   }
 
   @Override
-  public boolean isInjectable(String name) throws BindException {
+  public boolean isInjectable(String name) throws NameResolutionException {
+    assertNotConcurrent();
+    InjectionPlan<?> p = getInjectionPlan(namespace.getNode(name));
+    return p.isInjectable();
+  }
+
+  @Override
+  public boolean isInjectable(Class<?> clazz) {
     assertNotConcurrent();
     try {
-      InjectionPlan<?> p = getInjectionPlan(name);
-      return p.isInjectable();
-    } catch (InjectionException e) {
-      throw (BindException) e.getCause();
+      return isInjectable(ReflectionUtilities.getFullName(clazz));
+    } catch(NameResolutionException e) {
+      throw new IllegalStateException("Could not round trip " + clazz + " through ClassHierarchy", e);
     }
   }
 
   @Override
-  public boolean isInjectable(Class<?> clazz) throws BindException {
+  public boolean isParameterSet(String name) throws NameResolutionException {
     assertNotConcurrent();
-    return isInjectable(clazz.getName());
-  }
-
-  @Override
-  public boolean isParameterSet(String name) throws BindException {
-    assertNotConcurrent();
-    try {
-      InjectionPlan<?> p = getInjectionPlan(name);
-      return p.isInjectable();
-    } catch (InjectionException e) {
-      throw (BindException) e.getCause();
-    }
+    InjectionPlan<?> p = getInjectionPlan(namespace.getNode(name));
+    return p.isInjectable();
   }
 
   @Override
@@ -281,7 +276,11 @@ public class InjectorImpl implements Injector {
         for (ClassNode<?> cn : c.getSingletons()) {
           if (!singletonInstances.containsKey(cn)) {
             try {
-              getInstance(cn.getFullName());// getClazz());
+              try {
+                getInstance(cn.getFullName());// getClazz());
+              } catch(NameResolutionException e) {
+                throw new IllegalStateException("Failed to round trip ClassNode " + cn, e);
+              }
               // System.err.println("success " + cn);
               oneSucceeded = true;
             } catch (SingletonInjectionException e) {
@@ -314,16 +313,16 @@ public class InjectorImpl implements Injector {
     assertNotConcurrent();
     populateSingletons();
     @SuppressWarnings("unchecked")
-    InjectionPlan<U> plan = (InjectionPlan<U>) getInjectionPlan(clazz.getName());
+    InjectionPlan<U> plan = (InjectionPlan<U>) getInjectionPlan(clazz);
     return injectFromPlan(plan);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <U> U getInstance(String clazz) throws InjectionException {
+  public <U> U getInstance(String clazz) throws InjectionException, NameResolutionException {
     assertNotConcurrent();
     populateSingletons();
-    InjectionPlan<?> plan = getInjectionPlan(clazz);
+    InjectionPlan<?> plan = getInjectionPlan(namespace.getNode(clazz));
     return (U) injectFromPlan(plan);
   }
 
@@ -332,7 +331,7 @@ public class InjectorImpl implements Injector {
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
       throws InjectionException {
     assertNotConcurrent();
-    InjectionPlan<T> plan = (InjectionPlan<T>) getInjectionPlan(clazz.getName());
+    InjectionPlan<T> plan = (InjectionPlan<T>) getInjectionPlan(clazz);
     return (T) injectFromPlan(plan);
   }
 
@@ -494,7 +493,7 @@ public class InjectorImpl implements Injector {
     for (ClassNode<?> cn : old.singletonInstances.keySet()) {
       if (!cn.getFullName().equals("com.microsoft.tang.Injector")) {
         try {
-          ClassNode<?> new_cn = (ClassNode<?>) i.namespace.register(cn
+          ClassNode<?> new_cn = (ClassNode<?>) i.namespace.getNode(cn
               .getFullName());
           i.singletonInstances.put(new_cn, old.singletonInstances.get(cn));
         } catch (BindException e) {
@@ -509,11 +508,8 @@ public class InjectorImpl implements Injector {
       // if (!builder.namedParameters.containsKey(np)) {
       Object o = old.namedParameterInstances.get(np);
       NamedParameterNode<?> new_np = (NamedParameterNode<?>) i.namespace
-          .register(np.getFullName());
+          .getNode(np.getFullName());
       i.namedParameterInstances.put(new_np, o);
-      if (o instanceof Class) {
-        i.namespace.register(ReflectionUtilities.getFullName((Class<?>) o));
-      }
     }
     return i;
   }
@@ -531,13 +527,7 @@ public class InjectorImpl implements Injector {
 
   <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
     assertNotConcurrent();
-    Node n = namespace.register(ReflectionUtilities.getFullName(c));
-    /*
-     * try { n = tc.namespace.getNode(c); } catch (NameResolutionException e) {
-     * // TODO: Unit test for bindVolatileInstance to unknown class. throw new
-     * BindException("Can't bind to unknown class " + c.getName(), e); }
-     */
-
+    Node n = javaNamespace.getNode(c);
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
       Object old = singletonInstances.get(cn);
@@ -554,7 +544,7 @@ public class InjectorImpl implements Injector {
 
   <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
       throws BindException {
-    Node n = namespace.register(ReflectionUtilities.getFullName(c));
+    Node n = javaNamespace.getNode(c);
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = this.c.getNamedParameter(np);
@@ -567,9 +557,6 @@ public class InjectorImpl implements Injector {
                 + " new value is " + o);
       }
       namedParameterInstances.put(np, o);
-      if (o instanceof Class) {
-        namespace.register(ReflectionUtilities.getFullName((Class<?>) o));
-      }
     } else {
       throw new IllegalArgumentException("Expected Name, got " + c
           + " (probably a class)");

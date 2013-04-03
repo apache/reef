@@ -122,7 +122,7 @@ public class CommandLine {
       } else {
         try {
           conf.bind(shortNames.get(shortName), value);
-        } catch (ClassNotFoundException e) {
+        } catch (BindException e) {
           throw new BindException("Could not bind shortName " + shortName + " to value " + value, e);
         }
       }

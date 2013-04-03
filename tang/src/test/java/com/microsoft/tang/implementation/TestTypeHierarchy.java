@@ -10,13 +10,13 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.microsoft.tang.ClassHierarchy;
+import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
-import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.ClassNode;
@@ -25,7 +25,7 @@ import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestTypeHierarchy {
-  ClassHierarchy ns;
+  JavaClassHierarchy ns;
 
   @Before
   public void setUp() throws Exception {
@@ -33,17 +33,13 @@ public class TestTypeHierarchy {
     ns = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
-  private Node register(Class<?> c) throws BindException {
-    return ns.register(ReflectionUtilities.getFullName(c));
-  }
-
   /**
    * TODO: How to handle getNode() that returns a package node? It breaks the
    * immutability of ClassHierarchy!
    */
   @Test
-  public void testJavaString() throws NameResolutionException, BindException {
-    register(String.class);
+  public void testJavaString() throws NameResolutionException {
+    ns.getNode(String.class);
     Node n = null;
     try {
       n = ns.getNode("java");
@@ -65,184 +61,176 @@ public class TestTypeHierarchy {
   }
 
   @Test
-  public void testSimpleConstructors() throws NameResolutionException,
-      BindException {
-    register(SimpleConstructors.class);
-    Assert.assertNotNull(ns.getNode(SimpleConstructors.class.getName()));
-    ClassNode<?> cls = (ClassNode<?>) ns.getNode(ReflectionUtilities
-        .getFullName(SimpleConstructors.class));
+  public void testSimpleConstructors() {
+    ClassNode<?> cls = (ClassNode<?>) ns.getNode(SimpleConstructors.class);
     Assert.assertTrue(cls.getChildren().size() == 0);
     ConstructorDef<?> def[] = cls.getInjectableConstructors();
     Assert.assertEquals(3, def.length);
-
   }
 
   @Test
-  public void testNamedParameterConstructors() throws BindException {
-    register(NamedParameterConstructors.class);
+  public void testNamedParameterConstructors() {
+    ns.getNode(NamedParameterConstructors.class);
+  }
+
+  @Test(expected=UnsupportedOperationException.class)
+  public void testArray() {
+    ns.getNode(new String[0].getClass());
+  }
+
+  @Test(expected = ClassHierarchyException.class)
+  public void testRepeatConstructorArg() {
+    ns.getNode(RepeatConstructorArg.class);
+  }
+
+  @Test(expected = ClassHierarchyException.class)
+  public void testRepeatConstructorArgClasses() {
+    ns.getNode(RepeatConstructorArgClasses.class);
   }
 
   @Test
-  public void testArray() throws BindException {
-    register(new String[0].getClass());
-  }
-
-  @Test(expected = BindException.class)
-  public void testRepeatConstructorArg() throws BindException {
-    register(RepeatConstructorArg.class);
-  }
-
-  @Test(expected = BindException.class)
-  public void testRepeatConstructorArgClasses() throws BindException {
-    register(RepeatConstructorArgClasses.class);
+  public void testLeafRepeatedConstructorArgClasses() {
+    ns.getNode(LeafRepeatedConstructorArgClasses.class);
   }
 
   @Test
-  public void testLeafRepeatedConstructorArgClasses() throws BindException {
-    register(LeafRepeatedConstructorArgClasses.class);
+  public void testNamedRepeatConstructorArgClasses() {
+    ns.getNode(NamedRepeatConstructorArgClasses.class);
   }
 
   @Test
-  public void testNamedRepeatConstructorArgClasses() throws BindException {
-    register(NamedRepeatConstructorArgClasses.class);
-  }
-
-  @Test
-  public void testResolveDependencies() throws NameResolutionException,
-      BindException {
-    register(SimpleConstructors.class);
+  public void testResolveDependencies() throws NameResolutionException {
+    ns.getNode(SimpleConstructors.class);
     Assert.assertNotNull(ns.getNode(ReflectionUtilities
         .getFullName(String.class)));
   }
 
   @Test
-  public void testDocumentedLocalNamedParameter() throws BindException {
-    register(DocumentedLocalNamedParameter.class);
+  public void testDocumentedLocalNamedParameter() {
+    ns.getNode(DocumentedLocalNamedParameter.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testNamedParameterTypeMismatch() throws BindException {
-    register(NamedParameterTypeMismatch.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testNamedParameterTypeMismatch() {
+    ns.getNode(NamedParameterTypeMismatch.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testUnannotatedName() throws BindException {
-    register(UnannotatedName.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testUnannotatedName() {
+    ns.getNode(UnannotatedName.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testAnnotatedNotName() throws BindException {
-    register(AnnotatedNotName.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testAnnotatedNotName() {
+    ns.getNode(AnnotatedNotName.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testAnnotatedNameWrongInterface() throws BindException {
-    register(AnnotatedNameWrongInterface.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testAnnotatedNameWrongInterface() {
+    ns.getNode(AnnotatedNameWrongInterface.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testAnnotatedNameNotGenericInterface() throws BindException {
-    register(AnnotatedNameNotGenericInterface.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testAnnotatedNameNotGenericInterface() {
+    ns.getNode(AnnotatedNameNotGenericInterface.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testAnnotatedNameMultipleInterfaces() throws BindException {
-    register(AnnotatedNameMultipleInterfaces.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testAnnotatedNameMultipleInterfaces() {
+    ns.getNode(AnnotatedNameMultipleInterfaces.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testUnAnnotatedNameMultipleInterfaces() throws BindException {
-    register(UnAnnotatedNameMultipleInterfaces.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testUnAnnotatedNameMultipleInterfaces() {
+    ns.getNode(UnAnnotatedNameMultipleInterfaces.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testNameWithConstructor() throws BindException {
-    register(NameWithConstructor.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testNameWithConstructor() {
+    ns.getNode(NameWithConstructor.class);
   }
 
-  @Test(expected = BindException.class)
-  public void testNameWithZeroArgInject() throws BindException {
-    register(NameWithZeroArgInject.class);
-  }
-
-  @Test
-  public void testGenericTorture1() throws BindException {
-    register(GenericTorture1.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testNameWithZeroArgInject() {
+    ns.getNode(NameWithZeroArgInject.class);
   }
 
   @Test
-  public void testGenericTorture2() throws BindException {
-    register(GenericTorture2.class);
+  public void testGenericTorture1() {
+    ns.getNode(GenericTorture1.class);
   }
 
   @Test
-  public void testGenericTorture3() throws BindException {
-    register(GenericTorture3.class);
+  public void testGenericTorture2() {
+    ns.getNode(GenericTorture2.class);
   }
 
   @Test
-  public void testGenericTorture4() throws BindException {
-    register(GenericTorture4.class);
+  public void testGenericTorture3() {
+    ns.getNode(GenericTorture3.class);
   }
 
   @Test
-  public void testGenericTorture5() throws BindException {
-    register(GenericTorture5.class);
+  public void testGenericTorture4() {
+    ns.getNode(GenericTorture4.class);
   }
 
   @Test
-  public void testGenericTorture6() throws BindException {
-    register(GenericTorture6.class);
+  public void testGenericTorture5() {
+    ns.getNode(GenericTorture5.class);
   }
 
   @Test
-  public void testGenericTorture7() throws BindException {
-    register(GenericTorture7.class);
+  public void testGenericTorture6() {
+    ns.getNode(GenericTorture6.class);
   }
 
   @Test
-  public void testGenericTorture8() throws BindException {
-    register(GenericTorture8.class);
+  public void testGenericTorture7() {
+    ns.getNode(GenericTorture7.class);
   }
 
   @Test
-  public void testGenericTorture9() throws BindException {
-    register(GenericTorture9.class);
+  public void testGenericTorture8() {
+    ns.getNode(GenericTorture8.class);
   }
 
   @Test
-  public void testInjectNonStaticLocalArgClass() throws BindException {
-    register(InjectNonStaticLocalArgClass.class);
-  }
-
-  @Test(expected = BindException.class)
-  public void testInjectNonStaticLocalType() throws BindException {
-    register(InjectNonStaticLocalType.class);
-  }
-
-  @Test(expected = BindException.class)
-  public void testConflictingShortNames() throws BindException {
-    register(ShortNameFooA.class);
-    register(ShortNameFooB.class);
+  public void testGenericTorture9() {
+    ns.getNode(GenericTorture9.class);
   }
 
   @Test
-  public void testOKShortNames() throws BindException {
-    register(ShortNameFooA.class);
+  public void testInjectNonStaticLocalArgClass() {
+    ns.getNode(InjectNonStaticLocalArgClass.class);
+  }
+
+  @Test(expected = ClassHierarchyException.class)
+  public void testInjectNonStaticLocalType() {
+    ns.getNode(InjectNonStaticLocalType.class);
+  }
+
+  @Test(expected = ClassHierarchyException.class)
+  public void testConflictingShortNames() {
+    ns.getNode(ShortNameFooA.class);
+    ns.getNode(ShortNameFooB.class);
   }
 
   @Test
-  public void testRoundTripInnerClassNames() throws BindException,
-      ClassNotFoundException {
-    Node n = register(Nested.Inner.class);
+  public void testOKShortNames() {
+    ns.getNode(ShortNameFooA.class);
+  }
+
+  @Test
+  public void testRoundTripInnerClassNames() throws ClassNotFoundException {
+    Node n = ns.getNode(Nested.Inner.class);
     Class.forName(n.getFullName());
   }
 
   @Test
-  public void testRoundTripAnonInnerClassNames() throws BindException,
-      ClassNotFoundException {
-    Node n = register(AnonNested.x.getClass());
-    Node m = register(AnonNested.y.getClass());
+  public void testRoundTripAnonInnerClassNames() throws ClassNotFoundException {
+    Node n = ns.getNode(AnonNested.x.getClass());
+    Node m = ns.getNode(AnonNested.y.getClass());
     Assert.assertNotSame(n.getFullName(), m.getFullName());
     Class<?> c = Class.forName(n.getFullName());
     Class<?> d = Class.forName(m.getFullName());
@@ -250,15 +238,15 @@ public class TestTypeHierarchy {
   }
 
   @Test
-  public void testUnitIsInjectable() throws BindException, InjectionException {
-    ClassNode<?> n = (ClassNode<?>) register(OuterUnitTH.class);
+  public void testUnitIsInjectable() throws InjectionException {
+    ClassNode<?> n = (ClassNode<?>) ns.getNode(OuterUnitTH.class);
     Assert.assertTrue(n.isUnit());
     Assert.assertTrue(n.isInjectionCandidate());
   }
 
-  @Test(expected = BindException.class)
-  public void testBadUnitDecl() throws BindException, InjectionException {
-    register(OuterUnitBad.class);
+  @Test(expected = ClassHierarchyException.class)
+  public void testBadUnitDecl() {
+    ns.getNode(OuterUnitBad.class);
   }
 
 }

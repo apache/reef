@@ -12,6 +12,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.formats.ConfigurationFile;
@@ -41,10 +42,10 @@ public class TestTang {
     injector.getInstance(TwoSingletons.class);
   }
 
-  @Test(expected = BindException.class)
+  @Test(expected = ClassHierarchyException.class)
   public void testRepeatedAmbiguousArgs() throws BindException, NameResolutionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.getClassHierarchy().register(ReflectionUtilities.getFullName(RepeatedAmbiguousArgs.class));
+    t.getClassHierarchy().getNode(ReflectionUtilities.getFullName(RepeatedAmbiguousArgs.class));
   }
 
   @Test

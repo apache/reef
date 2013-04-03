@@ -14,7 +14,6 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.StaticConfiguration;
 import com.microsoft.tang.formats.StaticConfiguration.BindImplementation;
 import com.microsoft.tang.formats.StaticConfiguration.BindNamedParameter;
-import com.microsoft.tang.formats.StaticConfiguration.Register;
 
 public class TestTweetExample {
   private static interface TweetFactory {
@@ -90,7 +89,6 @@ public class TestTweetExample {
   }
 
   private static final StaticConfiguration TANG_CONF = new StaticConfiguration(
-      new Register(Tweeter.class),
       new BindImplementation(TweetFactory.class, MockTweetFactory.class),
       new BindImplementation(SMS.class, MockSMS.class),
       new BindNamedParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString())
@@ -99,7 +97,6 @@ public class TestTweetExample {
   @Test
   public void test() throws Exception {
 //    ConfigurationBuilder t = tang.newConfigurationBuilder(TANG_CONF.build());
-//    t.register(Tweeter.class);
 //    t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
 //    t.bindImplementation(SMS.class, MockSMS.class);
 //    t.bindNamedParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString());

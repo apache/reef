@@ -102,21 +102,17 @@ public class ConfigurationFile {
         if (value.equals(ConfigurationBuilderImpl.SINGLETON)) {
           isSingleton = true;
         }
-        if (value.equals(ConfigurationBuilderImpl.REGISTERED)) {
-          throw new UnsupportedOperationException("Encountered obsolete "
-              + ConfigurationBuilderImpl.REGISTERED
-              + " keyword.  Old config file?");
-        } else if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
+        if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           if (isSingleton) {
             throw new IllegalArgumentException("Can't "
                 + ConfigurationBuilderImpl.IMPORT + "="
                 + ConfigurationBuilderImpl.SINGLETON + ".  Makes no sense");
           }
-          ci.register(value);
+          ci.getClassHierarchy().getNode(value);
           String[] tok = value.split(ReflectionUtilities.regexp);
           try {
             // ci.namespace.getNode(tok[tok.length - 1]);
-            ci.register(tok[tok.length - 1]);
+            ci.getClassHierarchy().getNode(tok[tok.length - 1]);
             throw new IllegalArgumentException("Conflict on short name: "
                 + tok[tok.length - 1]);
           } catch (BindException e) {

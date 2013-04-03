@@ -2,8 +2,8 @@ package com.microsoft.tang;
 
 import java.util.Set;
  
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.exceptions.ParseException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
@@ -23,11 +23,15 @@ import com.microsoft.tang.types.Node;
  *
  */
 public interface ClassHierarchy {
+  /**
+   * Lookup a node in this class hierarchy.
+   * 
+   * @param fullName The full name of the class that will be looked up.
+   * @return A non-null reference to a ClassNode or a NamedParameterNode.
+   * @throws NameResolutionException If the class is not found.
+   */
+  public Node getNode(String fullName) throws NameResolutionException;
 
-  public Node getNode(String s) throws NameResolutionException;
-  
-  public Node register(String s) throws BindException;
-  
   public Set<String> getRegisteredClassNames();
   
   /**
@@ -41,8 +45,8 @@ public interface ClassHierarchy {
 
   public ClassHierarchy merge(ClassHierarchy ch);
 
-  public <T> T parse(NamedParameterNode<T> name, String value) throws BindException;
+  public <T> T parse(NamedParameterNode<T> name, String value) throws ParseException;
 
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws BindException;
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ParseException;
 
 }

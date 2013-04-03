@@ -30,7 +30,6 @@ public class Timer {
   public static void main(String[] args) throws Exception {
     Tang tang = Tang.Factory.getTang();
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.register(Timer.class);
     CommandLine cl = new CommandLine(cb);
     cl.processCommandLine(args);
     Configuration conf = cb.build();

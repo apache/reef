@@ -30,7 +30,7 @@ public class TestStaticConfiguration {
     }
 
     static final StaticConfiguration conf = new StaticConfiguration(
-        new Register(B.class));
+        new Bind(B.class, B.class));
   }
 
   static class B {
@@ -39,6 +39,6 @@ public class TestStaticConfiguration {
     }
 
     static final StaticConfiguration conf = new StaticConfiguration(
-        new Register(A.class));
+        new Bind(A.class, A.class));
   }
 }

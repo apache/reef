@@ -11,7 +11,6 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.ClassNode;
-import com.microsoft.tang.types.Node;
 
 public class TestClassLoaders {
   @Test
@@ -95,7 +94,7 @@ public class TestClassLoaders {
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA1.bind("com.example.A", "com.example.B");
-    Node n = cbA1.getClassHierarchy().getNode("com.example.A");
-    Object o = t.newInjector(cbA1.build()).getInstance("com.example.B");
+    cbA1.getClassHierarchy().getNode("com.example.A");
+    t.newInjector(cbA1.build()).getInstance("com.example.B");
   }
 }

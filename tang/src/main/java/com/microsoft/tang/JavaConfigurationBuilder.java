@@ -4,7 +4,6 @@ package com.microsoft.tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.types.Node;
 
 /**
  * A builder for TANG configurations.
@@ -83,12 +82,4 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
 
   public void bindParser(Class<? extends ExternalConstructor<?>> ec) throws BindException;
   public <T, U extends T> void bindParser(Class<U> c, Class<? extends ExternalConstructor<T>> ec) throws BindException;
-  /**
-   * @deprecated
-   * @param c
-   * @return
-   * @throws BindException
-   */
-  public Node register(Class<?> c) throws BindException;
-
 }

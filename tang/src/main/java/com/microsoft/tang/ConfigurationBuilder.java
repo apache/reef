@@ -17,30 +17,6 @@ public interface ConfigurationBuilder {
   public void addConfiguration(final Configuration c) throws BindException;
 
   /**
-   * Ask Tang to register a class. This does not create any new bindings, but
-   * has a number important side effects.
-   * 
-   * In particular, it causes any @Namespace and @NamedParameter annotations to
-   * be processed, which, in turn makes the Namespace available to configuration
-   * files, and makes any short_names defined by the @NamedParameter annotations
-   * to become available to command line parsers.
-   * 
-   * When registering a class, Tang transitively registers any enclosing and
-   * enclosed classes as well. So, if you have one class with that contains many
-   * \@NamedParameter classes, you only need to call register on the enclosing
-   * class.
-   * 
-   * In addition to registering the class, this method also checks to make sure
-   * the class is consistent with itself and the rest of the Tang classes that
-   * have been registered.
-   * 
-   * @deprecated With the elimination of shortName handling from core Tang,
-   *             ClassHierarchies should now be treated as immutable. Therefore,
-   *             this method no longer has any purpose other than for testing.
-   */
-  public void register(String c) throws BindException;
-
-  /**
    * @return a reference to the ClassHierarchy instance backing this
    *         ConfigurationBuilder. No copy is made, since ClassHierarchy objects
    *         are effectively immutable.
@@ -70,10 +46,9 @@ public interface ConfigurationBuilder {
    * 
    * @param iface
    * @param impl
-   * @throws ClassNotFoundException
    */
   public <T> void bind(String iface, String impl)
-      throws ClassNotFoundException, BindException;
+      throws BindException;
 
   void bind(Node key, Node value) throws BindException;
 
