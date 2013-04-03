@@ -31,7 +31,6 @@ public class JavaNodeFactory {
 
   @SuppressWarnings("unchecked")
   static <T> ClassNodeImpl<T> createClassNode(Node parent, Class<T> clazz) throws ClassHierarchyException {
-    // super(parent, ReflectionUtilities.getSimpleName(clazz));
     final boolean injectable;
     final boolean unit = clazz.isAnnotationPresent(Unit.class);
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
