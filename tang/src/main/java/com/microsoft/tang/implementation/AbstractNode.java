@@ -74,8 +74,8 @@ public abstract class AbstractNode implements Node {
     children.put(n.getName(), n);
   }
 
-  @Override
-  public String toIndentedString(int level) {
+  @SuppressWarnings("unused")
+  private String toIndentedString(int level) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < level; i++) {
       sb.append("\t");
@@ -83,7 +83,7 @@ public abstract class AbstractNode implements Node {
     sb.append(toString() + "\n");
     if (children != null) {
       for (Node n : children.values()) {
-        sb.append(n.toIndentedString(level + 1));
+        sb.append(((AbstractNode)n).toIndentedString(level + 1));
       }
     }
     return sb.toString();

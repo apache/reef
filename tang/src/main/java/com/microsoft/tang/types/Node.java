@@ -11,7 +11,6 @@ public interface Node extends Comparable<Node> {
   public Node get(String key);
   public Collection<Node> getChildren();
   public Node getParent();
-  public String toIndentedString(int level);
   public String toString();
   public void put(Node n);
   

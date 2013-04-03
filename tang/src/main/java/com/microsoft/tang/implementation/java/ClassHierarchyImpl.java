@@ -44,7 +44,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   public final ParameterParser parameterParser = new ParameterParser();
 
   @Override
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) {
+  public <T> Object parseDefaultValue(NamedParameterNode<T> name) {
     String val = name.getDefaultInstanceAsString();
     if (val != null) {
       try {
@@ -59,7 +59,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T parse(NamedParameterNode<T> np, String value) throws ParseException {
+  public <T> Object parse(NamedParameterNode<T> np, String value) throws ParseException {
     try {
       final ClassNode<T> iface = (ClassNode<T>)getNode(np.getFullArgName());
       try {
@@ -296,18 +296,9 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     registeredClasses.add(ReflectionUtilities.getFullName(c));
     return n;
   }
-
-  public synchronized Set<String> getRegisteredClassNames() {
-    return new MonotonicSet<String>(registeredClasses);
-  }
-
-  PackageNode getNamespace() {
-    return namespace;
-  }
-
   @Override
-  public synchronized String toPrettyString() {
-    return namespace.toIndentedString(0);
+  public PackageNode getNamespace() {
+    return namespace;
   }
 
   @Override

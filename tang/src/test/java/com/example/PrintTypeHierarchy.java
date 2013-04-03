@@ -10,6 +10,6 @@ public class PrintTypeHierarchy {
     for (String s : args) {
       ns.getNode(s);
     }
-    System.out.print(ns.toPrettyString());
+    throw new UnsupportedOperationException("This utility is currently unimplemented");
   }
 }
