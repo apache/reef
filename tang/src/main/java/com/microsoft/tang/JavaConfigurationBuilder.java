@@ -13,8 +13,6 @@ import com.microsoft.tang.exceptions.NameResolutionException;
  */
 public interface JavaConfigurationBuilder extends ConfigurationBuilder {
 
-  public JavaConfigurationBuilder clone();
-  
   /**
    * Bind named parameters, implementations or external constructors, depending
    * on the types of the classes passed in.

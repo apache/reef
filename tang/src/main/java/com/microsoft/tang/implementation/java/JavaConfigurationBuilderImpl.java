@@ -18,11 +18,18 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
 
+  JavaConfigurationBuilderImpl(URL[] jars, Configuration[] confs)
+      throws BindException {
+    super(jars,confs);
+  }
+  JavaConfigurationBuilderImpl(){
+    super();
+  }
   public JavaConfigurationBuilderImpl(URL[] jars) throws BindException {
     super(jars);
   }
 
-  protected JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) throws BindException {
+  JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) {
     super(impl);
   }
 
@@ -30,19 +37,14 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
       throws BindException {
     super(confs);
   }
-
-  @Override
-  public JavaConfigurationBuilderImpl clone() {
-    try {
-      return new JavaConfigurationBuilderImpl(this);
-    } catch(BindException e) {
-      throw new IllegalStateException("Caught BindException in clone().  Can't happen(?)", e);
+  private class JavaConfigurationImpl extends ConfigurationImpl {
+    JavaConfigurationImpl(JavaConfigurationBuilderImpl builder) {
+      super(builder);
     }
   }
-  
   @Override
   public ConfigurationImpl build() {
-    return new ConfigurationImpl(clone());
+    return new JavaConfigurationImpl(new JavaConfigurationBuilderImpl(this));
   }
 
   private Node getNode(Class<?> c) {

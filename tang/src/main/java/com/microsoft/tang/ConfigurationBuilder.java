@@ -7,8 +7,6 @@ import com.microsoft.tang.types.Node;
 
 public interface ConfigurationBuilder {
 
-  public ConfigurationBuilder clone();
-
   /**
    * Add all configuration parameters from the given Configuration object.
    * 

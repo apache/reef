@@ -16,7 +16,7 @@ import com.microsoft.tang.util.MonotonicSet;
 public class ConfigurationImpl implements Configuration {
   final ConfigurationBuilderImpl builder;
 
-  public ConfigurationImpl(ConfigurationBuilderImpl builder) {
+  protected ConfigurationImpl(ConfigurationBuilderImpl builder) {
     this.builder = builder;
   }
 
@@ -71,7 +71,7 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   public ConfigurationBuilder newBuilder() {
-    return builder.clone();
+    return builder.build().builder;
   }
   
   @Override

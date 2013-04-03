@@ -35,11 +35,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public final static String SINGLETON = "singleton";
   public final static String INIT = "<init>";
 
-  public ConfigurationBuilderImpl() {
+  protected ConfigurationBuilderImpl() {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
-  public ConfigurationBuilderImpl(URL[] jars, Configuration[] confs)
+  protected ConfigurationBuilderImpl(URL[] jars, Configuration[] confs)
       throws BindException {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars);
     for (Configuration tc : confs) {
@@ -47,8 +47,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t)
-      throws BindException {
+  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
     this.namespace = t.getClassHierarchy();
     try {
       addConfiguration(t.getClassHierarchy(), t);
@@ -57,20 +56,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  public ConfigurationBuilderImpl(URL... jars) throws BindException {
+  protected ConfigurationBuilderImpl(URL... jars) throws BindException {
     this(jars, new Configuration[0]);
   }
 
-  public ConfigurationBuilderImpl clone() {
-    try {
-      return new ConfigurationBuilderImpl(this);
-    } catch (BindException e) {
-      throw new IllegalStateException(
-          "Caught BindException in clone().  Can't happen(?)", e);
-    }
-  }
-
-  public ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
+  protected ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
     this(new URL[0], tangs);
   }
 
@@ -239,7 +229,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public ConfigurationImpl build() {
-    return new ConfigurationImpl(this.clone());
+    return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
   }
 
   @Override
