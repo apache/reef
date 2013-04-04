@@ -5,6 +5,45 @@ import java.util.concurrent.TimeUnit;
 
 import com.microsoft.tang.exceptions.InjectionException;
 
+/**
+ * A future-based mechanism for cyclic object injections. Since Tang is a
+ * constructor-based dependency injector, there is no way to directly create
+ * cycles of objects.
+ * 
+ * In situations where you need to have two object that point at each other, you
+ * can use an InjectionFuture to break the cycle. Simply ask Tang to inject an
+ * InjectionFuture<T> into your constructor.  Later (after your constructor
+ * returns) invoke the get() method of the injection future to get a reference
+ * to an injected object of type T.
+ * 
+ * Note that InjectorFutures and singletons interact in subtle ways.
+ * 
+ * Normally, Tang never reuses a reference to an injected object unless the
+ * object is a singleton or a volatile instance. If InjectionFutures followed
+ * this convention, then a cyclic injection of two non-singleton classes would
+ * result in an an infinite chain of objects of the two types. Tang addresses
+ * this issue as follows:
+ * 
+ * 1) In the first pass, it injects a complete object tree, making note of
+ * InjectionFuture objects that will need to be populated later. The injection
+ * of this tree respects standard Tang singleton and volatile semantics.
+ * 
+ * 2) In a second pass, Tang populates each of the InjectionFutures with the
+ * reference to the requested class that was instantiated in the first pass. If
+ * this reference does not exist (or is non-unique) then an InjectionException
+ * is thrown.
+ * 
+ * Note: The semantics of complex cyclic injections may change over time.
+ * 
+ * We haven't seen many complicated injections that involve cycles in practice.
+ * A second approach would be to establish some scoping rules, so that each
+ * InjectionFuture binds to the innermost matching parent in the InjectionPlan.
+ * This would allow plans to inject multiple cycles involving distinct objects
+ * of the same type.
+ * 
+ * @param <T>
+ */
+
 public class InjectionFuture<T> implements Future<T> {
 
   protected final Injector injector;
