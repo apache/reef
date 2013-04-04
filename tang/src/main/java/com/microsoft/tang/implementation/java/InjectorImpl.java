@@ -6,6 +6,7 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -42,9 +43,13 @@ public class InjectorImpl implements Injector {
     }
   }
   private boolean concurrentModificationGuard = false;
+  private static final AtomicBoolean warned = new AtomicBoolean(false);
   private void assertNotConcurrent() {
     if(concurrentModificationGuard) {
-      throw new ConcurrentModificationException("Detected attempt to modify Injector from within an injected constructor!");
+      //throw new ConcurrentModificationException("Detected attempt to modify Injector from within an injected constructor!");
+      if(warned.compareAndSet(false, true)) {
+        System.err.println("Tang warning: Detected modification of injector state from within injected constructor.  This warning will eventually become an error.");
+      }
     }
   }
   
