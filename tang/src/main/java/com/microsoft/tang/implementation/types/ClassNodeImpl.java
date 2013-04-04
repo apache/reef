@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation;
+package com.microsoft.tang.implementation.types;
 
 import java.util.Set;
 

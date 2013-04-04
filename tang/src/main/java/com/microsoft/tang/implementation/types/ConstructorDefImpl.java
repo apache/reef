@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation;
+package com.microsoft.tang.implementation.types;
 
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.types.ClassNode;

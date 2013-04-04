@@ -1,4 +1,4 @@
-package com.microsoft.tang.implementation;
+package com.microsoft.tang.implementation.types;
 
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
