@@ -13,24 +13,25 @@ final public class Subplan<T> extends InjectionPlan<T> {
         @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
       super(node);
       this.alternatives = alternatives;
-      if (selectedIndex < 0 || selectedIndex >= alternatives.length) {
+      if (selectedIndex < -1 || selectedIndex >= alternatives.length) {
         throw new ArrayIndexOutOfBoundsException();
       }
       this.selectedIndex = selectedIndex;
-      this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
+      if(selectedIndex != -1) {
+        this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
+      } else {
+        int numAlternatives = 0;
+        for (InjectionPlan<? extends T> a : alternatives) {
+          numAlternatives += a.getNumAlternatives();
+        }
+        this.numAlternatives = numAlternatives;
+      }
     }
 
     public Subplan(
         Node node,
         @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
-      super(node);
-      this.alternatives = alternatives;
-      this.selectedIndex = -1;
-      int numAlternatives = 0;
-      for (InjectionPlan<? extends T> a : alternatives) {
-        numAlternatives += a.getNumAlternatives();
-      }
-      this.numAlternatives = numAlternatives;
+      this(node, -1, alternatives);
     }
 
     @Override

@@ -7,6 +7,9 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.microsoft.tang.ThreeConstructors.TCFloat;
+import com.microsoft.tang.ThreeConstructors.TCInt;
+import com.microsoft.tang.ThreeConstructors.TCString;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -288,7 +291,51 @@ public class TestTang {
     OuterUnit.InB b = inj.getInstance(OuterUnit.InB.class);
     Assert.assertEquals(a.slf, b.slf);
   }
+  @Test
+  public void testThreeConstructors() throws BindException, InjectionException {
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+    cb.bindNamedParameter(TCInt.class, "1");
+    cb.bindNamedParameter(TCString.class, "s");
+    ThreeConstructors tc = tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
+    Assert.assertEquals(1, tc.i);
+    Assert.assertEquals("s", tc.s);
+    
+    cb = tang.newConfigurationBuilder();
+    cb.bindNamedParameter(TCInt.class, "1");
+    tc = tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
+    Assert.assertEquals(1, tc.i);
+    Assert.assertEquals("default", tc.s);
+
+    cb = tang.newConfigurationBuilder();
+    cb.bindNamedParameter(TCString.class, "s");
+    tc = tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
+    Assert.assertEquals(-1, tc.i);
+    Assert.assertEquals("s", tc.s);
+
+    cb = tang.newConfigurationBuilder();
+    cb.bindNamedParameter(TCFloat.class, "2");
+    tc = tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
+    Assert.assertEquals(-1, tc.i);
+    Assert.assertEquals("default", tc.s);
+    Assert.assertEquals(2.0f, tc.f);
+
+    
+  }
+  @Test(expected=InjectionException.class)
+  public void testThreeConstructorsAmbiguous() throws BindException, InjectionException {
+    JavaConfigurationBuilder cb;
+    
+    cb = tang.newConfigurationBuilder();
+    cb.bindNamedParameter(TCString.class, "s");
+    cb.bindNamedParameter(TCFloat.class, "-2");
+    
+    // Ambigious; there is a constructor that takes a string, and another that
+    // takes a float, but none that takes both.
+    tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
+    
+  }
 }
+
 
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
 class Param implements Name<Integer> {
@@ -513,5 +560,36 @@ class OuterUnit {
   }
   class InB {
     OuterUnit slf = self;
+  }
+}
+class ThreeConstructors {
+  final int i;
+  final String s;
+  final Float f;
+  @NamedParameter
+  static class TCInt implements Name<Integer> {}
+  @NamedParameter
+  static class TCString implements Name<String> {}
+  @NamedParameter
+  static class TCFloat implements Name<Float> {}
+  @Inject
+  ThreeConstructors(@Parameter(TCInt.class) int i, @Parameter(TCString.class) String s) { 
+    this.i = i;
+    this.s = s;
+    this.f = -1.0f;
+  }
+  @Inject
+  ThreeConstructors(@Parameter(TCString.class) String s) {
+    this(-1, s);
+  }
+  @Inject
+  ThreeConstructors(@Parameter(TCInt.class) int i) {
+    this(i, "default");
+  }
+  @Inject
+  ThreeConstructors(@Parameter(TCFloat.class) float f) {
+    this.i = -1;
+    this.s = "default";
+    this.f = f;
   }
 }

@@ -105,16 +105,23 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
 
   @Override
   public boolean isMoreSpecificThan(ConstructorDef<?> def) {
-    for (int i = 0; i < getArgs().length; i++) {
+    // Return true if our list of args is a superset of those in def.
+
+    // Is everything in def also in this?
+    for (int i = 0; i < def.getArgs().length; i++) {
       boolean found = false;
-      for (int j = 0; j < def.getArgs().length; j++) {
-        if (getArgs()[i].equals(def.getArgs()[j])) {
+      for (int j = 0; j < this.getArgs().length; j++) {
+        if (getArgs()[j].equals(def.getArgs()[i])) {
           found = true;
+          break;
         }
       }
+      // If not, then argument j from def is not in our list.  Return false.
       if (found == false)
         return false;
     }
+    // Everything in def's arg list is in ours.  Do we have at least one extra
+    // argument?
     return getArgs().length > def.getArgs().length;
   }
 

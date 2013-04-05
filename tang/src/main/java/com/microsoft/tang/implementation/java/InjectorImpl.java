@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import sun.reflect.generics.scope.ConstructorScope;
+
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
@@ -80,13 +82,13 @@ public class InjectorImpl implements Injector {
 
   @SuppressWarnings("unchecked")
   private InjectionPlan<?> wrapInjectionPlans(Node infeasibleNode,
-      List<InjectionPlan<?>> list, boolean forceAmbiguous) {
+      List<? extends InjectionPlan<?>> list, boolean forceAmbiguous, int selectedIndex) {
     if (list.size() == 0) {
       return new Subplan<>(infeasibleNode);
     } else if ((!forceAmbiguous) && list.size() == 1) {
       return list.get(0);
     } else {
-      return new Subplan<>(infeasibleNode, list.toArray(new InjectionPlan[0]));
+      return new Subplan<>(infeasibleNode, selectedIndex, list.toArray(new InjectionPlan[0]));
     }
   }
 
@@ -154,7 +156,7 @@ public class InjectorImpl implements Injector {
         classNodes.add(cn);
         List<InjectionPlan<?>> sub_ips = new ArrayList<InjectionPlan<?>>();
         for (ClassNode<?> thisCN : classNodes) {
-          final List<InjectionPlan<?>> constructors = new ArrayList<InjectionPlan<?>>();
+          final List<Constructor<?>> constructors = new ArrayList<>();
           final List<ConstructorDef<?>> constructorList = new ArrayList<>();
           if (null != c.getLegacyConstructor(thisCN)) {
             constructorList.add(c.getLegacyConstructor(thisCN));
@@ -181,13 +183,41 @@ public class InjectorImpl implements Injector {
                 args.toArray(new InjectionPlan[0]));
             constructors.add(constructor);
           }
-          sub_ips.add(wrapInjectionPlans(thisCN, constructors, false));
+          // The constructors are embedded in a lattice defined by isMoreSpecificThan().
+          // We want to see if, amongst the injectable plans, there is a unique dominant
+          // plan, and select it.
+          
+          // First, compute the set of injectable plans.
+          List<Integer> liveIndices = new ArrayList<>();
+          for(int i = 0; i < constructors.size(); i++) {
+            if(constructors.get(i).getNumAlternatives() > 0) {
+              liveIndices.add(i);
+            }
+          }
+          // Now, do an all-by-all comparison, removing indices that are dominated by others.
+          for(int i = 0; i < liveIndices.size(); i++) {
+            for(int j = i+1; j < liveIndices.size(); j++) {
+              ConstructorDef ci = constructors.get(liveIndices.get(i)).getConstructorDef();
+              ConstructorDef cj = constructors.get(liveIndices.get(j)).getConstructorDef();
+              
+              if(ci.isMoreSpecificThan(cj)) {
+                liveIndices.remove(j);
+                j--;
+              } else if(cj.isMoreSpecificThan(ci)) {
+                liveIndices.remove(i);
+                // Done with this inner loop invocation.  Check the new ci.
+                i--;
+                break;
+              }
+            }
+          }
+          sub_ips.add(wrapInjectionPlans(thisCN, constructors, false, liveIndices.size() == 1 ? liveIndices.get(0) : -1));
         }
         if (classNodes.size() == 1
             && classNodes.get(0).getFullName().equals(n.getFullName())) {
-          ip = wrapInjectionPlans(n, sub_ips, false);
+          ip = wrapInjectionPlans(n, sub_ips, false, -1);
         } else {
-          ip = wrapInjectionPlans(n, sub_ips, true);
+          ip = wrapInjectionPlans(n, sub_ips, true, -1);
         }
       }
     } else if (n instanceof PackageNode) {
@@ -380,7 +410,7 @@ public class InjectorImpl implements Injector {
           + plan.toPrettyString());
     }
     if (plan.isAmbiguous()) {
-      throw new IllegalArgumentException("Attempt to inject ambiguous plan: "
+      throw new InjectionException("Attempt to inject ambiguous plan: "
           + plan.toPrettyString());
     }
     if (plan instanceof JavaInstance) {
