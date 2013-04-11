@@ -66,7 +66,7 @@ public class JavaNodeFactory {
       }
       if (parentIsUnit && (constructorAnnotatedInjectable || constructors[k].getParameterTypes().length != 1)) {
         throw new ClassHierarchyException(
-            "Detected explicit constructor in class enclosed in @Unit class " + fullName + "  Such constructors are disallowed.");
+            "Detected explicit constructor in class enclosed in @Unit " + fullName + "  Such constructors are disallowed.");
       }
       boolean constructorInjectable = constructorAnnotatedInjectable || parentIsUnit;
       // ConstructorDef's constructor checks for duplicate
@@ -158,15 +158,15 @@ public class JavaNodeFactory {
           ReflectionUtilities.getFullName(paramTypes[i]), named == null ? null
               : ReflectionUtilities.getFullName(named.value()));
     }
-    try {
+//    try {
       return new ConstructorDefImpl<T>(
           ReflectionUtilities.getFullName(constructor.getDeclaringClass()),
           args, injectable);
-    } catch (ClassHierarchyException e) {
-      throw new ClassHierarchyException("Detected bad constructor in " + constructor
-          + " in "
-          + ReflectionUtilities.getFullName(constructor.getDeclaringClass()), e);
-    }
+//    } catch (ClassHierarchyException e) {
+//      throw new ClassHierarchyException("Detected bad constructor in " + constructor
+//          + " in "
+//          + ReflectionUtilities.getFullName(constructor.getDeclaringClass()), e);
+//    }
   }
 
 }

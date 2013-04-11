@@ -71,4 +71,26 @@ final public class Constructor<T> extends InjectionPlan<T> {
       sb.append(")");
       return sb.toString();
     }
+    @Override
+    public String toCantInjectString(int indent) {
+      if(getNumAlternatives() > 1) {
+        StringBuffer sb = new StringBuffer(getNode().getName() + ": ambiguous argument(s): ");
+        for(InjectionPlan<?> argPlan : this.args) {
+          if(argPlan.getNumAlternatives() > 1) {
+            sb.append(argPlan.toCantInjectString() + "\n");
+          }
+        }
+        return sb.toString();
+      } else if(getNumAlternatives() == 0) {
+        StringBuffer sb = new StringBuffer(getNode().getName() + ": missing argument(s): ");
+        for(InjectionPlan<?> argPlan : this.args){
+          if(argPlan.getNumAlternatives() == 0) {
+            sb.append(argPlan.toCantInjectString());
+          }
+        }
+        return sb.toString();
+      } else {
+        throw new IllegalArgumentException("toCantInjectString() called on injectable constructor:" + this.toPrettyString());
+      }
+    }
   }

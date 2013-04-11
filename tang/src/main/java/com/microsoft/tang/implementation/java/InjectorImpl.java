@@ -78,6 +78,11 @@ public class InjectorImpl implements Injector {
     public boolean isInjectable() {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String toCantInjectString(int indent) {
+      return "BUILDING INJECTION PLAN";
+    }
   };
 
   @SuppressWarnings("unchecked")
@@ -407,11 +412,11 @@ public class InjectorImpl implements Injector {
   private <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
     if (!plan.isFeasible()) {
       throw new InjectionException("Attempt to inject infeasible plan: "
-          + plan.toPrettyString());
+          + plan.toCantInjectString());
     }
     if (plan.isAmbiguous()) {
       throw new InjectionException("Attempt to inject ambiguous plan: "
-          + plan.toPrettyString());
+          + plan.toCantInjectString());
     }
     if (plan instanceof JavaInstance) {
       return ((JavaInstance<T>) plan).instance;

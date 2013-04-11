@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -199,32 +200,32 @@ public class ReflectionUtilities {
     
     if (npAnnotation == null) {
       if (implementsName) {
-        throw new ClassHierarchyException(clazz
+        throw new ClassHierarchyException("Named parameter " + getFullName(clazz)
             + " is missing its @NamedParameter annotation.");
       } else {
         return null;
       }
     } else {
       if (!implementsName) {
-        throw new ClassHierarchyException("Found illegal @NamedParameter " + clazz
-            + " does not implement name");
+        throw new ClassHierarchyException("Found illegal @NamedParameter " + getFullName(clazz)
+            + " does not implement Name<?>");
       }
       if (hasSuperClass) {
-        throw new ClassHierarchyException("Named parameter " + clazz
+        throw new ClassHierarchyException("Named parameter " + getFullName(clazz)
             + " has a superclass other than Object.");
       }
       if (hasConstructor || isInjectable) {
-        throw new ClassHierarchyException("Named parameter " + clazz + " has "
+        throw new ClassHierarchyException("Named parameter " + getFullName(clazz) + " has "
             + (isInjectable ? "an injectable" : "a") + " constructor. "
-            + " Name parameters must not delcare any constructors.");
+            + " Named parameters must not declare any constructors.");
       }
       if (hasMultipleInterfaces) {
-        throw new ClassHierarchyException("Named parameter " + clazz + " implements "
+        throw new ClassHierarchyException("Named parameter " + getFullName(clazz) + " implements "
             + "multiple interfaces.  It is only allowed to implement Name<T>");
       }
       if (parameterClass == null) {
         throw new ClassHierarchyException(
-            "Missing type parameter in named parameter declaration.  " + clazz
+            "Missing type parameter in named parameter declaration.  " + getFullName(clazz)
                 + " implements raw type Name, but must implement"
                 + " generic type Name<T>.");
       }

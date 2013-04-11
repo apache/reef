@@ -25,4 +25,9 @@ public class RequiredSingleton<T,U> extends InjectionPlan<T> {
     return preReq.isInjectable();
   }
 
+  @Override
+  public String toCantInjectString(int indent) {
+      return preReq.toCantInjectString() + "[singleton]";
+  }
+  
 }

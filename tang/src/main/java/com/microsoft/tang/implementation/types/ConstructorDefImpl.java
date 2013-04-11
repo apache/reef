@@ -23,7 +23,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
     if (vals.length != 0) {
       StringBuilder sb = new StringBuilder(vals[0].toString());
       for (int i = 1; i < vals.length; i++) {
-        sb.append(sep + vals);
+        sb.append(sep + vals[i]);
       }
       return sb.toString();
     } else {
@@ -50,7 +50,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
           if (this.getArgs()[i].equals(this.getArgs()[j])) {
             throw new ClassHierarchyException(
                 "Repeated constructor parameter detected.  "
-                    + "Cannot inject constructor" + toString());
+                    + "Cannot inject constructor " + toString());
           }
         }
       }

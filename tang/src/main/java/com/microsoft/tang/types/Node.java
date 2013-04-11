@@ -13,5 +13,4 @@ public interface Node extends Comparable<Node> {
   public Node getParent();
   public String toString();
   public void put(Node n);
-  
 }

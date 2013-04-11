@@ -6,6 +6,5 @@ public interface ConstructorArg {
 
   public String getType();
 
-  public String getNamedParameterName();
-
+  public String getNamedParameterName();  
 }

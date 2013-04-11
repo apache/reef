@@ -83,4 +83,24 @@ final public class Subplan<T> extends InjectionPlan<T> {
         return alternatives[selectedIndex];
       }
     }
+
+    @Override
+    public String toCantInjectString(int indent) {
+      if(selectedIndex != -1) {
+        return alternatives[selectedIndex].toCantInjectString(indent);
+      } else {
+        if(alternatives.length == 0) {
+          return "No known implemetnations / injectable constructors for " + this.getNode();
+        } else {
+          StringBuffer sb = new StringBuffer(this.getNode() + " has implementations, but none were selected");
+          for(InjectionPlan<?> alt : alternatives) {
+            if(alt.isInjectable()) {
+              sb.append(" have plan to inject " + alt.getNode().getFullName());
+            } else 
+              sb.append(alt.toCantInjectString(indent+1));
+          }
+          return sb.toString();
+        }
+      }
+    }
   }

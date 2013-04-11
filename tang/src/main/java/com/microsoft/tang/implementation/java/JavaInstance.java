@@ -28,6 +28,15 @@ final public class JavaInstance<T> extends InjectionPlan<T> {
 
     @Override
     public boolean isInjectable() {
-      return true;
+      return instance != null;
+    }
+
+    @Override
+    public String toCantInjectString(int indent) {
+      if(instance == null) {
+        return this.getClass() + ": bound to null instance";
+      } else {
+        throw new IllegalArgumentException("toCantInjectString called on injectable instance!");
+      }
     }
   }

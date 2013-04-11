@@ -74,4 +74,9 @@ public abstract class InjectionPlan<T> {
     }
     return pretty.toString();
   }
+  public final String toCantInjectString() {
+    return toCantInjectString(0);
+  }
+
+  public abstract String toCantInjectString(int indent);
 }

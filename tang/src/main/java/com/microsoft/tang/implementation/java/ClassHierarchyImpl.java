@@ -239,7 +239,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
               if (!ReflectionUtilities.isCoercable(classForName(arg.getType()),
                   classForName(np.getFullArgName()))) {
                 throw new ClassHierarchyException(
-                    "Incompatible argument type.  Constructor expects "
+                    "Named parameter type mismatch.  Constructor expects a "
                         + arg.getType() + " but " + np.getName() + " is a "
                         + np.getFullArgName());
               }

@@ -8,7 +8,9 @@ import javax.inject.Inject;
 import junit.framework.Assert;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.Tang;
@@ -27,6 +29,8 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class TestTypeHierarchy {
   JavaClassHierarchy ns;
 
+  @Rule public ExpectedException thrown = ExpectedException.none();
+  
   @Before
   public void setUp() throws Exception {
     TangImpl.reset();
@@ -73,18 +77,24 @@ public class TestTypeHierarchy {
     ns.getNode(NamedParameterConstructors.class);
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test
   public void testArray() {
+    thrown.expect(UnsupportedOperationException.class);
+    thrown.expectMessage("No support for arrays, etc.  Name was: [Ljava.lang.String;");
     ns.getNode(new String[0].getClass());
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testRepeatConstructorArg() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Repeated constructor parameter detected.  Cannot inject constructor com.microsoft.tang.implementation.RepeatConstructorArg(int,int)");
     ns.getNode(RepeatConstructorArg.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testRepeatConstructorArgClasses() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Repeated constructor parameter detected.  Cannot inject constructor com.microsoft.tang.implementation.RepeatConstructorArgClasses(com.microsoft.tang.implementation.A,com.microsoft.tang.implementation.A)");
     ns.getNode(RepeatConstructorArgClasses.class);
   }
 
@@ -110,48 +120,67 @@ public class TestTypeHierarchy {
     ns.getNode(DocumentedLocalNamedParameter.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testNamedParameterTypeMismatch() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Named parameter type mismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer");
     ns.getNode(NamedParameterTypeMismatch.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testUnannotatedName() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Named parameter com.microsoft.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.");
     ns.getNode(UnannotatedName.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  // TODO: The next three error messages should be more specific about the underlying cause of the failure.
+  @Test
   public void testAnnotatedNotName() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNotName does not implement Name<?>");
     ns.getNode(AnnotatedNotName.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testAnnotatedNameWrongInterface() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNameWrongInterface does not implement Name<?>");
     ns.getNode(AnnotatedNameWrongInterface.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testAnnotatedNameNotGenericInterface() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNameNotGenericInterface does not implement Name<?>");
     ns.getNode(AnnotatedNameNotGenericInterface.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testAnnotatedNameMultipleInterfaces() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Named parameter com.microsoft.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>");
     ns.getNode(AnnotatedNameMultipleInterfaces.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testUnAnnotatedNameMultipleInterfaces() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Named parameter com.microsoft.tang.implementation.UnAnnotatedNameMultipleInterfaces is missing its @NamedParameter annotation.");
     ns.getNode(UnAnnotatedNameMultipleInterfaces.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testNameWithConstructor() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Named parameter com.microsoft.tang.implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.");
     ns.getNode(NameWithConstructor.class);
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testNameWithZeroArgInject() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Named parameter com.microsoft.tang.implementation.NameWithZeroArgInject has an injectable constructor.  Named parameters must not declare any constructors.");
     ns.getNode(NameWithZeroArgInject.class);
   }
 
@@ -244,8 +273,11 @@ public class TestTypeHierarchy {
     Assert.assertTrue(n.isInjectionCandidate());
   }
 
-  @Test(expected = ClassHierarchyException.class)
+  @Test
   public void testBadUnitDecl() {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Detected explicit constructor in class enclosed in @Unit com.microsoft.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.");
+
     ns.getNode(OuterUnitBad.class);
   }
 
