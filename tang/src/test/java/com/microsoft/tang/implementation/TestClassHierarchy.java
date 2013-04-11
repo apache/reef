@@ -37,10 +37,6 @@ public class TestClassHierarchy {
     ns = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
-  /**
-   * TODO: How to handle getNode() that returns a package node? It breaks the
-   * immutability of ClassHierarchy!
-   */
   @Test
   public void testJavaString() throws NameResolutionException {
     ns.getNode(String.class);

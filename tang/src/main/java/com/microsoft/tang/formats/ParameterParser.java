@@ -36,8 +36,8 @@ public class ParameterParser {
         if (!parsers.get(s).equals(p.parsers.get(s))) {
           throw new IllegalArgumentException(
               "Conflict detected when merging parameter parsers! To parse " + s
-                  + " I have a: " + parsers.get(s)
-                  + " the other instance has a: " + p.parsers.get(s));
+                  + " I have a: " + ReflectionUtilities.getFullName(parsers.get(s).getDeclaringClass())
+                  + " the other instance has a: " + ReflectionUtilities.getFullName(p.parsers.get(s).getDeclaringClass()));
         }
       }
     }

@@ -3,7 +3,9 @@ package com.microsoft.tang.implementation.java;
 import javax.inject.Inject;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -17,6 +19,9 @@ import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestParameterParser {
+
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void testParameterParser() throws BindException {
     ParameterParser p = new ParameterParser();
@@ -24,9 +29,11 @@ public class TestParameterParser {
     Foo f = p.parse(Foo.class, "woot");
     Assert.assertEquals(f.s, "woot");
   }
-  @Test(expected=UnsupportedOperationException.class)
+  @Test
   public void testUnregisteredParameterParser() throws BindException {
-    ParameterParser p = new ParameterParser();
+    thrown.expect(UnsupportedOperationException.class);
+    thrown.expectMessage("Don't know how to parse a com.microsoft.tang.implementation.java.TestParameterParser$Foo");
+  ParameterParser p = new ParameterParser();
     //p.addParser(FooParser.class);
     Foo f = p.parse(Foo.class, "woot");
     Assert.assertEquals(f.s, "woot");
@@ -56,14 +63,15 @@ public class TestParameterParser {
     nw.mergeIn(old);
     nw.parse(Foo.class, "woot");
   }
-  @Test(expected=IllegalArgumentException.class)
+  @Test
   public void testBadMerge() throws BindException {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Conflict detected when merging parameter parsers! To parse com.microsoft.tang.implementation.java.TestParameterParser$Foo I have a: com.microsoft.tang.implementation.java.TestParameterParser$FooParser the other instance has a: com.microsoft.tang.implementation.java.TestParameterParser$BarParser");
     ParameterParser old = new ParameterParser();
     old.addParser(BarParser.class);
     ParameterParser nw = new ParameterParser();
     nw.addParser(FooParser.class);
     nw.mergeIn(old);
-    nw.parse(Foo.class, "woot");
   }
   @Test
   public void testEndToEnd() throws BindException, InjectionException {
