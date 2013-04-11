@@ -26,7 +26,7 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class TestTypeHierarchy {
+public class TestClassHierarchy {
   JavaClassHierarchy ns;
 
   @Rule public ExpectedException thrown = ExpectedException.none();
