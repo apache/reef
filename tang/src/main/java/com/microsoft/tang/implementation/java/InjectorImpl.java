@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import sun.reflect.generics.scope.ConstructorScope;
-
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
@@ -80,9 +78,29 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
-    public String toCantInjectString(int indent) {
-      return "BUILDING INJECTION PLAN";
+    protected String toAmbiguousInjectString() {
+      // TODO Auto-generated method stub
+      return null;
     }
+
+    @Override
+    protected String toInfeasibleInjectString() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    protected boolean isInfeasibleLeaf() {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    @Override
+    public String toShallowString() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   };
 
   @SuppressWarnings("unchecked")
@@ -411,11 +429,11 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   private <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
     if (!plan.isFeasible()) {
-      throw new InjectionException("Attempt to inject infeasible plan: "
+      throw new InjectionException("Cannot inject " + plan.getNode().getFullName() + ": "
           + plan.toCantInjectString());
     }
     if (plan.isAmbiguous()) {
-      throw new InjectionException("Attempt to inject ambiguous plan: "
+      throw new InjectionException("Cannot inject " + plan.getNode().getFullName() + " "
           + plan.toCantInjectString());
     }
     if (plan instanceof JavaInstance) {
@@ -592,8 +610,8 @@ public class InjectorImpl implements Injector {
       }
       if (old != null) {
         throw new BindException(
-            "Attempt to re-bind named parameter.  Old value was " + old
-                + " new value is " + o);
+            "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(c) + ".  Old value was [" + old
+                + "] new value is [" + o + "]");
       }
       namedParameterInstances.put(np, o);
     } else {

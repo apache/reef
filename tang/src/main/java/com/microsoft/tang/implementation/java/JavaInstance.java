@@ -2,6 +2,7 @@ package com.microsoft.tang.implementation.java;
 
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.types.Node;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 final public class JavaInstance<T> extends InjectionPlan<T> {
     final T instance;
@@ -32,11 +33,22 @@ final public class JavaInstance<T> extends InjectionPlan<T> {
     }
 
     @Override
-    public String toCantInjectString(int indent) {
-      if(instance == null) {
-        return this.getClass() + ": bound to null instance";
-      } else {
-        throw new IllegalArgumentException("toCantInjectString called on injectable instance!");
-      }
+    protected String toAmbiguousInjectString() {
+      throw new IllegalArgumentException("toAmbiguousInjectString called on JavaInstance!" + this.toString());
+    }
+
+    @Override
+    protected String toInfeasibleInjectString() {
+      throw new IllegalArgumentException("toAmbiguousInjectString called on JavaInstance!" + this.toString());
+    }
+
+    @Override
+    protected boolean isInfeasibleLeaf() {
+      return true;
+    }
+
+    @Override
+    public String toShallowString() {
+      return toString();
     }
   }

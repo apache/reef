@@ -5,7 +5,9 @@ import javax.inject.Inject;
 import junit.framework.Assert;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.microsoft.tang.ThreeConstructors.TCFloat;
 import com.microsoft.tang.ThreeConstructors.TCInt;
@@ -24,6 +26,8 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class TestTang {
   Tang tang;
 
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
   @Before
   public void setUp() throws Exception {
     MustBeSingleton.alreadyInstantiated = false;
@@ -37,14 +41,17 @@ public class TestTang {
     tang.newInjector(t.build()).getInstance(TwoSingletons.class);
   }
 
-  @Test(expected = InjectionException.class)
+  @Test//(expected = InjectionException.class)
   public void testNotSingleton() throws NameResolutionException,
       ReflectiveOperationException, BindException, InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Could not invoke constructor");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     Injector injector = tang.newInjector(t.build());
     injector.getInstance(TwoSingletons.class);
   }
 
+  // TODO: Delete this?  (It is handled in TestClassHierarchy!)
   @Test(expected = ClassHierarchyException.class)
   public void testRepeatedAmbiguousArgs() throws BindException, NameResolutionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
@@ -61,22 +68,28 @@ public class TestTang {
   }
 
   // NamedParameter A has no default_value, so this should throw.
-  @Test(expected = InjectionException.class)
+  @Test
   public void testOneNamedFailArgs() throws BindException, InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
 
-  @Test(expected = InjectionException.class)
+  @Test
   public void testOneNamedOKArgs() throws BindException, InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
 
-  // NamedParameter A has no default_value, so this should throw
-  @Test(expected = InjectionException.class)
+  // NamedParameter A has no default_value
+  @Test
   public void testOneNamedSingletonFailArgs() throws BindException,
       InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     t.bindSingleton(MustBeSingleton.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
@@ -107,9 +120,11 @@ public class TestTang {
   }
 
   // Forgot to call bindSingleton
-  @Test(expected = InjectionException.class)
+  @Test//(expected = InjectionException.class)
   public void testRepeatedNamedFailArgs() throws BindException,
       InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Could not invoke constructor");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
@@ -127,9 +142,11 @@ public class TestTang {
     tang.newInjector(cb.build()).getInstance(Interf.class);
   }
 
-  @Test(expected = BindException.class)
+  @Test//(expected = BindException.class)
   public void testOneNamedStringArgCantRebind() throws BindException,
       InjectionException {
+    thrown.expect(BindException.class);
+    thrown.expectMessage("Attempt to re-bind named parameter com.microsoft.tang.OneNamedStringArg$A.  Old value was [not default] new value is [volatile]");
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
@@ -202,9 +219,11 @@ public class TestTang {
 
   }
 
-  @Test(expected = BindException.class)
+  @Test//(expected = BindException.class)
   public void testTwoNamedStringArgsReBindVolatileFail() throws BindException,
       InjectionException {
+    thrown.expect(BindException.class);
+    thrown.expectMessage("Attempt to re-bind named parameter com.microsoft.tang.TwoNamedStringArgs$A.  Old value was [not defaultA] new value is [not defaultA]");
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
@@ -279,8 +298,10 @@ public class TestTang {
     Assert.assertNotSame(b1, b2);
   }
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  @Test(expected = BindException.class)
+  @Test
   public void testWrongNamedImpl() throws BindException {
+    thrown.expect(BindException.class);
+    thrown.expectMessage("Name<com.microsoft.tang.NamedImpl$A> com.microsoft.tang.NamedImpl$AImplName cannot take non-subclass com.microsoft.tang.NamedImpl$Cimpl");
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter((Class)NamedImpl.AImplName.class, (Class)NamedImpl.Cimpl.class);
   }
@@ -321,15 +342,17 @@ public class TestTang {
 
     
   }
-  @Test(expected=InjectionException.class)
+  @Test
   public void testThreeConstructorsAmbiguous() throws BindException, InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Multiple ways to inject com.microsoft.tang.ThreeConstructors");
     JavaConfigurationBuilder cb;
     
     cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(TCString.class, "s");
     cb.bindNamedParameter(TCFloat.class, "-2");
     
-    // Ambigious; there is a constructor that takes a string, and another that
+    // Ambiguous; there is a constructor that takes a string, and another that
     // takes a float, but none that takes both.
     tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
     

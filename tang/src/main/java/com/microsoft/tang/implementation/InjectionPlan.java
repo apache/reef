@@ -5,6 +5,12 @@ import com.microsoft.tang.types.Node;
 public abstract class InjectionPlan<T> {
   final Node node;
 
+  protected void pad(StringBuffer sb, int n) {
+    for (int i = 0; i < n; i++) {
+      sb.append("  ");
+    }
+  }
+
   public InjectionPlan(Node node) {
     this.node = node;
   }
@@ -37,7 +43,7 @@ public abstract class InjectionPlan<T> {
     for (int i = 0; i < ugly.length(); i++) {
       char c = ugly.charAt(i);
       if (c == '(') {
-        if(ugly.charAt(i+1) == ')') {
+        if (ugly.charAt(i + 1) == ')') {
           pretty.append("()");
           i++;
         } else {
@@ -47,15 +53,15 @@ public abstract class InjectionPlan<T> {
           pretty.append(' ');
         }
       } else if (c == '[') {
-          if(ugly.charAt(i+1) == ']') {
-            pretty.append("[]");
-            i++;
-          } else {
-            newline(pretty, currentIndent);
-            currentIndent++;
-            pretty.append(c);
-            pretty.append(' ');
-          }
+        if (ugly.charAt(i + 1) == ']') {
+          pretty.append("[]");
+          i++;
+        } else {
+          newline(pretty, currentIndent);
+          currentIndent++;
+          pretty.append(c);
+          pretty.append(' ');
+        }
       } else if (c == ')' || c == ']') {
         currentIndent--;
         newline(pretty, currentIndent);
@@ -74,9 +80,47 @@ public abstract class InjectionPlan<T> {
     }
     return pretty.toString();
   }
+
+  /**
+   * Algorithm for generating cant inject string:
+   * 
+   * For infeasible plans:
+   * 
+   * Some node types are "leaves":
+   * <ul>
+   * <li>NamedParameterNode</li>
+   * <li>ClassNode with no @Inject constructors</li>
+   * </ul>
+   * We do a depth first search of the injection plan, starting with the left
+   * most constructor arguments. When we encounter a constructor whose arguments
+   * are all either injectable or non-injectable leaf nodes, we return the name
+   * of its parent, and the name of the non-injectable leaves.
+   * 
+   * For ambiguous plans:
+   * 
+   * We perform a depth first search of the ambiguous constructors, as above. We
+   * return the name of the first class that has multiple constructors that are
+   * feasible or ambiguous (as opposed to having a single constructor with an
+   * ambiguous argument, or a constructor with an infeasible argument and an
+   * ambiguous argument).
+   */
   public final String toCantInjectString() {
-    return toCantInjectString(0);
+    if (!isFeasible()) {
+      return toInfeasibleInjectString();
+    } else if (isAmbiguous()) {
+      return toAmbiguousInjectString();
+    } else {
+      throw new IllegalArgumentException(
+          "toCantInjectString() called on injectable constructor:"
+              + this.toPrettyString());
+    }
   }
 
-  public abstract String toCantInjectString(int indent);
+  protected abstract String toAmbiguousInjectString();
+
+  protected abstract String toInfeasibleInjectString();
+
+  protected abstract boolean isInfeasibleLeaf();
+
+  public abstract String toShallowString();
 }

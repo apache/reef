@@ -72,13 +72,13 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
               return (T)impl;
             }
           }
-          throw new ParseException("Cannot parse implementation of named parameter " + np.getFullName() + " which takes a " + iface.getFullName() + " found non-subclass " + impl.getFullName());
+          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName());
         } catch(NameResolutionException e2) {
-          throw new ParseException("Cannot parse implementation of named parameter " + np.getFullName() + " which takes a " + iface.getFullName() + " found value " + value);
+          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + value);
         }
       }
     } catch(NameResolutionException e) {
-      throw new IllegalStateException("Could not parse validated NamedParameter argument type.  NamedParameter is " + np.getFullName() + " argument type is " + np.getFullArgName());
+      throw new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " + np.getFullName() + " argument type is " + np.getFullArgName());
     }
   }
 
