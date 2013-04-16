@@ -2,7 +2,6 @@ package com.microsoft.tang.implementation.java;
 
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.types.Node;
-import com.microsoft.tang.util.ReflectionUtilities;
 
 final public class JavaInstance<T> extends InjectionPlan<T> {
     final T instance;
