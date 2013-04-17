@@ -3,6 +3,7 @@ package com.microsoft.tang.implementation;
 import java.util.Collection;
 import java.util.Set;
 
+import com.microsoft.tang.BindLocation;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
@@ -78,5 +79,4 @@ public class ConfigurationImpl implements Configuration {
   public ClassHierarchy getClassHierarchy() {
     return builder.namespace;
   }
-
 }

@@ -16,8 +16,8 @@ import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
-import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
+import com.microsoft.tang.util.TracingMonotonicMap;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // TODO: None of these should be public! - Move to configurationBuilder. Have
@@ -25,11 +25,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // in a sane Configuration interface...
   // TODO: Should be final again!
   public ClassHierarchy namespace;
-  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new MonotonicMap<>();
-  final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new MonotonicMap<>();
+  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicMap<>();
+  final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new TracingMonotonicMap<>();
   final MonotonicSet<ClassNode<?>> singletons = new MonotonicSet<>();
-  final Map<NamedParameterNode<?>, String> namedParameters = new MonotonicMap<>();
-  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new MonotonicMap<>();
+  final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicMap<>();
+  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicMap<>();
 
   public final static String IMPORT = "import";
   public final static String SINGLETON = "singleton";

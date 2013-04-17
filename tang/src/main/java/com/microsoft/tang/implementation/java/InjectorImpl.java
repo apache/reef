@@ -26,13 +26,13 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
-import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.ReflectionUtilities;
+import com.microsoft.tang.util.TracingMonotonicMap;
 
 public class InjectorImpl implements Injector {
 
-  final Map<ClassNode<?>, Object> singletonInstances = new MonotonicMap<>();
-  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new MonotonicMap<>();
+  final Map<ClassNode<?>, Object> singletonInstances = new TracingMonotonicMap<>();
+  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new TracingMonotonicMap<>();
 
   private class SingletonInjectionException extends InjectionException {
     private static final long serialVersionUID = 1L;
@@ -605,15 +605,23 @@ public class InjectorImpl implements Injector {
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = this.c.getNamedParameter(np);
-      if (old == null) {
-        old = namedParameterInstances.get(np);
-      }
-      if (old != null) {
+//      if (old == null) {
+//        old = namedParameterInstances.get(np);
+//      }
+      if(old != null) {
+        // XXX need to get the binding site here!
         throw new BindException(
             "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(c) + ".  Old value was [" + old
                 + "] new value is [" + o + "]");
       }
-      namedParameterInstances.put(np, o);
+      try {
+        namedParameterInstances.put(np, o);
+      } catch (IllegalArgumentException e) {
+        throw new BindException(
+            "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(c) + ".  Old value was [" + old
+            + "] new value is [" + o + "]");
+
+      }
     } else {
       throw new IllegalArgumentException("Expected Name, got " + c
           + " (probably a class)");

@@ -10,8 +10,8 @@ public class MonotonicMap<T, U> extends TreeMap<T, U> {
   public U put(T key, U value) {
     U old = super.get(key);
     if (old != null) {
-      throw new IllegalArgumentException("Attempt to re-add: (" + key
-          + ") old value: " + old + " new value " + value);
+      throw new IllegalArgumentException("Attempt to re-add: [" + key
+          + "] old value: " + old + " new value " + value);
     }
     return super.put(key, value);
   }

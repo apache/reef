@@ -25,7 +25,9 @@ public interface Configuration {
   public <T> ClassNode<? extends ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
 
   public <T> ClassNode<? extends T> getBoundImplementation(ClassNode<T> cn);
-  
+  /**
+   * TODO Should this return a set of ConstructorDefs instead?
+   */
   public <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn);
   
   public Collection<ClassNode<?>> getSingletons();
