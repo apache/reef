@@ -82,6 +82,9 @@ public class ParameterParser {
       if (name.equals(Double.class.getName())) {
         return (T) (Double) Double.parseDouble(value);
       }
+      if (name.equals(Boolean.class.getName())) {
+        return (T) (Boolean) Boolean.parseBoolean(value);
+      }
       if (name.equals(Void.class.getName())) {
         throw new ClassCastException("Can't instantiate void");
       }
