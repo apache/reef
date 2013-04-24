@@ -34,7 +34,7 @@ message Node {
      C++ namespaces).
      
      A NamedParameterNode cannot have any children.  A ClassNode can not have
-     any package nodes as children.  PackageNodes can have any type of node as
+     any package nodes as children.  PackageNodes cannot have PackageNodes as
      children.
    */
   repeated Node children = 6;
