@@ -18,4 +18,5 @@ message Constructor {
   repeated InjectionPlan args = 1;
 }
 message Instance {
+  required string value = 1;
 }

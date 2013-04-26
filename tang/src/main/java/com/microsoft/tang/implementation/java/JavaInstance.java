@@ -31,6 +31,10 @@ final public class JavaInstance<T> extends InjectionPlan<T> {
       return instance != null;
     }
 
+    public String getInstanceAsString() {
+      return instance.toString();
+    }
+    
     @Override
     protected String toAmbiguousInjectString() {
       throw new IllegalArgumentException("toAmbiguousInjectString called on JavaInstance!" + this.toString());

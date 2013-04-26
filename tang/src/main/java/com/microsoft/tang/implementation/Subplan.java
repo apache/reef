@@ -1,6 +1,7 @@
 package com.microsoft.tang.implementation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.microsoft.tang.types.Node;
@@ -90,7 +91,9 @@ final public class Subplan<T> extends InjectionPlan<T> {
     sb.append("]");
     return sb.toString();
   }
-
+  public int getSelectedIndex() {
+    return selectedIndex;
+  }
   public InjectionPlan<? extends T> getDelegatedPlan() {
     if (selectedIndex == -1) {
       throw new IllegalStateException();
@@ -141,6 +144,10 @@ final public class Subplan<T> extends InjectionPlan<T> {
   @Override
   protected boolean isInfeasibleLeaf() {
     return false;
+  }
+
+  public InjectionPlan<?>[] getPlans() {
+    return Arrays.copyOf(alternatives, alternatives.length);
   }
 
 }
