@@ -22,7 +22,7 @@ import com.microsoft.tang.types.PackageNode;
 public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   private final PackageNode namespace;
-  private static final String regex = "\\.\\$";
+  private static final String regex = "[\\.\\$]";
 
   // ############## Serialize implementation ############## 
 
@@ -91,9 +91,13 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   private static ClassHierarchyProto.ConstructorArg newConstructorArg(
       String fullArgClassName, String namedParameterName) {
-    return ClassHierarchyProto.ConstructorArg.newBuilder()
-        .setFullArgClassName(fullArgClassName)
-        .setNamedParameterName(namedParameterName).build();
+    ClassHierarchyProto.ConstructorArg.Builder builder = 
+        ClassHierarchyProto.ConstructorArg.newBuilder()
+        .setFullArgClassName(fullArgClassName);
+    if(namedParameterName != null) {
+        builder.setNamedParameterName(namedParameterName).build();
+    }
+    return builder.build();
   }
 
   // these serialize...() methods copy a pieces of the class hierarchy into
@@ -242,8 +246,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       try {
         iface = (ClassNode) getNode(n.getFullName());
       } catch (NameResolutionException e) {
-        throw new IllegalStateException("When r)eading protocol buffer node "
-            + n + " does not exist!");
+        throw new IllegalStateException("When reading protocol buffer node "
+            + n.getFullName() + " does not exist.  Full record is " + n, e);
       }
       for (String impl : cn.getImplFullNamesList()) {
         try {
@@ -282,13 +286,18 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
         return str.substring(0, i);
       }
     }
-    return null;
+    if(n == 1) {
+      return str;
+    } else {
+      throw new ArrayIndexOutOfBoundsException();
+    }
   }
 
   @Override
   public Node getNode(String fullName) throws NameResolutionException {
     String[] tok = fullName.split(regex);
 
+    Node ret = namespace.get(fullName); 
     for (int i = 0; i < tok.length; i++) {
       Node n = namespace.get(getNthPrefix(fullName, i));
       if (n != null) {
@@ -302,7 +311,11 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
         return n;
       }
     }
-    throw new NameResolutionException(fullName, "");
+    if(ret != null) {
+      return ret;
+    } else {
+      throw new NameResolutionException(fullName, "");
+    }
   }
 
   @Override

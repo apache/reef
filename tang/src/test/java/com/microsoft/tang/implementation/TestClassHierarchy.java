@@ -12,7 +12,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.microsoft.tang.JavaClassHierarchy;
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -27,7 +27,7 @@ import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestClassHierarchy {
-  JavaClassHierarchy ns;
+  public ClassHierarchy ns;
 
   @Rule public ExpectedException thrown = ExpectedException.none();
   
@@ -37,9 +37,13 @@ public class TestClassHierarchy {
     ns = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
+  public String s(Class<?> c) {
+    return ReflectionUtilities.getFullName(c);
+  }
+  
   @Test
   public void testJavaString() throws NameResolutionException {
-    ns.getNode(String.class);
+    ns.getNode(ReflectionUtilities.getFullName(String.class));
     Node n = null;
     try {
       n = ns.getNode("java");
@@ -61,201 +65,201 @@ public class TestClassHierarchy {
   }
 
   @Test
-  public void testSimpleConstructors() {
-    ClassNode<?> cls = (ClassNode<?>) ns.getNode(SimpleConstructors.class);
+  public void testSimpleConstructors() throws NameResolutionException {
+    ClassNode<?> cls = (ClassNode<?>) ns.getNode(s(SimpleConstructors.class));
     Assert.assertTrue(cls.getChildren().size() == 0);
     ConstructorDef<?> def[] = cls.getInjectableConstructors();
     Assert.assertEquals(3, def.length);
   }
 
   @Test
-  public void testNamedParameterConstructors() {
-    ns.getNode(NamedParameterConstructors.class);
+  public void testNamedParameterConstructors() throws NameResolutionException {
+    ns.getNode(s(NamedParameterConstructors.class));
   }
 
   @Test
-  public void testArray() {
+  public void testArray() throws NameResolutionException {
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("No support for arrays, etc.  Name was: [Ljava.lang.String;");
-    ns.getNode(new String[0].getClass());
+    ns.getNode(s(new String[0].getClass()));
   }
 
   @Test
-  public void testRepeatConstructorArg() {
+  public void testRepeatConstructorArg() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Repeated constructor parameter detected.  Cannot inject constructor com.microsoft.tang.implementation.RepeatConstructorArg(int,int)");
-    ns.getNode(RepeatConstructorArg.class);
+    ns.getNode(s(RepeatConstructorArg.class));
   }
 
   @Test
-  public void testRepeatConstructorArgClasses() {
+  public void testRepeatConstructorArgClasses() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Repeated constructor parameter detected.  Cannot inject constructor com.microsoft.tang.implementation.RepeatConstructorArgClasses(com.microsoft.tang.implementation.A,com.microsoft.tang.implementation.A)");
-    ns.getNode(RepeatConstructorArgClasses.class);
+    ns.getNode(s(RepeatConstructorArgClasses.class));
   }
 
   @Test
-  public void testLeafRepeatedConstructorArgClasses() {
-    ns.getNode(LeafRepeatedConstructorArgClasses.class);
+  public void testLeafRepeatedConstructorArgClasses() throws NameResolutionException {
+    ns.getNode(s(LeafRepeatedConstructorArgClasses.class));
   }
 
   @Test
-  public void testNamedRepeatConstructorArgClasses() {
-    ns.getNode(NamedRepeatConstructorArgClasses.class);
+  public void testNamedRepeatConstructorArgClasses() throws NameResolutionException {
+    ns.getNode(s(NamedRepeatConstructorArgClasses.class));
   }
 
   @Test
   public void testResolveDependencies() throws NameResolutionException {
-    ns.getNode(SimpleConstructors.class);
+    ns.getNode(s(SimpleConstructors.class));
     Assert.assertNotNull(ns.getNode(ReflectionUtilities
         .getFullName(String.class)));
   }
 
   @Test
-  public void testDocumentedLocalNamedParameter() {
-    ns.getNode(DocumentedLocalNamedParameter.class);
+  public void testDocumentedLocalNamedParameter() throws NameResolutionException {
+    ns.getNode(s(DocumentedLocalNamedParameter.class));
   }
 
   @Test
-  public void testNamedParameterTypeMismatch() {
+  public void testNamedParameterTypeMismatch() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter type mismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer");
-    ns.getNode(NamedParameterTypeMismatch.class);
+    ns.getNode(s(NamedParameterTypeMismatch.class));
   }
 
   @Test
-  public void testUnannotatedName() {
+  public void testUnannotatedName() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter com.microsoft.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.");
-    ns.getNode(UnannotatedName.class);
+    ns.getNode(s(UnannotatedName.class));
   }
 
   // TODO: The next three error messages should be more specific about the underlying cause of the failure.
   @Test
-  public void testAnnotatedNotName() {
+  public void testAnnotatedNotName() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNotName does not implement Name<?>");
-    ns.getNode(AnnotatedNotName.class);
+    ns.getNode(s(AnnotatedNotName.class));
   }
 
   @Test
-  public void testAnnotatedNameWrongInterface() {
+  public void testAnnotatedNameWrongInterface() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNameWrongInterface does not implement Name<?>");
-    ns.getNode(AnnotatedNameWrongInterface.class);
+    ns.getNode(s(AnnotatedNameWrongInterface.class));
   }
 
   @Test
-  public void testAnnotatedNameNotGenericInterface() {
+  public void testAnnotatedNameNotGenericInterface() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNameNotGenericInterface does not implement Name<?>");
-    ns.getNode(AnnotatedNameNotGenericInterface.class);
+    ns.getNode(s(AnnotatedNameNotGenericInterface.class));
   }
 
   @Test
-  public void testAnnotatedNameMultipleInterfaces() {
+  public void testAnnotatedNameMultipleInterfaces() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter com.microsoft.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>");
-    ns.getNode(AnnotatedNameMultipleInterfaces.class);
+    ns.getNode(s(AnnotatedNameMultipleInterfaces.class));
   }
 
   @Test
-  public void testUnAnnotatedNameMultipleInterfaces() {
+  public void testUnAnnotatedNameMultipleInterfaces() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter com.microsoft.tang.implementation.UnAnnotatedNameMultipleInterfaces is missing its @NamedParameter annotation.");
-    ns.getNode(UnAnnotatedNameMultipleInterfaces.class);
+    ns.getNode(s(UnAnnotatedNameMultipleInterfaces.class));
   }
 
   @Test
-  public void testNameWithConstructor() {
+  public void testNameWithConstructor() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter com.microsoft.tang.implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.");
-    ns.getNode(NameWithConstructor.class);
+    ns.getNode(s(NameWithConstructor.class));
   }
 
   @Test
-  public void testNameWithZeroArgInject() {
+  public void testNameWithZeroArgInject() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter com.microsoft.tang.implementation.NameWithZeroArgInject has an injectable constructor.  Named parameters must not declare any constructors.");
-    ns.getNode(NameWithZeroArgInject.class);
+    ns.getNode(s(NameWithZeroArgInject.class));
   }
 
   @Test
-  public void testGenericTorture1() {
-    ns.getNode(GenericTorture1.class);
+  public void testGenericTorture1() throws NameResolutionException {
+    ns.getNode(s(GenericTorture1.class));
   }
 
   @Test
-  public void testGenericTorture2() {
-    ns.getNode(GenericTorture2.class);
+  public void testGenericTorture2() throws NameResolutionException {
+    ns.getNode(s(GenericTorture2.class));
   }
 
   @Test
-  public void testGenericTorture3() {
-    ns.getNode(GenericTorture3.class);
+  public void testGenericTorture3() throws NameResolutionException {
+    ns.getNode(s(GenericTorture3.class));
   }
 
   @Test
-  public void testGenericTorture4() {
-    ns.getNode(GenericTorture4.class);
+  public void testGenericTorture4() throws NameResolutionException {
+    ns.getNode(s(GenericTorture4.class));
   }
 
   @Test
-  public void testGenericTorture5() {
-    ns.getNode(GenericTorture5.class);
+  public void testGenericTorture5() throws NameResolutionException {
+    ns.getNode(s(GenericTorture5.class));
   }
 
   @Test
-  public void testGenericTorture6() {
-    ns.getNode(GenericTorture6.class);
+  public void testGenericTorture6() throws NameResolutionException {
+    ns.getNode(s(GenericTorture6.class));
   }
 
   @Test
-  public void testGenericTorture7() {
-    ns.getNode(GenericTorture7.class);
+  public void testGenericTorture7() throws NameResolutionException {
+    ns.getNode(s(GenericTorture7.class));
   }
 
   @Test
-  public void testGenericTorture8() {
-    ns.getNode(GenericTorture8.class);
+  public void testGenericTorture8() throws NameResolutionException {
+    ns.getNode(s(GenericTorture8.class));
   }
 
   @Test
-  public void testGenericTorture9() {
-    ns.getNode(GenericTorture9.class);
+  public void testGenericTorture9() throws NameResolutionException {
+    ns.getNode(s(GenericTorture9.class));
   }
 
   @Test
-  public void testInjectNonStaticLocalArgClass() {
-    ns.getNode(InjectNonStaticLocalArgClass.class);
+  public void testInjectNonStaticLocalArgClass() throws NameResolutionException {
+    ns.getNode(s(InjectNonStaticLocalArgClass.class));
   }
 
   @Test(expected = ClassHierarchyException.class)
-  public void testInjectNonStaticLocalType() {
-    ns.getNode(InjectNonStaticLocalType.class);
+  public void testInjectNonStaticLocalType() throws NameResolutionException {
+    ns.getNode(s(InjectNonStaticLocalType.class));
   }
 
   @Test(expected = ClassHierarchyException.class)
-  public void testConflictingShortNames() {
-    ns.getNode(ShortNameFooA.class);
-    ns.getNode(ShortNameFooB.class);
+  public void testConflictingShortNames() throws NameResolutionException {
+    ns.getNode(s(ShortNameFooA.class));
+    ns.getNode(s(ShortNameFooB.class));
   }
 
   @Test
-  public void testOKShortNames() {
-    ns.getNode(ShortNameFooA.class);
+  public void testOKShortNames() throws NameResolutionException {
+    ns.getNode(s(ShortNameFooA.class));
   }
 
   @Test
-  public void testRoundTripInnerClassNames() throws ClassNotFoundException {
-    Node n = ns.getNode(Nested.Inner.class);
+  public void testRoundTripInnerClassNames() throws ClassNotFoundException, NameResolutionException {
+    Node n = ns.getNode(s(Nested.Inner.class));
     Class.forName(n.getFullName());
   }
 
   @Test
-  public void testRoundTripAnonInnerClassNames() throws ClassNotFoundException {
-    Node n = ns.getNode(AnonNested.x.getClass());
-    Node m = ns.getNode(AnonNested.y.getClass());
+  public void testRoundTripAnonInnerClassNames() throws ClassNotFoundException, NameResolutionException {
+    Node n = ns.getNode(s(AnonNested.x.getClass()));
+    Node m = ns.getNode(s(AnonNested.y.getClass()));
     Assert.assertNotSame(n.getFullName(), m.getFullName());
     Class<?> c = Class.forName(n.getFullName());
     Class<?> d = Class.forName(m.getFullName());
@@ -263,18 +267,18 @@ public class TestClassHierarchy {
   }
 
   @Test
-  public void testUnitIsInjectable() throws InjectionException {
-    ClassNode<?> n = (ClassNode<?>) ns.getNode(OuterUnitTH.class);
+  public void testUnitIsInjectable() throws InjectionException, NameResolutionException {
+    ClassNode<?> n = (ClassNode<?>) ns.getNode(s(OuterUnitTH.class));
     Assert.assertTrue(n.isUnit());
     Assert.assertTrue(n.isInjectionCandidate());
   }
 
   @Test
-  public void testBadUnitDecl() {
+  public void testBadUnitDecl() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Detected explicit constructor in class enclosed in @Unit com.microsoft.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.");
 
-    ns.getNode(OuterUnitBad.class);
+    ns.getNode(s(OuterUnitBad.class));
   }
 
 }
