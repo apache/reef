@@ -1,10 +1,7 @@
 package com.microsoft.tang;
 
-import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.exceptions.ParseException;
 import com.microsoft.tang.types.ClassNode;
-import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 
 /**
@@ -37,25 +34,6 @@ public interface ClassHierarchy {
   public boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
 
   public ClassHierarchy merge(ClassHierarchy ch);
-  /**
-   * Parse a string value that has been passed into a named parameter.
-   * @param name The named parameter that will receive the value.
-   * @param value A string value to be validated and parsed.
-   * @return An instance of T, or a ClassNode<? extends T>.
-   * @throws ParseException if the value failed to parse, or parsed to the
-   *   wrong type (such as when it specifies a class that does not implement
-   *   or extend T).
-   */
-  public <T> Object parse(NamedParameterNode<T> name, String value) throws ParseException;
-
-  /**
-   * Obtain a parsed instance of the default value of a named parameter
-   * @param name The named parameter that should be checked for a default instance.
-   * @return The parsed instance of type T or ClassNode<? extends T>, or null 
-   *         if the default string is empty / null.
-   * @throws ClassHierarchyException if the instance failed to parse.
-   */
-  public <T> Object parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
 
   /**
    * Return a reference to the root of the ClassHierarchy.  This is needed by

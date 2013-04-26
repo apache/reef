@@ -135,10 +135,10 @@ public class InjectorImpl implements Injector {
         String value = c.getNamedParameter(np);
         try {
           if (value != null) {
-            instance = namespace.parse(np, value);
+            instance = javaNamespace.parse(np, value);
             namedParameterInstances.put(np, instance);
           } else {
-            instance = namespace.parseDefaultValue(np);
+            instance = javaNamespace.parseDefaultValue(np);
           }
         } catch (BindException e) {
           throw new IllegalStateException(

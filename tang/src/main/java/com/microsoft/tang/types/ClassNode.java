@@ -18,4 +18,6 @@ public interface ClassNode<T> extends Node {
   public boolean isUnit();
   public boolean isInjectionCandidate();
   public boolean isExternalConstructor();
+
+  public boolean isImplementationOf(ClassNode<?> inter);
 }

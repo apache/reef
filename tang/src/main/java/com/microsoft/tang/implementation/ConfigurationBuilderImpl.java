@@ -7,6 +7,7 @@ import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
@@ -175,7 +176,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
     /* Parse and discard value; this is just for type checking */
-    namespace.parse(name, value);
+    if(namespace instanceof JavaClassHierarchy) {
+      ((JavaClassHierarchy)namespace).parse(name, value);
+    }
     namedParameters.put(name, value);
   }
 

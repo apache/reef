@@ -1,5 +1,7 @@
 package com.microsoft.tang.implementation.types;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.microsoft.tang.exceptions.BindException;
@@ -92,5 +94,24 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   @Override
   public boolean isUnit() {
     return unit;
+  }
+
+  @Override
+  public boolean isImplementationOf(ClassNode<?> inter) {
+    List<ClassNode<?>> worklist = new ArrayList<>();
+    if (this.equals(inter)) {
+      return true;
+    }
+    worklist.add(inter);
+    while (!worklist.isEmpty()) {
+      ClassNode<?> cn = worklist.remove(worklist.size() - 1);
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      Set<ClassNode<?>> impls = (Set) cn.getKnownImplementations();
+      if (impls.contains(this)) {
+        return true;
+      }
+      worklist.addAll(impls);
+    }
+    return false;
   }
 }

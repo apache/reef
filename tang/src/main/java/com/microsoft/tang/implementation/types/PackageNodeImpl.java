@@ -7,6 +7,9 @@ public class PackageNodeImpl extends AbstractNode implements PackageNode {
   public PackageNodeImpl(Node parent, String name, String fullName) {
     super(parent, name, fullName);
   }
+  public PackageNodeImpl() {
+    this(null, "", "[root node]");
+  }
   /**
    * Unlike normal nodes, the root node needs to take the package name of its
    * children into account.  Therefore, we use the full name as the key when

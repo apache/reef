@@ -88,7 +88,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   }
 
   public ClassHierarchyImpl(URL... jars) {
-    this.namespace = JavaNodeFactory.createPackageNode();
+    this.namespace = JavaNodeFactory.createRootPackageNode();
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
   }
@@ -303,21 +303,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   @Override
   public synchronized boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl) {
-    List<ClassNode<?>> worklist = new ArrayList<>();
-    if (impl.equals(inter)) {
-      return true;
-    }
-    worklist.add(inter);
-    while (!worklist.isEmpty()) {
-      ClassNode<?> cn = worklist.remove(worklist.size() - 1);
-      @SuppressWarnings({ "rawtypes", "unchecked" })
-      Set<ClassNode<?>> impls = (Set) cn.getKnownImplementations();
-      if (impls.contains(impl)) {
-        return true;
-      }
-      worklist.addAll(impls);
-    }
-    return false;
+    return impl.isImplementationOf(inter);
   }
 
   @Override
@@ -342,7 +328,5 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
       myJars.addAll(otherJars);
       return new ClassHierarchyImpl(myJars.toArray(new URL[0]));
     }
-    
-    
   }
 }

@@ -1,5 +1,8 @@
 package com.microsoft.tang;
 
+import com.microsoft.tang.exceptions.ClassHierarchyException;
+import com.microsoft.tang.exceptions.ParseException;
+import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 
 public interface JavaClassHierarchy extends ClassHierarchy {
@@ -8,16 +11,38 @@ public interface JavaClassHierarchy extends ClassHierarchy {
    * takes a string in ClassHierarchy, this version does not throw
    * NameResolutionException.
    * 
-   * The behavior of this method is undefined if the provided Class object
-   * is not from the ClassLoader (or an ancestor of the ClassLoader)
-   * associated with this JavaClassHierarchy.  By default, Tang uses the 
-   * default runtime ClassLoader as its root ClassLoader, so static references
-   * (expressions like getNode(Foo.class)) are safe.
+   * The behavior of this method is undefined if the provided Class object is
+   * not from the ClassLoader (or an ancestor of the ClassLoader) associated
+   * with this JavaClassHierarchy. By default, Tang uses the default runtime
+   * ClassLoader as its root ClassLoader, so static references (expressions like
+   * getNode(Foo.class)) are safe.
    * 
-   * @param c The class to be looked up in the class hierarchy.
+   * @param c
+   *          The class to be looked up in the class hierarchy.
    * @return The associated NamedParameterNode or ClassNode.
    */
   public Node getNode(Class<?> c);
 
   public Class<?> classForName(String name) throws ClassNotFoundException;
+
+  /**
+   * Parse a string value that has been passed into a named parameter.
+   * @param name The named parameter that will receive the value.
+   * @param value A string value to be validated and parsed.
+   * @return An instance of T, or a ClassNode<? extends T>.
+   * @throws ParseException if the value failed to parse, or parsed to the
+   *   wrong type (such as when it specifies a class that does not implement
+   *   or extend T).
+   */
+  public <T> Object parse(NamedParameterNode<T> name, String value) throws ParseException;
+
+  /**
+   * Obtain a parsed instance of the default value of a named parameter
+   * @param name The named parameter that should be checked for a default instance.
+   * @return The parsed instance of type T or ClassNode<? extends T>, or null 
+   *         if the default string is empty / null.
+   * @throws ClassHierarchyException if the instance failed to parse.
+   */
+  public <T> Object parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
+
 }

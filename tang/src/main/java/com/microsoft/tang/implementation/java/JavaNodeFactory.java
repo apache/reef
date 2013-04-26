@@ -126,8 +126,8 @@ public class JavaNodeFactory {
         defaultInstanceAsString);
   }
 
-  public static PackageNode createPackageNode() {
-    return new PackageNodeImpl(null, "", "[root node]");
+  public static PackageNode createRootPackageNode() {
+    return new PackageNodeImpl();
   }
 
   private static <T> ConstructorDef<T> createConstructorDef(

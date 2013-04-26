@@ -57,21 +57,26 @@ message ClassNode {
    */
   required bool is_external_constructor = 2;
   /*
+     This field will be set to true if this class is annotated as a Tang
+     Unit.
+   */
+  required bool is_unit = 3;
+  /*
      A list of all the constructors that are defined by this class and 
      annotated to be injectable.
    */
-  repeated ConstructorDef InjectableConstructors = 3;
+  repeated ConstructorDef InjectableConstructors = 4;
   /*
      A list of all the other constructors (so that they can be registered
      as legacy constructors if the configuration tells us to treat them
      as though they were annotated with an Inject).
    */
-  repeated ConstructorDef OtherConstructors = 4;
+  repeated ConstructorDef OtherConstructors = 5;
   /*
      A list of all the ClassNodes that implement this class, including
      legacy constructors. 
    */
-  repeated string impl_full_names = 5;
+  repeated string impl_full_names = 6;
 }
 
 message NamedParameterNode {
