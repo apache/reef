@@ -1,7 +1,7 @@
 option java_package = "com.microsoft.tang.proto";
 option java_outer_classname = "ClassHierarchyProto";
-option java_generic_services = true;
-option java_generate_equals_and_hash = true;
+//option java_generic_services = true;
+//option java_generate_equals_and_hash = true;
 
 /*
   Node is the abstract base type for all the data encoded in a class hierarchy.
