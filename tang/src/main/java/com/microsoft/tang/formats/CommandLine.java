@@ -81,7 +81,7 @@ public class CommandLine {
     public void process(Option option);
   }
 
-  Map<Option, CommandLineCallback> applicationOptions = new HashMap<Option, CommandLineCallback>();
+  Map<Option, CommandLineCallback> applicationOptions = new HashMap<>();
 
   public void addCommandLineOption(Option option, CommandLineCallback cb) {
     // TODO: Check for conflicting options.
