@@ -82,9 +82,4 @@ public class ConfigurationImpl implements Configuration {
   public ClassHierarchy getClassHierarchy() {
     return builder.namespace;
   }
-
-  @Override
-  public String toString() {
-      return "ConfigurationImpl: " + super.toString();
-  }
 }

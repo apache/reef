@@ -170,43 +170,41 @@ public class ConfigurationFile {
    *         configuration object (assuming the same classes / jars are
    *         available when the string is parsed by Tang).
    */
-  public static String toConfigurationString(Configuration c) {
+  public static String toConfigurationString(final Configuration c) {
     ConfigurationImpl conf = (ConfigurationImpl) c;
     StringBuilder s = new StringBuilder();
 
     for (ClassNode<?> opt : conf.getBoundImplementations()) {
-      s.append(opt.getFullName() + "="
-          + conf.getBoundImplementation(opt).getFullName() + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(conf.getBoundImplementation(opt).getFullName()).append('\n');
     }
     for (ClassNode<?> opt : conf.getBoundConstructors()) {
-      s.append(opt.getFullName() + "="
-          + conf.getBoundConstructor(opt).getFullName() + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(conf.getBoundConstructor(opt).getFullName()).append('\n');
     }
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
-      s.append(opt.getFullName() + "=" + escape(conf.getNamedParameter(opt))
-          + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(escape(conf.getNamedParameter(opt))).append('\n');
     }
     for (ClassNode<?> opt : conf.getSingletons()) {
       // ret.put(opt.getFullName(), SINGLETON);
-      s.append(opt.getFullName() + "=" + ConfigurationBuilderImpl.SINGLETON
-          + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(ConfigurationBuilderImpl.SINGLETON).append('\n');
     }
     for (ClassNode<?> cn : conf.getLegacyConstructors()) {
-      s.append(cn.getFullName() + "=" + ConfigurationBuilderImpl.INIT + "("
-          + join("-", conf.getLegacyConstructor(cn).getArgs()) + ")");
+      s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
+      join(s, "-", conf.getLegacyConstructor(cn).getArgs()).append(")\n");
     }
     return s.toString();
   }
 
-  private static String join(String sep, ConstructorArg[] types) {
-    if (types.length == 0) {
-      return "";
+  private static StringBuilder join(final StringBuilder sb, final String sep, final ConstructorArg[] types) {
+    if (types.length > 0) {
+      sb.append(types[0].getType());
+      for (int i = 1; i < types.length; i++) {
+        sb.append(sep).append(types[i].getType());
+      }
     }
-    StringBuilder sb = new StringBuilder();
-    sb.append(types[0].getType());
-    for (int i = 1; i < types.length; i++) {
-      sb.append(sep + types[i].getType());
-    }
-    return sb.toString();
+    return sb;
   }
 }
