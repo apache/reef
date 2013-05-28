@@ -16,14 +16,14 @@ import com.microsoft.tang.exceptions.ClassHierarchyException;
 
 public class ReflectionUtilities {
   public final static String regexp = "[\\.\\$]";
-  private static Map<Class<?>, Integer> sizeof = new HashMap<Class<?>, Integer>();
+  private final static Map<Class<?>, Integer> sizeof = new HashMap<>();
   static {
-    sizeof.put(Byte.class, 8);
-    sizeof.put(Short.class, 16);
-    sizeof.put(Integer.class, 32);
-    sizeof.put(Long.class, 64);
-    sizeof.put(Float.class, 32);
-    sizeof.put(Double.class, 64);
+    sizeof.put(Byte.class, Byte.SIZE);
+    sizeof.put(Short.class, Short.SIZE);
+    sizeof.put(Integer.class, Integer.SIZE);
+    sizeof.put(Long.class, Long.SIZE);
+    sizeof.put(Float.class, Float.SIZE);
+    sizeof.put(Double.class, Double.SIZE);
   }
 
   public static Class<?> boxClass(Class<?> c) {

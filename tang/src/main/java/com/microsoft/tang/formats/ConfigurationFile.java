@@ -87,7 +87,7 @@ public class ConfigurationFile {
       PropertiesConfiguration confFile) throws IOException, BindException {
     ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) conf;
     Iterator<String> it = confFile.getKeys();
-    Map<String, String> importedNames = new HashMap<String, String>();
+    Map<String, String> importedNames = new HashMap<>();
 
     while (it.hasNext()) {
       String key = it.next();
@@ -98,10 +98,7 @@ public class ConfigurationFile {
         key = longName;
       }
       for (String value : values) {
-        boolean isSingleton = false;
-        if (value.equals(ConfigurationBuilderImpl.SINGLETON)) {
-          isSingleton = true;
-        }
+        final boolean isSingleton = value.equals(ConfigurationBuilderImpl.SINGLETON);
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           if (isSingleton) {
             throw new IllegalArgumentException("Can't "
@@ -109,18 +106,17 @@ public class ConfigurationFile {
                 + ConfigurationBuilderImpl.SINGLETON + ".  Makes no sense");
           }
           ci.getClassHierarchy().getNode(value);
-          String[] tok = value.split(ReflectionUtilities.regexp);
+          final String[] tok = value.split(ReflectionUtilities.regexp);
+          final String lastTok = tok[tok.length - 1];
           try {
-            // ci.namespace.getNode(tok[tok.length - 1]);
-            ci.getClassHierarchy().getNode(tok[tok.length - 1]);
-            throw new IllegalArgumentException("Conflict on short name: "
-                + tok[tok.length - 1]);
+            // ci.namespace.getNode(lastTok);
+            ci.getClassHierarchy().getNode(lastTok);
+            throw new IllegalArgumentException("Conflict on short name: " + lastTok);
           } catch (BindException e) {
-            String oldValue = importedNames.put(tok[tok.length - 1], value);
+            String oldValue = importedNames.put(lastTok, value);
             if (oldValue != null) {
-              throw new IllegalArgumentException("Name conflict.  "
-                  + tok[tok.length - 1] + " maps to " + oldValue + " and "
-                  + value);
+              throw new IllegalArgumentException("Name conflict: "
+                  + lastTok + " maps to " + oldValue + " and " + value);
             }
           }
         } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
