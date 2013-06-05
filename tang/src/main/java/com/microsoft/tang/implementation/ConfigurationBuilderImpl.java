@@ -40,9 +40,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
-  protected ConfigurationBuilderImpl(URL[] jars, Configuration[] confs)
+  protected ConfigurationBuilderImpl(URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {
-    this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars);
+    this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars,parsers);
     for (Configuration tc : confs) {
       addConfiguration(((ConfigurationImpl) tc));
     }
@@ -57,12 +57,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
+  @SuppressWarnings("unchecked")
   protected ConfigurationBuilderImpl(URL... jars) throws BindException {
-    this(jars, new Configuration[0]);
+    this(jars, new Configuration[0], new Class[0]);
   }
 
-  protected ConfigurationBuilderImpl(Configuration... tangs) throws BindException {
-    this(new URL[0], tangs);
+  @SuppressWarnings("unchecked")
+  protected ConfigurationBuilderImpl(Configuration... confs) throws BindException {
+    this(new URL[0], confs, new Class[0]);
   }
 
   @Override

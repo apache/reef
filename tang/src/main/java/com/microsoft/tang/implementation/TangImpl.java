@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Injector;
@@ -23,67 +24,74 @@ public class TangImpl implements Tang {
     return new InjectorImpl(new JavaConfigurationBuilderImpl(confs).build());
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public JavaConfigurationBuilder newConfigurationBuilder() {
     try {
-      return newConfigurationBuilder(new URL[0], new Configuration[0]);
+      return newConfigurationBuilder(new URL[0], new Configuration[0], new Class[0]);
     } catch (BindException e) {
       throw new IllegalStateException(
           "Caught unexpeceted bind exception!  Implementation bug.", e);
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public JavaConfigurationBuilder newConfigurationBuilder(URL... jars) {
     try {
-      return newConfigurationBuilder(jars, new Configuration[0]);
+      return newConfigurationBuilder(jars, new Configuration[0], new Class[0]);
     } catch (BindException e) {
       throw new IllegalStateException(
           "Caught unexpeceted bind exception!  Implementation bug.", e);
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public JavaConfigurationBuilder newConfigurationBuilder(
       Configuration... confs) throws BindException {
-    return newConfigurationBuilder(new URL[0], confs);
-
+    return newConfigurationBuilder(new URL[0], confs, new Class[0]);
+  }
+  @Override
+  public final JavaConfigurationBuilder newConfigurationBuilder(
+      @SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parsers) throws BindException {
+    return newConfigurationBuilder(new URL[0], new Configuration[0], parsers);
   }
 
   @Override
   public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
-      Configuration[] confs) throws BindException {
-    JavaConfigurationBuilder cb = new JavaConfigurationBuilderImpl(jars);
-    for (Configuration c : confs) {
-      cb.addConfiguration(c);
-    }
+      Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers) throws BindException {
+    JavaConfigurationBuilder cb = new JavaConfigurationBuilderImpl(jars, confs, parameterParsers);
+//    for (Configuration c : confs) {
+//      cb.addConfiguration(c);
+//    }
     return cb;
   }
 
-  private class SetValuedKey<T> {
-    public final Set<T> key;
-    @SafeVarargs
-    public SetValuedKey(T...ts) {
-      key = new HashSet<>(Arrays.asList(ts));
+  private class SetValuedKey {
+    public final Set<Object> key;
+
+    public SetValuedKey(Object[] ts, Object[] us) {
+      key = new HashSet<Object>(Arrays.asList(ts));
+      key.addAll(Arrays.asList(us));
     }
     @Override
     public int hashCode() {
       int i = 0;
-      for(T t : key) {
+      for(Object t : key) {
         i+=t.hashCode();
       }
       return i;
     }
     @Override
     public boolean equals(Object o) {
-      @SuppressWarnings("unchecked")
-      SetValuedKey<T> other = (SetValuedKey<T>)o;
+      SetValuedKey other = (SetValuedKey)o;
       if(other.key.size() != this.key.size()) { return false; }
       return key.containsAll(other.key);
     }
   }
   
-  private static Map<SetValuedKey<URL>, JavaClassHierarchy> defaultClassHierarchy = new HashMap<>();
+  private static Map<SetValuedKey, JavaClassHierarchy> defaultClassHierarchy = new HashMap<>();
 
   /**
    * Only for testing. Deletes Tang's current database of known classes, forcing
@@ -93,14 +101,18 @@ public class TangImpl implements Tang {
   public static void reset() {
    defaultClassHierarchy = new HashMap<>(); //new ClassHierarchyImpl();
   }
-
+  @SuppressWarnings("unchecked")
   @Override
-  public JavaClassHierarchy getDefaultClassHierarchy(URL... jars) {
-    SetValuedKey<URL> key = new SetValuedKey<>(jars);
+  public JavaClassHierarchy getDefaultClassHierarchy() {
+    return getDefaultClassHierarchy(new URL[0], new Class[0]);
+  }
+  @Override
+  public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars, Class<? extends ExternalConstructor<?>>[] parameterParsers) {
+    SetValuedKey key = new SetValuedKey(jars, parameterParsers);
     
     JavaClassHierarchy ret = defaultClassHierarchy.get(key);
     if(ret == null) {
-      ret = new ClassHierarchyImpl(jars);
+      ret = new ClassHierarchyImpl(jars, parameterParsers);
       defaultClassHierarchy.put(key, ret);
     }
     return ret;

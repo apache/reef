@@ -18,9 +18,9 @@ import com.microsoft.tang.util.ReflectionUtilities;
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
 
-  JavaConfigurationBuilderImpl(URL[] jars, Configuration[] confs)
+  public JavaConfigurationBuilderImpl(URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {
-    super(jars,confs);
+    super(jars,confs,parsers);
   }
   JavaConfigurationBuilderImpl(){
     super();
@@ -113,7 +113,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     bindImplementation(c, d);
   }
 
-  @Override
+/*  @Override
   public void bindParser(Class<? extends ExternalConstructor<?>> ec)
       throws BindException {
     ((ClassHierarchyImpl)namespace).parameterParser.addParser(ec);
@@ -123,7 +123,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   public <T, U extends T> void bindParser(Class<U> c, Class<? extends ExternalConstructor<T>> ec) 
       throws BindException {
     ((ClassHierarchyImpl)namespace).parameterParser.addParser(c, ec);
-  }
+  }*/
 
   @SuppressWarnings({ "unchecked" })
   public <T> void bindConstructor(Class<T> c,

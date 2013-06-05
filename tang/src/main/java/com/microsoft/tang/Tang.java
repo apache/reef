@@ -37,6 +37,14 @@ public interface Tang {
    */
   public JavaConfigurationBuilder newConfigurationBuilder(Configuration... confs)
       throws BindException;
+ 
+  /**
+   * Create a new ConfigurationBuilder
+   * 
+   * @return a new ConfigurationBuilder
+   */
+  public JavaConfigurationBuilder newConfigurationBuilder(@SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parameterParsers)
+      throws BindException;
 
   /**
    * Create a new ConfigurationBuilder
@@ -44,7 +52,7 @@ public interface Tang {
    * @return a new ConfigurationBuilder
    */
   public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
-      Configuration[] confs) throws BindException;
+      Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers) throws BindException;
 
   /**
    * Create a new ConfigurationBuilder
@@ -62,7 +70,7 @@ public interface Tang {
       return new TangImpl();
     }
   }
-
-  public JavaClassHierarchy getDefaultClassHierarchy(URL... jars);
+  public JavaClassHierarchy getDefaultClassHierarchy();
+  public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars, Class<? extends ExternalConstructor<?>>[] parsers);
 
 }

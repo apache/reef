@@ -22,9 +22,6 @@ public interface Injector {
 
   public <U> U getInstance(String iface) throws InjectionException, NameResolutionException;
 
-  public <U> U getNamedInstance(Class<? extends Name<U>> iface)
-      throws InjectionException;
-
   /**
    * Gets the value stored for the given named parameter.
    * 
@@ -34,6 +31,13 @@ public interface Injector {
    *         given interface class.
    * @throws InjectionException
    */
+  public <U> U getNamedInstance(Class<? extends Name<U>> iface)
+      throws InjectionException;
+
+  /**
+   * Renamed to getNamedInstance()
+   */
+  @Deprecated
   public <T> T getNamedParameter(Class<? extends Name<T>> name)
       throws InjectionException;
 

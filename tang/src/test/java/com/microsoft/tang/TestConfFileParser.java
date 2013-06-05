@@ -82,7 +82,7 @@ public class TestConfFileParser {
 	  JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
 	  ConfigurationFile.addConfiguration(cb, tmp);
 	  final Injector i = Tang.Factory.getTang().newInjector(cb.build());
-	  Assert.assertEquals(value, i.getNamedParameter(RemoteIdentifier.class));
+	  Assert.assertEquals(value, i.getNamedInstance(RemoteIdentifier.class));
   }
 
   

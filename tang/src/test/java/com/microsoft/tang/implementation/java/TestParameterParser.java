@@ -73,23 +73,20 @@ public class TestParameterParser {
     nw.addParser(FooParser.class);
     nw.mergeIn(old);
   }
+  @SuppressWarnings("unchecked")
   @Test
   public void testEndToEnd() throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.bindParser(BarParser.class);
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder(BarParser.class);
     cb.bindNamedParameter(SomeNamedFoo.class, "hdfs://woot");
     ILikeBars ilb = tang.newInjector(cb.build()).getInstance(ILikeBars.class);
     Assert.assertNotNull(ilb);
   }
+  @SuppressWarnings("unchecked")
   @Test
   public void testDelegatingParser() throws BindException, InjectionException, ClassNotFoundException {
     Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.bindParser(ParseTypeA.class, TypeParser.class);
-    cb.bindParser(ParseTypeB.class, TypeParser.class);
-    
-    cb.bindParser(ParseableType.class, TypeParser.class);
+    JavaConfigurationBuilder cb = tang.newConfigurationBuilder(TypeParser.class);
     
     JavaConfigurationBuilder cb2 = tang.newConfigurationBuilder(cb.build());
     

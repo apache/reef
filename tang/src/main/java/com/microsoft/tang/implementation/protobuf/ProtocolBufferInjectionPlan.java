@@ -6,7 +6,6 @@ import java.util.List;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.implementation.Constructor;
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.Subplan;

@@ -16,7 +16,7 @@ public class ParameterParser {
         ExternalConstructor.class, ec);
     addParser((Class)tc, (Class)ec);
   }
-  public <T, U extends T> void addParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec) throws BindException {
+  public  <T, U extends T> void addParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec) throws BindException {
     Constructor<? extends ExternalConstructor<T>> c;
     try {
       c = ec.getConstructor(String.class);
@@ -45,8 +45,13 @@ public class ParameterParser {
 
   public <T> T parse(Class<T> c, String s) {
     Class<?> d = ReflectionUtilities.boxClass(c);
-    String name = ReflectionUtilities.getFullName(d);
-    return parse(name, s);
+    for(Class<?> e : ReflectionUtilities.classAndAncestors(d)) {
+      String name = ReflectionUtilities.getFullName(e);
+      if(parsers.containsKey(name)) {
+        return parse(name, s);
+      }
+    }
+    return parse(ReflectionUtilities.getFullName(d), s);
   }
   @SuppressWarnings("unchecked")
   public <T> T parse(String name, String value) {

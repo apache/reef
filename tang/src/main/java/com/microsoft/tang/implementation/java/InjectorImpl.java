@@ -364,16 +364,6 @@ public class InjectorImpl implements Injector {
     return injectFromPlan(plan);
   }
 
-  @Override
-  public <U> U getNamedInstance(Class<? extends Name<U>> clazz)
-      throws InjectionException {
-    assertNotConcurrent();
-    populateSingletons();
-    @SuppressWarnings("unchecked")
-    InjectionPlan<U> plan = (InjectionPlan<U>) getInjectionPlan(clazz);
-    return injectFromPlan(plan);
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public <U> U getInstance(String clazz) throws InjectionException, NameResolutionException {
@@ -385,11 +375,16 @@ public class InjectorImpl implements Injector {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
+  public <T> T getNamedInstance(Class<? extends Name<T>> clazz)
       throws InjectionException {
     assertNotConcurrent();
+    populateSingletons();
     InjectionPlan<T> plan = (InjectionPlan<T>) getInjectionPlan(clazz);
     return (T) injectFromPlan(plan);
+  }
+  public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
+      throws InjectionException {
+    return getNamedInstance(clazz);
   }
 
   private <T> java.lang.reflect.Constructor<T> getConstructor(

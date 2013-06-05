@@ -4,7 +4,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -53,6 +56,19 @@ public class ReflectionUtilities {
     } else {
       return c;
     }
+  }
+  
+  public static Iterable<Class<?>> classAndAncestors(Class<?> c) {
+    List<Class<?>> workQueue = new ArrayList<>();
+
+    workQueue.add(c);
+    for(int i = 0; i < workQueue.size(); i++) {
+      c = workQueue.get(i);
+      Class<?> sc = c.getSuperclass();
+      if(sc != null) workQueue.add(c.getSuperclass());
+      workQueue.addAll(Arrays.asList(c.getInterfaces()));
+    }
+    return workQueue;
   }
 
   public static boolean isCoercable(Class<?> to, Class<?> from) {

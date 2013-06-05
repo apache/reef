@@ -7,12 +7,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
+import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.ParseException;
@@ -63,7 +64,11 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     try {
       final ClassNode<T> iface = (ClassNode<T>)getNode(np.getFullArgName());
       try {
-        return parameterParser.parse(iface.getFullName(), value);
+        try {
+          return parameterParser.parse(classForName(iface.getFullName()), value);
+        } catch(ClassNotFoundException e2) {
+          return parameterParser.parse(iface.getFullName(), value);
+        }
       } catch (UnsupportedOperationException e) {
         try {
           final Node impl = getNode(value);
@@ -86,11 +91,26 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   public Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
   }
-
+  @SuppressWarnings("unchecked")
+  public ClassHierarchyImpl() {
+    this(new URL[0], new Class[0]);
+  }
+  @SuppressWarnings("unchecked")
   public ClassHierarchyImpl(URL... jars) {
+    this(jars, new Class[0]);
+  }
+  
+  public ClassHierarchyImpl(URL[] jars, Class<? extends ExternalConstructor<?>>[] parameterParsers) {
     this.namespace = JavaNodeFactory.createRootPackageNode();
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
+    for(Class<? extends ExternalConstructor<?>> p : parameterParsers) {
+      try {
+        parameterParser.addParser(p);
+      } catch (BindException e) {
+        throw new IllegalArgumentException("Could not register parameter parsers", e);
+      }
+    }
   }
   private <T, U> Node buildPathToNode(Class<U> clazz)
       throws ClassHierarchyException {

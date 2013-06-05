@@ -39,7 +39,7 @@ public class InjectionNamedParameterFuture<T> implements Future<T> {
   public T get() {
     try {
       if (this.cached == null) {
-        this.cached = this.injector.getNamedParameter(this.parameter);
+        this.cached = this.injector.getNamedInstance(this.parameter);
       }
     } catch (InjectionException e) {
       throw new RuntimeException(e);
