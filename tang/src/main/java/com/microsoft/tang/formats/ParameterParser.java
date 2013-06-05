@@ -48,7 +48,12 @@ public class ParameterParser {
     for(Class<?> e : ReflectionUtilities.classAndAncestors(d)) {
       String name = ReflectionUtilities.getFullName(e);
       if(parsers.containsKey(name)) {
-        return parse(name, s);
+        T ret = parse(name, s);
+        if(c.isAssignableFrom(ret.getClass())) {
+          return ret;
+        } else {
+          throw new ClassCastException("Cannot cast from " + ret.getClass() + " to " + c);
+        }
       }
     }
     return parse(ReflectionUtilities.getFullName(d), s);

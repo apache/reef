@@ -48,7 +48,7 @@ public class TestImplicitConversions {
     final Identifier id;
     @Inject
     public IdentifierParser(String id) {
-      this.id = id.startsWith("a://") ? new BIdentifierImpl(id) : id.startsWith("b://") ? new BIdentifierImpl(id) : null;
+      this.id = id.startsWith("a://") ? new AIdentifierImpl(id) : id.startsWith("b://") ? new BIdentifierImpl(id) : null;
       if(this.id == null) {
         throw new IllegalArgumentException("Need string that starts with a:// or b://!");
       }
@@ -69,13 +69,12 @@ public class TestImplicitConversions {
   @Test
   public void testBindFromString() throws BindException, InjectionException {
     JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
-    b.bindNamedParameter(IdName.class, "b://b"); //new BIdentifierImpl("b://b"));
+    b.bindNamedParameter(IdName.class, "b://b");
     
     Configuration c = b.build();
     String s = ConfigurationFile.toConfigurationString(c);
     
     JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
-    // BUG: This line fails!  b.bindParser(Identifier.class, IdentifierParser.class);
     ConfigurationFile.addConfiguration(b2, s);
     Configuration c2 =  b2.build();
     
@@ -89,13 +88,13 @@ public class TestImplicitConversions {
   @Test
   public void testBindSubclassFromString() throws BindException, InjectionException {
     JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
-    b.bindNamedParameter(BIdName.class, "b://b"); //new BIdentifierImpl("b://b"));
+    b.bindNamedParameter(AIdName.class, "a://a");
+    b.bindNamedParameter(BIdName.class, "b://b");
     
     Configuration c = b.build();
     String s = ConfigurationFile.toConfigurationString(c);
     
     JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
-    // BUG: This line fails!  b.bindParser(Identifier.class, IdentifierParser.class);
     ConfigurationFile.addConfiguration(b2, s);
     Configuration c2 =  b2.build();
     
@@ -103,7 +102,15 @@ public class TestImplicitConversions {
     Injector i = Tang.Factory.getTang().newInjector(c2);
     
     Assert.assertEquals("b://b", i.getNamedInstance(BIdName.class).toString());
-    
+    Assert.assertTrue(i.getNamedInstance(BIdName.class) instanceof BIdentifier);
+    Assert.assertEquals("a://a", i.getNamedInstance(AIdName.class).toString());
+    Assert.assertTrue(i.getNamedInstance(AIdName.class) instanceof AIdentifier);
+  }
+  @SuppressWarnings("unchecked")
+  @Test(expected=ClassCastException.class)
+  public void testBindWrongSubclassFromString() throws BindException, InjectionException {
+    JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    b.bindNamedParameter(AIdName.class, "b://b");
   }
   
 }
