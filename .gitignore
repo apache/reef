@@ -10,3 +10,6 @@ generated
 .sw[op]
 *.sw[op]
 .externalToolBuilders
+*~
+*.iml
+.idea

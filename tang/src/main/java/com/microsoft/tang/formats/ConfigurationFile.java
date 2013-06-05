@@ -142,6 +142,22 @@ public class ConfigurationFile {
   }
 
   /**
+   * Replace any \'s in the input string with \\. and any "'s with \".
+   * @param in
+   * @return
+   */
+  private static String escape(String in) {
+    // After regexp escaping \\\\ = 1 slash, \\\\\\\\ = 2 slashes.
+
+    // Also, the second args of replaceAll are neither strings nor regexps, and
+    // are instead a special DSL used by Matcher. Therefore, we need to double
+    // escape slashes (4 slashes) and quotes (3 slashes + ") in those strings.
+    // Since we need to write \\ and \", we end up with 8 and 7 slashes,
+    // respectively.
+    return in.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\\\"");
+  }
+
+  /**
    * Obtain the effective configuration of this ConfigurationBuilderImpl
    * instance. This consists of string-string pairs that could be written
    * directly to a Properties file, for example. Currently, this method does not
@@ -167,7 +183,8 @@ public class ConfigurationFile {
           + conf.getBoundConstructor(opt).getFullName() + "\n");
     }
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
-      s.append(opt.getFullName() + "=" + conf.getNamedParameter(opt) + "\n");
+      s.append(opt.getFullName() + "=" + escape(conf.getNamedParameter(opt))
+          + "\n");
     }
     for (ClassNode<?> opt : conf.getSingletons()) {
       // ret.put(opt.getFullName(), SINGLETON);
