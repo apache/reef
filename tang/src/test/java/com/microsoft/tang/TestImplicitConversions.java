@@ -82,6 +82,7 @@ public class TestImplicitConversions {
     Injector i = Tang.Factory.getTang().newInjector(c2);
     
     Assert.assertEquals("b://b", i.getNamedInstance(IdName.class).toString());
+    Assert.assertTrue(i.getNamedInstance(IdName.class) instanceof BIdentifier);
     
   }
   @SuppressWarnings("unchecked")
@@ -111,6 +112,12 @@ public class TestImplicitConversions {
   public void testBindWrongSubclassFromString() throws BindException, InjectionException {
     JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     b.bindNamedParameter(AIdName.class, "b://b");
+  }
+  @Test(expected=InjectionException.class)
+  public void testInjectUnboundParsable() throws BindException, InjectionException {
+    @SuppressWarnings("unchecked")
+    JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    Tang.Factory.getTang().newInjector(b.build()).getNamedInstance(IdName.class);
   }
   
 }

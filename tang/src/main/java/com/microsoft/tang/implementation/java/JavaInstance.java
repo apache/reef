@@ -42,7 +42,7 @@ final public class JavaInstance<T> extends InjectionPlan<T> {
 
     @Override
     protected String toInfeasibleInjectString() {
-      throw new IllegalArgumentException("toAmbiguousInjectString called on JavaInstance!" + this.toString());
+      return getNode() + " is not bound.";
     }
 
     @Override
