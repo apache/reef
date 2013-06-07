@@ -89,7 +89,7 @@ public final class PrintTypeHierarchy {
 
     System.out.println(visitor);
 
-    System.out.println(myself);
-    System.out.println(ConfigurationFile.toConfigurationString(config));
+    // System.out.println(myself);
+    // System.out.println(ConfigurationFile.toConfigurationString(config));
   }
 }
