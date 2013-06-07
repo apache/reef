@@ -18,19 +18,11 @@ package com.microsoft.tang.util.walk;
 import com.microsoft.tang.types.Node;
 
 /**
- * Generic interface for configuration graph walk.
+ * Generic interface to traverse edges of the configuration graph.
  * It is used e.g. in Walk.preorder()
- * TODO: currently it assumes that the configuration graph is a tree!
  * @author sergiym
  */
-public interface GraphVisitor {
-
-  /**
-   * Process current configuration node.
-   * @param aNode Current configuration node.
-   * @return true to proceed with the next node, false to cancel.
-   */
-  boolean processNode(Node aNode);
+public interface EdgeVisitor {
 
   /**
    * Process current edge of the configuration graph.
@@ -38,5 +30,5 @@ public interface GraphVisitor {
    * @param aNodeTo Destination configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  boolean processEdge(Node aNodeFrom, Node aNodeTo);
+  boolean visit(Node aNodeFrom, Node aNodeTo);
 }

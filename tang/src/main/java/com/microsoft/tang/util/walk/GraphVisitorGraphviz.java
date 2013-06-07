@@ -22,7 +22,7 @@ import com.microsoft.tang.types.Node;
  * Build a Graphviz representation of the configuration graph.
  * @author sergiym
  */
-public final class GraphVisitorGraphviz implements GraphVisitor {
+public final class GraphVisitorGraphviz implements NodeVisitor, EdgeVisitor {
 
   /** Entire TANG configuration graph object. */
   private final transient Configuration mConfig;
@@ -52,7 +52,7 @@ public final class GraphVisitorGraphviz implements GraphVisitor {
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean processNode(final Node aNode) {
+  public boolean visit(final Node aNode) {
     this.mGraphStr.append("  \"").append(aNode.getName()).append("\";\n");
     return true;
   }
@@ -64,7 +64,7 @@ public final class GraphVisitorGraphviz implements GraphVisitor {
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean processEdge(final Node aNodeFrom, final Node aNodeTo) {
+  public boolean visit(final Node aNodeFrom, final Node aNodeTo) {
     this.mGraphStr.append("  \"").append(aNodeFrom.getName())
                   .append("\" --> \"").append(aNodeTo.getName()).append("\";\n");
     return true;

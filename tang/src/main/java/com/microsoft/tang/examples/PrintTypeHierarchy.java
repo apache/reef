@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
-import com.microsoft.tang.Injector;
+// import com.microsoft.tang.Injector;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -31,7 +31,6 @@ import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.CommandLine;
 
 import com.microsoft.tang.util.walk.Walk;
-import com.microsoft.tang.util.walk.GraphVisitor;
 import com.microsoft.tang.util.walk.GraphVisitorGraphviz;
 import java.io.IOException;
 
@@ -84,8 +83,8 @@ public final class PrintTypeHierarchy {
     // final Injector injector = tang.newInjector(config);
     // final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
-    final GraphVisitor visitor = new GraphVisitorGraphviz(config);
-    Walk.preorder(visitor, config);
+    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz(config);
+    Walk.preorder(visitor, visitor, config);
 
     System.out.println(visitor);
   }

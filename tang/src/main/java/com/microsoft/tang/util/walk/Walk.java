@@ -19,7 +19,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.types.Node;
 
 /**
- *
+ * Graph traversal.
  * @author sergiym
  */
 public final class Walk {
@@ -34,25 +34,55 @@ public final class Walk {
 
   /**
    * Traverse the entire configuration tree in preorder.
-   * @param aVisitor node and edge visitor.
+   * @param aNodeVisitor node visitor. Can be null.
+   * @param aEdgeVisitor edge visitor. Can be null.
    * @param aConfig configuration to process.
    * @return true if all nodes has been walked, false if visitor stopped early.
    */
-  public static boolean preorder(final GraphVisitor aVisitor, final Configuration aConfig) {
+  public static boolean preorder(
+    final NodeVisitor aNodeVisitor, final EdgeVisitor aEdgeVisitor, final Configuration aConfig)
+  {
+    assert (aNodeVisitor != null || aEdgeVisitor != null);
     final Node root = aConfig.getClassHierarchy().getNamespace();
-    return preorder(aVisitor, root);
+    return preorder(aNodeVisitor, aEdgeVisitor, root);
+  }
+
+  /**
+   * Traverse the entire configuration tree in preorder.
+   * @param aEdgeVisitor edge visitor.
+   * @param aConfig configuration to process.
+   * @return true if all nodes has been walked, false if visitor stopped early.
+   */
+  public static boolean preorder(final EdgeVisitor aEdgeVisitor, final Configuration aConfig) {
+    final Node root = aConfig.getClassHierarchy().getNamespace();
+    return preorder(null, aEdgeVisitor, root);
+  }
+
+  /**
+   * Traverse the entire configuration tree in preorder.
+   * @param aNodeVisitor node visitor.
+   * @param aConfig configuration to process.
+   * @return true if all nodes has been walked, false if visitor stopped early.
+   */
+  public static boolean preorder(final NodeVisitor aNodeVisitor, final Configuration aConfig) {
+    final Node root = aConfig.getClassHierarchy().getNamespace();
+    return preorder(aNodeVisitor, null, root);
   }
 
   /**
    * Traverse the configuration (sub)tree in preorder, starting from the given node.
-   * @param aVisitor node and edge visitor.
+   * @param aNodeVisitor node visitor. Can be null.
+   * @param aEdgeVisitor edge visitor. Can be null.
    * @param aNode current node of the configuration tree.
    * @return true if all nodes has been walked, false if visitor stopped early.
    */
-  public static boolean preorder(final GraphVisitor aVisitor, final Node aNode) {
-    if (aVisitor.processNode(aNode)) {
+  private static boolean preorder(
+    final NodeVisitor aNodeVisitor, final EdgeVisitor aEdgeVisitor, final Node aNode)
+  {
+    if (aNodeVisitor != null && aNodeVisitor.visit(aNode)) {
       for (final Node child : aNode.getChildren()) {
-        if (!(aVisitor.processEdge(aNode, child) && preorder(aVisitor, child))) {
+        if (aEdgeVisitor != null && !(aEdgeVisitor.visit(aNode, child)
+                && preorder(aNodeVisitor, aEdgeVisitor, child))) {
           return false;
         }
       }
