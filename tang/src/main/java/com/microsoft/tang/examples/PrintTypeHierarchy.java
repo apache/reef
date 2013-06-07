@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example;
+package com.microsoft.tang.examples;
 
 import javax.inject.Inject;
 
@@ -81,13 +81,12 @@ public final class PrintTypeHierarchy {
     new CommandLine(confBuilder).processCommandLine(aArgs);
     final Configuration config = confBuilder.build();
 
-    final Injector injector = tang.newInjector(config);
-    final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
+    // final Injector injector = tang.newInjector(config);
+    // final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
     final GraphVisitor visitor = new GraphVisitorGraphviz(config);
     Walk.preorder(visitor, config);
 
     System.out.println(visitor);
-    System.out.println(myself);
   }
 }

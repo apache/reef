@@ -127,7 +127,8 @@
 				</plugins>
 			</pluginManagement>
 	</build>
-	<dependencies>
+
+    <dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -160,8 +161,8 @@
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
 		</dependency>
-
-<!-- 		<dependency>
+        <!--
+        <dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>tang-test-jarA</artifactId>
 			<version>${project.version}</version>
@@ -185,6 +186,32 @@
 			<artifactId>tang-test-jarB-conflictA</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
-		</dependency> -->
+		</dependency>
+        -->
 	</dependencies>
+
+    <profiles>
+        <profile>
+            <id>PrintTypeHierarchy</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>com.microsoft.tang.examples.PrintTypeHierarchy</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

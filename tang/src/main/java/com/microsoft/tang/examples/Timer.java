@@ -1,4 +1,4 @@
-package com.example;
+package com.microsoft.tang.examples;
 
 import javax.inject.Inject;
 

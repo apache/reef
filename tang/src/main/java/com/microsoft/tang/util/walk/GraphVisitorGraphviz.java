@@ -53,7 +53,7 @@ public final class GraphVisitorGraphviz implements GraphVisitor {
    */
   @Override
   public boolean processNode(final Node aNode) {
-    this.mGraphStr.append("  ").append(aNode.getName()).append(";\n");
+    this.mGraphStr.append("  \"").append(aNode.getName()).append("\";\n");
     return true;
   }
 
@@ -65,8 +65,8 @@ public final class GraphVisitorGraphviz implements GraphVisitor {
    */
   @Override
   public boolean processEdge(final Node aNodeFrom, final Node aNodeTo) {
-    this.mGraphStr.append("  ").append(aNodeFrom.getName())
-                  .append(" --> ").append(aNodeTo.getName()).append(";\n");
+    this.mGraphStr.append("  \"").append(aNodeFrom.getName())
+                  .append("\" --> \"").append(aNodeTo.getName()).append("\";\n");
     return true;
   }
 }
