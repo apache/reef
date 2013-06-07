@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang.examples;
 
+import java.io.IOException;
 import javax.inject.Inject;
 
 import com.microsoft.tang.Tang;
@@ -28,12 +29,11 @@ import com.microsoft.tang.annotations.Parameter;
 
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+
 import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.tang.formats.ConfigurationFile;
 
-import com.microsoft.tang.util.walk.Walk;
 import com.microsoft.tang.util.walk.GraphVisitorGraphviz;
-import java.io.IOException;
 
 /**
  * Prints sample configuration in Graphviz DOT format to stdout.
@@ -84,10 +84,7 @@ public final class PrintTypeHierarchy {
     final Injector injector = tang.newInjector(config);
     final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
-    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz(config);
-    Walk.preorder(visitor, visitor, config);
-
-    System.out.println(visitor);
+    System.out.println(GraphVisitorGraphviz.getGraphvizStr(config));
 
     // System.out.println(myself);
     // System.out.println(ConfigurationFile.toConfigurationString(config));

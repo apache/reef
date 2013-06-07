@@ -69,4 +69,15 @@ public final class GraphVisitorGraphviz implements NodeVisitor, EdgeVisitor {
                   .append("\" -> \"").append(aNodeTo.getName()).append("\";\n");
     return true;
   }
+
+  /**
+   * Produce a Graphviz DOT string for a given TANG configuration.
+   * @param config TANG configuration object.
+   * @return configuration graph represented as a string in Graphviz DOT format.
+   */
+  public static String getGraphvizStr(final Configuration config) {
+    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz(config);
+    Walk.preorder(visitor, visitor, config);
+    return visitor.toString();
+  }
 }
