@@ -53,7 +53,10 @@ public final class GraphVisitorGraphviz implements NodeVisitor, EdgeVisitor {
    */
   @Override
   public boolean visit(final Node aNode) {
-    this.mGraphStr.append("  \"").append(aNode.getName()).append("\";\n");
+    final String[] nodeClassSplit = aNode.getClass().getName().split("\\.");
+    this.mGraphStr.append("  \"").append(aNode.getName())
+            .append("\" [label=\"").append(nodeClassSplit[nodeClassSplit.length-1])
+            .append(":\\n").append(aNode.getFullName()).append("\"];\n");
     return true;
   }
 
