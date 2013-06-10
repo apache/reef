@@ -17,29 +17,21 @@ package com.microsoft.tang.util.walk;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.types.Node;
+import com.microsoft.tang.types.ClassNode;
+import com.microsoft.tang.types.PackageNode;
+import com.microsoft.tang.types.NamedParameterNode;
 
 /**
  * Build a Graphviz representation of the configuration graph.
  * @author sergiym
  */
-public final class GraphVisitorGraphviz implements NodeVisitor, EdgeVisitor {
-
-  /** Entire TANG configuration graph object. */
-  private final transient Configuration mConfig;
+public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor implements EdgeVisitor {
 
   /** Accumulate string representation of the graph here. */
   private final transient StringBuilder mGraphStr = new StringBuilder("digraph G {\n");
 
   /**
-   * Initialize the graph visitor.
-   * @param aConfig Entire TANG configuration graph object.
-   */
-  public GraphVisitorGraphviz(final Configuration aConfig) {
-    this.mConfig = aConfig;
-  }
-
-  /**
-   * @return Config represented as a Graphviz DOT string.
+   * @return TANG configuration represented as a Graphviz DOT string.
    */
   @Override
   public String toString() {
@@ -47,16 +39,46 @@ public final class GraphVisitorGraphviz implements NodeVisitor, EdgeVisitor {
   }
 
   /**
-   * Process current configuration node.
+   * Process current class configuration node.
    * @param aNode Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final Node aNode) {
-    final String[] nodeClassSplit = aNode.getClass().getName().split("\\.");
-    this.mGraphStr.append("  \"").append(aNode.getName())
-            .append("\" [label=\"").append(nodeClassSplit[nodeClassSplit.length-1])
-            .append(":\\n").append(aNode.getFullName()).append("\"];\n");
+  public boolean visit(final ClassNode aNode) {
+    this.mGraphStr.append("  \"node_").append(aNode.getName())
+            .append("\" [label=\"Class: ").append(aNode.getName()).append("\"];\n");
+    return true;
+  }
+
+  /**
+   * Process current package configuration node.
+   * @param aNode Current configuration node.
+   * @return true to proceed with the next node, false to cancel.
+   */
+  @Override
+  public boolean visit(final PackageNode aNode) {
+    this.mGraphStr.append("  \"node_").append(aNode.getName())
+            .append("\" [label=\"Package: ").append(aNode.getName()).append("\"];\n");
+    return true;
+  }
+
+  /**
+   * Process current configuration node for the named parameter.
+   * @param aNode Current configuration node.
+   * @return true to proceed with the next node, false to cancel.
+   */
+  @Override
+  public boolean visit(final NamedParameterNode aNode) {
+    this.mGraphStr
+            .append("  \"node_")
+            .append(aNode.getName())
+            .append("\" [label=\"")
+            .append(aNode.getSimpleArgName())           // parameter type, e.g. "Integer"
+            .append(' ')
+            .append(aNode.getName())                    // short name, e.g. "NumberOfThreads"
+            .append(" = ")
+            .append(aNode.getDefaultInstanceAsString()) // default value, e.g. "4"
+            .append("\"];\n");
     return true;
   }
 
@@ -68,8 +90,8 @@ public final class GraphVisitorGraphviz implements NodeVisitor, EdgeVisitor {
    */
   @Override
   public boolean visit(final Node aNodeFrom, final Node aNodeTo) {
-    this.mGraphStr.append("  \"").append(aNodeFrom.getName())
-                  .append("\" -> \"").append(aNodeTo.getName()).append("\";\n");
+    this.mGraphStr.append("  \"node_").append(aNodeFrom.getName())
+                  .append("\" -> \"node_").append(aNodeTo.getName()).append("\";\n");
     return true;
   }
 
@@ -79,7 +101,7 @@ public final class GraphVisitorGraphviz implements NodeVisitor, EdgeVisitor {
    * @return configuration graph represented as a string in Graphviz DOT format.
    */
   public static String getGraphvizStr(final Configuration config) {
-    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz(config);
+    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz();
     Walk.preorder(visitor, visitor, config);
     return visitor.toString();
   }
