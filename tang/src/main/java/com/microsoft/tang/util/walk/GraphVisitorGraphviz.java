@@ -57,10 +57,10 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
       final ClassNode implNode = (ClassNode) implNodeObj;
       this.mGraphStr
               .append("  \"node_")
-              .append(implNode.getName())
-              .append("\" -> \"node_")
               .append(aNode.getName())
-              .append("\" [style=dashed; arrowtype=empty];\n");
+              .append("\" -> \"node_")
+              .append(implNode.getName())
+              .append("\" [style=dashed, dir=back, arrowtail=empty];\n");
     }
 
     return true;
@@ -112,10 +112,10 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
   public boolean visit(final Node aNodeFrom, final Node aNodeTo) {
     this.mGraphStr
             .append("  \"node_")
-            .append(aNodeTo.getName())
-            .append("\" -> \"node_")
             .append(aNodeFrom.getName())
-            .append("\" [style=solid; arrowtype=diamond];\n");
+            .append("\" -> \"node_")
+            .append(aNodeTo.getName())
+            .append("\" [style=solid, dir=back, arrowtail=diamond];\n");
     return true;
   }
 
