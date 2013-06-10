@@ -48,28 +48,6 @@ public final class Walk {
   }
 
   /**
-   * Traverse the entire configuration tree in preorder.
-   * @param aEdgeVisitor edge visitor.
-   * @param aConfig configuration to process.
-   * @return true if all nodes has been walked, false if visitor stopped early.
-   */
-  public static boolean preorder(final EdgeVisitor aEdgeVisitor, final Configuration aConfig) {
-    final Node root = aConfig.getClassHierarchy().getNamespace();
-    return preorder(null, aEdgeVisitor, root);
-  }
-
-  /**
-   * Traverse the entire configuration tree in preorder.
-   * @param aNodeVisitor node visitor.
-   * @param aConfig configuration to process.
-   * @return true if all nodes has been walked, false if visitor stopped early.
-   */
-  public static boolean preorder(final NodeVisitor aNodeVisitor, final Configuration aConfig) {
-    final Node root = aConfig.getClassHierarchy().getNamespace();
-    return preorder(aNodeVisitor, null, root);
-  }
-
-  /**
    * Traverse the configuration (sub)tree in preorder, starting from the given node.
    * @param aNodeVisitor node visitor. Can be null.
    * @param aEdgeVisitor edge visitor. Can be null.
