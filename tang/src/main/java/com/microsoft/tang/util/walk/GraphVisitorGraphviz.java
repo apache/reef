@@ -45,8 +45,24 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
    */
   @Override
   public boolean visit(final ClassNode aNode) {
-    this.mGraphStr.append("  \"node_").append(aNode.getName())
-            .append("\" [label=\"Class: ").append(aNode.getName()).append("\"];\n");
+
+    this.mGraphStr
+            .append("  \"node_")
+            .append(aNode.getName())
+            .append("\" [label=\"Class: ")
+            .append(aNode.getName())
+            .append("\"];\n");
+
+    for (final Object implNodeObj : aNode.getKnownImplementations()) {
+      final ClassNode implNode = (ClassNode) implNodeObj;
+      this.mGraphStr
+              .append("  \"node_")
+              .append(implNode.getName())
+              .append("\" -> \"node_")
+              .append(aNode.getName())
+              .append("\" [style=dashed; arrowtype=empty];\n");
+    }
+
     return true;
   }
 
@@ -57,8 +73,12 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
    */
   @Override
   public boolean visit(final PackageNode aNode) {
-    this.mGraphStr.append("  \"node_").append(aNode.getName())
-            .append("\" [label=\"Package: ").append(aNode.getName()).append("\"];\n");
+    this.mGraphStr
+            .append("  \"node_")
+            .append(aNode.getName())
+            .append("\" [label=\"Package: ")
+            .append(aNode.getFullName())
+            .append("\"];\n");
     return true;
   }
 
@@ -90,8 +110,12 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
    */
   @Override
   public boolean visit(final Node aNodeFrom, final Node aNodeTo) {
-    this.mGraphStr.append("  \"node_").append(aNodeFrom.getName())
-                  .append("\" -> \"node_").append(aNodeTo.getName()).append("\";\n");
+    this.mGraphStr
+            .append("  \"node_")
+            .append(aNodeTo.getName())
+            .append("\" -> \"node_")
+            .append(aNodeFrom.getName())
+            .append("\" [style=solid; arrowtype=diamond];\n");
     return true;
   }
 
