@@ -30,7 +30,7 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
   /** Legend for the configuration graph in Graphviz format */
   private final static String LEGEND =
     "  subgraph Legend {\n" +
-    "    label=\"Legend\";" +
+    "    label=\"Legend\";\n" +
     "    PackageNode [shape=folder];\n" +
     "    ClassNode [shape=box];\n" +
     "    NamedParameterNode [shape=oval];\n" +
@@ -43,7 +43,8 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
     "  }\n";
 
   /** Accumulate string representation of the graph here. */
-  private final transient StringBuilder mGraphStr = new StringBuilder("digraph G {\n" + LEGEND);
+  private final transient StringBuilder mGraphStr = new StringBuilder(
+          "digraph ConfigMain {\n" + LEGEND + "  rankdir=LR;\n");
 
   /**
    * @return TANG configuration represented as a Graphviz DOT string.
