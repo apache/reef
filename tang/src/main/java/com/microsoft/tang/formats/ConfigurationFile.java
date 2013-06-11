@@ -87,7 +87,7 @@ public class ConfigurationFile {
       PropertiesConfiguration confFile) throws IOException, BindException {
     ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) conf;
     Iterator<String> it = confFile.getKeys();
-    Map<String, String> importedNames = new HashMap<String, String>();
+    Map<String, String> importedNames = new HashMap<>();
 
     while (it.hasNext()) {
       String key = it.next();
@@ -98,10 +98,7 @@ public class ConfigurationFile {
         key = longName;
       }
       for (String value : values) {
-        boolean isSingleton = false;
-        if (value.equals(ConfigurationBuilderImpl.SINGLETON)) {
-          isSingleton = true;
-        }
+        final boolean isSingleton = value.equals(ConfigurationBuilderImpl.SINGLETON);
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           if (isSingleton) {
             throw new IllegalArgumentException("Can't "
@@ -109,18 +106,17 @@ public class ConfigurationFile {
                 + ConfigurationBuilderImpl.SINGLETON + ".  Makes no sense");
           }
           ci.getClassHierarchy().getNode(value);
-          String[] tok = value.split(ReflectionUtilities.regexp);
+          final String[] tok = value.split(ReflectionUtilities.regexp);
+          final String lastTok = tok[tok.length - 1];
           try {
-            // ci.namespace.getNode(tok[tok.length - 1]);
-            ci.getClassHierarchy().getNode(tok[tok.length - 1]);
-            throw new IllegalArgumentException("Conflict on short name: "
-                + tok[tok.length - 1]);
+            // ci.namespace.getNode(lastTok);
+            ci.getClassHierarchy().getNode(lastTok);
+            throw new IllegalArgumentException("Conflict on short name: " + lastTok);
           } catch (BindException e) {
-            String oldValue = importedNames.put(tok[tok.length - 1], value);
+            String oldValue = importedNames.put(lastTok, value);
             if (oldValue != null) {
-              throw new IllegalArgumentException("Name conflict.  "
-                  + tok[tok.length - 1] + " maps to " + oldValue + " and "
-                  + value);
+              throw new IllegalArgumentException("Name conflict: "
+                  + lastTok + " maps to " + oldValue + " and " + value);
             }
           }
         } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
@@ -170,43 +166,41 @@ public class ConfigurationFile {
    *         configuration object (assuming the same classes / jars are
    *         available when the string is parsed by Tang).
    */
-  public static String toConfigurationString(Configuration c) {
+  public static String toConfigurationString(final Configuration c) {
     ConfigurationImpl conf = (ConfigurationImpl) c;
     StringBuilder s = new StringBuilder();
 
     for (ClassNode<?> opt : conf.getBoundImplementations()) {
-      s.append(opt.getFullName() + "="
-          + conf.getBoundImplementation(opt).getFullName() + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(conf.getBoundImplementation(opt).getFullName()).append('\n');
     }
     for (ClassNode<?> opt : conf.getBoundConstructors()) {
-      s.append(opt.getFullName() + "="
-          + conf.getBoundConstructor(opt).getFullName() + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(conf.getBoundConstructor(opt).getFullName()).append('\n');
     }
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
-      s.append(opt.getFullName() + "=" + escape(conf.getNamedParameter(opt))
-          + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(escape(conf.getNamedParameter(opt))).append('\n');
     }
     for (ClassNode<?> opt : conf.getSingletons()) {
       // ret.put(opt.getFullName(), SINGLETON);
-      s.append(opt.getFullName() + "=" + ConfigurationBuilderImpl.SINGLETON
-          + "\n");
+      s.append(opt.getFullName()).append('=')
+              .append(ConfigurationBuilderImpl.SINGLETON).append('\n');
     }
     for (ClassNode<?> cn : conf.getLegacyConstructors()) {
-      s.append(cn.getFullName() + "=" + ConfigurationBuilderImpl.INIT + "("
-          + join("-", conf.getLegacyConstructor(cn).getArgs()) + ")");
+      s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
+      join(s, "-", conf.getLegacyConstructor(cn).getArgs()).append(")\n");
     }
     return s.toString();
   }
 
-  private static String join(String sep, ConstructorArg[] types) {
-    if (types.length == 0) {
-      return "";
+  private static StringBuilder join(final StringBuilder sb, final String sep, final ConstructorArg[] types) {
+    if (types.length > 0) {
+      sb.append(types[0].getType());
+      for (int i = 1; i < types.length; i++) {
+        sb.append(sep).append(types[i].getType());
+      }
     }
-    StringBuilder sb = new StringBuilder();
-    sb.append(types[0].getType());
-    for (int i = 1; i < types.length; i++) {
-      sb.append(sep + types[i].getType());
-    }
-    return sb.toString();
+    return sb;
   }
 }

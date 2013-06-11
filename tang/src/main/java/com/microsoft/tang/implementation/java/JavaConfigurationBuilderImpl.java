@@ -138,5 +138,4 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     }
     bindConstructor((ClassNode<T>)n, (ClassNode<? extends ExternalConstructor<? extends T>>)m);
   }
-
 }
