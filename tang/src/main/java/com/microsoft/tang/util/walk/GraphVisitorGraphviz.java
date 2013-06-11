@@ -27,8 +27,23 @@ import com.microsoft.tang.types.NamedParameterNode;
  */
 public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor implements EdgeVisitor {
 
+  /** Legend for the configuration graph in Graphviz format */
+  private final static String LEGEND =
+    "  subgraph Legend {\n" +
+    "    label=\"Legend\";" +
+    "    PackageNode [shape=folder];\n" +
+    "    ClassNode [shape=box];\n" +
+    "    NamedParameterNode [shape=oval];\n" +
+    "    legend1l [shape=dot, label=\"\"];\n" +
+    "    legend1r [shape=dot, label=\"\"];\n" +
+    "    legend2l [shape=dot, label=\"\"];\n" +
+    "    legend2r [shape=dot, label=\"\"];\n" +
+    "    legend1l -> legend1r [style=dashed, dir=back, arrowtail=empty, label=\"implements\"];\n" +
+    "    legend2l -> legend2r [style=solid, dir=back, arrowtail=diamond, label=\"contains\"];\n" +
+    "  }\n";
+
   /** Accumulate string representation of the graph here. */
-  private final transient StringBuilder mGraphStr = new StringBuilder("digraph G {\n");
+  private final transient StringBuilder mGraphStr = new StringBuilder("digraph G {\n" + LEGEND);
 
   /**
    * @return TANG configuration represented as a Graphviz DOT string.
@@ -49,17 +64,16 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
     this.mGraphStr
             .append("  \"node_")
             .append(aNode.getName())
-            .append("\" [label=\"Class: ")
+            .append("\" [label=\"")
             .append(aNode.getName())
             .append("\", shape=box];\n");
 
-    for (final Object implNodeObj : aNode.getKnownImplementations()) {
-      final ClassNode implNode = (ClassNode) implNodeObj;
+    for (final Object implNode : aNode.getKnownImplementations()) {
       this.mGraphStr
               .append("  \"node_")
               .append(aNode.getName())
               .append("\" -> \"node_")
-              .append(implNode.getName())
+              .append(((ClassNode) implNode).getName())
               .append("\" [style=dashed, dir=back, arrowtail=empty];\n");
     }
 
@@ -76,7 +90,7 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
     this.mGraphStr
             .append("  \"node_")
             .append(aNode.getName())
-            .append("\" [label=\"Package: ")
+            .append("\" [label=\"")
             .append(aNode.getFullName())
             .append("\", shape=folder];\n");
     return true;
@@ -94,7 +108,7 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
             .append(aNode.getName())
             .append("\" [label=\"")
             .append(aNode.getSimpleArgName())           // parameter type, e.g. "Integer"
-            .append(' ')
+            .append("\\n")
             .append(aNode.getName())                    // short name, e.g. "NumberOfThreads"
             .append(" = ")
             .append(aNode.getDefaultInstanceAsString()) // default value, e.g. "4"
