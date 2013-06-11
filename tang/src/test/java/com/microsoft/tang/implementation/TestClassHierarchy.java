@@ -13,11 +13,16 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.microsoft.tang.ClassHierarchy;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConfigurationBuilder;
+import com.microsoft.tang.Injector;
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
@@ -280,8 +285,16 @@ public class TestClassHierarchy {
 
     ns.getNode(s(OuterUnitBad.class));
   }
-
+  
+  @Test
+  public void cantBindWrongSubclassAsDefault() throws NameResolutionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer that is not an instance of its target class java.lang.String");
+    ns.getNode(s(BadName.class));
+  }
 }
+@NamedParameter(default_class=Integer.class)
+class BadName implements Name<String> { }
 
 class SimpleConstructors {
   @Inject

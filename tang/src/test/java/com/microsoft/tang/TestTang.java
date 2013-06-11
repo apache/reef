@@ -357,6 +357,24 @@ public class TestTang {
     tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
     
   }
+  
+  @Test
+  public void testDefaultImplementation() throws BindException, ClassHierarchyException, InjectionException {
+    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    @SuppressWarnings("unused")
+    IfaceWithDefault iwd = i.getNamedInstance(IfaceWithDefaultName.class);
+  }
+  @Test
+  public void testCantGetInstanceOfNamedParameter() throws BindException, ClassHierarchyException, InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("getInstance() called on Name com.microsoft.tang.IfaceWithDefaultName  Did you mean to call getNamedInstance() instead?");
+    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    @SuppressWarnings("unused")
+    IfaceWithDefaultName iwd = i.getInstance(IfaceWithDefaultName.class);
+  }
+
 }
 
 
@@ -616,3 +634,13 @@ class ThreeConstructors {
     this.f = f;
   }
 }
+interface IfaceWithDefault {
+  
+}
+class IfaceWithDefaultDefaultImpl implements IfaceWithDefault {
+  @Inject
+  IfaceWithDefaultDefaultImpl() {}
+}
+@NamedParameter(default_class=IfaceWithDefaultDefaultImpl.class)
+class IfaceWithDefaultName implements Name<IfaceWithDefault> { }
+  
