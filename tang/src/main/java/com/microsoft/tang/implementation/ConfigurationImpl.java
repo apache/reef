@@ -16,19 +16,19 @@ import com.microsoft.tang.util.MonotonicSet;
 public class ConfigurationImpl implements Configuration {
   final ConfigurationBuilderImpl builder;
 
-  protected ConfigurationImpl(ConfigurationBuilderImpl builder) {
+  protected ConfigurationImpl(final ConfigurationBuilderImpl builder) {
     this.builder = builder;
   }
 
   @Override
-  public String getNamedParameter(NamedParameterNode<?> np) {
+  public String getNamedParameter(final NamedParameterNode<?> np) {
     return builder.namedParameters.get(np);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> ClassNode<? extends ExternalConstructor<T>> getBoundConstructor(
-      ClassNode<T> cn) {
+      final ClassNode<T> cn) {
     return (ClassNode<? extends ExternalConstructor<T>>) builder.boundConstructors.get(cn);
   }
 
@@ -36,27 +36,31 @@ public class ConfigurationImpl implements Configuration {
   public Set<ClassNode<?>> getBoundImplementations() {
     return builder.boundImpls.keySet();
   }
+
   @Override
   public Set<ClassNode<?>> getBoundConstructors() {
     return builder.boundConstructors.keySet();
   }
+
   @Override
   public Set<NamedParameterNode<?>> getNamedParameters() {
     return builder.namedParameters.keySet();
   }
+
   @Override
   public Set<ClassNode<?>> getLegacyConstructors() {
     return builder.legacyConstructors.keySet();
   }
+
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ClassNode<? extends T> getBoundImplementation(ClassNode<T> cn) {
+  public <T> ClassNode<? extends T> getBoundImplementation(final ClassNode<T> cn) {
     return (ClassNode<? extends T>) builder.boundImpls.get(cn);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn) {
+  public <T> ConstructorDef<T> getLegacyConstructor(final ClassNode<T> cn) {
     return (ConstructorDef<T>) builder.legacyConstructors.get(cn);
   }
 
@@ -65,7 +69,7 @@ public class ConfigurationImpl implements Configuration {
     return new MonotonicSet<>(builder.singletons);
   }
   @Override
-  public boolean isSingleton(Node cn) {
+  public boolean isSingleton(final Node cn) {
     return builder.singletons.contains(cn);
   }
 
