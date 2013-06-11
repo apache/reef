@@ -342,20 +342,19 @@ public class TestTang {
 
     
   }
+
   @Test
   public void testThreeConstructorsAmbiguous() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Multiple ways to inject com.microsoft.tang.ThreeConstructors");
-    JavaConfigurationBuilder cb;
-    
-    cb = tang.newConfigurationBuilder();
+
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(TCString.class, "s");
     cb.bindNamedParameter(TCFloat.class, "-2");
-    
+
     // Ambiguous; there is a constructor that takes a string, and another that
     // takes a float, but none that takes both.
     tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
-    
   }
   
   @Test
@@ -365,10 +364,11 @@ public class TestTang {
     @SuppressWarnings("unused")
     IfaceWithDefault iwd = i.getNamedInstance(IfaceWithDefaultName.class);
   }
+
   @Test
   public void testCantGetInstanceOfNamedParameter() throws BindException, ClassHierarchyException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("getInstance() called on Name com.microsoft.tang.IfaceWithDefaultName  Did you mean to call getNamedInstance() instead?");
+    thrown.expectMessage("getInstance() called on Name com.microsoft.tang.IfaceWithDefaultName Did you mean to call getNamedInstance() instead?");
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     @SuppressWarnings("unused")
@@ -376,7 +376,6 @@ public class TestTang {
   }
 
 }
-
 
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
 class Param implements Name<Integer> {
@@ -591,42 +590,56 @@ class NamedImpl {
     }
   }
 }
+
 @Unit
 class OuterUnit {
+
   final OuterUnit self;
+
   @Inject
   OuterUnit() { self = this; }
-  class InA { 
+
+  class InA {
     OuterUnit slf = self;
   }
+
   class InB {
     OuterUnit slf = self;
   }
 }
+
 class ThreeConstructors {
+
   final int i;
   final String s;
   final Float f;
+
   @NamedParameter
   static class TCInt implements Name<Integer> {}
+
   @NamedParameter
   static class TCString implements Name<String> {}
+
   @NamedParameter
   static class TCFloat implements Name<Float> {}
+
   @Inject
   ThreeConstructors(@Parameter(TCInt.class) int i, @Parameter(TCString.class) String s) { 
     this.i = i;
     this.s = s;
     this.f = -1.0f;
   }
+
   @Inject
   ThreeConstructors(@Parameter(TCString.class) String s) {
     this(-1, s);
   }
+
   @Inject
   ThreeConstructors(@Parameter(TCInt.class) int i) {
     this(i, "default");
   }
+
   @Inject
   ThreeConstructors(@Parameter(TCFloat.class) float f) {
     this.i = -1;
@@ -635,12 +648,13 @@ class ThreeConstructors {
   }
 }
 interface IfaceWithDefault {
-  
 }
+
 class IfaceWithDefaultDefaultImpl implements IfaceWithDefault {
   @Inject
   IfaceWithDefaultDefaultImpl() {}
 }
+
 @NamedParameter(default_class=IfaceWithDefaultDefaultImpl.class)
-class IfaceWithDefaultName implements Name<IfaceWithDefault> { }
-  
+class IfaceWithDefaultName implements Name<IfaceWithDefault> {
+}

@@ -12,23 +12,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.microsoft.tang.ClassHierarchy;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
-import com.microsoft.tang.Injector;
-import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
+import com.microsoft.tang.ClassHierarchy;
+
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
-import com.microsoft.tang.exceptions.BindException;
+
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.Node;
+
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestClassHierarchy {
@@ -293,10 +292,12 @@ public class TestClassHierarchy {
     ns.getNode(s(BadName.class));
   }
 }
+
 @NamedParameter(default_class=Integer.class)
 class BadName implements Name<String> { }
 
 class SimpleConstructors {
+
   @Inject
   public SimpleConstructors() {
   }
@@ -314,6 +315,7 @@ class SimpleConstructors {
 }
 
 class NamedParameterConstructors {
+
   @NamedParameter()
   class X implements Name<String> {
   };
@@ -339,6 +341,7 @@ class RepeatConstructorArgClasses {
 }
 
 class LeafRepeatedConstructorArgClasses {
+
   static class A {
     class AA {
     }
@@ -372,6 +375,7 @@ class NamedRepeatConstructorArgClasses {
 }
 
 class DocumentedLocalNamedParameter {
+
   @NamedParameter(doc = "doc stuff", default_value = "some value")
   final class Foo implements Name<String> {
   }
@@ -382,6 +386,7 @@ class DocumentedLocalNamedParameter {
 }
 
 class NamedParameterTypeMismatch {
+
   @NamedParameter(doc = "doc.stuff", default_value = "1")
   final class Foo implements Name<Integer> {
   }

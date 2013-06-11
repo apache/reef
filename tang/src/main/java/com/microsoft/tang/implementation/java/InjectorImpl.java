@@ -358,10 +358,10 @@ public class InjectorImpl implements Injector {
 
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
-    if(Name.class.isAssignableFrom(clazz)) {
+    if (Name.class.isAssignableFrom(clazz)) {
       throw new InjectionException("getInstance() called on Name "
           + ReflectionUtilities.getFullName(clazz)
-          + "  Did you mean to call getNamedInstance() instead?");
+          + " Did you mean to call getNamedInstance() instead?");
     }
     assertNotConcurrent();
     populateSingletons();
