@@ -96,34 +96,57 @@ public class JavaNodeFactory {
 
   public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
       Class<? extends Name<T>> clazz, Class<T> argClass) throws ClassHierarchyException {
+
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
-    NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
     final String fullArgName = ReflectionUtilities.getFullName(argClass);
     final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
     final String defaultInstanceAsString;
-    if (namedParameter == null || namedParameter.default_value().length() == 0) {
-      defaultInstanceAsString = null;
+
+    NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
+
+    if (namedParameter == null || namedParameter.default_value().isEmpty()) {
+
+      if (namedParameter.default_class() != Void.class) {
+        defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
+        boolean isSubclass = false;
+        for(Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
+          if (c.equals(argClass)) {
+            isSubclass = true;
+            break;
+          }
+        }
+
+        if (!isSubclass) {
+          throw new ClassHierarchyException(clazz + " defines a default class "
+              + defaultInstanceAsString + " that is not an instance of its target " + argClass);
+        }
+      } else {
+        defaultInstanceAsString = null;
+      }
+
     } else {
+      if (namedParameter.default_class() != Void.class) {
+        throw new ClassHierarchyException("Named parameter " + fullName +
+            " declares both a default_value and default_class.  At most one is allowed.");
+      }
       defaultInstanceAsString = namedParameter.default_value();
     }
+
     final String documentation;
     final String shortName;
+
     if (namedParameter != null) {
       documentation = namedParameter.doc();
-      if (namedParameter.short_name() != null
-          && namedParameter.short_name().length() == 0) {
-        shortName = null;
-      } else {
-        shortName = namedParameter.short_name();
-      }
+      shortName = namedParameter.short_name() == null
+               || namedParameter.short_name().isEmpty() ? null : namedParameter.short_name();
     } else {
       documentation = "";
       shortName = null;
     }
+
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
-        fullArgName, simpleArgName, documentation, shortName,
-        defaultInstanceAsString);
+        fullArgName, simpleArgName, documentation, shortName, defaultInstanceAsString);
   }
 
   public static PackageNode createRootPackageNode() {
