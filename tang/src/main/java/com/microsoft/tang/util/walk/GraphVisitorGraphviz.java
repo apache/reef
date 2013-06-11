@@ -51,7 +51,7 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
             .append(aNode.getName())
             .append("\" [label=\"Class: ")
             .append(aNode.getName())
-            .append("\"];\n");
+            .append("\", shape=box];\n");
 
     for (final Object implNodeObj : aNode.getKnownImplementations()) {
       final ClassNode implNode = (ClassNode) implNodeObj;
@@ -78,7 +78,7 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
             .append(aNode.getName())
             .append("\" [label=\"Package: ")
             .append(aNode.getFullName())
-            .append("\"];\n");
+            .append("\", shape=folder];\n");
     return true;
   }
 
@@ -98,7 +98,7 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
             .append(aNode.getName())                    // short name, e.g. "NumberOfThreads"
             .append(" = ")
             .append(aNode.getDefaultInstanceAsString()) // default value, e.g. "4"
-            .append("\"];\n");
+            .append("\", shape=oval];\n");
     return true;
   }
 
