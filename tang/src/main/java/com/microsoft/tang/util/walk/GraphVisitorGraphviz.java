@@ -34,10 +34,10 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
     "    PackageNode [shape=folder];\n" +
     "    ClassNode [shape=box];\n" +
     "    NamedParameterNode [shape=oval];\n" +
-    "    legend1l [shape=dot, label=\"\"];\n" +
-    "    legend1r [shape=dot, label=\"\"];\n" +
-    "    legend2l [shape=dot, label=\"\"];\n" +
-    "    legend2r [shape=dot, label=\"\"];\n" +
+    "    legend1l [shape=point, label=\"\"];\n" +
+    "    legend1r [shape=point, label=\"\"];\n" +
+    "    legend2l [shape=point, label=\"\"];\n" +
+    "    legend2r [shape=point, label=\"\"];\n" +
     "    legend1l -> legend1r [style=dashed, dir=back, arrowtail=empty, label=\"implements\"];\n" +
     "    legend2l -> legend2r [style=solid, dir=back, arrowtail=diamond, label=\"contains\"];\n" +
     "  }\n";
