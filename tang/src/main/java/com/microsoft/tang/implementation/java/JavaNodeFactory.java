@@ -128,18 +128,21 @@ public class JavaNodeFactory {
     
     final String defaultInstanceAsString;
 
-    if(hasStringDefault && hasClassDefault) {
+    if (hasStringDefault && hasClassDefault) {
       throw new ClassHierarchyException("Named parameter " + fullName +
           " declares both a default_value and default_class.  At most one is allowed.");
-    } else if(!(hasStringDefault || hasClassDefault)) {
+    } else if (!(hasStringDefault || hasClassDefault)) {
       defaultInstanceAsString = null;
-    } else if(namedParameter.default_class() != Void.class) {
+    } else if (namedParameter.default_class() != Void.class) {
       defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
       boolean isSubclass = false;
-      for(Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
-        if(c.equals(argClass)) { isSubclass = true; break; }
+      for (final Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
+        if (c.equals(argClass)) {
+          isSubclass = true;
+          break;
+        }
       }
-      if(!isSubclass) {
+      if (!isSubclass) {
         throw new ClassHierarchyException(clazz + " defines a default class "
             + defaultInstanceAsString + " that is not an instance of its target " + argClass);
       }
