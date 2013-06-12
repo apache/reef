@@ -229,4 +229,28 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy{
     setup2();
     super.testUnitIsInjectable();
   }
+  @Test
+  @Override
+  public void testBadUnitDecl() throws NameResolutionException {
+    setup1();
+    super.testBadUnitDecl();
+    setup2();
+    super.testBadUnitDecl();
+  }
+  @Test
+  @Override
+  public void nameCantBindWrongSubclassAsDefault() throws NameResolutionException {
+    setup1();
+    super.nameCantBindWrongSubclassAsDefault();
+    setup2();
+    super.nameCantBindWrongSubclassAsDefault();
+  }
+  @Test
+  @Override
+  public void ifaceCantBindWrongImplAsDefault() throws NameResolutionException {
+    setup1();
+    super.ifaceCantBindWrongImplAsDefault();
+    setup2();
+    super.ifaceCantBindWrongImplAsDefault();
+  }
 }

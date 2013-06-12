@@ -153,7 +153,18 @@ public class InjectorImpl implements Injector {
         ip = new JavaInstance<Object>(np, instance);
       }
     } else if (n instanceof ClassNode) {
-      ClassNode<?> cn = (ClassNode<?>) n;
+      final ClassNode<?> cn = (ClassNode<?>) n;
+      final ClassNode<?> boundImpl = c.getBoundImplementation(cn);
+      final ClassNode<?> defaultImpl;
+      if(cn.getDefaultImplementation() != null) {
+        try {
+          defaultImpl = (ClassNode<?>)javaNamespace.getNode(cn.getDefaultImplementation());
+        } catch(NameResolutionException | ClassCastException e) {
+          throw new IllegalStateException(cn + " has a bad default implementation named " + cn.getDefaultImplementation(), e);
+        }
+      } else {
+        defaultImpl = null;
+      }
       if (singletonInstances.containsKey(cn)) {
         ip = new JavaInstance<Object>(cn, singletonInstances.get(cn));
       } else if (null != c.getBoundConstructor(cn)) {
@@ -161,19 +172,22 @@ public class InjectorImpl implements Injector {
         buildInjectionPlan(ec, memo);
         ip = new Subplan(cn, 0, memo.get(ec));
         memo.put(cn, ip);
-      } else if (null != c.getBoundImplementation(cn)
-          && !(c.getBoundImplementation(cn).getFullName().equals(cn
-              .getFullName()))) {
-        ClassNode<?> boundImpl = c.getBoundImplementation(cn);
+      } else if (boundImpl != null && !cn.equals(boundImpl)) {
+        // We need to delegate to boundImpl, so recurse.
         buildInjectionPlan(boundImpl, memo);
         ip = new Subplan(cn, 0, memo.get(boundImpl));
         memo.put(cn, ip);
+      } else if (defaultImpl != null && !cn.equals(defaultImpl)) {
+        buildInjectionPlan(defaultImpl, memo);
+        ip = new Subplan(cn, 0, memo.get(defaultImpl));
+        memo.put(cn, ip);
       } else {
         List<ClassNode<?>> classNodes = new ArrayList<>();
-        // if we're here and there is a bound impl, then we're bound to
-        // ourselves, so don't add known impls to the list of things to
-        // consider.
-        if (c.getBoundImplementation(cn) == null) {
+        // if we're here and there is a bound impl or a default impl,
+        // then we're bound / defaulted to ourselves, so don't add
+        // other impls to the list of things to consider.
+        
+        if (boundImpl == null && defaultImpl == null) {
           classNodes.addAll(cn.getKnownImplementations());
         }
         classNodes.add(cn);

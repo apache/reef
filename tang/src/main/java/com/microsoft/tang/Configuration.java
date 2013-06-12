@@ -21,9 +21,13 @@ public interface Configuration {
   public ConfigurationBuilder newBuilder();
   
   public String getNamedParameter(NamedParameterNode<?> np);
-
+  /*
+   * @return the external constructor that cn has been explicitly bound to, or null.
+   */
   public <T> ClassNode<? extends ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
-
+  /*
+   * @return the implementation that cn has been explicitly bound to, or null.
+   */
   public <T> ClassNode<? extends T> getBoundImplementation(ClassNode<T> cn);
   /**
    * TODO Should this return a set of ConstructorDefs instead?
