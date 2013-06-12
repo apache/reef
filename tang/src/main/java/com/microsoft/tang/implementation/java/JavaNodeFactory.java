@@ -89,11 +89,11 @@ public class JavaNodeFactory {
       allConstructors.add(def);
     }
     final String defaultImplementation;
-    if(clazz.isAnnotationPresent(DefaultImplementation.class)) {
+    if (clazz.isAnnotationPresent(DefaultImplementation.class)) {
       DefaultImplementation defaultImpl
         = clazz.getAnnotation(DefaultImplementation.class);
       final Class<?> defaultImplementationClazz = defaultImpl.value();
-      if(!clazz.isAssignableFrom(defaultImplementationClazz)) {
+      if (!clazz.isAssignableFrom(defaultImplementationClazz)) {
         throw new ClassHierarchyException(clazz
             + " declares its default implementation to be non-subclass "
             + defaultImplementationClazz);
