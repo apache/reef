@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -37,7 +38,7 @@ public class JavaNodeFactory {
     final String fullName = ReflectionUtilities.getFullName(clazz);
     final boolean parentIsUnit = (parent instanceof ClassNode) ?
         ((ClassNode<?>)parent).isUnit() : false;
-        
+
     if (clazz.isLocalClass() || clazz.isMemberClass()) {
       if (!Modifier.isStatic(clazz.getModifiers())) {
         if(parent instanceof ClassNode) {
@@ -87,11 +88,25 @@ public class JavaNodeFactory {
       }
       allConstructors.add(def);
     }
-
+    final String defaultImplementation;
+    if(clazz.isAnnotationPresent(DefaultImplementation.class)) {
+      DefaultImplementation defaultImpl
+        = clazz.getAnnotation(DefaultImplementation.class);
+      final Class<?> defaultImplementationClazz = defaultImpl.value();
+      if(!clazz.isAssignableFrom(defaultImplementationClazz)) {
+        throw new ClassHierarchyException(clazz
+            + " declares its default implementation to be non-subclass "
+            + defaultImplementationClazz);
+      }
+      defaultImplementation = ReflectionUtilities.getFullName(defaultImplementationClazz);
+    } else {
+      defaultImplementation = null;
+    }
+    
     return new ClassNodeImpl<T>(parent, simpleName, fullName, unit, injectable,
         ExternalConstructor.class.isAssignableFrom(clazz),
         injectableConstructors.toArray(new ConstructorDefImpl[0]),
-        allConstructors.toArray(new ConstructorDefImpl[0]));
+        allConstructors.toArray(new ConstructorDefImpl[0]), defaultImplementation);
   }
 
   public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,

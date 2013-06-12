@@ -216,7 +216,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       parsed = new ClassNodeImpl<>(parent, n.getName(), n.getFullName(),
           cn.getIsUnit(), cn.getIsInjectionCandidate(),
           cn.getIsExternalConstructor(), injectableConstructors.toArray(dummy),
-          allConstructors.toArray(dummy));
+          allConstructors.toArray(dummy), cn.getDefaultImplementation());
     } else {
       throw new IllegalStateException("Bad protocol buffer: got abstract node"
           + n);
