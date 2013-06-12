@@ -101,49 +101,42 @@ public class JavaNodeFactory {
     final String fullName = ReflectionUtilities.getFullName(clazz);
     final String fullArgName = ReflectionUtilities.getFullName(argClass);
     final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
+
+    final NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
+
+    if (namedParameter == null) {
+      throw new IllegalStateException("Got name without named parameter post-validation!");
+    }
+    
+    final boolean hasStringDefault = !namedParameter.default_value().isEmpty();
+    final boolean hasClassDefault = namedParameter.default_class() != Void.class;
+    
     final String defaultInstanceAsString;
 
-    NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
-
-    if (namedParameter == null || namedParameter.default_value().isEmpty()) {
-
-      if (namedParameter.default_class() != Void.class) {
-        defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
-        boolean isSubclass = false;
-        for(Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
-          if (c.equals(argClass)) {
-            isSubclass = true;
-            break;
-          }
-        }
-
-        if (!isSubclass) {
-          throw new ClassHierarchyException(clazz + " defines a default class "
-              + defaultInstanceAsString + " that is not an instance of its target " + argClass);
-        }
-      } else {
-        defaultInstanceAsString = null;
+    if(hasStringDefault && hasClassDefault) {
+      throw new ClassHierarchyException("Named parameter " + fullName +
+          " declares both a default_value and default_class.  At most one is allowed.");
+    } else if(!(hasStringDefault || hasClassDefault)) {
+      defaultInstanceAsString = null;
+    } else if(namedParameter.default_class() != Void.class) {
+      defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
+      boolean isSubclass = false;
+      for(Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
+        if(c.equals(argClass)) { isSubclass = true; break; }
       }
-
+      if(!isSubclass) {
+        throw new ClassHierarchyException(clazz + " defines a default class "
+            + defaultInstanceAsString + " that is not an instance of its target " + argClass);
+      }
     } else {
-      if (namedParameter.default_class() != Void.class) {
-        throw new ClassHierarchyException("Named parameter " + fullName +
-            " declares both a default_value and default_class.  At most one is allowed.");
-      }
       defaultInstanceAsString = namedParameter.default_value();
+      // Don't know if the string is a class or literal here, so don't bother validating.
     }
 
-    final String documentation;
-    final String shortName;
-
-    if (namedParameter != null) {
-      documentation = namedParameter.doc();
-      shortName = namedParameter.short_name() == null
-               || namedParameter.short_name().isEmpty() ? null : namedParameter.short_name();
-    } else {
-      documentation = "";
-      shortName = null;
-    }
+    final String documentation = namedParameter.doc();
+    
+    final String shortName = namedParameter.short_name().isEmpty()
+        ? null : namedParameter.short_name();
 
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
         fullArgName, simpleArgName, documentation, shortName, defaultInstanceAsString);
