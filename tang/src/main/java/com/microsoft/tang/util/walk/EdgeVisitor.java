@@ -20,7 +20,6 @@ import com.microsoft.tang.types.Node;
 /**
  * Generic interface to traverse edges of the configuration graph.
  * It is used e.g. in Walk.preorder()
- * @author sergiym
  */
 public interface EdgeVisitor {
 

@@ -24,7 +24,6 @@ import com.microsoft.tang.types.NamedParameterNode;
  * Generic interface to traverse nodes of the configuration graph.
  * Dispatches between ClassNode, PackageNode, and NamedParameterNode types.
  * It is used e.g. in Walk.preorder()
- * @author sergiym
  */
 public abstract class AbstractTypedNodeVisitor implements NodeVisitor {
 

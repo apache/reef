@@ -23,24 +23,23 @@ import com.microsoft.tang.types.NamedParameterNode;
 
 /**
  * Build a Graphviz representation of the configuration graph.
- * @author sergiym
  */
 public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor implements EdgeVisitor {
 
   /** Legend for the configuration graph in Graphviz format */
-  private final static String LEGEND =
-    "  subgraph Legend {\n" +
-    "    label=\"Legend\";\n" +
-    "    PackageNode [shape=folder];\n" +
-    "    ClassNode [shape=box];\n" +
-    "    NamedParameterNode [shape=oval];\n" +
-    "    legend1l [shape=point, label=\"\"];\n" +
-    "    legend1r [shape=point, label=\"\"];\n" +
-    "    legend2l [shape=point, label=\"\"];\n" +
-    "    legend2r [shape=point, label=\"\"];\n" +
-    "    legend1l -> legend1r [style=dashed, dir=back, arrowtail=empty, label=\"implements\"];\n" +
-    "    legend2l -> legend2r [style=solid, dir=back, arrowtail=diamond, label=\"contains\"];\n" +
-    "  }\n";
+  private static final String LEGEND =
+    "  subgraph Legend {\n"
+    + "    label=\"Legend\";\n"
+    + "    PackageNode [shape=folder];\n"
+    + "    ClassNode [shape=box];\n"
+    + "    NamedParameterNode [shape=oval];\n"
+    + "    legend1l [shape=point, label=\"\"];\n"
+    + "    legend1r [shape=point, label=\"\"];\n"
+    + "    legend2l [shape=point, label=\"\"];\n"
+    + "    legend2r [shape=point, label=\"\"];\n"
+    + "    legend1l -> legend1r [style=dashed, dir=back, arrowtail=empty, label=\"implements\"];\n"
+    + "    legend2l -> legend2r [style=solid, dir=back, arrowtail=diamond, label=\"contains\"];\n"
+    + "  }\n";
 
   /** Accumulate string representation of the graph here. */
   private final transient StringBuilder mGraphStr = new StringBuilder(
@@ -136,12 +135,12 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
 
   /**
    * Produce a Graphviz DOT string for a given TANG configuration.
-   * @param config TANG configuration object.
+   * @param aConfig TANG configuration object.
    * @return configuration graph represented as a string in Graphviz DOT format.
    */
-  public static String getGraphvizStr(final Configuration config) {
+  public static String getGraphvizStr(final Configuration aConfig) {
     final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz();
-    Walk.preorder(visitor, visitor, config);
+    Walk.preorder(visitor, visitor, aConfig);
     return visitor.toString();
   }
 }

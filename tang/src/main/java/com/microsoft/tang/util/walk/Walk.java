@@ -20,7 +20,6 @@ import com.microsoft.tang.types.Node;
 
 /**
  * Graph traversal.
- * @author sergiym
  */
 public final class Walk {
 
@@ -60,7 +59,8 @@ public final class Walk {
     if (aNodeVisitor != null && aNodeVisitor.visit(aNode)) {
       for (final Node child : aNode.getChildren()) {
         if (aEdgeVisitor != null && !(aEdgeVisitor.visit(aNode, child)
-                && preorder(aNodeVisitor, aEdgeVisitor, child))) {
+                && preorder(aNodeVisitor, aEdgeVisitor, child)))
+        {
           return false;
         }
       }

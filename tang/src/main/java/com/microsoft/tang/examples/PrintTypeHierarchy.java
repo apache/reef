@@ -37,7 +37,6 @@ import com.microsoft.tang.util.walk.GraphVisitorGraphviz;
 
 /**
  * Prints sample configuration in Graphviz DOT format to stdout.
- * @author sears, sergiym
  */
 public final class PrintTypeHierarchy {
 
