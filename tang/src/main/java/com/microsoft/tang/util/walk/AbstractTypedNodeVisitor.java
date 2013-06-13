@@ -45,8 +45,8 @@ public abstract class AbstractTypedNodeVisitor implements NodeVisitor {
       return visit((NamedParameterNode) aNode);
     }
     throw new ClassCastException(
-        "Class can not be casted to one of ClassNode, PackageNode, or NamedParameterNode."
-        + " Please override this method to handle the case.");
+        "Node " + aNode.getClass() + " cannot be casted to one of the known subclasses."
+        + " Override this method to handle the case.");
   }
 
   /**
