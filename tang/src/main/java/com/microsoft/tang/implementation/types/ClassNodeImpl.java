@@ -17,10 +17,12 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final ConstructorDef<T>[] injectableConstructors;
   private final ConstructorDef<T>[] allConstructors;
   private final MonotonicSet<ClassNode<? extends T>> knownImpls;
+  private final String defaultImpl;
   public ClassNodeImpl(Node parent, String simpleName, String fullName,
       boolean unit, boolean injectable, boolean externalConstructor,
       ConstructorDef<T>[] injectableConstructors,
-      ConstructorDef<T>[] allConstructors) {
+      ConstructorDef<T>[] allConstructors,
+      String defaultImplementation) {
     super(parent, simpleName, fullName);
     this.unit = unit;
     this.injectable = injectable;
@@ -28,6 +30,7 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
     this.injectableConstructors = injectableConstructors;
     this.allConstructors = allConstructors;
     this.knownImpls = new MonotonicSet<>();
+    this.defaultImpl = defaultImplementation;
   }
 
   @Override
@@ -62,10 +65,6 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
     return sb.toString();
   }
 
-  // TODO: Instead of keeping clazz around, we need to remember all of the
-  // constructors for
-  // the class, and have a method that forces the "injectable" bit on the
-  // constructors to be true.
   public ConstructorDef<T> getConstructorDef(ClassNode<?>... paramTypes)
       throws BindException {
     if (!isInjectionCandidate()) {
@@ -113,5 +112,10 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
       worklist.addAll(impls);
     }
     return false;
+  }
+
+  @Override
+  public String getDefaultImplementation() {
+    return defaultImpl;
   }
 }

@@ -77,6 +77,7 @@ message ClassNode {
      legacy constructors. 
    */
   repeated string impl_full_names = 6;
+  optional string default_implementation = 7;
 }
 
 message NamedParameterNode {

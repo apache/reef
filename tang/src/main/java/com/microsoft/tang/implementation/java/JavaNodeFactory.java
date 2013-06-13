@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -37,7 +38,7 @@ public class JavaNodeFactory {
     final String fullName = ReflectionUtilities.getFullName(clazz);
     final boolean parentIsUnit = (parent instanceof ClassNode) ?
         ((ClassNode<?>)parent).isUnit() : false;
-        
+
     if (clazz.isLocalClass() || clazz.isMemberClass()) {
       if (!Modifier.isStatic(clazz.getModifiers())) {
         if(parent instanceof ClassNode) {
@@ -87,11 +88,25 @@ public class JavaNodeFactory {
       }
       allConstructors.add(def);
     }
-
+    final String defaultImplementation;
+    if (clazz.isAnnotationPresent(DefaultImplementation.class)) {
+      DefaultImplementation defaultImpl
+        = clazz.getAnnotation(DefaultImplementation.class);
+      final Class<?> defaultImplementationClazz = defaultImpl.value();
+      if (!clazz.isAssignableFrom(defaultImplementationClazz)) {
+        throw new ClassHierarchyException(clazz
+            + " declares its default implementation to be non-subclass "
+            + defaultImplementationClazz);
+      }
+      defaultImplementation = ReflectionUtilities.getFullName(defaultImplementationClazz);
+    } else {
+      defaultImplementation = null;
+    }
+    
     return new ClassNodeImpl<T>(parent, simpleName, fullName, unit, injectable,
         ExternalConstructor.class.isAssignableFrom(clazz),
         injectableConstructors.toArray(new ConstructorDefImpl[0]),
-        allConstructors.toArray(new ConstructorDefImpl[0]));
+        allConstructors.toArray(new ConstructorDefImpl[0]), defaultImplementation);
   }
 
   public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
@@ -101,49 +116,45 @@ public class JavaNodeFactory {
     final String fullName = ReflectionUtilities.getFullName(clazz);
     final String fullArgName = ReflectionUtilities.getFullName(argClass);
     final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
+
+    final NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
+
+    if (namedParameter == null) {
+      throw new IllegalStateException("Got name without named parameter post-validation!");
+    }
+    
+    final boolean hasStringDefault = !namedParameter.default_value().isEmpty();
+    final boolean hasClassDefault = namedParameter.default_class() != Void.class;
+    
     final String defaultInstanceAsString;
 
-    NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
-
-    if (namedParameter == null || namedParameter.default_value().isEmpty()) {
-
-      if (namedParameter.default_class() != Void.class) {
-        defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
-        boolean isSubclass = false;
-        for(Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
-          if (c.equals(argClass)) {
-            isSubclass = true;
-            break;
-          }
+    if (hasStringDefault && hasClassDefault) {
+      throw new ClassHierarchyException("Named parameter " + fullName +
+          " declares both a default_value and default_class.  At most one is allowed.");
+    } else if (!(hasStringDefault || hasClassDefault)) {
+      defaultInstanceAsString = null;
+    } else if (namedParameter.default_class() != Void.class) {
+      defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
+      boolean isSubclass = false;
+      for (final Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
+        if (c.equals(argClass)) {
+          isSubclass = true;
+          break;
         }
-
-        if (!isSubclass) {
-          throw new ClassHierarchyException(clazz + " defines a default class "
-              + defaultInstanceAsString + " that is not an instance of its target " + argClass);
-        }
-      } else {
-        defaultInstanceAsString = null;
       }
-
+      if (!isSubclass) {
+        throw new ClassHierarchyException(clazz + " defines a default class "
+            + defaultInstanceAsString + " that is not an instance of its target " + argClass);
+      }
     } else {
-      if (namedParameter.default_class() != Void.class) {
-        throw new ClassHierarchyException("Named parameter " + fullName +
-            " declares both a default_value and default_class.  At most one is allowed.");
-      }
       defaultInstanceAsString = namedParameter.default_value();
+      // Don't know if the string is a class or literal here, so don't bother validating.
     }
 
-    final String documentation;
-    final String shortName;
-
-    if (namedParameter != null) {
-      documentation = namedParameter.doc();
-      shortName = namedParameter.short_name() == null
-               || namedParameter.short_name().isEmpty() ? null : namedParameter.short_name();
-    } else {
-      documentation = "";
-      shortName = null;
-    }
+    final String documentation = namedParameter.doc();
+    
+    final String shortName = namedParameter.short_name().isEmpty()
+        ? null : namedParameter.short_name();
 
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
         fullArgName, simpleArgName, documentation, shortName, defaultInstanceAsString);

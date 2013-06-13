@@ -15,6 +15,7 @@ import org.junit.rules.ExpectedException;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.ClassHierarchy;
 
+import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -286,12 +287,21 @@ public class TestClassHierarchy {
   }
   
   @Test
-  public void cantBindWrongSubclassAsDefault() throws NameResolutionException {
+  public void nameCantBindWrongSubclassAsDefault() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer that is not an instance of its target class java.lang.String");
     ns.getNode(s(BadName.class));
   }
+  @Test
+  public void ifaceCantBindWrongImplAsDefault() throws NameResolutionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("interface com.microsoft.tang.implementation.BadIfaceDefault declares its default implementation to be non-subclass class java.lang.String");
+    ns.getNode(s(BadIfaceDefault.class));
+  }
 }
+
+@DefaultImplementation(String.class)
+interface BadIfaceDefault{ }
 
 @NamedParameter(default_class=Integer.class)
 class BadName implements Name<String> { }

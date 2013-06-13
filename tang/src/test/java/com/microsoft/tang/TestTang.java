@@ -12,6 +12,7 @@ import org.junit.rules.ExpectedException;
 import com.microsoft.tang.ThreeConstructors.TCFloat;
 import com.microsoft.tang.ThreeConstructors.TCInt;
 import com.microsoft.tang.ThreeConstructors.TCString;
+import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -366,7 +367,7 @@ public class TestTang {
   }
 
   @Test
-  public void testCantGetInstanceOfNamedParameter() throws BindException, ClassHierarchyException, InjectionException {
+  public void testCantGetInstanceOfNamedParameter() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("getInstance() called on Name com.microsoft.tang.IfaceWithDefaultName Did you mean to call getNamedInstance() instead?");
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -374,9 +375,29 @@ public class TestTang {
     @SuppressWarnings("unused")
     IfaceWithDefaultName iwd = i.getInstance(IfaceWithDefaultName.class);
   }
+  @Test
+  public void testCanGetDefaultedInterface() throws BindException, InjectionException {
+    Assert.assertNotNull(Tang.Factory.getTang().newInjector().getInstance(HaveDefaultImpl.class));
+  }
+  @Test
+  public void testCanOverrideDefaultedInterface() throws BindException, InjectionException {
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(HaveDefaultImpl.class, OverrideDefaultImpl.class);
+    Assert.assertTrue(Tang.Factory.getTang().newInjector(cb.build())
+        .getInstance(HaveDefaultImpl.class) instanceof OverrideDefaultImpl);
+  }
 
 }
-
+@DefaultImplementation(HaveDefaultImplImpl.class)
+interface HaveDefaultImpl {}
+class HaveDefaultImplImpl implements HaveDefaultImpl {
+  @Inject
+  HaveDefaultImplImpl() {}
+}
+class OverrideDefaultImpl implements HaveDefaultImpl {
+  @Inject
+  public OverrideDefaultImpl() {}
+}
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
 class Param implements Name<Integer> {
 }
