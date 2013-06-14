@@ -36,9 +36,11 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
     + "      ex1l [shape=point, label=\"\"]; ex1r [shape=point, label=\"\"];\n"
     + "      ex2l [shape=point, label=\"\"]; ex2r [shape=point, label=\"\"];\n"
     + "      ex3l [shape=point, label=\"\"]; ex3r [shape=point, label=\"\"];\n"
+    + "      ex4l [shape=point, label=\"\"]; ex4r [shape=point, label=\"\"];\n"
     + "      ex1l -> ex1r [style=solid, dir=back, arrowtail=diamond, label=\"contains\"];\n"
     + "      ex2l -> ex2r [style=dashed, dir=back, arrowtail=empty, label=\"implements\"];\n"
-    + "      ex3l -> ex3r [style=solid, dir=back, arrowtail=normal, label=\"binds\"];\n"
+    + "      ex3l -> ex3r [style=\"dashed,bold\", dir=back, arrowtail=empty, label=\"external\"];\n"
+    + "      ex4l -> ex4r [style=solid, dir=back, arrowtail=normal, label=\"binds\"];\n"
     + "    }\n"
     + "    subgraph cluster_2 {\n"
     + "      style=invis; label=\"\";\n"
@@ -113,15 +115,18 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
                .append(" [style=solid, dir=back, arrowtail=normal];\n");
     }
 
-    if (mShowImpl) {
-      for (final Object implNode : aNode.getKnownImplementations()) {
-        if (implNode != boundImplNode && implNode != aNode) {
-          mGraphStr.append("  ")
-                   .append(aNode.getName())
-                   .append(" -> ")
-                   .append(((ClassNode) implNode).getName())
-                   .append(" [style=dashed, dir=back, arrowtail=empty];\n");
-        }
+    for (final Object implNodeObj : aNode.getKnownImplementations()) {
+      final ClassNode implNode = (ClassNode) implNodeObj;
+      if (implNode != boundImplNode && implNode != aNode
+              && (implNode.isExternalConstructor() || mShowImpl))
+      {
+        mGraphStr.append("  ")
+                 .append(aNode.getName())
+                 .append(" -> ")
+                 .append(implNode.getName())
+                 .append(" [style=\"dashed")
+                 .append(implNode.isExternalConstructor() ? ",bold" : "")
+                 .append("\", dir=back, arrowtail=empty];\n");
       }
     }
 
