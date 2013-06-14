@@ -34,6 +34,7 @@ import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.tang.formats.ConfigurationFile;
 
 import com.microsoft.tang.util.walk.GraphVisitorGraphviz;
+import java.io.FileWriter;
 
 /**
  * Prints sample configuration in Graphviz DOT format to stdout.
@@ -83,9 +84,11 @@ public final class PrintTypeHierarchy {
     final Injector injector = tang.newInjector(config);
     final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
-    System.out.println(GraphVisitorGraphviz.getGraphvizStr(config));
+    try (final FileWriter out = new FileWriter("type-hierarchy.dot")) {
+      out.write(GraphVisitorGraphviz.getGraphvizStr(config, true, true));
+    }
 
-    // System.out.println(myself);
-    // System.out.println(ConfigurationFile.toConfigurationString(config));
+    System.out.println(myself);
+    System.out.println(ConfigurationFile.toConfigurationString(config));
   }
 }

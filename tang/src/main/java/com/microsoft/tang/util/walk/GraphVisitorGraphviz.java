@@ -28,29 +28,64 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
 
   /** Legend for the configuration graph in Graphviz format */
   private static final String LEGEND =
-    "  subgraph Legend {\n"
+    "  subgraph cluster_legend {\n"
     + "    label=\"Legend\";\n"
-    + "    PackageNode [shape=folder];\n"
-    + "    ClassNode [shape=box];\n"
-    + "    NamedParameterNode [shape=oval];\n"
-    + "    legend1l [shape=point, label=\"\"];\n"
-    + "    legend1r [shape=point, label=\"\"];\n"
-    + "    legend2l [shape=point, label=\"\"];\n"
-    + "    legend2r [shape=point, label=\"\"];\n"
-    + "    legend1l -> legend1r [style=dashed, dir=back, arrowtail=empty, label=\"implements\"];\n"
-    + "    legend2l -> legend2r [style=solid, dir=back, arrowtail=diamond, label=\"contains\"];\n"
+    + "    shape=box;\n"
+    + "    subgraph cluster_1 {\n"
+    + "      style=invis; label=\"\";\n"
+    + "      ex1l [shape=point, label=\"\"]; ex1r [shape=point, label=\"\"];\n"
+    + "      ex2l [shape=point, label=\"\"]; ex2r [shape=point, label=\"\"];\n"
+    + "      ex3l [shape=point, label=\"\"]; ex3r [shape=point, label=\"\"];\n"
+    + "      ex1l -> ex1r [style=solid, dir=back, arrowtail=diamond, label=\"contains\"];\n"
+    + "      ex2l -> ex2r [style=dashed, dir=back, arrowtail=empty, label=\"implements\"];\n"
+    + "      ex3l -> ex3r [style=solid, dir=back, arrowtail=normal, label=\"binds\"];\n"
+    + "    }\n"
+    + "    subgraph cluster_2 {\n"
+    + "      style=invis; label=\"\";\n"
+    + "      PackageNode [shape=folder];\n"
+    + "      ClassNode [shape=box];\n"
+    + "      Singleton [shape=box, style=filled];\n"
+    + "      NamedParameterNode [shape=oval];\n"
+    + "    }\n"
     + "  }\n";
 
   /** Accumulate string representation of the graph here. */
   private final transient StringBuilder mGraphStr = new StringBuilder(
-          "digraph ConfigMain {\n" + LEGEND + "  rankdir=LR;\n");
+    "digraph ConfigMain {\n"
+    + "  rankdir=LR;\n");
+
+  /**
+   * Entire TANG configuration object.
+   */
+  private final transient Configuration mConfig;
+
+  /**
+   * If true, plot IS-A edges for know implementations.
+   */
+  private final transient boolean mShowImpl;
+
+  /**
+   * Create a new TANG configuration visitor.
+   * @param aConfig Entire TANG configuration object.
+   * @param aShowImpl If true, plot IS-A edges for know implementations.
+   * @param aShowLegend If true, add legend to the plot.
+   */
+  public GraphVisitorGraphviz(final Configuration aConfig,
+          final boolean aShowImpl, final boolean aShowLegend) {
+    super();
+    this.mConfig = aConfig;
+    this.mShowImpl = aShowImpl;
+    if (aShowLegend) {
+      this.mGraphStr.append(LEGEND);
+    }
+  }
 
   /**
    * @return TANG configuration represented as a Graphviz DOT string.
    */
   @Override
   public String toString() {
-    return this.mGraphStr.toString() + "}\n";
+    return mGraphStr.toString() + "}\n";
   }
 
   /**
@@ -61,20 +96,33 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
   @Override
   public boolean visit(final ClassNode aNode) {
 
-    this.mGraphStr
-            .append("  \"node_")
-            .append(aNode.getName())
-            .append("\" [label=\"")
-            .append(aNode.getName())
-            .append("\", shape=box];\n");
+    mGraphStr.append("  ")
+             .append(aNode.getName())
+             .append(" [label=\"")
+             .append(aNode.getName())
+             .append("\", shape=box")
+             .append(mConfig.isSingleton(aNode) ? ", style=filled" : "")
+             .append("];\n");
 
-    for (final Object implNode : aNode.getKnownImplementations()) {
-      this.mGraphStr
-              .append("  \"node_")
-              .append(aNode.getName())
-              .append("\" -> \"node_")
-              .append(((ClassNode) implNode).getName())
-              .append("\" [style=dashed, dir=back, arrowtail=empty];\n");
+    final ClassNode boundImplNode = mConfig.getBoundImplementation(aNode);
+    if (boundImplNode != null) {
+      mGraphStr.append("  ")
+               .append(aNode.getName())
+               .append(" -> ")
+               .append(boundImplNode.getName())
+               .append(" [style=solid, dir=back, arrowtail=normal];\n");
+    }
+
+    if (mShowImpl) {
+      for (final Object implNode : aNode.getKnownImplementations()) {
+        if (implNode != boundImplNode && implNode != aNode) {
+          mGraphStr.append("  ")
+                   .append(aNode.getName())
+                   .append(" -> ")
+                   .append(((ClassNode) implNode).getName())
+                   .append(" [style=dashed, dir=back, arrowtail=empty];\n");
+        }
+      }
     }
 
     return true;
@@ -87,12 +135,13 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
    */
   @Override
   public boolean visit(final PackageNode aNode) {
-    this.mGraphStr
-            .append("  \"node_")
-            .append(aNode.getName())
-            .append("\" [label=\"")
-            .append(aNode.getFullName())
-            .append("\", shape=folder];\n");
+    if (!aNode.getName().isEmpty()) {
+      mGraphStr.append("  ")
+               .append(aNode.getName())
+               .append(" [label=\"")
+               .append(aNode.getFullName())
+               .append("\", shape=folder];\n");
+    }
     return true;
   }
 
@@ -103,16 +152,17 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
    */
   @Override
   public boolean visit(final NamedParameterNode aNode) {
-    this.mGraphStr
-            .append("  \"node_")
-            .append(aNode.getName())
-            .append("\" [label=\"")
-            .append(aNode.getSimpleArgName())           // parameter type, e.g. "Integer"
-            .append("\\n")
-            .append(aNode.getName())                    // short name, e.g. "NumberOfThreads"
-            .append(" = ")
-            .append(aNode.getDefaultInstanceAsString()) // default value, e.g. "4"
-            .append("\", shape=oval];\n");
+    mGraphStr.append("  ")
+             .append(aNode.getName())
+             .append(" [label=\"")
+             .append(aNode.getSimpleArgName())           // parameter type, e.g. "Integer"
+             .append("\\n")
+             .append(aNode.getName())                    // short name, e.g. "NumberOfThreads"
+             .append(" = ")
+             .append(mConfig.getNamedParameter(aNode))   // bound value, e.g. "16"
+             .append("\\n(default = ")
+             .append(aNode.getDefaultInstanceAsString()) // default value, e.g. "4"
+             .append(")\", shape=oval];\n");
     return true;
   }
 
@@ -124,22 +174,27 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
    */
   @Override
   public boolean visit(final Node aNodeFrom, final Node aNodeTo) {
-    this.mGraphStr
-            .append("  \"node_")
-            .append(aNodeFrom.getName())
-            .append("\" -> \"node_")
-            .append(aNodeTo.getName())
-            .append("\" [style=solid, dir=back, arrowtail=diamond];\n");
+    if (!aNodeFrom.getName().isEmpty()) {
+      mGraphStr.append("  ")
+               .append(aNodeFrom.getName())
+               .append(" -> ")
+               .append(aNodeTo.getName())
+               .append(" [style=solid, dir=back, arrowtail=diamond];\n");
+    }
     return true;
   }
 
   /**
    * Produce a Graphviz DOT string for a given TANG configuration.
    * @param aConfig TANG configuration object.
+   * @param aShowImpl If true, plot IS-A edges for know implementations.
+   * @param aShowLegend If true, add legend to the plot.
    * @return configuration graph represented as a string in Graphviz DOT format.
    */
-  public static String getGraphvizStr(final Configuration aConfig) {
-    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz();
+  public static String getGraphvizStr(final Configuration aConfig,
+          final boolean aShowImpl, final boolean aShowLegend)
+  {
+    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz(aConfig, aShowImpl, aShowLegend);
     Walk.preorder(visitor, visitor, aConfig);
     return visitor.toString();
   }
