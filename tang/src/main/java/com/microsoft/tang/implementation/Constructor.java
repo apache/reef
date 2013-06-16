@@ -1,7 +1,9 @@
 package com.microsoft.tang.implementation;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
@@ -17,12 +19,22 @@ final public class Constructor<T> extends InjectionPlan<T> {
     return args;
   }
 
+  /**
+   * Get child elements of the injection plan tree.
+   * TODO: use ArrayList internally (and maybe for input, too).
+   * @return A list of injection plans for the constructor's arguments.
+   */
+  @Override
+  public List<InjectionPlan<?>> getChildren() {
+    return Collections.unmodifiableList(Arrays.asList(this.args));
+  }
+
   public ConstructorDef<T> getConstructorDef() {
     return constructor;
   }
 
-  public Constructor(ClassNode<T> cn, ConstructorDef<T> constructor,
-      InjectionPlan<?>[] args) {
+  public Constructor(final ClassNode<T> cn,
+      final ConstructorDef<T> constructor, final InjectionPlan<?>[] args) {
     super(cn);
     this.constructor = constructor;
     this.args = args;

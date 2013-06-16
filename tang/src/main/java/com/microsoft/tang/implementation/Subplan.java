@@ -1,8 +1,9 @@
 package com.microsoft.tang.implementation;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 
 import com.microsoft.tang.types.Node;
 
@@ -28,6 +29,16 @@ final public class Subplan<T> extends InjectionPlan<T> {
       }
       this.numAlternatives = numAlternatives;
     }
+  }
+
+  /**
+   * Get child elements of the injection plan tree.
+   * TODO: use ArrayList internally (and maybe for input, too).
+   * @return A list of injection sub-plans.
+   */
+  @Override
+  public List<InjectionPlan<? extends T>> getChildren() {
+    return Collections.unmodifiableList(Arrays.asList(this.alternatives));
   }
 
   public Subplan(Node node,

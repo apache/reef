@@ -1,5 +1,8 @@
 package com.microsoft.tang.implementation;
 
+import java.util.List;
+import java.util.Collections;
+
 import com.microsoft.tang.types.Node;
 
 public class RequiredSingleton<T,U> extends InjectionPlan<T> {
@@ -9,7 +12,16 @@ public class RequiredSingleton<T,U> extends InjectionPlan<T> {
   }
 
   final InjectionPlan<U> preReq;
-  
+
+  /**
+   * Get child elements of the injection plan tree.
+   * @return A list with single prerequisite injection plan.
+   */
+  @Override
+  public List<InjectionPlan<U>> getChildren() {
+    return Collections.singletonList(this.preReq);
+  }
+
   @Override
   public int getNumAlternatives() {
     return preReq.getNumAlternatives();
