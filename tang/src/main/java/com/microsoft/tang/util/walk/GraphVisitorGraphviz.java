@@ -24,7 +24,9 @@ import com.microsoft.tang.types.NamedParameterNode;
 /**
  * Build a Graphviz representation of the configuration graph.
  */
-public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor implements EdgeVisitor {
+public final class GraphVisitorGraphviz
+    extends AbstractTypedNodeVisitor implements EdgeVisitor<Node>
+{
 
   /** Legend for the configuration graph in Graphviz format */
   private static final String LEGEND =

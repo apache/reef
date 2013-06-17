@@ -17,6 +17,7 @@ package com.microsoft.tang.util.walk;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.types.Node;
+import com.microsoft.tang.types.Traversable;
 
 /**
  * Graph traversal.
@@ -39,7 +40,7 @@ public final class Walk {
    * @return true if all nodes has been walked, false if visitor stopped early.
    */
   public static boolean preorder(
-    final NodeVisitor aNodeVisitor, final EdgeVisitor aEdgeVisitor, final Configuration aConfig)
+    final NodeVisitor<Node> aNodeVisitor, final EdgeVisitor<Node> aEdgeVisitor, final Configuration aConfig)
   {
     assert (aNodeVisitor != null || aEdgeVisitor != null);
     final Node root = aConfig.getClassHierarchy().getNamespace();
@@ -53,11 +54,11 @@ public final class Walk {
    * @param aNode current node of the configuration tree.
    * @return true if all nodes has been walked, false if visitor stopped early.
    */
-  private static boolean preorder(
-    final NodeVisitor aNodeVisitor, final EdgeVisitor aEdgeVisitor, final Node aNode)
+  private static <T extends Traversable<T>> boolean preorder(
+    final NodeVisitor<T> aNodeVisitor, final EdgeVisitor<T> aEdgeVisitor, final T aNode)
   {
     if (aNodeVisitor != null && aNodeVisitor.visit(aNode)) {
-      for (final Node child : aNode.getChildren()) {
+      for (final T child : aNode.getChildren()) {
         if (aEdgeVisitor != null && !(aEdgeVisitor.visit(aNode, child)
                 && preorder(aNodeVisitor, aEdgeVisitor, child)))
         {

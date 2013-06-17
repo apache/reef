@@ -1,11 +1,12 @@
 package com.microsoft.tang.implementation;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Collections;
 
 import com.microsoft.tang.types.Node;
+import com.microsoft.tang.types.Traversable;
 
-public abstract class InjectionPlan<T> {
+public abstract class InjectionPlan<T> implements Traversable {
 
   protected final Node node;
 
@@ -22,7 +23,8 @@ public abstract class InjectionPlan<T> {
    * By default, returns an empty list.
    * @return An empty list.
    */
-  public List<? extends InjectionPlan<?>> getChildren() {
+  @Override
+  public Collection<InjectionPlan<?>> getChildren() {
     return Collections.EMPTY_LIST;
   }
 

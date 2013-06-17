@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +26,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
    * @return A list of injection plans for the constructor's arguments.
    */
   @Override
-  public List<InjectionPlan<?>> getChildren() {
+  public Collection<InjectionPlan<?>> getChildren() {
     return Collections.unmodifiableList(Arrays.asList(this.args));
   }
 

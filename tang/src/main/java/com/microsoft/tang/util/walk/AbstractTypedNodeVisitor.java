@@ -25,7 +25,7 @@ import com.microsoft.tang.types.NamedParameterNode;
  * Dispatches between ClassNode, PackageNode, and NamedParameterNode types.
  * It is used e.g. in Walk.preorder()
  */
-public abstract class AbstractTypedNodeVisitor implements NodeVisitor {
+public abstract class AbstractTypedNodeVisitor implements NodeVisitor<Node> {
 
   /**
    * Manually dispatch between different types of Nodes and call a proper visit() method.

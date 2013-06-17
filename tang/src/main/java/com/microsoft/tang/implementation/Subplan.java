@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,8 +38,8 @@ final public class Subplan<T> extends InjectionPlan<T> {
    * @return A list of injection sub-plans.
    */
   @Override
-  public List<InjectionPlan<? extends T>> getChildren() {
-    return Collections.unmodifiableList(Arrays.asList(this.alternatives));
+  public Collection<InjectionPlan<?>> getChildren() {
+    return (Collection) Collections.unmodifiableList(Arrays.asList(this.alternatives));
   }
 
   public Subplan(Node node,
