@@ -15,12 +15,10 @@
  */
 package com.microsoft.tang.util.walk;
 
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.Traversable;
 
 /**
- * Graph traversal.
+ * Generic graph traversal.
  */
 public final class Walk {
 
@@ -33,29 +31,15 @@ public final class Walk {
   }
 
   /**
-   * Traverse the entire configuration tree in preorder.
-   * @param aNodeVisitor node visitor. Can be null.
-   * @param aEdgeVisitor edge visitor. Can be null.
-   * @param aConfig configuration to process.
-   * @return true if all nodes has been walked, false if visitor stopped early.
-   */
-  public static boolean preorder(
-    final NodeVisitor<Node> aNodeVisitor, final EdgeVisitor<Node> aEdgeVisitor, final Configuration aConfig)
-  {
-    assert (aNodeVisitor != null || aEdgeVisitor != null);
-    final Node root = aConfig.getClassHierarchy().getNamespace();
-    return preorder(aNodeVisitor, aEdgeVisitor, root);
-  }
-
-  /**
    * Traverse the configuration (sub)tree in preorder, starting from the given node.
+   * FIXME: handle loopy graphs correctly!
    * @param aNodeVisitor node visitor. Can be null.
    * @param aEdgeVisitor edge visitor. Can be null.
    * @param aNode current node of the configuration tree.
    * @return true if all nodes has been walked, false if visitor stopped early.
    */
-  private static <T extends Traversable<T>> boolean preorder(
-    final NodeVisitor<T> aNodeVisitor, final EdgeVisitor<T> aEdgeVisitor, final T aNode)
+  public static <T extends Traversable<T>> boolean preorder(
+      final NodeVisitor<T> aNodeVisitor, final EdgeVisitor<T> aEdgeVisitor, final T aNode)
   {
     if (aNodeVisitor != null && aNodeVisitor.visit(aNode)) {
       for (final T child : aNode.getChildren()) {

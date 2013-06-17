@@ -15,6 +15,6 @@
  */
 
 /**
- * Utility classes for configuration graph and injection plan traversal.
+ * produce Graphviz representation of TANG configuration graph and injection plan.
  */
-package com.microsoft.tang.util.walk;
+package com.microsoft.tang.util.walk.graphviz;
