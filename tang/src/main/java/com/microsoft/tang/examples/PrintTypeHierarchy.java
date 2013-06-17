@@ -32,6 +32,7 @@ import com.microsoft.tang.exceptions.InjectionException;
 
 import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.implementation.InjectionPlan;
 
 import com.microsoft.tang.util.walk.GraphVisitorGraphviz;
 import java.io.FileWriter;
@@ -88,7 +89,9 @@ public final class PrintTypeHierarchy {
       out.write(GraphVisitorGraphviz.getGraphvizStr(config, true, true));
     }
 
-    System.out.println(myself);
-    System.out.println(ConfigurationFile.toConfigurationString(config));
+    final InjectionPlan<PrintTypeHierarchy> plan =
+            injector.getInjectionPlan(PrintTypeHierarchy.class);
+
+    System.out.println(plan.toPrettyString());
   }
 }

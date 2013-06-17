@@ -6,7 +6,7 @@ import java.util.Collections;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.Traversable;
 
-public abstract class InjectionPlan<T> implements Traversable {
+public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> {
 
   protected final Node node;
 
