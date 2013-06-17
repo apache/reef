@@ -93,7 +93,7 @@ public final class PrintTypeHierarchy {
             injector.getInjectionPlan(PrintTypeHierarchy.class);
 
     try (final FileWriter out = new FileWriter("injection-plan.dot")) {
-      out.write(GraphvizInjectionPlanVisitor.getGraphvizStr(plan));
+      out.write(GraphvizInjectionPlanVisitor.getGraphvizStr(plan, true));
     }
 
     System.out.println(myself);
