@@ -45,9 +45,8 @@ public final class GraphvizInjectionPlanVisitor
     mGraphStr.append("  ")
              .append(aNode.getNode().getName())
              .append(" [label=\"")
-             .append(aNode)
-             .append("\", shape=box")
-             .append("];\n");
+             .append(aNode.getNode().getName())
+             .append("\", shape=box];\n");
     return true;
   }
 
@@ -61,9 +60,10 @@ public final class GraphvizInjectionPlanVisitor
     mGraphStr.append("  ")
              .append(aNode.getNode().getName())
              .append(" [label=\"")
-             .append(aNode)
-             .append("\", shape=box")
-             .append("];\n");
+             .append(aNode.getNode().getName())
+             .append(" = ")
+             .append(aNode.getInstanceAsString())
+             .append("\", shape=box, style=bold];\n");
     return true;
   }
 
@@ -77,9 +77,8 @@ public final class GraphvizInjectionPlanVisitor
     mGraphStr.append("  ")
              .append(aNode.getNode().getName())
              .append(" [label=\"")
-             .append(aNode)
-             .append("\", shape=box, style=filled")
-             .append("];\n");
+             .append(aNode.getNode().getName())
+             .append("\", shape=box, style=filled];\n");
     return true;
   }
 
@@ -93,9 +92,8 @@ public final class GraphvizInjectionPlanVisitor
     mGraphStr.append("  ")
              .append(aNode.getNode().getName())
              .append(" [label=\"")
-             .append(aNode)
-             .append("\", shape=oval")
-             .append("];\n");
+             .append(aNode.getNode().getName())
+             .append("\", shape=oval, style=dashed];\n");
     return true;
   }
 
@@ -125,15 +123,13 @@ public final class GraphvizInjectionPlanVisitor
 
   /**
    * Produce a Graphviz DOT string for a given TANG injection plan.
-   * @param aConfig TANG configuration object.
-   * @param aShowImpl If true, plot IS-A edges for know implementations.
-   * @param aShowLegend If true, add legend to the plot.
+   * @param aInjectionPlan TANG injection plan.
    * @return Injection plan represented as a string in Graphviz DOT format.
    */
-  public static String getGraphvizStr(final InjectionPlan<?> plan)
+  public static String getGraphvizStr(final InjectionPlan<?> aInjectionPlan)
   {
     final GraphvizInjectionPlanVisitor visitor = new GraphvizInjectionPlanVisitor();
-    Walk.preorder(visitor, visitor, plan);
+    Walk.preorder(visitor, visitor, aInjectionPlan);
     return visitor.toString();
   }
 }
