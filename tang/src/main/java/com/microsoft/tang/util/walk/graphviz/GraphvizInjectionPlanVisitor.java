@@ -65,9 +65,11 @@ public final class GraphvizInjectionPlanVisitor
    */
   @Override
   public boolean visit(final Constructor<?> aNode) {
-    mGraphStr.append("  ")
+    mGraphStr.append("  \"")
+             .append(aNode.getClass())
+             .append('_')
              .append(aNode.getNode().getName())
-             .append(" [label=\"")
+             .append("\" [label=\"")
              .append(aNode.getNode().getName())
              .append("\", shape=box];\n");
     return true;
@@ -80,9 +82,11 @@ public final class GraphvizInjectionPlanVisitor
    */
   @Override
   public boolean visit(final JavaInstance<?> aNode) {
-    mGraphStr.append("  ")
+    mGraphStr.append("  \"")
+             .append(aNode.getClass())
+             .append('_')
              .append(aNode.getNode().getName())
-             .append(" [label=\"")
+             .append("\" [label=\"")
              .append(aNode.getNode().getName())
              .append(" = ")
              .append(aNode.getInstanceAsString())
@@ -97,9 +101,11 @@ public final class GraphvizInjectionPlanVisitor
    */
   @Override
   public boolean visit(final RequiredSingleton<?,?> aNode) {
-    mGraphStr.append("  ")
+    mGraphStr.append("  \"")
+             .append(aNode.getClass())
+             .append('_')
              .append(aNode.getNode().getName())
-             .append(" [label=\"")
+             .append("\" [label=\"")
              .append(aNode.getNode().getName())
              .append("\", shape=box, style=filled];\n");
     return true;
@@ -112,9 +118,11 @@ public final class GraphvizInjectionPlanVisitor
    */
   @Override
   public boolean visit(final Subplan<?> aNode) {
-    mGraphStr.append("  ")
+    mGraphStr.append("  \"")
+             .append(aNode.getClass())
+             .append('_')
              .append(aNode.getNode().getName())
-             .append(" [label=\"")
+             .append("\" [label=\"")
              .append(aNode.getNode().getName())
              .append("\", shape=oval, style=dashed];\n");
     return true;
@@ -128,11 +136,15 @@ public final class GraphvizInjectionPlanVisitor
    */
   @Override
   public boolean visit(final InjectionPlan<?> aNodeFrom, final InjectionPlan<?> aNodeTo) {
-    mGraphStr.append("  ")
+    mGraphStr.append("  \"")
+             .append(aNodeFrom.getClass())
+             .append('_')
              .append(aNodeFrom.getNode().getName())
-             .append(" -> ")
+             .append("\" -> \"")
+             .append(aNodeTo.getClass())
+             .append('_')
              .append(aNodeTo.getNode().getName())
-             .append(" [style=solid];\n");
+             .append("\" [style=solid];\n");
     return true;
   }
 
