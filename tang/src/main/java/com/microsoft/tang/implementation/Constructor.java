@@ -25,7 +25,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
    * Get child elements of the injection plan tree.
    * This method is inherited from the Traversable interface.
    * TODO: use ArrayList internally (and maybe for input, too).
-   * @return A list of injection plans for the mConstructor's arguments.
+   * @return A list of injection plans for the Constructor's arguments.
    */
   @Override
   public Collection<InjectionPlan<?>> getChildren() {
@@ -36,18 +36,18 @@ final public class Constructor<T> extends InjectionPlan<T> {
     return mConstructor;
   }
 
-  public Constructor(final ClassNode<T> cn,
-      final ConstructorDef<T> constructor, final InjectionPlan<?>[] args) {
-    super(cn);
-    this.mConstructor = constructor;
-    this.mArgs = args;
+  public Constructor(final ClassNode<T> aNode,
+      final ConstructorDef<T> aConstructor, final InjectionPlan<?>[] aArgs) {
+    super(aNode);
+    this.mConstructor = aConstructor;
+    this.mArgs = aArgs;
     int numAlternatives = 1;
     boolean isAmbiguous = false;
     boolean isInjectable = true;
-    for (final InjectionPlan<?> a : args) {
-      numAlternatives *= a.getNumAlternatives();
-      isAmbiguous |= a.isAmbiguous();
-      isInjectable &= a.isInjectable();
+    for (final InjectionPlan<?> plan : aArgs) {
+      numAlternatives *= plan.getNumAlternatives();
+      isAmbiguous |= plan.isAmbiguous();
+      isInjectable &= plan.isInjectable();
     }
     this.mNumAlternatives = numAlternatives;
     this.mIsAmbiguous = isAmbiguous;
