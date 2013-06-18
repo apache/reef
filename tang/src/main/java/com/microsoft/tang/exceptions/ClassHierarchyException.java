@@ -1,7 +1,7 @@
 package com.microsoft.tang.exceptions;
 
 /**
- * This exception is thrown when TANG detects improper or inconsistent class
+ * This exception is thrown when Tang detects improper or inconsistent class
  * annotations.  This is a runtime exception because it denotes a problem that
  * existed during compilation.
  */
