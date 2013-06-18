@@ -107,9 +107,27 @@ final public class Constructor<T> extends InjectionPlan<T> {
     return sb.append(')').toString();
   }
 
+  /**
+   * @return A string describing ambiguous constructor arguments,
+   * or null if constructor is not ambiguous.
+   */
   @Override
   protected String toAmbiguousInjectString() {
-    throw new UnsupportedOperationException();
+
+    if (!mIsAmbiguous) {
+      return null;
+    }
+
+    final StringBuilder sb =
+        new StringBuilder(getNode().getFullName()).append(" has ambiguous arguments: [ ");
+
+    for (final InjectionPlan<?> plan : mArgs) {
+      if (plan.isAmbiguous()) {
+        sb.append(plan.getNode().getFullName()).append(' ');
+      }
+    }
+
+    return sb.append(']').toString();
   }
 
   @Override
