@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 Microsoft.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.microsoft.tang.implementation;
 
 import java.util.Collection;
@@ -25,7 +40,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
    * Get child elements of the injection plan tree.
    * This method is inherited from the Traversable interface.
    * TODO: use ArrayList internally (and maybe for input, too).
-   * @return A list of injection plans for the Constructor's arguments.
+   * @return A list of injection plans for the constructor's arguments.
    */
   @Override
   public Collection<InjectionPlan<?>> getChildren() {
@@ -77,14 +92,15 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("new ").append(getNode().getName()).append('(');
+    final StringBuilder sb = new StringBuilder("new " + getNode().getName() + '(');
     if (args.length > 0) {
       sb.append(args[0]);
       for (int i = 1; i < args.length; i++) {
-        sb.append(", ").append(args[i]);
+        sb.append(", " + args[i]);
       }
     }
-    return sb.append(')').toString();
+    sb.append(')');
+    return sb.toString();
   }
 
   private String shallowArgString(final InjectionPlan<?> arg) {
@@ -97,14 +113,15 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
   @Override
   public String toShallowString() {
-    final StringBuilder sb = new StringBuilder("new ").append(getNode().getName()).append('(');
+    final StringBuilder sb = new StringBuilder("new " + getNode().getName() + '(');
     if (args.length > 0) {
       sb.append(shallowArgString(args[0]));
       for (int i = 1; i < args.length; i++) {
-        sb.append(", ").append(shallowArgString(args[i]));
+        sb.append(", " + shallowArgString(args[i]));
       }
     }
-    return sb.append(')').toString();
+    sb.append(')');
+    return sb.toString();
   }
 
   /**
@@ -118,16 +135,17 @@ final public class Constructor<T> extends InjectionPlan<T> {
       throw new IllegalArgumentException(getNode().getFullName() + " is NOT ambiguous.");
     }
 
-    final StringBuilder sb =
-        new StringBuilder(getNode().getFullName()).append(" has ambiguous arguments: [ ");
+    final StringBuilder sb = new StringBuilder(
+        getNode().getFullName() + " has ambiguous arguments: [ ");
 
     for (final InjectionPlan<?> plan : args) {
       if (plan.isAmbiguous()) {
-        sb.append(plan.getNode().getFullName()).append(' ');
+        sb.append(plan.getNode().getFullName() + ' ');
       }
     }
 
-    return sb.append(']').toString();
+    sb.append(']');
+    return sb.toString();
   }
 
   @Override
@@ -149,14 +167,14 @@ final public class Constructor<T> extends InjectionPlan<T> {
      return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName(); 
     }
 
-    final StringBuffer sb =
-        new StringBuffer(getNode().getFullName()).append(" missing arguments: [ ");
+    final StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [ ");
 
     for (final InjectionPlan<?> leaf : leaves) {
-      sb.append(leaf.getNode().getFullName()).append(' ');
+      sb.append(leaf.getNode().getFullName() + ' ');
     }
 
-    return sb.append(']').toString();
+    sb.append(']');
+    return sb.toString();
   }
 
   @Override
