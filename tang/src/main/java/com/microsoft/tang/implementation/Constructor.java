@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 Microsoft.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.microsoft.tang.implementation;
 
 import java.util.Collection;
@@ -10,6 +25,7 @@ import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 
 final public class Constructor<T> extends InjectionPlan<T> {
+
   final ConstructorDef<T> constructor;
   final InjectionPlan<?>[] args;
   final int numAlternatives;
@@ -22,6 +38,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
   /**
    * Get child elements of the injection plan tree.
+   * This method is inherited from the Traversable interface.
    * TODO: use ArrayList internally (and maybe for input, too).
    * @return A list of injection plans for the constructor's arguments.
    */
@@ -34,24 +51,22 @@ final public class Constructor<T> extends InjectionPlan<T> {
     return constructor;
   }
 
-  public Constructor(final ClassNode<T> cn,
+  public Constructor(final ClassNode<T> classNode,
       final ConstructorDef<T> constructor, final InjectionPlan<?>[] args) {
-    super(cn);
+    super(classNode);
     this.constructor = constructor;
     this.args = args;
-    int numAlternatives = 1;
-    boolean isAmbiguous = false;
-    boolean isInjectable = true;
-    for (InjectionPlan<?> a : args) {
-      numAlternatives *= a.getNumAlternatives();
-      if (a.isAmbiguous())
-        isAmbiguous = true;
-      if (!a.isInjectable())
-        isInjectable = false;
+    int curAlternatives = 1;
+    boolean curAmbiguous = false;
+    boolean curInjectable = true;
+    for (final InjectionPlan<?> plan : args) {
+      curAlternatives *= plan.getNumAlternatives();
+      curAmbiguous |= plan.isAmbiguous();
+      curInjectable &= plan.isInjectable();
     }
-    this.numAlternatives = numAlternatives;
-    this.isAmbiguous = isAmbiguous;
-    this.isInjectable = isInjectable;
+    this.numAlternatives = curAlternatives;
+    this.isAmbiguous = curAmbiguous;
+    this.isInjectable = curInjectable;
   }
 
   @SuppressWarnings("unchecked")
@@ -77,74 +92,95 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("new " + getNode().getName() + "(");
-    if (args.length == 0) {
-    } else if (args.length == 1) {
-      sb.append(args[0]);
-    } else {
+    final StringBuilder sb = new StringBuilder("new " + getNode().getName() + '(');
+    if (args.length > 0) {
       sb.append(args[0]);
       for (int i = 1; i < args.length; i++) {
         sb.append(", " + args[i]);
       }
     }
-    sb.append(")");
+    sb.append(')');
     return sb.toString();
   }
 
-  private String shallowArgString(InjectionPlan<?> arg) {
-    if((arg instanceof Constructor) || (arg instanceof Subplan)) {
+  private String shallowArgString(final InjectionPlan<?> arg) {
+    if (arg instanceof Constructor || arg instanceof Subplan) {
       return arg.getClass().getName() + ": " + arg.getNode().getName();
     } else {
       return arg.toShallowString();
     }
   }
+
   @Override
   public String toShallowString() {
-    StringBuilder sb = new StringBuilder("new " + getNode().getName() + "(");
-    if (args.length == 0) {
-    } else if (args.length == 1) {
-      sb.append(shallowArgString(args[0]));
-    } else {
+    final StringBuilder sb = new StringBuilder("new " + getNode().getName() + '(');
+    if (args.length > 0) {
       sb.append(shallowArgString(args[0]));
       for (int i = 1; i < args.length; i++) {
         sb.append(", " + shallowArgString(args[i]));
       }
     }
-    sb.append(")");
+    sb.append(')');
     return sb.toString();
   }
 
-  
+  /**
+   * @return A string describing ambiguous constructor arguments.
+   * @throws IllegalArgumentException if constructor is not ambiguous.
+   */
   @Override
   protected String toAmbiguousInjectString() {
-    throw new UnsupportedOperationException();
+
+    if (!isAmbiguous) {
+      throw new IllegalArgumentException(getNode().getFullName() + " is NOT ambiguous.");
+    }
+
+    final StringBuilder sb = new StringBuilder(
+        getNode().getFullName() + " has ambiguous arguments: [ ");
+
+    for (final InjectionPlan<?> plan : args) {
+      if (plan.isAmbiguous()) {
+        sb.append(plan.getNode().getFullName() + ' ');
+      }
+    }
+
+    sb.append(']');
+    return sb.toString();
   }
+
   @Override
   protected String toInfeasibleInjectString() {
-    List<InjectionPlan<?>> leaves = new ArrayList<>();
-    for(InjectionPlan<?> ip : args) {
-      if(!ip.isFeasible()) {
-        if(ip.isInfeasibleLeaf()) {
+
+    final List<InjectionPlan<?>> leaves = new ArrayList<>();
+
+    for (final InjectionPlan<?> ip : args) {
+      if (!ip.isFeasible()) {
+        if (ip.isInfeasibleLeaf()) {
           leaves.add(ip);
         } else {
           return ip.toInfeasibleInjectString();
         }
       }
     }
-    if(leaves.size() == 1) {
-     return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName(); 
+
+    if (leaves.isEmpty()) {
+      throw new IllegalArgumentException(getNode().getFullName() + " has NO infeasible leaves.");
+    }
+
+    if (leaves.size() == 1) {
+     return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName();
     } else {
-      StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [ ");
-      for(InjectionPlan<?> leaf : leaves) {
-        sb.append(leaf.getNode().getFullName() + " ");
+      final StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [ ");
+      for (final InjectionPlan<?> leaf : leaves) {
+        sb.append(leaf.getNode().getFullName() + ' ');
       }
-      sb.append("]");
+      sb.append(']');
       return sb.toString();
     }
   }
+
   @Override
   protected boolean isInfeasibleLeaf() {
     return false;
   }
-
 }
