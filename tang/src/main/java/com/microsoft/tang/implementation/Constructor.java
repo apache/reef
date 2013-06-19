@@ -56,17 +56,17 @@ final public class Constructor<T> extends InjectionPlan<T> {
     super(aNode);
     this.constructor = aConstructor;
     this.args = aArgs;
-    int numAlternatives = 1;
-    boolean isAmbiguous = false;
-    boolean isInjectable = true;
+    int curAlternatives = 1;
+    boolean curAmbiguous = false;
+    boolean curInjectable = true;
     for (final InjectionPlan<?> plan : aArgs) {
-      numAlternatives *= plan.getNumAlternatives();
-      isAmbiguous |= plan.isAmbiguous();
-      isInjectable &= plan.isInjectable();
+      curAlternatives *= plan.getNumAlternatives();
+      curAmbiguous |= plan.isAmbiguous();
+      curInjectable &= plan.isInjectable();
     }
-    this.numAlternatives = numAlternatives;
-    this.isAmbiguous = isAmbiguous;
-    this.isInjectable = isInjectable;
+    this.numAlternatives = curAlternatives;
+    this.isAmbiguous = curAmbiguous;
+    this.isInjectable = curInjectable;
   }
 
   @SuppressWarnings("unchecked")
@@ -163,18 +163,20 @@ final public class Constructor<T> extends InjectionPlan<T> {
       }
     }
 
+    if (leaves.isEmpty()) {
+      throw new IllegalArgumentException(getNode().getFullName() + " has NO infeasible leaves.");
+    }
+
     if (leaves.size() == 1) {
-     return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName(); 
+     return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName();
+    } else {
+      final StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [ ");
+      for (final InjectionPlan<?> leaf : leaves) {
+        sb.append(leaf.getNode().getFullName() + ' ');
+      }
+      sb.append(']');
+      return sb.toString();
     }
-
-    final StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [ ");
-
-    for (final InjectionPlan<?> leaf : leaves) {
-      sb.append(leaf.getNode().getFullName() + ' ');
-    }
-
-    sb.append(']');
-    return sb.toString();
   }
 
   @Override
