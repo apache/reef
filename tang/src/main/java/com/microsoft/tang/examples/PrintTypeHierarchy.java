@@ -47,15 +47,15 @@ public final class PrintTypeHierarchy {
   class Id implements Name<Integer> { }
 
   /** Parameter to test the injection. */
-  private final transient int mId;
+  private final transient int id;
 
   /**
    * Constructor to test the parameter injection.
    * @param aId test parameter
    */
   @Inject
-  public PrintTypeHierarchy(@Parameter(PrintTypeHierarchy.Id.class) final int aId) {
-    this.mId = aId;
+  public PrintTypeHierarchy(@Parameter(PrintTypeHierarchy.Id.class) final int id) {
+    this.id = id;
   }
 
   /**
@@ -63,7 +63,7 @@ public final class PrintTypeHierarchy {
    */
   @Override
   public String toString() {
-    return this.getClass().getName() + " :: " + this.mId;
+    return this.getClass().getName() + " :: " + this.id;
   }
 
   /**
