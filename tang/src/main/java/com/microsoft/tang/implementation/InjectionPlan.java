@@ -1,22 +1,31 @@
 package com.microsoft.tang.implementation;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.microsoft.tang.types.Node;
+import com.microsoft.tang.types.Traversable;
 
-public abstract class InjectionPlan<T> {
-  final Node node;
+public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> {
 
-  protected void pad(StringBuffer sb, int n) {
-    for (int i = 0; i < n; i++) {
-      sb.append("  ");
-    }
-  }
+  protected final Node node;
 
-  public InjectionPlan(Node node) {
+  public InjectionPlan(final Node node) {
     this.node = node;
   }
 
   public Node getNode() {
     return node;
+  }
+
+  /**
+   * Get child elements of the injection plan tree.
+   * By default, returns an empty list.
+   * @return An empty list.
+   */
+  @Override
+  public Collection<InjectionPlan<?>> getChildren() {
+    return Collections.EMPTY_LIST;
   }
 
   public abstract int getNumAlternatives();
@@ -28,6 +37,12 @@ public abstract class InjectionPlan<T> {
   abstract public boolean isAmbiguous();
 
   abstract public boolean isInjectable();
+
+  protected void pad(StringBuffer sb, int n) {
+    for (int i = 0; i < n; i++) {
+      sb.append("  ");
+    }
+  }
 
   private static void newline(StringBuffer pretty, int indent) {
     pretty.append('\n');

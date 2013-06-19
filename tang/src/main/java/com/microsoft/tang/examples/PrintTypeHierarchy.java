@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang.examples;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import javax.inject.Inject;
 
@@ -31,13 +32,13 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 
 import com.microsoft.tang.formats.CommandLine;
-import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.implementation.InjectionPlan;
 
-import com.microsoft.tang.util.walk.GraphVisitorGraphviz;
-import java.io.FileWriter;
+import com.microsoft.tang.util.walk.graphviz.GraphvizConfigVisitor;
+import com.microsoft.tang.util.walk.graphviz.GraphvizInjectionPlanVisitor;
 
 /**
- * Prints sample configuration in Graphviz DOT format to stdout.
+ * Build a Graphviz representation of TANG configuration and injection plan.
  */
 public final class PrintTypeHierarchy {
 
@@ -85,10 +86,16 @@ public final class PrintTypeHierarchy {
     final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
     try (final FileWriter out = new FileWriter("type-hierarchy.dot")) {
-      out.write(GraphVisitorGraphviz.getGraphvizStr(config, true, true));
+      out.write(GraphvizConfigVisitor.getGraphvizStr(config, true, true));
+    }
+
+    final InjectionPlan<PrintTypeHierarchy> plan =
+            injector.getInjectionPlan(PrintTypeHierarchy.class);
+
+    try (final FileWriter out = new FileWriter("injection-plan.dot")) {
+      out.write(GraphvizInjectionPlanVisitor.getGraphvizStr(plan, true));
     }
 
     System.out.println(myself);
-    System.out.println(ConfigurationFile.toConfigurationString(config));
   }
 }

@@ -4,6 +4,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.InjectionPlan;
 
 public interface Injector {
 
@@ -92,4 +93,6 @@ public interface Injector {
   boolean isInjectable(Class<?> clazz) throws BindException;
 
   boolean isParameterSet(Class<? extends Name<?>> name) throws BindException;
+
+  <T> InjectionPlan<T> getInjectionPlan(Class<T> name);
 }

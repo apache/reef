@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.tang.util.walk;
+package com.microsoft.tang.util.walk.graphviz;
 
 import com.microsoft.tang.Configuration;
+
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.types.NamedParameterNode;
 
+import com.microsoft.tang.util.walk.Walk;
+import com.microsoft.tang.util.walk.EdgeVisitor;
+import com.microsoft.tang.util.walk.AbstractConfigNodeVisitor;
+
 /**
  * Build a Graphviz representation of the configuration graph.
  */
-public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor implements EdgeVisitor {
+public final class GraphvizConfigVisitor
+    extends AbstractConfigNodeVisitor implements EdgeVisitor<Node>
+{
 
   /** Legend for the configuration graph in Graphviz format */
   private static final String LEGEND =
@@ -72,7 +79,7 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
    * @param aShowImpl If true, plot IS-A edges for know implementations.
    * @param aShowLegend If true, add legend to the plot.
    */
-  public GraphVisitorGraphviz(final Configuration aConfig,
+  public GraphvizConfigVisitor(final Configuration aConfig,
           final boolean aShowImpl, final boolean aShowLegend) {
     super();
     this.mConfig = aConfig;
@@ -199,8 +206,10 @@ public final class GraphVisitorGraphviz extends AbstractTypedNodeVisitor impleme
   public static String getGraphvizStr(final Configuration aConfig,
           final boolean aShowImpl, final boolean aShowLegend)
   {
-    final GraphVisitorGraphviz visitor = new GraphVisitorGraphviz(aConfig, aShowImpl, aShowLegend);
-    Walk.preorder(visitor, visitor, aConfig);
+    final GraphvizConfigVisitor visitor =
+        new GraphvizConfigVisitor(aConfig, aShowImpl, aShowLegend);
+    final Node root = aConfig.getClassHierarchy().getNamespace();
+    Walk.preorder(visitor, visitor, root);
     return visitor.toString();
   }
 }

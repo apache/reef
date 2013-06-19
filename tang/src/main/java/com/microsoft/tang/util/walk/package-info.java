@@ -15,6 +15,6 @@
  */
 
 /**
- * Utility classes for configuration graph traversal.
+ * Utility classes for configuration graph and injection plan traversal.
  */
 package com.microsoft.tang.util.walk;

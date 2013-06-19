@@ -15,18 +15,18 @@
  */
 package com.microsoft.tang.util.walk;
 
-import com.microsoft.tang.types.Node;
+import com.microsoft.tang.types.Traversable;
 
 /**
  * Generic interface to traverse nodes of the configuration graph.
  * It is used e.g. in Walk.preorder()
  */
-public interface NodeVisitor {
+public interface NodeVisitor<T> {
 
   /**
    * Process current configuration node.
    * @param aNode Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  boolean visit(Node aNode);
+  boolean visit(T aNode);
 }
