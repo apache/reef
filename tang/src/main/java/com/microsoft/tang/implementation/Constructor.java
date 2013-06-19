@@ -51,15 +51,15 @@ final public class Constructor<T> extends InjectionPlan<T> {
     return constructor;
   }
 
-  public Constructor(final ClassNode<T> aNode,
-      final ConstructorDef<T> aConstructor, final InjectionPlan<?>[] aArgs) {
-    super(aNode);
-    this.constructor = aConstructor;
-    this.args = aArgs;
+  public Constructor(final ClassNode<T> classNode,
+      final ConstructorDef<T> constructor, final InjectionPlan<?>[] args) {
+    super(classNode);
+    this.constructor = constructor;
+    this.args = args;
     int curAlternatives = 1;
     boolean curAmbiguous = false;
     boolean curInjectable = true;
-    for (final InjectionPlan<?> plan : aArgs) {
+    for (final InjectionPlan<?> plan : args) {
       curAlternatives *= plan.getNumAlternatives();
       curAmbiguous |= plan.isAmbiguous();
       curInjectable &= plan.isInjectable();
