@@ -44,107 +44,112 @@ public final class GraphvizInjectionPlanVisitor
     + "  }\n";
 
   /** Accumulate string representation of the graph here. */
-  private final transient StringBuilder mGraphStr =
+  private final transient StringBuilder graphStr =
           new StringBuilder("digraph InjectionPlanMain {\n");
 
   /**
    * Create a new visitor to build a graphviz string for the injection plan.
    * @param aShowLegend if true, show legend on the graph.
    */
-  public GraphvizInjectionPlanVisitor(final boolean aShowLegend) {
-    if (aShowLegend) {
-      this.mGraphStr.append(LEGEND);
+  public GraphvizInjectionPlanVisitor(final boolean showLegend) {
+    if (showLegend) {
+      this.graphStr.append(LEGEND);
     }
-    this.mGraphStr.append("subgraph cluster_main {\n  style=invis;\n");
+    this.graphStr.append("subgraph cluster_main {\n  style=invis;\n");
   }
 
   /**
    * Process current injection plan node of Constructor type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final Constructor<?> aNode) {
-    mGraphStr.append("  \"")
-             .append(aNode.getClass())
-             .append('_')
-             .append(aNode.getNode().getName())
-             .append("\" [label=\"")
-             .append(aNode.getNode().getName())
-             .append("\", shape=box];\n");
+  public boolean visit(final Constructor<?> node) {
+    this.graphStr
+            .append("  \"")
+            .append(node.getClass())
+            .append('_')
+            .append(node.getNode().getName())
+            .append("\" [label=\"")
+            .append(node.getNode().getName())
+            .append("\", shape=box];\n");
     return true;
   }
 
   /**
    * Process current injection plan node of JavaInstance type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final JavaInstance<?> aNode) {
-    mGraphStr.append("  \"")
-             .append(aNode.getClass())
-             .append('_')
-             .append(aNode.getNode().getName())
-             .append("\" [label=\"")
-             .append(aNode.getNode().getName())
-             .append(" = ")
-             .append(aNode.getInstanceAsString())
-             .append("\", shape=box, style=bold];\n");
+  public boolean visit(final JavaInstance<?> node) {
+    this.graphStr
+            .append("  \"")
+            .append(node.getClass())
+            .append('_')
+            .append(node.getNode().getName())
+            .append("\" [label=\"")
+            .append(node.getNode().getName())
+            .append(" = ")
+            .append(node.getInstanceAsString())
+            .append("\", shape=box, style=bold];\n");
     return true;
   }
 
   /**
    * Process current injection plan node of RequiredSingleton type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final RequiredSingleton<?,?> aNode) {
-    mGraphStr.append("  \"")
-             .append(aNode.getClass())
-             .append('_')
-             .append(aNode.getNode().getName())
-             .append("\" [label=\"")
-             .append(aNode.getNode().getName())
-             .append("\", shape=box, style=filled];\n");
+  public boolean visit(final RequiredSingleton<?,?> node) {
+    this.graphStr
+            .append("  \"")
+            .append(node.getClass())
+            .append('_')
+            .append(node.getNode().getName())
+            .append("\" [label=\"")
+            .append(node.getNode().getName())
+            .append("\", shape=box, style=filled];\n");
     return true;
   }
 
   /**
    * Process current injection plan node of Subplan type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final Subplan<?> aNode) {
-    mGraphStr.append("  \"")
-             .append(aNode.getClass())
-             .append('_')
-             .append(aNode.getNode().getName())
-             .append("\" [label=\"")
-             .append(aNode.getNode().getName())
-             .append("\", shape=oval, style=dashed];\n");
+  public boolean visit(final Subplan<?> node) {
+    this.graphStr
+            .append("  \"")
+            .append(node.getClass())
+            .append('_')
+            .append(node.getNode().getName())
+            .append("\" [label=\"")
+            .append(node.getNode().getName())
+            .append("\", shape=oval, style=dashed];\n");
     return true;
   }
 
   /**
    * Process current edge of the injection plan.
-   * @param aNodeFrom Current injection plan node.
-   * @param aNodeTo Destination injection plan node.
+   * @param nodeFrom Current injection plan node.
+   * @param nodeTo Destination injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final InjectionPlan<?> aNodeFrom, final InjectionPlan<?> aNodeTo) {
-    mGraphStr.append("  \"")
-             .append(aNodeFrom.getClass())
-             .append('_')
-             .append(aNodeFrom.getNode().getName())
-             .append("\" -> \"")
-             .append(aNodeTo.getClass())
-             .append('_')
-             .append(aNodeTo.getNode().getName())
-             .append("\" [style=solid];\n");
+  public boolean visit(final InjectionPlan<?> nodeFrom, final InjectionPlan<?> nodeTo) {
+    this.graphStr
+           .append("  \"")
+           .append(nodeFrom.getClass())
+           .append('_')
+           .append(nodeFrom.getNode().getName())
+           .append("\" -> \"")
+           .append(nodeTo.getClass())
+           .append('_')
+           .append(nodeTo.getNode().getName())
+           .append("\" [style=solid];\n");
     return true;
   }
 
@@ -153,20 +158,20 @@ public final class GraphvizInjectionPlanVisitor
    */
   @Override
   public String toString() {
-    return mGraphStr.toString() + "}}\n";
+    return this.graphStr.toString() + "}}\n";
   }
 
   /**
    * Produce a Graphviz DOT string for a given TANG injection plan.
-   * @param aInjectionPlan TANG injection plan.
-   * @param aShowLegend if true, show legend on the graph.
+   * @param injectionPlan TANG injection plan.
+   * @param showLegend if true, show legend on the graph.
    * @return Injection plan represented as a string in Graphviz DOT format.
    */
-  public static String getGraphvizStr(
-      final InjectionPlan<?> aInjectionPlan, final boolean aShowLegend)
+  public static String getGraphvizString(
+      final InjectionPlan<?> injectionPlan, final boolean showLegend)
   {
-    final GraphvizInjectionPlanVisitor visitor = new GraphvizInjectionPlanVisitor(aShowLegend);
-    Walk.preorder(visitor, visitor, aInjectionPlan);
+    final GraphvizInjectionPlanVisitor visitor = new GraphvizInjectionPlanVisitor(showLegend);
+    Walk.preorder(visitor, visitor, injectionPlan);
     return visitor.toString();
   }
 }

@@ -67,33 +67,33 @@ public final class PrintTypeHierarchy {
   }
 
   /**
-   * @param aArgs command line arguments.
+   * @param args command line arguments.
    * @throws BindException configuration error.
    * @throws InjectionException configuration error.
    * @throws IOException cannot process command line parameters.
    */
-  public static void main(final String[] aArgs)
+  public static void main(final String[] args)
     throws BindException, InjectionException, IOException
   {
 
     final Tang tang = Tang.Factory.getTang();
     final ConfigurationBuilder confBuilder = tang.newConfigurationBuilder();
 
-    new CommandLine(confBuilder).processCommandLine(aArgs);
+    new CommandLine(confBuilder).processCommandLine(args);
     final Configuration config = confBuilder.build();
 
     final Injector injector = tang.newInjector(config);
     final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
     try (final FileWriter out = new FileWriter("type-hierarchy.dot")) {
-      out.write(GraphvizConfigVisitor.getGraphvizStr(config, true, true));
+      out.write(GraphvizConfigVisitor.getGraphvizString(config, true, true));
     }
 
     final InjectionPlan<PrintTypeHierarchy> plan =
             injector.getInjectionPlan(PrintTypeHierarchy.class);
 
     try (final FileWriter out = new FileWriter("injection-plan.dot")) {
-      out.write(GraphvizInjectionPlanVisitor.getGraphvizStr(plan, true));
+      out.write(GraphvizInjectionPlanVisitor.getGraphvizString(plan, true));
     }
 
     System.out.println(myself);

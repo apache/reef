@@ -15,8 +15,6 @@
  */
 package com.microsoft.tang.util.walk;
 
-import com.microsoft.tang.types.Traversable;
-
 /**
  * Generic interface to traverse edges of the configuration graph.
  * It is used e.g. in Walk.preorder()
@@ -25,9 +23,9 @@ public interface EdgeVisitor<T> {
 
   /**
    * Process current edge of the configuration graph.
-   * @param aNodeFrom Current configuration node.
-   * @param aNodeTo Destination configuration node.
+   * @param nodeFrom Current configuration node.
+   * @param nodeTo Destination configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  boolean visit(T aNodeFrom, T aNodeTo);
+  boolean visit(T nodeFrom, T nodeTo);
 }

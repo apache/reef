@@ -33,18 +33,18 @@ public final class Walk {
   /**
    * Traverse the configuration (sub)tree in preorder, starting from the given node.
    * FIXME: handle loopy graphs correctly!
-   * @param aNodeVisitor node visitor. Can be null.
-   * @param aEdgeVisitor edge visitor. Can be null.
-   * @param aNode current node of the configuration tree.
+   * @param nodeVisitor node visitor. Can be null.
+   * @param edgeVisitor edge visitor. Can be null.
+   * @param node current node of the configuration tree.
    * @return true if all nodes has been walked, false if visitor stopped early.
    */
   public static <T extends Traversable<T>> boolean preorder(
-      final NodeVisitor<T> aNodeVisitor, final EdgeVisitor<T> aEdgeVisitor, final T aNode)
+      final NodeVisitor<T> nodeVisitor, final EdgeVisitor<T> edgeVisitor, final T node)
   {
-    if (aNodeVisitor != null && aNodeVisitor.visit(aNode)) {
-      for (final T child : aNode.getChildren()) {
-        if (aEdgeVisitor != null && !(aEdgeVisitor.visit(aNode, child)
-                && preorder(aNodeVisitor, aEdgeVisitor, child)))
+    if (nodeVisitor != null && nodeVisitor.visit(node)) {
+      for (final T child : node.getChildren()) {
+        if (edgeVisitor != null && !(edgeVisitor.visit(node, child)
+                && preorder(nodeVisitor, edgeVisitor, child)))
         {
           return false;
         }
