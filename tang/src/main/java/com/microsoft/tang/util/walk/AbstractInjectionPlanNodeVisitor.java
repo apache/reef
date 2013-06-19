@@ -32,52 +32,52 @@ public abstract class AbstractInjectionPlanNodeVisitor implements NodeVisitor<In
    * Manually dispatch between different types of injection plan objects and call proper
    * visit() method. Currently dispatches between Constructor, Subplan, RequiredSingleton,
    * and JavaInstance types.
-   * @param aNode TANG injection plan node.
+   * @param node TANG injection plan node.
    * @return true to proceed with the next node, false to cancel.
    * @throws ClassCastException if argument is not one of Constructor, Subplan,
    * RequiredSingleton, or JavaInstance.
    */
   @Override
-  public boolean visit(final InjectionPlan<?> aNode) {
-    if (aNode instanceof Constructor<?>) {
-      return visit((Constructor) aNode);
-    } else if (aNode instanceof Subplan<?>) {
-      return visit((Subplan) aNode);
-    } else if (aNode instanceof RequiredSingleton<?,?>) {
-      return visit((RequiredSingleton) aNode);
-    } else if (aNode instanceof JavaInstance<?>) {
-      return visit((JavaInstance) aNode);
+  public boolean visit(final InjectionPlan<?> node) {
+    if (node instanceof Constructor<?>) {
+      return visit((Constructor) node);
+    } else if (node instanceof Subplan<?>) {
+      return visit((Subplan) node);
+    } else if (node instanceof RequiredSingleton<?,?>) {
+      return visit((RequiredSingleton) node);
+    } else if (node instanceof JavaInstance<?>) {
+      return visit((JavaInstance) node);
     }
     throw new ClassCastException(
-        "Node " + aNode.getClass() + " cannot be casted to one of the known subclasses."
+        "Node " + node.getClass() + " cannot be casted to one of the known subclasses."
         + " Override this method to handle the case.");
   }
 
   /**
    * Process current injection plan node of Constructor type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(Constructor<?> aNode);
+  public abstract boolean visit(Constructor<?> node);
 
   /**
    * Process current injection plan node of JavaInstance type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(JavaInstance<?> aNode);
+  public abstract boolean visit(JavaInstance<?> node);
 
   /**
    * Process current injection plan node of RequiredSingleton type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(RequiredSingleton<?,?> aNode);
+  public abstract boolean visit(RequiredSingleton<?,?> node);
 
   /**
    * Process current injection plan node of Subplan type.
-   * @param aNode Current injection plan node.
+   * @param node Current injection plan node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(Subplan<?> aNode);
+  public abstract boolean visit(Subplan<?> node);
 }

@@ -30,43 +30,43 @@ public abstract class AbstractConfigNodeVisitor implements NodeVisitor<Node> {
   /**
    * Manually dispatch between different types of Nodes and call a proper visit() method.
    * Currently dispatches between ClassNode, PackageNode, and NamedParameterNode types.
-   * @param aNode TANG configuration node.
+   * @param node TANG configuration node.
    * @return true to proceed with the next node, false to cancel.
    * @throws ClassCastException if Node is not one of ClassNode, PackageNode,
    * or NamedParameterNode.
    */
   @Override
-  public boolean visit(final Node aNode) {
-    if (aNode instanceof ClassNode) {
-      return visit((ClassNode) aNode);
-    } else if (aNode instanceof PackageNode) {
-      return visit((PackageNode) aNode);
-    } else if (aNode instanceof NamedParameterNode) {
-      return visit((NamedParameterNode) aNode);
+  public boolean visit(final Node node) {
+    if (node instanceof ClassNode) {
+      return visit((ClassNode) node);
+    } else if (node instanceof PackageNode) {
+      return visit((PackageNode) node);
+    } else if (node instanceof NamedParameterNode) {
+      return visit((NamedParameterNode) node);
     }
     throw new ClassCastException(
-        "Node " + aNode.getClass() + " cannot be casted to one of the known subclasses."
+        "Node " + node.getClass() + " cannot be casted to one of the known subclasses."
         + " Override this method to handle the case.");
   }
 
   /**
    * Process current configuration node of ClassNode type.
-   * @param aNode Current configuration node.
+   * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(ClassNode aNode);
+  public abstract boolean visit(ClassNode node);
 
   /**
    * Process current configuration node of PackageNode type.
-   * @param aNode Current configuration node.
+   * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(PackageNode aNode);
+  public abstract boolean visit(PackageNode node);
 
   /**
    * Process current configuration node of NamedParameterNode type.
-   * @param aNode Current configuration node.
+   * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(NamedParameterNode aNode);
+  public abstract boolean visit(NamedParameterNode node);
 }

@@ -59,19 +59,19 @@ public final class GraphvizConfigVisitor
     + "  }\n";
 
   /** Accumulate string representation of the graph here. */
-  private final transient StringBuilder mGraphStr = new StringBuilder(
+  private final transient StringBuilder graphStr = new StringBuilder(
     "digraph ConfigMain {\n"
     + "  rankdir=LR;\n");
 
   /**
    * Entire TANG configuration object.
    */
-  private final transient Configuration mConfig;
+  private final transient Configuration config;
 
   /**
    * If true, plot IS-A edges for know implementations.
    */
-  private final transient boolean mShowImpl;
+  private final transient boolean showImpl;
 
   /**
    * Create a new TANG configuration visitor.
@@ -79,13 +79,13 @@ public final class GraphvizConfigVisitor
    * @param aShowImpl If true, plot IS-A edges for know implementations.
    * @param aShowLegend If true, add legend to the plot.
    */
-  public GraphvizConfigVisitor(final Configuration aConfig,
-          final boolean aShowImpl, final boolean aShowLegend) {
+  public GraphvizConfigVisitor(final Configuration config,
+          final boolean showImpl, final boolean showLegend) {
     super();
-    this.mConfig = aConfig;
-    this.mShowImpl = aShowImpl;
-    if (aShowLegend) {
-      this.mGraphStr.append(LEGEND);
+    this.config = config;
+    this.showImpl = showImpl;
+    if (showLegend) {
+      this.graphStr.append(LEGEND);
     }
   }
 
@@ -94,46 +94,49 @@ public final class GraphvizConfigVisitor
    */
   @Override
   public String toString() {
-    return mGraphStr.toString() + "}\n";
+    return this.graphStr.toString() + "}\n";
   }
 
   /**
    * Process current class configuration node.
-   * @param aNode Current configuration node.
+   * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final ClassNode aNode) {
+  public boolean visit(final ClassNode node) {
 
-    mGraphStr.append("  ")
-             .append(aNode.getName())
-             .append(" [label=\"")
-             .append(aNode.getName())
-             .append("\", shape=box")
-             .append(mConfig.isSingleton(aNode) ? ", style=filled" : "")
-             .append("];\n");
+    this.graphStr
+            .append("  ")
+            .append(node.getName())
+            .append(" [label=\"")
+            .append(node.getName())
+            .append("\", shape=box")
+            .append(config.isSingleton(node) ? ", style=filled" : "")
+            .append("];\n");
 
-    final ClassNode boundImplNode = mConfig.getBoundImplementation(aNode);
+    final ClassNode boundImplNode = config.getBoundImplementation(node);
     if (boundImplNode != null) {
-      mGraphStr.append("  ")
-               .append(aNode.getName())
-               .append(" -> ")
-               .append(boundImplNode.getName())
-               .append(" [style=solid, dir=back, arrowtail=normal];\n");
+      this.graphStr
+              .append("  ")
+              .append(node.getName())
+              .append(" -> ")
+              .append(boundImplNode.getName())
+              .append(" [style=solid, dir=back, arrowtail=normal];\n");
     }
 
-    for (final Object implNodeObj : aNode.getKnownImplementations()) {
+    for (final Object implNodeObj : node.getKnownImplementations()) {
       final ClassNode implNode = (ClassNode) implNodeObj;
-      if (implNode != boundImplNode && implNode != aNode
-              && (implNode.isExternalConstructor() || mShowImpl))
+      if (implNode != boundImplNode && implNode != node
+              && (implNode.isExternalConstructor() || this.showImpl))
       {
-        mGraphStr.append("  ")
-                 .append(aNode.getName())
-                 .append(" -> ")
-                 .append(implNode.getName())
-                 .append(" [style=\"dashed")
-                 .append(implNode.isExternalConstructor() ? ",bold" : "")
-                 .append("\", dir=back, arrowtail=empty];\n");
+        this.graphStr
+                .append("  ")
+                .append(node.getName())
+                .append(" -> ")
+                .append(implNode.getName())
+                .append(" [style=\"dashed")
+                .append(implNode.isExternalConstructor() ? ",bold" : "")
+                .append("\", dir=back, arrowtail=empty];\n");
       }
     }
 
@@ -142,73 +145,75 @@ public final class GraphvizConfigVisitor
 
   /**
    * Process current package configuration node.
-   * @param aNode Current configuration node.
+   * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final PackageNode aNode) {
-    if (!aNode.getName().isEmpty()) {
-      mGraphStr.append("  ")
-               .append(aNode.getName())
-               .append(" [label=\"")
-               .append(aNode.getFullName())
-               .append("\", shape=folder];\n");
+  public boolean visit(final PackageNode node) {
+    if (!node.getName().isEmpty()) {
+      this.graphStr
+              .append("  ")
+              .append(node.getName())
+              .append(" [label=\"")
+              .append(node.getFullName())
+              .append("\", shape=folder];\n");
     }
     return true;
   }
 
   /**
    * Process current configuration node for the named parameter.
-   * @param aNode Current configuration node.
+   * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final NamedParameterNode aNode) {
-    mGraphStr.append("  ")
-             .append(aNode.getName())
-             .append(" [label=\"")
-             .append(aNode.getSimpleArgName())           // parameter type, e.g. "Integer"
-             .append("\\n")
-             .append(aNode.getName())                    // short name, e.g. "NumberOfThreads"
-             .append(" = ")
-             .append(mConfig.getNamedParameter(aNode))   // bound value, e.g. "16"
-             .append("\\n(default = ")
-             .append(aNode.getDefaultInstanceAsString()) // default value, e.g. "4"
-             .append(")\", shape=oval];\n");
+  public boolean visit(final NamedParameterNode node) {
+    this.graphStr
+            .append("  ")
+            .append(node.getName())
+            .append(" [label=\"")
+            .append(node.getSimpleArgName())           // parameter type, e.g. "Integer"
+            .append("\\n")
+            .append(node.getName())                    // short name, e.g. "NumberOfThreads"
+            .append(" = ")
+            .append(config.getNamedParameter(node))   // bound value, e.g. "16"
+            .append("\\n(default = ")
+            .append(node.getDefaultInstanceAsString()) // default value, e.g. "4"
+            .append(")\", shape=oval];\n");
     return true;
   }
 
   /**
    * Process current edge of the configuration graph.
-   * @param aNodeFrom Current configuration node.
-   * @param aNodeTo Destination configuration node.
+   * @param nodeFrom Current configuration node.
+   * @param nodeTo Destination configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final Node aNodeFrom, final Node aNodeTo) {
-    if (!aNodeFrom.getName().isEmpty()) {
-      mGraphStr.append("  ")
-               .append(aNodeFrom.getName())
-               .append(" -> ")
-               .append(aNodeTo.getName())
-               .append(" [style=solid, dir=back, arrowtail=diamond];\n");
+  public boolean visit(final Node nodeFrom, final Node nodeTo) {
+    if (!nodeFrom.getName().isEmpty()) {
+      this.graphStr
+              .append("  ")
+              .append(nodeFrom.getName())
+              .append(" -> ")
+              .append(nodeTo.getName())
+              .append(" [style=solid, dir=back, arrowtail=diamond];\n");
     }
     return true;
   }
 
   /**
    * Produce a Graphviz DOT string for a given TANG configuration.
-   * @param aConfig TANG configuration object.
-   * @param aShowImpl If true, plot IS-A edges for know implementations.
-   * @param aShowLegend If true, add legend to the plot.
+   * @param config TANG configuration object.
+   * @param showImpl If true, plot IS-A edges for know implementations.
+   * @param showLegend If true, add legend to the plot.
    * @return configuration graph represented as a string in Graphviz DOT format.
    */
-  public static String getGraphvizStr(final Configuration aConfig,
-          final boolean aShowImpl, final boolean aShowLegend)
+  public static String getGraphvizString(final Configuration config,
+          final boolean showImpl, final boolean showLegend)
   {
-    final GraphvizConfigVisitor visitor =
-        new GraphvizConfigVisitor(aConfig, aShowImpl, aShowLegend);
-    final Node root = aConfig.getClassHierarchy().getNamespace();
+    final GraphvizConfigVisitor visitor = new GraphvizConfigVisitor(config, showImpl, showLegend);
+    final Node root = config.getClassHierarchy().getNamespace();
     Walk.preorder(visitor, visitor, root);
     return visitor.toString();
   }
