@@ -11,14 +11,14 @@ import com.microsoft.tang.types.ConstructorDef;
 
 final public class Constructor<T> extends InjectionPlan<T> {
 
-  final ConstructorDef<T> mConstructor;
-  final InjectionPlan<?>[] mArgs;
-  final int mNumAlternatives;
-  final boolean mIsAmbiguous;
-  final boolean mIsInjectable;
+  final ConstructorDef<T> constructor;
+  final InjectionPlan<?>[] args;
+  final int numAlternatives;
+  final boolean isAmbiguous;
+  final boolean isInjectable;
 
   public InjectionPlan<?>[] getArgs() {
-    return mArgs;
+    return args;
   }
 
   /**
@@ -29,18 +29,18 @@ final public class Constructor<T> extends InjectionPlan<T> {
    */
   @Override
   public Collection<InjectionPlan<?>> getChildren() {
-    return Collections.unmodifiableList(Arrays.asList(this.mArgs));
+    return Collections.unmodifiableList(Arrays.asList(this.args));
   }
 
   public ConstructorDef<T> getConstructorDef() {
-    return mConstructor;
+    return constructor;
   }
 
   public Constructor(final ClassNode<T> aNode,
       final ConstructorDef<T> aConstructor, final InjectionPlan<?>[] aArgs) {
     super(aNode);
-    this.mConstructor = aConstructor;
-    this.mArgs = aArgs;
+    this.constructor = aConstructor;
+    this.args = aArgs;
     int numAlternatives = 1;
     boolean isAmbiguous = false;
     boolean isInjectable = true;
@@ -49,9 +49,9 @@ final public class Constructor<T> extends InjectionPlan<T> {
       isAmbiguous |= plan.isAmbiguous();
       isInjectable &= plan.isInjectable();
     }
-    this.mNumAlternatives = numAlternatives;
-    this.mIsAmbiguous = isAmbiguous;
-    this.mIsInjectable = isInjectable;
+    this.numAlternatives = numAlternatives;
+    this.isAmbiguous = isAmbiguous;
+    this.isInjectable = isInjectable;
   }
 
   @SuppressWarnings("unchecked")
@@ -62,26 +62,26 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
   @Override
   public int getNumAlternatives() {
-    return mNumAlternatives;
+    return numAlternatives;
   }
 
   @Override
   public boolean isAmbiguous() {
-    return mIsAmbiguous;
+    return isAmbiguous;
   }
 
   @Override
   public boolean isInjectable() {
-    return mIsInjectable;
+    return isInjectable;
   }
 
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("new ").append(getNode().getName()).append('(');
-    if (mArgs.length > 0) {
-      sb.append(mArgs[0]);
-      for (int i = 1; i < mArgs.length; i++) {
-        sb.append(", ").append(mArgs[i]);
+    if (args.length > 0) {
+      sb.append(args[0]);
+      for (int i = 1; i < args.length; i++) {
+        sb.append(", ").append(args[i]);
       }
     }
     return sb.append(')').toString();
@@ -98,30 +98,30 @@ final public class Constructor<T> extends InjectionPlan<T> {
   @Override
   public String toShallowString() {
     final StringBuilder sb = new StringBuilder("new ").append(getNode().getName()).append('(');
-    if (mArgs.length > 0) {
-      sb.append(shallowArgString(mArgs[0]));
-      for (int i = 1; i < mArgs.length; i++) {
-        sb.append(", ").append(shallowArgString(mArgs[i]));
+    if (args.length > 0) {
+      sb.append(shallowArgString(args[0]));
+      for (int i = 1; i < args.length; i++) {
+        sb.append(", ").append(shallowArgString(args[i]));
       }
     }
     return sb.append(')').toString();
   }
 
   /**
-   * @return A string describing ambiguous constructor arguments,
-   * or null if constructor is not ambiguous.
+   * @return A string describing ambiguous constructor arguments.
+   * @throws IllegalArgumentException if constructor is not ambiguous.
    */
   @Override
   protected String toAmbiguousInjectString() {
 
-    if (!mIsAmbiguous) {
-      return null;
+    if (!isAmbiguous) {
+      throw new IllegalArgumentException(getNode().getFullName() + " is NOT ambiguous.");
     }
 
     final StringBuilder sb =
         new StringBuilder(getNode().getFullName()).append(" has ambiguous arguments: [ ");
 
-    for (final InjectionPlan<?> plan : mArgs) {
+    for (final InjectionPlan<?> plan : args) {
       if (plan.isAmbiguous()) {
         sb.append(plan.getNode().getFullName()).append(' ');
       }
@@ -135,7 +135,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
     final List<InjectionPlan<?>> leaves = new ArrayList<>();
 
-    for (final InjectionPlan<?> ip : mArgs) {
+    for (final InjectionPlan<?> ip : args) {
       if (!ip.isFeasible()) {
         if (ip.isInfeasibleLeaf()) {
           leaves.add(ip);
