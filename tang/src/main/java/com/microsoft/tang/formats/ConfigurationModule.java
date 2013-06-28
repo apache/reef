@@ -2,9 +2,6 @@ package com.microsoft.tang.formats;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +12,8 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
+import com.microsoft.tang.util.MonotonicHashMap;
+import com.microsoft.tang.util.MonotonicHashSet;
 
 public abstract class ConfigurationModule {
 
@@ -25,46 +24,41 @@ public abstract class ConfigurationModule {
   };
 
   public static final class RequiredImpl<T> implements Impl<T> {
-    public RequiredImpl() {
-    }
   }
 
   public static final class OptionalImpl<T> implements Impl<T> {
-    public OptionalImpl() {
-    }
   }
 
   public static final class RequiredParameter<T> implements Param<T> {
-    public RequiredParameter() {
-    }
   }
 
   public static final class OptionalParameter<T> implements Param<T> {
-    public OptionalParameter() {
-    }
   }
 
-  private final static Set<Class<?>> paramTypes = new HashSet<>(Arrays.asList(
+  private final static Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
-      OptionalParameter.class));
+      OptionalParameter.class);
 
   final JavaConfigurationBuilder b = Tang.Factory.getTang()
       .newConfigurationBuilder();
-  // Sets of things that have been declared but not used in a bind.
-  // Both must be empty before build().
-  private final Set<Field> reqUse = new HashSet<>();
-  private final Set<Field> optUse = new HashSet<>();
+  // Sets of things that have been declared
+  private final Set<Field> reqDecl = new MonotonicHashSet<>();
+  private final Set<Field> optDecl = new MonotonicHashSet<>();
+  // Set of things that have been used in a bind. These must be equal
+  // to the decl counterparts before build() is called.
+  private final Set<Field> reqUsed = new MonotonicHashSet<>();
+  private final Set<Field> optUsed = new MonotonicHashSet<>();
   // Set of required unset parameters. Must be empty before build.
-  private final Set<Field> reqSet = new HashSet<>();
+  private final Set<Field> reqSet = new MonotonicHashSet<>();
 
   // Maps from field instance variables to the fields that they
   // are assigned to. These better be unique!
-  private final Map<Object, Field> map = new HashMap<>();
+  private final Map<Object, Field> map = new MonotonicHashMap<>();
 
-  private final Map<Impl<?>, Class<?>> freeImpls = new HashMap<>();
-  private final Map<Param<?>, Class<? extends Name<?>>> freeParams = new HashMap<>();
-  private final Map<Impl<?>, Class<?>> setImpls = new HashMap<>();
-  private final Map<Param<?>, String> setParams = new HashMap<>();
+  private final Map<Impl<?>, Class<?>> freeImpls = new MonotonicHashMap<>();
+  private final Map<Param<?>, Class<? extends Name<?>>> freeParams = new MonotonicHashMap<>();
+  private final Map<Impl<?>, Class<?>> setImpls = new MonotonicHashMap<>();
+  private final Map<Param<?>, String> setParams = new MonotonicHashMap<>();
 
   private final ConfigurationModule deepCopy() {
     // ooh... this is a dirty trick --- we strip this's type off here,
@@ -81,8 +75,10 @@ public abstract class ConfigurationModule {
     } catch (BindException e) {
       throw new ClassHierarchyException(e);
     }
-    reqUse.addAll(c.reqUse);
-    optUse.addAll(c.optUse);
+    reqDecl.addAll(c.reqDecl);
+    optDecl.addAll(c.optDecl);
+    reqUsed.addAll(c.reqUsed);
+    optUsed.addAll(c.optUsed);
     reqSet.addAll(c.reqSet);
     map.putAll(c.map);
     freeImpls.putAll(c.freeImpls);
@@ -124,10 +120,9 @@ public abstract class ConfigurationModule {
                   + " for fields " + map.get(o) + " and " + f);
         }
         if (t == RequiredImpl.class || t == RequiredParameter.class) {
-          reqUse.add(f);
-          reqSet.add(f);
+          reqDecl.add(f);
         } else {
-          optUse.add(f);
+          optDecl.add(f);
         }
         map.put(o, f);
       }
@@ -148,17 +143,32 @@ public abstract class ConfigurationModule {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public final Configuration build() throws BindException {
     ConfigurationModule c = deepCopy();
-    if (!(c.reqUse.isEmpty() && c.optUse.isEmpty())) {
-      Set<Field> f = new HashSet<>();
-      f.addAll(c.reqUse);
-      f.addAll(c.optUse);
+    if (!(c.reqUsed.containsAll(c.reqDecl) && c.optUsed.containsAll(c.optDecl))) {
+      Set<Field> fset = new MonotonicHashSet<>();
+      for (Field f : c.reqDecl) {
+        if (!c.reqUsed.contains(f)) {
+          fset.add(f);
+        }
+      }
+      for (Field f : c.optDecl) {
+        if (!c.optUsed.contains(f)) {
+          fset.add(f);
+        }
+      }
       throw new ClassHierarchyException(
-          "Found declared options that were not used in binds: " + toString(f));
+          "Found declared options that were not used in binds: "
+              + toString(fset));
     }
-    if (!c.reqSet.isEmpty()) {
+    if (!c.reqSet.containsAll(c.reqDecl)) {
+      Set<Field> missingSet = new MonotonicHashSet<>();
+      for (Field f : c.reqDecl) {
+        if (!c.reqSet.contains(f)) {
+          missingSet.add(f);
+        }
+      }
       throw new BindException(
           "Attempt to build configuration before setting required option(s): "
-              + toString(c.reqSet));
+              + toString(missingSet));
     }
 
     for (Impl<?> i : c.setImpls.keySet()) {
@@ -184,15 +194,15 @@ public abstract class ConfigurationModule {
     Field f = map.get(impl);
     if (f == null) { /* throw */
     }
-    reqUse.remove(f);
-    optUse.remove(f);
+    reqUsed.add(f);
+    optUsed.add(f);
   }
 
   private final <T> void processSet(Object impl) {
     Field f = map.get(impl);
     if (f == null) { /* throw */
     }
-    reqSet.remove(f);
+    reqSet.add(f);
   }
 
   public final <T> ConfigurationModule set(Impl<T> opt, Class<? extends T> impl) {
