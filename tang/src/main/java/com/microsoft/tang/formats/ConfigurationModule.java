@@ -157,9 +157,12 @@ public abstract class ConfigurationModule {
   public final Configuration build() throws BindException {
     ConfigurationModule c = deepCopy();
     if (!(c.reqUse.isEmpty() && c.optUse.isEmpty())) {
+      Set<Field> f = new HashSet<>();
+      f.addAll(c.reqUse);
+      f.addAll(c.optUse);
       throw new ClassHierarchyException(
           "Found declared options that were not used in binds: "
-              + toString(c.reqUse) + " " + toString(c.optUse));
+              + toString(f));
     }
     if (!c.reqSet.isEmpty()) {
       throw new BindException(
