@@ -16,8 +16,6 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationModule.OptionalParameter;
-import com.microsoft.tang.formats.ConfigurationModule.RequiredImpl;
 
 public class TestConfigurationModule {
   /*
@@ -79,26 +77,26 @@ public class TestConfigurationModule {
    * 
    * 
    */
-  static class MyConfigurationModule {
-    /// Enumerate the parameters for this configuration module.
-    
+  public static final class MyConfigurationModule extends ConfigurationModule {    
     // Tell us what implementation you want, or else!!    
     public static final RequiredImpl<Foo> THE_FOO = new RequiredImpl<>();
     // If you want, you can change the fooness.
     public static final OptionalParameter<Integer> FOO_NESS = new OptionalParameter<>();
-    // This binds the above to tang configuration stuff.  You can use parameters more than
-    // once, but you'd better use them all at least once, or I'll throw exceptions at you.
-    public static final ConfigurationModule CONF = new ConfigurationModule() { }
+    
+    public static final ConfigurationModule CONF = new MyConfigurationModule()
+
+      // This binds the above to tang configuration stuff.  You can use parameters more than
+      // once, but you'd better use them all at least once, or I'll throw exceptions at you.
+
       .bindImplementation(Foo.class, THE_FOO)
       .bindNamedParameter(Fooness.class, FOO_NESS);
+    
     // This conf doesn't use FOO_NESS.  Expect trouble below
-    public static final ConfigurationModule BAD_CONF = new ConfigurationModule() { }
+    public static final ConfigurationModule BAD_CONF = new MyConfigurationModule()
       .bindImplementation(Foo.class, THE_FOO);
   }
   @Rule public ExpectedException thrown = ExpectedException.none();
-
-
-  
+ 
   @Test
   public void smokeTest() throws BindException, InjectionException {
     // Here we set some configuration values.  In true tang style,

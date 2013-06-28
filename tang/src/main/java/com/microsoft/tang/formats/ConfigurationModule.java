@@ -68,9 +68,9 @@ public abstract class ConfigurationModule {
 
   private final ConfigurationModule deepCopy() {
     // ooh... this is a dirty trick --- we strip this's type off here,
-    // fortunately, we've all ready looked at the root object's enclosing
-    // class, so everything works out OK w.r.t. detecting fields in the
-    // same module as us.
+    // fortunately, we've all ready looked at the root object's class's
+    // fields, and we copy the information we extracted from them, so
+    // everything works out OK w.r.t. field detection.
     return new ConfigurationModule(this) {
     };
   }
@@ -79,7 +79,7 @@ public abstract class ConfigurationModule {
     try {
       b.addConfiguration(c.b.build());
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     reqUse.addAll(c.reqUse);
     optUse.addAll(c.optUse);
@@ -91,16 +91,8 @@ public abstract class ConfigurationModule {
     setParams.putAll(c.setParams);
   }
 
-  public ConfigurationModule() {
-    // TODO: Can we simply look at the stack to see what class invoked us?
-    // That would avoid the crazy {}'s.
-    if (getClass().getEnclosingClass() == null) {
-      throw new ClassHierarchyException(
-          "ConfigurationModules must be inner classes.  "
-              + "In other words, put a '{}' between 'new ConfigurationModule()' "
-              + "and the first '.bind...(...)'");
-    }
-    for (Field f : getClass().getEnclosingClass().getDeclaredFields()) {
+  protected ConfigurationModule() {
+    for (Field f : getClass().getDeclaredFields()) {
       Class<?> t = f.getType();
       if (paramTypes.contains(t)) {
         if (!Modifier.isPublic(f.getModifiers())) {
@@ -161,8 +153,7 @@ public abstract class ConfigurationModule {
       f.addAll(c.reqUse);
       f.addAll(c.optUse);
       throw new ClassHierarchyException(
-          "Found declared options that were not used in binds: "
-              + toString(f));
+          "Found declared options that were not used in binds: " + toString(f));
     }
     if (!c.reqSet.isEmpty()) {
       throw new BindException(
@@ -184,7 +175,7 @@ public abstract class ConfigurationModule {
     try {
       c.b.bind(iface, impl);
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     return c;
   }
@@ -231,7 +222,7 @@ public abstract class ConfigurationModule {
     try {
       c.b.bindImplementation(iface, impl);
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     return c;
   }
@@ -250,7 +241,7 @@ public abstract class ConfigurationModule {
     try {
       c.b.bindSingletonImplementation(iface, impl);
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     return c;
   }
@@ -263,7 +254,7 @@ public abstract class ConfigurationModule {
       c.b.bindSingleton(iface);
       c.freeImpls.put(opt, iface);
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     return c;
   }
@@ -273,7 +264,7 @@ public abstract class ConfigurationModule {
     try {
       c.b.bindSingleton(iface);
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     return c;
   }
@@ -284,7 +275,7 @@ public abstract class ConfigurationModule {
     try {
       c.b.bindNamedParameter(name, value);
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     return c;
   }
@@ -303,7 +294,7 @@ public abstract class ConfigurationModule {
     try {
       c.b.bindNamedParameter(iface, impl);
     } catch (BindException e) {
-      throw new RuntimeException(e);
+      throw new ClassHierarchyException(e);
     }
     return c;
   }
