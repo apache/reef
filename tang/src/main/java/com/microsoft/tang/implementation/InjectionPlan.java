@@ -23,6 +23,7 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
    * By default, returns an empty list.
    * @return An empty list.
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Collection<InjectionPlan<?>> getChildren() {
     return Collections.EMPTY_LIST;

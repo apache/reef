@@ -17,6 +17,7 @@ public class RequiredSingleton<T,U> extends InjectionPlan<T> {
    * Get child elements of the injection plan tree.
    * @return A list with single prerequisite injection plan.
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public Collection<InjectionPlan<?>> getChildren() {
     return (Collection) Collections.singletonList(this.preReq);

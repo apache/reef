@@ -38,11 +38,11 @@ public abstract class AbstractConfigNodeVisitor implements NodeVisitor<Node> {
   @Override
   public boolean visit(final Node node) {
     if (node instanceof ClassNode) {
-      return visit((ClassNode) node);
+      return visit((ClassNode<?>) node);
     } else if (node instanceof PackageNode) {
       return visit((PackageNode) node);
     } else if (node instanceof NamedParameterNode) {
-      return visit((NamedParameterNode) node);
+      return visit((NamedParameterNode<?>) node);
     }
     throw new ClassCastException(
         "Node " + node.getClass() + " cannot be casted to one of the known subclasses."
@@ -54,7 +54,7 @@ public abstract class AbstractConfigNodeVisitor implements NodeVisitor<Node> {
    * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(ClassNode node);
+  public abstract boolean visit(ClassNode<?> node);
 
   /**
    * Process current configuration node of PackageNode type.
@@ -68,5 +68,5 @@ public abstract class AbstractConfigNodeVisitor implements NodeVisitor<Node> {
    * @param node Current configuration node.
    * @return true to proceed with the next node, false to cancel.
    */
-  public abstract boolean visit(NamedParameterNode node);
+  public abstract boolean visit(NamedParameterNode<?> node);
 }

@@ -37,6 +37,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
    * TODO: use ArrayList internally (and maybe for input, too).
    * @return A list of injection sub-plans.
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public Collection<InjectionPlan<?>> getChildren() {
     return (Collection) Collections.unmodifiableList(Arrays.asList(this.alternatives));
@@ -145,7 +146,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
       return alternatives[0].toInfeasibleInjectString();
     } else if(alternatives.length == 0) {
       return "No known implementations / injectable constructors for "
-          + this.getNode();
+          + this.getNode().getFullName();
     } else if (selectedIndex != -1) {
       return alternatives[selectedIndex].toInfeasibleInjectString();
     } else {

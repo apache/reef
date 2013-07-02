@@ -40,13 +40,13 @@ public abstract class AbstractInjectionPlanNodeVisitor implements NodeVisitor<In
   @Override
   public boolean visit(final InjectionPlan<?> node) {
     if (node instanceof Constructor<?>) {
-      return visit((Constructor) node);
+      return visit((Constructor<?>) node);
     } else if (node instanceof Subplan<?>) {
-      return visit((Subplan) node);
+      return visit((Subplan<?>) node);
     } else if (node instanceof RequiredSingleton<?,?>) {
-      return visit((RequiredSingleton) node);
+      return visit((RequiredSingleton<?,?>) node);
     } else if (node instanceof JavaInstance<?>) {
-      return visit((JavaInstance) node);
+      return visit((JavaInstance<?>) node);
     }
     throw new ClassCastException(
         "Node " + node.getClass() + " cannot be casted to one of the known subclasses."
