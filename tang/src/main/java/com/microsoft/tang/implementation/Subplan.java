@@ -40,7 +40,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public Collection<InjectionPlan<?>> getChildren() {
-    return (Collection) Collections.unmodifiableList(Arrays.asList(this.alternatives));
+    return (Collection)Collections.unmodifiableCollection(Arrays.asList(this.alternatives));
   }
 
   public Subplan(Node node,
@@ -150,7 +150,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
     } else if (selectedIndex != -1) {
       return alternatives[selectedIndex].toInfeasibleInjectString();
     } else {
-      throw new IllegalStateException("toInfeasibleInjectString called on ambiguous subplan " + toPrettyString());
+      return "Multiple infeasible plans: " + toPrettyString();
     }
   }
 
