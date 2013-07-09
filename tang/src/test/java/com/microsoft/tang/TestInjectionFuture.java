@@ -36,12 +36,6 @@ public class TestInjectionFuture {
     Assert.assertTrue(c.getDriver() == c.getDriver().getMyCar().getDriver());
   }
   
-  public class FutureFlyingCar extends InjectionFuture<FlyingCar> {
-    public FutureFlyingCar(Injector injector, Class<? extends FlyingCar> iface) {
-      super(injector, iface);
-    }
-  }
-  
   public static class Futurist {
     private final InjectionFuture<FlyingCar> f_car;
     @Inject
@@ -50,7 +44,6 @@ public class TestInjectionFuture {
     }
     public FlyingCar getMyCar() {
       FlyingCar c = f_car.get();
-//      Assert.assertTrue(this == c.getDriver());
       return c;
     }
     

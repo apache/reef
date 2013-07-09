@@ -44,7 +44,7 @@ import com.microsoft.tang.exceptions.InjectionException;
  * @param <T>
  */
 
-public class InjectionFuture<T> implements Future<T> {
+public final class InjectionFuture<T> implements Future<T> {
 
   protected final Injector injector;
 
