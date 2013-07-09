@@ -10,7 +10,7 @@ import com.microsoft.tang.exceptions.InjectionException;
  * constructor-based dependency injector, there is no way to directly create
  * cycles of objects.
  * 
- * In situations where you need to have two object that point at each other, you
+ * In situations where you need to have two objects that point at each other, you
  * can use an InjectionFuture to break the cycle. Simply ask Tang to inject an
  * InjectionFuture<T> into your constructor.  Later (after your constructor
  * returns) invoke the get() method of the injection future to get a reference

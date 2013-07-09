@@ -145,4 +145,5 @@ message ConstructorArg {
      The named parameter (if any) that this argument is annotated with.
    */
   optional string named_parameter_name = 2;
+  required bool is_injection_future = 3;
 }

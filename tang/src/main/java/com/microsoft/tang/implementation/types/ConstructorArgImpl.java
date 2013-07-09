@@ -5,7 +5,8 @@ import com.microsoft.tang.types.ConstructorArg;
 public class ConstructorArgImpl implements ConstructorArg {
   private final String type;
   private final String name;
-
+  private final boolean isInjectionFuture;
+  
   @Override
   public String getName() {
     return name == null ? type : name;
@@ -21,9 +22,10 @@ public class ConstructorArgImpl implements ConstructorArg {
     return type;
   }
 
-  public ConstructorArgImpl(String type, String namedParameterName) {
+  public ConstructorArgImpl(String type, String namedParameterName, boolean isInjectionFuture) {
     this.type = type;
     this.name = namedParameterName;
+    this.isInjectionFuture = isInjectionFuture;
   }
 
   @Override
@@ -48,5 +50,10 @@ public class ConstructorArgImpl implements ConstructorArg {
     }
     return name.equals(arg.name);
 
+  }
+
+  @Override
+  public boolean isInjectionFuture() {
+    return isInjectionFuture;
   }
 }

@@ -6,5 +6,7 @@ public interface ConstructorArg {
 
   public String getType();
 
+  public boolean isInjectionFuture();
+  
   public String getNamedParameterName();  
 }

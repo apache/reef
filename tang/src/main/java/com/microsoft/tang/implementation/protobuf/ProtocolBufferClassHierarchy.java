@@ -90,10 +90,11 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   }
 
   private static ClassHierarchyProto.ConstructorArg newConstructorArg(
-      String fullArgClassName, String namedParameterName) {
+      String fullArgClassName, String namedParameterName, boolean isFuture) {
     ClassHierarchyProto.ConstructorArg.Builder builder = 
         ClassHierarchyProto.ConstructorArg.newBuilder()
-        .setFullArgClassName(fullArgClassName);
+        .setFullArgClassName(fullArgClassName)
+        .setIsInjectionFuture(isFuture);
     if(namedParameterName != null) {
         builder.setNamedParameterName(namedParameterName).build();
     }
@@ -107,7 +108,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       ConstructorDef<?> def) {
     List<ClassHierarchyProto.ConstructorArg> args = new ArrayList<>();
     for (ConstructorArg arg : def.getArgs()) {
-      args.add(newConstructorArg(arg.getType(), arg.getNamedParameterName()));
+      args.add(newConstructorArg(arg.getType(), arg.getNamedParameterName(), arg.isInjectionFuture()));
     }
     return newConstructorDef(def.getClassName(), args);
   }
@@ -232,7 +233,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     List<ConstructorArg> args = new ArrayList<>();
     for (ClassHierarchyProto.ConstructorArg arg : def.getArgsList()) {
       args.add(new ConstructorArgImpl(arg.getFullArgClassName(), arg
-          .getNamedParameterName()));
+          .getNamedParameterName(),arg.getIsInjectionFuture()));
     }
     return new ConstructorDefImpl<>(def.getFullClassName(),
         args.toArray(new ConstructorArg[0]), isInjectable);

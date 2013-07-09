@@ -11,6 +11,7 @@ import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.annotations.Name;
@@ -206,14 +207,24 @@ public class InjectorImpl implements Injector {
             ConstructorArg[] defArgs = def.getArgs();
 
             for (ConstructorArg arg : defArgs) {
-              try {
-                Node argNode = namespace.getNode(arg.getName());
-                buildInjectionPlan(argNode, memo);
-                args.add(memo.get(argNode));
-              } catch (NameResolutionException e) {
-                throw new IllegalStateException("Detected unresolvable "
-                    + "constructor arg while building injection plan.  "
-                    + "This should have been caught earlier!", e);
+              if(!arg.isInjectionFuture()) {
+                try {
+                  Node argNode = namespace.getNode(arg.getName());
+                  buildInjectionPlan(argNode, memo);
+                  args.add(memo.get(argNode));
+                } catch (NameResolutionException e) {
+                  throw new IllegalStateException("Detected unresolvable "
+                      + "constructor arg while building injection plan.  "
+                      + "This should have been caught earlier!", e);
+                }
+              } else {
+                try {
+                  args.add(new JavaInstance(namespace.getNode(arg.getName()), new Integer(0)));
+                } catch (NameResolutionException e) {
+                  throw new IllegalStateException("Detected unresolvable "
+                      + "constructor arg while building injection plan.  "
+                      + "This should have been caught earlier!", e);
+                }
               }
             }
             Constructor constructor = new Constructor(thisCN, def,
@@ -285,16 +296,12 @@ public class InjectorImpl implements Injector {
 
   @SuppressWarnings("unchecked")
   public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) {
-    assertNotConcurrent();
-    Node n = javaNamespace.getNode(name);
-    return (InjectionPlan<T>) getInjectionPlan(n);
+    return (InjectionPlan<T>) getInjectionPlan(javaNamespace.getNode(name));
   }
 
   @Override
   public boolean isInjectable(String name) throws NameResolutionException {
-    assertNotConcurrent();
-    InjectionPlan<?> p = getInjectionPlan(namespace.getNode(name));
-    return p.isInjectable();
+    return getInjectionPlan(namespace.getNode(name)).isInjectable();
   }
 
   @Override
@@ -309,7 +316,6 @@ public class InjectorImpl implements Injector {
 
   @Override
   public boolean isParameterSet(String name) throws NameResolutionException {
-    assertNotConcurrent();
     InjectionPlan<?> p = getInjectionPlan(namespace.getNode(name));
     return p.isInjectable();
   }
@@ -317,7 +323,6 @@ public class InjectorImpl implements Injector {
   @Override
   public boolean isParameterSet(Class<? extends Name<?>> name)
       throws BindException {
-    assertNotConcurrent();
     return isParameterSet(name.getName());
   }
 
@@ -369,7 +374,16 @@ public class InjectorImpl implements Injector {
       }
     }
   }
-
+  
+  @SuppressWarnings("unchecked")
+  private <U> U getInstance(Node n) throws InjectionException {
+    assertNotConcurrent();
+    populateSingletons();
+    InjectionPlan<?> plan = getInjectionPlan(n);
+    U u = (U) injectFromPlan(plan);
+    return u;
+  }
+  @SuppressWarnings("unchecked")
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
     if (Name.class.isAssignableFrom(clazz)) {
@@ -377,29 +391,20 @@ public class InjectorImpl implements Injector {
           + ReflectionUtilities.getFullName(clazz)
           + " Did you mean to call getNamedInstance() instead?");
     }
-    assertNotConcurrent();
-    populateSingletons();
-    InjectionPlan<U> plan = getInjectionPlan(clazz);
-    return injectFromPlan(plan);
+    return (U) getInstance(javaNamespace.getNode(clazz));
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <U> U getInstance(String clazz) throws InjectionException, NameResolutionException {
-    assertNotConcurrent();
-    populateSingletons();
-    InjectionPlan<?> plan = getInjectionPlan(namespace.getNode(clazz));
-    return (U) injectFromPlan(plan);
+    return (U) getInstance(namespace.getNode(clazz));
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getNamedInstance(Class<? extends Name<T>> clazz)
       throws InjectionException {
-    assertNotConcurrent();
-    populateSingletons();
-    InjectionPlan<T> plan = (InjectionPlan<T>) getInjectionPlan(clazz);
-    return (T) injectFromPlan(plan);
+    return (T) getInstance(javaNamespace.getNode(clazz));
   }
   public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
       throws InjectionException {
@@ -415,7 +420,11 @@ public class InjectorImpl implements Injector {
     ConstructorArg[] args = constructor.getArgs();
     Class<?> parameterTypes[] = new Class[args.length];
     for (int i = 0; i < args.length; i++) {
-      parameterTypes[i] = javaNamespace.classForName(args[i].getType());
+      if(args[i].isInjectionFuture()) {
+        parameterTypes[i] = InjectionFuture.class;
+      } else {
+        parameterTypes[i] = javaNamespace.classForName(args[i].getType());
+      }
     }
     java.lang.reflect.Constructor<T> cons = clazz
         .getDeclaredConstructor(parameterTypes);
@@ -457,9 +466,20 @@ public class InjectorImpl implements Injector {
       if (singletonInstances.containsKey(constructor.getNode())) {
         return (T) singletonInstances.get(constructor.getNode());
       }
-      Object[] args = new Object[constructor.getArgs().length];
-      for (int i = 0; i < constructor.getArgs().length; i++) {
-        args[i] = injectFromPlan(constructor.getArgs()[i]);
+      final Object[] args = new Object[constructor.getArgs().length];
+      final ConstructorArg[] constArgs = constructor.getConstructorDef().getArgs();
+      final InjectionPlan<?>[] argPlans = constructor.getArgs();
+      for (int i = 0; i < argPlans.length; i++) {
+        if(constArgs[i].isInjectionFuture()) {
+          try {
+            args[i] = new InjectionFuture<>(this, javaNamespace.classForName(constArgs[i].getType()));
+          } catch(ClassNotFoundException e) {
+            throw new InjectionException("Plan for " + constructor.getNode().getFullName()
+                + " referenced non-existent class " + constArgs[i].getType(), e);
+          }
+        } else {
+          args[i] = injectFromPlan(argPlans[i]);
+        }
       }
       if (!singletonInstances.containsKey(constructor.getNode())) {
         try {
