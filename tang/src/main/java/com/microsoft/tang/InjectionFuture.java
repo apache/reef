@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.implementation.java.InjectorImpl;
+import com.microsoft.tang.util.TracingMonotonicMap;
 
 /**
  * A future-based mechanism for cyclic object injections. Since Tang is a
@@ -64,6 +65,11 @@ public final class InjectionFuture<T> implements Future<T> {
     this.injector = injector;
     this.iface = iface;
     this.futures = futures;
+  }
+  public InjectionFuture(final Injector injector, Class<? extends T> iface) {
+    this.injector = (InjectorImpl)injector;
+    this.iface = iface;
+    this.futures = new TracingMonotonicMap<>();
   }
 
   @Override
