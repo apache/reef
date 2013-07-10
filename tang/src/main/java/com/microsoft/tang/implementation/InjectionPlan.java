@@ -39,6 +39,8 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
 
   abstract public boolean isInjectable();
 
+  abstract public boolean hasFutureDependency();
+  
   protected void pad(StringBuffer sb, int n) {
     for (int i = 0; i < n; i++) {
       sb.append("  ");

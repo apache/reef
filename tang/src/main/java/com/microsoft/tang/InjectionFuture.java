@@ -1,9 +1,11 @@
 package com.microsoft.tang;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.tang.implementation.java.InjectorImpl;
 
 /**
  * A future-based mechanism for cyclic object injections. Since Tang is a
@@ -46,15 +48,22 @@ import com.microsoft.tang.exceptions.InjectionException;
 
 public final class InjectionFuture<T> implements Future<T> {
 
-  protected final Injector injector;
+  protected final InjectorImpl injector;
 
   private final Class<? extends T> iface;
-
+  private final Map<String, InjectionFuture<?>> futures;
+  
   private T cached = null;
-
-  public InjectionFuture(final Injector injector, Class<? extends T> iface) {
+  public InjectionFuture(final T cached) {
+    injector = null;
+    iface = null;
+    futures = null;
+    this.cached = cached;
+  }
+  public InjectionFuture(final InjectorImpl injector, final Map<String, InjectionFuture<?>> futures, Class<? extends T> iface) {
     this.injector = injector;
     this.iface = iface;
+    this.futures = futures;
   }
 
   @Override
@@ -78,7 +87,7 @@ public final class InjectionFuture<T> implements Future<T> {
       synchronized (this) {
         try {
           if (this.cached == null) {
-            this.cached = this.injector.getInstance(this.iface);
+            this.cached = this.injector.getInstance(this.iface, futures);
           }
         } catch (InjectionException e) {
           throw new RuntimeException(e);
@@ -86,6 +95,15 @@ public final class InjectionFuture<T> implements Future<T> {
       }
     }
     return this.cached;
+  }
+  public boolean isCached() {
+    return this.cached != null;
+  }
+  public void set(T t) {
+    if(this.cached != null) {
+      throw new IllegalStateException("Attempt to double set future!");
+    }
+    this.cached = t;
   }
 
   @Override

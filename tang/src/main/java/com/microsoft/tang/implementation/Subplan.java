@@ -163,4 +163,12 @@ final public class Subplan<T> extends InjectionPlan<T> {
     return Arrays.copyOf(alternatives, alternatives.length);
   }
 
+  @Override
+  public boolean hasFutureDependency() {
+    if(selectedIndex == -1) {
+      throw new IllegalStateException("hasFutureDependency() called on ambiguous subplan!");
+    }
+    return alternatives[selectedIndex].hasFutureDependency();
+  }
+
 }
