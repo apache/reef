@@ -183,4 +183,12 @@ final public class Constructor<T> extends InjectionPlan<T> {
   protected boolean isInfeasibleLeaf() {
     return false;
   }
+
+  @Override
+  public boolean hasFutureDependency() {
+    for(InjectionPlan<?> p : args) {
+      if(p.hasFutureDependency()) return true;
+    }
+    return false;
+  }
 }

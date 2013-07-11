@@ -128,36 +128,61 @@ public class ReflectionUtilities {
     return name.getName();
   }
   /**
+   * This method takes a class called clazz that *directly* implements a generic interface or generic class, iface.
+   * Iface should take a single parameter, which this method will return.
+   * 
+   * TODO This is only tested for interfaces, and the type parameters associated with method arguments.
+   * TODO Not sure what we should do in the face of deeply nested generics (eg: Set<Set<String>)
+   * TODO Recurse up the class hierarchy in case there are intermediate interfaces
    * 
    * @param iface A generic interface; we're looking up it's first (and only) parameter.
    * @param clazz A class that implements iface
+   * @param type A type that is more specific than clazz, or clazz if no such type is available.
    * @return The class implemented by the interface, or null(?) if the instantiation was not generic.
    * @throws IllegalArgumentException if clazz does not directly implement iface.
    */
-  static public Class<?> getInterfaceTarget(Class<?> iface, Class<?> clazz) throws IllegalArgumentException {
-    boolean implementsIface = false;
-    Class<?> parameterClass = null;
-    Type[] interfaces = clazz.getGenericInterfaces();
-    for (Type genericNameType : interfaces) {
-      if (genericNameType instanceof ParameterizedType) {
-        ParameterizedType ptype = (ParameterizedType) genericNameType;
-        if (ptype.getRawType() == iface) {
-          implementsIface = true;
-          Type t = ptype.getActualTypeArguments()[0];
-          // It could be that the parameter is, itself a generic type. Not
-          // sure if we should support this, but we do for now.
-          if (t instanceof ParameterizedType) {
-            // Get the underlying raw type of the parameter.
-            t = ((ParameterizedType) t).getRawType();
+  static public Class<?> getInterfaceTarget(final Class<?> iface, final Type type) throws IllegalArgumentException {
+    if(type instanceof ParameterizedType) {
+      final ParameterizedType pt = (ParameterizedType)type;
+      if(iface.isAssignableFrom((Class<?>)pt.getRawType())) {
+        return (Class<?>) pt.getActualTypeArguments()[0];
+      } else {
+        throw new IllegalArgumentException("Parameterized type " + type + " does not extend " + iface);
+      }
+    } else if(type instanceof Class) {
+      final Class<?> clazz = (Class<?>)type;
+
+      if(!clazz.equals(type)) {
+        throw new IllegalArgumentException();
+      }
+      
+      ArrayList<Type> al = new ArrayList<>();
+      al.addAll(Arrays.asList(clazz.getGenericInterfaces()));
+      Type sc = clazz.getGenericSuperclass();
+      if(sc != null) al.add(sc);
+      
+      final Type[] interfaces = al.toArray(new Type[0]);
+      
+      for (Type genericNameType : interfaces) {
+        if (genericNameType instanceof ParameterizedType) {
+          ParameterizedType ptype = (ParameterizedType) genericNameType;
+          if (ptype.getRawType().equals(iface)) {
+            Type t = ptype.getActualTypeArguments()[0];
+            // It could be that the parameter is, itself a generic type.
+            if (t instanceof Class) {
+              return (Class<?>) t;
+            } else if (t instanceof ParameterizedType) {
+              // Get the underlying raw type of the parameter.
+              // This strips any nested generic parameters from this generic parameter.
+              return (Class<?>) ((ParameterizedType)t).getRawType();
+            }
           }
-          parameterClass = (Class<?>) t;
         }
       }
-    }
-    if(!implementsIface) {
       throw new IllegalArgumentException(clazz + " does not directly implement " + iface);
+    } else {
+      throw new UnsupportedOperationException("Do not know how to get interface target of " + type);
     }
-    return parameterClass;
   }
   /**
    * @param clazz

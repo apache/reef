@@ -57,5 +57,10 @@ public class RequiredSingleton<T,U> extends InjectionPlan<T> {
   public String toShallowString() {
     return toString();
   }
+
+  @Override
+  public boolean hasFutureDependency() {
+    return preReq.hasFutureDependency();
+  }
   
 }

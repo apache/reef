@@ -3,11 +3,13 @@ package com.microsoft.tang.implementation.java;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -173,14 +175,27 @@ public class JavaNodeFactory {
       throw new ClassHierarchyException("Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:"
           + ReflectionUtilities.getFullName(constructor.getDeclaringClass()));
     }
+    // TODO: When we use paramTypes below, we strip generic parameters.  Is that OK?
     Class<?>[] paramTypes = constructor.getParameterTypes();
+    Type[] genericParamTypes = constructor.getGenericParameterTypes();
     Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
     if (paramTypes.length != paramAnnotations.length) {
       throw new IllegalStateException();
     }
-    ConstructorArg[] args = new ConstructorArg[paramTypes.length];
-    for (int i = 0; i < paramTypes.length; i++) {
-      // if there is an appropriate annotation, use that.
+    ConstructorArg[] args = new ConstructorArg[genericParamTypes.length];
+    for (int i = 0; i < genericParamTypes.length; i++) {
+      // If this parameter is an injection future, unwrap the target class,
+      // and remember by setting isFuture to true.
+      final Class<?> type;
+      final boolean isFuture;
+      if(InjectionFuture.class.isAssignableFrom(paramTypes[i])) {
+        type = ReflectionUtilities.getInterfaceTarget(InjectionFuture.class, genericParamTypes[i]);
+        isFuture = true;
+      } else {
+        type = paramTypes[i];
+        isFuture = false;
+      }
+      // Make node of the named parameter annotation (if any).
       Parameter named = null;
       for (int j = 0; j < paramAnnotations[i].length; j++) {
         Annotation annotation = paramAnnotations[i][j];
@@ -189,18 +204,13 @@ public class JavaNodeFactory {
         }
       }
       args[i] = new ConstructorArgImpl(
-          ReflectionUtilities.getFullName(paramTypes[i]), named == null ? null
-              : ReflectionUtilities.getFullName(named.value()));
+          ReflectionUtilities.getFullName(type), named == null ? null
+              : ReflectionUtilities.getFullName(named.value()),
+          isFuture);
     }
-//    try {
-      return new ConstructorDefImpl<T>(
-          ReflectionUtilities.getFullName(constructor.getDeclaringClass()),
-          args, injectable);
-//    } catch (ClassHierarchyException e) {
-//      throw new ClassHierarchyException("Detected bad constructor in " + constructor
-//          + " in "
-//          + ReflectionUtilities.getFullName(constructor.getDeclaringClass()), e);
-//    }
+    return new ConstructorDefImpl<T>(
+        ReflectionUtilities.getFullName(constructor.getDeclaringClass()),
+        args, injectable);
   }
 
 }

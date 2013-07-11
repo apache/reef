@@ -1,16 +1,19 @@
 package com.microsoft.tang;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.tang.implementation.java.InjectorImpl;
+import com.microsoft.tang.util.TracingMonotonicMap;
 
 /**
  * A future-based mechanism for cyclic object injections. Since Tang is a
  * constructor-based dependency injector, there is no way to directly create
  * cycles of objects.
  * 
- * In situations where you need to have two object that point at each other, you
+ * In situations where you need to have two objects that point at each other, you
  * can use an InjectionFuture to break the cycle. Simply ask Tang to inject an
  * InjectionFuture<T> into your constructor.  Later (after your constructor
  * returns) invoke the get() method of the injection future to get a reference
@@ -44,17 +47,29 @@ import com.microsoft.tang.exceptions.InjectionException;
  * @param <T>
  */
 
-public class InjectionFuture<T> implements Future<T> {
+public final class InjectionFuture<T> implements Future<T> {
 
-  protected final Injector injector;
+  protected final InjectorImpl injector;
 
   private final Class<? extends T> iface;
-
+  private final Map<String, InjectionFuture<?>> futures;
+  
   private T cached = null;
-
-  public InjectionFuture(final Injector injector, Class<? extends T> iface) {
+  public InjectionFuture(final T cached) {
+    injector = null;
+    iface = null;
+    futures = null;
+    this.cached = cached;
+  }
+  public InjectionFuture(final InjectorImpl injector, final Map<String, InjectionFuture<?>> futures, Class<? extends T> iface) {
     this.injector = injector;
     this.iface = iface;
+    this.futures = futures;
+  }
+  public InjectionFuture(final Injector injector, Class<? extends T> iface) {
+    this.injector = (InjectorImpl)injector;
+    this.iface = iface;
+    this.futures = new TracingMonotonicMap<>();
   }
 
   @Override
@@ -78,7 +93,7 @@ public class InjectionFuture<T> implements Future<T> {
       synchronized (this) {
         try {
           if (this.cached == null) {
-            this.cached = this.injector.getInstance(this.iface);
+            this.cached = this.injector.getInstance(this.iface, futures);
           }
         } catch (InjectionException e) {
           throw new RuntimeException(e);
@@ -86,6 +101,15 @@ public class InjectionFuture<T> implements Future<T> {
       }
     }
     return this.cached;
+  }
+  public boolean isCached() {
+    return this.cached != null;
+  }
+  public void set(T t) {
+    if(this.cached != null) {
+      throw new IllegalStateException("Attempt to double set future!");
+    }
+    this.cached = t;
   }
 
   @Override

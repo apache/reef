@@ -54,4 +54,9 @@ final public class JavaInstance<T> extends InjectionPlan<T> {
     public String toShallowString() {
       return toString();
     }
+
+    @Override
+    public boolean hasFutureDependency() {
+      return false;
+    }
   }

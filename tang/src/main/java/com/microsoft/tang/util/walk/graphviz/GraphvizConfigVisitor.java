@@ -103,7 +103,7 @@ public final class GraphvizConfigVisitor
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final ClassNode node) {
+  public boolean visit(final ClassNode<?> node) {
 
     this.graphStr
             .append("  ")
@@ -114,7 +114,7 @@ public final class GraphvizConfigVisitor
             .append(config.isSingleton(node) ? ", style=filled" : "")
             .append("];\n");
 
-    final ClassNode boundImplNode = config.getBoundImplementation(node);
+    final ClassNode<?> boundImplNode = config.getBoundImplementation(node);
     if (boundImplNode != null) {
       this.graphStr
               .append("  ")
@@ -125,7 +125,7 @@ public final class GraphvizConfigVisitor
     }
 
     for (final Object implNodeObj : node.getKnownImplementations()) {
-      final ClassNode implNode = (ClassNode) implNodeObj;
+      final ClassNode<?> implNode = (ClassNode<?>) implNodeObj;
       if (implNode != boundImplNode && implNode != node
               && (implNode.isExternalConstructor() || this.showImpl))
       {
@@ -167,7 +167,7 @@ public final class GraphvizConfigVisitor
    * @return true to proceed with the next node, false to cancel.
    */
   @Override
-  public boolean visit(final NamedParameterNode node) {
+  public boolean visit(final NamedParameterNode<?> node) {
     this.graphStr
             .append("  ")
             .append(node.getName())
