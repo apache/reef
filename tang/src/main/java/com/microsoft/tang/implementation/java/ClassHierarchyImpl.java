@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ExternalConstructor;
+import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
@@ -267,6 +268,15 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
               throw new ClassHierarchyException("Constructor refers to unknown class "
                   + arg.getType(), e);
             }
+          }
+          try {
+            if(((ClassNode<?>)getNode(arg.getType()))
+                  .isImplementationOf((ClassNode<?>)getNode(Injector.class))) {
+              System.err.println("\n\n\nTANG WARNING: Detected injectable constructor that takes an Injector as an argument.  This will be disallowed soon.\n" + def + "\n\n");
+            }
+          } catch (NameResolutionException e) {
+            throw new ClassHierarchyException("Constructor refers to unknown class "
+                + arg.getType(), e);
           }
         }
       }
