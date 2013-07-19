@@ -94,13 +94,18 @@ public class JavaNodeFactory {
     if (clazz.isAnnotationPresent(DefaultImplementation.class)) {
       DefaultImplementation defaultImpl
         = clazz.getAnnotation(DefaultImplementation.class);
-      final Class<?> defaultImplementationClazz = defaultImpl.value();
-      if (!clazz.isAssignableFrom(defaultImplementationClazz)) {
-        throw new ClassHierarchyException(clazz
-            + " declares its default implementation to be non-subclass "
-            + defaultImplementationClazz);
+      Class<?> defaultImplementationClazz = defaultImpl.value();
+      if(defaultImplementationClazz.equals(Void.class)) {
+        defaultImplementation = defaultImpl.name();
+        // XXX check isAssignableFrom, other type problems here.
+      } else {
+        if (!clazz.isAssignableFrom(defaultImplementationClazz)) {
+          throw new ClassHierarchyException(clazz
+              + " declares its default implementation to be non-subclass "
+              + defaultImplementationClazz);
+        }
+        defaultImplementation = ReflectionUtilities.getFullName(defaultImplementationClazz);
       }
-      defaultImplementation = ReflectionUtilities.getFullName(defaultImplementationClazz);
     } else {
       defaultImplementation = null;
     }

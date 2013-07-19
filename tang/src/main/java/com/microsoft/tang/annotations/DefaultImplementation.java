@@ -24,4 +24,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DefaultImplementation {
   Class<?> value() default Void.class;
+  String name() default "";
 }
