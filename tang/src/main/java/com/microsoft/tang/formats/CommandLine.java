@@ -96,8 +96,11 @@ public class CommandLine {
    * @throws NumberFormatException
    * @throws ParseException
    */
-  public <T> boolean processCommandLine(String[] args) throws IOException,
+  public <T> boolean processCommandLine(String[] args, @SuppressWarnings("unchecked") Class<? extends Name<?>>...argClasses) throws IOException,
       BindException {
+    for(Class<? extends Name<?>> c : argClasses) {
+      registerShortNameOfClass(c);
+    }
     Options o = getCommandLineOptions();
     Option helpFlag = new Option("?", "help");
     o.addOption(helpFlag);
