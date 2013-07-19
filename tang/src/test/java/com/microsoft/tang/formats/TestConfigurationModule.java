@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -126,7 +127,10 @@ public class TestConfigurationModule {
         .set(MyConfigurationModule.FOO_NESS, ""+12)
         .build();
   }
-  @Test
+  public static final class MyBadConfigurationModule extends ConfigurationModule {    
+
+  }
+    @Test
   public void badConfTest() throws BindException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Found declared options that were not used in binds: { FOO_NESS }");
@@ -134,6 +138,75 @@ public class TestConfigurationModule {
         .set(MyConfigurationModule.THE_FOO, Foo.class)
         .build();
   }
+  @Test
+  public void nonExistentStringBindOK() throws BindException, InjectionException {
+    new MyBadConfigurationModule().bindImplementation(Foo.class, "i.do.not.exist");
+  }
+  @Test
+  public void nonExistentStringBindNotOK() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("ConfigurationModule refers to unknown class: i.do.not.exist");
+
+    new MyBadConfigurationModule().bindImplementation(Foo.class, "i.do.not.exist").build();
+  }
+
+  public static final class MultiBindConfigurationModule extends ConfigurationModule {    
+    // Tell us what implementation you want, or else!!    
+    public static final RequiredImpl<Foo> THE_FOO = new RequiredImpl<>();
+    // If you want, you can change the fooness.
+    public static final OptionalParameter<Integer> FOO_NESS = new OptionalParameter<>();
     
+    public static final ConfigurationModule CONF = new MultiBindConfigurationModule()
+
+      // This binds the above to tang configuration stuff.  You can use parameters more than
+      // once, but you'd better use them all at least once, or I'll throw exceptions at you.
+
+      .bindImplementation(Foo.class, THE_FOO)
+      .bindImplementation(Object.class, THE_FOO)
+      .bindNamedParameter(Fooness.class, FOO_NESS);
+    
+  }
+  @Test
+  public void multiBindTest() throws BindException, InjectionException {
+    // Here we set some configuration values.  In true tang style,
+    // you won't be able to set them more than once ConfigurationModule's
+    // implementation is complete.
+    Configuration c = MultiBindConfigurationModule.CONF
+        .set(MultiBindConfigurationModule.THE_FOO, FooImpl.class)
+        .set(MultiBindConfigurationModule.FOO_NESS, ""+12)
+        .build();
+    Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
+    Foo g = (Foo)Tang.Factory.getTang().newInjector(c).getInstance(Object.class);
+    Assert.assertEquals(f.getFooness(), 12);
+    Assert.assertEquals(g.getFooness(), 12);
+    Assert.assertFalse(f == g);
+  }
+  @Test
+  public void foreignSetTest() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Unknown Impl/Param when setting com.microsoft.tang.formats.ConfigurationModule$RequiredImpl Did you pass in a field from some other module?");
+    // Pass in something from the wrong module, watch it fail.
+    MultiBindConfigurationModule.CONF.set(MyConfigurationModule.THE_FOO, FooImpl.class);
+  }
+  @Test
+  public void foreignBindTest() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Unknown Impl/Param when binding com.microsoft.tang.formats.ConfigurationModule$RequiredImpl Did you pass in a field from some other module?");
+    // Pass in something from the wrong module, watch it fail.
+    new MyConfigurationModule().bindImplementation(Object.class, MultiBindConfigurationModule.THE_FOO);
+  }
+  @Test
+  public void singltonTest() throws BindException, InjectionException {
+    Configuration c = new MyConfigurationModule()
+      .bindImplementation(Foo.class, MyConfigurationModule.THE_FOO)
+      .bindSingleton(MyConfigurationModule.THE_FOO)
+      .bindNamedParameter(Fooness.class, MyConfigurationModule.FOO_NESS)
+      .set(MyConfigurationModule.THE_FOO, FooImpl.class)
+      .build();
+    Injector i = Tang.Factory.getTang().newInjector(c);
+    Assert.assertTrue(i.getInstance(Foo.class) == i.getInstance(Foo.class));
+  }
+
+
 }
 

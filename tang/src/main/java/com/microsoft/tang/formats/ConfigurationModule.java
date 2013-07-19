@@ -12,8 +12,10 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
+import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public abstract class ConfigurationModule {
 
@@ -55,10 +57,13 @@ public abstract class ConfigurationModule {
   // are assigned to. These better be unique!
   private final Map<Object, Field> map = new MonotonicHashMap<>();
 
-  private final Map<Impl<?>, Class<?>> freeImpls = new MonotonicHashMap<>();
-  private final Map<Param<?>, Class<? extends Name<?>>> freeParams = new MonotonicHashMap<>();
+  private final Map<Class<?>, Impl<?>> freeImpls = new MonotonicHashMap<>();
+  private final Map<Class<? extends Name<?>>,Param<?>> freeParams = new MonotonicHashMap<>();
   private final Map<Impl<?>, Class<?>> setImpls = new MonotonicHashMap<>();
+  private final Map<Impl<?>, String> setLateImpls = new MonotonicHashMap<>();
   private final Map<Param<?>, String> setParams = new MonotonicHashMap<>();
+  private final Set<Impl<?>> freeSingletons = new MonotonicHashSet<>();
+  private final Map<Class<?>, String> lateBindClazz = new MonotonicHashMap<>();
 
   private final ConfigurationModule deepCopy() {
     // ooh... this is a dirty trick --- we strip this's type off here,
@@ -84,7 +89,11 @@ public abstract class ConfigurationModule {
     freeImpls.putAll(c.freeImpls);
     freeParams.putAll(c.freeParams);
     setImpls.putAll(c.setImpls);
+    setLateImpls.putAll(c.setLateImpls);
     setParams.putAll(c.setParams);
+    freeSingletons.addAll(c.freeSingletons);
+    lateBindClazz.putAll(c.lateBindClazz);
+    
   }
 
   protected ConfigurationModule() {
@@ -143,6 +152,7 @@ public abstract class ConfigurationModule {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public final Configuration build() throws BindException {
     ConfigurationModule c = deepCopy();
+    
     if (!(c.reqUsed.containsAll(c.reqDecl) && c.optUsed.containsAll(c.optDecl))) {
       Set<Field> fset = new MonotonicHashSet<>();
       for (Field f : c.reqDecl) {
@@ -171,11 +181,39 @@ public abstract class ConfigurationModule {
               + toString(missingSet));
     }
 
-    for (Impl<?> i : c.setImpls.keySet()) {
-      c.b.bind(c.freeImpls.get(i), c.setImpls.get(i));
+    for (Class<?> clz: c.lateBindClazz.keySet()) {
+      try {
+        c.b.bind(ReflectionUtilities.getFullName(clz), c.lateBindClazz.get(clz));
+      } catch (NameResolutionException e) {
+        throw new ClassHierarchyException("ConfigurationModule refers to unknown class: " + c.lateBindClazz.get(clz), e);
+      }
     }
-    for (Param<?> p : c.setParams.keySet()) {
-      c.b.bindNamedParameter((Class) c.freeParams.get(p), c.setParams.get(p));
+    
+    for (Class<?> clazz : c.freeImpls.keySet()) {
+      Impl<?> i = c.freeImpls.get(clazz);
+      if(c.setImpls.containsKey(i)) {
+        c.b.bind(clazz, c.setImpls.get(i));
+      } else if(c.setLateImpls.containsKey(i)) {
+        c.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
+      }
+    }
+    for (Impl<?> i : c.freeSingletons) {
+      if(c.setImpls.containsKey(i)) {
+        c.b.bindSingleton(c.setImpls.get(i));
+      } else if(c.setLateImpls.containsKey(i)) {
+        c.b.bindSingleton(c.setLateImpls.get(i));
+      }
+    }
+    for (Class<? extends Name<?>> clazz : c.freeParams.keySet()) {
+      Param<?> p = c.freeParams.get(clazz);
+      String s = c.setParams.get(p);
+      if(s != null) {
+        c.b.bindNamedParameter((Class)clazz, s);
+      } else {
+        if(!(p instanceof OptionalParameter)) {
+          throw new IllegalStateException();
+        }
+      }
     }
     return c.b.build();
   }
@@ -193,16 +231,20 @@ public abstract class ConfigurationModule {
   private final <T> void processUse(Object impl) {
     Field f = map.get(impl);
     if (f == null) { /* throw */
+      if (f == null) { /* throw */
+        throw new ClassHierarchyException("Unknown Impl/Param when binding " + ReflectionUtilities.getFullName(impl.getClass()) + " Did you pass in a field from some other module?");
+      }
     }
-    reqUsed.add(f);
-    optUsed.add(f);
+    if(!reqUsed.contains(f)) { reqUsed.add(f); }
+    if(!optUsed.contains(f)) { optUsed.add(f); }
   }
 
   private final <T> void processSet(Object impl) {
     Field f = map.get(impl);
     if (f == null) { /* throw */
+      throw new ClassHierarchyException("Unknown Impl/Param when setting " + ReflectionUtilities.getFullName(impl.getClass()) + " Did you pass in a field from some other module?");
     }
-    reqSet.add(f);
+    if(!reqSet.contains(impl)) { reqSet.add(f); }
   }
 
   public final <T> ConfigurationModule set(Impl<T> opt, Class<? extends T> impl) {
@@ -212,6 +254,13 @@ public abstract class ConfigurationModule {
     return c;
   }
 
+  public final <T> ConfigurationModule set(Impl<T> opt, String impl) {
+    ConfigurationModule c = deepCopy();
+    c.processSet(opt);
+    c.setLateImpls.put(opt, impl);
+    return c;
+  }
+  
   public final <T> ConfigurationModule set(Param<T> opt, String val) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
@@ -222,7 +271,7 @@ public abstract class ConfigurationModule {
   public final <T> ConfigurationModule bind(Class<?> iface, Impl<?> opt) {
     ConfigurationModule c = deepCopy();
     c.processUse(opt);
-    c.freeImpls.put(opt, iface);
+    c.freeImpls.put(iface, opt);
     return c;
   }
 
@@ -236,12 +285,18 @@ public abstract class ConfigurationModule {
     }
     return c;
   }
+  public final <T> ConfigurationModule bindImplementation(Class<T> iface,
+      String impl) {
+    ConfigurationModule c = deepCopy();
+    c.lateBindClazz.put(iface, impl);
+    return c;
+  }
 
   public final <T> ConfigurationModule bindImplementation(Class<T> iface,
       Impl<? extends T> opt) {
     ConfigurationModule c = deepCopy();
     c.processUse(opt);
-    c.freeImpls.put(opt, iface);
+    c.freeImpls.put(iface, opt);
     return c;
   }
 
@@ -262,7 +317,7 @@ public abstract class ConfigurationModule {
     c.processUse(opt);
     try {
       c.b.bindSingleton(iface);
-      c.freeImpls.put(opt, iface);
+      c.freeImpls.put(iface, opt);
     } catch (BindException e) {
       throw new ClassHierarchyException(e);
     }
@@ -276,6 +331,12 @@ public abstract class ConfigurationModule {
     } catch (BindException e) {
       throw new ClassHierarchyException(e);
     }
+    return c;
+  }
+  public final <T> ConfigurationModule bindSingleton(Impl<T> iface) {
+    ConfigurationModule c = deepCopy();
+    c.processUse(iface);
+    c.freeSingletons.add(iface);
     return c;
   }
 
@@ -294,7 +355,7 @@ public abstract class ConfigurationModule {
       Class<? extends Name<T>> name, Param<T> opt) {
     ConfigurationModule c = deepCopy();
     c.processUse(opt);
-    c.freeParams.put(opt, name);
+    c.freeParams.put(name, opt);
     return c;
   }
 
@@ -313,7 +374,7 @@ public abstract class ConfigurationModule {
       Class<? extends Name<T>> iface, Impl<? extends T> opt) {
     ConfigurationModule c = deepCopy();
     c.processUse(opt);
-    c.freeImpls.put(opt, iface);
+    c.freeImpls.put(iface, opt);
     return c;
   }
 
@@ -321,7 +382,7 @@ public abstract class ConfigurationModule {
       Impl<? extends ExternalConstructor<? extends T>> v) {
     ConfigurationModule c = deepCopy();
     c.processUse(v);
-    c.freeImpls.put(v, cons);
+    c.freeImpls.put(cons, v);
     return c;
   }
 }
