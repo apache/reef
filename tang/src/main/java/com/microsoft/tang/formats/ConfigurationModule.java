@@ -387,6 +387,16 @@ public abstract class ConfigurationModule {
     return c;
   }
 
+  public final <T> ConfigurationModule bindConstructor(Class<T> clazz,
+      Class<? extends ExternalConstructor<? extends T>> constructor) {
+    ConfigurationModule c = deepCopy();
+    try {
+      c.b.bindConstructor(clazz, constructor);
+    } catch (BindException e) {
+      throw new ClassHierarchyException(e);
+    }
+    return c;
+  }
   public final <T> ConfigurationModule bindConstructor(Class<T> cons,
       Impl<? extends ExternalConstructor<? extends T>> v) {
     ConfigurationModule c = deepCopy();
