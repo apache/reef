@@ -17,6 +17,15 @@ import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
+/**
+ * Allows applications to bundle sets of configuration options together into 
+ * discrete packages.  Unlike more conventional approaches,
+ * ConfigurationModules store such information in static data structures that
+ * can be statically discovered and sanity-checked. 
+ * 
+ * @see com.microsoft.tang.formats.TestConfigurationModule for more information and examples.
+ *
+ */
 public abstract class ConfigurationModule {
 
   public interface Impl<T> {
