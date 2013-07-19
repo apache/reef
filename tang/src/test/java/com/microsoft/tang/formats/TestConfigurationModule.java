@@ -196,7 +196,7 @@ public class TestConfigurationModule {
     new MyConfigurationModule().bindImplementation(Object.class, MultiBindConfigurationModule.THE_FOO);
   }
   @Test
-  public void singltonTest() throws BindException, InjectionException {
+  public void singletonTest() throws BindException, InjectionException {
     Configuration c = new MyConfigurationModule()
       .bindImplementation(Foo.class, MyConfigurationModule.THE_FOO)
       .bindSingleton(MyConfigurationModule.THE_FOO)
