@@ -145,7 +145,12 @@ public class ReflectionUtilities {
     if(type instanceof ParameterizedType) {
       final ParameterizedType pt = (ParameterizedType)type;
       if(iface.isAssignableFrom((Class<?>)pt.getRawType())) {
-        return (Class<?>) pt.getActualTypeArguments()[0];
+        Type t = pt.getActualTypeArguments()[0];
+        if(t instanceof Class) {
+          return (Class<?>)t;
+        } else {
+          return (Class<?>)((ParameterizedType)t).getRawType();
+        }
       } else {
         throw new IllegalArgumentException("Parameterized type " + type + " does not extend " + iface);
       }
