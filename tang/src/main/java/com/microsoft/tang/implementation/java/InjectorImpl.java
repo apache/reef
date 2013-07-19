@@ -168,7 +168,7 @@ public class InjectorImpl implements Injector {
         defaultImpl = null;
       }
       if (singletonInstances.containsKey(cn)) {
-        ip = new JavaInstance<Object>(cn, singletonInstances.get(cn));
+        ip = new JavaInstance<Object>(cn, getSingleton(cn));
       } else if (null != c.getBoundConstructor(cn)) {
         ClassNode<? extends ExternalConstructor> ec = c.getBoundConstructor(cn);
         buildInjectionPlan(ec, memo);
@@ -332,6 +332,8 @@ public class InjectorImpl implements Injector {
     this.namespace = c.getClassHierarchy();
     this.javaNamespace = (ClassHierarchyImpl) this.namespace;
     try {
+//      this.singletonInstances.put((ClassNode<?>) (namespace
+//          .getNode(ReflectionUtilities.getFullName(Configuration.class))), c);
       this.singletonInstances.put((ClassNode<?>) (namespace
           .getNode(ReflectionUtilities.getFullName(Injector.class))), this);
     } catch (NameResolutionException e) {
@@ -445,7 +447,19 @@ public class InjectorImpl implements Injector {
     cons.setAccessible(true);
     return cons;
   }
-
+  
+  @SuppressWarnings("unchecked")
+  private <T> T getSingleton(Node cn) {
+    if(false && cn.getFullName().equals(ReflectionUtilities.getFullName(Injector.class))) {
+      try {
+        return (T) (((Injector)(singletonInstances.get(cn))).createChildInjector());
+      } catch(BindException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      return (T) singletonInstances.get(cn);
+    }
+  }
   /**
    * This gets really nasty now that constructors can invoke operations on us.
    * The upshot is that we should check to see if singletons have been
@@ -490,7 +504,7 @@ public class InjectorImpl implements Injector {
     } else if (plan instanceof Constructor) {
       final Constructor<T> constructor = (Constructor<T>) plan;
       if (singletonInstances.containsKey(constructor.getNode())) {
-        return (T) singletonInstances.get(constructor.getNode());
+        return getSingleton(constructor.getNode());
       }
       final Object[] args = new Object[constructor.getArgs().length];
       final InjectionPlan<?>[] argPlans = constructor.getArgs();
@@ -552,7 +566,7 @@ public class InjectorImpl implements Injector {
           throw new InjectionException("Could not invoke constructor", e);
         }
       } else {
-        return (T) singletonInstances.get(constructor.getNode());
+        return getSingleton(constructor.getNode());
       }
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
@@ -561,7 +575,7 @@ public class InjectorImpl implements Injector {
         boolean ambigIsUnit = ambigNode instanceof ClassNode
             && ((ClassNode<?>) ambigNode).isUnit();
         if (singletonInstances.containsKey(ambiguous.getNode())) {
-          return (T) singletonInstances.get(ambiguous.getNode());
+          return (T)getSingleton(ambiguous.getNode());
         }
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan(), futures);
         if (c.isSingleton(ambiguous.getNode()) || ambigIsUnit) {
@@ -607,7 +621,10 @@ public class InjectorImpl implements Injector {
           "Unexpected error copying configuration!", e);
     }
     for (ClassNode<?> cn : old.singletonInstances.keySet()) {
-      if (!cn.getFullName().equals("com.microsoft.tang.Injector")) {
+      if (!(
+          cn.getFullName().equals("com.microsoft.tang.Injector")
+//          || cn.getFullName().equals("com.microsoft.tang.Configuration")
+           )) {
         try {
           ClassNode<?> new_cn = (ClassNode<?>) i.namespace.getNode(cn
               .getFullName());
