@@ -386,6 +386,17 @@ public class TestTang {
     Assert.assertTrue(Tang.Factory.getTang().newInjector(cb.build())
         .getInstance(HaveDefaultImpl.class) instanceof OverrideDefaultImpl);
   }
+  @Test
+  public void testCanGetStringDefaultedInterface() throws BindException, InjectionException {
+    Assert.assertNotNull(Tang.Factory.getTang().newInjector().getInstance(HaveDefaultStringImpl.class));
+  }
+  @Test
+  public void testCanOverrideStringDefaultedInterface() throws BindException, InjectionException {
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(HaveDefaultStringImpl.class, OverrideDefaultStringImpl.class);
+    Assert.assertTrue(Tang.Factory.getTang().newInjector(cb.build())
+        .getInstance(HaveDefaultStringImpl.class) instanceof OverrideDefaultStringImpl);
+  }
 
 }
 @DefaultImplementation(HaveDefaultImplImpl.class)
@@ -398,6 +409,19 @@ class OverrideDefaultImpl implements HaveDefaultImpl {
   @Inject
   public OverrideDefaultImpl() {}
 }
+
+
+@DefaultImplementation(name="com.microsoft.tang.HaveDefaultStringImplImpl")
+interface HaveDefaultStringImpl {}
+class HaveDefaultStringImplImpl implements HaveDefaultStringImpl {
+  @Inject
+  HaveDefaultStringImplImpl() {}
+}
+class OverrideDefaultStringImpl implements HaveDefaultStringImpl {
+  @Inject
+  public OverrideDefaultStringImpl() {}
+}
+
 @NamedParameter(doc = "woo", short_name = "woo", default_value = "42")
 class Param implements Name<Integer> {
 }
