@@ -101,5 +101,17 @@ public class ParameterParser {
       throw new UnsupportedOperationException("Don't know how to parse a " + name);
     }
   }
-
+  public boolean canParse(String name) {
+    return parsers.containsKey(name) 
+        || name.equals(String.class.getName())
+        || name.equals(Byte.class.getName())
+        || name.equals(Character.class.getName())
+        || name.equals(Short.class.getName())
+        || name.equals(Integer.class.getName())
+        || name.equals(Long.class.getName())
+        || name.equals(Float.class.getName())
+        || name.equals(Double.class.getName())
+        || name.equals(Boolean.class.getName()) 
+        || name.equals(Void.class.getName());
+  }
 }

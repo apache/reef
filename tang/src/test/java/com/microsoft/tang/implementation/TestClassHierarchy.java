@@ -12,6 +12,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.ClassHierarchy;
 
@@ -21,6 +22,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
@@ -298,7 +300,17 @@ public class TestClassHierarchy {
     thrown.expectMessage("interface com.microsoft.tang.implementation.BadIfaceDefault declares its default implementation to be non-subclass class java.lang.String");
     ns.getNode(s(BadIfaceDefault.class));
   }
+  @Test
+  public void testParseableDefaultClassNotOK() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Named parameter com.microsoft.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String");
+    ns.getNode(s(BadParsableDefaultClass.class));
+  }
+
 }
+
+@NamedParameter(default_class=String.class)
+class BadParsableDefaultClass implements Name<String> { } 
 
 @DefaultImplementation(String.class)
 interface BadIfaceDefault{ }
