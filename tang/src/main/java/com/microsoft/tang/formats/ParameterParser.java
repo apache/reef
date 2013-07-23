@@ -6,6 +6,9 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.ReflectionUtilities;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ParameterParser {
   MonotonicMap<String, Constructor<? extends ExternalConstructor<?>>> parsers = new MonotonicMap<>();
@@ -58,6 +61,7 @@ public class ParameterParser {
     }
     return parse(ReflectionUtilities.getFullName(d), s);
   }
+
   @SuppressWarnings("unchecked")
   public <T> T parse(String name, String value) {
     if (parsers.containsKey(name)) {
@@ -101,17 +105,22 @@ public class ParameterParser {
       throw new UnsupportedOperationException("Don't know how to parse a " + name);
     }
   }
+
+  private static final Set<String> BUILTIN_NAMES = new HashSet<String>() {{
+    Collections.addAll(this,
+        String.class.getName(),
+        Byte.class.getName(),
+        Character.class.getName(),
+        Short.class.getName(),
+        Integer.class.getName(),
+        Long.class.getName(),
+        Float.class.getName(),
+        Double.class.getName(),
+        Boolean.class.getName(),
+        Void.class.getName());
+  }};
+
   public boolean canParse(String name) {
-    return parsers.containsKey(name) 
-        || name.equals(String.class.getName())
-        || name.equals(Byte.class.getName())
-        || name.equals(Character.class.getName())
-        || name.equals(Short.class.getName())
-        || name.equals(Integer.class.getName())
-        || name.equals(Long.class.getName())
-        || name.equals(Float.class.getName())
-        || name.equals(Double.class.getName())
-        || name.equals(Boolean.class.getName()) 
-        || name.equals(Void.class.getName());
+    return parsers.containsKey(name) || BUILTIN_NAMES.contains(name);
   }
 }
