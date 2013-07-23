@@ -14,6 +14,7 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
@@ -132,10 +133,18 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     if (argType == null) {
       return JavaNodeFactory.createClassNode(parent, clazz);
     } else {
+      
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
       NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(
           parent, (Class<? extends Name<T>>) clazz, (Class<T>) argType);
+      
+      if(parameterParser.canParse(ReflectionUtilities.getFullName(argType))) {
+        if(clazz.getAnnotation(NamedParameter.class).default_class() != Void.class) {
+          throw new ClassHierarchyException("Named parameter " + ReflectionUtilities.getFullName(clazz) + " defines default implementation for parsable type " + ReflectionUtilities.getFullName(argType));
+        }
+      }
+
       String shortName = np.getShortName();
       if (shortName != null) {
         NamedParameterNode<?> oldNode = shortNames.get(shortName);

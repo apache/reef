@@ -397,8 +397,30 @@ public class TestTang {
     Assert.assertTrue(Tang.Factory.getTang().newInjector(cb.build())
         .getInstance(HaveDefaultStringImpl.class) instanceof OverrideDefaultStringImpl);
   }
-
+  @Test
+  public void testSingletonWithMultipleConstructors() throws BindException, InjectionException {
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(SMC.class, SingletonMultiConst.class);
+    cb.bindSingleton(SingletonMultiConst.class);
+    cb.bindNamedParameter(SingletonMultiConst.A.class, "foo");
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    i.getInstance(SMC.class);
+  }
 }
+
+interface SMC { }
+
+class SingletonMultiConst implements SMC {
+  @NamedParameter
+  class A implements Name<String> { }
+  @NamedParameter
+  class B implements Name<String> { }
+  @Inject
+  public SingletonMultiConst(@Parameter(A.class) String a) { }
+  @Inject
+  public SingletonMultiConst(@Parameter(A.class) String a, @Parameter(B.class) String b) { }
+}
+
 @DefaultImplementation(HaveDefaultImplImpl.class)
 interface HaveDefaultImpl {}
 class HaveDefaultImplImpl implements HaveDefaultImpl {
