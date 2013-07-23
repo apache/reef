@@ -580,7 +580,16 @@ public class InjectorImpl implements Injector {
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan(), futures);
         if (c.isSingleton(ambiguous.getNode()) || ambigIsUnit) {
           // Cast is safe since singletons is of type Set<ClassNode<?>>
-          singletonInstances.put((ClassNode<?>) ambiguous.getNode(), ret);
+          if(singletonInstances.containsKey((ClassNode<?>) ambiguous.getNode())) {
+            if(singletonInstances.get((ClassNode<?>) ambiguous.getNode()) != ret) {
+              throw new InjectionException("Injecting subplan "
+                  + ambiguous
+                  + " resulted in the binding of some other instance of "
+                  + ambiguous.getNode().getName() + " as a singleton");
+            }
+          } else {
+            singletonInstances.put((ClassNode<?>) ambiguous.getNode(), ret);
+          }
         }
         // TODO: Check "T" in "instanceof ExternalConstructor<T>"
         if (ret instanceof ExternalConstructor) {
