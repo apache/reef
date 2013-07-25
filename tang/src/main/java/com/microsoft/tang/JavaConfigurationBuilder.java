@@ -69,7 +69,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    *          how to parse the parameter's type.
    * @throws NameResolutionException
    */
-  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String value)
+  public void bindNamedParameter(Class<? extends Name<?>> name, String value)
       throws BindException;
 
   public <T> void bindNamedParameter(Class<? extends Name<T>> iface,
