@@ -76,12 +76,11 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T> void bindNamedParameter(Class<? extends Name<T>> name, String s)
+  public void bindNamedParameter(Class<? extends Name<?>> name, String s)
       throws BindException {
     Node np = getNode(name);
     if (np instanceof NamedParameterNode) {
-      bindParameter((NamedParameterNode<T>) np, s);
+      bindParameter((NamedParameterNode<?>) np, s);
     } else {
       throw new BindException(
           "Detected type mismatch when setting named parameter " + name
