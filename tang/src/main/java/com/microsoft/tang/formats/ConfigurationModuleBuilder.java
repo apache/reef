@@ -55,7 +55,6 @@ public abstract class ConfigurationModuleBuilder {
   final Map<Object, Field> map = new MonotonicHashMap<>();
   final Map<Class<?>, Impl<?>> freeImpls = new MonotonicHashMap<>();
   final Map<Class<? extends Name<?>>,Param<?>> freeParams = new MonotonicHashMap<>();
-  final Set<Impl<?>> freeSingletons = new MonotonicHashSet<>();
   private final Map<Class<?>, String> lateBindClazz = new MonotonicHashMap<>();
 
   protected ConfigurationModuleBuilder() {
@@ -113,7 +112,6 @@ public abstract class ConfigurationModuleBuilder {
     map.putAll(c.map);
     freeImpls.putAll(c.freeImpls);
     freeParams.putAll(c.freeParams);
-    freeSingletons.addAll(c.freeSingletons);
     lateBindClazz.putAll(c.lateBindClazz);
     
   }
@@ -183,11 +181,10 @@ public abstract class ConfigurationModuleBuilder {
     }
     return c;
   }
-
+  @Deprecated
   public final <T> ConfigurationModuleBuilder bindSingleton(Impl<T> iface) {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(iface);
-    c.freeSingletons.add(iface);
     return c;
   }
 

@@ -49,11 +49,24 @@ public class TestExternalConstructor {
 
     final JavaConfigurationBuilder b = Tang.Factory.getTang()
         .newConfigurationBuilder();
-    b.bindSingleton(A.class); // NOTE: the test passes if you remove this line
     b.bindConstructor(A.class, ACons.class);
     b.bindConstructor(B.class, BCons.class);
 
     Tang.Factory.getTang().newInjector(b.build()).getInstance(B.class);
   }
 
+/*  @Test
+  public void testExplicitExternalConstructorIsSingleton() throws BindException, InjectionException {
+    final JavaConfigurationBuilder b = Tang.Factory.getTang()
+        .newConfigurationBuilder();
+    b.bindConstructor(A.class, ACons.class);
+
+    Injector i = Tang.Factory.getTang().newInjector(b.build());
+    
+    A a = i.getInstance(A.class);
+    A aa = (i.getInstance(ACons.class)).newInstance();
+    
+    Assert.assertTrue(a == aa);
+
+  } */
 }

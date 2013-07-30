@@ -51,11 +51,9 @@ public final class InjectionFuture<T> implements Future<T> {
 
   private final Class<? extends T> iface;
   
-  private T cached = null;
-  public InjectionFuture(final T cached) {
+  public InjectionFuture() {
     injector = null;
     iface = null;
-    this.cached = cached;
   }
   public InjectionFuture(final Injector injector, Class<? extends T> iface) {
     this.injector = (InjectorImpl)injector;
@@ -74,32 +72,30 @@ public final class InjectionFuture<T> implements Future<T> {
 
   @Override
   public final boolean isDone() {
-    return this.cached != null;
+    return true;
   }
 
   @Override
   public T get() {
-    if (this.cached == null) {
-      synchronized (this) {
-        try {
-          if (this.cached == null) {
-            this.cached = this.injector.getInstance(this.iface);
-          }
-        } catch (InjectionException e) {
-          throw new RuntimeException(e);
-        }
+    try {
+      synchronized(injector) {
+        return injector.getInstance(iface);
       }
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
     }
-    return this.cached;
   }
+  @Deprecated
   public boolean isCached() {
-    return this.cached != null;
+    return true;
   }
+  @Deprecated
   public void set(T t) {
-    if(this.cached != null) {
-      throw new IllegalStateException("Attempt to double set future!");
-    }
-    this.cached = t;
+    throw new UnsupportedOperationException();
+//    if(this.cached != null) {
+//      throw new IllegalStateException("Attempt to double set future!");
+//    }
+//    this.cached = t;
   }
 
   @Override
