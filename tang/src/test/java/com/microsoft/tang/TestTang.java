@@ -45,8 +45,6 @@ public class TestTang {
   @Test//(expected = InjectionException.class)
   public void testNotSingleton() throws NameResolutionException,
       ReflectiveOperationException, BindException, InjectionException {
-    thrown.expect(InjectionException.class);
-    thrown.expectMessage("Could not invoke constructor");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     Injector injector = tang.newInjector(t.build());
     injector.getInstance(TwoSingletons.class);
@@ -119,13 +117,10 @@ public class TestTang {
         i.getInstance(MustBeSingleton.class));
     i.getInstance(RepeatedNamedSingletonArgs.class);
   }
-
-  // Forgot to call bindSingleton
-  @Test//(expected = InjectionException.class)
-  public void testRepeatedNamedFailArgs() throws BindException,
+  
+  @Test
+  public void testRepeatedNamedArgs() throws BindException,
       InjectionException {
-    thrown.expect(InjectionException.class);
-    thrown.expectMessage("Could not invoke constructor");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
     Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
@@ -295,8 +290,8 @@ public class TestTang {
         .getNamedInstance(NamedImpl.BImplName.class);
     NamedImpl.Bimpl b2 = (NamedImpl.Bimpl) i
         .getNamedInstance(NamedImpl.BImplName.class);
-    Assert.assertNotSame(a1, a2);
-    Assert.assertNotSame(b1, b2);
+    Assert.assertSame(a1, a2);
+    Assert.assertSame(b1, b2);
   }
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test

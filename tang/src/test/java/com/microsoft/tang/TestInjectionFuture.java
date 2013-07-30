@@ -17,12 +17,13 @@ public class TestInjectionFuture {
   public void testFutures() throws InjectionException, BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
     
     Futurist f = i.getInstance(Futurist.class);
     Assert.assertTrue(f == f.getMyCar().getDriver());
     Assert.assertTrue(f.getMyCar() == f.getMyCar().getDriver().getMyCar());
     
-    Futurist f2 = i.getInstance(Futurist.class);
+    Futurist f2 = i2.getInstance(Futurist.class);
     Assert.assertTrue(f2 == f2.getMyCar().getDriver());
     Assert.assertTrue(f2.getMyCar() == f2.getMyCar().getDriver().getMyCar());
 
@@ -34,12 +35,13 @@ public class TestInjectionFuture {
   public void testFutures2() throws InjectionException, BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    Injector i2 = i.createChildInjector();
     
     FlyingCar c = i.getInstance(FlyingCar.class);
     Assert.assertTrue(c == c.getDriver().getMyCar());
     Assert.assertTrue(c.getDriver() == c.getDriver().getMyCar().getDriver());
 
-    FlyingCar c2 = i.getInstance(FlyingCar.class);
+    FlyingCar c2 = i2.getInstance(FlyingCar.class);
     Assert.assertTrue(c2 == c2.getDriver().getMyCar());
     Assert.assertTrue(c2.getDriver() == c2.getDriver().getMyCar().getDriver());
 

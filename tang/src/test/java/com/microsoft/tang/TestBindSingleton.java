@@ -74,7 +74,7 @@ public class TestBindSingleton {
     assertTrue("Two singletons should be the same", a1 == a2);
     assertTrue("Both instances should be of class B", a1 instanceof B);
     assertTrue("Both instances should be of class B", a2 instanceof B);
-    assertTrue("Singleton and not singleton should not be the same", a1 != b1);
+    assertTrue("Singleton and not singleton should be the same", a1 == b1);
 
     final Injector injector2 = Tang.Factory.getTang().newInjector(src);
     final A a3 = injector2.getInstance(A.class);

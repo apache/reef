@@ -32,16 +32,9 @@ import com.microsoft.tang.util.ReflectionUtilities;
 import com.microsoft.tang.util.TracingMonotonicMap;
 
 public class InjectorImpl implements Injector {
-
-  final Map<ClassNode<?>, Object> singletonInstances = new TracingMonotonicMap<>();
+  final Map<ClassNode<?>, Object> instances = new TracingMonotonicMap<>();
   final Map<NamedParameterNode<?>, Object> namedParameterInstances = new TracingMonotonicMap<>();
-  private class SingletonInjectionException extends InjectionException {
-    private static final long serialVersionUID = 1L;
 
-    SingletonInjectionException(String s) {
-      super(s);
-    }
-  }
   private boolean concurrentModificationGuard = false;
   private static final AtomicBoolean warned = new AtomicBoolean(false);
   private void assertNotConcurrent() {
@@ -52,7 +45,6 @@ public class InjectorImpl implements Injector {
       }
     }
   }
-  
   
   private final Configuration c;
   private final ClassHierarchy namespace;
@@ -167,8 +159,8 @@ public class InjectorImpl implements Injector {
       } else {
         defaultImpl = null;
       }
-      if (singletonInstances.containsKey(cn)) {
-        ip = new JavaInstance<Object>(cn, getSingleton(cn));
+      if (instances.containsKey(cn)) {
+        ip = new JavaInstance<Object>(cn, instances.get(cn));
       } else if (null != c.getBoundConstructor(cn)) {
         ClassNode<? extends ExternalConstructor> ec = c.getBoundConstructor(cn);
         buildInjectionPlan(ec, memo);
@@ -280,9 +272,8 @@ public class InjectorImpl implements Injector {
   }
 
   /**
-   * Return an injection plan for the given class / parameter name. This will be
-   * more useful once plans can be serialized / deserialized / pretty printed.
-   * 
+   * Return an injection plan for the given class / parameter name.
+   *  
    * @param name
    *          The name of an injectable class or interface, or a NamedParameter.
    * @return
@@ -331,53 +322,8 @@ public class InjectorImpl implements Injector {
     this.c = c;
     this.namespace = c.getClassHierarchy();
     this.javaNamespace = (ClassHierarchyImpl) this.namespace;
-    try {
-//      this.singletonInstances.put((ClassNode<?>) (namespace
-//          .getNode(ReflectionUtilities.getFullName(Configuration.class))), c);
-      this.singletonInstances.put((ClassNode<?>) (namespace
-          .getNode(ReflectionUtilities.getFullName(Injector.class))), this);
-    } catch (NameResolutionException e) {
-      throw new IllegalArgumentException(
-          "Configuration's namespace has not heard of Injector!");
-    }
   }
 
-  boolean populated = false;
-
-  private void populateSingletons() throws InjectionException {
-    if (!populated) {
-      populated = true;
-      boolean stillHope = true;
-      boolean allSucceeded = false;
-      while (!allSucceeded) {
-        boolean oneSucceeded = false;
-        allSucceeded = true;
-        for (ClassNode<?> cn : c.getSingletons()) {
-          if (!singletonInstances.containsKey(cn)) {
-            try {
-              try {
-                getInstance(cn.getFullName());// getClazz());
-              } catch(NameResolutionException e) {
-                throw new IllegalStateException("Failed to round trip ClassNode " + cn, e);
-              }
-              // System.err.println("success " + cn);
-              oneSucceeded = true;
-            } catch (SingletonInjectionException e) {
-              // System.err.println("failure " + cn);
-              allSucceeded = false;
-              if (!stillHope) {
-                throw e;
-              }
-            }
-          }
-        }
-        if (!oneSucceeded) {
-          stillHope = false;
-        }
-      }
-    }
-  }
-  
   private <U> U getInstance(Node n) throws InjectionException {
     final Map<String, InjectionFuture<?>> futures = new TracingMonotonicMap<>();
     return getInstance(n, futures);
@@ -385,7 +331,6 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   private <U> U getInstance(Node n, Map<String, InjectionFuture<?>> futures) throws InjectionException {
     assertNotConcurrent();
-    populateSingletons();
     InjectionPlan<U> plan = (InjectionPlan<U>)getInjectionPlan(n);
     U u = (U) injectFromPlan(plan, futures);
     return u;
@@ -448,21 +393,9 @@ public class InjectorImpl implements Injector {
     return cons;
   }
   
-  @SuppressWarnings("unchecked")
-  private <T> T getSingleton(Node cn) {
-    if(false && cn.getFullName().equals(ReflectionUtilities.getFullName(Injector.class))) {
-      try {
-        return (T) (((Injector)(singletonInstances.get(cn))).createChildInjector());
-      } catch(BindException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      return (T) singletonInstances.get(cn);
-    }
-  }
   /**
    * This gets really nasty now that constructors can invoke operations on us.
-   * The upshot is that we should check to see if singletons have been
+   * The upshot is that we should check to see if instances have been
    * registered by callees after each recursive invocation of injectFromPlan or
    * constructor invocations. The error handling currently bails if the thing we
    * just instantiated should be discarded.
@@ -488,27 +421,32 @@ public class InjectorImpl implements Injector {
       throw new InjectionException("Cannot inject " + plan.getNode().getFullName() + " "
           + plan.toCantInjectString());
     }
+    if (instances.containsKey(plan.getNode())) {
+      return (T)instances.get(plan.getNode());
+    }
     if (plan instanceof InjectionFuturePlan) {
       InjectionFuturePlan<T> fut = (InjectionFuturePlan<T>)plan;
       final String key = fut.getNode().getFullName();
       try {
-        if(!futures.containsKey(key)) {
-          futures.put(key, new InjectionFuture<>(this, futures, javaNamespace.classForName(fut.getNode().getFullName())));
+        if(futures.containsKey(key)) {
+          throw new IllegalStateException();
         }
-        return (T)futures.get(key);
+        InjectionFuture<?> ret = new InjectionFuture<>(this, futures, javaNamespace.classForName(fut.getNode().getFullName()));
+        futures.put(key, ret);
+        return (T)ret;
       } catch(ClassNotFoundException e) {
         throw new InjectionException("Could not get class for " + key);
       }
     } else if (plan instanceof JavaInstance) {
+      // TODO: Must be named parameter node.  Check.
+//      throw new IllegalStateException("Instance from plan not in Injector's set of instances?!?");
       return ((JavaInstance<T>) plan).instance;
     } else if (plan instanceof Constructor) {
       final Constructor<T> constructor = (Constructor<T>) plan;
-      if (singletonInstances.containsKey(constructor.getNode())) {
-        return getSingleton(constructor.getNode());
-      }
       final Object[] args = new Object[constructor.getArgs().length];
       final InjectionPlan<?>[] argPlans = constructor.getArgs();
       boolean hasFuture = plan.hasFutureDependency();
+      // XXX is this future stuff redundant?
       InjectionFuture<T> future = (InjectionFuture<T>) futures.get(plan.getNode().getFullName());
       boolean haveFutureInstance = (future != null && future.isCached());
 
@@ -519,78 +457,37 @@ public class InjectorImpl implements Injector {
       }
       future = (InjectionFuture<T>) futures.get(plan.getNode().getFullName());
       haveFutureInstance = (future != null && future.isCached());
-      if (!singletonInstances.containsKey(constructor.getNode())) {
-        try {
-          T ret;
-          if(!haveFutureInstance) { 
-            concurrentModificationGuard = true;
-            ret = getConstructor(
-                (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
-                args);
-            
-            if (ret instanceof ExternalConstructor) {
-          	  ret = ((ExternalConstructor<T>)ret).newInstance();
-            }
-            concurrentModificationGuard = false;
-            if(hasFuture) {
-              if(future != null) {
-                future.set(ret);
-              } else {
-                futures.put(constructor.getNode().getFullName(), new InjectionFuture<>(ret));
-              }
-            }
-          } else {
-            ret = (T)futures.get(constructor.getNode().getFullName()).get();
+      try {
+        T ret;
+        if(!haveFutureInstance) { 
+          concurrentModificationGuard = true;
+          ret = getConstructor(
+              (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
+              args);
+          
+          if (ret instanceof ExternalConstructor) {
+        	  ret = ((ExternalConstructor<T>)ret).newInstance();
           }
-          if (c.isSingleton(constructor.getNode())
-              || constructor.getNode().isUnit()) {
-            if (!singletonInstances.containsKey(constructor.getNode())) {
-              singletonInstances.put(constructor.getNode(), ret);
+          concurrentModificationGuard = false;
+          instances.put(constructor.getNode(), ret);
+          if(hasFuture) {
+            if(future != null) {
+              future.set(ret);
             } else {
-              // There are situations where clients need to create cyclic object
-              // graphs,
-              // so they bindVolatileInstance(...,this) to the class inside
-              // their constructors.
-              // That's fine, so ignore duplicates where the references match.
-              if (singletonInstances.get(constructor.getNode()) != ret) {
-                throw new InjectionException("Invoking constructor "
-                    + constructor
-                    + " resulted in the binding of some other instance of "
-                    + constructor.getNode().getName() + " as a singleton");
-              }
+              futures.put(constructor.getNode().getFullName(), new InjectionFuture<>(ret));
             }
           }
-          // System.err.println("returning a new " + constructor.getNode());
-          return ret;
-        } catch (ReflectiveOperationException e) {
-          throw new InjectionException("Could not invoke constructor", e);
+        } else {
+          ret = (T)futures.get(constructor.getNode().getFullName()).get();
         }
-      } else {
-        return getSingleton(constructor.getNode());
+        return ret;
+      } catch (ReflectiveOperationException e) {
+        throw new InjectionException("Could not invoke constructor", e);
       }
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
       if (ambiguous.isInjectable()) {
-        Node ambigNode = ambiguous.getNode();
-        boolean ambigIsUnit = ambigNode instanceof ClassNode
-            && ((ClassNode<?>) ambigNode).isUnit();
-        if (singletonInstances.containsKey(ambiguous.getNode())) {
-          return (T)getSingleton(ambiguous.getNode());
-        }
         Object ret = injectFromPlan(ambiguous.getDelegatedPlan(), futures);
-        if (c.isSingleton(ambiguous.getNode()) || ambigIsUnit) {
-          // Cast is safe since singletons is of type Set<ClassNode<?>>
-          if(singletonInstances.containsKey((ClassNode<?>) ambiguous.getNode())) {
-            if(singletonInstances.get((ClassNode<?>) ambiguous.getNode()) != ret) {
-              throw new InjectionException("Injecting subplan "
-                  + ambiguous
-                  + " resulted in the binding of some other instance of "
-                  + ambiguous.getNode().getName() + " as a singleton");
-            }
-          } else {
-            singletonInstances.put((ClassNode<?>) ambiguous.getNode(), ret);
-          }
-        }
         // TODO: Check "T" in "instanceof ExternalConstructor<T>"
         if (ret instanceof ExternalConstructor) {
           // TODO fix up generic types for injectFromPlan with external
@@ -598,6 +495,8 @@ public class InjectorImpl implements Injector {
           concurrentModificationGuard = true;
           T val = ((ExternalConstructor<T>) ret).newInstance();
           concurrentModificationGuard = false;
+          // XXX Looks like a bug.  What if caller asked for an instance of the external constructor
+          instances.put((ClassNode<?>)plan.getNode(), ret);
           return val;
         } else {
           return (T) ret;
@@ -629,15 +528,12 @@ public class InjectorImpl implements Injector {
       throw new IllegalStateException(
           "Unexpected error copying configuration!", e);
     }
-    for (ClassNode<?> cn : old.singletonInstances.keySet()) {
-      if (!(
-          cn.getFullName().equals("com.microsoft.tang.Injector")
-//          || cn.getFullName().equals("com.microsoft.tang.Configuration")
-           )) {
+    for (ClassNode<?> cn : old.instances.keySet()) {
+      if (!(cn.getFullName().equals("com.microsoft.tang.Injector"))) {
         try {
           ClassNode<?> new_cn = (ClassNode<?>) i.namespace.getNode(cn
               .getFullName());
-          i.singletonInstances.put(new_cn, old.singletonInstances.get(cn));
+          i.instances.put(new_cn, old.instances.get(cn));
         } catch (BindException e) {
           throw new IllegalStateException("Could not resolve name "
               + cn.getFullName() + " when copying injector");
@@ -672,12 +568,12 @@ public class InjectorImpl implements Injector {
     Node n = javaNamespace.getNode(c);
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
-      Object old = singletonInstances.get(cn);
+      Object old = instances.get(cn);
       if (old != null) {
-        throw new BindException("Attempt to re-bind singleton.  Old value was "
+        throw new BindException("Attempt to re-bind instance.  Old value was "
             + old + " new value is " + o);
       }
-      singletonInstances.put(cn, o);
+      instances.put(cn, o);
     } else {
       throw new IllegalArgumentException("Expected Class but got " + c
           + " (probably a named parameter).");
@@ -690,9 +586,6 @@ public class InjectorImpl implements Injector {
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = this.c.getNamedParameter(np);
-//      if (old == null) {
-//        old = namedParameterInstances.get(np);
-//      }
       if(old != null) {
         // XXX need to get the binding site here!
         throw new BindException(

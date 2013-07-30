@@ -36,8 +36,6 @@ public interface Configuration {
   
   public Collection<ClassNode<?>> getSingletons();
 
-  public boolean isSingleton(Node n);
-
   Set<ClassNode<?>> getBoundImplementations();
 
   Set<ClassNode<?>> getBoundConstructors();
