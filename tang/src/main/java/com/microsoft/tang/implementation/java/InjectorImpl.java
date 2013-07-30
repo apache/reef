@@ -609,6 +609,12 @@ public class InjectorImpl implements Injector {
   @Override
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {
+    return forkInjector(configurations);
+  }
+
+  @Override
+  public Injector forkInjector(Configuration... configurations)
+      throws BindException {
     assertNotConcurrent();
     InjectorImpl ret;
     ret = copy(this, configurations);

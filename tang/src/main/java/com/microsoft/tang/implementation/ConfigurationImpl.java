@@ -10,7 +10,6 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {

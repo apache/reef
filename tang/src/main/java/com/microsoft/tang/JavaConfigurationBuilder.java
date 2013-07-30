@@ -46,6 +46,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
+  @Deprecated
   public <T> void bindSingletonImplementation(Class<T> iface,
       Class<? extends T> impl) throws BindException;
 
@@ -57,6 +58,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
+  @Deprecated
   public <T> void bindSingleton(Class<T> iface) throws BindException;
 
   /**

@@ -6,7 +6,6 @@ import java.util.Set;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.Node;
 
 /**
  * TANG Configuration object.
@@ -34,6 +33,7 @@ public interface Configuration {
    */
   public <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn);
   
+  @Deprecated
   public Collection<ClassNode<?>> getSingletons();
 
   Set<ClassNode<?>> getBoundImplementations();
