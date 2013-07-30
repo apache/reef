@@ -325,25 +325,11 @@ public class InjectorImpl implements Injector {
   }
 
   private <U> U getInstance(Node n) throws InjectionException {
-    final Map<String, InjectionFuture<?>> futures = new TracingMonotonicMap<>();
-    return getInstance(n, futures);
-  }
-  @SuppressWarnings("unchecked")
-  private <U> U getInstance(Node n, Map<String, InjectionFuture<?>> futures) throws InjectionException {
     assertNotConcurrent();
+    @SuppressWarnings("unchecked")
     InjectionPlan<U> plan = (InjectionPlan<U>)getInjectionPlan(n);
-    U u = (U) injectFromPlan(plan, futures);
+    U u = (U) injectFromPlan(plan);
     return u;
-  }
-  // TODO: Move InjectionFuture into an implementation class in the same package as us, and make this
-  // package private!
-  public <U> U getInstance(Class<U> clazz, Map<String, InjectionFuture<?>> futures) throws InjectionException {
-    if (Name.class.isAssignableFrom(clazz)) {
-      throw new InjectionException("getInstance() called on Name "
-          + ReflectionUtilities.getFullName(clazz)
-          + " Did you mean to call getNamedInstance() instead?");
-    }
-    return getInstance(javaNamespace.getNode(clazz), futures);
   }
   @Override
   public <U> U getInstance(Class<U> clazz) throws InjectionException {
@@ -411,7 +397,7 @@ public class InjectorImpl implements Injector {
    * @throws InjectionException
    */
   @SuppressWarnings("unchecked")
-  private <T> T injectFromPlan(InjectionPlan<T> plan, final Map<String, InjectionFuture<?>> futures) throws InjectionException {
+  private <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
 
     if (!plan.isFeasible()) {
       throw new InjectionException("Cannot inject " + plan.getNode().getFullName() + ": "
@@ -428,11 +414,7 @@ public class InjectorImpl implements Injector {
       InjectionFuturePlan<T> fut = (InjectionFuturePlan<T>)plan;
       final String key = fut.getNode().getFullName();
       try {
-        if(futures.containsKey(key)) {
-          throw new IllegalStateException();
-        }
-        InjectionFuture<?> ret = new InjectionFuture<>(this, futures, javaNamespace.classForName(fut.getNode().getFullName()));
-        futures.put(key, ret);
+        InjectionFuture<?> ret = new InjectionFuture<>(this, javaNamespace.classForName(fut.getNode().getFullName()));
         return (T)ret;
       } catch(ClassNotFoundException e) {
         throw new InjectionException("Could not get class for " + key);
@@ -445,41 +427,22 @@ public class InjectorImpl implements Injector {
       final Constructor<T> constructor = (Constructor<T>) plan;
       final Object[] args = new Object[constructor.getArgs().length];
       final InjectionPlan<?>[] argPlans = constructor.getArgs();
-      boolean hasFuture = plan.hasFutureDependency();
-      // XXX is this future stuff redundant?
-      InjectionFuture<T> future = (InjectionFuture<T>) futures.get(plan.getNode().getFullName());
-      boolean haveFutureInstance = (future != null && future.isCached());
 
-      if(!haveFutureInstance) {
-        for (int i = 0; i < argPlans.length; i++) {
-          args[i] = injectFromPlan(argPlans[i], futures);
-        }
+      for (int i = 0; i < argPlans.length; i++) {
+        args[i] = injectFromPlan(argPlans[i]);
       }
-      future = (InjectionFuture<T>) futures.get(plan.getNode().getFullName());
-      haveFutureInstance = (future != null && future.isCached());
       try {
         T ret;
-        if(!haveFutureInstance) { 
-          concurrentModificationGuard = true;
-          ret = getConstructor(
-              (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
-              args);
-          
-          if (ret instanceof ExternalConstructor) {
-        	  ret = ((ExternalConstructor<T>)ret).newInstance();
-          }
-          concurrentModificationGuard = false;
-          instances.put(constructor.getNode(), ret);
-          if(hasFuture) {
-            if(future != null) {
-              future.set(ret);
-            } else {
-              futures.put(constructor.getNode().getFullName(), new InjectionFuture<>(ret));
-            }
-          }
-        } else {
-          ret = (T)futures.get(constructor.getNode().getFullName()).get();
+        concurrentModificationGuard = true;
+        ret = getConstructor(
+            (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
+            args);
+        
+        if (ret instanceof ExternalConstructor) {
+      	  ret = ((ExternalConstructor<T>)ret).newInstance();
         }
+        concurrentModificationGuard = false;
+        instances.put(constructor.getNode(), ret);
         return ret;
       } catch (ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor", e);
@@ -487,7 +450,7 @@ public class InjectorImpl implements Injector {
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
       if (ambiguous.isInjectable()) {
-        Object ret = injectFromPlan(ambiguous.getDelegatedPlan(), futures);
+        Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
         // TODO: Check "T" in "instanceof ExternalConstructor<T>"
         if (ret instanceof ExternalConstructor) {
           // TODO fix up generic types for injectFromPlan with external

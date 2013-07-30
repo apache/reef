@@ -98,13 +98,7 @@ public class ConfigurationFile {
         key = longName;
       }
       for (String value : values) {
-        final boolean isSingleton = value.equals(ConfigurationBuilderImpl.SINGLETON);
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
-          if (isSingleton) {
-            throw new IllegalArgumentException("Can't "
-                + ConfigurationBuilderImpl.IMPORT + "="
-                + ConfigurationBuilderImpl.SINGLETON + ".  Makes no sense");
-          }
           ci.getClassHierarchy().getNode(value);
           final String[] tok = value.split(ReflectionUtilities.regexp);
           final String lastTok = tok[tok.length - 1];
@@ -127,11 +121,7 @@ public class ConfigurationFile {
           String[] classes = parseValue.split("[\\s\\-]+");
           ci.registerLegacyConstructor(key, classes);
         } else {
-          if (isSingleton) {
-            ci.bindSingleton(key);
-          } else {
-            ci.bind(key, value);
-          }
+          ci.bind(key, value);
         }
       }
     }
@@ -181,11 +171,6 @@ public class ConfigurationFile {
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
       s.append(opt.getFullName()).append('=')
               .append(escape(conf.getNamedParameter(opt))).append('\n');
-    }
-    for (ClassNode<?> opt : conf.getSingletons()) {
-      // ret.put(opt.getFullName(), SINGLETON);
-      s.append(opt.getFullName()).append('=')
-              .append(ConfigurationBuilderImpl.SINGLETON).append('\n');
     }
     for (ClassNode<?> cn : conf.getLegacyConstructors()) {
       s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');

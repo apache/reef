@@ -17,7 +17,6 @@ package com.microsoft.tang.util.walk;
 
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.Constructor;
-import com.microsoft.tang.implementation.RequiredSingleton;
 import com.microsoft.tang.implementation.Subplan;
 import com.microsoft.tang.implementation.java.JavaInstance;
 
@@ -43,8 +42,6 @@ public abstract class AbstractInjectionPlanNodeVisitor implements NodeVisitor<In
       return visit((Constructor<?>) node);
     } else if (node instanceof Subplan<?>) {
       return visit((Subplan<?>) node);
-    } else if (node instanceof RequiredSingleton<?,?>) {
-      return visit((RequiredSingleton<?,?>) node);
     } else if (node instanceof JavaInstance<?>) {
       return visit((JavaInstance<?>) node);
     }
@@ -66,13 +63,6 @@ public abstract class AbstractInjectionPlanNodeVisitor implements NodeVisitor<In
    * @return true to proceed with the next node, false to cancel.
    */
   public abstract boolean visit(JavaInstance<?> node);
-
-  /**
-   * Process current injection plan node of RequiredSingleton type.
-   * @param node Current injection plan node.
-   * @return true to proceed with the next node, false to cancel.
-   */
-  public abstract boolean visit(RequiredSingleton<?,?> node);
 
   /**
    * Process current injection plan node of Subplan type.

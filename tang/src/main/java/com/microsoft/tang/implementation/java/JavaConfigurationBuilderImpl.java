@@ -13,7 +13,6 @@ import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
-import com.microsoft.tang.util.ReflectionUtilities;
 
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
@@ -102,27 +101,13 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
 
   @Override
   public <T> void bindSingleton(Class<T> c) throws BindException {
-    bindSingleton(ReflectionUtilities.getFullName(c));
   }
 
   @Override
   public <T> void bindSingletonImplementation(Class<T> c, Class<? extends T> d)
       throws BindException {
-    bindSingleton(c);
-    bindImplementation(c, d);
+    bindImplementation(c,d);
   }
-
-/*  @Override
-  public void bindParser(Class<? extends ExternalConstructor<?>> ec)
-      throws BindException {
-    ((ClassHierarchyImpl)namespace).parameterParser.addParser(ec);
-  }
-
-  @Override
-  public <T, U extends T> void bindParser(Class<U> c, Class<? extends ExternalConstructor<T>> ec) 
-      throws BindException {
-    ((ClassHierarchyImpl)namespace).parameterParser.addParser(c, ec);
-  }*/
 
   @SuppressWarnings({ "unchecked" })
   public <T> void bindConstructor(Class<T> c,
