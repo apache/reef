@@ -259,6 +259,7 @@ public class TestConfigurationModule {
         .set(MyConfigurationModule.THE_FOO, FooAltImpl.class)
         .build();
 
+    // instantiation of each just to be sure everything is fine in this situation
     Injector i1 = Tang.Factory.getTang().newInjector(config1);
     Injector i2 = Tang.Factory.getTang().newInjector(config2);
     Assert.assertEquals(42, i1.getInstance(Foo.class).getFooness());
