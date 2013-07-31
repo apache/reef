@@ -397,6 +397,19 @@ public class TestTang {
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     i.getInstance(SMC.class);
   }
+  @Test
+  public void testInjectInjector() throws InjectionException, BindException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    InjectInjector ii = i.getInstance(InjectInjector.class);
+    Assert.assertNotSame(i, ii.i);
+  }
+}
+
+class InjectInjector {
+  public final Injector i;
+  @Inject InjectInjector(Injector i) {
+    this.i = i;
+  }
 }
 
 interface SMC { }

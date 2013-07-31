@@ -71,6 +71,16 @@ public class ConfigurationModule {
     c.setParams.put(opt, val);
     return c;
   }
+  
+/*  public final InjectorModule buildVolatileInjector() throws ClassHierarchyException {
+    ConfigurationModule c = deepCopy();
+
+    return new InjectorModule(c);  // injector module will all bind volatiles over missing sets in c.
+    
+    // it basically just delegates to an unsafe version of build, gets an injector, and at build() bind volatiles into injector
+  } */
+
+  
   public Configuration build() throws BindException {
     ConfigurationModule c = deepCopy();
     
@@ -92,13 +102,6 @@ public class ConfigurationModule {
         c.builder.b.bind(clazz, c.setImpls.get(i));
       } else if(c.setLateImpls.containsKey(i)) {
         c.builder.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
-      }
-    }
-    for (Impl<?> i : c.builder.freeSingletons) {
-      if(c.setImpls.containsKey(i)) {
-        c.builder.b.bindSingleton(c.setImpls.get(i));
-      } else if(c.setLateImpls.containsKey(i)) {
-        c.builder.b.bindSingleton(c.setLateImpls.get(i));
       }
     }
     for (Class<? extends Name<?>> clazz : c.builder.freeParams.keySet()) {

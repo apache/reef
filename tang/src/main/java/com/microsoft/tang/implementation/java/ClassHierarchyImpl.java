@@ -278,15 +278,6 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
                   + arg.getType(), e);
             }
           }
-          try {
-            if(((ClassNode<?>)getNode(arg.getType()))
-                  .isImplementationOf((ClassNode<?>)getNode(Injector.class))) {
-              System.err.println("\n\n\nTANG WARNING: Detected injectable constructor that takes an Injector as an argument.  This will be disallowed soon.\n" + def + "\n\n");
-            }
-          } catch (NameResolutionException e) {
-            throw new ClassHierarchyException("Constructor refers to unknown class "
-                + arg.getType(), e);
-          }
         }
       }
     } else if (n instanceof NamedParameterNode) {

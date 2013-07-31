@@ -98,6 +98,15 @@ public class InjectorImpl implements Injector {
   };
 
   @SuppressWarnings("unchecked")
+  private <T> T getCachedInstance(ClassNode<T> cn) {
+    if(cn.getFullName().equals("com.microsoft.tang.Injector")) {
+      return (T)this.forkInjector();
+    } else {
+      return (T)instances.get(cn);
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
   private InjectionPlan<?> wrapInjectionPlans(Node infeasibleNode,
       List<? extends InjectionPlan<?>> list, boolean forceAmbiguous, int selectedIndex) {
     if (list.size() == 0) {
@@ -159,8 +168,9 @@ public class InjectorImpl implements Injector {
       } else {
         defaultImpl = null;
       }
-      if (instances.containsKey(cn)) {
-        ip = new JavaInstance<Object>(cn, instances.get(cn));
+      Object cached = getCachedInstance(cn);
+      if (cached != null) {
+        ip = new JavaInstance<Object>(cn, cached);
       } else if (null != c.getBoundConstructor(cn)) {
         ClassNode<? extends ExternalConstructor> ec = c.getBoundConstructor(cn);
         buildInjectionPlan(ec, memo);
@@ -407,8 +417,11 @@ public class InjectorImpl implements Injector {
       throw new InjectionException("Cannot inject " + plan.getNode().getFullName() + " "
           + plan.toCantInjectString());
     }
-    if (instances.containsKey(plan.getNode())) {
-      return (T)instances.get(plan.getNode());
+    if(plan.getNode() instanceof ClassNode) {
+      T cached = getCachedInstance((ClassNode<T>)plan.getNode());
+      if (cached != null) {
+        return cached;
+      }
     }
     if (plan instanceof InjectionFuturePlan) {
       InjectionFuturePlan<T> fut = (InjectionFuturePlan<T>)plan;
@@ -531,7 +544,7 @@ public class InjectorImpl implements Injector {
     Node n = javaNamespace.getNode(c);
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
-      Object old = instances.get(cn);
+      Object old = getCachedInstance(cn);
       if (old != null) {
         throw new BindException("Attempt to re-bind instance.  Old value was "
             + old + " new value is " + o);
@@ -573,6 +586,15 @@ public class InjectorImpl implements Injector {
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {
     return forkInjector(configurations);
+  }
+
+  @Override
+  public Injector forkInjector() {
+    try {
+      return forkInjector(new Configuration[0]);
+    } catch (BindException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   @Override

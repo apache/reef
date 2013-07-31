@@ -106,7 +106,10 @@ public class ParameterParser {
     }
   }
 
-  private static final Set<String> BUILTIN_NAMES = new HashSet<String>() {{
+  private static final Set<String> BUILTIN_NAMES = new HashSet<String>() {
+    private static final long serialVersionUID = 1L;
+
+    {   
     Collections.addAll(this,
         String.class.getName(),
         Byte.class.getName(),
