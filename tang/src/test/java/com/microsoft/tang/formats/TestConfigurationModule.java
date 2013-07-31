@@ -227,7 +227,6 @@ public class TestConfigurationModule {
   public void singletonTest() throws BindException, InjectionException {
     Configuration c = new MyConfigurationModule()
       .bindImplementation(Foo.class, MyConfigurationModule.THE_FOO)
-      .bindSingleton(MyConfigurationModule.THE_FOO)
       .bindNamedParameter(Fooness.class, MyConfigurationModule.FOO_NESS)
       .build()
       .set(MyConfigurationModule.THE_FOO, FooImpl.class)

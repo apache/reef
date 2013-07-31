@@ -164,6 +164,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
   }
 
   @Override
+  @Deprecated
   public boolean hasFutureDependency() {
     if(selectedIndex == -1) {
       throw new IllegalStateException("hasFutureDependency() called on ambiguous subplan!");

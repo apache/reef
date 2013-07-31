@@ -51,13 +51,22 @@ public final class InjectionFuture<T> implements Future<T> {
 
   private final Class<? extends T> iface;
   
+  private final T instance;
+  
   public InjectionFuture() {
     injector = null;
     iface = null;
+    instance = null;
   }
   public InjectionFuture(final Injector injector, Class<? extends T> iface) {
     this.injector = (InjectorImpl)injector;
     this.iface = iface;
+    this.instance = null;
+  }
+  public InjectionFuture(T instance) {
+    this.injector = null;
+    this.iface = null;
+    this.instance = instance;
   }
 
   @Override
@@ -77,6 +86,7 @@ public final class InjectionFuture<T> implements Future<T> {
 
   @Override
   public T get() {
+    if(instance != null) return instance;
     try {
       synchronized(injector) {
         return injector.getInstance(iface);

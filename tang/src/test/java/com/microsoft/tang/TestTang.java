@@ -38,7 +38,6 @@ public class TestTang {
   @Test
   public void testSingleton() throws BindException, InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.bindSingleton(MustBeSingleton.class);
     tang.newInjector(t.build()).getInstance(TwoSingletons.class);
   }
 
@@ -90,7 +89,6 @@ public class TestTang {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.bindSingleton(MustBeSingleton.class);
     tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
   }
 
@@ -109,7 +107,6 @@ public class TestTang {
   public void testRepeatedNamedOKArgs() throws BindException,
       InjectionException {
     JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.bindSingleton(MustBeSingleton.class);
     final Injector i = tang.newInjector(t.build());
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
@@ -396,7 +393,6 @@ public class TestTang {
   public void testSingletonWithMultipleConstructors() throws BindException, InjectionException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindImplementation(SMC.class, SingletonMultiConst.class);
-    cb.bindSingleton(SingletonMultiConst.class);
     cb.bindNamedParameter(SingletonMultiConst.A.class, "foo");
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     i.getInstance(SMC.class);

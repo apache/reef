@@ -148,6 +148,7 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
+  @Deprecated
   public final <T> ConfigurationModuleBuilder bindSingletonImplementation(
       Class<T> iface, Class<? extends T> impl) throws BindException {
     ConfigurationModuleBuilder c = deepCopy();
@@ -156,35 +157,6 @@ public abstract class ConfigurationModuleBuilder {
     } catch (BindException e) {
       throw new ClassHierarchyException(e);
     }
-    return c;
-  }
-
-  public final <T> ConfigurationModuleBuilder bindSingletonImplementation(
-      Class<T> iface, Impl<? extends T> opt) throws BindException {
-    ConfigurationModuleBuilder c = deepCopy();
-    c.processUse(opt);
-    try {
-      c.b.bindSingleton(iface);
-      c.freeImpls.put(iface, opt);
-    } catch (BindException e) {
-      throw new ClassHierarchyException(e);
-    }
-    return c;
-  }
-
-  public final <T> ConfigurationModuleBuilder bindSingleton(Class<T> iface) {
-    ConfigurationModuleBuilder c = deepCopy();
-    try {
-      c.b.bindSingleton(iface);
-    } catch (BindException e) {
-      throw new ClassHierarchyException(e);
-    }
-    return c;
-  }
-  @Deprecated
-  public final <T> ConfigurationModuleBuilder bindSingleton(Impl<T> iface) {
-    ConfigurationModuleBuilder c = deepCopy();
-    c.processUse(iface);
     return c;
   }
 
