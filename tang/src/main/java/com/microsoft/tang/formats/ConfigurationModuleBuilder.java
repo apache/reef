@@ -18,26 +18,6 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 public abstract class ConfigurationModuleBuilder {
 
-  public interface Impl<T> {
-  }
-
-  public interface Param<T> {
-  }
-
-  public static final class Provides<T> { }
-
-  public static final class RequiredImpl<T> implements Impl<T> {
-  }
-
-  public static final class OptionalImpl<T> implements Impl<T> {
-  }
-
-  public static final class RequiredParameter<T> implements Param<T> {
-  }
-
-  public static final class OptionalParameter<T> implements Param<T> {
-  }
-
   private final static Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);

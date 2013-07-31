@@ -8,9 +8,9 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder.Impl;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder.OptionalParameter;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder.Param;
+import com.microsoft.tang.formats.Impl;
+import com.microsoft.tang.formats.OptionalParameter;
+import com.microsoft.tang.formats.Param;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -65,6 +65,9 @@ public class ConfigurationModule {
     return c;
   }
   
+  public final <T> ConfigurationModule set(Param<T> opt, Number val) {
+    return set(opt, ""+val);
+  }
   public final <T> ConfigurationModule set(Param<T> opt, String val) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
