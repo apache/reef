@@ -346,11 +346,9 @@ public class InjectorImpl implements Injector {
     
     while(!pendingFutures.isEmpty()) {
       Iterator<InjectionFuture<?>> i = pendingFutures.iterator();
-      while(i.hasNext()) {
-        InjectionFuture<?> f = i.next();
-        pendingFutures.remove(f);
-        f.get();
-      }
+      InjectionFuture<?> f = i.next();
+      pendingFutures.remove(f);
+      f.get();
     }
     return u;
   }
