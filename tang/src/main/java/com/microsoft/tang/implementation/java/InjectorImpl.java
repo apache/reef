@@ -3,8 +3,11 @@ package com.microsoft.tang.implementation.java;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.microsoft.tang.ClassHierarchy;
@@ -49,6 +52,7 @@ public class InjectorImpl implements Injector {
   private final Configuration c;
   private final ClassHierarchy namespace;
   private final JavaClassHierarchy javaNamespace;
+  private final Set<InjectionFuture<?>> pendingFutures = new HashSet<>();
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
     @Override
     public int getNumAlternatives() {
@@ -339,6 +343,15 @@ public class InjectorImpl implements Injector {
     @SuppressWarnings("unchecked")
     InjectionPlan<U> plan = (InjectionPlan<U>)getInjectionPlan(n);
     U u = (U) injectFromPlan(plan);
+    
+    while(!pendingFutures.isEmpty()) {
+      Iterator<InjectionFuture<?>> i = pendingFutures.iterator();
+      while(i.hasNext()) {
+        InjectionFuture<?> f = i.next();
+        pendingFutures.remove(f);
+        f.get();
+      }
+    }
     return u;
   }
   @Override
@@ -428,6 +441,7 @@ public class InjectorImpl implements Injector {
       final String key = fut.getNode().getFullName();
       try {
         InjectionFuture<?> ret = new InjectionFuture<>(this, javaNamespace.classForName(fut.getNode().getFullName()));
+        pendingFutures.add(ret);
         return (T)ret;
       } catch(ClassNotFoundException e) {
         throw new InjectionException("Could not get class for " + key);

@@ -403,6 +403,25 @@ public class TestTang {
     InjectInjector ii = i.getInstance(InjectInjector.class);
     Assert.assertNotSame(i, ii.i);
   }
+  
+  @Test
+  public void testProactiveFutures() throws InjectionException, BindException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    IsFuture.instantiated = false;
+    i.getInstance(NeedsFuture.class);
+    Assert.assertTrue(IsFuture.instantiated);
+  }
+}
+class IsFuture {
+  static boolean instantiated;
+  @Inject IsFuture(NeedsFuture nf) {
+    instantiated = true;
+  }
+}
+class NeedsFuture {
+  @Inject NeedsFuture(InjectionFuture<IsFuture> isFut) {
+    
+  }
 }
 
 class InjectInjector {
