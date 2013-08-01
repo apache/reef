@@ -140,7 +140,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
     for (final InjectionPlan<?> plan : args) {
       if (plan.isAmbiguous()) {
-        sb.append(plan.getNode().getFullName() + ' ');
+        sb.append(plan.toAmbiguousInjectString());
       }
     }
 
