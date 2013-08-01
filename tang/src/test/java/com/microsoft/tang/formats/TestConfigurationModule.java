@@ -109,6 +109,16 @@ public class TestConfigurationModule {
     }
   }
 
+  static class FooAltImpl implements Foo {
+    private final int fooness;
+    @Inject
+    FooAltImpl(@Parameter(Fooness.class) int fooness) { this.fooness = fooness;}
+    
+    public int getFooness() {
+      return 7;
+    }
+  }
+
   @Rule public ExpectedException thrown = ExpectedException.none();
  
   @Test
@@ -234,6 +244,26 @@ public class TestConfigurationModule {
       .build();
     Injector i = Tang.Factory.getTang().newInjector(c);
     Assert.assertTrue(i.getInstance(Foo.class) == i.getInstance(Foo.class));
+  }
+  
+  @Test
+  public void immutablilityTest() throws BindException, InjectionException {
+    // builder methods return copies; the original module is immutable
+    ConfigurationModule builder1 = MyConfigurationModule.CONF
+        .set(MyConfigurationModule.THE_FOO, FooImpl.class);
+    Assert.assertFalse(builder1 == MyConfigurationModule.CONF );
+    Configuration config1 = builder1.build();
+  
+    // reusable
+    Configuration config2 = MyConfigurationModule.CONF
+        .set(MyConfigurationModule.THE_FOO, FooAltImpl.class)
+        .build();
+
+    // instantiation of each just to be sure everything is fine in this situation
+    Injector i1 = Tang.Factory.getTang().newInjector(config1);
+    Injector i2 = Tang.Factory.getTang().newInjector(config2);
+    Assert.assertEquals(42, i1.getInstance(Foo.class).getFooness());
+    Assert.assertEquals(7, i2.getInstance(Foo.class).getFooness());
   }
 }
 
