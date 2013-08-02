@@ -11,17 +11,21 @@ public interface Tang {
   /**
    * Returns an Injector for the given Configurations.
    * 
-   * This call eagerly binds singleton classes to instances.
-   * 
-   * @param confs
-   * @return
    * @throws BindException
    *           If the confs conflict, a BindException will be thrown.
-   * @throws InjectionException
-   *           If any singletons fail to inject.
    */
   public Injector newInjector(final Configuration... confs)
       throws BindException;
+
+  /**
+   * Returns an Injector for the given Configuration.
+   */
+  public Injector newInjector(final Configuration confs);
+  
+  /**
+   * Returns an Injector based on an empty Configuration.
+   */
+  public Injector newInjector();
 
   /**
    * Create a new ConfigurationBuilder

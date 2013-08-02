@@ -36,17 +36,18 @@ public class TestTang {
   }
 
   @Test
-  public void testSingleton() throws BindException, InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    tang.newInjector(t.build()).getInstance(TwoSingletons.class);
+  public void testSingleton() throws InjectionException {
+    Injector injector = tang.newInjector();
+    Assert.assertNotNull(injector.getInstance(TwoSingletons.class));
+    Assert.assertNotNull(injector.getInstance(TwoSingletons.class));
   }
 
-  @Test//(expected = InjectionException.class)
-  public void testNotSingleton() throws NameResolutionException,
-      ReflectiveOperationException, BindException, InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    Injector injector = tang.newInjector(t.build());
-    injector.getInstance(TwoSingletons.class);
+  @Test
+  public void testNotSingleton() throws InjectionException {
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Could not invoke constructor");
+    Assert.assertNotNull(tang.newInjector().getInstance(TwoSingletons.class));
+    tang.newInjector().getInstance(TwoSingletons.class);
   }
 
   // TODO: Delete this?  (It is handled in TestClassHierarchy!)
@@ -67,37 +68,31 @@ public class TestTang {
 
   // NamedParameter A has no default_value, so this should throw.
   @Test
-  public void testOneNamedFailArgs() throws BindException, InjectionException {
+  public void testOneNamedFailArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
   @Test
-  public void testOneNamedOKArgs() throws BindException, InjectionException {
+  public void testOneNamedOKArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
   // NamedParameter A has no default_value
   @Test
-  public void testOneNamedSingletonFailArgs() throws BindException,
-      InjectionException {
+  public void testOneNamedSingletonFailArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
   // NamedParameter A get's bound to a volatile, so this should succeed.
   @Test
-  public void testOneNamedSingletonOKArgs() throws BindException,
-      InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    final Injector i = tang.newInjector(t.build());
+  public void testOneNamedSingletonOKArgs() throws BindException, InjectionException {
+    final Injector i = tang.newInjector();
     i.bindVolatileParameter(OneNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
     i.getInstance(OneNamedSingletonArgs.class);
@@ -106,8 +101,7 @@ public class TestTang {
   @Test
   public void testRepeatedNamedOKArgs() throws BindException,
       InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    final Injector i = tang.newInjector(t.build());
+    final Injector i = tang.newInjector();
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class,
@@ -118,8 +112,7 @@ public class TestTang {
   @Test
   public void testRepeatedNamedArgs() throws BindException,
       InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    Injector i = tang.newInjector(t.build());
+    Injector i = tang.newInjector();
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class,
@@ -135,7 +128,7 @@ public class TestTang {
     tang.newInjector(cb.build()).getInstance(Interf.class);
   }
 
-  @Test//(expected = BindException.class)
+  @Test
   public void testOneNamedStringArgCantRebind() throws BindException,
       InjectionException {
     thrown.expect(BindException.class);
@@ -168,11 +161,10 @@ public class TestTang {
   @Test
   public void testOneNamedStringArgVolatile() throws BindException,
       InjectionException {
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
+    OneNamedStringArg a = tang.newInjector().getInstance(
         OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
-    Injector i = tang.newInjector(cb.build());
+    Injector i = tang.newInjector();
     i.bindVolatileParameter(OneNamedStringArg.A.class, "volatile");
     Assert.assertEquals("volatile", i.getInstance(OneNamedStringArg.class).s);
   }
@@ -495,6 +487,7 @@ class MustBeSingleton {
 class SubSingleton {
   @Inject
   SubSingleton(MustBeSingleton a) {
+    // Does not call super
   }
 }
 
