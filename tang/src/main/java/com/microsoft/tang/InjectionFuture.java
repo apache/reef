@@ -3,6 +3,7 @@ package com.microsoft.tang;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.implementation.java.InjectorImpl;
 
@@ -84,12 +85,17 @@ public final class InjectionFuture<T> implements Future<T> {
     return true;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public T get() {
     if(instance != null) return instance;
     try {
       synchronized(injector) {
-        return injector.getInstance(iface);
+        if(Name.class.isAssignableFrom(iface)) {
+          return injector.getNamedInstance((Class<Name<T>>)iface);
+        } else {
+          return injector.getInstance(iface);
+        }
       }
     } catch (InjectionException e) {
       throw new RuntimeException(e);

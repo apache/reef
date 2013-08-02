@@ -11,7 +11,6 @@ import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ExternalConstructor;
-import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -47,7 +46,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   public final ParameterParser parameterParser = new ParameterParser();
 
   @Override
-  public <T> Object parseDefaultValue(NamedParameterNode<T> name) {
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) {
     String val = name.getDefaultInstanceAsString();
     if (val != null) {
       try {
@@ -62,12 +61,12 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> Object parse(NamedParameterNode<T> np, String value) throws ParseException {
+  public <T> T parse(NamedParameterNode<T> np, String value) throws ParseException {
     try {
       final ClassNode<T> iface = (ClassNode<T>)getNode(np.getFullArgName());
       try {
         try {
-          return parameterParser.parse(classForName(iface.getFullName()), value);
+          return parameterParser.parse((Class<T>)classForName(iface.getFullName()), value);
         } catch(ClassNotFoundException e2) {
           return parameterParser.parse(iface.getFullName(), value);
         }
@@ -293,7 +292,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
    * @param c
    */
   @SuppressWarnings("unchecked")
-  private <T, U extends T> Node registerClass(final Class<U> c)
+  private <T> Node registerClass(final Class<T> c)
       throws ClassHierarchyException {
     if (c.isArray()) {
       throw new UnsupportedOperationException("Can't register array types");
@@ -306,7 +305,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     final Node n = buildPathToNode(c);
 
     if (n instanceof ClassNode) {
-      ClassNode<U> cn = (ClassNode<U>) n;
+      ClassNode<T> cn = (ClassNode<T>) n;
       Class<T> superclass = (Class<T>) c.getSuperclass();
       if (superclass != null) {
         try {

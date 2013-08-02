@@ -17,6 +17,7 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaClassHierarchy;
+import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -31,6 +32,7 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
+import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.ReflectionUtilities;
 import com.microsoft.tang.util.TracingMonotonicMap;
 
@@ -109,10 +111,127 @@ public class InjectorImpl implements Injector {
       return (T)instances.get(cn);
     }
   }
+
+  private <T> InjectionPlan<T> reallyBuildInjectionPlan(
+      ClassNode<? extends ExternalConstructor<T>> ec, ClassNode<T> cn,
+      ClassNode<T> boundImpl, ClassNode<T> defaultImpl,
+      Map<Node, InjectionPlan<?>> memo) {
+    final InjectionPlan<T> ip;
+
+    T cached = getCachedInstance(cn);
+    if (cached != null) {
+      ip = new JavaInstance<T>(cn, cached);
+    } else if (ec != null) {
+      buildInjectionPlan(ec, memo);
+      ip = new Subplan(cn, 0, memo.get(ec));
+    } else if (boundImpl != null && !cn.equals(boundImpl)) {
+      // We need to delegate to boundImpl, so recurse.
+      buildInjectionPlan(boundImpl, memo);
+      ip = new Subplan(cn, 0, memo.get(boundImpl));
+      memo.put(cn, ip);
+    } else if (defaultImpl != null && !cn.equals(defaultImpl)) {
+      buildInjectionPlan(defaultImpl, memo);
+      ip = new Subplan(cn, 0, memo.get(defaultImpl));
+      memo.put(cn, ip);
+    } else {
+      // if we're here and there is a bound impl or a default impl,
+      // then we're bound / defaulted to ourselves, so don't add
+      // other impls to the list of things to consider.
+      List<ClassNode<T>> candidateImplementations = new ArrayList<>();
+      if (boundImpl == null && defaultImpl == null) {
+        candidateImplementations.addAll(cn.getKnownImplementations());
+      }
+      candidateImplementations.add(cn);
+      List<InjectionPlan<T>> sub_ips = new ArrayList<>();
+      for (ClassNode<T> thisCN : candidateImplementations) {
+        final List<Constructor<T>> constructors = new ArrayList<>();
+        final List<ConstructorDef<T>> constructorList = new ArrayList<>();
+        if (null != c.getLegacyConstructor(thisCN)) {
+          constructorList.add(c.getLegacyConstructor(thisCN));
+        }
+        constructorList
+            .addAll(Arrays.asList(thisCN.getInjectableConstructors()));
+
+        for (ConstructorDef<T> def : constructorList) {
+          List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
+          ConstructorArg[] defArgs = def.getArgs();
+
+          for (ConstructorArg arg : defArgs) {
+            if (!arg.isInjectionFuture()) {
+              try {
+                Node argNode = namespace.getNode(arg.getName());
+                buildInjectionPlan(argNode, memo);
+                args.add(memo.get(argNode));
+              } catch (NameResolutionException e) {
+                throw new IllegalStateException("Detected unresolvable "
+                    + "constructor arg while building injection plan.  "
+                    + "This should have been caught earlier!", e);
+              }
+            } else {
+              try {
+                args.add(new InjectionFuturePlan<>(namespace.getNode(arg
+                    .getName())));
+              } catch (NameResolutionException e) {
+                throw new IllegalStateException("Detected unresolvable "
+                    + "constructor arg while building injection plan.  "
+                    + "This should have been caught earlier!", e);
+              }
+            }
+          }
+          Constructor<T> constructor = new Constructor<T>(thisCN, def,
+              args.toArray(new InjectionPlan[0]));
+          constructors.add(constructor);
+        }
+        // The constructors are embedded in a lattice defined by
+        // isMoreSpecificThan().
+        // We want to see if, amongst the injectable plans, there is a unique
+        // dominant
+        // plan, and select it.
+
+        // First, compute the set of injectable plans.
+        List<Integer> liveIndices = new ArrayList<>();
+        for (int i = 0; i < constructors.size(); i++) {
+          if (constructors.get(i).getNumAlternatives() > 0) {
+            liveIndices.add(i);
+          }
+        }
+        // Now, do an all-by-all comparison, removing indices that are dominated
+        // by others.
+        for (int i = 0; i < liveIndices.size(); i++) {
+          for (int j = i + 1; j < liveIndices.size(); j++) {
+            ConstructorDef<T> ci = constructors.get(liveIndices.get(i))
+                .getConstructorDef();
+            ConstructorDef<T> cj = constructors.get(liveIndices.get(j))
+                .getConstructorDef();
+
+            if (ci.isMoreSpecificThan(cj)) {
+              liveIndices.remove(j);
+              j--;
+            } else if (cj.isMoreSpecificThan(ci)) {
+              liveIndices.remove(i);
+              // Done with this inner loop invocation. Check the new ci.
+              i--;
+              break;
+            }
+          }
+        }
+        sub_ips.add(wrapInjectionPlans(thisCN, constructors, false,
+            liveIndices.size() == 1 ? liveIndices.get(0) : -1));
+      }
+      if (candidateImplementations.size() == 1
+          && candidateImplementations.get(0).getFullName()
+              .equals(cn.getFullName())) {
+        ip = wrapInjectionPlans(cn, sub_ips, false, -1);
+      } else {
+        ip = wrapInjectionPlans(cn, sub_ips, true, -1);
+      }
+    }
+    return ip;
+  }
   
   @SuppressWarnings("unchecked")
-  private InjectionPlan<?> wrapInjectionPlans(Node infeasibleNode,
-      List<? extends InjectionPlan<?>> list, boolean forceAmbiguous, int selectedIndex) {
+  private <T> InjectionPlan<T> wrapInjectionPlans(ClassNode<T> infeasibleNode,
+      List<? extends InjectionPlan<T>> list, boolean forceAmbiguous, int selectedIndex) {
     if (list.size() == 0) {
       return new Subplan<>(infeasibleNode);
     } else if ((!forceAmbiguous) && list.size() == 1) {
@@ -121,9 +240,47 @@ public class InjectorImpl implements Injector {
       return new Subplan<>(infeasibleNode, selectedIndex, list.toArray(new InjectionPlan[0]));
     }
   }
+  /**
+   * Parse the bound value of np.  When possible, this returns a cached instance.
+   * 
+   * @return null if np has not been bound.
+   */
+  @SuppressWarnings("unchecked")
+  private <T> T parseBoundNamedParameter(NamedParameterNode<T> np) {
+    final T ret;
+    if(namedParameterInstances.containsKey(np)) {
+      ret = (T)namedParameterInstances.get(np);
+    } else {
+      final String value = c.getNamedParameter(np);
+      if(value == null) {
+        ret = null;
+      } else {
+        try {
+          ret = javaNamespace.parse(np, value);
+          namedParameterInstances.put(np, ret);
+        } catch (BindException e) {
+          throw new IllegalStateException(
+              "Could not parse pre-validated value", e);
+        }
+      }
+    }
+    return ret;
+  }
+  @SuppressWarnings("unchecked")
+  private <T> ClassNode<T> parseDefaultImplementation(ClassNode<T> cn) {
+    if(cn.getDefaultImplementation() != null) {
+      try {
+        return (ClassNode<T>)javaNamespace.getNode(cn.getDefaultImplementation());
+      } catch(ClassCastException | NameResolutionException e) {
+        throw new IllegalStateException("After validation, " + cn + " had a bad default implementation named " + cn.getDefaultImplementation(), e);
+      }
+    } else {
+      return null;
+    }
+  }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private void buildInjectionPlan(final Node n,
+  @SuppressWarnings({ "unchecked" })
+  private <T> void buildInjectionPlan(final Node n,
       Map<Node, InjectionPlan<?>> memo) {
     if (memo.containsKey(n)) {
       if (BUILDING == memo.get(n)) {
@@ -134,147 +291,30 @@ public class InjectorImpl implements Injector {
       }
     }
     memo.put(n, BUILDING);
-    final InjectionPlan<?> ip;
+    final InjectionPlan<T> ip;
     if (n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object instance = namedParameterInstances.get(n);
-      if (instance == null) {
-        String value = c.getNamedParameter(np);
-        try {
-          if (value != null) {
-            instance = javaNamespace.parse(np, value);
-            namedParameterInstances.put(np, instance);
-          } else {
-            instance = javaNamespace.parseDefaultValue(np);
-          }
-        } catch (BindException e) {
-          throw new IllegalStateException(
-              "Could not parse pre-validated value", e);
-        }
-      }
-      if (instance instanceof ClassNode) {
-        ClassNode<?> instanceCN = (ClassNode<?>)instance;
-        buildInjectionPlan(instanceCN, memo);
-        ip = new Subplan<>(np, 0, memo.get(instanceCN));
+      final NamedParameterNode<T> np = (NamedParameterNode<T>) n;
+
+      final T boundInstance = parseBoundNamedParameter(np);
+      final T defaultInstance = javaNamespace.parseDefaultValue(np);
+      final T instance = boundInstance != null ? boundInstance : defaultInstance;
+
+      if (instance instanceof Node) {
+        buildInjectionPlan((Node)instance, memo);
+        ip = new Subplan<T>(n, 0, (InjectionPlan<T>)memo.get(instance));
       } else {
-        ip = new JavaInstance<Object>(np, instance);
+        ip = new JavaInstance<T>(np, instance);
       }
     } else if (n instanceof ClassNode) {
-      final ClassNode<?> cn = (ClassNode<?>) n;
-      final ClassNode<?> boundImpl = c.getBoundImplementation(cn);
-      final ClassNode<?> defaultImpl;
-      if(cn.getDefaultImplementation() != null) {
-        try {
-          defaultImpl = (ClassNode<?>)javaNamespace.getNode(cn.getDefaultImplementation());
-        } catch(NameResolutionException | ClassCastException e) {
-          throw new IllegalStateException(cn + " has a bad default implementation named " + cn.getDefaultImplementation(), e);
-        }
-      } else {
-        defaultImpl = null;
-      }
-      Object cached = getCachedInstance(cn);
-      if (cached != null) {
-        ip = new JavaInstance<Object>(cn, cached);
-      } else if (null != c.getBoundConstructor(cn)) {
-        ClassNode<? extends ExternalConstructor> ec = c.getBoundConstructor(cn);
-        buildInjectionPlan(ec, memo);
-        ip = new Subplan(cn, 0, memo.get(ec));
-        memo.put(cn, ip);
-      } else if (boundImpl != null && !cn.equals(boundImpl)) {
-        // We need to delegate to boundImpl, so recurse.
-        buildInjectionPlan(boundImpl, memo);
-        ip = new Subplan(cn, 0, memo.get(boundImpl));
-        memo.put(cn, ip);
-      } else if (defaultImpl != null && !cn.equals(defaultImpl)) {
-        buildInjectionPlan(defaultImpl, memo);
-        ip = new Subplan(cn, 0, memo.get(defaultImpl));
-        memo.put(cn, ip);
-      } else {
-        List<ClassNode<?>> classNodes = new ArrayList<>();
-        // if we're here and there is a bound impl or a default impl,
-        // then we're bound / defaulted to ourselves, so don't add
-        // other impls to the list of things to consider.
-        
-        if (boundImpl == null && defaultImpl == null) {
-          classNodes.addAll(cn.getKnownImplementations());
-        }
-        classNodes.add(cn);
-        List<InjectionPlan<?>> sub_ips = new ArrayList<InjectionPlan<?>>();
-        for (ClassNode<?> thisCN : classNodes) {
-          final List<Constructor<?>> constructors = new ArrayList<>();
-          final List<ConstructorDef<?>> constructorList = new ArrayList<>();
-          if (null != c.getLegacyConstructor(thisCN)) {
-            constructorList.add(c.getLegacyConstructor(thisCN));
-          }
-          constructorList.addAll(Arrays.asList(thisCN
-              .getInjectableConstructors()));
+      final ClassNode<T> cn = (ClassNode<T>) n;
+      
+      // The next three values might be null; that's fine.
+      final ClassNode<T> boundImpl = c.getBoundImplementation(cn);
+      final ClassNode<T> defaultImpl = parseDefaultImplementation(cn);
+      final ClassNode<? extends ExternalConstructor<T>> ec = c.getBoundConstructor(cn);
 
-          for (ConstructorDef<?> def : constructorList) {
-            List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
-            ConstructorArg[] defArgs = def.getArgs();
+      ip = reallyBuildInjectionPlan(ec, cn, boundImpl, defaultImpl, memo);
 
-            for (ConstructorArg arg : defArgs) {
-              if(!arg.isInjectionFuture()) {
-                try {
-                  Node argNode = namespace.getNode(arg.getName());
-                  buildInjectionPlan(argNode, memo);
-                  args.add(memo.get(argNode));
-                } catch (NameResolutionException e) {
-                  throw new IllegalStateException("Detected unresolvable "
-                      + "constructor arg while building injection plan.  "
-                      + "This should have been caught earlier!", e);
-                }
-              } else {
-                try {
-                  args.add(new InjectionFuturePlan(namespace.getNode(arg.getName())));
-                } catch (NameResolutionException e) {
-                  throw new IllegalStateException("Detected unresolvable "
-                      + "constructor arg while building injection plan.  "
-                      + "This should have been caught earlier!", e);
-                }
-              }
-            }
-            Constructor constructor = new Constructor(thisCN, def,
-                args.toArray(new InjectionPlan[0]));
-            constructors.add(constructor);
-          }
-          // The constructors are embedded in a lattice defined by isMoreSpecificThan().
-          // We want to see if, amongst the injectable plans, there is a unique dominant
-          // plan, and select it.
-          
-          // First, compute the set of injectable plans.
-          List<Integer> liveIndices = new ArrayList<>();
-          for(int i = 0; i < constructors.size(); i++) {
-            if(constructors.get(i).getNumAlternatives() > 0) {
-              liveIndices.add(i);
-            }
-          }
-          // Now, do an all-by-all comparison, removing indices that are dominated by others.
-          for(int i = 0; i < liveIndices.size(); i++) {
-            for(int j = i+1; j < liveIndices.size(); j++) {
-              ConstructorDef ci = constructors.get(liveIndices.get(i)).getConstructorDef();
-              ConstructorDef cj = constructors.get(liveIndices.get(j)).getConstructorDef();
-              
-              if(ci.isMoreSpecificThan(cj)) {
-                liveIndices.remove(j);
-                j--;
-              } else if(cj.isMoreSpecificThan(ci)) {
-                liveIndices.remove(i);
-                // Done with this inner loop invocation.  Check the new ci.
-                i--;
-                break;
-              }
-            }
-          }
-          sub_ips.add(wrapInjectionPlans(thisCN, constructors, false, liveIndices.size() == 1 ? liveIndices.get(0) : -1));
-        }
-        if (classNodes.size() == 1
-            && classNodes.get(0).getFullName().equals(n.getFullName())) {
-          ip = wrapInjectionPlans(n, sub_ips, false, -1);
-        } else {
-          ip = wrapInjectionPlans(n, sub_ips, true, -1);
-        }
-      }
     } else if (n instanceof PackageNode) {
       throw new IllegalArgumentException(
           "Request to instantiate Java package as object");

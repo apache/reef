@@ -53,8 +53,8 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ClassNode<? extends T> getBoundImplementation(final ClassNode<T> cn) {
-    return (ClassNode<? extends T>) builder.boundImpls.get(cn);
+  public <T> ClassNode<T> getBoundImplementation(final ClassNode<T> cn) {
+    return (ClassNode<T>) builder.boundImpls.get(cn);
   }
 
   @Override
