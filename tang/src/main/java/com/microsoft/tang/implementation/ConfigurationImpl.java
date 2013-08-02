@@ -26,9 +26,9 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ClassNode<? extends ExternalConstructor<T>> getBoundConstructor(
+  public <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(
       final ClassNode<T> cn) {
-    return (ClassNode<? extends ExternalConstructor<T>>) builder.boundConstructors.get(cn);
+    return (ClassNode<ExternalConstructor<T>>) builder.boundConstructors.get(cn);
   }
 
   @Override

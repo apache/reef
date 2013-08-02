@@ -17,7 +17,6 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaClassHierarchy;
-import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -32,7 +31,6 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
-import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.ReflectionUtilities;
 import com.microsoft.tang.util.TracingMonotonicMap;
 
@@ -112,8 +110,9 @@ public class InjectorImpl implements Injector {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private <T> InjectionPlan<T> reallyBuildInjectionPlan(
-      ClassNode<? extends ExternalConstructor<T>> ec, ClassNode<T> cn,
+      ClassNode<ExternalConstructor<T>> ec, ClassNode<T> cn,
       ClassNode<T> boundImpl, ClassNode<T> defaultImpl,
       Map<Node, InjectionPlan<?>> memo) {
     final InjectionPlan<T> ip;
@@ -123,15 +122,15 @@ public class InjectorImpl implements Injector {
       ip = new JavaInstance<T>(cn, cached);
     } else if (ec != null) {
       buildInjectionPlan(ec, memo);
-      ip = new Subplan(cn, 0, memo.get(ec));
+      ip = new Subplan<>(cn, 0, (InjectionPlan<T>)memo.get(ec));
     } else if (boundImpl != null && !cn.equals(boundImpl)) {
       // We need to delegate to boundImpl, so recurse.
       buildInjectionPlan(boundImpl, memo);
-      ip = new Subplan(cn, 0, memo.get(boundImpl));
+      ip = new Subplan<>(cn, 0, (InjectionPlan<T>)memo.get(boundImpl));
       memo.put(cn, ip);
     } else if (defaultImpl != null && !cn.equals(defaultImpl)) {
       buildInjectionPlan(defaultImpl, memo);
-      ip = new Subplan(cn, 0, memo.get(defaultImpl));
+      ip = new Subplan<>(cn, 0, (InjectionPlan<T>)memo.get(defaultImpl));
       memo.put(cn, ip);
     } else {
       // if we're here and there is a bound impl or a default impl,
@@ -311,7 +310,7 @@ public class InjectorImpl implements Injector {
       // The next three values might be null; that's fine.
       final ClassNode<T> boundImpl = c.getBoundImplementation(cn);
       final ClassNode<T> defaultImpl = parseDefaultImplementation(cn);
-      final ClassNode<? extends ExternalConstructor<T>> ec = c.getBoundConstructor(cn);
+      final ClassNode<ExternalConstructor<T>> ec = c.getBoundConstructor(cn);
 
       ip = reallyBuildInjectionPlan(ec, cn, boundImpl, defaultImpl, memo);
 

@@ -23,7 +23,7 @@ public interface Configuration {
   /*
    * @return the external constructor that cn has been explicitly bound to, or null.
    */
-  public <T> ClassNode<? extends ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
+  public <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
   /*
    * @return the implementation that cn has been explicitly bound to, or null.
    */

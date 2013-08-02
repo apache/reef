@@ -78,11 +78,13 @@ public class TestInjectionFuture {
   @Test
   public void testNamedParameterBoundToDelegatingInterface() throws InjectionException, BindException {
     Injector i = Tang.Factory.getTang().newInjector();
+    @SuppressWarnings("unused")
     C c = (C) i.getNamedInstance(AName.class);
   }
   @Test
   public void testBoundToDelegatingInterface() throws InjectionException, BindException {
     Injector i = Tang.Factory.getTang().newInjector();
+    @SuppressWarnings("unused")
     C c = (C) i.getInstance(B.class);
   }
 
