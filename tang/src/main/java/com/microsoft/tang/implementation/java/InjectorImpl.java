@@ -2,6 +2,7 @@ package com.microsoft.tang.implementation.java;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,10 +43,7 @@ public class InjectorImpl implements Injector {
   private static final AtomicBoolean warned = new AtomicBoolean(false);
   private void assertNotConcurrent() {
     if(concurrentModificationGuard) {
-      //throw new ConcurrentModificationException("Detected attempt to modify Injector from within an injected constructor!");
-      if(warned.compareAndSet(false, true)) {
-        System.err.println("Tang warning: Detected modification of injector state from within injected constructor.  This warning will eventually become an error.");
-      }
+      throw new ConcurrentModificationException("Detected attempt to use Injector from within an injected constructor!");
     }
   }
   
@@ -104,7 +102,7 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   private <T> T getCachedInstance(ClassNode<T> cn) {
     if(cn.getFullName().equals("com.microsoft.tang.Injector")) {
-      return (T)this.forkInjector();
+      return (T)this;// TODO: We should be insisting on injection futures here! .forkInjector();
     } else {
       return (T)instances.get(cn);
     }
