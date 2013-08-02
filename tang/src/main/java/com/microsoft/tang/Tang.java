@@ -3,7 +3,6 @@ package com.microsoft.tang;
 import java.net.URL;
 
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.implementation.TangImpl;
 
 public interface Tang {

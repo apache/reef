@@ -116,10 +116,9 @@ public class ProtocolBufferInjectionPlan {
       final InjectionPlanProto.InjectionPlan protoBufPlans[] = subplan
           .getPlansList().toArray(new InjectionPlanProto.InjectionPlan[0]);
 
-      final InjectionPlan<? extends T> subPlans[] = new InjectionPlan[protoBufPlans.length];
+      final InjectionPlan<T> subPlans[] = new InjectionPlan[protoBufPlans.length];
       for (int i = 0; i < protoBufPlans.length; i++) {
-        subPlans[i] = (InjectionPlan<? extends T>) deserialize(ch,
-            protoBufPlans[i]);
+        subPlans[i] = (InjectionPlan<T>) deserialize(ch, protoBufPlans[i]);
       }
       Node n = ch.getNode(fullName);
       return new Subplan<T>(n, subPlans);
