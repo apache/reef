@@ -27,7 +27,7 @@ public interface Configuration {
   /*
    * @return the implementation that cn has been explicitly bound to, or null.
    */
-  public <T> ClassNode<? extends T> getBoundImplementation(ClassNode<T> cn);
+  public <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
   /**
    * TODO Should this return a set of ConstructorDefs instead?
    */

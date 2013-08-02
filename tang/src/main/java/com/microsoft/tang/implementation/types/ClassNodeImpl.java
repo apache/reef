@@ -16,7 +16,7 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final boolean externalConstructor;
   private final ConstructorDef<T>[] injectableConstructors;
   private final ConstructorDef<T>[] allConstructors;
-  private final MonotonicSet<ClassNode<? extends T>> knownImpls;
+  private final MonotonicSet<ClassNode<T>> knownImpls;
   private final String defaultImpl;
   public ClassNodeImpl(Node parent, String simpleName, String fullName,
       boolean unit, boolean injectable, boolean externalConstructor,
@@ -81,12 +81,12 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   }
 
   @Override
-  public void putImpl(ClassNode<? extends T> impl) {
+  public void putImpl(ClassNode<T> impl) {
     knownImpls.add(impl);
   }
 
   @Override
-  public Set<ClassNode<? extends T>> getKnownImplementations() {
+  public Set<ClassNode<T>> getKnownImplementations() {
    return new MonotonicSet<>(knownImpls);
   }
 

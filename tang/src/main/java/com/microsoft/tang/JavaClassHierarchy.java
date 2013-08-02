@@ -34,7 +34,7 @@ public interface JavaClassHierarchy extends ClassHierarchy {
    *   wrong type (such as when it specifies a class that does not implement
    *   or extend T).
    */
-  public <T> Object parse(NamedParameterNode<T> name, String value) throws ParseException;
+  public <T> T parse(NamedParameterNode<T> name, String value) throws ParseException;
 
   /**
    * Obtain a parsed instance of the default value of a named parameter
@@ -43,6 +43,6 @@ public interface JavaClassHierarchy extends ClassHierarchy {
    *         if the default string is empty / null.
    * @throws ClassHierarchyException if the instance failed to parse.
    */
-  public <T> Object parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
+  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
 
 }
