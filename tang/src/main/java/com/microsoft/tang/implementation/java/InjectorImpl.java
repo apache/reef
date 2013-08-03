@@ -25,6 +25,7 @@ import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.implementation.Constructor;
 import com.microsoft.tang.implementation.InjectionFuturePlan;
 import com.microsoft.tang.implementation.InjectionPlan;
+import com.microsoft.tang.implementation.SetInjectionPlan;
 import com.microsoft.tang.implementation.Subplan;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
@@ -32,6 +33,8 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
+import com.microsoft.tang.util.MonotonicHashMap;
+import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 import com.microsoft.tang.util.TracingMonotonicMap;
 
@@ -324,20 +327,32 @@ public class InjectorImpl implements Injector {
       if (instance instanceof Node) {
         buildInjectionPlan((Node)instance, memo);
         ip = new Subplan<T>(n, 0, (InjectionPlan<T>)memo.get(instance));
+      } else if(instance instanceof Set) {
+        Set<T> entries = (Set<T>) instance;
+        Set<InjectionPlan<T>> plans = new MonotonicHashSet<>();
+        for(T entry : entries) {
+          if(entry instanceof ClassNode) {
+            buildInjectionPlan((ClassNode<?>)entry, memo);
+            plans.add((InjectionPlan<T>)memo.get(entry));
+          } else {
+            plans.add(new JavaInstance<T>(n, entry));
+          }
+          
+        }
+        ip = new SetInjectionPlan<T>(n, plans);
       } else {
         ip = new JavaInstance<T>(np, instance);
       }
     } else if (n instanceof ClassNode) {
       final ClassNode<T> cn = (ClassNode<T>) n;
-      
+
       // Any (or all) of the next four values might be null; that's fine.
       final T cached = getCachedInstance(cn);
       final ClassNode<T> boundImpl = c.getBoundImplementation(cn);
       final ClassNode<T> defaultImpl = parseDefaultImplementation(cn);
       final ClassNode<ExternalConstructor<T>> ec = c.getBoundConstructor(cn);
-
+      
       ip = buildClassNodeInjectionPlan(cn, cached, ec, boundImpl, defaultImpl, memo);
-
     } else if (n instanceof PackageNode) {
       throw new IllegalArgumentException(
           "Request to instantiate Java package as object");
@@ -537,30 +552,14 @@ public class InjectorImpl implements Injector {
       }
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
-      if (ambiguous.isInjectable()) {
-        Object ret = injectFromPlan(ambiguous.getDelegatedPlan());
-        // TODO: Check "T" in "instanceof ExternalConstructor<T>"
-        if (ret instanceof ExternalConstructor) {
-          // TODO fix up generic types for injectFromPlan with external
-          // constructor!
-          concurrentModificationGuard = true;
-          T val = ((ExternalConstructor<T>) ret).newInstance();
-          concurrentModificationGuard = false;
-          // XXX Looks like a bug.  What if caller asked for an instance of the external constructor
-          instances.put((ClassNode<?>)plan.getNode(), ret);
-          return val;
-        } else {
-          return (T) ret;
-        }
-      } else {
-        if (ambiguous.getNumAlternatives() == 0) {
-          throw new InjectionException("Attempt to inject infeasible plan:"
-              + plan.toPrettyString());
-        } else {
-          throw new InjectionException("Attempt to inject ambiguous plan:"
-              + plan.toPrettyString());
-        }
+      return injectFromPlan(ambiguous.getDelegatedPlan());
+    } else if (plan instanceof SetInjectionPlan) {
+      SetInjectionPlan<T> setPlan = (SetInjectionPlan<T>) plan;
+      Set<T> ret = new MonotonicHashSet<>();
+      for(InjectionPlan<T> subplan : setPlan.getEntryPlans()) {
+        ret.add(injectFromPlan(subplan));
       }
+      return (T)ret;
     } else {
       throw new IllegalStateException("Unknown plan type: " + plan);
     }

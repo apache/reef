@@ -5,6 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -117,13 +119,23 @@ public class JavaNodeFactory {
   }
 
   public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
-      Class<? extends Name<T>> clazz, Class<T> argClass) throws ClassHierarchyException {
+      Class<? extends Name<T>> clazz, Type argClass) throws ClassHierarchyException {
 
+    Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
+    
+    final boolean isSet = argRawClass.equals(Set.class);
+
+    
+    if(isSet) {
+      argClass = ReflectionUtilities.getInterfaceTarget(Collection.class, argClass);
+    }
+    
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
     final String fullArgName = ReflectionUtilities.getFullName(argClass);
     final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
 
+    
     final NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
 
     if (namedParameter == null) {
@@ -164,7 +176,7 @@ public class JavaNodeFactory {
         ? null : namedParameter.short_name();
 
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
-        fullArgName, simpleArgName, documentation, shortName, defaultInstanceAsString);
+        fullArgName, simpleArgName, isSet, documentation, shortName, defaultInstanceAsString);
   }
 
   public static PackageNode createRootPackageNode() {
@@ -191,7 +203,7 @@ public class JavaNodeFactory {
     for (int i = 0; i < genericParamTypes.length; i++) {
       // If this parameter is an injection future, unwrap the target class,
       // and remember by setting isFuture to true.
-      final Class<?> type;
+      final Type type;
       final boolean isFuture;
       if(InjectionFuture.class.isAssignableFrom(paramTypes[i])) {
         type = ReflectionUtilities.getInterfaceTarget(InjectionFuture.class, genericParamTypes[i]);

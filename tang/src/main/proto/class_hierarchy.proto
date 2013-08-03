@@ -90,17 +90,18 @@ message NamedParameterNode {
      names.
    */
   required string full_arg_class_name = 2;
+  required bool is_set = 3;
   /*
      An optional human readable documentation string describing the purpose
      of this NamedParameter.
    */
-  optional string documentation = 3;
+  optional string documentation = 4;
   /*
      A shorter name for this parameter.  This is used for command line
      processing. (So utilities that see --short_name=xxx will set this
      NamedParameter to "xxx", for example).  
    */
-  optional string short_name = 4;
+  optional string short_name = 5;
   /*
      Optional named parameters must specify default values.  This must be
      a string encoding of that value.  In order for this to be valid, Tang
@@ -115,7 +116,7 @@ message NamedParameterNode {
      bootstraps Tang.
    */
   // calling this "default_instance" breaks protoc.
-  optional string instance_default = 5;
+  optional string instance_default = 6;
 }
 
 message PackageNode {

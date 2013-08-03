@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation.java;
 
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
@@ -25,6 +27,7 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
+import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -62,13 +65,52 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   @Override
   @SuppressWarnings("unchecked")
   public <T> T parse(NamedParameterNode<T> np, String value) throws ParseException {
+    final ClassNode<T> iface;
     try {
-      final ClassNode<T> iface = (ClassNode<T>)getNode(np.getFullArgName());
-      try {
+      iface = (ClassNode<T>)getNode(np.getFullArgName());
+    } catch(NameResolutionException e) {
+      throw new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " + np.getFullName() + " argument type is " + np.getFullArgName());
+    }
+    Class<?> clazz;
+    String fullName;
+    try {
+      clazz = (Class<?>)classForName(iface.getFullName());
+      fullName = null;
+    } catch(ClassNotFoundException e) {
+      clazz = null;
+      fullName = iface.getFullName();
+    }
+    if(np.isSet()) {
+      final Set<Object> set = new MonotonicHashSet<>();
+      String[] values = value.split(",");
+      for(String val : values) {
         try {
-          return parameterParser.parse((Class<T>)classForName(iface.getFullName()), value);
-        } catch(ClassNotFoundException e2) {
-          return parameterParser.parse(iface.getFullName(), value);
+          if(clazz != null) {
+            set.add(parameterParser.parse(clazz, val));
+          } else {
+            set.add(parameterParser.parse(fullName, val));
+          }
+        } catch (UnsupportedOperationException e) {
+          try {
+            final Node impl = getNode(val);
+            if(impl instanceof ClassNode &&
+               isImplementation(iface, (ClassNode<?>)impl)) {
+              set.add(impl);
+            } else {
+              throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName(), e);
+            }
+          } catch(NameResolutionException e2) {
+            throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + val, e);
+          }
+        }
+      }
+      return (T)set;
+    } else {
+      try {
+        if(clazz != null) {
+          return (T)parameterParser.parse(clazz, value);
+        } else {
+          return parameterParser.parse(fullName, value);
         }
       } catch (UnsupportedOperationException e) {
         try {
@@ -78,13 +120,11 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
               return (T)impl;
             }
           }
-          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName());
+          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName(), e);
         } catch(NameResolutionException e2) {
-          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + value);
+          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + value, e);
         }
       }
-    } catch(NameResolutionException e) {
-      throw new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " + np.getFullName() + " argument type is " + np.getFullArgName());
     }
   }
 
@@ -127,7 +167,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
     Node parent = root;
 
-    Class<?> argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
+    Type argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
       return JavaNodeFactory.createClassNode(parent, clazz);
@@ -136,7 +176,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
       @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
       NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(
-          parent, (Class<? extends Name<T>>) clazz, (Class<T>) argType);
+          parent, (Class<? extends Name<T>>) clazz, argType);
       
       if(parameterParser.canParse(ReflectionUtilities.getFullName(argType))) {
         if(clazz.getAnnotation(NamedParameter.class).default_class() != Void.class) {
@@ -265,12 +305,16 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg
                 .getNamedParameterName());
             try {
-              if (!ReflectionUtilities.isCoercable(classForName(arg.getType()),
-                  classForName(np.getFullArgName()))) {
-                throw new ClassHierarchyException(
-                    "Named parameter type mismatch.  Constructor expects a "
-                        + arg.getType() + " but " + np.getName() + " is a "
-                        + np.getFullArgName());
+              if(np.isSet()) {
+                /// XXX When handling sets, need to track target of generic parameter, and check the type here!
+              } else {
+                if (!ReflectionUtilities.isCoercable(classForName(arg.getType()),
+                    classForName(np.getFullArgName()))) {
+                  throw new ClassHierarchyException(
+                      "Named parameter type mismatch.  Constructor expects a "
+                          + arg.getType() + " but " + np.getName() + " is a "
+                          + np.getFullArgName());
+                }
               }
             } catch (ClassNotFoundException e) {
               throw new ClassHierarchyException("Constructor refers to unknown class "

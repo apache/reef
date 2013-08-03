@@ -18,6 +18,7 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final ConstructorDef<T>[] allConstructors;
   private final MonotonicSet<ClassNode<T>> knownImpls;
   private final String defaultImpl;
+  
   public ClassNodeImpl(Node parent, String simpleName, String fullName,
       boolean unit, boolean injectable, boolean externalConstructor,
       ConstructorDef<T>[] injectableConstructors,

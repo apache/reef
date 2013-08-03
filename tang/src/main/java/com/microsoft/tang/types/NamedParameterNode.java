@@ -8,7 +8,9 @@ public interface NamedParameterNode<T> extends Node {
 
   public String getDefaultInstanceAsString();
 
-  String getSimpleArgName();
+  public String getSimpleArgName();
 
-  String getFullArgName();
+  public String getFullArgName();
+  
+  public boolean isSet();
 }
