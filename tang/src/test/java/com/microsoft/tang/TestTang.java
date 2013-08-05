@@ -429,7 +429,7 @@ public class TestTang {
   @Test
   public void testGenericEventHandlerDefaultsBadTreeIndirection() throws BindException, InjectionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("class com.microsoft.tang.XNameDAA defines a default class com.microsoft.tang.XCC with a raw type that is not an instance of its target's raw type class com.microsoft.tang.XBB");
+    thrown.expectMessage("class com.microsoft.tang.XNameDAA defines a default class com.microsoft.tang.XCC with a raw type that does not extend of its target's raw type class com.microsoft.tang.XBB");
 
     JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
     Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDAA.class);
@@ -439,7 +439,32 @@ public class TestTang {
     JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
     Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDDAA.class);
   }
-  
+  @Test
+  public void testGenericUnrelatedGenericTypeParameters() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("class com.microsoft.tang.WaterBottleName defines a default class com.microsoft.tang.GasCan with a type that does not extend its target's type com.microsoft.tang.Bottle<com.microsoft.tang.Water");
+
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(WaterBottleName.class);
+  }
+  @Test
+  public void testGenericInterfaceUnboundTypeParametersName() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(FooEventHandler.class);
+  }
+  @Test
+  public void testGenericInterfaceUnboundTypeParametersNameIface() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(IfaceEventHandler.class);
+  }
+  @Test
+  public void testGenericInterfaceUnboundTypeParametersIface() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("interface com.microsoft.tang.MyEventHandlerIface declares its default implementation to be non-subclass class com.microsoft.tang.MyEventHandler");
+
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).isInjectable(MyEventHandlerIface.class);
+  }
 
 }
 class IsFuture {
@@ -821,8 +846,35 @@ class XXBB extends XBB {
     super(aa);
   }
 }
-
 class XCC implements X<CC>{
   @Inject XCC(CC aa) { }
 }
+interface Bottle<X> {
+  
+}
+class WaterBottle implements Bottle<Water> {
+  
+}
+class GasCan implements Bottle<Gas> {
+  
+}
+class Water {}
+class Gas {}
+
+@NamedParameter(default_class=GasCan.class)
+class WaterBottleName implements Name<Bottle<Water>> { }
+
+interface EventHandler <T> { }
+class MyEventHandler<T> implements EventHandler<T> { 
+  @Inject MyEventHandler () { }
+}
+@DefaultImplementation(MyEventHandler.class)
+interface MyEventHandlerIface extends EventHandler<Foo> { }
+
+@NamedParameter(default_class=MyEventHandler.class)
+class FooEventHandler implements Name<EventHandler<Foo>> { }
+
+interface SomeIface { }
+@NamedParameter(default_class=MyEventHandler.class)
+class IfaceEventHandler implements Name<EventHandler<SomeIface>> { }
 

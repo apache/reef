@@ -64,6 +64,9 @@ public class ReflectionUtilities {
     List<Type> workQueue = new ArrayList<>();
 
     workQueue.add(c);
+    if(getRawClass(c).isInterface()){
+      workQueue.add(Object.class);
+    }
     for(int i = 0; i < workQueue.size(); i++) {
       c = workQueue.get(i);
       
@@ -80,6 +83,12 @@ public class ReflectionUtilities {
 //        workQueue.add(rawPt);
         if(sc != null) workQueue.add(sc);
         workQueue.addAll(Arrays.asList(rawPt.getGenericInterfaces()));
+      } else if (c instanceof WildcardType) {
+        workQueue.add(Object.class); // XXX not really correct, but close enough?
+      } else if (c instanceof TypeVariable) {
+        workQueue.add(Object.class); // XXX not really correct, but close enough?
+      } else {
+        throw new RuntimeException(c.getClass() + " " + c + " is of unknown type!");
       }
     }
     return workQueue;

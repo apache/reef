@@ -192,9 +192,13 @@ public class JavaNodeFactory {
         }
       }
 
+      if (!(isSubclass)) {
+        throw new ClassHierarchyException(clazz + " defines a default class "
+            + defaultInstanceAsString + " with a raw type that does not extend of its target's raw type " + argRawClass);
+      }
       if (!(isGenericSubclass)) {
         throw new ClassHierarchyException(clazz + " defines a default class "
-            + defaultInstanceAsString + " with a raw type that is not an instance of its target's raw type " + argClass);
+            + defaultInstanceAsString + " with a type that does not extend its target's type " + argClass);
       }
     } else {
       defaultInstanceAsString = namedParameter.default_value();

@@ -290,7 +290,8 @@ public class TestClassHierarchy {
   @Test
   public void nameCantBindWrongSubclassAsDefault() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that is not an instance of its target's raw type class java.lang.String");
+    thrown.expectMessage("class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String");
+
     ns.getNode(s(BadName.class));
   }
   @Test
