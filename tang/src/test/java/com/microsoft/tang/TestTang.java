@@ -403,6 +403,44 @@ public class TestTang {
     i.getInstance(NeedsFuture.class);
     Assert.assertTrue(IsFuture.instantiated);
   }
+  
+  @Test
+  public void testGenericEventHandlers() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    cba.bindNamedParameter(XName.class, (Class)XAA.class);
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XName.class);
+    JavaConfigurationBuilder cbb = Tang.Factory.getTang().newConfigurationBuilder();
+    cbb.bindNamedParameter(XName.class, XBB.class);
+    Tang.Factory.getTang().newInjector(cbb.build()).getNamedInstance(XName.class);
+    JavaConfigurationBuilder cbc = Tang.Factory.getTang().newConfigurationBuilder();
+    cbc.bindNamedParameter(XName.class, (Class)XCC.class);
+    Tang.Factory.getTang().newInjector(cbc.build()).getNamedInstance(XName.class);
+  }
+
+  @Test
+  public void testGenericEventHandlerDefaults() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDA.class);
+    JavaConfigurationBuilder cbb = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cbb.build()).getNamedInstance(XNameDB.class);
+    JavaConfigurationBuilder cbc = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cbc.build()).getNamedInstance(XNameDC.class);
+  }
+  @Test
+  public void testGenericEventHandlerDefaultsBadTreeIndirection() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("class com.microsoft.tang.XNameDAA defines a default class com.microsoft.tang.XCC with a raw type that is not an instance of its target's raw type class com.microsoft.tang.XBB");
+
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDAA.class);
+  }
+  @Test
+  public void testGenericEventHandlerDefaultsGoodTreeIndirection() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDDAA.class);
+  }
+  
+
 }
 class IsFuture {
   static boolean instantiated;
@@ -741,3 +779,50 @@ class IfaceWithDefaultDefaultImpl implements IfaceWithDefault {
 @NamedParameter(default_class=IfaceWithDefaultDefaultImpl.class)
 class IfaceWithDefaultName implements Name<IfaceWithDefault> {
 }
+
+interface X<T> { }
+@NamedParameter
+class XName implements Name<X<BB>> { }
+@NamedParameter(default_class=XAA.class)
+class XNameDA implements Name<X<BB>> { }
+@NamedParameter(default_class=XBB.class)
+class XNameDB implements Name<X<BB>> { }
+@NamedParameter(default_class=XCC.class)
+class XNameDC implements Name<X<BB>> { }
+
+@NamedParameter(default_class=XCC.class)
+class XNameDAA implements Name<XBB> { }
+
+@NamedParameter(default_class=XXBB.class)
+class XNameDDAA implements Name<XBB> { }
+
+
+@DefaultImplementation(AA.class)
+class AA {
+  @Inject AA() {}
+}
+@DefaultImplementation(BB.class)
+class BB extends AA {
+  @Inject BB() {}
+}
+@DefaultImplementation(CC.class)
+class CC extends BB {
+  @Inject CC() {}
+}
+class XAA implements X<AA> { 
+  @Inject XAA(AA aa) { }
+}
+@DefaultImplementation(XBB.class)
+class XBB implements X<BB> {
+  @Inject XBB(BB aa) { }
+}
+class XXBB extends XBB {
+  @Inject XXBB(BB aa) { 
+    super(aa);
+  }
+}
+
+class XCC implements X<CC>{
+  @Inject XCC(CC aa) { }
+}
+

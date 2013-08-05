@@ -59,15 +59,27 @@ public class ReflectionUtilities {
     }
   }
   
-  public static Iterable<Class<?>> classAndAncestors(Class<?> c) {
-    List<Class<?>> workQueue = new ArrayList<>();
+  public static Iterable<Type> classAndAncestors(Type c) {
+    List<Type> workQueue = new ArrayList<>();
 
     workQueue.add(c);
     for(int i = 0; i < workQueue.size(); i++) {
       c = workQueue.get(i);
-      Class<?> sc = c.getSuperclass();
-      if(sc != null) workQueue.add(c.getSuperclass());
-      workQueue.addAll(Arrays.asList(c.getInterfaces()));
+      
+      if(c instanceof Class) {
+        Class<?> clz = (Class<?>)c;
+        final Type sc = clz.getSuperclass();
+        if(sc != null) workQueue.add(sc); //c.getSuperclass());
+        workQueue.addAll(Arrays.asList(clz.getGenericInterfaces()));
+      } else if(c instanceof ParameterizedType) {
+        ParameterizedType pt = (ParameterizedType)c;
+        Class<?> rawPt = (Class<?>)pt.getRawType();
+        final Type sc = rawPt.getSuperclass();
+//        workQueue.add(pt);
+//        workQueue.add(rawPt);
+        if(sc != null) workQueue.add(sc);
+        workQueue.addAll(Arrays.asList(rawPt.getGenericInterfaces()));
+      }
     }
     return workQueue;
   }
