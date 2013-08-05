@@ -3,6 +3,7 @@ package com.microsoft.tang.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -286,6 +287,8 @@ public class ReflectionUtilities {
     } else if (clazz instanceof ParameterizedType) {
       return (Class<?>)((ParameterizedType)clazz).getRawType();
     } else if (clazz instanceof WildcardType) {
+      return Object.class; // XXX not really correct, but close enough?
+    } else if (clazz instanceof TypeVariable) {
       return Object.class; // XXX not really correct, but close enough?
     } else {
       System.err.println("Can't getRawClass for " + clazz + " of unknown type " + clazz.getClass());
