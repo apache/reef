@@ -542,7 +542,7 @@ public class InjectorImpl implements Injector {
               (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
               args);
         } catch(IllegalArgumentException e) {
-          StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " + constructor + " with arguments [");
+          StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " + constructor.getConstructorDef() + " with arguments [");
           for(Object o : args) {
             sb.append("\n\t" + o);
           }
