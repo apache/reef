@@ -506,12 +506,6 @@ public class InjectorImpl implements Injector {
       throw new InjectionException("Cannot inject " + plan.getNode().getFullName() + " "
           + plan.toCantInjectString());
     }
-    if(plan.getNode() instanceof ClassNode) {
-      T cached = getCachedInstance((ClassNode<T>)plan.getNode());
-      if (cached != null) {
-        return cached;
-      }
-    }
     if (plan instanceof InjectionFuturePlan) {
       InjectionFuturePlan<T> fut = (InjectionFuturePlan<T>)plan;
       final String key = fut.getNode().getFullName();
@@ -522,6 +516,8 @@ public class InjectorImpl implements Injector {
       } catch(ClassNotFoundException e) {
         throw new InjectionException("Could not get class for " + key);
       }
+    } else if(plan.getNode() instanceof ClassNode && null != getCachedInstance((ClassNode<T>)plan.getNode())) {
+      return getCachedInstance((ClassNode<T>)plan.getNode());
     } else if (plan instanceof JavaInstance) {
       // TODO: Must be named parameter node.  Check.
 //      throw new IllegalStateException("Instance from plan not in Injector's set of instances?!?");

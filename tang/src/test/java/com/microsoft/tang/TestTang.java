@@ -466,6 +466,37 @@ public class TestTang {
     Tang.Factory.getTang().newInjector(cba.build()).isInjectable(MyEventHandlerIface.class);
   }
 
+  @Test
+  public void testWantSomeHandlers() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeHandlers.class);
+  }
+  @Test
+  public void testWantSomeHandlersBadOrder() throws BindException, InjectionException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    i.getInstance(AHandler.class);
+    i.getInstance(BHandler.class);
+    i.getInstance(WantSomeFutureHandlers.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlersAlreadyBoundVolatile() throws BindException, InjectionException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    i.bindVolatileInstance(AHandler.class, new AHandlerImpl());
+    i.bindVolatileInstance(BHandler.class, new BHandlerImpl());
+    i.getInstance(WantSomeFutureHandlers.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlers() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeFutureHandlers.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlersUnit() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeFutureHandlersUnit.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlersName() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeFutureHandlersName.class);
+  }
+  
 }
 class IsFuture {
   static boolean instantiated;
@@ -791,7 +822,7 @@ class ThreeConstructors {
     this.i = -1;
     this.s = "default";
     this.f = f;
-  }
+  } 
 }
 interface IfaceWithDefault {
 }
@@ -878,3 +909,43 @@ interface SomeIface { }
 @NamedParameter(default_class=MyEventHandler.class)
 class IfaceEventHandler implements Name<EventHandler<SomeIface>> { }
 
+class AH { @Inject AH() {} }
+class BH { @Inject BH() {} }
+@DefaultImplementation(AHandlerImpl.class)
+interface AHandler extends EventHandler<AH> { }
+@DefaultImplementation(BHandlerImpl.class)
+interface BHandler extends EventHandler<BH> { }
+class AHandlerImpl implements AHandler { @Inject AHandlerImpl() { } }
+class BHandlerImpl implements BHandler { @Inject BHandlerImpl() { } }
+
+
+@Unit
+class DefaultHandlerUnit {
+  @DefaultImplementation(AHandlerImpl.class)
+  interface AHandler extends EventHandler<AH> { }
+  @DefaultImplementation(BHandlerImpl.class)
+  interface BHandler extends EventHandler<BH> { }
+  @Inject DefaultHandlerUnit() {
+  }
+  class AHandlerImpl implements AHandler { AHandlerImpl() { } }
+  class BHandlerImpl implements BHandler { BHandlerImpl() { } }
+}
+class WantSomeHandlers {
+  @Inject WantSomeHandlers(AHandler a, BHandler b) { }
+}
+class WantSomeFutureHandlers {
+  @Inject WantSomeFutureHandlers(InjectionFuture<AHandler> a, InjectionFuture<BHandler> b) { }
+}
+class WantSomeFutureHandlersUnit {
+  @Inject WantSomeFutureHandlersUnit(InjectionFuture<DefaultHandlerUnit.AHandler> a, InjectionFuture<DefaultHandlerUnit.BHandler> b) { }
+}
+
+@NamedParameter(default_class=AHandlerImpl.class)
+class AHandlerName implements Name<EventHandler<AH>> { }
+@NamedParameter(default_class=BHandlerImpl.class)
+class BHandlerName implements Name<EventHandler<BH>> { }
+class WantSomeFutureHandlersName {
+  @Inject WantSomeFutureHandlersName (
+      @Parameter(AHandlerName.class) InjectionFuture<EventHandler<AH>> a,
+      @Parameter(BHandlerName.class) InjectionFuture<EventHandler<BH>> b) { }
+}
