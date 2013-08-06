@@ -2,6 +2,8 @@ package com.microsoft.tang.implementation;
 
 import java.net.URL;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -17,6 +19,7 @@ import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
+import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.TracingMonotonicMap;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
@@ -29,7 +32,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new TracingMonotonicMap<>();
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicMap<>();
-
+  final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
+  
   public final static String IMPORT = "import";
   public final static String INIT = "<init>";
 
@@ -91,6 +95,15 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     for (ClassNode<?> cn : builder.legacyConstructors.keySet()) {
       registerLegacyConstructor(cn, builder.legacyConstructors.get(cn)
           .getArgs());
+    }
+    for (Entry<NamedParameterNode<Set<?>>, Object> e: builder.boundSetEntries) {
+      if(e.getValue() instanceof Node) {
+        bindSetEntry(e.getKey(), (Node)e.getValue());
+      } else if(e.getValue() instanceof String) {
+        bindSetEntry(e.getKey(), (String)e.getValue());
+      } else {
+        throw new IllegalStateException();
+      }
     }
   }
   @Override
@@ -164,13 +177,29 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
     /* Parse and discard value; this is just for type checking */
     if(namespace instanceof JavaClassHierarchy) {
       ((JavaClassHierarchy)namespace).parse(name, value);
     }
-    namedParameters.put(name, value);
+    if(name.isSet()) {
+      bindSetEntry((NamedParameterNode)name, value);
+    } else {
+      namedParameters.put(name, value);
+    }
+  }
+
+  @Override
+  public void bindSetEntry(NamedParameterNode<Set<?>> iface, String impl)
+      throws BindException {
+    boundSetEntries.put(iface, impl);
+  }
+  @Override
+  public void bindSetEntry(NamedParameterNode<Set<?>> iface, Node impl)
+      throws BindException {
+    boundSetEntries.put(iface, impl);
   }
 
   @Override
@@ -216,4 +245,5 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       .getNode(fullName);
     return param.getDocumentation() + "\n" + param.getFullName();
   }
+
 }

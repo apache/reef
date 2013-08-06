@@ -22,6 +22,7 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.exceptions.ParseException;
 import com.microsoft.tang.implementation.Constructor;
 import com.microsoft.tang.implementation.InjectionFuturePlan;
 import com.microsoft.tang.implementation.InjectionPlan;
@@ -33,8 +34,8 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
-import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
+import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 import com.microsoft.tang.util.TracingMonotonicMap;
 
@@ -107,7 +108,11 @@ public class InjectorImpl implements Injector {
     if(cn.getFullName().equals("com.microsoft.tang.Injector")) {
       return (T)this;// TODO: We should be insisting on injection futures here! .forkInjector();
     } else {
-      return (T)instances.get(cn);
+      T t = (T)instances.get(cn);
+      if(t instanceof InjectionFuture) {
+        throw new IllegalStateException("Found an injection future in getCachedInstance: " + cn);
+      }
+      return t; 
     }
   }
   /**
@@ -262,11 +267,30 @@ public class InjectorImpl implements Injector {
    * Parse the bound value of np.  When possible, this returns a cached instance.
    * 
    * @return null if np has not been bound.
+   * @throws ParseException 
    */
   @SuppressWarnings("unchecked")
   private <T> T parseBoundNamedParameter(NamedParameterNode<T> np) {
     final T ret;
-    if(namedParameterInstances.containsKey(np)) {
+    @SuppressWarnings("rawtypes")
+    final Set<Object> boundSet = c.getBoundSet((NamedParameterNode)np);
+    if(!boundSet.isEmpty()) {
+      Set<T> ret2 = new MonotonicSet<>();
+      for(Object o : boundSet) {
+        if(o instanceof String) {
+          try {
+            ret2.addAll((Set)javaNamespace.parse(np, (String)o));
+          } catch(ParseException e) {
+            throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)");
+          }
+        } else if(o instanceof Node) {
+          ret2.add((T)o);
+        } else {
+          throw new IllegalStateException("Unexpected object " + o + " in bound set.  Should consist of nodes and strings");
+        }
+      }
+      return (T)ret2;
+    } else if(namedParameterInstances.containsKey(np)) {
       ret = (T)namedParameterInstances.get(np);
     } else {
       final String value = c.getNamedParameter(np);

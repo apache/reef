@@ -8,6 +8,8 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -20,6 +22,7 @@ import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.NamedParameterNode;
+import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationFile {
@@ -175,6 +178,17 @@ public class ConfigurationFile {
     for (ClassNode<?> cn : conf.getLegacyConstructors()) {
       s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
       join(s, "-", conf.getLegacyConstructor(cn).getArgs()).append(")\n");
+    }
+    for (Entry<NamedParameterNode<Set<?>>,Object> e : conf.getBoundSets()) {
+      final String val;
+      if(e.getValue() instanceof String) {
+        val = (String)e.getValue();
+      } else if(e.getValue() instanceof Node) {
+        val = ((Node)e.getValue()).getFullName();
+      } else {
+        throw new IllegalStateException();
+      }
+      s.append(e.getKey().getFullName()).append('=').append(val).append("\n");
     }
     return s.toString();
   }

@@ -1,6 +1,8 @@
 package com.microsoft.tang.implementation;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.microsoft.tang.ClassHierarchy;
@@ -10,6 +12,7 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
+import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicSet;
 
 public class ConfigurationImpl implements Configuration {
@@ -76,5 +79,20 @@ public class ConfigurationImpl implements Configuration {
   @Override
   public ClassHierarchy getClassHierarchy() {
     return builder.namespace;
+  }
+
+  @Override
+  public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np) {
+    return this.builder.boundSetEntries.getValuesForKey(np);
+  }
+  @Override
+  public Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets() {
+    return new Iterable<Entry<NamedParameterNode<Set<?>>, Object>>() {
+      
+      @Override
+      public Iterator<Entry<NamedParameterNode<Set<?>>, Object>> iterator() {
+        return builder.boundSetEntries.iterator();
+      }
+    };
   }
 }

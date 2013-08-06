@@ -1,6 +1,8 @@
 package com.microsoft.tang;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.microsoft.tang.types.ClassNode;
@@ -20,6 +22,14 @@ public interface Configuration {
   public ConfigurationBuilder newBuilder();
   
   public String getNamedParameter(NamedParameterNode<?> np);
+  
+  /**
+   * 
+   * @param np
+   * @return A set of objects and strings.
+   */
+  public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
+  
   /*
    * @return the external constructor that cn has been explicitly bound to, or null.
    */
@@ -45,4 +55,7 @@ public interface Configuration {
   Set<ClassNode<?>> getLegacyConstructors();
 
   public ClassHierarchy getClassHierarchy();
+
+  Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets();
+
 }

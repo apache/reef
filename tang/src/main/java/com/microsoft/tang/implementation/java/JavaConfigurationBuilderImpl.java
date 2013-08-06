@@ -1,6 +1,8 @@
 package com.microsoft.tang.implementation.java;
 
+import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.Set;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ExternalConstructor;
@@ -13,6 +15,7 @@ import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
+import com.microsoft.tang.util.ReflectionUtilities;
 
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
@@ -121,5 +124,41 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
       throw new BindException("BindConstructor got class that resolved to " + m + "; expected ClassNode");
     }
     bindConstructor((ClassNode<T>)n, (ClassNode<? extends ExternalConstructor<? extends T>>)m);
+  }
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException {
+    Node n = getNode(iface);
+    
+    if(!(n instanceof NamedParameterNode)) {
+      throw new BindException("BindSetEntry got an interface that resolved to " + n + "; expected a NamedParameter");
+    }
+    Type setType = ReflectionUtilities.getInterfaceTarget(Name.class, iface);
+    if(!ReflectionUtilities.getRawClass(setType).equals(Set.class)) {
+      throw new BindException("BindSetEntry got a NamedParameter that takes a " + setType + "; expected Set<...>");
+    }
+//    Type valType = ReflectionUtilities.getInterfaceTarget(Set.class, setType);
+    bindSetEntry((NamedParameterNode<Set<?>>)n, value);
+  }
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException {
+    Node n = getNode(iface);
+    Node m = getNode(impl);
+    
+    if(!(n instanceof NamedParameterNode)) {
+      throw new BindException("BindSetEntry got an interface that resolved to " + n + "; expected a NamedParameter");
+    }
+    Type setType = ReflectionUtilities.getInterfaceTarget(Name.class, iface);
+    if(!ReflectionUtilities.getRawClass(setType).equals(Set.class)) {
+      throw new BindException("BindSetEntry got a NamedParameter that takes a " + setType + "; expected Set<...>");
+    }
+    Type valType = ReflectionUtilities.getInterfaceTarget(Set.class, setType);
+    if(!ReflectionUtilities.getRawClass(valType).isAssignableFrom(impl)) {
+      throw new BindException("BindSetEntry got implementation " + impl + " that is incompatible with expected type " + valType);
+    }
+    
+    bindSetEntry((NamedParameterNode<Set<?>>)n,m);
+    
   }
 }
