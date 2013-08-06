@@ -537,10 +537,18 @@ public class InjectorImpl implements Injector {
       try {
         T ret;
         concurrentModificationGuard = true;
-        ret = getConstructor(
-            (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
-            args);
-        
+        try {
+          ret = getConstructor(
+              (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
+              args);
+        } catch(IllegalArgumentException e) {
+          StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " + constructor + " with arguments [");
+          for(Object o : args) {
+            sb.append("\n\t" + o);
+          }
+          sb.append("]");
+          throw new IllegalStateException(sb.toString(), e);
+        }
         if (ret instanceof ExternalConstructor) {
       	  ret = ((ExternalConstructor<T>)ret).newInstance();
         }
