@@ -131,6 +131,7 @@ public class JavaNodeFactory {
     
     if(isSet) {
       argClass = ReflectionUtilities.getInterfaceTarget(Collection.class, argClass);
+      argRawClass = ReflectionUtilities.getRawClass(argClass);
     }
     
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);

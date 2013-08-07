@@ -110,6 +110,17 @@ public class TestSetInjection {
     Assert.assertEquals(expected, actual);
   }
 
+  @Test
+  public void testDefaultAsClass() throws InjectionException, BindException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    i.bindVolatileInstance(Integer.class, 1);
+    i.bindVolatileInstance(Float.class, 2f);
+    Set<Number> actual = i.getNamedInstance(SetOfClassesDefaultClass.class);
+    Set<Number> expected = new HashSet<>();
+    expected.add(1);
+    Assert.assertEquals(expected, actual);
+  }
+  
 }
 
 @NamedParameter(default_value="one,two,three")
@@ -133,3 +144,6 @@ class Pool {
     this.numbers = numbers;
   }
 }
+
+@NamedParameter(default_class=Integer.class)
+class SetOfClassesDefaultClass implements Name<Set<Number>> { }
