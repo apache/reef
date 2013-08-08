@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation;
 
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 
@@ -301,12 +302,19 @@ public class TestClassHierarchy {
     ns.getNode(s(BadIfaceDefault.class));
   }
   @Test
-  public void testParseableDefaultClassNotOK() throws BindException, InjectionException {
+  public void testParseableDefaultClassNotOK() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter com.microsoft.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String");
     ns.getNode(s(BadParsableDefaultClass.class));
   }
+  @Test
+  public void testDanglingUnit() throws NameResolutionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Class com.microsoft.tang.implementation.DanglingUnit has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.");
 
+    ns.getNode(s(DanglingUnit.class));
+    
+  }
 }
 
 @NamedParameter(default_class=String.class)
@@ -560,4 +568,9 @@ class OuterUnitTH {
 
   class InB {
   }
+}
+@Unit
+class DanglingUnit {
+  @Inject DanglingUnit() { }
+  static class DoesntCount {}
 }

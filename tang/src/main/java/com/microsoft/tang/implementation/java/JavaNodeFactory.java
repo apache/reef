@@ -59,6 +59,17 @@ public class JavaNodeFactory {
       injectable = true;
     }
 
+    boolean foundNonStaticInnerClass = false;
+    for(Class<?> c : clazz.getDeclaredClasses()) {
+      if(!Modifier.isStatic(c.getModifiers())) {
+        foundNonStaticInnerClass = true;
+      }
+    }
+    
+    if(unit && !foundNonStaticInnerClass) {
+      throw new ClassHierarchyException("Class " + ReflectionUtilities.getFullName(clazz) + " has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.");
+    }
+    
     Constructor<T>[] constructors = (Constructor<T>[]) clazz
         .getDeclaredConstructors();
     MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<>();
