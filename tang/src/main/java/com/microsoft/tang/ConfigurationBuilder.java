@@ -1,8 +1,12 @@
 package com.microsoft.tang;
 
+import java.util.Set;
+
+import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
+import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 
 public interface ConfigurationBuilder {
@@ -50,8 +54,9 @@ public interface ConfigurationBuilder {
 
   void bind(Node key, Node value) throws BindException;
 
+  @Deprecated
   public void bindSingleton(String iface) throws BindException;
-
+  @Deprecated
   public void bindSingleton(ClassNode<?> iface) throws BindException;
 
   public <T> void bindConstructor(ClassNode<T> k,
@@ -64,11 +69,19 @@ public interface ConfigurationBuilder {
       throws BindException;
 
   public Configuration build();
-
+  @Deprecated
   public <T> void bindSingletonImplementation(ClassNode<T> c,
       ClassNode<? extends T> d) throws BindException;
-
+  @Deprecated
   public void bindSingletonImplementation(String inter, String impl)
       throws BindException;
+
+  void bindSetEntry(NamedParameterNode<Set<?>> iface, Node impl)
+      throws BindException;
+  public void bindSetEntry(NamedParameterNode<Set<?>> iface, String impl)
+      throws BindException;
+
+
+
 
 }

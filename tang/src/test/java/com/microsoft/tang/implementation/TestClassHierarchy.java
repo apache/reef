@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation;
 
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +13,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.ClassHierarchy;
 
@@ -291,7 +291,8 @@ public class TestClassHierarchy {
   @Test
   public void nameCantBindWrongSubclassAsDefault() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer that is not an instance of its target class java.lang.String");
+    thrown.expectMessage("class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String");
+
     ns.getNode(s(BadName.class));
   }
   @Test
@@ -301,10 +302,24 @@ public class TestClassHierarchy {
     ns.getNode(s(BadIfaceDefault.class));
   }
   @Test
-  public void testParseableDefaultClassNotOK() throws BindException, InjectionException {
+  public void testParseableDefaultClassNotOK() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Named parameter com.microsoft.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String");
     ns.getNode(s(BadParsableDefaultClass.class));
+  }
+  @Test
+  public void testDanglingUnit() throws NameResolutionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("Class com.microsoft.tang.implementation.DanglingUnit has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.");
+
+    ns.getNode(s(DanglingUnit.class));
+    
+  }
+  @Test
+  public void testNonInjectableParam() throws NameResolutionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("public com.microsoft.tang.implementation.NonInjectableParam(int) is not injectable, but it has an @Parameter annotation.");
+    ns.getNode(s(NonInjectableParam.class));
   }
 
 }
@@ -560,4 +575,14 @@ class OuterUnitTH {
 
   class InB {
   }
+}
+@Unit
+class DanglingUnit {
+  @Inject DanglingUnit() { }
+  static class DoesntCount {}
+}
+class SomeName implements Name<Integer> {}
+class NonInjectableParam {
+  public NonInjectableParam(@Parameter(SomeName.class) int i) {
+}
 }

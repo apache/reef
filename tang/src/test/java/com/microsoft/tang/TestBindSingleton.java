@@ -60,7 +60,7 @@ public class TestBindSingleton {
 
     final JavaConfigurationBuilder b = Tang.Factory.getTang()
         .newConfigurationBuilder();
-    b.bindSingletonImplementation(A.class, B.class);
+    b.bindImplementation(A.class, B.class);
     final Configuration src = b.build();
 
     final JavaConfigurationBuilder dest = Tang.Factory.getTang()
@@ -74,7 +74,7 @@ public class TestBindSingleton {
     assertTrue("Two singletons should be the same", a1 == a2);
     assertTrue("Both instances should be of class B", a1 instanceof B);
     assertTrue("Both instances should be of class B", a2 instanceof B);
-    assertTrue("Singleton and not singleton should not be the same", a1 != b1);
+    assertTrue("Singleton and not singleton should be the same", a1 == b1);
 
     final Injector injector2 = Tang.Factory.getTang().newInjector(src);
     final A a3 = injector2.getInstance(A.class);
@@ -94,7 +94,7 @@ public class TestBindSingleton {
       throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.bindSingletonImplementation(LateBoundVolatile.A.class,
+    cb.bindImplementation(LateBoundVolatile.A.class,
         LateBoundVolatile.B.class);
     final Injector i = tang.newInjector(cb.build());
     i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
@@ -104,7 +104,6 @@ public class TestBindSingleton {
   @Test
   public void testMultipleInjectorInstaceWithSingleton() throws BindException, InjectionException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindSingleton(AA.class);
     
     final Injector i1 = Tang.Factory.getTang().newInjector(cb.build());
     final Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
@@ -125,7 +124,6 @@ public class TestBindSingleton {
       throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.bindSingleton(LateBoundVolatile.C.class);
     Injector i = tang.newInjector(cb.build());
     i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
     i.getInstance(LateBoundVolatile.C.class);
@@ -136,7 +134,7 @@ public class TestBindSingleton {
       throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    cb.bindSingletonImplementation(LateBoundVolatile.B.class,
+    cb.bindImplementation(LateBoundVolatile.B.class,
         LateBoundVolatile.B.class);
     Injector i = tang.newInjector(cb.build());
     i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
@@ -147,11 +145,11 @@ public class TestBindSingleton {
   public void testInbredSingletons() throws BindException, InjectionException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
-    b.bindSingletonImplementation(InbredSingletons.A.class,
+    b.bindImplementation(InbredSingletons.A.class,
         InbredSingletons.A.class);
-    b.bindSingletonImplementation(InbredSingletons.B.class,
+    b.bindImplementation(InbredSingletons.B.class,
         InbredSingletons.B.class);
-    b.bindSingletonImplementation(InbredSingletons.C.class,
+    b.bindImplementation(InbredSingletons.C.class,
         InbredSingletons.C.class);
     Injector i = t.newInjector(b.build());
     i.getInstance(InbredSingletons.A.class);
@@ -162,11 +160,11 @@ public class TestBindSingleton {
       InjectionException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
-    b.bindSingletonImplementation(IncestuousSingletons.A.class,
+    b.bindImplementation(IncestuousSingletons.A.class,
         IncestuousSingletons.A.class);
-    b.bindSingletonImplementation(IncestuousSingletons.B.class,
+    b.bindImplementation(IncestuousSingletons.B.class,
         IncestuousSingletons.B.class);
-    b.bindSingletonImplementation(IncestuousSingletons.C.class,
+    b.bindImplementation(IncestuousSingletons.C.class,
         IncestuousSingletons.C.class);
     Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousSingletons.A.class);
@@ -177,11 +175,11 @@ public class TestBindSingleton {
       InjectionException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
-    b.bindSingletonImplementation(IncestuousSingletons.A.class,
+    b.bindImplementation(IncestuousSingletons.A.class,
         IncestuousSingletons.A.class);
     b.bindImplementation(IncestuousSingletons.B.class,
         IncestuousSingletons.BN.class);
-    b.bindSingletonImplementation(IncestuousSingletons.C.class,
+    b.bindImplementation(IncestuousSingletons.C.class,
         IncestuousSingletons.C.class);
     Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousSingletons.A.class);
@@ -192,11 +190,11 @@ public class TestBindSingleton {
       InjectionException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
-    b.bindSingletonImplementation(IncestuousInterfaceSingletons.AI.class,
+    b.bindImplementation(IncestuousInterfaceSingletons.AI.class,
         IncestuousInterfaceSingletons.A.class);
-    b.bindSingletonImplementation(IncestuousInterfaceSingletons.BI.class,
+    b.bindImplementation(IncestuousInterfaceSingletons.BI.class,
         IncestuousInterfaceSingletons.BN.class);
-    b.bindSingletonImplementation(IncestuousInterfaceSingletons.CI.class,
+    b.bindImplementation(IncestuousInterfaceSingletons.CI.class,
         IncestuousInterfaceSingletons.C.class);
     Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousInterfaceSingletons.AI.class);
@@ -207,14 +205,14 @@ public class TestBindSingleton {
       InjectionException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
-    b.bindSingletonImplementation(IncestuousInterfaceSingletons.AI.class,
+    b.bindImplementation(IncestuousInterfaceSingletons.AI.class,
         IncestuousInterfaceSingletons.A.class);
     b.bindImplementation(IncestuousInterfaceSingletons.BI.class,
         IncestuousInterfaceSingletons.B.class);
     // TODO: Should we require bind(A,B), then bind(B,B) if B has subclasses?
     b.bindImplementation(IncestuousInterfaceSingletons.B.class,
         IncestuousInterfaceSingletons.B.class);
-    b.bindSingletonImplementation(IncestuousInterfaceSingletons.CI.class,
+    b.bindImplementation(IncestuousInterfaceSingletons.CI.class,
         IncestuousInterfaceSingletons.C.class);
     Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousInterfaceSingletons.AI.class);
@@ -233,7 +231,7 @@ public class TestBindSingleton {
   public void testIsBrokenSingletonClassInjectable() throws BindException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
-    b.bindSingletonImplementation(IsBrokenClassInjectable.class,
+    b.bindImplementation(IsBrokenClassInjectable.class,
         IsBrokenClassInjectable.class);
     Assert.assertTrue(t.newInjector(b.build()).isInjectable(
         IsBrokenClassInjectable.class));
@@ -242,7 +240,7 @@ public class TestBindSingleton {
   public void testBrokenSingletonClassCantInject() throws BindException, InjectionException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
-    b.bindSingletonImplementation(IsBrokenClassInjectable.class,
+    b.bindImplementation(IsBrokenClassInjectable.class,
         IsBrokenClassInjectable.class);
     Assert.assertTrue(t.newInjector(b.build()).isInjectable(
         IsBrokenClassInjectable.class));

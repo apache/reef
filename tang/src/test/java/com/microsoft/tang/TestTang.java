@@ -36,20 +36,18 @@ public class TestTang {
   }
 
   @Test
-  public void testSingleton() throws BindException, InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.bindSingleton(MustBeSingleton.class);
-    tang.newInjector(t.build()).getInstance(TwoSingletons.class);
+  public void testSingleton() throws InjectionException {
+    Injector injector = tang.newInjector();
+    Assert.assertNotNull(injector.getInstance(TwoSingletons.class));
+    Assert.assertNotNull(injector.getInstance(TwoSingletons.class));
   }
 
-  @Test//(expected = InjectionException.class)
-  public void testNotSingleton() throws NameResolutionException,
-      ReflectiveOperationException, BindException, InjectionException {
+  @Test
+  public void testNotSingleton() throws InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Could not invoke constructor");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    Injector injector = tang.newInjector(t.build());
-    injector.getInstance(TwoSingletons.class);
+    Assert.assertNotNull(tang.newInjector().getInstance(TwoSingletons.class));
+    tang.newInjector().getInstance(TwoSingletons.class);
   }
 
   // TODO: Delete this?  (It is handled in TestClassHierarchy!)
@@ -70,38 +68,31 @@ public class TestTang {
 
   // NamedParameter A has no default_value, so this should throw.
   @Test
-  public void testOneNamedFailArgs() throws BindException, InjectionException {
+  public void testOneNamedFailArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
   @Test
-  public void testOneNamedOKArgs() throws BindException, InjectionException {
+  public void testOneNamedOKArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
   // NamedParameter A has no default_value
   @Test
-  public void testOneNamedSingletonFailArgs() throws BindException,
-      InjectionException {
+  public void testOneNamedSingletonFailArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
     thrown.expectMessage("Cannot inject com.microsoft.tang.OneNamedSingletonArgs: com.microsoft.tang.OneNamedSingletonArgs missing argument com.microsoft.tang.OneNamedSingletonArgs$A");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.bindSingleton(MustBeSingleton.class);
-    tang.newInjector(t.build()).getInstance(OneNamedSingletonArgs.class);
+    tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
   // NamedParameter A get's bound to a volatile, so this should succeed.
   @Test
-  public void testOneNamedSingletonOKArgs() throws BindException,
-      InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    final Injector i = tang.newInjector(t.build());
+  public void testOneNamedSingletonOKArgs() throws BindException, InjectionException {
+    final Injector i = tang.newInjector();
     i.bindVolatileParameter(OneNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
     i.getInstance(OneNamedSingletonArgs.class);
@@ -110,24 +101,18 @@ public class TestTang {
   @Test
   public void testRepeatedNamedOKArgs() throws BindException,
       InjectionException {
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    t.bindSingleton(MustBeSingleton.class);
-    final Injector i = tang.newInjector(t.build());
+    final Injector i = tang.newInjector();
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class,
         i.getInstance(MustBeSingleton.class));
     i.getInstance(RepeatedNamedSingletonArgs.class);
   }
-
-  // Forgot to call bindSingleton
-  @Test//(expected = InjectionException.class)
-  public void testRepeatedNamedFailArgs() throws BindException,
+  
+  @Test
+  public void testRepeatedNamedArgs() throws BindException,
       InjectionException {
-    thrown.expect(InjectionException.class);
-    thrown.expectMessage("Could not invoke constructor");
-    JavaConfigurationBuilder t = tang.newConfigurationBuilder();
-    Injector i = tang.newInjector(t.build());
+    Injector i = tang.newInjector();
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.A.class,
         i.getInstance(MustBeSingleton.class));
     i.bindVolatileParameter(RepeatedNamedSingletonArgs.B.class,
@@ -143,7 +128,7 @@ public class TestTang {
     tang.newInjector(cb.build()).getInstance(Interf.class);
   }
 
-  @Test//(expected = BindException.class)
+  @Test
   public void testOneNamedStringArgCantRebind() throws BindException,
       InjectionException {
     thrown.expect(BindException.class);
@@ -176,11 +161,10 @@ public class TestTang {
   @Test
   public void testOneNamedStringArgVolatile() throws BindException,
       InjectionException {
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
+    OneNamedStringArg a = tang.newInjector().getInstance(
         OneNamedStringArg.class);
     Assert.assertEquals("default", a.s);
-    Injector i = tang.newInjector(cb.build());
+    Injector i = tang.newInjector();
     i.bindVolatileParameter(OneNamedStringArg.A.class, "volatile");
     Assert.assertEquals("volatile", i.getInstance(OneNamedStringArg.class).s);
   }
@@ -295,8 +279,8 @@ public class TestTang {
         .getNamedInstance(NamedImpl.BImplName.class);
     NamedImpl.Bimpl b2 = (NamedImpl.Bimpl) i
         .getNamedInstance(NamedImpl.BImplName.class);
-    Assert.assertNotSame(a1, a2);
-    Assert.assertNotSame(b1, b2);
+    Assert.assertSame(a1, a2);
+    Assert.assertSame(b1, b2);
   }
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
@@ -401,10 +385,156 @@ public class TestTang {
   public void testSingletonWithMultipleConstructors() throws BindException, InjectionException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindImplementation(SMC.class, SingletonMultiConst.class);
-    cb.bindSingleton(SingletonMultiConst.class);
     cb.bindNamedParameter(SingletonMultiConst.A.class, "foo");
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     i.getInstance(SMC.class);
+  }
+  @Test
+  public void testInjectInjector() throws InjectionException, BindException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    InjectInjector ii = i.getInstance(InjectInjector.class);
+    Assert.assertSame(i, ii.i);
+  }
+  
+  @Test
+  public void testProactiveFutures() throws InjectionException, BindException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    IsFuture.instantiated = false;
+    i.getInstance(NeedsFuture.class);
+    Assert.assertTrue(IsFuture.instantiated);
+  }
+  
+  @Test
+  public void testGenericEventHandlers() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    cba.bindNamedParameter(XName.class, (Class)XAA.class);
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XName.class);
+    JavaConfigurationBuilder cbb = Tang.Factory.getTang().newConfigurationBuilder();
+    cbb.bindNamedParameter(XName.class, XBB.class);
+    Tang.Factory.getTang().newInjector(cbb.build()).getNamedInstance(XName.class);
+    JavaConfigurationBuilder cbc = Tang.Factory.getTang().newConfigurationBuilder();
+    cbc.bindNamedParameter(XName.class, (Class)XCC.class);
+    Tang.Factory.getTang().newInjector(cbc.build()).getNamedInstance(XName.class);
+  }
+
+  @Test
+  public void testGenericEventHandlerDefaults() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDA.class);
+    JavaConfigurationBuilder cbb = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cbb.build()).getNamedInstance(XNameDB.class);
+    JavaConfigurationBuilder cbc = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cbc.build()).getNamedInstance(XNameDC.class);
+  }
+  @Test
+  public void testGenericEventHandlerDefaultsBadTreeIndirection() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("class com.microsoft.tang.XNameDAA defines a default class com.microsoft.tang.XCC with a raw type that does not extend of its target's raw type class com.microsoft.tang.XBB");
+
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDAA.class);
+  }
+  @Test
+  public void testGenericEventHandlerDefaultsGoodTreeIndirection() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDDAA.class);
+  }
+  @Test
+  public void testGenericUnrelatedGenericTypeParameters() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("class com.microsoft.tang.WaterBottleName defines a default class com.microsoft.tang.GasCan with a type that does not extend its target's type com.microsoft.tang.Bottle<com.microsoft.tang.Water");
+
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(WaterBottleName.class);
+  }
+  @Test
+  public void testGenericInterfaceUnboundTypeParametersName() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(FooEventHandler.class);
+  }
+  @Test
+  public void testGenericInterfaceUnboundTypeParametersNameIface() throws BindException, InjectionException {
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(IfaceEventHandler.class);
+  }
+  @Test
+  public void testGenericInterfaceUnboundTypeParametersIface() throws BindException, InjectionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("interface com.microsoft.tang.MyEventHandlerIface declares its default implementation to be non-subclass class com.microsoft.tang.MyEventHandler");
+
+    JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
+    Tang.Factory.getTang().newInjector(cba.build()).isInjectable(MyEventHandlerIface.class);
+  }
+
+  @Test
+  public void testWantSomeHandlers() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeHandlers.class);
+  }
+  @Test
+  public void testWantSomeHandlersBadOrder() throws BindException, InjectionException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    i.getInstance(AHandler.class);
+    i.getInstance(BHandler.class);
+    i.getInstance(WantSomeFutureHandlers.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlersAlreadyBoundVolatile() throws BindException, InjectionException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    i.bindVolatileInstance(AHandler.class, new AHandlerImpl());
+    i.bindVolatileInstance(BHandler.class, new BHandlerImpl());
+    i.getInstance(WantSomeFutureHandlers.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlers() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeFutureHandlers.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlersUnit() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeFutureHandlersUnit.class);
+  }
+  @Test
+  public void testWantSomeFutureHandlersName() throws BindException, InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(WantSomeFutureHandlersName.class);
+  }
+  
+  @Test  
+  public void testUnitMixedCanInject() throws BindException, InjectionException {  
+    //testing that you should be able to have @Unit and also static inner classes not included  
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();  
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());  
+  
+    i.getInstance(OuterUnitWithStatic.InnerStaticClass2.class);  
+  }  
+
+  @Test  
+  public void testUnitMixedCantInject() throws BindException, InjectionException {  
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Cannot inject com.microsoft.tang.OuterUnitWithStatic$InnerStaticClass: No known implementations / injectable constructors for com.microsoft.tang.OuterUnitWithStatic$InnerStaticClass");
+
+    //testing that you should be able to have @Unit and also static inner classes not included  
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();  
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());  
+  
+    i.getInstance(OuterUnitWithStatic.InnerStaticClass.class);  
+  }  
+  
+}
+class IsFuture {
+  static boolean instantiated;
+  @Inject IsFuture(NeedsFuture nf) {
+    instantiated = true;
+  }
+}
+class NeedsFuture {
+  @Inject NeedsFuture(InjectionFuture<IsFuture> isFut) {
+    
+  }
+}
+
+class InjectInjector {
+  public final Injector i;
+  @Inject InjectInjector(Injector i) {
+    this.i = i;
   }
 }
 
@@ -472,6 +602,7 @@ class MustBeSingleton {
 class SubSingleton {
   @Inject
   SubSingleton(MustBeSingleton a) {
+    // Does not call super
   }
 }
 
@@ -712,7 +843,7 @@ class ThreeConstructors {
     this.i = -1;
     this.s = "default";
     this.f = f;
-  }
+  } 
 }
 interface IfaceWithDefault {
 }
@@ -724,4 +855,151 @@ class IfaceWithDefaultDefaultImpl implements IfaceWithDefault {
 
 @NamedParameter(default_class=IfaceWithDefaultDefaultImpl.class)
 class IfaceWithDefaultName implements Name<IfaceWithDefault> {
+}
+
+interface X<T> { }
+@NamedParameter
+class XName implements Name<X<BB>> { }
+@NamedParameter(default_class=XAA.class)
+class XNameDA implements Name<X<BB>> { }
+@NamedParameter(default_class=XBB.class)
+class XNameDB implements Name<X<BB>> { }
+@NamedParameter(default_class=XCC.class)
+class XNameDC implements Name<X<BB>> { }
+
+@NamedParameter(default_class=XCC.class)
+class XNameDAA implements Name<XBB> { }
+
+@NamedParameter(default_class=XXBB.class)
+class XNameDDAA implements Name<XBB> { }
+
+
+@DefaultImplementation(AA.class)
+class AA {
+  @Inject AA() {}
+}
+@DefaultImplementation(BB.class)
+class BB extends AA {
+  @Inject BB() {}
+}
+@DefaultImplementation(CC.class)
+class CC extends BB {
+  @Inject CC() {}
+}
+class XAA implements X<AA> { 
+  @Inject XAA(AA aa) { }
+}
+@DefaultImplementation(XBB.class)
+class XBB implements X<BB> {
+  @Inject XBB(BB aa) { }
+}
+class XXBB extends XBB {
+  @Inject XXBB(BB aa) { 
+    super(aa);
+  }
+}
+class XCC implements X<CC>{
+  @Inject XCC(CC aa) { }
+}
+interface Bottle<X> {
+  
+}
+class WaterBottle implements Bottle<Water> {
+  
+}
+class GasCan implements Bottle<Gas> {
+  
+}
+class Water {}
+class Gas {}
+
+@NamedParameter(default_class=GasCan.class)
+class WaterBottleName implements Name<Bottle<Water>> { }
+
+interface EventHandler <T> { }
+class MyEventHandler<T> implements EventHandler<T> { 
+  @Inject MyEventHandler () { }
+}
+@DefaultImplementation(MyEventHandler.class)
+interface MyEventHandlerIface extends EventHandler<Foo> { }
+
+@NamedParameter(default_class=MyEventHandler.class)
+class FooEventHandler implements Name<EventHandler<Foo>> { }
+
+interface SomeIface { }
+@NamedParameter(default_class=MyEventHandler.class)
+class IfaceEventHandler implements Name<EventHandler<SomeIface>> { }
+
+class AH { @Inject AH() {} }
+class BH { @Inject BH() {} }
+@DefaultImplementation(AHandlerImpl.class)
+interface AHandler extends EventHandler<AH> { }
+@DefaultImplementation(BHandlerImpl.class)
+interface BHandler extends EventHandler<BH> { }
+class AHandlerImpl implements AHandler { @Inject AHandlerImpl() { } }
+class BHandlerImpl implements BHandler { @Inject BHandlerImpl() { } }
+
+
+@Unit
+class DefaultHandlerUnit {
+  @DefaultImplementation(AHandlerImpl.class)
+  interface AHandler extends EventHandler<AH> { }
+  @DefaultImplementation(BHandlerImpl.class)
+  interface BHandler extends EventHandler<BH> { }
+  @Inject DefaultHandlerUnit() {
+  }
+  class AHandlerImpl implements AHandler { AHandlerImpl() { } }
+  class BHandlerImpl implements BHandler { BHandlerImpl() { } }
+}
+class WantSomeHandlers {
+  @Inject WantSomeHandlers(AHandler a, BHandler b) { }
+}
+class WantSomeFutureHandlers {
+  @Inject WantSomeFutureHandlers(InjectionFuture<AHandler> a, InjectionFuture<BHandler> b) { }
+}
+class WantSomeFutureHandlersUnit {
+  @Inject WantSomeFutureHandlersUnit(InjectionFuture<DefaultHandlerUnit.AHandler> a, InjectionFuture<DefaultHandlerUnit.BHandler> b) { }
+}
+
+@NamedParameter(default_class=AHandlerImpl.class)
+class AHandlerName implements Name<EventHandler<AH>> { }
+@NamedParameter(default_class=BHandlerImpl.class)
+class BHandlerName implements Name<EventHandler<BH>> { }
+class WantSomeFutureHandlersName {
+  @Inject WantSomeFutureHandlersName (
+      @Parameter(AHandlerName.class) InjectionFuture<EventHandler<AH>> a,
+      @Parameter(BHandlerName.class) InjectionFuture<EventHandler<BH>> b) { }
+}
+
+@Unit
+class OuterUnitWithStatic {
+
+  @Inject
+  public OuterUnitWithStatic() {
+  }
+
+  public void bar() {
+    new InnerStaticClass().baz();
+  }
+
+  static class InnerStaticClass {
+    public InnerStaticClass() {
+    }
+
+    public void baz() {
+    }
+  }
+  static class InnerStaticClass2 {
+    @Inject
+    public InnerStaticClass2() {
+    }
+
+    public void baz() {
+    }
+  }
+
+  public class InnerUnitClass {
+    public void foo() {
+    }
+  }
 }

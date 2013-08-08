@@ -6,6 +6,10 @@ import java.util.concurrent.TimeUnit;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.InjectionException;
 
+/**
+ * There is no reason to use this instead of InjectionFuture.
+ */
+@Deprecated
 public class InjectionNamedParameterFuture<T> implements Future<T> {
 
   private final Injector injector;

@@ -8,9 +8,9 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder.Impl;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder.OptionalParameter;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder.Param;
+import com.microsoft.tang.formats.Impl;
+import com.microsoft.tang.formats.OptionalParameter;
+import com.microsoft.tang.formats.Param;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -65,12 +65,25 @@ public class ConfigurationModule {
     return c;
   }
   
+  public final <T> ConfigurationModule set(Param<T> opt, Number val) {
+    return set(opt, ""+val);
+  }
   public final <T> ConfigurationModule set(Param<T> opt, String val) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
     c.setParams.put(opt, val);
     return c;
   }
+  
+/*  public final InjectorModule buildVolatileInjector() throws ClassHierarchyException {
+    ConfigurationModule c = deepCopy();
+
+    return new InjectorModule(c);  // injector module will all bind volatiles over missing sets in c.
+    
+    // it basically just delegates to an unsafe version of build, gets an injector, and at build() bind volatiles into injector
+  } */
+
+  
   public Configuration build() throws BindException {
     ConfigurationModule c = deepCopy();
     
@@ -92,13 +105,6 @@ public class ConfigurationModule {
         c.builder.b.bind(clazz, c.setImpls.get(i));
       } else if(c.setLateImpls.containsKey(i)) {
         c.builder.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
-      }
-    }
-    for (Impl<?> i : c.builder.freeSingletons) {
-      if(c.setImpls.containsKey(i)) {
-        c.builder.b.bindSingleton(c.setImpls.get(i));
-      } else if(c.setLateImpls.containsKey(i)) {
-        c.builder.b.bindSingleton(c.setLateImpls.get(i));
       }
     }
     for (Class<? extends Name<?>> clazz : c.builder.freeParams.keySet()) {

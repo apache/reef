@@ -17,7 +17,6 @@ package com.microsoft.tang.util.walk.graphviz;
 
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.Constructor;
-import com.microsoft.tang.implementation.RequiredSingleton;
 import com.microsoft.tang.implementation.Subplan;
 import com.microsoft.tang.implementation.java.JavaInstance;
 
@@ -93,24 +92,6 @@ public final class GraphvizInjectionPlanVisitor
             .append(" = ")
             .append(node.getInstanceAsString())
             .append("\", shape=box, style=bold];\n");
-    return true;
-  }
-
-  /**
-   * Process current injection plan node of RequiredSingleton type.
-   * @param node Current injection plan node.
-   * @return true to proceed with the next node, false to cancel.
-   */
-  @Override
-  public boolean visit(final RequiredSingleton<?,?> node) {
-    this.graphStr
-            .append("  \"")
-            .append(node.getClass())
-            .append('_')
-            .append(node.getNode().getName())
-            .append("\" [label=\"")
-            .append(node.getNode().getName())
-            .append("\", shape=box, style=filled];\n");
     return true;
   }
 

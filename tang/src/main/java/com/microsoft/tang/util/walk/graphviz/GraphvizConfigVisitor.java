@@ -111,7 +111,7 @@ public final class GraphvizConfigVisitor
             .append(" [label=\"")
             .append(node.getName())
             .append("\", shape=box")
-            .append(config.isSingleton(node) ? ", style=filled" : "")
+//            .append(config.isSingleton(node) ? ", style=filled" : "")
             .append("];\n");
 
     final ClassNode<?> boundImplNode = config.getBoundImplementation(node);

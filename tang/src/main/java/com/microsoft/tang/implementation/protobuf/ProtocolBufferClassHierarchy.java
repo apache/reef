@@ -52,6 +52,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   private static ClassHierarchyProto.Node newNamedParameterNode(String name,
       String fullName, String simpleArgClassName, String fullArgClassName,
+      boolean isSet,
       String documentation, // can be null
       String shortName, // can be null
       String instanceDefault, // can be null
@@ -59,7 +60,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     ClassHierarchyProto.NamedParameterNode.Builder namedParameterNodeBuilder
       = ClassHierarchyProto.NamedParameterNode.newBuilder()
         .setSimpleArgClassName(simpleArgClassName)
-        .setFullArgClassName(fullArgClassName);
+        .setFullArgClassName(fullArgClassName)
+        .setIsSet(isSet);
     if (documentation != null) {
       namedParameterNodeBuilder.setDocumentation(documentation);
     }
@@ -143,7 +145,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       return newNamedParameterNode(np.getName(), np.getFullName(),
-          np.getSimpleArgName(), np.getFullArgName(), np.getDocumentation(),
+          np.getSimpleArgName(), np.getFullArgName(), np.isSet(), np.getDocumentation(),
           np.getShortName(), np.getDefaultInstanceAsString(), children);
     } else if (n instanceof PackageNode) {
       return newPackageNode(n.getName(), n.getFullName(), children);
@@ -192,8 +194,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     } else if (n.hasNamedParameterNode()) {
       ClassHierarchyProto.NamedParameterNode np = n.getNamedParameterNode();
       parsed = new NamedParameterNodeImpl<Object>(parent, n.getName(),
-          n.getFullName(), np.getFullArgClassName(),
-          np.getSimpleArgClassName(), np.getDocumentation(), np.getShortName(),
+          n.getFullName(), np.getFullArgClassName(), np.getSimpleArgClassName(),
+          np.getIsSet(), np.getDocumentation(), np.getShortName(),
           np.getInstanceDefault());
     } else if (n.hasClassNode()) {
       ClassHierarchyProto.ClassNode cn = n.getClassNode();

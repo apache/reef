@@ -1,6 +1,7 @@
 package com.microsoft.tang.formats;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.exceptions.BindException;
@@ -48,7 +49,7 @@ public class ParameterParser {
 
   public <T> T parse(Class<T> c, String s) {
     Class<?> d = ReflectionUtilities.boxClass(c);
-    for(Class<?> e : ReflectionUtilities.classAndAncestors(d)) {
+    for(Type e : ReflectionUtilities.classAndAncestors(d)) {
       String name = ReflectionUtilities.getFullName(e);
       if(parsers.containsKey(name)) {
         T ret = parse(name, s);
@@ -106,7 +107,10 @@ public class ParameterParser {
     }
   }
 
-  private static final Set<String> BUILTIN_NAMES = new HashSet<String>() {{
+  private static final Set<String> BUILTIN_NAMES = new HashSet<String>() {
+    private static final long serialVersionUID = 1L;
+
+    {   
     Collections.addAll(this,
         String.class.getName(),
         Byte.class.getName(),

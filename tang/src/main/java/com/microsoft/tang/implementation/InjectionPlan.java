@@ -39,6 +39,11 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
 
   abstract public boolean isInjectable();
 
+  /**
+   * This is only here because of old singleton semantics
+   * XXX delete hasFutureDependency()
+   */
+  @Deprecated
   abstract public boolean hasFutureDependency();
   
   protected void pad(StringBuffer sb, int n) {

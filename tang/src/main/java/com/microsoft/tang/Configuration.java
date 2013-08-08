@@ -1,12 +1,13 @@
 package com.microsoft.tang;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.Node;
 
 /**
  * TANG Configuration object.
@@ -21,22 +22,29 @@ public interface Configuration {
   public ConfigurationBuilder newBuilder();
   
   public String getNamedParameter(NamedParameterNode<?> np);
+  
+  /**
+   * 
+   * @param np
+   * @return A set of objects and strings.
+   */
+  public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
+  
   /*
    * @return the external constructor that cn has been explicitly bound to, or null.
    */
-  public <T> ClassNode<? extends ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
+  public <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
   /*
    * @return the implementation that cn has been explicitly bound to, or null.
    */
-  public <T> ClassNode<? extends T> getBoundImplementation(ClassNode<T> cn);
+  public <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
   /**
    * TODO Should this return a set of ConstructorDefs instead?
    */
   public <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn);
   
+  @Deprecated
   public Collection<ClassNode<?>> getSingletons();
-
-  public boolean isSingleton(Node n);
 
   Set<ClassNode<?>> getBoundImplementations();
 
@@ -47,4 +55,7 @@ public interface Configuration {
   Set<ClassNode<?>> getLegacyConstructors();
 
   public ClassHierarchy getClassHierarchy();
+
+  Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets();
+
 }

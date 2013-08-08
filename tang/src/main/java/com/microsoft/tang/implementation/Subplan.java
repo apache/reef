@@ -13,8 +13,8 @@ final public class Subplan<T> extends InjectionPlan<T> {
   final int numAlternatives;
   final int selectedIndex;
 
-  public Subplan(Node node, int selectedIndex,
-      @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
+  @SafeVarargs
+  public Subplan(Node node, int selectedIndex, InjectionPlan<T>... alternatives) {
     super(node);
     this.alternatives = alternatives;
     if (selectedIndex < -1 || selectedIndex >= alternatives.length) {
@@ -43,8 +43,8 @@ final public class Subplan<T> extends InjectionPlan<T> {
     return (Collection)Collections.unmodifiableCollection(Arrays.asList(this.alternatives));
   }
 
-  public Subplan(Node node,
-      @SuppressWarnings("unchecked") InjectionPlan<? extends T>... alternatives) {
+  @SafeVarargs
+  public Subplan(Node node, InjectionPlan<T>... alternatives) {
     this(node, -1, alternatives);
   }
 
@@ -164,6 +164,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
   }
 
   @Override
+  @Deprecated
   public boolean hasFutureDependency() {
     if(selectedIndex == -1) {
       throw new IllegalStateException("hasFutureDependency() called on ambiguous subplan!");

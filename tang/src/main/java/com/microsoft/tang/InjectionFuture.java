@@ -1,12 +1,11 @@
 package com.microsoft.tang;
 
-import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.implementation.java.InjectorImpl;
-import com.microsoft.tang.util.TracingMonotonicMap;
 
 /**
  * A future-based mechanism for cyclic object injections. Since Tang is a
@@ -52,24 +51,23 @@ public final class InjectionFuture<T> implements Future<T> {
   protected final InjectorImpl injector;
 
   private final Class<? extends T> iface;
-  private final Map<String, InjectionFuture<?>> futures;
   
-  private T cached = null;
-  public InjectionFuture(final T cached) {
+  private final T instance;
+  
+  public InjectionFuture() {
     injector = null;
     iface = null;
-    futures = null;
-    this.cached = cached;
-  }
-  public InjectionFuture(final InjectorImpl injector, final Map<String, InjectionFuture<?>> futures, Class<? extends T> iface) {
-    this.injector = injector;
-    this.iface = iface;
-    this.futures = futures;
+    instance = null;
   }
   public InjectionFuture(final Injector injector, Class<? extends T> iface) {
     this.injector = (InjectorImpl)injector;
     this.iface = iface;
-    this.futures = new TracingMonotonicMap<>();
+    this.instance = null;
+  }
+  public InjectionFuture(T instance) {
+    this.injector = null;
+    this.iface = null;
+    this.instance = instance;
   }
 
   @Override
@@ -84,32 +82,36 @@ public final class InjectionFuture<T> implements Future<T> {
 
   @Override
   public final boolean isDone() {
-    return this.cached != null;
+    return true;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public T get() {
-    if (this.cached == null) {
-      synchronized (this) {
-        try {
-          if (this.cached == null) {
-            this.cached = this.injector.getInstance(this.iface, futures);
-          }
-        } catch (InjectionException e) {
-          throw new RuntimeException(e);
+    if(instance != null) return instance;
+    try {
+      synchronized(injector) {
+        if(Name.class.isAssignableFrom(iface)) {
+          return injector.getNamedInstance((Class<Name<T>>)iface);
+        } else {
+          return injector.getInstance(iface);
         }
       }
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
     }
-    return this.cached;
   }
+  @Deprecated
   public boolean isCached() {
-    return this.cached != null;
+    return true;
   }
+  @Deprecated
   public void set(T t) {
-    if(this.cached != null) {
-      throw new IllegalStateException("Attempt to double set future!");
-    }
-    this.cached = t;
+    throw new UnsupportedOperationException();
+//    if(this.cached != null) {
+//      throw new IllegalStateException("Attempt to double set future!");
+//    }
+//    this.cached = t;
   }
 
   @Override

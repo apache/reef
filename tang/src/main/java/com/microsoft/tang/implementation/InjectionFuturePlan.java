@@ -6,7 +6,6 @@ public class InjectionFuturePlan<T> extends InjectionPlan<T> {
 
   public InjectionFuturePlan(Node name) {
     super(name);
-    // TODO Auto-generated constructor stub
   }
 
   @Override

@@ -10,8 +10,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 /**
  * TODO Move to implementation.java
- * @author sears
- *
+ * @Deprecated Use ConfigurationModule instead
  */
 final public class StaticConfiguration {
   public interface BindInterface {
@@ -69,6 +68,7 @@ final public class StaticConfiguration {
       cb.bindImplementation((Class)inter,  (Class)impl);
     }
   }
+  @Deprecated
   public static final class BindSingletonImplementation implements BindInterface {
     final Class<?> inter;
     final Class<?> impl;
@@ -79,9 +79,10 @@ final public class StaticConfiguration {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void configure(JavaConfigurationBuilder cb) throws BindException {
-      cb.bindSingletonImplementation((Class)inter, (Class)impl);
+      cb.bindImplementation((Class)inter, (Class)impl);
     }
   }
+  @Deprecated
   public static final class BindSingleton implements BindInterface {
     final Class<?> singleton;
     public <T> BindSingleton(Class<T> singleton) {
@@ -89,7 +90,6 @@ final public class StaticConfiguration {
     }
     @Override
     public void configure(JavaConfigurationBuilder cb) throws BindException {
-      cb.bindSingleton(singleton);
     }
   }
   public static final class BindNamedParameter implements BindInterface {

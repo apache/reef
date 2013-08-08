@@ -45,12 +45,10 @@ public class TestConfFileParser {
     // com.microsoft.tang.TestConfFileParser
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder cb = t.newConfigurationBuilder();
-    //cb.bindSingletonImplementation(SingleTest.A.class, SingleTest.B.class);
-    cb.bindSingleton(SingleTest.A.class);
     cb.bindImplementation(SingleTest.A.class, SingleTest.B.class);
     
     String out = ConfigurationFile.toConfigurationString(cb.build());
-    String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\ncom.microsoft.tang.SingleTest$A=singleton\n";
+    String in = "com.microsoft.tang.SingleTest$A=com.microsoft.tang.SingleTest$B\n";
     Assert.assertEquals(in, out);
   }
   

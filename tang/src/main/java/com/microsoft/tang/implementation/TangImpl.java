@@ -118,4 +118,22 @@ public class TangImpl implements Tang {
     return ret;
   }
 
+  @Override
+  public Injector newInjector(Configuration confs) {
+    try {
+      return newInjector(new Configuration[] { confs });
+    } catch(BindException e) {
+      throw new IllegalStateException("Unexpected error cloning configuration", e);
+    }
+  }
+
+  @Override
+  public Injector newInjector() {
+    try {
+      return newInjector(new Configuration[] { });
+    } catch(BindException e) {
+      throw new IllegalStateException("Unexpected error from empty configuration", e);
+    }
+  }
+
 }

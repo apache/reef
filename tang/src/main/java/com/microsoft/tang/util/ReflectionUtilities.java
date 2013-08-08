@@ -3,6 +3,8 @@ package com.microsoft.tang.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,15 +60,36 @@ public class ReflectionUtilities {
     }
   }
   
-  public static Iterable<Class<?>> classAndAncestors(Class<?> c) {
-    List<Class<?>> workQueue = new ArrayList<>();
+  public static Iterable<Type> classAndAncestors(Type c) {
+    List<Type> workQueue = new ArrayList<>();
 
     workQueue.add(c);
+    if(getRawClass(c).isInterface()){
+      workQueue.add(Object.class);
+    }
     for(int i = 0; i < workQueue.size(); i++) {
       c = workQueue.get(i);
-      Class<?> sc = c.getSuperclass();
-      if(sc != null) workQueue.add(c.getSuperclass());
-      workQueue.addAll(Arrays.asList(c.getInterfaces()));
+      
+      if(c instanceof Class) {
+        Class<?> clz = (Class<?>)c;
+        final Type sc = clz.getSuperclass();
+        if(sc != null) workQueue.add(sc); //c.getSuperclass());
+        workQueue.addAll(Arrays.asList(clz.getGenericInterfaces()));
+      } else if(c instanceof ParameterizedType) {
+        ParameterizedType pt = (ParameterizedType)c;
+        Class<?> rawPt = (Class<?>)pt.getRawType();
+        final Type sc = rawPt.getSuperclass();
+//        workQueue.add(pt);
+//        workQueue.add(rawPt);
+        if(sc != null) workQueue.add(sc);
+        workQueue.addAll(Arrays.asList(rawPt.getGenericInterfaces()));
+      } else if (c instanceof WildcardType) {
+        workQueue.add(Object.class); // XXX not really correct, but close enough?
+      } else if (c instanceof TypeVariable) {
+        workQueue.add(Object.class); // XXX not really correct, but close enough?
+      } else {
+        throw new RuntimeException(c.getClass() + " " + c + " is of unknown type!");
+      }
     }
     return workQueue;
   }
@@ -116,16 +139,17 @@ public class ReflectionUtilities {
    * @param name
    * @return
    */
-  public static String getSimpleName(Class<?> name) {
-    final String[] nameArray = name.getName().split(regexp);
+  public static String getSimpleName(Type name) {
+    final Class<?> clazz = getRawClass(name);
+    final String[] nameArray = clazz.getName().split(regexp);
     final String ret = nameArray[nameArray.length - 1];
     if(ret.length() == 0) {
       throw new IllegalArgumentException("Class " + name + " has zero-length simple name.  Can't happen?!?");
     }
     return ret;
   }
-  public static String getFullName(Class<?> name) {
-    return name.getName();
+  public static String getFullName(Type name) {
+    return getRawClass(name).getName();
   }
   /**
    * This method takes a class called clazz that *directly* implements a generic interface or generic class, iface.
@@ -136,21 +160,16 @@ public class ReflectionUtilities {
    * TODO Recurse up the class hierarchy in case there are intermediate interfaces
    * 
    * @param iface A generic interface; we're looking up it's first (and only) parameter.
-   * @param clazz A class that implements iface
    * @param type A type that is more specific than clazz, or clazz if no such type is available.
    * @return The class implemented by the interface, or null(?) if the instantiation was not generic.
    * @throws IllegalArgumentException if clazz does not directly implement iface.
    */
-  static public Class<?> getInterfaceTarget(final Class<?> iface, final Type type) throws IllegalArgumentException {
+  static public Type getInterfaceTarget(final Class<?> iface, final Type type) throws IllegalArgumentException {
     if(type instanceof ParameterizedType) {
       final ParameterizedType pt = (ParameterizedType)type;
       if(iface.isAssignableFrom((Class<?>)pt.getRawType())) {
         Type t = pt.getActualTypeArguments()[0];
-        if(t instanceof Class) {
-          return (Class<?>)t;
-        } else {
-          return (Class<?>)((ParameterizedType)t).getRawType();
-        }
+        return t;
       } else {
         throw new IllegalArgumentException("Parameterized type " + type + " does not extend " + iface);
       }
@@ -173,14 +192,7 @@ public class ReflectionUtilities {
           ParameterizedType ptype = (ParameterizedType) genericNameType;
           if (ptype.getRawType().equals(iface)) {
             Type t = ptype.getActualTypeArguments()[0];
-            // It could be that the parameter is, itself a generic type.
-            if (t instanceof Class) {
-              return (Class<?>) t;
-            } else if (t instanceof ParameterizedType) {
-              // Get the underlying raw type of the parameter.
-              // This strips any nested generic parameters from this generic parameter.
-              return (Class<?>) ((ParameterizedType)t).getRawType();
-            }
+            return t;
           }
         }
       }
@@ -195,7 +207,7 @@ public class ReflectionUtilities {
    * @throws BindException
    *           If clazz's definition incorrectly uses Name or @NamedParameter
    */
-  static public Class<?> getNamedParameterTargetOrNull(Class<?> clazz)
+  static public Type getNamedParameterTargetOrNull(Class<?> clazz)
       throws ClassHierarchyException {
     Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
     boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
@@ -235,7 +247,7 @@ public class ReflectionUtilities {
   
     boolean hasMultipleInterfaces = (allInterfaces.length > 1);
     boolean implementsName;
-    Class<?> parameterClass = null;
+    Type parameterClass = null;
     try {
       parameterClass = getInterfaceTarget(Name.class, clazz);
       implementsName = true;
@@ -275,6 +287,21 @@ public class ReflectionUtilities {
                 + " generic type Name<T>.");
       }
       return parameterClass;
+    }
+  }
+
+  public static Class<?> getRawClass(Type clazz) {
+    if(clazz instanceof Class) {
+      return (Class<?>)clazz;
+    } else if (clazz instanceof ParameterizedType) {
+      return (Class<?>)((ParameterizedType)clazz).getRawType();
+    } else if (clazz instanceof WildcardType) {
+      return Object.class; // XXX not really correct, but close enough?
+    } else if (clazz instanceof TypeVariable) {
+      return Object.class; // XXX not really correct, but close enough?
+    } else {
+      System.err.println("Can't getRawClass for " + clazz + " of unknown type " + clazz.getClass());
+      throw new IllegalArgumentException("Can't getRawClass for " + clazz + " of unknown type " + clazz.getClass());
     }
   }
 }

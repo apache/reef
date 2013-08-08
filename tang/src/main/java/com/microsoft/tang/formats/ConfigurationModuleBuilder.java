@@ -18,26 +18,6 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 public abstract class ConfigurationModuleBuilder {
 
-  public interface Impl<T> {
-  }
-
-  public interface Param<T> {
-  }
-
-  public static final class Provides<T> { }
-
-  public static final class RequiredImpl<T> implements Impl<T> {
-  }
-
-  public static final class OptionalImpl<T> implements Impl<T> {
-  }
-
-  public static final class RequiredParameter<T> implements Param<T> {
-  }
-
-  public static final class OptionalParameter<T> implements Param<T> {
-  }
-
   private final static Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);
@@ -55,7 +35,6 @@ public abstract class ConfigurationModuleBuilder {
   final Map<Object, Field> map = new MonotonicHashMap<>();
   final Map<Class<?>, Impl<?>> freeImpls = new MonotonicHashMap<>();
   final Map<Class<? extends Name<?>>,Param<?>> freeParams = new MonotonicHashMap<>();
-  final Set<Impl<?>> freeSingletons = new MonotonicHashSet<>();
   private final Map<Class<?>, String> lateBindClazz = new MonotonicHashMap<>();
 
   protected ConfigurationModuleBuilder() {
@@ -113,7 +92,6 @@ public abstract class ConfigurationModuleBuilder {
     map.putAll(c.map);
     freeImpls.putAll(c.freeImpls);
     freeParams.putAll(c.freeParams);
-    freeSingletons.addAll(c.freeSingletons);
     lateBindClazz.putAll(c.lateBindClazz);
     
   }
@@ -150,6 +128,7 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
+  @Deprecated
   public final <T> ConfigurationModuleBuilder bindSingletonImplementation(
       Class<T> iface, Class<? extends T> impl) throws BindException {
     ConfigurationModuleBuilder c = deepCopy();
@@ -158,36 +137,6 @@ public abstract class ConfigurationModuleBuilder {
     } catch (BindException e) {
       throw new ClassHierarchyException(e);
     }
-    return c;
-  }
-
-  public final <T> ConfigurationModuleBuilder bindSingletonImplementation(
-      Class<T> iface, Impl<? extends T> opt) throws BindException {
-    ConfigurationModuleBuilder c = deepCopy();
-    c.processUse(opt);
-    try {
-      c.b.bindSingleton(iface);
-      c.freeImpls.put(iface, opt);
-    } catch (BindException e) {
-      throw new ClassHierarchyException(e);
-    }
-    return c;
-  }
-
-  public final <T> ConfigurationModuleBuilder bindSingleton(Class<T> iface) {
-    ConfigurationModuleBuilder c = deepCopy();
-    try {
-      c.b.bindSingleton(iface);
-    } catch (BindException e) {
-      throw new ClassHierarchyException(e);
-    }
-    return c;
-  }
-
-  public final <T> ConfigurationModuleBuilder bindSingleton(Impl<T> iface) {
-    ConfigurationModuleBuilder c = deepCopy();
-    c.processUse(iface);
-    c.freeSingletons.add(iface);
     return c;
   }
 

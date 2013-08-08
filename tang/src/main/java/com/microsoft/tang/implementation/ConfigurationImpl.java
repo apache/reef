@@ -1,6 +1,8 @@
 package com.microsoft.tang.implementation;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.microsoft.tang.ClassHierarchy;
@@ -27,9 +29,9 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ClassNode<? extends ExternalConstructor<T>> getBoundConstructor(
+  public <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(
       final ClassNode<T> cn) {
-    return (ClassNode<? extends ExternalConstructor<T>>) builder.boundConstructors.get(cn);
+    return (ClassNode<ExternalConstructor<T>>) builder.boundConstructors.get(cn);
   }
 
   @Override
@@ -54,8 +56,8 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ClassNode<? extends T> getBoundImplementation(final ClassNode<T> cn) {
-    return (ClassNode<? extends T>) builder.boundImpls.get(cn);
+  public <T> ClassNode<T> getBoundImplementation(final ClassNode<T> cn) {
+    return (ClassNode<T>) builder.boundImpls.get(cn);
   }
 
   @Override
@@ -66,11 +68,7 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   public Collection<ClassNode<?>> getSingletons() {
-    return new MonotonicSet<>(builder.singletons);
-  }
-  @Override
-  public boolean isSingleton(final Node cn) {
-    return builder.singletons.contains(cn);
+    return new MonotonicSet<>();
   }
 
   @Override
@@ -81,5 +79,20 @@ public class ConfigurationImpl implements Configuration {
   @Override
   public ClassHierarchy getClassHierarchy() {
     return builder.namespace;
+  }
+
+  @Override
+  public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np) {
+    return this.builder.boundSetEntries.getValuesForKey(np);
+  }
+  @Override
+  public Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets() {
+    return new Iterable<Entry<NamedParameterNode<Set<?>>, Object>>() {
+      
+      @Override
+      public Iterator<Entry<NamedParameterNode<Set<?>>, Object>> iterator() {
+        return builder.boundSetEntries.iterator();
+      }
+    };
   }
 }

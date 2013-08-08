@@ -3,8 +3,11 @@ package com.microsoft.tang.implementation.java;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -38,11 +41,12 @@ public class JavaNodeFactory {
     final boolean unit = clazz.isAnnotationPresent(Unit.class);
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
-    final boolean parentIsUnit = (parent instanceof ClassNode) ?
+    final boolean isStatic = Modifier.isStatic(clazz.getModifiers()); 
+    final boolean parentIsUnit = ((parent instanceof ClassNode) && !isStatic) ?
         ((ClassNode<?>)parent).isUnit() : false;
 
     if (clazz.isLocalClass() || clazz.isMemberClass()) {
-      if (!Modifier.isStatic(clazz.getModifiers())) {
+      if (!isStatic) {
         if(parent instanceof ClassNode) {
           injectable = ((ClassNode<?>)parent).isUnit();
         } else {
@@ -55,6 +59,17 @@ public class JavaNodeFactory {
       injectable = true;
     }
 
+    boolean foundNonStaticInnerClass = false;
+    for(Class<?> c : clazz.getDeclaredClasses()) {
+      if(!Modifier.isStatic(c.getModifiers())) {
+        foundNonStaticInnerClass = true;
+      }
+    }
+    
+    if(unit && !foundNonStaticInnerClass) {
+      throw new ClassHierarchyException("Class " + ReflectionUtilities.getFullName(clazz) + " has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.");
+    }
+    
     Constructor<T>[] constructors = (Constructor<T>[]) clazz
         .getDeclaredConstructors();
     MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<>();
@@ -115,15 +130,28 @@ public class JavaNodeFactory {
         injectableConstructors.toArray(new ConstructorDefImpl[0]),
         allConstructors.toArray(new ConstructorDefImpl[0]), defaultImplementation);
   }
-
+  /**
+   * XXX: This method assumes that all generic types have exactly one type parameter.
+   */
   public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
-      Class<? extends Name<T>> clazz, Class<T> argClass) throws ClassHierarchyException {
+      Class<? extends Name<T>> clazz, Type argClass) throws ClassHierarchyException {
 
+    Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
+    
+    final boolean isSet = argRawClass.equals(Set.class);
+
+    
+    if(isSet) {
+      argClass = ReflectionUtilities.getInterfaceTarget(Collection.class, argClass);
+      argRawClass = ReflectionUtilities.getRawClass(argClass);
+    }
+    
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
     final String fullArgName = ReflectionUtilities.getFullName(argClass);
     final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
 
+    
     final NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
 
     if (namedParameter == null) {
@@ -143,15 +171,47 @@ public class JavaNodeFactory {
     } else if (namedParameter.default_class() != Void.class) {
       defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
       boolean isSubclass = false;
-      for (final Class<?> c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
-        if (c.equals(argClass)) {
+      boolean isGenericSubclass= false;
+      
+      // Note: We intentionally strip the raw type information here.  The reason is to handle
+      // EventHandler-style patterns and collections.
+      
+      /// If we have a Name that takes EventHandler<A>, we want to be able to pass in an EventHandler<Object>.
+      
+      for (final Type c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
+        if (ReflectionUtilities.getRawClass(c).equals(argRawClass)) {
           isSubclass = true;
-          break;
+          if(argClass instanceof ParameterizedType &&
+             c instanceof ParameterizedType) {
+            ParameterizedType argPt = (ParameterizedType)argClass;
+            ParameterizedType defaultPt = (ParameterizedType)c;
+            
+            Class<?> rawDefaultParameter = ReflectionUtilities.getRawClass(defaultPt.getActualTypeArguments()[0]);
+            Class<?> rawArgParameter = ReflectionUtilities.getRawClass(argPt.getActualTypeArguments()[0]);
+            
+            for (final Type d: ReflectionUtilities.classAndAncestors(argPt.getActualTypeArguments()[0])) {
+              if(ReflectionUtilities.getRawClass(d).equals(rawDefaultParameter)) {
+                isGenericSubclass = true;
+              }
+            }
+            for (final Type d: ReflectionUtilities.classAndAncestors(defaultPt.getActualTypeArguments()[0])) {
+              if(ReflectionUtilities.getRawClass(d).equals(rawArgParameter)) {
+                isGenericSubclass = true;
+              }
+            }
+          } else {
+            isGenericSubclass = true;
+          }
         }
       }
-      if (!isSubclass) {
+
+      if (!(isSubclass)) {
         throw new ClassHierarchyException(clazz + " defines a default class "
-            + defaultInstanceAsString + " that is not an instance of its target " + argClass);
+            + defaultInstanceAsString + " with a raw type that does not extend of its target's raw type " + argRawClass);
+      }
+      if (!(isGenericSubclass)) {
+        throw new ClassHierarchyException(clazz + " defines a default class "
+            + defaultInstanceAsString + " with a type that does not extend its target's type " + argClass);
       }
     } else {
       defaultInstanceAsString = namedParameter.default_value();
@@ -164,7 +224,7 @@ public class JavaNodeFactory {
         ? null : namedParameter.short_name();
 
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
-        fullArgName, simpleArgName, documentation, shortName, defaultInstanceAsString);
+        fullArgName, simpleArgName, isSet, documentation, shortName, defaultInstanceAsString);
   }
 
   public static PackageNode createRootPackageNode() {
@@ -191,7 +251,7 @@ public class JavaNodeFactory {
     for (int i = 0; i < genericParamTypes.length; i++) {
       // If this parameter is an injection future, unwrap the target class,
       // and remember by setting isFuture to true.
-      final Class<?> type;
+      final Type type;
       final boolean isFuture;
       if(InjectionFuture.class.isAssignableFrom(paramTypes[i])) {
         type = ReflectionUtilities.getInterfaceTarget(InjectionFuture.class, genericParamTypes[i]);
@@ -205,6 +265,9 @@ public class JavaNodeFactory {
       for (int j = 0; j < paramAnnotations[i].length; j++) {
         Annotation annotation = paramAnnotations[i][j];
         if (annotation instanceof Parameter) {
+          if((!isClassInjectionCandidate) || !injectable) {
+            throw new ClassHierarchyException(constructor + " is not injectable, but it has an @Parameter annotation.");
+          }
           named = (Parameter) annotation;
         }
       }

@@ -1,6 +1,8 @@
 package com.microsoft.tang;
 
 
+import java.util.Set;
+
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
@@ -46,6 +48,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
+  @Deprecated
   public <T> void bindSingletonImplementation(Class<T> iface,
       Class<? extends T> impl) throws BindException;
 
@@ -57,6 +60,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @param impl
    * @throws BindException
    */
+  @Deprecated
   public <T> void bindSingleton(Class<T> iface) throws BindException;
 
   /**
@@ -77,4 +81,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
 
   public <T> void bindConstructor(Class<T> c,
       Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
+  
+  public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
+  public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
 }

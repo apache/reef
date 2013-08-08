@@ -70,7 +70,54 @@ public class MonotonicMultiMap<K,V> implements Collection<Entry<K,V>> {
   }
   @Override
   public Iterator<Entry<K, V>> iterator() {
-    throw new UnsupportedOperationException("No iterator over MonotonicMulitMap entries (yet)");
+    final Iterator<Entry<K, Set<V>>> it = map.entrySet().iterator();
+    return new Iterator<Entry<K,V>>() {
+      Iterator<V> cur;
+      K curKey;
+      @Override
+      public boolean hasNext() {
+        return it.hasNext() || (cur != null && cur.hasNext());
+      }
+
+      @Override
+      public Entry<K,V> next() {
+        if(cur == null) {
+          if(it.hasNext()) {
+            Entry<K,Set<V>> e = it.next();
+            curKey = e.getKey();
+            cur = e.getValue().iterator();
+          }
+        }
+        final K k = curKey;
+        final V v = cur.next();
+        if(!cur.hasNext()) { cur = null; }
+        
+        return new Entry<K,V>() {
+
+          @Override
+          public K getKey() {
+            return k;
+          }
+
+          @Override
+          public V getValue() {
+            return v;
+          }
+
+          @Override
+          public V setValue(V value) {
+            throw new UnsupportedOperationException();
+          }
+          
+        };
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+      
+    };
   }
   @Override
   public boolean remove(Object o) {

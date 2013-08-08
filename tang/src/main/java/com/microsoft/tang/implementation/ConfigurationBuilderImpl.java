@@ -2,6 +2,8 @@ package com.microsoft.tang.implementation;
 
 import java.net.URL;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -17,7 +19,7 @@ import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
-import com.microsoft.tang.util.MonotonicSet;
+import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.TracingMonotonicMap;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
@@ -28,12 +30,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public ClassHierarchy namespace;
   final Map<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicMap<>();
   final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new TracingMonotonicMap<>();
-  final MonotonicSet<ClassNode<?>> singletons = new MonotonicSet<>();
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicMap<>();
-
+  final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
+  
   public final static String IMPORT = "import";
-  public final static String SINGLETON = "singleton";
   public final static String INIT = "<init>";
 
   protected ConfigurationBuilderImpl() {
@@ -85,14 +86,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     for (ClassNode<?> cn : builder.boundConstructors.keySet()) {
       bind(cn.getFullName(), builder.boundConstructors.get(cn).getFullName());
     }
-    for (ClassNode<?> cn : builder.singletons) {
-      try {
-        bindSingleton(cn.getFullName());
-      } catch (BindException e) {
-        throw new IllegalStateException(
-            "Unexpected BindException when copying ConfigurationBuilderImpl", e);
-      }
-    }
     // The namedParameters set contains the strings that can be used to
     // instantiate new
     // named parameter instances. Create new ones where we can.
@@ -102,6 +95,15 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     for (ClassNode<?> cn : builder.legacyConstructors.keySet()) {
       registerLegacyConstructor(cn, builder.legacyConstructors.get(cn)
           .getArgs());
+    }
+    for (Entry<NamedParameterNode<Set<?>>, Object> e: builder.boundSetEntries) {
+      if(e.getValue() instanceof Node) {
+        bindSetEntry(e.getKey(), (Node)e.getValue());
+      } else if(e.getValue() instanceof String) {
+        bindSetEntry(e.getKey(), (String)e.getValue());
+      } else {
+        throw new IllegalStateException();
+      }
     }
   }
   @Override
@@ -175,55 +177,47 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
     /* Parse and discard value; this is just for type checking */
     if(namespace instanceof JavaClassHierarchy) {
       ((JavaClassHierarchy)namespace).parse(name, value);
     }
-    namedParameters.put(name, value);
+    if(name.isSet()) {
+      bindSetEntry((NamedParameterNode)name, value);
+    } else {
+      namedParameters.put(name, value);
+    }
+  }
+
+  @Override
+  public void bindSetEntry(NamedParameterNode<Set<?>> iface, String impl)
+      throws BindException {
+    boundSetEntries.put(iface, impl);
+  }
+  @Override
+  public void bindSetEntry(NamedParameterNode<Set<?>> iface, Node impl)
+      throws BindException {
+    boundSetEntries.put(iface, impl);
   }
 
   @Override
   public void bindSingleton(ClassNode<?> n) throws BindException {
-    singletons.add((ClassNode<?>) n);
   }
 
   @Override
   public void bindSingleton(String s) throws BindException {
-    Node n = namespace.getNode(s);
-    if (!(n instanceof ClassNode)) {
-      throw new IllegalArgumentException("Can't bind singleton to " + n
-          + " try bindNamedParameter() instead (named parameters are always singletons)");
-    }
-    bindSingleton((ClassNode<?>) n);
   }
 
   @Override
   public <T> void bindSingletonImplementation(ClassNode<T> c,
       ClassNode<? extends T> d) throws BindException {
-    bindImplementation(c, d);
-    bindSingleton(c);
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public void bindSingletonImplementation(String inter, String impl)
       throws BindException {
-    Node cn = namespace.getNode(inter);
-    Node dn = namespace.getNode(impl);
-    if (!(cn instanceof ClassNode)) {
-      throw new BindException(
-          "bindSingletonImplementation was passed interface " + inter
-              + ", which did not resolve to a ClassNode");
-    }
-    if (!(dn instanceof ClassNode)) {
-      throw new BindException(
-          "bindSingletonImplementation was passed implementation " + impl
-              + ", which did not resolve to a ClassNode");
-    }
-    bindImplementation((ClassNode) cn, (ClassNode) dn);
-    bindSingleton((ClassNode<?>) cn);
   }
 
   @Override
@@ -251,4 +245,5 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       .getNode(fullName);
     return param.getDocumentation() + "\n" + param.getFullName();
   }
+
 }
