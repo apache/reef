@@ -265,6 +265,9 @@ public class JavaNodeFactory {
       for (int j = 0; j < paramAnnotations[i].length; j++) {
         Annotation annotation = paramAnnotations[i][j];
         if (annotation instanceof Parameter) {
+          if((!isClassInjectionCandidate) || !injectable) {
+            throw new ClassHierarchyException(constructor + " is not injectable, but it has an @Parameter annotation.");
+          }
           named = (Parameter) annotation;
         }
       }

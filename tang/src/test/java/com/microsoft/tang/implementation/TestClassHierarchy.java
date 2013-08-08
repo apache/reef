@@ -315,6 +315,13 @@ public class TestClassHierarchy {
     ns.getNode(s(DanglingUnit.class));
     
   }
+  @Test
+  public void testNonInjectableParam() throws NameResolutionException {
+    thrown.expect(ClassHierarchyException.class);
+    thrown.expectMessage("public com.microsoft.tang.implementation.NonInjectableParam(int) is not injectable, but it has an @Parameter annotation.");
+    ns.getNode(s(NonInjectableParam.class));
+  }
+
 }
 
 @NamedParameter(default_class=String.class)
@@ -573,4 +580,9 @@ class OuterUnitTH {
 class DanglingUnit {
   @Inject DanglingUnit() { }
   static class DoesntCount {}
+}
+class SomeName implements Name<Integer> {}
+class NonInjectableParam {
+  public NonInjectableParam(@Parameter(SomeName.class) int i) {
+}
 }
