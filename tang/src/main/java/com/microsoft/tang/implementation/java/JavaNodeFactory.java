@@ -41,11 +41,12 @@ public class JavaNodeFactory {
     final boolean unit = clazz.isAnnotationPresent(Unit.class);
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
-    final boolean parentIsUnit = (parent instanceof ClassNode) ?
+    final boolean isStatic = Modifier.isStatic(clazz.getModifiers()); 
+    final boolean parentIsUnit = ((parent instanceof ClassNode) && !isStatic) ?
         ((ClassNode<?>)parent).isUnit() : false;
 
     if (clazz.isLocalClass() || clazz.isMemberClass()) {
-      if (!Modifier.isStatic(clazz.getModifiers())) {
+      if (!isStatic) {
         if(parent instanceof ClassNode) {
           injectable = ((ClassNode<?>)parent).isUnit();
         } else {

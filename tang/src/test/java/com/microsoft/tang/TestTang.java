@@ -497,6 +497,27 @@ public class TestTang {
     Tang.Factory.getTang().newInjector().getInstance(WantSomeFutureHandlersName.class);
   }
   
+  @Test  
+  public void testUnitMixedCanInject() throws BindException, InjectionException {  
+    //testing that you should be able to have @Unit and also static inner classes not included  
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();  
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());  
+  
+    i.getInstance(OuterUnitWithStatic.InnerStaticClass2.class);  
+  }  
+
+  @Test  
+  public void testUnitMixedCantInject() throws BindException, InjectionException {  
+    thrown.expect(InjectionException.class);
+    thrown.expectMessage("Cannot inject com.microsoft.tang.OuterUnitWithStatic$InnerStaticClass: No known implementations / injectable constructors for com.microsoft.tang.OuterUnitWithStatic$InnerStaticClass");
+
+    //testing that you should be able to have @Unit and also static inner classes not included  
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();  
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());  
+  
+    i.getInstance(OuterUnitWithStatic.InnerStaticClass.class);  
+  }  
+  
 }
 class IsFuture {
   static boolean instantiated;
@@ -948,4 +969,37 @@ class WantSomeFutureHandlersName {
   @Inject WantSomeFutureHandlersName (
       @Parameter(AHandlerName.class) InjectionFuture<EventHandler<AH>> a,
       @Parameter(BHandlerName.class) InjectionFuture<EventHandler<BH>> b) { }
+}
+
+@Unit
+class OuterUnitWithStatic {
+
+  @Inject
+  public OuterUnitWithStatic() {
+  }
+
+  public void bar() {
+    new InnerStaticClass().baz();
+  }
+
+  static class InnerStaticClass {
+    public InnerStaticClass() {
+    }
+
+    public void baz() {
+    }
+  }
+  static class InnerStaticClass2 {
+    @Inject
+    public InnerStaticClass2() {
+    }
+
+    public void baz() {
+    }
+  }
+
+  public class InnerUnitClass {
+    public void foo() {
+    }
+  }
 }
