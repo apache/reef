@@ -24,13 +24,13 @@ import com.microsoft.tang.types.NamedParameterNode;
 
 import com.microsoft.tang.util.walk.Walk;
 import com.microsoft.tang.util.walk.EdgeVisitor;
-import com.microsoft.tang.util.walk.AbstractConfigNodeVisitor;
+import com.microsoft.tang.util.walk.AbstractClassHierarchyNodeVisitor;
 
 /**
  * Build a Graphviz representation of the configuration graph.
  */
 public final class GraphvizConfigVisitor
-    extends AbstractConfigNodeVisitor implements EdgeVisitor<Node>
+    extends AbstractClassHierarchyNodeVisitor implements EdgeVisitor<Node>
 {
 
   /** Legend for the configuration graph in Graphviz format */
