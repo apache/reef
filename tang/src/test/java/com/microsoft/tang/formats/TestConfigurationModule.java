@@ -87,6 +87,7 @@ final class MyMissingBindConfigurationModule extends ConfigurationModuleBuilder 
   public static final ConfigurationModule BAD_CONF = new MyMissingBindConfigurationModule()
     .bindImplementation(TestConfigurationModule.Foo.class, THE_FOO)
     .build();
+
 }
 public class TestConfigurationModule {
   /*

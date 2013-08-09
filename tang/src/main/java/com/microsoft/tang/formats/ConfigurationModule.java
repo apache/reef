@@ -1,18 +1,24 @@
 package com.microsoft.tang.formats;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
+import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.formats.Impl;
 import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.tang.formats.Param;
+import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
+import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 /**
@@ -120,5 +126,63 @@ public class ConfigurationModule {
     }
     return c.builder.b.build();
 
+  }
+  /**
+   */
+  public Set<NamedParameterNode<?>> getBoundNamedParameters() {
+    Configuration c = this.builder.b.build();
+    Set<NamedParameterNode<?>> nps = new MonotonicSet<>();
+    nps.addAll(c.getNamedParameters());
+    for(Class<?> np : this.builder.freeParams.keySet()) {
+      try {
+        nps.add((NamedParameterNode<?>)builder.b.getClassHierarchy().getNode(ReflectionUtilities.getFullName(np)));
+      } catch (NameResolutionException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+    return nps;
+  }
+  public List<Entry<String,String>> toStringPairs() {
+    List<Entry<String,String>> ret = new ArrayList<>();
+    class MyEntry implements Entry<String,String>{
+      final String k;
+      final String v;
+      public MyEntry(String k, String v) {
+        this.k = k;
+        this.v = v;
+      }
+      @Override
+      public String getKey() {
+        return k;
+      }
+
+      @Override
+      public String getValue() {
+        return v;
+      }
+
+      @Override
+      public String setValue(String value) {
+        throw new UnsupportedOperationException();
+      }
+        
+    }
+    for(Class<?> c : this.builder.freeParams.keySet()) {
+      ret.add(new MyEntry(ReflectionUtilities.getFullName(c), this.builder.map.get(this.builder.freeParams.get(c)).getName()));
+    }
+    for(Class<?> c : this.builder.freeImpls.keySet()) {
+      ret.add(new MyEntry(ReflectionUtilities.getFullName(c), this.builder.map.get(this.builder.freeImpls.get(c)).getName()));
+    }
+    
+    return ret;
+  }
+  public String toPrettyString() {
+    StringBuilder sb = new StringBuilder();
+    
+    for(Entry<String,String> l : toStringPairs()) {
+      sb.append(l.getKey() + "=" + l.getValue() + "\n");
+    }
+    sb.append(ConfigurationFile.toConfigurationString(builder.b.build()));
+    return sb.toString();
   }
 }

@@ -2,6 +2,7 @@ package com.microsoft.tang.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
@@ -150,6 +151,9 @@ public class ReflectionUtilities {
   }
   public static String getFullName(Type name) {
     return getRawClass(name).getName();
+  }
+  public static String getFullName(Field f) {
+    return getFullName(f.getDeclaringClass()) + "." + f.getName();
   }
   /**
    * This method takes a class called clazz that *directly* implements a generic interface or generic class, iface.

@@ -4,10 +4,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.inject.Inject;
@@ -27,6 +33,8 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.ConstructorDef;
@@ -39,6 +47,9 @@ import com.microsoft.tang.util.walk.Walk;
 
 public class Tint {
   final JavaClassHierarchy ch;
+  final Map<Field, ConfigurationModule> modules = new MonotonicHashMap<>();
+  final MonotonicMultiMap<NamedParameterNode<?>, Field> setters= new MonotonicMultiMap<>();
+  final MonotonicMultiMap<String, Node> usages= new MonotonicMultiMap<>();
   
   public Tint() {
     this(new URL[0]);
@@ -58,8 +69,9 @@ public class Tint {
     args[args.length-5] = "com.microsoft";
     args[args.length-6] = "org.apache";
     Reflections r = new Reflections(args);
-    Set<Class<?>> classes = new HashSet<>();
+    Set<Class<?>> classes = new MonotonicSet<>();
     Set<String> strings = new TreeSet<>();
+    Set<String> moduleBuilders = new MonotonicSet<>();
 
     // Workaround bug in Reflections by keeping things stringly typed, and using Tang to parse them.
 //  Set<Constructor<?>> injectConstructors = (Set<Constructor<?>>)(Set)r.getMethodsAnnotatedWith(Inject.class);
@@ -86,6 +98,8 @@ public class Tint {
 //    classes.addAll(r.getTypesAnnotatedWith(Unit.class));
     
     strings.addAll(r.getStore().get(SubTypesScanner.class, ReflectionUtilities.getFullName(Name.class)));
+    
+    moduleBuilders.addAll(r.getStore().get(SubTypesScanner.class, ReflectionUtilities.getFullName(ConfigurationModuleBuilder.class)));
 //    classes.addAll(r.getSubTypesOf(Name.class));
     
     ch = Tang.Factory.getTang().getDefaultClassHierarchy(jars, new Class[0]);
@@ -101,6 +115,78 @@ public class Tint {
         }
       } catch(ClassHierarchyException | NameResolutionException e) {
         System.err.println(e.getMessage());
+      }
+    }
+    for(String mb : moduleBuilders) {
+      try {
+        @SuppressWarnings("unchecked")
+        Class<ConfigurationModuleBuilder> cmb = (Class<ConfigurationModuleBuilder>) ch.classForName(mb);
+        for(Field f : cmb.getFields()) {
+          if(ReflectionUtilities.isCoercable(ConfigurationModule.class, f.getType())) {
+
+            int mod = f.getModifiers();
+            if(!Modifier.isPrivate(mod)) {
+              if(!Modifier.isFinal(mod)) {
+                System.err.println("Style warning: Found non-final ConfigurationModule" + f);
+              }
+              if(!Modifier.isStatic(f.getModifiers())) {
+                System.err.println("Style warning: Found non-static ConfigurationModule " + f);
+              } else {
+                String s = f.getDeclaringClass() + "." + f.getName();
+                try {
+                  f.setAccessible(true);
+                  modules.put(f,(ConfigurationModule)(f.get(null)));
+                } catch(ExceptionInInitializerError e) {
+                  System.err.println("Field " + ReflectionUtilities.getFullName(f) + ": " + e.getCause().getMessage());
+                } catch(IllegalAccessException e) {
+                  throw new RuntimeException(e);
+                }
+              }
+            }
+          }
+        }
+      } catch(ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+
+      NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
+        
+        @Override
+        public boolean visit(NamedParameterNode<?> node) {
+          if(node.getDefaultInstanceAsString() != null &&
+              !usages.contains(node.getDefaultInstanceAsString(), node)) {
+            usages.put(node.getDefaultInstanceAsString(), node);
+          }
+          return true;
+        }
+        
+        @Override
+        public boolean visit(PackageNode node) {
+          return true;
+        }
+        
+        @Override
+        public boolean visit(ClassNode<?> node) {
+          for(ConstructorDef<?> d : node.getInjectableConstructors()) {
+            for(ConstructorArg a : d.getArgs()) {
+              if(a.getNamedParameterName() != null &&
+                  !usages.contains(a.getNamedParameterName(), node)) {
+                usages.put(a.getNamedParameterName(), node);
+              }
+            }
+          }
+          return true;
+        }
+      };
+      Walk.preorder(v, null, ch.getNamespace());
+    }
+    
+//    Map<NamedParameterNode<?>,ConfigurationModule> setters = new MonotonicMap<>();
+    for(Field f : modules.keySet()) {
+      ConfigurationModule m = modules.get(f);
+      Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
+      for(NamedParameterNode<?> np : nps) {
+        setters.put(np, f);
       }
     }
   }
@@ -128,38 +214,12 @@ public class Tint {
     Walk.preorder(v, null, ch.getNamespace());
     return names;
   }
-  private Set<Node> getUsagesOf(final NamedParameterNode name) {
-    final Set<Node> usages= new MonotonicSet<>();
-    NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
-      
-      @Override
-      public boolean visit(NamedParameterNode<?> node) {
-        if(name.getFullName().equals(node.getDefaultInstanceAsString())) {
-          usages.add(node);
-        }
-        return true;
-      }
-      
-      @Override
-      public boolean visit(PackageNode node) {
-        return true;
-      }
-      
-      @Override
-      public boolean visit(ClassNode<?> node) {
-        for(ConstructorDef<?> d : node.getInjectableConstructors()) {
-          for(ConstructorArg a : d.getArgs()) {
-            if(name.getFullName().equals(a.getNamedParameterName())) {
-              usages.add(node);
-              return true;
-            }
-          }
-        }
-        return true;
-      }
-    };
-    Walk.preorder(v, null, ch.getNamespace());
-    return usages;
+  public Set<Node> getUsesOf(final NamedParameterNode<?> name) {
+
+    return usages.getValuesForKey(name.getFullName());
+  }
+  public Set<Field> getSettersOf(final NamedParameterNode<?> name) {
+    return setters.getValuesForKey(name);
   }
   public String stripCommonPrefixes(String s) {
     return 
@@ -187,7 +247,7 @@ public class Tint {
     }
     return sb.toString();
   }
-  public String toHtmlString(NamedParameterNode n, String pack) {
+  public String toHtmlString(NamedParameterNode<?> n, String pack) {
     final String sep = "</td><td>";
     String fullName = stripPrefix(n.getFullName(), pack);
 
@@ -197,19 +257,24 @@ public class Tint {
       
       sb.append(instance);
     }
+    sb.append(sep);
     if(!n.getDocumentation().equals("")) {
-      sb.append(sep + n.getDocumentation());
+      sb.append(n.getDocumentation());
     }
-    Set<Node> uses = getUsagesOf(n);
+    Set<Node> uses = getUsesOf(n);
     sb.append(sep);
     for(Node u : uses) {
       sb.append(stripPrefix(u.getFullName(), pack) + "<br>");
+    }
+    sb.append(sep);
+    for(Field f : getSettersOf(n)) {
+      sb.append(stripPrefix(ReflectionUtilities.getFullName(f), pack) + "<br>");
     }
     sb.append("</td></tr>");
     return sb.toString();
   }
   public String startPackage(String pack) {
-    return "<tr><td colspan='4'><br><b>" + pack + "</b></td></tr>";
+    return "<tr><td colspan='5'><br><b>" + pack + "</b></td></tr>";
   }
   public String endPackage() {
     return "";
@@ -249,7 +314,7 @@ public class Tint {
     if(doc != null) {
       PrintStream out = new PrintStream(new FileOutputStream(new File(doc)));
       out.println("<html><head><title>TangDoc</title></head><body>");
-      out.println("<table><tr><th>Type</th><th>Name</th><th>Default value</th><th>Documentation</th><th>Used by</th></tr>");
+      out.println("<table><tr><th>Type</th><th>Name</th><th>Default value</th><th>Documentation</th><th>Used by</th><th>Set by</th></tr>");
 
       String currentPackage = "";
       for(NamedParameterNode<?> n : t.getNames()) {
@@ -273,6 +338,29 @@ public class Tint {
       }
       out.println(t.endPackage());
       out.println("</table>");
+      out.println("<h1>Module definitions</h1>");
+      for(Field f : t.modules.keySet()) {
+        String moduleName = ReflectionUtilities.getFullName(f);
+        String declaringClassName = ReflectionUtilities.getFullName(f.getDeclaringClass());
+        out.println("<p><b>" + moduleName + "</b></p>");
+        out.println("<pre>");
+        out.println(t.modules.get(f).toPrettyString());
+//        List<Entry<String,String>> lines = t.modules.get(f).toStringPairs();
+//        for(Entry<String,String> line : lines) {
+//          String k = t.stripPrefix(line.getKey(), declaringClassName);
+//          String v = t.stripPrefix(line.getValue(), declaringClassName);
+//          out.println(k+"="+v);
+//        }
+        out.println("</pre>");
+      }
+
+      out.println("<h1>Default usage of classes and constants</h1>");
+      for(String s : t.usages.keySet()) {
+        out.println("<h2>" + s + "</h2>");
+        for(Node n : t.usages.getValuesForKey(s)) {
+          out.println("<p>" + n.getFullName() + "</p>");
+        }
+      }
       out.println("</body></html>");
       out.close();
       
