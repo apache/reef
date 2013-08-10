@@ -12,6 +12,8 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.types.NamedParameterNode;
+import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -99,6 +101,25 @@ public abstract class ConfigurationModuleBuilder {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
+    return c;
+  }
+
+  public final <T> ConfigurationModuleBuilder bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl) {
+    ConfigurationModuleBuilder c = deepCopy();
+    try {
+      c.b.bindSetEntry(iface, impl);
+    } catch (BindException e) {
+      throw new ClassHierarchyException(e);
+    }
+    return c;
+  }
+  public final <T> ConfigurationModuleBuilder bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) {
+    ConfigurationModuleBuilder c = deepCopy();
+    try {
+      c.b.bindSetEntry(iface, impl);
+    } catch (BindException e) {
+      throw new ClassHierarchyException(e);
+    }
     return c;
   }
 
@@ -239,7 +260,7 @@ public abstract class ConfigurationModuleBuilder {
     return new ConfigurationModule(c);
   }
 
-  public final <T> ConfigurationModuleBuilder bind(Class<T> iface, Class<?> impl) {
+/*  public final <T> ConfigurationModuleBuilder bind(Class<T> iface, Class<?> impl) {
     ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bind(iface, impl);
@@ -247,7 +268,7 @@ public abstract class ConfigurationModuleBuilder {
       throw new ClassHierarchyException(e);
     }
     return c;
-  }
+  } */
 
   final ConfigurationModuleBuilder deepCopy() {
     // ooh... this is a dirty trick --- we strip this's type off here,
