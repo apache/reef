@@ -469,13 +469,13 @@ public class Tint {
         out.println("</pre>");
       }
 
-      out.println("<h1>Default usage of classes and constants</h1>");
-      for(String s : t.usages.keySet()) {
-        out.println("<h2>" + s + "</h2>");
-        for(Node n : t.usages.getValuesForKey(s)) {
-          out.println("<p>" + n.getFullName() + "</p>");
-        }
-      }
+//      out.println("<h1>Default usage of classes and constants</h1>");
+//      for(String s : t.usages.keySet()) {
+//        out.println("<h2>" + s + "</h2>");
+//        for(Node n : t.usages.getValuesForKey(s)) {
+//          out.println("<p>" + n.getFullName() + "</p>");
+//        }
+//      }
       out.println("</body></html>");
       out.close();
       
