@@ -61,6 +61,23 @@ public interface Injector {
       throws BindException;
 
   /**
+   * Binds a TANG Aspect to this injector.  Tang Aspects interpose on each
+   * injection performed by an injector, and return an instance of their choosing.
+   * 
+   * A given aspect will be invoked once for each object that Tang injects, and aspects
+   * will be copied in a way that mirrors the scoping that Tang creates at runtime.
+   * 
+   * @param a
+   * @throws BindException
+   */
+  public <T> void bindAspect(Aspect a) throws BindException;
+  /**
+   * Allows InjectionFuture to tell the aspect when get() is invoked.  Package private.
+   * @return
+   */
+  Aspect getAspect();
+  
+  /**
    * Create a copy of this Injector that inherits the instances that were already
    * created by this Injector, but reflects additional Configuration objects.
    * This can be used to create trees of Injectors that obey hierarchical

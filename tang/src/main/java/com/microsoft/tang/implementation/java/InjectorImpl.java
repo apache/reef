@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.microsoft.tang.Aspect;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
@@ -55,6 +56,7 @@ public class InjectorImpl implements Injector {
   private final ClassHierarchy namespace;
   private final JavaClassHierarchy javaNamespace;
   private final Set<InjectionFuture<?>> pendingFutures = new HashSet<>();
+  private Aspect aspect;
   static final InjectionPlan<?> BUILDING = new InjectionPlan<Object>(null) {
     @Override
     public int getNumAlternatives() {
@@ -558,9 +560,13 @@ public class InjectorImpl implements Injector {
         T ret;
         concurrentModificationGuard = true;
         try {
-          ret = getConstructor(
-              (ConstructorDef<T>) constructor.getConstructorDef()).newInstance(
-              args);
+          java.lang.reflect.Constructor<T> c = getConstructor(
+              (ConstructorDef<T>) constructor.getConstructorDef());
+          if(aspect != null) {
+            ret = aspect.inject(c, args);
+          } else {
+            ret = c.newInstance(args);
+          }
         } catch(IllegalArgumentException e) {
           StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " + constructor.getConstructorDef() + " with arguments [");
           for(Object o : args) {
@@ -626,6 +632,10 @@ public class InjectorImpl implements Injector {
       NamedParameterNode<?> new_np = (NamedParameterNode<?>) i.namespace
           .getNode(np.getFullName());
       i.namedParameterInstances.put(new_np, o);
+    }
+    // Fork the aspect (if any)
+    if(old.aspect != null) {
+      i.bindAspect(old.aspect.createChildAspect());
     }
     return i;
   }
@@ -706,5 +716,16 @@ public class InjectorImpl implements Injector {
     InjectorImpl ret;
     ret = copy(this, configurations);
     return ret;
+  }
+  @Override
+  public <T> void bindAspect(Aspect a) throws BindException {
+    if(aspect != null) {
+      throw new BindException("Attempt to re-bind aspect! old=" + aspect + " new=" + a);
+    }
+    aspect = a;
+  }
+  @Override
+  public Aspect getAspect() {
+    return aspect;
   }
 }
