@@ -74,7 +74,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     addConfiguration(conf.getClassHierarchy(), ((ConfigurationImpl) conf).builder);
   }
 
-  private void addConfiguration(ClassHierarchy ns, ConfigurationBuilderImpl builder)
+  private <T> void addConfiguration(ClassHierarchy ns, ConfigurationBuilderImpl builder)
       throws BindException {
     namespace = namespace.merge(ns);
     ((ClassHierarchyImpl) namespace).parameterParser
@@ -98,9 +98,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
     for (Entry<NamedParameterNode<Set<?>>, Object> e: builder.boundSetEntries) {
       if(e.getValue() instanceof Node) {
-        bindSetEntry(e.getKey(), (Node)e.getValue());
+        bindSetEntry((NamedParameterNode<Set<T>>)(NamedParameterNode)e.getKey(), (Node)e.getValue());
       } else if(e.getValue() instanceof String) {
-        bindSetEntry(e.getKey(), (String)e.getValue());
+        bindSetEntry((NamedParameterNode<Set<T>>)(NamedParameterNode)e.getKey(), (String)e.getValue());
       } else {
         throw new IllegalStateException();
       }
@@ -192,14 +192,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void bindSetEntry(NamedParameterNode<Set<?>> iface, String impl)
+  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException {
-    boundSetEntries.put(iface, impl);
+    boundSetEntries.put((NamedParameterNode)iface, impl);
   }
   @Override
-  public void bindSetEntry(NamedParameterNode<Set<?>> iface, Node impl)
+  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
       throws BindException {
-    boundSetEntries.put(iface, impl);
+    boundSetEntries.put((NamedParameterNode)iface, impl);
   }
 
   @Override

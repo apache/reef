@@ -12,16 +12,19 @@ public class MonotonicMultiMap<K,V> implements Collection<Entry<K,V>> {
   public void put(K key, V v) {
     Set<V> vals = map.get(key);
     if(vals == null) {
-      vals = new MonotonicSet<V>();
+      vals = new MonotonicHashSet<V>();
       map.put(key,vals);
     }
     vals.add(v);
     size++;
   }
+  public Set<K> keySet() {
+    return map.keySet();
+  }
   public Set<V> getValuesForKey(K key) {
     Set<V> ret = map.get(key);
     if(ret == null) {
-      return new MonotonicSet<V>();
+      return new MonotonicHashSet<V>();
     } else {
       return ret;
     }

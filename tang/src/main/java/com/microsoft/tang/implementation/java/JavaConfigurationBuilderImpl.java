@@ -138,7 +138,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
       throw new BindException("BindSetEntry got a NamedParameter that takes a " + setType + "; expected Set<...>");
     }
 //    Type valType = ReflectionUtilities.getInterfaceTarget(Set.class, setType);
-    bindSetEntry((NamedParameterNode<Set<?>>)n, value);
+    bindSetEntry((NamedParameterNode<Set<T>>)n, value);
   }
   @SuppressWarnings("unchecked")
   @Override
@@ -158,7 +158,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
       throw new BindException("BindSetEntry got implementation " + impl + " that is incompatible with expected type " + valType);
     }
     
-    bindSetEntry((NamedParameterNode<Set<?>>)n,m);
+    bindSetEntry((NamedParameterNode<Set<T>>)n,m);
     
   }
 }

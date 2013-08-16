@@ -42,11 +42,19 @@ public final class Walk {
       final NodeVisitor<T> nodeVisitor, final EdgeVisitor<T> edgeVisitor, final T node)
   {
     if (nodeVisitor != null && nodeVisitor.visit(node)) {
-      for (final T child : node.getChildren()) {
-        if (edgeVisitor != null && !(edgeVisitor.visit(node, child)
-                && preorder(nodeVisitor, edgeVisitor, child)))
-        {
-          return false;
+      if(edgeVisitor != null) {
+        for (final T child : node.getChildren()) {
+          if (!(edgeVisitor.visit(node, child)
+                  && preorder(nodeVisitor, edgeVisitor, child)))
+          {
+            return false;
+          }
+        }
+      } else {
+        for(final T child : node.getChildren()) {
+          if(!preorder(nodeVisitor, edgeVisitor, child)) {
+            return false;
+          }
         }
       }
     }

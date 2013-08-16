@@ -76,9 +76,9 @@ public interface ConfigurationBuilder {
   public void bindSingletonImplementation(String inter, String impl)
       throws BindException;
 
-  void bindSetEntry(NamedParameterNode<Set<?>> iface, Node impl)
+  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
       throws BindException;
-  public void bindSetEntry(NamedParameterNode<Set<?>> iface, String impl)
+  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException;
 
 

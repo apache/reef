@@ -145,7 +145,7 @@ public class ConfigurationFile {
     // respectively.
     return in.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\\\"");
   }
-
+ 
   /**
    * Obtain the effective configuration of this ConfigurationBuilderImpl
    * instance. This consists of string-string pairs that could be written

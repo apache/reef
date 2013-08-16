@@ -91,11 +91,17 @@ public final class InjectionFuture<T> implements Future<T> {
     if(instance != null) return instance;
     try {
       synchronized(injector) {
+        final T t;
         if(Name.class.isAssignableFrom(iface)) {
-          return injector.getNamedInstance((Class<Name<T>>)iface);
+          t = injector.getNamedInstance((Class<Name<T>>)iface);
         } else {
-          return injector.getInstance(iface);
+          t = injector.getInstance(iface);
         }
+        Aspect a = injector.getAspect();
+        if(a != null) {
+          a.injectionFutureInstantiated(this, t);
+        }
+        return t;
       }
     } catch (InjectionException e) {
       throw new RuntimeException(e);

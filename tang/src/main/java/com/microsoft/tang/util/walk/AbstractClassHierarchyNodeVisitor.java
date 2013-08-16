@@ -21,11 +21,11 @@ import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.types.NamedParameterNode;
 
 /**
- * Generic interface to traverse nodes of the configuration graph.
+ * Generic interface to traverse nodes of the class hierarchy.
  * Dispatches between ClassNode, PackageNode, and NamedParameterNode types.
  * It is used e.g. in Walk.preorder()
  */
-public abstract class AbstractConfigNodeVisitor implements NodeVisitor<Node> {
+public abstract class AbstractClassHierarchyNodeVisitor implements NodeVisitor<Node> {
 
   /**
    * Manually dispatch between different types of Nodes and call a proper visit() method.
