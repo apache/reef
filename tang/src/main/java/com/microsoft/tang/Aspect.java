@@ -3,11 +3,13 @@ package com.microsoft.tang;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import com.microsoft.tang.types.ConstructorDef;
+
 public interface Aspect {
   /**
    * Note, it is inject()'s responsibility to call ret.getInstance() if ret instanceof ExternalConstructor.
    */
-  <T> T inject(Constructor<T> c, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException;
+  <T> T inject(ConstructorDef<T> def, Constructor<T> constructor, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException;
   /**
    * TANG calls this the first time get() is called on an injection future.  This informs the aspect of 
    * the relationship between InjectionFutures (that were already passed into inject()) and the instantiated

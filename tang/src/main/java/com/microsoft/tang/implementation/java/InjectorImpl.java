@@ -560,10 +560,11 @@ public class InjectorImpl implements Injector {
         T ret;
         concurrentModificationGuard = true;
         try {
-          java.lang.reflect.Constructor<T> c = getConstructor(
-              (ConstructorDef<T>) constructor.getConstructorDef());
+          ConstructorDef<T> def = (ConstructorDef<T>) constructor.getConstructorDef();
+          java.lang.reflect.Constructor<T> c = getConstructor(def);
+ 
           if(aspect != null) {
-            ret = aspect.inject(c, args);
+            ret = aspect.inject(def, c, args);
           } else {
             ret = c.newInstance(args);
           }

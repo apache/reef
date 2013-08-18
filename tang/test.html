@@ -1,0 +1,318 @@
+<html><head><title>TangDoc</title></head><body>
+<table border='1'><tr><th>Type</th><th>Name</th><th>Default value</th><th>Documentation</th><th>Used by</th><th>Set by</th></tr>
+
+<tr><td colspan='5'><br><b>com.microsoft.wake</b></td></tr>
+<tr><td>Integer</td><td>StageConfiguration$Capacity</td><td></td><td>The capacity for the stage.</td><td>impl.SingleThreadStage<br></td><td></td></tr>
+<tr><td>Integer</td><td>StageConfiguration$NumberOfThreads</td><td></td><td>The number of threads for the stage.</td><td>impl.ThreadPoolStage<br>rx.impl.RxThreadPoolStage<br></td><td></td></tr>
+<tr><td>ExecutorService</td><td>StageConfiguration$StageExecutorService</td><td></td><td>The executor service for the stage.</td><td>impl.ThreadPoolStage<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>StageConfiguration$StageHandler</td><td></td><td>The event handler for the stage.</td><td>impl.ThreadPoolStage<br>impl.SyncStage<br>impl.SingleThreadStage<br>impl.TimerStage<br></td><td></td></tr>
+<tr><td>String</td><td>StageConfiguration$StageName</td><td></td><td>The stage name.</td><td>impl.ThreadPoolStage<br>impl.SyncStage<br>impl.SingleThreadStage<br>rx.impl.RxSyncStage<br>rx.impl.RxThreadPoolStage<br>impl.TimerStage<br></td><td></td></tr>
+<tr><td>Observer</td><td>StageConfiguration$StageObserver</td><td></td><td>The observer for the stage.</td><td>rx.impl.RxSyncStage<br>rx.impl.RxThreadPoolStage<br></td><td></td></tr>
+<tr><td>Long</td><td>StageConfiguration$TimerInitialDelay</td><td></td><td>The initial delay for periodic events of the timer stage.</td><td>impl.TimerStage<br></td><td></td></tr>
+<tr><td>Long</td><td>StageConfiguration$TimerPeriod</td><td></td><td>The period for periodic events of the timer stage.</td><td>impl.TimerStage<br></td><td></td></tr>
+<tr><td>String</td><td>WakeConfiguration$FileName</td><td></td><td>Configuration file name</td><td>WakeConfiguration<br></td><td></td></tr>
+<tr><td>Integer</td><td>WakeParameters$ExecutorShutdownTimeout</td><td>1000</td><td>Executor shutdown timeout</td><td></td><td></td></tr>
+<tr><td>Integer</td><td>WakeParameters$MaxFrameLength</td><td>1048576</td><td>Maximum frame length unit</td><td></td><td></td></tr>
+<tr><td>Integer</td><td>WakeParameters$RemoteSendTimeout</td><td>10000</td><td>Remote send timeout</td><td></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>com.microsoft.wake.impl</b></td></tr>
+<tr><td>class</td><td>LoggingEventHandler</td><td></td><td></td><td>com.microsoft.wake.time.Clock$StartHandler<br>com.microsoft.wake.time.Clock$StopHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$SuspendedActivityHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$RunningActivityHandler<br>com.microsoft.wake.time.Clock$RuntimeStartHandler<br>com.microsoft.wake.time.Clock$IdleHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$RunningEvaluatorHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$FailedEvaluatorHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientMessageHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$ActivityMessageHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$ActivityExceptionHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$CompletedActivityHandler<br>org.apache.reef.runtime.driver.DriverManagerConfiguration$CompletedEvaluatorHandler<br>com.microsoft.wake.time.Clock$RuntimeStopHandler<br></td><td></td></tr>
+<tr><td>class</td><td>LoggingVoidEventHandler</td><td></td><td></td><td>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientCloseHandler<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>com.microsoft.wake.remote</b></td></tr>
+<tr><td>String</td><td>RemoteConfiguration$HostAddress</td><td></td><td>The host address to be used for messages.</td><td>impl.DefaultRemoteManagerImplementation<br></td><td></td></tr>
+<tr><td>Codec</td><td>RemoteConfiguration$MessageCodec</td><td></td><td>The codec to be used for messages.</td><td>impl.DefaultRemoteManagerImplementation<br></td><td></td></tr>
+<tr><td>Integer</td><td>RemoteConfiguration$Port</td><td></td><td>The port to be used for messages.</td><td>impl.DefaultRemoteManagerImplementation<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>com.microsoft.wake.remote.impl</b></td></tr>
+<tr><td>class</td><td>DefaultRemoteIdentifierFactoryImplementation</td><td></td><td></td><td>com.microsoft.wake.remote.RemoteIdentifierFactory<br></td><td></td></tr>
+<tr><td>class</td><td>DefaultRemoteManagerImplementation</td><td></td><td></td><td>com.microsoft.wake.remote.RemoteManager<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>com.microsoft.wake.time</b></td></tr>
+<tr><td>EventHandler</td><td>Clock$IdleHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Will be called upon the Idle event</td><td>runtime.RuntimeClock<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>Clock$RuntimeStartHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Will be called upon the runtime start event</td><td>runtime.RuntimeClock<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>Clock$RuntimeStopHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Will be called upon the runtime stop event</td><td>runtime.RuntimeClock<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>Clock$StartHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Will be called upon the start event</td><td>runtime.RuntimeClock<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>Clock$StopHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Will be called upon the stop event</td><td>runtime.RuntimeClock<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>com.microsoft.wake.time.runtime</b></td></tr>
+<tr><td>class</td><td>RealTimer</td><td></td><td></td><td>Timer<br></td><td></td></tr>
+<tr><td>class</td><td>RuntimeClock</td><td></td><td></td><td>com.microsoft.wake.time.Clock<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>org.apache.reef.core.activity</b></td></tr>
+<tr><td>String</td><td>Activity$Identifier</td><td>Unnamed Activity</td><td>The Identifier of the Activity</td><td></td><td></td></tr>
+<tr><td>class</td><td>ActivityDefaultHandlers$DefaultCloseHandler</td><td></td><td></td><td>CloseHandler<br></td><td></td></tr>
+<tr><td>class</td><td>ActivityDefaultHandlers$DefaultDriverMessageSource</td><td></td><td></td><td>DriverMessageSource<br></td><td></td></tr>
+<tr><td>class</td><td>ActivityDefaultHandlers$DefaultMessageHandler</td><td></td><td></td><td>MessageHandler<br></td><td></td></tr>
+<tr><td>class</td><td>ActivityDefaultHandlers$DefaultSuspendHandler</td><td></td><td></td><td>SuspendHandler<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>org.apache.reef.core.client</b></td></tr>
+<tr><td>class</td><td>DefaultRuntimeErrorHandler</td><td></td><td></td><td>RuntimeErrorHandler<br></td><td></td></tr>
+<tr><td>PreemptionHandler</td><td>DriverConfiguration$PreemptionHandler</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>interface</td><td>JobObserver</td><td></td><td></td><td></td><td>ClientConfiguration.CONF<br></td></tr>
+<tr><td>interface</td><td>RuntimeErrorHandler</td><td>DefaultRuntimeErrorHandler</td><td></td><td></td><td>ClientConfiguration.CONF<br></td></tr>
+
+<tr><td colspan='5'><br><b>org.apache.reef.runtime</b></td></tr>
+<tr><td>String</td><td>Launcher$ClientConfigurationFilePath</td><td></td><td>The path to the client configuration.</td><td></td><td></td></tr>
+<tr><td>String</td><td>Launcher$ErrorHandlerRID</td><td></td><td>The error handler remote identifier.</td><td></td><td></td></tr>
+<tr><td>String</td><td>Launcher$LaunchID</td><td></td><td>The launch identifier.</td><td></td><td></td></tr>
+<tr><td>String</td><td>Launcher$RuntimeConfigurationFilePath</td><td></td><td>The path to runtime configuration.</td><td></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>org.apache.reef.runtime.client</b></td></tr>
+<tr><td>class</td><td>ClientManager</td><td></td><td></td><td>org.apache.reef.core.client.REEF<br></td><td></td></tr>
+<tr><td>String</td><td>ClientManager$DriverRemoteIdentifier</td><td></td><td>The driver remote identifier.</td><td>RunningJobImpl<br></td><td></td></tr>
+<tr><td>String</td><td>ClientManager$JobIdentifier</td><td></td><td>The job identifier.</td><td>RunningJobImpl<br></td><td></td></tr>
+<tr><td>class</td><td>RunningJobImpl</td><td></td><td></td><td>org.apache.reef.core.client.RunningJob<br></td><td></td></tr>
+<tr><td>String</td><td>api.ClientRuntimeParameters$RuntimeErrorHandlerRID</td><td></td><td>The runtime error handler RID.</td><td></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>org.apache.reef.runtime.driver</b></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$ActivityExceptionHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Activity exception handler.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$ActivityMessageHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Activity message handler.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$AllocatedEvaluatorHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Called when an allocated evaluator is given to the client.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$ClientCloseHandler</td><td>com.microsoft.wake.impl.LoggingVoidEventHandler</td><td>Running job handler.</td><td>ClientManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$ClientCloseWithMessageHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Completed job handler.</td><td>ClientManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$ClientMessageHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Job message handler.</td><td>ClientManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$CompletedActivityHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Completed activity handler.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$CompletedEvaluatorHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Called when an exception occurs on a running evaluator.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$FailedEvaluatorHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Called when an exception occurs on a running evaluator.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$JobControlHandler</td><td></td><td>Called when a job control message is received by the client.</td><td>DelegateJobObserver<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$JobExceptionHandler</td><td></td><td>Job exception handler (see DelegateJobObserver).</td><td></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$JobMessageHandler</td><td></td><td>Job message handler (see DelegateJobObserver).</td><td></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$RunningActivityHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Running activity handler.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$RunningEvaluatorHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Called when a running evaluator is given to the client.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>DriverManagerConfiguration$SuspendedActivityHandler</td><td>com.microsoft.wake.impl.LoggingEventHandler</td><td>Suspended activity handler.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>NodeDescriptor</td><td>EvaluatorManager$EvaluatorDescriptor</td><td></td><td>The Evaluator Host.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>String</td><td>EvaluatorManager$EvaluatorIdentifier</td><td></td><td>The Evaluator Identifier.</td><td>EvaluatorManager<br></td><td></td></tr>
+<tr><td>String</td><td>api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier</td><td></td><td>The client remote identifier.</td><td>DelegateJobObserver<br>DriverManager<br></td><td></td></tr>
+<tr><td>Integer</td><td>api.AbstractDriverRuntimeConfiguration$DriverProcessMemory</td><td>512</td><td>The driver process memory.</td><td></td><td></td></tr>
+<tr><td>Long</td><td>api.AbstractDriverRuntimeConfiguration$EvaluatorTimeout</td><td>60000</td><td>The evaluator timeout (how long to wait before deciding an evaluator is dead.</td><td></td><td></td></tr>
+<tr><td>String</td><td>api.AbstractDriverRuntimeConfiguration$JobIdentifier</td><td></td><td>The job identifier.</td><td>DelegateJobObserver<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>api.RuntimeParameters$NodeDescriptorHandler</td><td></td><td>The node descriptor handler that stub runtimes send along node information.</td><td>org.apache.reef.runtime.yarn.master.YarnHeartbeat<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>api.RuntimeParameters$ResourceAllocationHandler</td><td></td><td>The resource allocation handler that stub runtimes send along allocated resources e.g., containers.</td><td>org.apache.reef.runtime.yarn.master.YarnContainerManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>api.RuntimeParameters$ResourceStatusHandler</td><td></td><td>The resource status handler.</td><td>org.apache.reef.runtime.yarn.master.YarnContainerManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>api.RuntimeParameters$RuntimeStatusHandler</td><td></td><td>The runtime status handler.</td><td>org.apache.reef.runtime.yarn.master.YarnContainerManager<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>org.apache.reef.runtime.evaluator</b></td></tr>
+<tr><td>String</td><td>ActivityManager$ActivityIdentifier</td><td></td><td>The activity identifier.</td><td>RunningActivity<br></td><td></td></tr>
+<tr><td>ByteString</td><td>ActivityManager$ActivityMemento</td><td></td><td>The activity identifier.</td><td>RunningActivity<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>EvaluatorConfiguration$ActivityManagerStatusHandler</td><td></td><td>The event handler for activity manager status.</td><td>RunningActivity<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>EvaluatorConfiguration$ActivityStatusHandler</td><td></td><td>The event handler for getting activity status for results and errors.</td><td>ActivityManager<br></td><td></td></tr>
+<tr><td>String</td><td>EvaluatorConfiguration$DriverRemoteIdentifier</td><td></td><td>The remote identifier to the driver runtime.</td><td>EvaluatorRuntime<br></td><td></td></tr>
+<tr><td>String</td><td>EvaluatorConfiguration$EvaluatorIdentifier</td><td></td><td>The evaluator identifier.</td><td>RunningActivity<br>ActivityManager<br>EvaluatorRuntime<br></td><td></td></tr>
+<tr><td>Integer</td><td>EvaluatorConfiguration$HeartbeatPeriod</td><td>5000</td><td>The evaluator heartbeat period.</td><td>EvaluatorRuntime<br></td><td></td></tr>
+
+<tr><td colspan='5'><br><b>org.apache.reef.runtime.yarn</b></td></tr>
+<tr><td>Integer</td><td>client.YarnClientConfigurationBuilder$ApplicationMasterMemory</td><td>512</td><td>The application master (driver) memory allocation.</td><td>client.YarnJobSubmissionHandler<br></td><td></td></tr>
+<tr><td>Integer</td><td>client.YarnClientConfigurationBuilder$JobPriority</td><td>0</td><td>The job priority.</td><td>client.YarnJobSubmissionHandler<br></td><td></td></tr>
+<tr><td>String</td><td>client.YarnClientConfigurationBuilder$JobQueue</td><td>default</td><td>The job queue.</td><td>client.YarnJobSubmissionHandler<br></td><td></td></tr>
+<tr><td>String</td><td>client.YarnClientConfigurationBuilder$ReefJarFile</td><td></td><td>The REEF jar file.</td><td>client.YarnJobSubmissionHandler<br></td><td></td></tr>
+<tr><td>Integer</td><td>master.YarnContainerManager$ResourceLaunchQueueCapacity</td><td>128</td><td>Capacity of the resource launch queue</td><td>master.YarnContainerManager<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>master.YarnMasterConfiguration$ContainerAllocationHandler</td><td></td><td>The container allocation handler.</td><td>master.YarnHeartbeat<br></td><td></td></tr>
+<tr><td>EventHandler</td><td>master.YarnMasterConfiguration$ContainerStatusHandler</td><td></td><td>The container status handler.</td><td>master.YarnHeartbeat<br></td><td></td></tr>
+<tr><td>String</td><td>master.YarnMasterConfiguration$JobSubmissionDirectory</td><td></td><td>The job submission directory.</td><td>master.YarnContainerManager<br></td><td></td></tr>
+<tr><td>String</td><td>master.YarnMasterConfiguration$YarnAMRMAddress</td><td></td><td>How often we talk to YARN.</td><td>util.YarnExternalConstructors$AMRMProtocolConstructor<br></td><td></td></tr>
+<tr><td>String</td><td>master.YarnMasterConfiguration$YarnConfigurationFile</td><td></td><td>The YARN configuration file name.</td><td>util.YarnExternalConstructors$YarnConfigurationConstructor<br></td><td></td></tr>
+<tr><td>Integer</td><td>master.YarnMasterConfiguration$YarnHeartbeatPeriod</td><td>5000</td><td>How often we talk to YARN.</td><td>master.YarnHeartbeat<br></td><td></td></tr>
+
+</table>
+<h1>Module definitions</h1>
+<p><b>org.apache.reef.core.client.ClientConfiguration.CONF</b></p>
+<pre>
+org.apache.reef.core.client.RuntimeErrorHandler=RUNTIME_ERROR_HANDLER
+org.apache.reef.core.client.JobObserver=JOB_OBSERVER
+
+</pre>
+<h1>Default usage of classes and constants</h1>
+<h2>0</h2>
+<p>org.apache.reef.runtime.yarn.client.YarnClientConfigurationBuilder$JobPriority</p>
+<h2>1000</h2>
+<p>com.microsoft.wake.WakeParameters$ExecutorShutdownTimeout</p>
+<h2>10000</h2>
+<p>com.microsoft.wake.WakeParameters$RemoteSendTimeout</p>
+<h2>1048576</h2>
+<p>com.microsoft.wake.WakeParameters$MaxFrameLength</p>
+<h2>128</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchQueueCapacity</p>
+<h2>5000</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnHeartbeatPeriod</p>
+<p>org.apache.reef.runtime.evaluator.EvaluatorConfiguration$HeartbeatPeriod</p>
+<h2>512</h2>
+<p>org.apache.reef.runtime.driver.api.AbstractDriverRuntimeConfiguration$DriverProcessMemory</p>
+<p>org.apache.reef.runtime.yarn.client.YarnClientConfigurationBuilder$ApplicationMasterMemory</p>
+<h2>60000</h2>
+<p>org.apache.reef.runtime.driver.api.AbstractDriverRuntimeConfiguration$EvaluatorTimeout</p>
+<h2>Unnamed Activity</h2>
+<p>org.apache.reef.core.activity.Activity$Identifier</p>
+<h2>com.microsoft.wake.StageConfiguration$Capacity</h2>
+<p>com.microsoft.wake.impl.SingleThreadStage</p>
+<h2>com.microsoft.wake.StageConfiguration$NumberOfThreads</h2>
+<p>com.microsoft.wake.impl.ThreadPoolStage</p>
+<p>com.microsoft.wake.rx.impl.RxThreadPoolStage</p>
+<h2>com.microsoft.wake.StageConfiguration$StageExecutorService</h2>
+<p>com.microsoft.wake.impl.ThreadPoolStage</p>
+<h2>com.microsoft.wake.StageConfiguration$StageHandler</h2>
+<p>com.microsoft.wake.impl.ThreadPoolStage</p>
+<p>com.microsoft.wake.impl.SyncStage</p>
+<p>com.microsoft.wake.impl.SingleThreadStage</p>
+<p>com.microsoft.wake.impl.TimerStage</p>
+<h2>com.microsoft.wake.StageConfiguration$StageName</h2>
+<p>com.microsoft.wake.impl.ThreadPoolStage</p>
+<p>com.microsoft.wake.impl.SyncStage</p>
+<p>com.microsoft.wake.impl.SingleThreadStage</p>
+<p>com.microsoft.wake.rx.impl.RxSyncStage</p>
+<p>com.microsoft.wake.rx.impl.RxThreadPoolStage</p>
+<p>com.microsoft.wake.impl.TimerStage</p>
+<h2>com.microsoft.wake.StageConfiguration$StageObserver</h2>
+<p>com.microsoft.wake.rx.impl.RxSyncStage</p>
+<p>com.microsoft.wake.rx.impl.RxThreadPoolStage</p>
+<h2>com.microsoft.wake.StageConfiguration$TimerInitialDelay</h2>
+<p>com.microsoft.wake.impl.TimerStage</p>
+<h2>com.microsoft.wake.StageConfiguration$TimerPeriod</h2>
+<p>com.microsoft.wake.impl.TimerStage</p>
+<h2>com.microsoft.wake.WakeConfiguration$FileName</h2>
+<p>com.microsoft.wake.WakeConfiguration</p>
+<h2>com.microsoft.wake.impl.LoggingEventHandler</h2>
+<p>com.microsoft.wake.time.Clock$StartHandler</p>
+<p>com.microsoft.wake.time.Clock$StopHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$SuspendedActivityHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$RunningActivityHandler</p>
+<p>com.microsoft.wake.time.Clock$RuntimeStartHandler</p>
+<p>com.microsoft.wake.time.Clock$IdleHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$RunningEvaluatorHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$FailedEvaluatorHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientMessageHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$ActivityMessageHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$ActivityExceptionHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$CompletedActivityHandler</p>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$CompletedEvaluatorHandler</p>
+<p>com.microsoft.wake.time.Clock$RuntimeStopHandler</p>
+<h2>com.microsoft.wake.impl.LoggingVoidEventHandler</h2>
+<p>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientCloseHandler</p>
+<h2>com.microsoft.wake.remote.RemoteConfiguration$HostAddress</h2>
+<p>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation</p>
+<h2>com.microsoft.wake.remote.RemoteConfiguration$MessageCodec</h2>
+<p>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation</p>
+<h2>com.microsoft.wake.remote.RemoteConfiguration$Port</h2>
+<p>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation</p>
+<h2>com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation</h2>
+<p>com.microsoft.wake.remote.RemoteIdentifierFactory</p>
+<h2>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation</h2>
+<p>com.microsoft.wake.remote.RemoteManager</p>
+<h2>com.microsoft.wake.time.Clock$IdleHandler</h2>
+<p>com.microsoft.wake.time.runtime.RuntimeClock</p>
+<h2>com.microsoft.wake.time.Clock$RuntimeStartHandler</h2>
+<p>com.microsoft.wake.time.runtime.RuntimeClock</p>
+<h2>com.microsoft.wake.time.Clock$RuntimeStopHandler</h2>
+<p>com.microsoft.wake.time.runtime.RuntimeClock</p>
+<h2>com.microsoft.wake.time.Clock$StartHandler</h2>
+<p>com.microsoft.wake.time.runtime.RuntimeClock</p>
+<h2>com.microsoft.wake.time.Clock$StopHandler</h2>
+<p>com.microsoft.wake.time.runtime.RuntimeClock</p>
+<h2>com.microsoft.wake.time.runtime.RealTimer</h2>
+<p>com.microsoft.wake.time.runtime.Timer</p>
+<h2>com.microsoft.wake.time.runtime.RuntimeClock</h2>
+<p>com.microsoft.wake.time.Clock</p>
+<h2>default</h2>
+<p>org.apache.reef.runtime.yarn.client.YarnClientConfigurationBuilder$JobQueue</p>
+<h2>org.apache.reef.core.activity.ActivityDefaultHandlers$DefaultCloseHandler</h2>
+<p>org.apache.reef.core.activity.CloseHandler</p>
+<h2>org.apache.reef.core.activity.ActivityDefaultHandlers$DefaultDriverMessageSource</h2>
+<p>org.apache.reef.core.activity.DriverMessageSource</p>
+<h2>org.apache.reef.core.activity.ActivityDefaultHandlers$DefaultMessageHandler</h2>
+<p>org.apache.reef.core.activity.MessageHandler</p>
+<h2>org.apache.reef.core.activity.ActivityDefaultHandlers$DefaultSuspendHandler</h2>
+<p>org.apache.reef.core.activity.SuspendHandler</p>
+<h2>org.apache.reef.core.client.DefaultRuntimeErrorHandler</h2>
+<p>org.apache.reef.core.client.RuntimeErrorHandler</p>
+<h2>org.apache.reef.runtime.client.ClientManager</h2>
+<p>org.apache.reef.core.client.REEF</p>
+<h2>org.apache.reef.runtime.client.ClientManager$DriverRemoteIdentifier</h2>
+<p>org.apache.reef.runtime.client.RunningJobImpl</p>
+<h2>org.apache.reef.runtime.client.ClientManager$JobIdentifier</h2>
+<p>org.apache.reef.runtime.client.RunningJobImpl</p>
+<h2>org.apache.reef.runtime.client.RunningJobImpl</h2>
+<p>org.apache.reef.core.client.RunningJob</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$ActivityExceptionHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$ActivityMessageHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientCloseHandler</h2>
+<p>org.apache.reef.runtime.driver.ClientManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler</h2>
+<p>org.apache.reef.runtime.driver.ClientManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$ClientMessageHandler</h2>
+<p>org.apache.reef.runtime.driver.ClientManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$CompletedActivityHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$CompletedEvaluatorHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$FailedEvaluatorHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$JobControlHandler</h2>
+<p>org.apache.reef.runtime.driver.DelegateJobObserver</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$RunningActivityHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$RunningEvaluatorHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.DriverManagerConfiguration$SuspendedActivityHandler</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.EvaluatorManager$EvaluatorDescriptor</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.EvaluatorManager$EvaluatorIdentifier</h2>
+<p>org.apache.reef.runtime.driver.EvaluatorManager</p>
+<h2>org.apache.reef.runtime.driver.api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier</h2>
+<p>org.apache.reef.runtime.driver.DelegateJobObserver</p>
+<p>org.apache.reef.runtime.driver.DriverManager</p>
+<h2>org.apache.reef.runtime.driver.api.AbstractDriverRuntimeConfiguration$JobIdentifier</h2>
+<p>org.apache.reef.runtime.driver.DelegateJobObserver</p>
+<h2>org.apache.reef.runtime.driver.api.RuntimeParameters$NodeDescriptorHandler</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnHeartbeat</p>
+<h2>org.apache.reef.runtime.driver.api.RuntimeParameters$ResourceAllocationHandler</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnContainerManager</p>
+<h2>org.apache.reef.runtime.driver.api.RuntimeParameters$ResourceStatusHandler</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnContainerManager</p>
+<h2>org.apache.reef.runtime.driver.api.RuntimeParameters$RuntimeStatusHandler</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnContainerManager</p>
+<h2>org.apache.reef.runtime.evaluator.ActivityManager$ActivityIdentifier</h2>
+<p>org.apache.reef.runtime.evaluator.RunningActivity</p>
+<h2>org.apache.reef.runtime.evaluator.ActivityManager$ActivityMemento</h2>
+<p>org.apache.reef.runtime.evaluator.RunningActivity</p>
+<h2>org.apache.reef.runtime.evaluator.EvaluatorConfiguration$ActivityManagerStatusHandler</h2>
+<p>org.apache.reef.runtime.evaluator.RunningActivity</p>
+<h2>org.apache.reef.runtime.evaluator.EvaluatorConfiguration$ActivityStatusHandler</h2>
+<p>org.apache.reef.runtime.evaluator.ActivityManager</p>
+<h2>org.apache.reef.runtime.evaluator.EvaluatorConfiguration$DriverRemoteIdentifier</h2>
+<p>org.apache.reef.runtime.evaluator.EvaluatorRuntime</p>
+<h2>org.apache.reef.runtime.evaluator.EvaluatorConfiguration$EvaluatorIdentifier</h2>
+<p>org.apache.reef.runtime.evaluator.RunningActivity</p>
+<p>org.apache.reef.runtime.evaluator.ActivityManager</p>
+<p>org.apache.reef.runtime.evaluator.EvaluatorRuntime</p>
+<h2>org.apache.reef.runtime.evaluator.EvaluatorConfiguration$HeartbeatPeriod</h2>
+<p>org.apache.reef.runtime.evaluator.EvaluatorRuntime</p>
+<h2>org.apache.reef.runtime.yarn.client.YarnClientConfigurationBuilder$ApplicationMasterMemory</h2>
+<p>org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler</p>
+<h2>org.apache.reef.runtime.yarn.client.YarnClientConfigurationBuilder$JobPriority</h2>
+<p>org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler</p>
+<h2>org.apache.reef.runtime.yarn.client.YarnClientConfigurationBuilder$JobQueue</h2>
+<p>org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler</p>
+<h2>org.apache.reef.runtime.yarn.client.YarnClientConfigurationBuilder$ReefJarFile</h2>
+<p>org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler</p>
+<h2>org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchQueueCapacity</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnContainerManager</p>
+<h2>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerAllocationHandler</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnHeartbeat</p>
+<h2>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerStatusHandler</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnHeartbeat</p>
+<h2>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$JobSubmissionDirectory</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnContainerManager</p>
+<h2>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnAMRMAddress</h2>
+<p>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$AMRMProtocolConstructor</p>
+<h2>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnConfigurationFile</h2>
+<p>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$YarnConfigurationConstructor</p>
+<h2>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnHeartbeatPeriod</h2>
+<p>org.apache.reef.runtime.yarn.master.YarnHeartbeat</p>
+</body></html>
