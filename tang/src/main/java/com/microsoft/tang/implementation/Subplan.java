@@ -123,16 +123,20 @@ final public class Subplan<T> extends InjectionPlan<T> {
       return alternatives[selectedIndex].toAmbiguousInjectString();
     } else {
       List<InjectionPlan<?>> alts = new ArrayList<>();
+      List<InjectionPlan<?>> ambig = new ArrayList<>();
       for (InjectionPlan<?> alt : alternatives) {
         if (alt.isFeasible()) {
           alts.add(alt);
         }
+        if (alt.isAmbiguous()) {
+          ambig.add(alt);
+        }
       }
-      if(alts.size() == 1) {
-        throw new IllegalStateException("toAmbiguousInjectString() called on Subplan with one feasible alternative: " + alts.get(0).toPrettyString());
-      }
-      StringBuffer sb = new StringBuffer("Multiple ways to inject " + getNode().getFullName());
+      StringBuffer sb = new StringBuffer("Ambigous subplan " + getNode().getFullName());
       for(InjectionPlan<?> alt: alts) {
+        sb.append("\n  " + alt.toShallowString() + " ");
+      }
+      for(InjectionPlan<?> alt: ambig) {
         sb.append("\n  " + alt.toShallowString() + " ");
       }
       sb.append("\n]");

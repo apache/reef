@@ -331,7 +331,8 @@ public class TestTang {
   @Test
   public void testThreeConstructorsAmbiguous() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Multiple ways to inject com.microsoft.tang.ThreeConstructors");
+    thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Ambigous subplan com.microsoft.tang.ThreeConstructors");
+//    thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Multiple ways to inject com.microsoft.tang.ThreeConstructors");
 
     final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(TCString.class, "s");
@@ -517,7 +518,18 @@ public class TestTang {
   
     i.getInstance(OuterUnitWithStatic.InnerStaticClass.class);  
   }  
-  
+  @Test
+  public void testForkWorks() throws BindException, InjectionException {
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bind(CheckChildIface.class, CheckChildImpl.class);
+    
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    Injector i1 = i.forkInjector();
+    CheckChildIface c1 = i1.getInstance(CheckChildIface.class);
+    Injector i2 = i.forkInjector();
+    CheckChildIface c2 = i2.getInstance(CheckChildIface.class);
+    Assert.assertTrue(c1 != c2);
+  }
 }
 class IsFuture {
   static boolean instantiated;
@@ -1002,4 +1014,9 @@ class OuterUnitWithStatic {
     public void foo() {
     }
   }
+}
+interface CheckChildIface {
+}
+class CheckChildImpl implements CheckChildIface{
+  @Inject CheckChildImpl() {}
 }
