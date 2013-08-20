@@ -518,7 +518,18 @@ public class TestTang {
   
     i.getInstance(OuterUnitWithStatic.InnerStaticClass.class);  
   }  
-  
+  @Test
+  public void testForkWorks() throws BindException, InjectionException {
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bind(CheckChildIface.class, CheckChildImpl.class);
+    
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    Injector i1 = i.forkInjector();
+    CheckChildIface c1 = i1.getInstance(CheckChildIface.class);
+    Injector i2 = i.forkInjector();
+    CheckChildIface c2 = i2.getInstance(CheckChildIface.class);
+    Assert.assertTrue(c1 != c2);
+  }
 }
 class IsFuture {
   static boolean instantiated;
@@ -1003,4 +1014,9 @@ class OuterUnitWithStatic {
     public void foo() {
     }
   }
+}
+interface CheckChildIface {
+}
+class CheckChildImpl implements CheckChildIface{
+  @Inject CheckChildImpl() {}
 }
