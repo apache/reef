@@ -331,7 +331,8 @@ public class TestTang {
   @Test
   public void testThreeConstructorsAmbiguous() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Multiple ways to inject com.microsoft.tang.ThreeConstructors");
+    thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Ambigous subplan com.microsoft.tang.ThreeConstructors");
+//    thrown.expectMessage("Cannot inject com.microsoft.tang.ThreeConstructors Multiple ways to inject com.microsoft.tang.ThreeConstructors");
 
     final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(TCString.class, "s");
