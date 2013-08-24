@@ -49,6 +49,20 @@ public class Tint {
   final MonotonicMultiMap<Node, Field> setters= new MonotonicMultiMap<>();
   // map from user to thing that was used.
   final MonotonicMultiMap<String, Node> usages= new MonotonicMultiMap<>();
+  final private static String SETTERS = "setters";
+  final private static String USES = "uses";
+  final private static String FULLNAME = "fullName";
+  final Set<ClassNode> knownClasses = new MonotonicSet<>();
+  
+  final private static int NUMCOLS = 3;
+  
+  final Set<String> divs = new MonotonicSet<>();
+  {
+    divs.add("doc");
+    divs.add(USES);
+    divs.add(SETTERS);
+    
+  }
   
   public Tint() {
     this(new URL[0]);
@@ -211,6 +225,7 @@ public class Tint {
             }
           }
         }
+        knownClasses.add(node);
         return true;
       }
     };
@@ -291,25 +306,51 @@ public class Tint {
   public Set<Field> getSettersOf(final Node name) {
     return setters.getValuesForKey(name);
   }
-  public String stripCommonPrefixes(String s) {
+  public static String stripCommonPrefixes(String s) {
     return 
-        stripPrefixHelper(
-        stripPrefixHelper(s, "java.lang"),
+        stripPrefixHelper2(
+        stripPrefixHelper2(s, "java.lang"),
         "java.util");
   }
-  public String stripPrefixHelper(String s, String prefix) {
-    if(!"".equals(prefix) && s.startsWith(prefix)) {
+  public static String stripPrefixHelper2(String s, String prefix) {
+    String[] pretok = prefix.split("\\.");
+    String[] stok = s.split("\\.");
+    StringBuffer sb = new StringBuffer();
+    int i;
+    for(i = 0; i < pretok.length && i < stok.length; i++) {
+      if(pretok[i].equals(stok[i])) {
+        sb.append(pretok[i].charAt(0)+".");
+      } else{
+        break;
+      }
+    }
+    for(; i < stok.length-1; i++) {
+      sb.append(stok[i]+".");
+    }
+    sb.append(stok[stok.length-1]);
+    return sb.toString();
+  }
+/*  public static String stripPrefixHelper(String s, String prefix) {
+    if(!"".equals(prefix) && s.startsWith(prefix+".")) {
       try {
-        return s.substring(prefix.length()+1);
+        String suffix = s.substring(prefix.length()+1);
+        if(suffix.matches("^[A-Z].+")){
+          return suffix;
+        } else {
+          String shorten = prefix.replaceAll("([^.])[^.]+", "$1");
+          return shorten + "." + suffix;
+        }
       } catch(StringIndexOutOfBoundsException e) {
         throw new RuntimeException("Couldn't strip " + prefix + " from " + s, e);
       }
     } else {
       return s;
     }
-  }
-  public String stripPrefix(String s, String prefix) {
-    return stripCommonPrefixes(stripPrefixHelper(s,prefix));
+  }*/
+  public static String stripPrefix(String s, String prefix) {
+    return stripPrefixHelper2(stripPrefixHelper2(stripPrefixHelper2(
+        stripCommonPrefixes(stripPrefixHelper2(s,prefix)),
+        "org.apache.reef"),"com.microsoft.reef"),"com.microsoft.wake");
   }
   public String toString(NamedParameterNode n) {
     StringBuilder sb = new StringBuilder("Name: " + n.getSimpleArgName() + " " + n.getFullName());
@@ -321,34 +362,64 @@ public class Tint {
     }
     return sb.toString();
   }
-  public String toHtmlString(NamedParameterNode<?> n, String pack) {
-    final String sep = "</td><td>";
-    String fullName = stripPrefix(n.getFullName(), pack);
 
-    StringBuilder sb = new StringBuilder("<tr><td>" + n.getSimpleArgName() + sep + fullName + sep);
-    if(n.getDefaultInstanceAsString() != null) {
-      String instance = stripPrefix(n.getDefaultInstanceAsString(), pack);
-      
-      sb.append(instance);
+  public String cell(String s, String clazz) {
+    if(clazz.equals(USES) && s.length()>0) {
+      s = "<em>Used by:</em><br>" + s;
     }
-    sb.append(sep);
-    if(!n.getDocumentation().equals("")) {
-      sb.append(n.getDocumentation());
+    if(clazz.equals(SETTERS) && s.length()>0) {
+      s = "<em>Set by:</em><br>" + s;
     }
-    Set<Node> uses = getUsesOf(n);
-    sb.append(sep);
-    for(Node u : uses) {
-      sb.append(stripPrefix(u.getFullName(), pack) + "<br>");
+    if(clazz.equals(FULLNAME)) {
+      s = "&nbsp;" + s;
     }
-    sb.append(sep);
-    for(Field f : getSettersOf(n)) {
-      sb.append(stripPrefix(ReflectionUtilities.getFullName(f), pack) + "<br>");
+    if(divs.contains(clazz)) {
+      return "<div class=\""+clazz+"\">" + s + "</div>";
+    } else {
+      return "<span class=\""+clazz+"\">" + s + "</span>";
     }
-    sb.append("</td></tr>");
+  }
+  public String cell(StringBuffer sb, String clazz) {
+    return cell(sb.toString(), clazz);
+  }
+  public String row(StringBuffer sb) {
     return sb.toString();
   }
+  public String toHtmlString(NamedParameterNode<?> n, String pack) {
+    String fullName = stripPrefix(n.getFullName(), pack);
+    StringBuffer sb = new StringBuffer();
+
+    sb.append("<div id='"+n.getFullName()+"' class='decl-margin'>");
+    sb.append("<div class='decl'>");
+    
+    sb.append(cell(n.getSimpleArgName(), "simpleName") + cell(fullName, FULLNAME));
+    final String instance;
+    if(n.getDefaultInstanceAsString() != null) {
+      instance = " = " + stripPrefix(n.getDefaultInstanceAsString(), pack);
+    } else {
+      instance = "";
+    }
+    sb.append(cell(instance, "instance"));
+    StringBuffer doc = new StringBuffer();
+    if(!n.getDocumentation().equals("")) {
+      doc.append(n.getDocumentation());
+    }
+    sb.append(cell(doc, "doc"));
+    StringBuffer uses = new StringBuffer();
+    for(Node u : getUsesOf(n)) {
+      uses.append("<a href='#"+u.getFullName()+"'>"+stripPrefix(u.getFullName(), pack) + "</a> ");
+    }
+    sb.append(cell(uses, USES));
+    StringBuffer setters = new StringBuffer();
+    for(Field f : getSettersOf(n)) {
+      setters.append("<a href='#"+ReflectionUtilities.getFullName(f)+"'>"+stripPrefix(ReflectionUtilities.getFullName(f), pack) + "</a> ");
+    }
+    sb.append(cell(setters, SETTERS));
+    sb.append("</div>");
+    sb.append("</div>");
+       return row(sb);
+  }
   public String toHtmlString(ClassNode<?> n, String pack) {
-    final String sep = "</td><td>";
     String fullName = stripPrefix(n.getFullName(), pack);
     
     final String type;
@@ -361,29 +432,36 @@ public class Tint {
     } catch(ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
-    StringBuilder sb = new StringBuilder("<tr><td>" + type + sep + fullName + sep);
+    StringBuffer sb = new StringBuffer();
+ 
+    sb.append("<div class='decl-margin' id='"+n.getFullName()+"'>");
+    sb.append("<div class='decl'>");
+    sb.append(cell(type, "simpleName") + cell(fullName, FULLNAME));
+    final String instance;
     if(n.getDefaultImplementation() != null) {
-      String instance = stripPrefix(n.getDefaultImplementation(), pack);
-      
-      sb.append(instance);
+      instance = " = " + stripPrefix(n.getDefaultImplementation(), pack);
+    } else {
+      instance = "";
     }
-    sb.append(sep);
-    sb.append(""); // TODO: Documentation string?
-
-    Set<Node> uses = getUsesOf(n);
-    sb.append(sep);
-    for(Node u : uses) {
-      sb.append(stripPrefix(u.getFullName(), pack) + "<br>");
+    sb.append(cell(instance, "simpleName"));
+    sb.append(cell("", "fullName")); // TODO: Documentation string?
+    StringBuffer uses = new StringBuffer();
+    for(Node u : getUsesOf(n)) {
+      uses.append("<a href='#"+u.getFullName()+"'>"+stripPrefix(u.getFullName(), pack) + "</a> ");
     }
-    sb.append(sep);
+    sb.append(cell(uses, USES));
+    StringBuffer setters = new StringBuffer();
     for(Field f : getSettersOf(n)) {
-      sb.append(stripPrefix(ReflectionUtilities.getFullName(f), pack) + "<br>");
+      setters.append("<a href='#"+ReflectionUtilities.getFullName(f)+"'>"+stripPrefix(ReflectionUtilities.getFullName(f), pack) + "</a> ");
     }
-    sb.append("</td></tr>");
-    return sb.toString();
+    sb.append(cell(setters, SETTERS));
+    sb.append("</div>");
+    sb.append("</div>");
+    return row(sb);
   }
   public String startPackage(String pack) {
-    return "<tr><td colspan='5'><br><b>" + pack + "</b></td></tr>";
+    return "<div class=\"package\">" + pack + "</div>";
+//    return "<tr><td colspan='6'><br><b>" + pack + "</b></td></tr>";
   }
   public String endPackage() {
     return "";
@@ -422,10 +500,29 @@ public class Tint {
     }
     if(doc != null) {
       PrintStream out = new PrintStream(new FileOutputStream(new File(doc)));
-      out.println("<html><head><title>TangDoc</title></head><body>");
-      out.println("<table border='1'><tr><th>Type</th><th>Name</th><th>Default value</th><th>Documentation</th><th>Used by</th><th>Set by</th></tr>");
+      out.println("<html><head><title>TangDoc</title>");
+      
+      out.println("<style>");
+      out.println("body { font-family: 'Segoe UI', 'Comic Sans MS'; font-size:12pt; font-weight: 200; margin: 1em; column-count: 2; }" );
+      out.println(".package { font-size:18pt; font-weight: 500; column-span: all; }" );
+//      out.println(".class { break-after: never; }");
+//      out.println(".doc { break-before: never; }");
+      out.println(".decl-margin { padding: 8pt; break-inside: avoid; }");
+      out.println(".module-margin { padding: 8pt; column-span: all; break-inside: avoid; }");
+      out.println(".decl { background-color: aliceblue; padding: 6pt;}");
+      out.println(".fullName { font-size: 11pt; font-weight: 400; }");
+      out.println(".simpleName { font-size: 11pt; font-weight: 400; }");
+      out.println(".constructorArg { padding-left: 16pt; }");
+      out.println("."+SETTERS+" { padding-top: 6pt; font-size: 10pt; }");
+      out.println("."+USES+" { padding-top: 6pt; font-size: 10pt; }");
+      out.println("pre { font-size: 10pt; }");
+      out.println("</style>");
+    
+      out.println("</head><body>");
+//      out.println("<table border='1'><tr><th>Type</th><th>Name</th><th>Default value</th><th>Documentation</th><th>Used by</th><th>Set by</th></tr>");
 
       String currentPackage = "";
+//      int numcols = 0;
       for(Node n : t.getNamesUsedAndSet()) {
         String fullName = n.getFullName();
         String tok[] = fullName.split("\\.");
@@ -441,8 +538,13 @@ public class Tint {
           currentPackage = pack;
           out.println(t.endPackage());
           out.println(t.startPackage(currentPackage));
-          
+//          numcols = 0;
+//          out.println("<div class='row'>");
         }
+//        numcols++;
+//        if(numcols == NUMCOLS) {
+//          out.println("</div><div class='row'>");
+//        }
         if(n instanceof NamedParameterNode<?>) {
           out.println(t.toHtmlString((NamedParameterNode<?>)n, currentPackage));
         } else if (n instanceof ClassNode<?>) {
@@ -451,15 +553,20 @@ public class Tint {
           throw new IllegalStateException();
         }
       }
+      out.println("</div>");
       out.println(t.endPackage());
-      out.println("</table>");
-      out.println("<h1>Module definitions</h1>");
+//      out.println("</table>");
+      out.println("<div class='package'>Module definitions</div>");
       for(Field f : t.modules.keySet()) {
         String moduleName = ReflectionUtilities.getFullName(f);
         String declaringClassName = ReflectionUtilities.getFullName(f.getDeclaringClass());
-        out.println("<p><b>" + moduleName + "</b></p>");
+        out.println("<div class='module-margin' id='"+moduleName+"'><div class='decl'><span class='fullName'>" + moduleName + "</span>");
         out.println("<pre>");
-        out.println(t.modules.get(f).toPrettyString());
+        String conf = t.modules.get(f).toPrettyString();
+        String[] tok = conf.split("\n");
+        for(String line : tok) {
+          out.println(stripPrefix(line, "no.such.prefix"));//t.modules.get(f).toPrettyString());
+        }
 //        List<Entry<String,String>> lines = t.modules.get(f).toStringPairs();
 //        for(Entry<String,String> line : lines) {
 //          String k = t.stripPrefix(line.getKey(), declaringClassName);
@@ -467,15 +574,41 @@ public class Tint {
 //          out.println(k+"="+v);
 //        }
         out.println("</pre>");
+        out.println("</div></div>");
       }
-
-//      out.println("<h1>Default usage of classes and constants</h1>");
-//      for(String s : t.usages.keySet()) {
-//        out.println("<h2>" + s + "</h2>");
-//        for(Node n : t.usages.getValuesForKey(s)) {
-//          out.println("<p>" + n.getFullName() + "</p>");
-//        }
-//      }
+      out.println("<div class='package'>Interfaces and injectable classes</div>");
+      for(ClassNode c : t.knownClasses) {
+        Class<?> clz = null;
+        try {
+          clz = t.ch.classForName(c.getFullName());
+        } catch (ClassNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        String typ = clz.isInterface() ? "interface" : "class";
+        out.println("<div class='module-margin' id='"+c.getFullName()+"'><div class='decl'><span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
+        for(ConstructorDef d : c.getInjectableConstructors()) {
+          out.println("<div class='uses'>" + c.getFullName() + "(");
+          for(ConstructorArg a : d.getArgs()) {
+            if(a.getNamedParameterName() != null) {
+              out.print("<div class='constructorArg'><a href='#"+a.getType()+"'>" + stripPrefix(a.getType(),"xxx") + "</a> <a href='#" + a.getNamedParameterName() + "'>" + a.getNamedParameterName() + "</a></div>");
+            } else {
+              out.print("<div class='constructorArg'><a href='#"+a.getType()+"'>" + stripPrefix(a.getType(),"xxx") + "</a></div>");
+            }
+          }
+          out.println(")</div>");
+        }
+        
+        out.println("</div></div>");
+      }
+/*
+      out.println("<h1>Default usage of classes and constants</h1>");
+      for(String s : t.usages.keySet()) {
+        out.println("<h2>" + s + "</h2>");
+        for(Node n : t.usages.getValuesForKey(s)) {
+          out.println("<p>" + n.getFullName() + "</p>");
+        }
+      } */
       out.println("</body></html>");
       out.close();
       
