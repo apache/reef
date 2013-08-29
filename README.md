@@ -1,4 +1,4 @@
-Tang is a simple dependency injection framework that emphasizes configuration and explicit documentation over executing application-specific code when binding implementations and invoking object constructors.
+TANG is a simple dependency injection framework that emphasizes configuration and explicit documentation over executing application-specific code when binding implementations and invoking object constructors.
 
 Outline
 -------
