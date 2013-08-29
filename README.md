@@ -26,7 +26,7 @@ In addition to improving end-user's interactions with applications, our configur
    * Multi-language injection (v2):  Tang's TypeHierarchy API encodes the relationship between interfaces, implementation classes, and constructors in a language-independent fashion.  Computation of InjectionPlan objects (and the related consistency checks) occurs atop this language-independent abstraction, allowing Injection Plans that span language boundaries.
    * Ambiguous injection (v2): Tang injection plans are encoded in a format that is designed to cope with ambiguous injection plans.  In situations where more than one implementation is available, Tang allows the code that invoked it to examine the possibilities, and choose the most appropriate course of action.
 
-Taken together, these properties greatly simplify dependency injection in distributed environments.  Tang eliminates large classes of runtime configuration problems (which can be extremely difficult to debug in distributed environments), and provides facilities to make it easy for higher-level code to use information about the current runtime environment to choose the appropriate course of action.  
+Taken together, these properties greatly simplify dependency injection in distributed environments.  Tang eliminates large classes of runtime configuration problems (which can be extremely difficult to debug in distributed environments), and provides facilities to make it easy for higher-level code to use information about the current runtime environment to choose the appropriate course of action.
 
 We expect Tang to be used in environments that are dominated by "plugin"-style APIs with many alternative implementations.  Tang cleanly separates concerns over configuration management, dependency injection, and object implementations.  This hides most of the complexity of dependency injection from plugin implementers.  It also prevents plugin implementations from inadvertently breaking the high-level semantics that allow Tang to perform extensive static checking and to provide clean semantics in distributed, heterogeneous environments.
 
@@ -112,7 +112,7 @@ import com.microsoft.tang.exceptions.InjectionException;
     Configuration conf = cb.build();
     Injector injector = tang.newInjector(conf);
     Timer timer = injector.getInstance(Timer.class);
-    
+
     try {
       System.out.println("Tick...");
       timer.sleep();
@@ -223,7 +223,7 @@ One common use for singleton objects is to establish session or runtime _context
 
 To get around the problem, Tang provides _child injectors_.  Child injectors are built by merging injectors with additional configuration objects.  Any singletons and volatile instances that have been set in the original (parent) injector will be shared with the child injectors.  As with "bindVolatile...()", createChildInjector() does not mutate the parent object, but instead merges the configuration with a new copy.
 
-Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use bindVolatile...() to pass in an instance directly (use of bindVolatile...() is discouraged, but often necessary).  Then, use createChildInjector() to create one new injector for each configuration.  
+Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use bindVolatile...() to pass in an instance directly (use of bindVolatile...() is discouraged, but often necessary).  Then, use createChildInjector() to create one new injector for each configuration.
 
 Since createChildInjector() does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
 
@@ -279,4 +279,4 @@ InjectionPlan explains what would happen if you asked Tang to take some action, 
 Internally, in the example above, TypeHierarchy walks the class definition for Timer, looking for superclasses, interfaces, and classes referenced by its constructors.
 
 ## THIRD PARTY SOFTWARE
-This software is built using Maven.  Maven allows you to obtain software libraries from other sources as part of the build process.  Those libraries are offered and distributed by third parties under their own license terms.  Microsoft is not developing, distributing or licensing those libraries to you, but instead, as a convenience, enables you to use this software to obtain those libraries directly from the creators or providers.  By using the software, you acknowledge and agree that you are obtaining the libraries directly from the third parties and under separate license terms, and that it is your responsibility to locate, understand and comply with any such license terms.  Microsoft grants you no license rights for third-party software or libraries that are obtained using this software.   
+This software is built using Maven.  Maven allows you to obtain software libraries from other sources as part of the build process.  Those libraries are offered and distributed by third parties under their own license terms.  Microsoft is not developing, distributing or licensing those libraries to you, but instead, as a convenience, enables you to use this software to obtain those libraries directly from the creators or providers.  By using the software, you acknowledge and agree that you are obtaining the libraries directly from the third parties and under separate license terms, and that it is your responsibility to locate, understand and comply with any such license terms.  Microsoft grants you no license rights for third-party software or libraries that are obtained using this software.
