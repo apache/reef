@@ -23,7 +23,7 @@ public abstract class ConfigurationModuleBuilder {
   private final static Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);
-  final JavaConfigurationBuilder b = Tang.Factory.getTang()
+  protected final JavaConfigurationBuilder b = Tang.Factory.getTang()
   .newConfigurationBuilder();
   // Sets of things that have been declared
   final Set<Field> reqDecl = new MonotonicHashSet<>();
