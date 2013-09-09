@@ -55,7 +55,7 @@ public class Timer {
 ```
 Tang encourages applications to use Plain Old Java (POJO) objects, and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields, and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated; they simply need to check constructor parameters as any other POJO would.
 
-In order for Tang to instantiate an object, we need to annotate the constructor with an @Inject annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line, and in a config file.
+In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line, and in a config file.
 
 ```java
 package com.example;
@@ -84,12 +84,12 @@ public class Timer {
 ```
 A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's "Name" interface.  Name is a generic type, with a single mandatory parameter that specifies the type of object to be passed in.  So, the Seconds class declares a parameter called "Seconds" that expects Integer values.
 
-All instances of Name must be annotated with @NamedParamter, which takes a number of options:
- * default_value (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.
- * short_name (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.
- * doc (optional): Human readable documentation, describing the purpose of the parameter.
+All instances of Name must be annotated with `@NamedParamter`, which takes a number of options:
+ * `default_value` (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.
+ * `short_name` (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.
+ * `doc` (optional): Human readable documentation, describing the purpose of the parameter.
 
-Next, the @Inject annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the @Parameter annotation takes the class associated with the configuration parameter.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well.
+Next, the `@Inject` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the `@Parameter` annotation takes the class associated with the configuration parameter.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well.
 
 Injection
 ---------
@@ -123,9 +123,9 @@ import com.microsoft.tang.exceptions.InjectionException;
   }
 ```
 The first step in using Tang is to get a handle to a Tang object by calling "Tang.Factory.getTang()".  Having obtained a handle, we run through each of the phases of a Tang injection:
-   * We use _ConfigurationBuilder_ objects to tell Tang about the class hierarchy that it will be using to inject objects and (in later examples) to register the contents of configuration files, override default configuration values, and to set default implementations of classes.
-   * For this example, we simply call the cb.register(Class<?>) method in ConfigurationBuilder.  We pass in Timer.class, which tells Tang to process Timer, as well as any superclasses and internal classes (such as our parameter class, Seconds).
-   * We call build() on the ConfigurationBuilder, creating an immutable Configuration object.  At this point, Tang ensures that all of the classes it has encountered so far are consistent with each other, and that they are suitable for injection.  When Tang encounters conflicting classes or configuration files, it throws a BindException to indicate that the problem is due to configuration issues. Note that ConfigurationBuilder and Configuration do not determine whether or not a particular injection will succeed; that is the business of the _Injector_.
+   * We use `ConfigurationBuilder` objects to tell Tang about the class hierarchy that it will be using to inject objects and (in later examples) to register the contents of configuration files, override default configuration values, and to set default implementations of classes.
+   * For this example, we simply call the `cb.register(Class<?>)` method in `ConfigurationBuilder`.  We pass in `Timer.class`, which tells Tang to process Timer, as well as any superclasses and internal classes (such as our parameter class, Seconds).
+   * We call `.build()` on the `ConfigurationBuilder`, creating an immutable `Configuration` object.  At this point, Tang ensures that all of the classes it has encountered so far are consistent with each other, and that they are suitable for injection.  When Tang encounters conflicting classes or configuration files, it throws a `BindException` to indicate that the problem is due to configuration issues. Note that `ConfigurationBuilder` and `Configuration` do not determine whether or not a particular injection will succeed; that is the business of the _Injector_.
    * To obtain an instance of Injector, we pass our Configuration object into tang.newInjector().
    * Finally, we call injector.getInstance(Timer.class).  Internally, this method considers all possible injection plans for Timer.class.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an InjectionException.
 
@@ -137,7 +137,7 @@ Tang configuration information can be divided into two categories.  The first ty
 
 The second type of configuration option, _implementation bindings_, are used to tell Tang which implementation should be used when an instance of an interface is requested.  Like configuration parameters, implementation bindings are expressible as strings: Tang configuration files simply contain the raw (without the generic parameters) name of the Java Classes to be bound together.
 
-New parameters are created and passed into constructors as in the example above, by creating implementations of Name<T>, and adding @NamedParameter, @Parameter and @Inject annotations as necessary.  Specifying implementations for interfaces is a bit more involved, as a number of subtle use cases arise.
+New parameters are created and passed into constructors as in the example above, by creating implementations of `Name<T>`, and adding `@NamedParameter`, `@Parameter` and `@Inject` annotations as necessary.  Specifying implementations for interfaces is a bit more involved, as a number of subtle use cases arise.
 
 The common case is to simply bind an implementation to an interface.  This is done in configuration files as follows:
 
@@ -145,7 +145,7 @@ The common case is to simply bind an implementation to an interface.  This is do
 com.examples.Interface=com.examples.Implementation
 ```
 
-this tells Tang to create a new Implementation each time it wants to invoke a constructor that asks for an instance of Interface.  In most circumstances, Implementation extends or implements Interface.  In such cases, Tang makes sure that Implementation contains at least one constructor with an @Inject annotation, and performs the binding.
+this tells Tang to create a new Implementation each time it wants to invoke a constructor that asks for an instance of Interface.  In most circumstances, Implementation extends or implements Interface.  In such cases, Tang makes sure that Implementation contains at least one constructor with an `@Inject` annotation, and performs the binding.
 
 ### Singleton classes
 
@@ -161,7 +161,7 @@ com.examples.Implementation=singleton
 
 ### Using external constructors to inject legacy code
 
-Tang's _ExternalConstructor_ API supports injection of legacy code.  If Implementation does not subclass Interface, Tang checks to see if it subclasses ExternalConstructor<? extends Interface> instead.  If so, Tang checks that Implementation has an @Inject annotation on at least one constructor, and performs the binding as usual.  At injection time, Tang injects Implementation as though it implemented Interface, and then calls newInstance(), which returns the value to be injected.  Note that ExternalConstructor objects are single-use: newInstance() will only be called once.  If the ExternalConstructor class is marked as a singleton, Tang internally retains the return value of newInstance(), exactly as if the object had been created with a regular constructor.
+Tang's _ExternalConstructor_ API supports injection of legacy code.  If Implementation does not subclass Interface, Tang checks to see if it subclasses ExternalConstructor<? extends Interface> instead.  If so, Tang checks that Implementation has an `@Inject` annotation on at least one constructor, and performs the binding as usual.  At injection time, Tang injects Implementation as though it implemented Interface, and then calls `newInstance()`, which returns the value to be injected.  Note that `ExternalConstructor` objects are single-use: `newInstance()` will only be called once.  If the `ExternalConstructor` class is marked as a singleton, Tang internally retains the return value of `newInstance()`, exactly as if the object had been created with a regular constructor.
 
 ### Registering classes
 
@@ -171,9 +171,9 @@ When Tang processes a class file, it performs a range of checks to ensure that a
 com.Examples.MyClass=registered
 ```
 
-Doing this also ensures that any @Inject-able constructors in the class will be available to injectors created by this Tang instance.
+Doing this also ensures that any `@Inject`-able constructors in the class will be available to injectors created by this Tang instance.
 
-[TODO: explain processCommandLine(), addConfiguration(File) and addConfiguration(Configuration)]
+[**TODO:** explain `processCommandLine()`, `addConfiguration(File)`, and `addConfiguration(Configuration)`]
 
 Distributed dependency injection
 --------------------------------
@@ -183,7 +183,7 @@ In Tang, distributed injection is performed by writing Tang's current state out 
 public void writeConfigurationFile(OutputStream s)
 ```
 
-Reading the file back is the responsibility of ConfigurationBuilder.  The following methods read the file line by line, merging the Configuration options they find with the current state of the ConfigurationBuilder.  If a conflicting or already-set option is encountered, processing halts on the line that caused the problem, and a BindException is thrown:
+Reading the file back is the responsibility of `ConfigurationBuilder`.  The following methods read the file line by line, merging the Configuration options they find with the current state of the `ConfigurationBuilder`.  If a conflicting or already-set option is encountered, processing halts on the line that caused the problem, and a `BindException` is thrown:
 
 ```java
 public void addConfiguration(final File istream) throws IOException, BindException;
@@ -192,7 +192,7 @@ public void addConfiguration(final String istream) throws BindException;
 
 Bind
 ----
-Sometimes it is necessary to compute configuration information at runtime, and pass the result into Tang.  Tang provides two types of _bind()_ methods for such purposes.  The first reside in _configurationBuilder()_, and are designed to preserve Tang's ability to write back the resulting configuration to a file.  Like configuration files, these methods can tell Tang which implementation should be used for a given interface, provide strings to be parsed into configuration parameters, and so on:
+Sometimes it is necessary to compute configuration information at runtime, and pass the result into Tang.  Tang provides two types of `bind()` methods for such purposes.  The first reside in `configurationBuilder()`, and are designed to preserve Tang's ability to write back the resulting configuration to a file.  Like configuration files, these methods can tell Tang which implementation should be used for a given interface, provide strings to be parsed into configuration parameters, and so on:
 
 ```java
 void bind(String iface, String impl) throws ClassNotFoundException;
@@ -203,7 +203,7 @@ void bindSingleton(Class<T> iface) throws BindException;
 void bindNamedParameter(Class<? extends Name<T>> name, String value);
 void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v);
 ```
-Each of these methods throws BindException as well as the exceptions mentioned above, and behaves identically to the analogous configuration file primitives discussed above.  Note that, when possible, adding final [StaticConfiguration](static-configuration) objects to class definitions objects is always preferable to writing a method that invokes bind...() directly.
+Each of these methods throws BindException as well as the exceptions mentioned above, and behaves identically to the analogous configuration file primitives discussed above.  Note that, when possible, adding final [`StaticConfiguration`](static-configuration) objects to class definitions objects is always preferable to writing a method that invokes bind...() directly.
 
 The second class of bind operations allow callers to pass object instances to Tang directly.  This prevents it from writing back its current state to a configuration file.  Because these methods are incompatible with writing configuration files, their names contain the word "Volatile", and they are part of the Injector API instead of ConfigurationBuilder.  Injectors cannot be serialized, and they are not allowed to modify the Configuration object that was used to create them, making it impossible to use the Tang API to write volatile objects to disk.
 
@@ -213,7 +213,7 @@ Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst) throws Bi
 ```
 Note that these methods return new Injector objects.  Tang Injectors are immutable, and the original Injector is not modified by these calls.
 
-A final method, _getNamedParameter()_, is sometimes useful when dealing with instances of objects used for Tang injections.  Unlike getInstance(), which performs a normal injection, getNamedParameter() instantiates an object in the same way as it would during an injection, as it prepares to pass a configuration parameter to a constructor (note that whether a new instance of the parameter is instantiated for each constructor invocation is not specified by the Tang API, so while the object returned likely ".equals()" the one that would be passed to a constructor, it may or may not "==" it.
+A final method, `getNamedParameter()`, is sometimes useful when dealing with instances of objects used for Tang injections.  Unlike `getInstance()`, which performs a normal injection, `getNamedParameter()` instantiates an object in the same way as it would during an injection, as it prepares to pass a configuration parameter to a constructor (note that whether a new instance of the parameter is instantiated for each constructor invocation is not specified by the Tang API, so while the object returned likely `.equals()` the one that would be passed to a constructor, it may or may not `==` it.
 
 Child injectors
 ---------------
@@ -221,11 +221,11 @@ Although extremely useful, features such as singletons and volatile parameters c
 
 One common use for singleton objects is to establish session or runtime _context objects_ that are used to track application state or implement network connection pools that should be available across multiple injections.  Without child injectors, such patterns would be impossible with Tang.  In order to avoid situations in which modules accidentally specify conflicting values for configuration parameters, Tang ensures that, once set, no implementation binding or parameter setting can be undone or overwritten.  The problem is that, in order to perform an Injection, the application must specify a complete configuration, hardcoding all future injections to return equivalent arguments.  This makes it impossible to pass request-level or activity-level parameters into future injected objects!
 
-To get around the problem, Tang provides _child injectors_.  Child injectors are built by merging injectors with additional configuration objects.  Any singletons and volatile instances that have been set in the original (parent) injector will be shared with the child injectors.  As with "bindVolatile...()", createChildInjector() does not mutate the parent object, but instead merges the configuration with a new copy.
+To get around the problem, Tang provides _child injectors_.  Child injectors are built by merging injectors with additional configuration objects.  Any singletons and volatile instances that have been set in the original (parent) injector will be shared with the child injectors.  As with `bindVolatile...()`, `createChildInjector()` does not mutate the parent object, but instead merges the configuration with a new copy.
 
-Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use bindVolatile...() to pass in an instance directly (use of bindVolatile...() is discouraged, but often necessary).  Then, use createChildInjector() to create one new injector for each configuration.
+Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use `bindVolatile...()` to pass in an instance directly (use of `bindVolatile...()` is discouraged, but often necessary).  Then, use `createChildInjector()` to create one new injector for each configuration.
 
-Since createChildInjector() does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
+Since `createChildInjector()` does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
 
 Injection plans
 ---------------
@@ -238,13 +238,13 @@ Language interoperability
 When things go wrong
 --------------------
 In the timer example, we specified a default value for the Sleep parameter.  If we hadn't done this, then the call
-to getInstance() would have thrown an exception:
+to `getInstance()` would have thrown an exception:
 ````
 Exception in thread "main"
 java.lang.IllegalArgumentException: Attempt to inject infeasible plan: com.example.Timer(Integer Seconds = null)
 ...
 ````
-Since Tang refuses to inject null values into object constructors, the plan to invoke Timer(null) is considered infeasible.  Note that this error message enumerates all possible injection plans.  If Timer had more constructors or implementations those would be enumerated here as well.  Similarly, if more than one feasible plan existed, Tang would refuse to perform the injection, and throw a similar exception.
+Since Tang refuses to inject null values into object constructors, the plan to invoke `Timer(null)` is considered infeasible.  Note that this error message enumerates all possible injection plans.  If Timer had more constructors or implementations those would be enumerated here as well.  Similarly, if more than one feasible plan existed, Tang would refuse to perform the injection, and throw a similar exception.
 
 In both cases, the solution is to set additional configuration parameters to create a single feasible plan.  This can be done using any of the methods described above.
 
