@@ -121,7 +121,6 @@ public class InjectorImpl implements Injector {
    * Produce a list of "interesting" constructors from a set of ClassNodes.
    * 
    * Tang Constructors expose a isMoreSpecificThan function that embeds all
-   * constructors for a given ClassNode into a lattice.  This function computes
    * a skyline query over the lattices.  Precisely:
    * 
    * Let candidateConstructors be the union of all constructors defined by
@@ -281,7 +280,7 @@ public class InjectorImpl implements Injector {
       for(Object o : boundSet) {
         if(o instanceof String) {
           try {
-            ret2.addAll((Set)javaNamespace.parse(np, (String)o));
+            ret2.add(javaNamespace.parse(np, (String)o));
           } catch(ParseException e) {
             throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)");
           }

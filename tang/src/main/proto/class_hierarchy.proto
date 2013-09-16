@@ -116,7 +116,7 @@ message NamedParameterNode {
      bootstraps Tang.
    */
   // calling this "default_instance" breaks protoc.
-  optional string instance_default = 6;
+  repeated string instance_default = 6;
 }
 
 message PackageNode {

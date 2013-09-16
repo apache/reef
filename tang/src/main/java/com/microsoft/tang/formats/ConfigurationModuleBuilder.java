@@ -12,8 +12,6 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -23,8 +21,8 @@ public abstract class ConfigurationModuleBuilder {
   private final static Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);
-  protected final JavaConfigurationBuilder b = Tang.Factory.getTang()
-  .newConfigurationBuilder();
+  final JavaConfigurationBuilder b = Tang.Factory.getTang()
+      .newConfigurationBuilder();
   // Sets of things that have been declared
   final Set<Field> reqDecl = new MonotonicHashSet<>();
   private final Set<Field> optDecl = new MonotonicHashSet<>();
@@ -103,8 +101,7 @@ public abstract class ConfigurationModuleBuilder {
     c.freeImpls.put(iface, opt);
     return c;
   }
-
-  public final <T> ConfigurationModuleBuilder bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl) {
+  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String impl) {
     ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindSetEntry(iface, impl);
@@ -113,7 +110,8 @@ public abstract class ConfigurationModuleBuilder {
     }
     return c;
   }
-  public final <T> ConfigurationModuleBuilder bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) {
+
+  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) {
     ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindSetEntry(iface, impl);

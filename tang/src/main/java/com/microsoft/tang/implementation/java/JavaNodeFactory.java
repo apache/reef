@@ -157,65 +157,59 @@ public class JavaNodeFactory {
     if (namedParameter == null) {
       throw new IllegalStateException("Got name without named parameter post-validation!");
     }
+    final boolean hasStringDefault, hasClassDefault, hasStringSetDefault, hasClassSetDefault;
     
-    final boolean hasStringDefault = !namedParameter.default_value().isEmpty();
-    final boolean hasClassDefault = namedParameter.default_class() != Void.class;
-    
-    final String defaultInstanceAsString;
-
-    if (hasStringDefault && hasClassDefault) {
-      throw new ClassHierarchyException("Named parameter " + fullName +
-          " declares both a default_value and default_class.  At most one is allowed.");
-    } else if (!(hasStringDefault || hasClassDefault)) {
-      defaultInstanceAsString = null;
-    } else if (namedParameter.default_class() != Void.class) {
-      defaultInstanceAsString = ReflectionUtilities.getFullName(namedParameter.default_class());
-      boolean isSubclass = false;
-      boolean isGenericSubclass= false;
-      
-      // Note: We intentionally strip the raw type information here.  The reason is to handle
-      // EventHandler-style patterns and collections.
-      
-      /// If we have a Name that takes EventHandler<A>, we want to be able to pass in an EventHandler<Object>.
-      
-      for (final Type c : ReflectionUtilities.classAndAncestors(namedParameter.default_class())) {
-        if (ReflectionUtilities.getRawClass(c).equals(argRawClass)) {
-          isSubclass = true;
-          if(argClass instanceof ParameterizedType &&
-             c instanceof ParameterizedType) {
-            ParameterizedType argPt = (ParameterizedType)argClass;
-            ParameterizedType defaultPt = (ParameterizedType)c;
-            
-            Class<?> rawDefaultParameter = ReflectionUtilities.getRawClass(defaultPt.getActualTypeArguments()[0]);
-            Class<?> rawArgParameter = ReflectionUtilities.getRawClass(argPt.getActualTypeArguments()[0]);
-            
-            for (final Type d: ReflectionUtilities.classAndAncestors(argPt.getActualTypeArguments()[0])) {
-              if(ReflectionUtilities.getRawClass(d).equals(rawDefaultParameter)) {
-                isGenericSubclass = true;
-              }
-            }
-            for (final Type d: ReflectionUtilities.classAndAncestors(defaultPt.getActualTypeArguments()[0])) {
-              if(ReflectionUtilities.getRawClass(d).equals(rawArgParameter)) {
-                isGenericSubclass = true;
-              }
-            }
-          } else {
-            isGenericSubclass = true;
-          }
-        }
-      }
-
-      if (!(isSubclass)) {
-        throw new ClassHierarchyException(clazz + " defines a default class "
-            + defaultInstanceAsString + " with a raw type that does not extend of its target's raw type " + argRawClass);
-      }
-      if (!(isGenericSubclass)) {
-        throw new ClassHierarchyException(clazz + " defines a default class "
-            + defaultInstanceAsString + " with a type that does not extend its target's type " + argClass);
-      }
+    int default_count = 0;
+    if(!namedParameter.default_value().isEmpty()) {
+      hasStringDefault = true;
+      default_count++;
     } else {
-      defaultInstanceAsString = namedParameter.default_value();
+      hasStringDefault = false;
+    }
+    if(namedParameter.default_class() != Void.class) {
+      hasClassDefault = true;
+      default_count++;
+    } else {
+      hasClassDefault = false;
+    }
+    if(namedParameter.default_values() != null && namedParameter.default_values().length > 0) {
+      hasStringSetDefault = true;
+      default_count++;
+    } else {
+      hasStringSetDefault = false;
+    }
+    if(namedParameter.default_classes() != null && namedParameter.default_classes().length > 0) {
+      hasClassSetDefault = true;
+      default_count++;
+    } else {
+      hasClassSetDefault = false;
+    }
+    if(default_count > 1) {
+      throw new ClassHierarchyException("Named parameter " + fullName + " defines more than one of default_value, default_class, default_values and default_classes");
+    }
+    
+    final String[] defaultInstanceAsStrings;
+
+    if (default_count == 0) {
+      defaultInstanceAsStrings = new String[]{};
+    } else if (hasClassDefault) {
+      final Class<?> default_class = namedParameter.default_class();
+      assertIsSubclassOf(clazz, default_class, argClass);
+      defaultInstanceAsStrings = new String[] {ReflectionUtilities.getFullName(default_class)};
+    } else if(hasStringDefault) {
       // Don't know if the string is a class or literal here, so don't bother validating.
+      defaultInstanceAsStrings = new String[] { namedParameter.default_value() };
+    } else if(hasClassSetDefault) {
+      Class<?>[] clzs = namedParameter.default_classes();
+      defaultInstanceAsStrings = new String[clzs.length];
+      for(int i = 0; i < clzs.length; i++) {
+        assertIsSubclassOf(clazz, clzs[i], argClass);
+        defaultInstanceAsStrings[i] = ReflectionUtilities.getFullName(clzs[i]);
+      }
+    } else if(hasStringSetDefault) {
+      defaultInstanceAsStrings = namedParameter.default_values();
+    } else {
+      throw new IllegalStateException();
     }
 
     final String documentation = namedParameter.doc();
@@ -224,9 +218,56 @@ public class JavaNodeFactory {
         ? null : namedParameter.short_name();
 
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
-        fullArgName, simpleArgName, isSet, documentation, shortName, defaultInstanceAsString);
+        fullArgName, simpleArgName, isSet, documentation, shortName, defaultInstanceAsStrings);
   }
 
+  private static void assertIsSubclassOf(Class<?> named_parameter, Class<?> default_class,
+      Type argClass) {
+    boolean isSubclass = false;
+    boolean isGenericSubclass= false;
+    Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
+    
+    // Note: We intentionally strip the raw type information here.  The reason is to handle
+    // EventHandler-style patterns and collections.
+    
+    /// If we have a Name that takes EventHandler<A>, we want to be able to pass in an EventHandler<Object>.
+    
+    for (final Type c : ReflectionUtilities.classAndAncestors(default_class)) {
+      if (ReflectionUtilities.getRawClass(c).equals(argRawClass)) {
+        isSubclass = true;
+        if(argClass instanceof ParameterizedType &&
+           c instanceof ParameterizedType) {
+          ParameterizedType argPt = (ParameterizedType)argClass;
+          ParameterizedType defaultPt = (ParameterizedType)c;
+          
+          Class<?> rawDefaultParameter = ReflectionUtilities.getRawClass(defaultPt.getActualTypeArguments()[0]);
+          Class<?> rawArgParameter = ReflectionUtilities.getRawClass(argPt.getActualTypeArguments()[0]);
+          
+          for (final Type d: ReflectionUtilities.classAndAncestors(argPt.getActualTypeArguments()[0])) {
+            if(ReflectionUtilities.getRawClass(d).equals(rawDefaultParameter)) {
+              isGenericSubclass = true;
+            }
+          }
+          for (final Type d: ReflectionUtilities.classAndAncestors(defaultPt.getActualTypeArguments()[0])) {
+            if(ReflectionUtilities.getRawClass(d).equals(rawArgParameter)) {
+              isGenericSubclass = true;
+            }
+          }
+        } else {
+          isGenericSubclass = true;
+        }
+      }
+    }
+
+    if (!(isSubclass)) {
+      throw new ClassHierarchyException(named_parameter + " defines a default class "
+          + ReflectionUtilities.getFullName(default_class) + " with a raw type that does not extend of its target's raw type " + argRawClass);
+    }
+    if (!(isGenericSubclass)) {
+      throw new ClassHierarchyException(named_parameter + " defines a default class "
+          + ReflectionUtilities.getFullName(default_class) + " with a type that does not extend its target's type " + argClass);
+    }
+  }
   public static PackageNode createRootPackageNode() {
     return new PackageNodeImpl();
   }

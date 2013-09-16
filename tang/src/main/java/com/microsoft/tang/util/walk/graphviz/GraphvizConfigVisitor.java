@@ -178,11 +178,27 @@ public final class GraphvizConfigVisitor
             .append(" = ")
             .append(config.getNamedParameter(node))   // bound value, e.g. "16"
             .append("\\n(default = ")
-            .append(node.getDefaultInstanceAsString()) // default value, e.g. "4"
+            .append(instancesToString(node.getDefaultInstanceAsStrings())) // default value, e.g. "4"
             .append(")\", shape=oval];\n");
     return true;
   }
 
+  private String instancesToString(String[] s) {
+    if(s.length == 0) {
+      return "null";
+    } else if(s.length == 1) {
+      return s[0];
+    } else {
+      StringBuffer sb = new StringBuffer("[" + s[0]);
+      for(int i = 1; i < s.length; i++) {
+        sb.append(",");
+        sb.append(s[i]);
+      }
+      sb.append("]");
+      return sb.toString();
+    }
+  }
+  
   /**
    * Process current edge of the configuration graph.
    * @param nodeFrom Current configuration node.

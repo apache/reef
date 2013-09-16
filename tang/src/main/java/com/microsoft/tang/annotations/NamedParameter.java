@@ -15,4 +15,6 @@ public @interface NamedParameter {
   String default_value() default "";
   Class<?> default_class() default Void.class;
   String short_name() default "";
+  String[] default_values() default {};
+  Class<?>[] default_classes() default {};
 }

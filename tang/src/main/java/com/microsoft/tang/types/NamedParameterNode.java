@@ -6,7 +6,7 @@ public interface NamedParameterNode<T> extends Node {
 
   public String getShortName();
 
-  public String getDefaultInstanceAsString();
+  public String[] getDefaultInstanceAsStrings();
 
   public String getSimpleArgName();
 

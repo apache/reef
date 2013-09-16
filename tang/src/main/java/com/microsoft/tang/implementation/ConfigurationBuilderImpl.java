@@ -235,9 +235,21 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public String classPrettyDefaultString(String longName) throws NameResolutionException {
     final NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
         .getNode(longName);
-    return param.getSimpleArgName() + "=" + param.getDefaultInstanceAsString();
+    return param.getSimpleArgName() + "=" + join(",", param.getDefaultInstanceAsStrings());
   }
 
+  private String join(String sep, String[] s) {
+    if(s.length == 0) {
+      return null;
+    } else {
+      StringBuilder sb = new StringBuilder(s[0]);
+      for(int i = 1; i < s.length; i++) {
+        sb.append(sep);
+        sb.append(s[i]);
+      }
+      return sb.toString();
+    }
+  }
   @Override
   public String classPrettyDescriptionString(String fullName)
       throws NameResolutionException {

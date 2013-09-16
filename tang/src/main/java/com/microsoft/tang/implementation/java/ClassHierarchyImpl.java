@@ -50,15 +50,27 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   @Override
   public <T> T parseDefaultValue(NamedParameterNode<T> name) {
-    String val = name.getDefaultInstanceAsString();
-    if (val != null) {
+    String[] vals = name.getDefaultInstanceAsStrings();
+    @SuppressWarnings("unchecked")
+    T[] ret = (T[]) new Object[vals.length];
+    for(int i = 0; i < vals.length; i++) {
+      String val = vals[i];
       try {
-        return parse(name, val);
+        ret[i] = parse(name, val);
       } catch (ParseException e) {
         throw new ClassHierarchyException("Could not parse default value", e);
       }
+    }
+    if(name.isSet()) {
+      return (T)new HashSet<T>(Arrays.asList(ret));
     } else {
-      return null;
+      if(ret.length == 0) {
+        return null;
+      } else if(ret.length == 1) {
+        return ret[0];
+      } else {
+        throw new IllegalStateException("Multiple defaults for non-set named parameter! " + name.getFullName());
+      }
     }
   }
 
@@ -80,50 +92,23 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
       clazz = null;
       fullName = iface.getFullName();
     }
-    if(np.isSet()) {
-      final Set<Object> set = new MonotonicHashSet<>();
-      String[] values = value.split(",");
-      for(String val : values) {
-        try {
-          if(clazz != null) {
-            set.add(parameterParser.parse(clazz, val));
-          } else {
-            set.add(parameterParser.parse(fullName, val));
-          }
-        } catch (UnsupportedOperationException e) {
-          try {
-            final Node impl = getNode(val);
-            if(impl instanceof ClassNode &&
-               isImplementation(iface, (ClassNode<?>)impl)) {
-              set.add(impl);
-            } else {
-              throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName(), e);
-            }
-          } catch(NameResolutionException e2) {
-            throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + val, e);
-          }
-        }
+    try {
+      if(clazz != null) {
+        return (T)parameterParser.parse(clazz, value);
+      } else {
+        return parameterParser.parse(fullName, value);
       }
-      return (T)set;
-    } else {
+    } catch (UnsupportedOperationException e) {
       try {
-        if(clazz != null) {
-          return (T)parameterParser.parse(clazz, value);
-        } else {
-          return parameterParser.parse(fullName, value);
-        }
-      } catch (UnsupportedOperationException e) {
-        try {
-          final Node impl = getNode(value);
-          if(impl instanceof ClassNode) {
-            if(isImplementation(iface, (ClassNode<?>)impl)) {
-              return (T)impl;
-            }
+        final Node impl = getNode(value);
+        if(impl instanceof ClassNode) {
+          if(isImplementation(iface, (ClassNode<?>)impl)) {
+            return (T)impl;
           }
-          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName(), e);
-        } catch(NameResolutionException e2) {
-          throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + value, e);
         }
+        throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName(), e);
+      } catch(NameResolutionException e2) {
+        throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + value, e);
       }
     }
   }

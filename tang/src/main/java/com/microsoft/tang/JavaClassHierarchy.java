@@ -39,9 +39,9 @@ public interface JavaClassHierarchy extends ClassHierarchy {
   /**
    * Obtain a parsed instance of the default value of a named parameter
    * @param name The named parameter that should be checked for a default instance.
-   * @return The parsed instance of type T or ClassNode<? extends T>, or null 
-   *         if the default string is empty / null.
-   * @throws ClassHierarchyException if the instance failed to parse.
+   * @return The default instance or null, unless T is a set type.  If T is a set,
+   *         then this method returns a (potentially empty) set of default instances.
+   * @throws ClassHierarchyException if an instance failed to parse.
    */
   public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
 

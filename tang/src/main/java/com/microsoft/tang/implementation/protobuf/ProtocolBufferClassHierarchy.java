@@ -55,7 +55,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       boolean isSet,
       String documentation, // can be null
       String shortName, // can be null
-      String instanceDefault, // can be null
+      String[] instanceDefault, // can be null
       Iterable<ClassHierarchyProto.Node> children) {
     ClassHierarchyProto.NamedParameterNode.Builder namedParameterNodeBuilder
       = ClassHierarchyProto.NamedParameterNode.newBuilder()
@@ -69,7 +69,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       namedParameterNodeBuilder.setShortName(shortName);
     }
     if (instanceDefault != null) {
-      namedParameterNodeBuilder.setInstanceDefault(instanceDefault);
+      namedParameterNodeBuilder.addAllInstanceDefault(Arrays.asList(instanceDefault));
     }
 
     return ClassHierarchyProto.Node.newBuilder().setName(name)
@@ -146,7 +146,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       return newNamedParameterNode(np.getName(), np.getFullName(),
           np.getSimpleArgName(), np.getFullArgName(), np.isSet(), np.getDocumentation(),
-          np.getShortName(), np.getDefaultInstanceAsString(), children);
+          np.getShortName(), np.getDefaultInstanceAsStrings(), children);
     } else if (n instanceof PackageNode) {
       return newPackageNode(n.getName(), n.getFullName(), children);
     } else {
@@ -196,7 +196,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       parsed = new NamedParameterNodeImpl<Object>(parent, n.getName(),
           n.getFullName(), np.getFullArgClassName(), np.getSimpleArgClassName(),
           np.getIsSet(), np.getDocumentation(), np.getShortName(),
-          np.getInstanceDefault());
+          np.getInstanceDefaultList().toArray(new String[0]));
     } else if (n.hasClassNode()) {
       ClassHierarchyProto.ClassNode cn = n.getClassNode();
       List<ConstructorDef<?>> injectableConstructors = new ArrayList<>();

@@ -123,7 +123,7 @@ public class TestSetInjection {
   
 }
 
-@NamedParameter(default_value="one,two,three")
+@NamedParameter(default_values={"one","two","three"})
 class SetOfNumbers implements Name<Set<String>> { }
 
 class Box {
@@ -134,7 +134,7 @@ class Box {
   }
 }
 
-@NamedParameter(default_value="java.lang.Integer,java.lang.Float")
+@NamedParameter(default_values={"java.lang.Integer","java.lang.Float"})
 class SetOfClasses implements Name<Set<Number>> { }
 
 class Pool {

@@ -203,9 +203,10 @@ public class Tint {
       
       @Override
       public boolean visit(NamedParameterNode<?> node) {
-        if(node.getDefaultInstanceAsString() != null &&
-            !usages.contains(node.getDefaultInstanceAsString(), node)) {
-          usages.put(node.getDefaultInstanceAsString(), node);
+        for(String s: node.getDefaultInstanceAsStrings()) {
+          if(!usages.contains(s,node)) {
+            usages.put(s,node);
+          }
         }
         return true;
       }
@@ -354,8 +355,10 @@ public class Tint {
   }
   public String toString(NamedParameterNode n) {
     StringBuilder sb = new StringBuilder("Name: " + n.getSimpleArgName() + " " + n.getFullName());
-    if(n.getDefaultInstanceAsString() != null) {
-      sb.append(" = " + n.getDefaultInstanceAsString());
+    String[] instances = n.getDefaultInstanceAsStrings();
+    if(instances.length != 0) {
+      sb.append(" = ");
+      sb.append(join(",", instances));
     }
     if(!n.getDocumentation().equals("")) {
       sb.append(" //" + n.getDocumentation());
@@ -363,6 +366,19 @@ public class Tint {
     return sb.toString();
   }
 
+  private String join(String sep, String[] s) {
+    if(s.length > 0) {
+      StringBuffer sb = new StringBuffer(s[0]);
+      for(int i = 1; i < s.length; i++) {
+        sb.append(sep);
+        sb.append(s[i]);
+      }
+      return sb.toString();
+    } else {
+      return null;
+    }
+  }
+  
   public String cell(String s, String clazz) {
     if(clazz.equals(USES) && s.length()>0) {
       s = "<em>Used by:</em><br>" + s;
@@ -394,8 +410,13 @@ public class Tint {
     
     sb.append(cell(n.getSimpleArgName(), "simpleName") + cell(fullName, FULLNAME));
     final String instance;
-    if(n.getDefaultInstanceAsString() != null) {
-      instance = " = " + stripPrefix(n.getDefaultInstanceAsString(), pack);
+    final String[] instances = n.getDefaultInstanceAsStrings();
+    if(instances.length != 0) {
+      StringBuffer sb2 = new StringBuffer(" = " + stripPrefix(instances[0], pack));
+      for(int i = 1; i < instances.length; i++) {
+        sb2.append("," + stripPrefix(instances[i], pack));
+      }
+      instance = sb2.toString();
     } else {
       instance = "";
     }
