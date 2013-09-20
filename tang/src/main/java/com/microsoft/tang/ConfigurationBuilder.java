@@ -2,7 +2,6 @@ package com.microsoft.tang;
 
 import java.util.Set;
 
-import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;

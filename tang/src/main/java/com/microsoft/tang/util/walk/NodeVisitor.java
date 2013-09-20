@@ -15,7 +15,6 @@
  */
 package com.microsoft.tang.util.walk;
 
-import com.microsoft.tang.types.Node;
 
 /**
  * Generic interface to traverse nodes of the configuration graph.

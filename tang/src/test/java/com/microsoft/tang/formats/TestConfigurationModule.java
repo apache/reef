@@ -113,6 +113,7 @@ public class TestConfigurationModule {
   }
 
   static class FooAltImpl implements Foo {
+    @SuppressWarnings("unused")
     private final int fooness;
     @Inject
     FooAltImpl(@Parameter(Fooness.class) int fooness) { this.fooness = fooness;}

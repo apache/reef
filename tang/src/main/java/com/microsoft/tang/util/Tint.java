@@ -52,9 +52,7 @@ public class Tint {
   final private static String SETTERS = "setters";
   final private static String USES = "uses";
   final private static String FULLNAME = "fullName";
-  final Set<ClassNode> knownClasses = new MonotonicSet<>();
-  
-  final private static int NUMCOLS = 3;
+  final Set<ClassNode<?>> knownClasses = new MonotonicSet<>();
   
   final Set<String> divs = new MonotonicSet<>();
   {
@@ -71,6 +69,7 @@ public class Tint {
     this(jars, false);
   }
 
+  @SuppressWarnings("unchecked")
   public Tint(URL[] jars, boolean checkTang) {
     Object[] args = new Object[jars.length + 6];
     for(int i = 0; i < jars.length; i++){
@@ -117,7 +116,7 @@ public class Tint {
     moduleBuilders.addAll(r.getStore().get(SubTypesScanner.class, ReflectionUtilities.getFullName(ConfigurationModuleBuilder.class)));
 //    classes.addAll(r.getSubTypesOf(Name.class));
 
-    ch = Tang.Factory.getTang().getDefaultClassHierarchy(jars, new Class[0]);
+    ch = Tang.Factory.getTang().getDefaultClassHierarchy(jars, (Class<? extends ExternalConstructor<?>>[])new Class[0]);
     for(String s : defaultStrings) {
       try {
         if(checkTang || !s.startsWith("com.microsoft.tang")) {
@@ -149,7 +148,6 @@ public class Tint {
     for(String mb : moduleBuilders) {
       if(checkTang || !mb.startsWith("com.microsoft.tang")) {
         try {
-          @SuppressWarnings("unchecked")
           Class<ConfigurationModuleBuilder> cmb = (Class<ConfigurationModuleBuilder>) ch.classForName(mb);
           for(Field f : cmb.getFields()) {
             if(ReflectionUtilities.isCoercable(ConfigurationModule.class, f.getType())) {
@@ -353,7 +351,7 @@ public class Tint {
         stripCommonPrefixes(stripPrefixHelper2(s,prefix)),
         "org.apache.reef"),"com.microsoft.reef"),"com.microsoft.wake");
   }
-  public String toString(NamedParameterNode n) {
+  public String toString(NamedParameterNode<?> n) {
     StringBuilder sb = new StringBuilder("Name: " + n.getSimpleArgName() + " " + n.getFullName());
     String[] instances = n.getDefaultInstanceAsStrings();
     if(instances.length != 0) {
@@ -571,6 +569,7 @@ public class Tint {
         } else if (n instanceof ClassNode<?>) {
           out.println(t.toHtmlString((ClassNode<?>)n, currentPackage));
         } else {
+          out.close();
           throw new IllegalStateException();
         }
       }
@@ -580,7 +579,7 @@ public class Tint {
       out.println("<div class='package'>Module definitions</div>");
       for(Field f : t.modules.keySet()) {
         String moduleName = ReflectionUtilities.getFullName(f);
-        String declaringClassName = ReflectionUtilities.getFullName(f.getDeclaringClass());
+//        String declaringClassName = ReflectionUtilities.getFullName(f.getDeclaringClass());
         out.println("<div class='module-margin' id='"+moduleName+"'><div class='decl'><span class='fullName'>" + moduleName + "</span>");
         out.println("<pre>");
         String conf = t.modules.get(f).toPrettyString();
@@ -598,7 +597,7 @@ public class Tint {
         out.println("</div></div>");
       }
       out.println("<div class='package'>Interfaces and injectable classes</div>");
-      for(ClassNode c : t.knownClasses) {
+      for(ClassNode<?> c : t.knownClasses) {
         Class<?> clz = null;
         try {
           clz = t.ch.classForName(c.getFullName());
@@ -608,7 +607,7 @@ public class Tint {
         }
         String typ = clz.isInterface() ? "interface" : "class";
         out.println("<div class='module-margin' id='"+c.getFullName()+"'><div class='decl'><span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
-        for(ConstructorDef d : c.getInjectableConstructors()) {
+        for(ConstructorDef<?> d : c.getInjectableConstructors()) {
           out.println("<div class='uses'>" + c.getFullName() + "(");
           for(ConstructorArg a : d.getArgs()) {
             if(a.getNamedParameterName() != null) {

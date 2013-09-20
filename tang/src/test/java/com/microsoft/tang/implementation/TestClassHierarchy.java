@@ -1,6 +1,5 @@
 package com.microsoft.tang.implementation;
 
-import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,24 +12,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.microsoft.tang.Tang;
 import com.microsoft.tang.ClassHierarchy;
-
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
-
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.exceptions.NameResolutionException;
-
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.Node;
-
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class TestClassHierarchy {

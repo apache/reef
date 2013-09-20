@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
@@ -27,7 +26,6 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
-import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.MonotonicMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
@@ -48,10 +46,10 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   public final ParameterParser parameterParser = new ParameterParser();
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> T parseDefaultValue(NamedParameterNode<T> name) {
     String[] vals = name.getDefaultInstanceAsStrings();
-    @SuppressWarnings("unchecked")
     T[] ret = (T[]) new Object[vals.length];
     for(int i = 0; i < vals.length; i++) {
       String val = vals[i];
