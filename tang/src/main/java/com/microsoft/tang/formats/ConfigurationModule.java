@@ -18,6 +18,7 @@ import com.microsoft.tang.formats.Param;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.tang.util.MonotonicHashSet;
+import com.microsoft.tang.util.MonotonicMultiHashMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
@@ -35,6 +36,9 @@ public class ConfigurationModule {
   // Set of required unset parameters. Must be empty before build.
   private final Set<Field> reqSet = new MonotonicHashSet<>();
   private final Map<Impl<?>, Class<?>> setImpls = new MonotonicHashMap<>();
+  private final MonotonicMultiHashMap<Impl<?>, Class<?>> setImplSets = new MonotonicMultiHashMap<>(); 
+  private final MonotonicMultiHashMap<Impl<?>, String> setLateImplSets = new MonotonicMultiHashMap<>(); 
+  private final MonotonicMultiHashMap<Param<?>, String> setParamSets = new MonotonicMultiHashMap<>(); 
   private final Map<Impl<?>, String> setLateImpls = new MonotonicHashMap<>();
   private final Map<Param<?>, String> setParams = new MonotonicHashMap<>();
   protected ConfigurationModule(ConfigurationModuleBuilder builder) {
@@ -43,6 +47,8 @@ public class ConfigurationModule {
   private ConfigurationModule deepCopy() {
     ConfigurationModule cm = new ConfigurationModule(builder.deepCopy());
     cm.setImpls.putAll(setImpls);
+    cm.setImplSets.addAll(setImplSets);
+    cm.setParamSets.addAll(setParamSets);
     cm.setLateImpls.putAll(setLateImpls);
     cm.setParams.putAll(setParams);
     cm.reqSet.addAll(reqSet);
@@ -54,20 +60,28 @@ public class ConfigurationModule {
     if (f == null) { /* throw */
       throw new ClassHierarchyException("Unknown Impl/Param when setting " + ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
     }
-    if(!reqSet.contains(impl)) { reqSet.add(f); }
+    if(!reqSet.contains(f)) { reqSet.add(f); }
   }
 
   public final <T> ConfigurationModule set(Impl<T> opt, Class<? extends T> impl) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
-    c.setImpls.put(opt, impl);
+    if(c.builder.setOpts.contains(opt)) {
+      c.setImplSets.put(opt, impl);
+    } else {
+      c.setImpls.put(opt, impl);
+    }
     return c;
   }
 
   public final <T> ConfigurationModule set(Impl<T> opt, String impl) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
-    c.setLateImpls.put(opt, impl);
+    if(c.builder.setOpts.contains(opt)) {
+      c.setLateImplSets.put(opt, impl);
+    } else {
+      c.setLateImpls.put(opt, impl);
+    }
     return c;
   }
   
@@ -77,7 +91,11 @@ public class ConfigurationModule {
   public final <T> ConfigurationModule set(Param<T> opt, String val) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
-    c.setParams.put(opt, val);
+    if(c.builder.setOpts.contains(opt)) {
+      c.setParamSets.put(opt, val);
+    } else {
+      c.setParams.put(opt, val);
+    }
     return c;
   }
   
@@ -90,6 +108,7 @@ public class ConfigurationModule {
   } */
 
   
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public Configuration build() throws BindException {
     ConfigurationModule c = deepCopy();
     
@@ -111,14 +130,28 @@ public class ConfigurationModule {
         c.builder.b.bind(clazz, c.setImpls.get(i));
       } else if(c.setLateImpls.containsKey(i)) {
         c.builder.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
+      } else {
+        for(Class<?> clz : c.setImplSets.getValuesForKey(i)) {
+          c.builder.b.bindSetEntry((Class)clazz, (Class)clz);
+        }
+        for(String s : c.setLateImplSets.getValuesForKey(i)) {
+          c.builder.b.bindSetEntry((Class)clazz, s);
+        }
       }
     }
     for (Class<? extends Name<?>> clazz : c.builder.freeParams.keySet()) {
       Param<?> p = c.builder.freeParams.get(clazz);
       String s = c.setParams.get(p);
+      boolean foundOne = false;
       if(s != null) {
         c.builder.b.bindNamedParameter(clazz, s);
-      } else {
+        foundOne = true;
+      }
+      for(String paramStr : c.setParamSets.getValuesForKey(p)) {
+        c.builder.b.bindSetEntry((Class)clazz, paramStr);
+        foundOne = true;
+      }
+      if(! foundOne) {
         if(!(p instanceof OptionalParameter)) {
           throw new IllegalStateException();
         }
@@ -127,8 +160,6 @@ public class ConfigurationModule {
     return c.builder.b.build();
 
   }
-  /**
-   */
   public Set<NamedParameterNode<?>> getBoundNamedParameters() {
     Configuration c = this.builder.b.build();
     Set<NamedParameterNode<?>> nps = new MonotonicSet<>();

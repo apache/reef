@@ -1,5 +1,7 @@
 package com.microsoft.tang.formats;
 
+import java.util.Set;
+
 import javax.inject.Inject;
 
 import junit.framework.Assert;
@@ -265,5 +267,28 @@ public class TestConfigurationModule {
     Assert.assertEquals(42, i1.getInstance(Foo.class).getFooness());
     Assert.assertEquals(7, i2.getInstance(Foo.class).getFooness());
   }
+  
+  
+  @Test
+  public void setParamTest() throws BindException, InjectionException {
+    Configuration c = SetConfigurationModule.CONF
+        .set(SetConfigurationModule.P, "a")
+        .set(SetConfigurationModule.P, "b")
+        .build();
+    Set<String> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetName.class);
+    Assert.assertEquals(s.size(), 2);
+    Assert.assertTrue(s.contains("a"));
+    Assert.assertTrue(s.contains("b"));
+  }
+}
+@NamedParameter
+class SetName implements Name<Set<String>> { }
+
+class SetConfigurationModule extends ConfigurationModuleBuilder {
+  public final static RequiredParameter<String> P = new RequiredParameter<>();
+  
+  public static ConfigurationModule CONF = new SetConfigurationModule()
+    .bindSetEntry(SetName.class, SetConfigurationModule.P)
+    .build();
 }
 

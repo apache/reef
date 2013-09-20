@@ -405,6 +405,7 @@ public class TestTang {
     Assert.assertTrue(IsFuture.instantiated);
   }
   
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   public void testGenericEventHandlers() throws BindException, InjectionException {
     JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
@@ -913,7 +914,7 @@ class XXBB extends XBB {
 class XCC implements X<CC>{
   @Inject XCC(CC aa) { }
 }
-interface Bottle<X> {
+interface Bottle<Y> {
   
 }
 class WaterBottle implements Bottle<Water> {

@@ -18,6 +18,8 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 public abstract class ConfigurationModuleBuilder {
 
+  private final static Set<Class<?>> paramBlacklist = new MonotonicHashSet<Class<?>>(
+      Param.class, Impl.class);
   private final static Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);
@@ -30,6 +32,9 @@ public abstract class ConfigurationModuleBuilder {
   // to the decl counterparts before build() is called.
   private final Set<Field> reqUsed = new MonotonicHashSet<>();
   private final Set<Field> optUsed = new MonotonicHashSet<>();
+  
+  final Set<Object> setOpts = new MonotonicHashSet<>();
+  
   // Maps from field instance variables to the fields that they
   // are assigned to. These better be unique!
   final Map<Object, Field> map = new MonotonicHashMap<>();
@@ -40,6 +45,11 @@ public abstract class ConfigurationModuleBuilder {
   protected ConfigurationModuleBuilder() {
     for (Field f : getClass().getDeclaredFields()) {
       Class<?> t = f.getType();
+      if(paramBlacklist.contains(t)) {
+        throw new ClassHierarchyException(
+            "Found a field of type " + t + " which should be a Required/Optional Parameter/Implementation instead"
+            );
+      }
       if (paramTypes.contains(t)) {
         if (!Modifier.isPublic(f.getModifiers())) {
           throw new ClassHierarchyException(
@@ -89,6 +99,7 @@ public abstract class ConfigurationModuleBuilder {
     optDecl.addAll(c.optDecl);
     reqUsed.addAll(c.reqUsed);
     optUsed.addAll(c.optUsed);
+    setOpts.addAll(c.setOpts);
     map.putAll(c.map);
     freeImpls.putAll(c.freeImpls);
     freeParams.putAll(c.freeParams);
@@ -120,6 +131,22 @@ public abstract class ConfigurationModuleBuilder {
     }
     return c;
   }
+
+  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Impl<? extends T> opt) {
+    ConfigurationModuleBuilder c = deepCopy();
+    c.processUse(opt);
+    c.freeImpls.put(iface, opt);
+    if(!setOpts.contains(opt)) { c.setOpts.add(opt); }
+    return c;
+  }
+  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Param<? extends T> opt) {
+    ConfigurationModuleBuilder c = deepCopy();
+    c.processUse(opt);
+    c.freeParams.put(iface, opt);
+    if(!setOpts.contains(opt)) { c.setOpts.add(opt); }
+    return c;
+  }
+
 
   public final <T> ConfigurationModuleBuilder bindImplementation(Class<T> iface,
       Class<? extends T> impl) {
@@ -219,9 +246,7 @@ public abstract class ConfigurationModuleBuilder {
   private final <T> void processUse(Object impl) {
     Field f = map.get(impl);
     if (f == null) { /* throw */
-      if (f == null) { /* throw */
-        throw new ClassHierarchyException("Unknown Impl/Param when binding " + ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
-      }
+      throw new ClassHierarchyException("Unknown Impl/Param when binding " + ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
     }
     if(!reqUsed.contains(f)) { reqUsed.add(f); }
     if(!optUsed.contains(f)) { optUsed.add(f); }
