@@ -89,6 +89,33 @@ public abstract class ConfigurationModuleBuilder {
     }
   }
 
+  /**
+   * TODO: It would be nice if this incorporated d by reference so that static analysis / documentation tools
+   * could document the dependency between c and d.
+   */
+  public final ConfigurationModuleBuilder merge(ConfigurationModule d) {
+    if(d == null) {
+      throw new NullPointerException("If merge() was passed a static final field that is initialized to non-null, then this is almost certainly caused by a circular class dependency.");
+    }
+    ConfigurationModuleBuilder c = deepCopy();
+    try {
+      c.b.addConfiguration(d.builder.b.build());
+    } catch (BindException e) {
+      throw new ClassHierarchyException(e);
+    }
+    c.reqDecl.addAll(d.builder.reqDecl);
+    c.optDecl.addAll(d.builder.optDecl);
+    c.reqUsed.addAll(d.builder.reqUsed);
+    c.optUsed.addAll(d.builder.optUsed);
+    c.setOpts.addAll(d.builder.setOpts);
+    c.map.putAll(d.builder.map);
+    c.freeImpls.putAll(d.builder.freeImpls);
+    c.freeParams.putAll(d.builder.freeParams);
+    c.lateBindClazz.putAll(d.builder.lateBindClazz);
+    
+    return c;
+  }
+  
   private ConfigurationModuleBuilder(ConfigurationModuleBuilder c) {
     try {
       b.addConfiguration(c.b.build());

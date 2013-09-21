@@ -32,7 +32,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
  *
  */
 public class ConfigurationModule {
-  private final ConfigurationModuleBuilder builder;
+  final ConfigurationModuleBuilder builder;
   // Set of required unset parameters. Must be empty before build.
   private final Set<Field> reqSet = new MonotonicHashSet<>();
   private final Map<Impl<?>, Class<?>> setImpls = new MonotonicHashMap<>();
