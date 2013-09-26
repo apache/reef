@@ -11,20 +11,20 @@ import org.junit.Test;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.formats.StaticConfiguration;
-import com.microsoft.tang.formats.StaticConfiguration.BindImplementation;
-import com.microsoft.tang.formats.StaticConfiguration.BindNamedParameter;
+import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.tang.formats.ConfigurationModuleBuilder;
+import com.microsoft.tang.formats.RequiredParameter;
 
 public class TestTweetExample {
-  private static interface TweetFactory {
+  static interface TweetFactory {
     public String getTweet();
   }
 
-  private static interface SMS {
+  static interface SMS {
     public void sendSMS(String msg, long phoneNumber);
   }
 
-  private static class MockTweetFactory implements TweetFactory {
+  static class MockTweetFactory implements TweetFactory {
     @Inject
     public MockTweetFactory() {
     }
@@ -35,7 +35,7 @@ public class TestTweetExample {
     }
   }
 
-  private static class MockSMS implements SMS {
+  static class MockSMS implements SMS {
     @Inject
     public MockSMS() {
     }
@@ -49,7 +49,7 @@ public class TestTweetExample {
     }
   }
 
-  private static class Tweeter {
+  static class Tweeter {
     final TweetFactory tw;
     final SMS sms;
     final long phoneNumber;
@@ -67,6 +67,15 @@ public class TestTweetExample {
     public void sendMessage() {
       sms.sendSMS(tw.getTweet(), phoneNumber);
     }
+  }
+
+  public static final class TweetConfig extends ConfigurationModuleBuilder {
+    public static final RequiredParameter<Long> PHONE_NUMBER = new RequiredParameter<>();
+    static final ConfigurationModule CONF = new TweetConfig()
+      .bindImplementation(TweetFactory.class, MockTweetFactory.class)
+      .bindImplementation(SMS.class, MockSMS.class)
+      .bindNamedParameter(Tweeter.PhoneNumber.class, PHONE_NUMBER)
+      .build();
   }
 
   @BeforeClass
@@ -87,21 +96,10 @@ public class TestTweetExample {
   @After
   public void tearDown() throws Exception {
   }
-
-  private static final StaticConfiguration TANG_CONF = new StaticConfiguration(
-      new BindImplementation(TweetFactory.class, MockTweetFactory.class),
-      new BindImplementation(SMS.class, MockSMS.class),
-      new BindNamedParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString())
-      );  
   
   @Test
   public void test() throws Exception {
-//    ConfigurationBuilder t = tang.newConfigurationBuilder(TANG_CONF.build());
-//    t.bindImplementation(TweetFactory.class, MockTweetFactory.class);
-//    t.bindImplementation(SMS.class, MockSMS.class);
-//    t.bindNamedParameter(Tweeter.PhoneNumber.class, new Long(867 - 5309).toString());
-    Tweeter tw = (Tweeter) tang.newInjector(TANG_CONF.build()).getInstance(Tweeter.class);
+    Tweeter tw = (Tweeter) tang.newInjector(TweetConfig.CONF.set(TweetConfig.PHONE_NUMBER, new Long(867 - 5309)).build()).getInstance(Tweeter.class);
     tw.sendMessage();
   }
-
 }

@@ -72,7 +72,7 @@ public abstract class ConfigurationModuleBuilder {
         } catch (IllegalArgumentException | IllegalAccessException e) {
           throw new ClassHierarchyException(
               "Could not look up field instance in " + getClass() + " field: "
-                  + f);
+                  + f, e);
         }
         if (map.containsKey(o)) {
           throw new ClassHierarchyException(
