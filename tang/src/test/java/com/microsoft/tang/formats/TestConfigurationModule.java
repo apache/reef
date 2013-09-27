@@ -281,6 +281,26 @@ public class TestConfigurationModule {
     Assert.assertTrue(s.contains("a"));
     Assert.assertTrue(s.contains("b"));
   }
+  @Test
+  public void setClassTest() throws BindException, InjectionException {
+    Configuration c = SetClassConfigurationModule.CONF
+       .set(SetClassConfigurationModule.P, SubA.class)
+       .set(SetClassConfigurationModule.P, SubB.class)
+       .build();
+    Set<Super> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetClass.class);
+    Assert.assertEquals(2, s.size());
+    boolean sawA = false, sawB = false;
+    for(Super sup : s) {
+      if(sup instanceof SubA) {
+        sawA = true;
+      } else if(sup instanceof SubB) {
+        sawB = true;
+      } else {
+        Assert.fail();
+      }
+    }
+    Assert.assertTrue(sawA && sawB);
+  }
 }
 @NamedParameter
 class SetName implements Name<Set<String>> { }
@@ -288,8 +308,22 @@ class SetName implements Name<Set<String>> { }
 class SetConfigurationModule extends ConfigurationModuleBuilder {
   public final static RequiredParameter<String> P = new RequiredParameter<>();
   
-  public static ConfigurationModule CONF = new SetConfigurationModule()
+  public static final ConfigurationModule CONF = new SetConfigurationModule()
     .bindSetEntry(SetName.class, SetConfigurationModule.P)
     .build();
 }
-
+@NamedParameter
+class SetClass implements Name<Set<Super>> {}
+class SetClassConfigurationModule extends ConfigurationModuleBuilder {
+  public final static RequiredParameter<Super> P = new RequiredParameter<>();
+  public static final ConfigurationModule CONF = new SetClassConfigurationModule()
+    .bindSetEntry(SetClass.class, SetClassConfigurationModule.P)
+    .build();
+}
+interface Super { }
+class SubA implements Super {
+  @Inject public SubA() {}
+}
+class SubB implements Super {
+  @Inject public SubB() {}
+}

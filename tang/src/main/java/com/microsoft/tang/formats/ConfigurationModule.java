@@ -85,6 +85,9 @@ public class ConfigurationModule {
     return c;
   }
   
+  public final <T> ConfigurationModule set(Param<T> opt, Class<? extends T> val) {
+    return set(opt, ReflectionUtilities.getFullName(val));
+  }
   public final <T> ConfigurationModule set(Param<T> opt, Number val) {
     return set(opt, ""+val);
   }
