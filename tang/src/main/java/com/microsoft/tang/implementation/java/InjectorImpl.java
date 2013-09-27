@@ -556,8 +556,8 @@ public class InjectorImpl implements Injector {
         args[i] = injectFromPlan(argPlans[i]);
       }
       try {
-        T ret;
         concurrentModificationGuard = true;
+        T ret;
         try {
           ConstructorDef<T> def = (ConstructorDef<T>) constructor.getConstructorDef();
           java.lang.reflect.Constructor<T> c = getConstructor(def);
@@ -578,11 +578,12 @@ public class InjectorImpl implements Injector {
         if (ret instanceof ExternalConstructor) {
       	  ret = ((ExternalConstructor<T>)ret).newInstance();
         }
-        concurrentModificationGuard = false;
         instances.put(constructor.getNode(), ret);
         return ret;
       } catch (ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor", e);
+      } finally {
+        concurrentModificationGuard = false;
       }
     } else if (plan instanceof Subplan) {
       Subplan<T> ambiguous = (Subplan<T>) plan;
@@ -613,15 +614,18 @@ public class InjectorImpl implements Injector {
           "Unexpected error copying configuration!", e);
     }
     for (ClassNode<?> cn : old.instances.keySet()) {
-      if (!(cn.getFullName().equals("com.microsoft.tang.Injector"))) {
-        try {
-          ClassNode<?> new_cn = (ClassNode<?>) i.namespace.getNode(cn
-              .getFullName());
-          i.instances.put(new_cn, old.instances.get(cn));
-        } catch (BindException e) {
-          throw new IllegalStateException("Could not resolve name "
-              + cn.getFullName() + " when copying injector");
-        }
+      if (cn.getFullName().equals(ReflectionUtilities.getFullName(Injector.class))
+          || cn.getFullName().equals(ReflectionUtilities.getFullName(InjectorImpl.class))) {
+          // This would imply that we're treating injector as a singleton somewhere.  It should be copied fresh each time.
+        throw new IllegalStateException();
+      }
+      try {
+        ClassNode<?> new_cn = (ClassNode<?>) i.namespace.getNode(cn
+            .getFullName());
+        i.instances.put(new_cn, old.instances.get(cn));
+      } catch (BindException e) {
+        throw new IllegalStateException("Could not resolve name "
+            + cn.getFullName() + " when copying injector");
       }
     }
     // Copy references to the remaining (which must have been set with
@@ -695,6 +699,7 @@ public class InjectorImpl implements Injector {
   }
 
   @Override
+  @Deprecated
   public Injector createChildInjector(Configuration... configurations)
       throws BindException {
     return forkInjector(configurations);

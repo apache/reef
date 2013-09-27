@@ -531,6 +531,24 @@ public class TestTang {
     CheckChildIface c2 = i2.getInstance(CheckChildIface.class);
     Assert.assertTrue(c1 != c2);
   }
+  @Test
+  public void testReuseFailedInjector() throws BindException, InjectionException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    try {
+      i.getInstance(Fail.class);
+      Assert.fail("Injecting Fail should not have worked!");
+    } catch (InjectionException e) {
+      i.getInstance(Pass.class);
+    }
+  }
+}
+class Fail {
+  @Inject
+  public Fail() { throw new UnsupportedOperationException(); }
+}
+class Pass {
+  @Inject
+  public Pass() {  }
 }
 class IsFuture {
   static boolean instantiated;
