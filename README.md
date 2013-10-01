@@ -145,9 +145,19 @@ Next, the ```@Inject``` annotation flags the constructor so that Tang will consi
 TODO Screenshot of tooltip
 ```
 
-Injection
+Configuration modules
 ---------
-Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; at runtime, we need a way to invoke Tang, and to tell it to instantiate our objects.  This process is called _injection_.  Tang's injection process is designed to catch as many potential runtime errors as possible into checks that can be performed before application code begins to run.  This simplifies debugging, since many configurations can be caught without running (or examining) application-specific initialization code.  However, it does introduce a number of new phases to Tang's initiliazation process and to injection:
+Configuration modules allow applications to perform most configuration generation and verification tasks at build time.  This allows Tang to automatically generate rich configuration-related documentation, to detect problematic design patterns, and to report errors before the application even begins to run.
+
+Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; at runtime, we need a way to invoke Tang, and to tell it to instantiate our objects.  This process is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging, since many configurations can be caught without running (or examining) application-specific initialization code.
+
+```
+TODO
+```
+
+Raw configuration API
+---------
+Tang also provides a lower level configurtion API for applications that need more dynamic control over their configurations:
 
 ```java
 ...
@@ -162,9 +172,12 @@ import com.microsoft.tang.exceptions.InjectionException;
   public static void main(String[] args) throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
     ConfigurationBuilder cb = (ConfigurationBuilder)tang.newConfigurationBuilder();
-    cb.register(Timer.class);
+    cb.bindNamedParameter(Timer.Sleep.class, 5);
     Configuration conf = cb.build();
     Injector injector = tang.newInjector(conf);
+    if(!injector.isInjectable(Timer.class)) {
+      System.err.println("If isInjectable returns false, the next line will throw an exception");
+    }
     Timer timer = injector.getInstance(Timer.class);
 
     try {
@@ -177,13 +190,14 @@ import com.microsoft.tang.exceptions.InjectionException;
   }
 ```
 The first step in using Tang is to get a handle to a Tang object by calling "Tang.Factory.getTang()".  Having obtained a handle, we run through each of the phases of a Tang injection:
-   * We use `ConfigurationBuilder` objects to tell Tang about the class hierarchy that it will be using to inject objects and (in later examples) to register the contents of configuration files, override default configuration values, and to set default implementations of classes.
-   * For this example, we simply call the `cb.register(Class<?>)` method in `ConfigurationBuilder`.  We pass in `Timer.class`, which tells Tang to process Timer, as well as any superclasses and internal classes (such as our parameter class, Seconds).
+   * We use `ConfigurationBuilder` objects to tell Tang about the class hierarchy that it will be using to inject objects and (in later examples) to register the contents of configuration files, override default configuration values, and to set default implementations of classes.  ```ConfigurationBuilder``` and ```ConfigurationModuleBuider``` export similar API's.  The difference is that ```ConfigurationBuilder``` produces ```Configuration``` objects directly, and is designed to be used at runtime.  ```ConfigurationModuleBuilder``` is desgined to produce data structures that will be generated and analyzed during the build, and at class load time.
+   * bindNamedParameter overrides the default value of Timer.Sleep, setting it to 5.  Tang inteprets the 5 as a string, but allows instances of Number to be passed in as syntactic sugar.
    * We call `.build()` on the `ConfigurationBuilder`, creating an immutable `Configuration` object.  At this point, Tang ensures that all of the classes it has encountered so far are consistent with each other, and that they are suitable for injection.  When Tang encounters conflicting classes or configuration files, it throws a `BindException` to indicate that the problem is due to configuration issues. Note that `ConfigurationBuilder` and `Configuration` do not determine whether or not a particular injection will succeed; that is the business of the _Injector_.
-   * To obtain an instance of Injector, we pass our Configuration object into tang.newInjector().
-   * Finally, we call injector.getInstance(Timer.class).  Internally, this method considers all possible injection plans for Timer.class.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an InjectionException.
+   * To obtain an instance of Injector, we pass our Configuration object into `tang.newInjector()`.
+   * `injector.isInjectable(Timer.class)` checks to see if Timer is injectable without actually performing an injection or running application code.  (Note that, in this example, the Java classloader may have run application code.  For more information, see the advanced tutorials on cross-language injections and securely building configurations for untrusted code.)
+   * Finally, we call `injector.getInstance(Timer.class)`.  Internally, this method considers all possible injection plans for `Timer`.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an `InjectionException`.
 
-Processing configurations
+Processing configuration files
 -------------------------
 We begin by explaining how Tang processes configuration files, and then move on to a number of more advanced topics, such as programmatically specifying configuration options, and use cases that arise in more complex Tang use cases.
 
