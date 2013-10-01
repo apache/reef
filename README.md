@@ -264,32 +264,41 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
    * `injector.isInjectable(Timer.class)` checks to see if Timer is injectable without actually performing an injection or running application code.  (Note that, in this example, the Java classloader may have run application code.  For more information, see the advanced tutorials on cross-language injections and securely building configurations for untrusted code.)
    * Finally, we call `injector.getInstance(Timer.class)`.  Internally, this method considers all possible injection plans for `Timer`.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an `InjectionException`.
 
-Processing configuration files
--------------------------
-We begin by explaining how Tang processes configuration files, and then move on to a number of more advanced topics, such as programmatically specifying configuration options, and use cases that arise in more complex Tang use cases.
+Processing configuration data
+-----------------------------
+
+Tang provides a number of so-called _formats_ that interface with external configuration data.  ConfigurationModule is one such example (see the tutorial TODO).  This tutorial explains how to use Tang's default command line processing facilities, and properties configuration file parser.
+
+[**TODO:** explain `processCommandLine()`]
+
+[**TODO:** document configuration file API here]
+
 
 Tang configuration information can be divided into two categories.  The first type, _parameters_, pass values such as strings and integers into constructors.  Users of Tang encode configuration parameters as strings, allowing them to be stored in configuration files, and passed in on the command line.
 
 The second type of configuration option, _implementation bindings_, are used to tell Tang which implementation should be used when an instance of an interface is requested.  Like configuration parameters, implementation bindings are expressible as strings: Tang configuration files simply contain the raw (without the generic parameters) name of the Java Classes to be bound together.
 
-New parameters are created and passed into constructors as in the example above, by creating implementations of `Name<T>`, and adding `@NamedParameter`, `@Parameter` and `@Inject` annotations as necessary.  Specifying implementations for interfaces is a bit more involved, as a number of subtle use cases arise.
+New parameters are created and passed into constructors as in the examples above, by creating implementations of `Name<T>`, and adding `@NamedParameter`, `@Parameter` and `@Inject` annotations as necessary.  Specifying implementations for interfaces is a bit more involved, as a number of subtle use cases arise.
 
-The common case is to simply bind an implementation to an interface.  This is done in configuration files as follows:
+However, all configuration settings in Tang can be unambiguously represented as a `key=value` pair that can be interpreted either asan `interface=implementation` pair or a `configuration_parameter=value` pair.  This maps well to Java-style properties files.  For example:
 
 ```properties
 com.examples.Interface=com.examples.Implementation
 ```
 
-this tells Tang to create a new Implementation each time it wants to invoke a constructor that asks for an instance of Interface.  In most circumstances, Implementation extends or implements Interface.  In such cases, Tang makes sure that Implementation contains at least one constructor with an `@Inject` annotation, and performs the binding.
+tells Tang to create a new Implementation each time it wants to invoke a constructor that asks for an instance of Interface.  In most circumstances, Implementation extends or implements Interface (`ExternalConstructors` are the exception -- see the next section).  In such cases, Tang makes sure that Implementation contains at least one constructor with an `@Inject` annotation, and performs the binding.
 
 ### Using external constructors to inject legacy code
 
-Tang's _ExternalConstructor_ API supports injection of legacy code.  If Implementation does not subclass Interface, Tang checks to see if it subclasses ExternalConstructor<? extends Interface> instead.  If so, Tang checks that Implementation has an `@Inject` annotation on at least one constructor, and performs the binding as usual.  At injection time, Tang injects Implementation as though it implemented Interface, and then calls `newInstance()`, which returns the value to be injected.  Note that `ExternalConstructor` objects are single-use: `newInstance()` will only be called once.  If the `ExternalConstructor` class is marked as a singleton, Tang internally retains the return value of `newInstance()`, exactly as if the object had been created with a regular constructor.
+TODO promote to top-level section.
 
-[**TODO:** explain `processCommandLine()`, `addConfiguration(File)`, and `addConfiguration(Configuration)`]
+Tang's _ExternalConstructor_ API supports injection of legacy code.  If Implementation does not subclass Interface, Tang checks to see if it subclasses ExternalConstructor<? extends Interface> instead.  If so, Tang checks that Implementation has an `@Inject` annotation on at least one constructor, and performs the binding as usual.  At injection time, Tang injects Implementation as though it implemented Interface, and then calls `newInstance()`, which returns the value to be injected.  Note that `ExternalConstructor` objects are single-use: `newInstance()` will only be called once.  If the `ExternalConstructor` class is marked as a singleton, Tang internally retains the return value of `newInstance()`, exactly as if the object had been created with a regular constructor.
 
 Tutorial: Complex application architectures
 ===========================================
+
+Composing configurations from multiple sources
+----------------------------------------------
 
 Distributed dependency injection
 --------------------------------
