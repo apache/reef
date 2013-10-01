@@ -149,10 +149,11 @@ Configuration modules
 ---------
 Configuration modules allow applications to perform most configuration generation and verification tasks at build time.  This allows Tang to automatically generate rich configuration-related documentation, to detect problematic design patterns, and to report errors before the application even begins to run.
 
-Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; at runtime, we need a way to invoke Tang, and to tell it to instantiate our objects.  This process is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging, since many configurations can be caught without running (or examining) application-specific initialization code.
-
 In the example below, we extend the Timer API to include a second implementation that simply outputs the amount of
-time a real timer would have slept to stderr.  In a real unit testing example, it would likely interact with a scheduler based on logical time.
+time a real timer would have slept to stderr.  In a real unit testing example, it would likely interact with a scheduler based on logical time.  Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; this example also adds a `main()` method that invokes Tang, and instantiates an object.
+
+The process of instantiting an object with Tang is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging and eliminates many types of runtime error handling code, since many configurations can be caught before running (or examining) application-specific initialization code. 
+
 
 ```
 @DefaultImplementation(TimerImpl.class)
@@ -195,12 +196,31 @@ static int main(String[] args) throws BindException, InjectionException {
   t.sleep();
 }
 ```
-Again, there are a few things going on here.
+Again, there are a few things going on here:
    - First, we push the implementation of `Timer` into a new class, `TimerImpl`.  The `@DefaultImplementation` tells Tang to use `TimerImpl` when no other implementation is expicitly provided.
    - We leave the Sleep class in the Timer interface.  This, plus the `@DefaultImplementation` annotation maintain backward compatibility with code that used Tang to inject the old `Timer` class.
    - The `TimerMock` class includes a dummy implementation of Timer, along with a `ConfigurationModule` final static field called CONF.
+   - The main method uses `CONF` to generate a configuration.  Rather than set Timer.Sleep directly, it sets `MOCK_SLEEP_TIME`.  In a more complicated example this would allow `CONF` to route the sleep time to testing infrastructure, or other classes that are specific to the testing environment or implemenation of `TimerMock`.
 
-TODO: Write a paragraph about ConfigurationModules.
+ConfigurationModules serve a number of purposes:
+   - They allow application and library developers to encapsulate the details surrounding their code's instantiation.
+   - They provide Java APIs that expose `OptionalParameter`, `RequiredParameter`, `OptionalImplementation`, `RequiredImpementation` fields.  These fields tell users of the ConfigurationModule which subsystems of the application require which configuration parameters, and allow the author of the ConfigurationModule to use JavaDoc to document the parameters they export.
+   - Finally, because ConfigurationModule data structures are populated at class load time (before the application begins to run), they can be inspected by static analysis tools that are exposed by Tang.
+
+These tools are exposed by com.microsoft.tang.util.Tint, which is included by default in all Tang builds.  As long as Tang is on the classpath, invoking:
+```
+java com.microsoft.tang.util.Tint -doc tangdoc.html
+```
+will perform full static analysis of all classes the class path, and emit a nicely formatted HTML document that contains human readable documentation, and provides cross-references between configuration options, interfaces, classes, and the `ConfigurationModules` that use and set them. 
+
+Here is the documentation for our Timer example:
+```
+TODO Screenshot of TangDoc
+```
+Here is a sample Tint build error.  Here, we added a typo to the string that specifies the default value of Timer.Sleep:
+```
+TODO Paste in a Tint build error
+```
 
 Raw configuration API
 ---------
