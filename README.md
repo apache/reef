@@ -5,14 +5,20 @@ Outline
 
    * [Motivation](#motivation)
    * [Design principles](#design-principles)
-   * [Defining configuration parameters](#configuration-parameters)
-   * [Instantiating objects with Tang](#injection)
-   * [Processing configuration options](#processing-configurations)
-   * [Distributed dependency injection](#distributed-dependency-injection)
-   * [Dynamically setting parameters and choosing implementations](#bind)
-   * [Creating sets of similar injectors](#child-injectors)
-   * [Using the injection plan API to choose between multiple implementations](#injection-plans)
-   * [Language interoperability](#language-interoperability)
+   * [Tutorial: Getting started](#tutorial-getting-started)
+     * [Defining configuration parameters](#configuration-parameters)
+     * [Instantiating objects with Tang](#injection)
+     * [Processing configuration options](#processing-configurations)
+   * [Tutorial: Complex application architectures](#tutorial-complex-application-architectures)
+     * [Distributed dependency injection](#distributed-dependency-injection)
+     * [Dynamically setting parameters and choosing implementations](#bind)
+     * [Creating sets of similar injectors](#child-injectors)
+   * [Tutorial: Design patterns and best practices](#tutorial-design-patterns-and-best-practices)
+     * [Modularity and complex configurations](#modularity-and-complex-configurations)
+     * [Cyclic dependencies](#cyclic-dependencies)
+   * [Roadmap](#roadmap)
+     * [Using the injection plan API to choose between multiple implementations](#injection-plans)
+     * [Language interoperability](#language-interoperability)
 
 Motivation
 ============
@@ -62,8 +68,8 @@ Taken together, these properties greatly simplify dependency injection in distri
 
 We expect Tang to be used in environments that are dominated by "plugin"-style APIs with many alternative implementations.  Tang cleanly separates concerns over configuration management, dependency injection, and object implementations.  This hides most of the complexity of dependency injection from plugin implementers.  It also prevents plugin implementations from inadvertently breaking the high-level semantics that allow Tang to perform extensive static checking and to provide clean semantics in distributed, heterogeneous environments.
 
-Tutorial
-========
+Tutorial: Getting started
+=========================
 
 This tutorial is geared toward people that would like to quickly get started with Tang, or that are modifying an existing Tang application.
 
@@ -223,6 +229,9 @@ Doing this also ensures that any `@Inject`-able constructors in the class will b
 
 [**TODO:** explain `processCommandLine()`, `addConfiguration(File)`, and `addConfiguration(Configuration)`]
 
+Tutorial: Complex application architectures
+===========================================
+
 Distributed dependency injection
 --------------------------------
 In Tang, distributed injection is performed by writing Tang's current state out to configuration files, shipping them to remote machines, and using the configuration file to instantiate an identical Tang instance on the remote machine.  Two methods support such use cases.  The first is part of the Configuration API, and writes a well-formed configuration file to an output stream.  Its method signature is self-explanatory:
@@ -274,6 +283,9 @@ To get around the problem, Tang provides _child injectors_.  Child injectors are
 Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use `bindVolatile...()` to pass in an instance directly (use of `bindVolatile...()` is discouraged, but often necessary).  Then, use `createChildInjector()` to create one new injector for each configuration.
 
 Since `createChildInjector()` does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
+
+Roadmap
+=======
 
 Injection plans
 ---------------
