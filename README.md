@@ -65,6 +65,8 @@ We expect Tang to be used in environments that are dominated by "plugin"-style A
 Tutorial
 ========
 
+This tutorial is geared toward people that would like to quickly get started with Tang, or that are modifying an existing Tang application.
+
 Configuration Parameters
 ------------------------
 
@@ -77,6 +79,9 @@ public class Timer {
   private final int seconds;
 
   public Timer(int seconds) {
+    if(seconds < 0) {
+      throw new IllegalArgumentException("Cannot sleep for negative time!");
+    }
     this.seconds = seconds;
   }
 
@@ -85,7 +90,11 @@ public class Timer {
   }
 }
 ```
-Tang encourages applications to use Plain Old Java (POJO) objects, and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields, and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated; they simply need to check constructor parameters as any other POJO would.
+Tang encourages applications to use Plain Old Java (POJO) objects, and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields, and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated; they simply need to check constructor parameters as any other POJO would.  Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
+
+```
+TODO: Paste in stack trace that results from a negative Timer value.
+```
 
 In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line, and in a config file.
 
@@ -106,6 +115,9 @@ public class Timer {
 
   @Inject
   public Timer(@Parameter(Seconds.class) int seconds) {
+    if(seconds < 0) {
+      throw new IllegalArgumentException("Cannot sleep for negative time!");
+    }
     this.seconds = seconds;
   }
 
@@ -114,14 +126,18 @@ public class Timer {
   }
 }
 ```
-A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's "Name" interface.  Name is a generic type, with a single mandatory parameter that specifies the type of object to be passed in.  So, the Seconds class declares a parameter called "Seconds" that expects Integer values.
+A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's "Name" interface.  Name is a generic type, with a single mandatory parameter that specifies the type of object to be passed in.  Since Seconds implements ```Name<Integer>```, it is a parameter called "Seconds" that expects Integer values.
 
-All instances of Name must be annotated with `@NamedParamter`, which takes a number of options:
- * `default_value` (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.
- * `short_name` (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.
+All instances of Name must be annotated with ```@NamedParamter```, which takes a number of options:
+ * ```default_value``` (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  ```default_class``` takes a Class (instead of a String), while ```default_values``` and ```default_classes``` take sets of values.
+ * `short_name` (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling ```registerShortName()``` TODO: Which class is that in?
  * `doc` (optional): Human readable documentation, describing the purpose of the parameter.
 
-Next, the `@Inject` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the `@Parameter` annotation takes the class associated with the configuration parameter.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well.
+Next, the ```@Inject``` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the ```@Parameter``` annotation tells Tang to use the configuration parameter when invoking the constructor.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well:
+
+```
+TODO Screenshot of tooltip
+```
 
 Injection
 ---------
