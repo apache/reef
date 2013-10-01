@@ -151,9 +151,56 @@ Configuration modules allow applications to perform most configuration generatio
 
 Of course, in isolation, having the ability to specify configuration parameters is not particularly useful; at runtime, we need a way to invoke Tang, and to tell it to instantiate our objects.  This process is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging, since many configurations can be caught without running (or examining) application-specific initialization code.
 
+In the example below, we extend the Timer API to include a second implementation that simply outputs the amount of
+time a real timer would have slept to stderr.  In a real unit testing example, it would likely interact with a scheduler based on logical time.
+
 ```
-TODO
+@DefaultImplementation(TimerImpl.class)
+interface Timer {
+  @NamedParameter(default_value="10",
+      doc="Number of seconds to sleep", short_name="sec")
+  class Seconds implements Name<Integer> {}
+  public sleep() throws Exception;
+}
+class TimerImpl implements Timer {
+  @Override
+  public sleep() throws Exception {
+    java.lang.Thread.sleep(seconds * 1000);
+  }
+}
+class TimerMock implements Timer {
+  public static class TimerMockConf extends ConfigurationModuleBuilder {
+    public static final OptionalParameter<Integer> MOCK_SLEEP_TIME = new OptionalParameter<>();
+  }
+  public static final ConfigurationModule CONF = new TimerMockConf()
+    .bindNamedParameter(Timer.Sleep, MOCK_SLEEP_TIME)
+    .build();
+  @Inject
+  TimerMockConf(@Parameter(Timer.Sleep.class) seconds) {
+    if(seconds < 0) {
+      throw new IllegalArgumentException("...");
+    }
+    this.seconds = seconds; 
+  }
+  @Override
+  public void sleep() {
+    System.err.println("Would have slept for " + seconds + "sec.");
+  }
+}
+static int main(String[] args) throws BindException, InjectionException {
+  Configuration c = TimerMock.CONF
+    .set(MOCK_SLEEP_TIME, 1)
+    .build();
+  Timer t = Tang.Factory.newInjector(c).getInstance(Timer.class);
+  t.sleep();
+}
 ```
+Again, there are a few things going on here.
+   - First, we push the implementation of `Timer` into a new class, `TimerImpl`.  The `@DefaultImplementation` tells Tang to use `TimerImpl` when no other implementation is expicitly provided.
+   - We leave the Sleep class in the Timer interface.  This, plus the `@DefaultImplementation` annotation maintain backward compatibility with code that used Tang to inject the old `Timer` class.
+   - The `TimerMock` class includes a dummy implementation of Timer, along with a `ConfigurationModule` final static field called CONF.
+
+TODO: Write a paragraph about ConfigurationModules.
 
 Raw configuration API
 ---------
