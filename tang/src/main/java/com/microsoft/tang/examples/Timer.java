@@ -20,6 +20,9 @@ public class Timer {
 
   @Inject
   public Timer(@Parameter(Seconds.class) int seconds) {
+    if(seconds < 0) {
+      throw new IllegalArgumentException("Cannot sleep for negative time!");
+    }
     this.seconds = seconds;
   }
 
@@ -31,6 +34,7 @@ public class Timer {
     Tang tang = Tang.Factory.getTang();
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     CommandLine cl = new CommandLine(cb);
+    cl.registerShortNameOfClass(Timer.Seconds.class);
     cl.processCommandLine(args);
     Configuration conf = cb.build();
     InjectorImpl injector = (InjectorImpl)tang.newInjector(conf);

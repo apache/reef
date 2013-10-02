@@ -1,6 +1,7 @@
 package com.microsoft.tang.util;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -124,6 +125,13 @@ public abstract class AbstractMonotonicMultiMap<K,V> implements Collection<Entry
       }
       
     };
+  }
+  public Set<V> values() {
+    Set<V> s = new HashSet<>();
+    for(Entry<K,V> e : this) {
+      s.add(e.getValue());
+    }
+    return s;
   }
   @Override
   public boolean remove(Object o) {

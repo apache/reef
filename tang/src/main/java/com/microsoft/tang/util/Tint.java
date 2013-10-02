@@ -46,13 +46,17 @@ import com.microsoft.tang.util.walk.Walk;
 public class Tint {
   final JavaClassHierarchy ch;
   final Map<Field, ConfigurationModule> modules = new MonotonicHashMap<>();
-  final MonotonicMultiMap<Node, Field> setters= new MonotonicMultiMap<>();
-  // map from user to thing that was used.
-  final MonotonicMultiMap<String, Node> usages= new MonotonicMultiMap<>();
+  final MonotonicMultiMap<String, String> setters= new MonotonicMultiMap<>();
+  // map from thing that was used to user of the thing.
+  final MonotonicMultiMap<String, String> usages= new MonotonicMultiMap<>();
   final private static String SETTERS = "setters";
   final private static String USES = "uses";
   final private static String FULLNAME = "fullName";
   final Set<ClassNode<?>> knownClasses = new MonotonicSet<>();
+  
+  private final boolean classFilter(boolean checkTang, String s) {
+    return(checkTang || /*s.startsWith("com.microsoft.tang.examples.timer") ||*/ !s.startsWith("com.microsoft.tang"));
+  }
   
   final Set<String> divs = new MonotonicSet<>();
   {
@@ -82,7 +86,7 @@ public class Tint {
     args[args.length-5] = "com.microsoft";
     args[args.length-6] = "org.apache";
     Reflections r = new Reflections(args);
-    Set<Class<?>> classes = new MonotonicSet<>();
+//    Set<Class<?>> classes = new MonotonicSet<>();
     Set<String> strings = new TreeSet<>();
     Set<String> moduleBuilders = new MonotonicSet<>();
 
@@ -117,93 +121,43 @@ public class Tint {
 //    classes.addAll(r.getSubTypesOf(Name.class));
 
     ch = Tang.Factory.getTang().getDefaultClassHierarchy(jars, (Class<? extends ExternalConstructor<?>>[])new Class[0]);
-    for(String s : defaultStrings) {
-      try {
-        if(checkTang || !s.startsWith("com.microsoft.tang")) {
-        try {
-          DefaultImplementation di = ch.classForName(s).getAnnotation(DefaultImplementation.class);
-          // XXX hack: move to helper method + unify with rest of Tang!
-          String diName = di.value() == Void.class ? di.name() : ReflectionUtilities.getFullName(di.value());
-          strings.add(diName);
-              usages.put(diName, ch.getNode(s));
-          } catch(ClassHierarchyException | NameResolutionException e) {
-            System.err.println(e.getMessage());
-          }
-        }
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-    }
+//    for(String s : defaultStrings) {
+//      if(classFilter(checkTang, s)) {
+//        try {
+//          ch.getNode(s);
+//        } catch(ClassHierarchyException | NameResolutionException | ClassNotFoundException e) {
+//          System.err.println(e.getMessage());
+//        }
+//      }
+//    }
     
     for(String s : strings) {
-      try {
-        // Tang's unit tests include a lot of nasty corner cases; no need to look at those!
-        if(checkTang || !s.startsWith("com.microsoft.tang")) {
+      if(classFilter(checkTang, s)) {
+        try {
           ch.getNode(s);
+        } catch(ClassHierarchyException | NameResolutionException e) {
+          System.err.println(e.getMessage());
         }
-      } catch(ClassHierarchyException | NameResolutionException e) {
-        System.err.println(e.getMessage());
       }
     }
-    for(String mb : moduleBuilders) {
-      if(checkTang || !mb.startsWith("com.microsoft.tang")) {
+    for(String s : moduleBuilders) {
+      if(classFilter(checkTang, s)) {
         try {
-          Class<ConfigurationModuleBuilder> cmb = (Class<ConfigurationModuleBuilder>) ch.classForName(mb);
-          for(Field f : cmb.getFields()) {
-            if(ReflectionUtilities.isCoercable(ConfigurationModule.class, f.getType())) {
-  
-              int mod = f.getModifiers();
-              if(!Modifier.isPrivate(mod)) {
-                if(!Modifier.isFinal(mod)) {
-                  System.err.println("Style warning: Found non-final ConfigurationModule" + f);
-                }
-                if(!Modifier.isStatic(f.getModifiers())) {
-                  System.err.println("Style warning: Found non-static ConfigurationModule " + f);
-                } else {
-                  try {
-                    f.setAccessible(true);
-                    modules.put(f,(ConfigurationModule)(f.get(null)));
-                    for(Entry<String, String> e : modules.get(f).toStringPairs()) {
-                      try {
-                        Node n = ch.getNode(e.getKey());
-                        /// XXX would be great if this referred to the field in question (not the conf)
-                        setters.put(n,f);
-                      } catch(NameResolutionException ex) {
-                        
-                      }
-                      try {
-                        Node n = ch.getNode(e.getValue());
-                        /// XXX would be great if this referred to the field in question (not the conf)
-                        usages.put(ReflectionUtilities.getFullName(f),n);
-                      } catch(NameResolutionException ex) {
-                        
-                      }
-                    }
-                  } catch(ExceptionInInitializerError e) {
-                    System.err.println("Field " + ReflectionUtilities.getFullName(f) + ": " + e.getCause().getMessage());
-                  } catch(IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                  }
-                }
-              }
-            }
-          }
-        } catch(ClassNotFoundException e) {
+          ch.getNode(s);
+        } catch(ClassHierarchyException | NameResolutionException e) {
           e.printStackTrace();
         }
       }
-    }
-    for(Class<?> c : classes) {
-      strings.add(ReflectionUtilities.getFullName(c));
     }
 
     NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
       
       @Override
       public boolean visit(NamedParameterNode<?> node) {
+        String node_s = node.getFullName();
         for(String s: node.getDefaultInstanceAsStrings()) {
-          if(!usages.contains(s,node)) {
-            usages.put(s,node);
+          if(!usages.contains(s,node_s)) {
+            usages.put(s,node_s);
           }
         }
         return true;
@@ -216,31 +170,137 @@ public class Tint {
       
       @Override
       public boolean visit(ClassNode<?> node) {
+        String node_s = node.getFullName();
         for(ConstructorDef<?> d : node.getInjectableConstructors()) {
           for(ConstructorArg a : d.getArgs()) {
             if(a.getNamedParameterName() != null &&
-                !usages.contains(a.getNamedParameterName(), node)) {
-              usages.put(a.getNamedParameterName(), node);
+                !usages.contains(a.getNamedParameterName(), node_s)) {
+              usages.put(a.getNamedParameterName(), node_s);
             }
           }
         }
-        knownClasses.add(node);
+        if(!knownClasses.contains(node)) {
+          knownClasses.add(node);
+        }
         return true;
       }
     };
-    Walk.preorder(v, null, ch.getNamespace());
+    int numClasses;
+    do {
+      numClasses = knownClasses.size();
+      
+      Walk.preorder(v, null, ch.getNamespace());
+  
+      for(ClassNode<?> cn : knownClasses) {
+        try {
+          String s = cn.getFullName();
+          if(classFilter(checkTang, s)) {
+            Class<?> c = ch.classForName(s);
+            processDefaultAnnotation(c);
+            processConfigurationModules(c);
+          }
+        } catch (ClassNotFoundException e) {
+          e.printStackTrace();
+        }
+      }
+  
+      for(Field f : modules.keySet()) {
+        ConfigurationModule m = modules.get(f);
+        String f_s = ReflectionUtilities.getFullName(f);
+        Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
+        for(NamedParameterNode<?> np : nps) {
+          String np_s = np.getFullName();
+          if(!setters.contains(np_s, f_s)) {
+            setters.put(np_s, f_s);
+          }
+        }
+      }
+    } while(numClasses != knownClasses.size()); // Note naive fixed point evaluation here.  Semi-naive would be faster.
 
-    for(Field f : modules.keySet()) {
-      ConfigurationModule m = modules.get(f);
-      Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
-      for(NamedParameterNode<?> np : nps) {
-        if(!setters.contains(np, f)) {
-          setters.put(np, f);
+  }
+  private void processDefaultAnnotation(Class<?> cmb) {
+    DefaultImplementation di = cmb.getAnnotation(DefaultImplementation.class);
+    // XXX hack: move to helper method + unify with rest of Tang!
+    if(di != null) {
+      String diName = di.value() == Void.class ? di.name() : ReflectionUtilities.getFullName(di.value());
+      ClassNode<?> cn = (ClassNode<?>)ch.getNode(cmb);
+      String cn_s = cn.getFullName();
+      if(!usages.contains(diName, cn_s)) {
+        usages.put(diName, cn_s);
+        if(!knownClasses.contains(cn)) {
+          knownClasses.add(cn);
         }
       }
     }
   }
-  
+  private void processConfigurationModules(Class<?> cmb) {
+    for(Field f : cmb.getFields()) {
+      if(ReflectionUtilities.isCoercable(ConfigurationModule.class, f.getType())) {
+        int mod = f.getModifiers();
+        boolean ok = true;
+        if(Modifier.isPrivate(mod)) {
+          System.err.println("Style warning: Found private ConfigurationModule" + f);
+          ok = false;
+        }
+        if(!Modifier.isFinal(mod)) {
+          System.err.println("Style warning: Found non-final ConfigurationModule" + f);
+          ok = false;
+        }
+        if(!Modifier.isStatic(f.getModifiers())) {
+          System.err.println("Style warning: Found non-static ConfigurationModule " + f);
+          ok = false;
+        }
+        if(ok) {
+          System.err.println("OK: " + f);
+          try {
+            f.setAccessible(true);
+            String f_s = ReflectionUtilities.getFullName(f);
+            if(!modules.containsKey(f)) {
+              modules.put(f,(ConfigurationModule)(f.get(null)));
+              for(Entry<String, String> e : modules.get(f).toStringPairs()) {
+                System.err.println("e: " + e.getKey() + "=" + e.getValue());
+                try {
+                  Node n = ch.getNode(e.getKey());
+                  if(!setters.contains(e.getKey(),f_s)) {
+                    setters.put(e.getKey(),f_s);
+                  }
+                 if(n instanceof ClassNode) {
+                   ClassNode<?> cn = (ClassNode<?>)n;
+                   if(!knownClasses.contains(cn)) {
+                     knownClasses.add(cn);
+                   }
+                 }
+                } catch(NameResolutionException ex) {
+                  
+                }
+                try {
+                  String s = e.getValue();
+                  Node n = ch.getNode(s);
+                  if(!usages.contains(ReflectionUtilities.getFullName(f),s)) {
+                    System.err.println("Added usage: " + ReflectionUtilities.getFullName(f) + "=" + s);
+                    usages.put(s,ReflectionUtilities.getFullName(f));
+                  }
+                  if(n instanceof ClassNode) {
+                    ClassNode<?> cn = (ClassNode<?>)n;
+                    if(!knownClasses.contains(cn)) {
+                      System.err.println("Added " + cn + " to known classes");
+                      knownClasses.add(cn);
+                    }
+                  }
+                } catch(NameResolutionException ex) {
+                  
+                }
+              }
+            }
+          } catch(ExceptionInInitializerError e) {
+            System.err.println("Field " + ReflectionUtilities.getFullName(f) + ": " + e.getCause().getMessage());
+          } catch(IllegalAccessException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }
+    }
+  }
   public Set<NamedParameterNode<?>> getNames() {
     final Set<NamedParameterNode<?>> names = new MonotonicSet<>();
     NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
@@ -267,8 +327,9 @@ public class Tint {
 
   public Set<Node> getNamesUsedAndSet() {
     final Set<Node> names = new MonotonicSet<>();
-    final Set<String> usedKeys = usages.keySet();
-    final Set<Node> setterKeys = setters.keySet();
+    final Set<String> userKeys = usages.keySet();
+    final Set<String> usedKeys = usages.values();
+    final Set<String> setterKeys = setters.keySet();
     NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
 
       @Override
@@ -284,11 +345,17 @@ public class Tint {
       
       @Override
       public boolean visit(ClassNode<?> node) {
-        if(usedKeys.contains(node.getFullName())) {
+        String node_s = node.getFullName();
+        if(userKeys.contains(node_s)) {
           names.add(node);
         }
-        if(setterKeys.contains(node)) {
+        if(setterKeys.contains(node_s)) {
           names.add(node);
+        }
+        if(usedKeys.contains(node_s)) {
+          if(!names.contains(node)) {
+            names.add(node);
+          }
         }
         
         return true;
@@ -298,12 +365,12 @@ public class Tint {
     return names;
   }
 
-  public Set<Node> getUsesOf(final Node name) {
+  public Set<String> getUsesOf(final Node name) {
 
     return usages.getValuesForKey(name.getFullName());
   }
-  public Set<Field> getSettersOf(final Node name) {
-    return setters.getValuesForKey(name);
+  public Set<String> getSettersOf(final Node name) {
+    return setters.getValuesForKey(name.getFullName());
   }
   public static String stripCommonPrefixes(String s) {
     return 
@@ -425,13 +492,13 @@ public class Tint {
     }
     sb.append(cell(doc, "doc"));
     StringBuffer uses = new StringBuffer();
-    for(Node u : getUsesOf(n)) {
-      uses.append("<a href='#"+u.getFullName()+"'>"+stripPrefix(u.getFullName(), pack) + "</a> ");
+    for(String u : getUsesOf(n)) {
+      uses.append("<a href='#"+u+"'>"+stripPrefix(u, pack) + "</a> ");
     }
     sb.append(cell(uses, USES));
     StringBuffer setters = new StringBuffer();
-    for(Field f : getSettersOf(n)) {
-      setters.append("<a href='#"+ReflectionUtilities.getFullName(f)+"'>"+stripPrefix(ReflectionUtilities.getFullName(f), pack) + "</a> ");
+    for(String f : getSettersOf(n)) {
+      setters.append("<a href='#"+f+"'>"+stripPrefix(f, pack) + "</a> ");
     }
     sb.append(cell(setters, SETTERS));
     sb.append("</div>");
@@ -465,13 +532,13 @@ public class Tint {
     sb.append(cell(instance, "simpleName"));
     sb.append(cell("", "fullName")); // TODO: Documentation string?
     StringBuffer uses = new StringBuffer();
-    for(Node u : getUsesOf(n)) {
-      uses.append("<a href='#"+u.getFullName()+"'>"+stripPrefix(u.getFullName(), pack) + "</a> ");
+    for(String u : getUsesOf(n)) {
+      uses.append("<a href='#"+u+"'>"+stripPrefix(u, pack) + "</a> ");
     }
     sb.append(cell(uses, USES));
     StringBuffer setters = new StringBuffer();
-    for(Field f : getSettersOf(n)) {
-      setters.append("<a href='#"+ReflectionUtilities.getFullName(f)+"'>"+stripPrefix(ReflectionUtilities.getFullName(f), pack) + "</a> ");
+    for(String f : getSettersOf(n)) {
+      setters.append("<a href='#"+f+"'>"+stripPrefix(f, pack) + "</a> ");
     }
     sb.append(cell(setters, SETTERS));
     sb.append("</div>");
@@ -598,6 +665,7 @@ public class Tint {
       }
       out.println("<div class='package'>Interfaces and injectable classes</div>");
       for(ClassNode<?> c : t.knownClasses) {
+        if(t.classFilter(tangTests, c.getFullName())) {
         Class<?> clz = null;
         try {
           clz = t.ch.classForName(c.getFullName());
@@ -629,6 +697,7 @@ public class Tint {
           out.println("<p>" + n.getFullName() + "</p>");
         }
       } */
+      }
       out.println("</body></html>");
       out.close();
       

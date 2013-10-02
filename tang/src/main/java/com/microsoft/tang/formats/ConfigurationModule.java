@@ -207,7 +207,11 @@ public class ConfigurationModule {
     for(Class<?> c : this.builder.freeImpls.keySet()) {
       ret.add(new MyEntry(ReflectionUtilities.getFullName(c), this.builder.map.get(this.builder.freeImpls.get(c)).getName()));
     }
-    
+    for(String s : ConfigurationFile.toConfigurationStringList(builder.b.build())) {
+      String[] tok = s.split("=", 2);
+      ret.add(new MyEntry(tok[0],tok[1]));
+    }
+
     return ret;
   }
   public String toPrettyString() {
@@ -216,7 +220,6 @@ public class ConfigurationModule {
     for(Entry<String,String> l : toStringPairs()) {
       sb.append(l.getKey() + "=" + l.getValue() + "\n");
     }
-    sb.append(ConfigurationFile.toConfigurationString(builder.b.build()));
     return sb.toString();
   }
 }

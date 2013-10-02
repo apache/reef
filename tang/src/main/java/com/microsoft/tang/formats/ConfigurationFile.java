@@ -5,8 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -160,24 +162,43 @@ public class ConfigurationFile {
    *         available when the string is parsed by Tang).
    */
   public static String toConfigurationString(final Configuration c) {
+    StringBuilder sb = new StringBuilder();
+    for(String s: toConfigurationStringList(c)) {
+      sb.append(s);
+      sb.append('\n');
+    }
+    return sb.toString();
+  }
+  public static List<String> toConfigurationStringList(final Configuration c) {
     ConfigurationImpl conf = (ConfigurationImpl) c;
-    StringBuilder s = new StringBuilder();
-
+    List<String> l = new ArrayList<>();
     for (ClassNode<?> opt : conf.getBoundImplementations()) {
-      s.append(opt.getFullName()).append('=')
-              .append(conf.getBoundImplementation(opt).getFullName()).append('\n');
+      l.add(opt.getFullName()
+          +'='
+          +conf.getBoundImplementation(opt).getFullName());
     }
     for (ClassNode<?> opt : conf.getBoundConstructors()) {
-      s.append(opt.getFullName()).append('=')
-              .append(conf.getBoundConstructor(opt).getFullName()).append('\n');
+      l.add(opt.getFullName()
+          +'='
+          +conf.getBoundConstructor(opt).getFullName());
     }
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
-      s.append(opt.getFullName()).append('=')
-              .append(escape(conf.getNamedParameter(opt))).append('\n');
+      l.add(opt.getFullName()
+          +'='
+          +escape(conf.getNamedParameter(opt)));
     }
     for (ClassNode<?> cn : conf.getLegacyConstructors()) {
-      s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
-      join(s, "-", conf.getLegacyConstructor(cn).getArgs()).append(")\n");
+      StringBuilder sb = new StringBuilder();
+      join(sb, "-", conf.getLegacyConstructor(cn).getArgs());
+      l.add(cn.getFullName()
+          +'='
+          +ConfigurationBuilderImpl.INIT
+          +'('
+          +sb.toString()
+          +')'
+          );
+      //s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
+//      .append(")\n");
     }
     for (Entry<NamedParameterNode<Set<?>>,Object> e : conf.getBoundSets()) {
       final String val;
@@ -188,9 +209,10 @@ public class ConfigurationFile {
       } else {
         throw new IllegalStateException();
       }
-      s.append(e.getKey().getFullName()).append('=').append(val).append("\n");
+      l.add(e.getKey().getFullName() + '=' + val);
+//      s.append(e.getKey().getFullName()).append('=').append(val).append("\n");
     }
-    return s.toString();
+    return l;//s.toString();
   }
 
   private static StringBuilder join(final StringBuilder sb, final String sep, final ConstructorArg[] types) {
