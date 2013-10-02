@@ -99,7 +99,21 @@ public class Timer {
 Tang encourages applications to use Plain Old Java (POJO) objects, and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields, and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated; they simply need to check constructor parameters as any other POJO would.  Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
 
 ```
-TODO: Paste in stack trace that results from a negative Timer value.
+Exception in thread "main" com.microsoft.tang.exceptions.InjectionException: Could not invoke constructor
+	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:584)
+	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:448)
+	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:465)
+	at com.microsoft.tang.examples.Timer.main(Timer.java:44)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
+	at java.lang.reflect.Constructor.newInstance(Unknown Source)
+	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:568)
+	... 3 more
+Caused by: java.lang.IllegalArgumentException: Cannot sleep for negative time!
+	at com.microsoft.tang.examples.Timer.<init>(Timer.java:24)
+	... 8 more
 ```
 
 In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line, and in a config file.
@@ -141,9 +155,8 @@ All instances of Name must be annotated with ```@NamedParamter```, which takes a
 
 Next, the ```@Inject``` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the ```@Parameter``` annotation tells Tang to use the configuration parameter when invoking the constructor.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well:
 
-```
-TODO Screenshot of tooltip
-```
+![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information aboud Tang named parameters")
+
 
 Configuration modules
 ---------
