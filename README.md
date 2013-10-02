@@ -230,9 +230,27 @@ Here is the documentation for our Timer example:
 ```
 TODO Screenshot of TangDoc
 ```
-Here is a sample Tint build error.  Here, we added a typo to the string that specifies the default value of Timer.Sleep:
+Here are some sample Tint build errors.  This is the current result of running Tint against Tang's unit test suite, which exercies checks for a wide range of configuration problems:
 ```
-TODO Paste in a Tint build error
+interface com.microsoft.tang.MyEventHandlerIface declares its default implementation to be non-subclass class com.microsoft.tang.MyEventHandler
+class com.microsoft.tang.WaterBottleName defines a default class com.microsoft.tang.GasCan with a type that does not extend its target's type com.microsoft.tang.Bottle<com.microsoft.tang.Water>
+class com.microsoft.tang.XNameDAA defines a default class com.microsoft.tang.XCC with a raw type that does not extend of its target's raw type class com.microsoft.tang.XBB
+Named parameters com.microsoft.tang.examples.Timer$Seconds and com.microsoft.tang.examples.TimerV1$Seconds have the same short name: sec
+Named parameter com.microsoft.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>
+Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNotName does not implement Name<?>
+interface com.microsoft.tang.implementation.BadIfaceDefault declares its default implementation to be non-subclass class java.lang.String
+class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String
+Named parameter com.microsoft.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String
+Class com.microsoft.tang.implementation.DanglingUnit has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.
+Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:com.microsoft.tang.implementation.InjectNonStaticLocalType$NonStaticLocal
+Named parameter com.microsoft.tang.implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.
+Named parameter type mismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer
+public com.microsoft.tang.implementation.NonInjectableParam(int) is not injectable, but it has an @Parameter annotation.
+Detected explicit constructor in class enclosed in @Unit com.microsoft.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.
+Repeated constructor parameter detected.  Cannot inject constructor com.microsoft.tang.implementation.RepeatConstructorArg(int,int)
+Named parameters com.microsoft.tang.implementation.ShortNameFooA and com.microsoft.tang.implementation.ShortNameFooB have the same short name: foo
+Named parameter com.microsoft.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.
+Field com.microsoft.tang.formats.MyMissingBindConfigurationModule.BAD_CONF: Found declared options that were not used in binds: { FOO_NESS }
 ```
 
 Raw configuration API
