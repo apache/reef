@@ -150,7 +150,7 @@ A few things happened here.  First, we create the new configuration parameter by
 
 All instances of Name must be annotated with ```@NamedParamter```, which takes a number of options:
  * ```default_value``` (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  ```default_class``` takes a Class (instead of a String), while ```default_values``` and ```default_classes``` take sets of values.
- * `short_name` (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling ```registerShortName()``` TODO: Which class is that in?
+ * `short_name` (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling ```registerShortName()``` on the instance of `com.microsoft.tang.formats.CommandLine` that will process the command line options.
  * `doc` (optional): Human readable documentation, describing the purpose of the parameter.
 
 Next, the ```@Inject``` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the ```@Parameter``` annotation tells Tang to use the configuration parameter when invoking the constructor.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well:
@@ -168,45 +168,84 @@ time a real timer would have slept to stderr.  In a real unit testing example, i
 The process of instantiting an object with Tang is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging and eliminates many types of runtime error handling code, since many configurations can be caught before running (or examining) application-specific initialization code. 
 
 
-```
+```java
+package com.microsoft.tang.examples.timer;
+
+import javax.inject.Inject;
+
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
+
+import com.microsoft.tang.annotations.DefaultImplementation;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Parameter;
+
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.InjectionException;
+
+import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.tang.formats.ConfigurationModuleBuilder;
+import com.microsoft.tang.formats.OptionalParameter;
+
 @DefaultImplementation(TimerImpl.class)
-interface Timer {
+public interface Timer {
   @NamedParameter(default_value="10",
       doc="Number of seconds to sleep", short_name="sec")
-  class Seconds implements Name<Integer> {}
-  public sleep() throws Exception;
+  public static class Seconds implements Name<Integer> { }
+  public void sleep() throws Exception;
 }
-class TimerImpl implements Timer {
-  @Override
-  public sleep() throws Exception {
-    java.lang.Thread.sleep(seconds * 1000);
+
+public class TimerImpl implements Timer {
+
+  private final int seconds;
+  @Inject
+  public TimerImpl(@Parameter(Timer.Seconds.class) int seconds) {
+    if(seconds < 0) {
+      throw new IllegalArgumentException("Cannot sleep for negative time!");
+    }
+    this.seconds = seconds;
   }
+  @Override
+  public void sleep() throws Exception {
+    java.lang.Thread.sleep(seconds);
+  }
+
 }
-class TimerMock implements Timer {
+
+public class TimerMock implements Timer {
+
   public static class TimerMockConf extends ConfigurationModuleBuilder {
     public static final OptionalParameter<Integer> MOCK_SLEEP_TIME = new OptionalParameter<>();
   }
   public static final ConfigurationModule CONF = new TimerMockConf()
-    .bindNamedParameter(Timer.Sleep, MOCK_SLEEP_TIME)
+    .bindImplementation(Timer.class, TimerMock.class)
+    .bindNamedParameter(Timer.Seconds.class, TimerMockConf.MOCK_SLEEP_TIME)
     .build();
+  
+  private final int seconds;
+  
   @Inject
-  TimerMockConf(@Parameter(Timer.Sleep.class) seconds) {
+  TimerMock(@Parameter(Timer.Seconds.class) int seconds) {
     if(seconds < 0) {
-      throw new IllegalArgumentException("...");
+      throw new IllegalArgumentException("Cannot sleep for negative time!");
     }
     this.seconds = seconds; 
   }
   @Override
   public void sleep() {
-    System.err.println("Would have slept for " + seconds + "sec.");
+    System.out.println("Would have slept for " + seconds + "sec.");
   }
-}
-static int main(String[] args) throws BindException, InjectionException {
-  Configuration c = TimerMock.CONF
-    .set(MOCK_SLEEP_TIME, 1)
-    .build();
-  Timer t = Tang.Factory.newInjector(c).getInstance(Timer.class);
-  t.sleep();
+
+  public static void main(String[] args) throws BindException, InjectionException, Exception {
+    Configuration c = TimerMock.CONF
+      .set(TimerMockConf.MOCK_SLEEP_TIME, 1)
+      .build();
+    Timer t = Tang.Factory.getTang().newInjector(c).getInstance(Timer.class);
+    System.out.println("Tick...");
+    t.sleep();
+    System.out.println("...tock.");
+  }
 }
 ```
 Again, there are a few things going on here:
@@ -230,9 +269,26 @@ Here is the documentation for our Timer example:
 ```
 TODO Screenshot of TangDoc
 ```
-Here is a sample Tint build error.  Here, we added a typo to the string that specifies the default value of Timer.Sleep:
+Here are some sample Tint errors.  These (and others) can be run by passing `--tang-tests` into Tint, and ensuring that Tang's unit tests are on the class path.:
 ```
-TODO Paste in a Tint build error
+interface com.microsoft.tang.MyEventHandlerIface declares its default implementation to be non-subclass class com.microsoft.tang.MyEventHandler
+class com.microsoft.tang.WaterBottleName defines a default class com.microsoft.tang.GasCan with a type that does not extend its target's type com.microsoft.tang.Bottle<com.microsoft.tang.Water>
+Named parameters com.microsoft.tang.examples.Timer$Seconds and com.microsoft.tang.examples.TimerV1$Seconds have the same short name: sec
+Named parameter com.microsoft.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>
+Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNotName does not implement Name<?>
+interface com.microsoft.tang.implementation.BadIfaceDefault declares its default implementation to be non-subclass class java.lang.String
+class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String
+Named parameter com.microsoft.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String
+Class com.microsoft.tang.implementation.DanglingUnit has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.
+Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:com.microsoft.tang.implementation.InjectNonStaticLocalType$NonStaticLocal
+Named parameter com.microsoft.tang.implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.
+Named parameter type mismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer
+public com.microsoft.tang.implementation.NonInjectableParam(int) is not injectable, but it has an @Parameter annotation.
+Detected explicit constructor in class enclosed in @Unit com.microsoft.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.
+Repeated constructor parameter detected.  Cannot inject constructor com.microsoft.tang.implementation.RepeatConstructorArg(int,int)
+Named parameters com.microsoft.tang.implementation.ShortNameFooA and com.microsoft.tang.implementation.ShortNameFooB have the same short name: foo
+Named parameter com.microsoft.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.
+Field com.microsoft.tang.formats.MyMissingBindConfigurationModule.BAD_CONF: Found declared options that were not used in binds: { FOO_NESS }
 ```
 
 Raw configuration API
