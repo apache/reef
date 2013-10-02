@@ -230,11 +230,10 @@ Here is the documentation for our Timer example:
 ```
 TODO Screenshot of TangDoc
 ```
-Here are some sample Tint build errors.  This is the current result of running Tint against Tang's unit test suite, which exercies checks for a wide range of configuration problems:
+Here are some sample Tint errors.  These (and others) can be run by passing `--tang-tests` into Tint, and ensuring that Tang's unit tests are on the class path.:
 ```
 interface com.microsoft.tang.MyEventHandlerIface declares its default implementation to be non-subclass class com.microsoft.tang.MyEventHandler
 class com.microsoft.tang.WaterBottleName defines a default class com.microsoft.tang.GasCan with a type that does not extend its target's type com.microsoft.tang.Bottle<com.microsoft.tang.Water>
-class com.microsoft.tang.XNameDAA defines a default class com.microsoft.tang.XCC with a raw type that does not extend of its target's raw type class com.microsoft.tang.XBB
 Named parameters com.microsoft.tang.examples.Timer$Seconds and com.microsoft.tang.examples.TimerV1$Seconds have the same short name: sec
 Named parameter com.microsoft.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>
 Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNotName does not implement Name<?>
