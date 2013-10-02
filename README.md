@@ -168,7 +168,7 @@ time a real timer would have slept to stderr.  In a real unit testing example, i
 The process of instantiting an object with Tang is called _injection_.  As with configurations, Tang's injection process is designed to catch as many potential runtime errors as possible before application code begins to run.  This simplifies debugging and eliminates many types of runtime error handling code, since many configurations can be caught before running (or examining) application-specific initialization code. 
 
 
-```
+```java
 package com.microsoft.tang.examples.timer;
 
 import javax.inject.Inject;
