@@ -155,7 +155,7 @@ All instances of Name must be annotated with ```@NamedParamter```, which takes a
 
 Next, the ```@Inject``` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the ```@Parameter``` annotation tells Tang to use the configuration parameter when invoking the constructor.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well:
 
-![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information aboud Tang named parameters")
+![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information about Tang named parameters")
 
 
 Configuration modules
@@ -266,9 +266,11 @@ java com.microsoft.tang.util.Tint -doc tangdoc.html
 will perform full static analysis of all classes the class path, and emit a nicely formatted HTML document that contains human readable documentation, and provides cross-references between configuration options, interfaces, classes, and the `ConfigurationModules` that use and set them. 
 
 Here is the documentation for our Timer example:
-```
-TODO Screenshot of TangDoc
-```
+
+![screenshot of tooltip](doc/tangdoc.png "Automatically generated documentation of Tang configuration data.")
+
+Note that this documentation is generated before the application code runs, so it does not reflect the fact that `MOCK_SLEEP_TIME` is set to 1 by `main()`.
+
 Here are some sample Tint errors.  These (and others) can be run by passing `--tang-tests` into Tint, and ensuring that Tang's unit tests are on the class path.:
 ```
 interface com.microsoft.tang.MyEventHandlerIface declares its default implementation to be non-subclass class com.microsoft.tang.MyEventHandler
