@@ -169,44 +169,83 @@ The process of instantiting an object with Tang is called _injection_.  As with 
 
 
 ```
+package com.microsoft.tang.examples.timer;
+
+import javax.inject.Inject;
+
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
+
+import com.microsoft.tang.annotations.DefaultImplementation;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Parameter;
+
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.InjectionException;
+
+import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.tang.formats.ConfigurationModuleBuilder;
+import com.microsoft.tang.formats.OptionalParameter;
+
 @DefaultImplementation(TimerImpl.class)
-interface Timer {
+public interface Timer {
   @NamedParameter(default_value="10",
       doc="Number of seconds to sleep", short_name="sec")
-  class Seconds implements Name<Integer> {}
-  public sleep() throws Exception;
+  public static class Seconds implements Name<Integer> { }
+  public void sleep() throws Exception;
 }
-class TimerImpl implements Timer {
-  @Override
-  public sleep() throws Exception {
-    java.lang.Thread.sleep(seconds * 1000);
+
+public class TimerImpl implements Timer {
+
+  private final int seconds;
+  @Inject
+  public TimerImpl(@Parameter(Timer.Seconds.class) int seconds) {
+    if(seconds < 0) {
+      throw new IllegalArgumentException("Cannot sleep for negative time!");
+    }
+    this.seconds = seconds;
   }
+  @Override
+  public void sleep() throws Exception {
+    java.lang.Thread.sleep(seconds);
+  }
+
 }
-class TimerMock implements Timer {
+
+public class TimerMock implements Timer {
+
   public static class TimerMockConf extends ConfigurationModuleBuilder {
     public static final OptionalParameter<Integer> MOCK_SLEEP_TIME = new OptionalParameter<>();
   }
   public static final ConfigurationModule CONF = new TimerMockConf()
-    .bindNamedParameter(Timer.Sleep, MOCK_SLEEP_TIME)
+    .bindImplementation(Timer.class, TimerMock.class)
+    .bindNamedParameter(Timer.Seconds.class, TimerMockConf.MOCK_SLEEP_TIME)
     .build();
+  
+  private final int seconds;
+  
   @Inject
-  TimerMockConf(@Parameter(Timer.Sleep.class) seconds) {
+  TimerMock(@Parameter(Timer.Seconds.class) int seconds) {
     if(seconds < 0) {
-      throw new IllegalArgumentException("...");
+      throw new IllegalArgumentException("Cannot sleep for negative time!");
     }
     this.seconds = seconds; 
   }
   @Override
   public void sleep() {
-    System.err.println("Would have slept for " + seconds + "sec.");
+    System.out.println("Would have slept for " + seconds + "sec.");
   }
-}
-static int main(String[] args) throws BindException, InjectionException {
-  Configuration c = TimerMock.CONF
-    .set(MOCK_SLEEP_TIME, 1)
-    .build();
-  Timer t = Tang.Factory.newInjector(c).getInstance(Timer.class);
-  t.sleep();
+
+  public static void main(String[] args) throws BindException, InjectionException, Exception {
+    Configuration c = TimerMock.CONF
+      .set(TimerMockConf.MOCK_SLEEP_TIME, 1)
+      .build();
+    Timer t = Tang.Factory.getTang().newInjector(c).getInstance(Timer.class);
+    System.out.println("Tick...");
+    t.sleep();
+    System.out.println("...tock.");
+  }
 }
 ```
 Again, there are a few things going on here:
