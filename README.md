@@ -98,7 +98,7 @@ public class Timer {
   }
 }
 ```
-Tang encourages applications to use Plain Old Java (POJO) objects, and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields, and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated; they simply need to check constructor parameters as any other POJO would.  Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
+Tang encourages applications to use Plain Old Java Objects (POJOs), and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated:  They simply need to check constructor parameters as any other POJO would.  Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
 
 ```
 Exception in thread "main" com.microsoft.tang.exceptions.InjectionException: Could not invoke constructor
@@ -148,7 +148,7 @@ public class Timer {
   }
 }
 ```
-A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's "Name" interface.  Name is a generic type, with a single mandatory parameter that specifies the type of object to be passed in.  Since Seconds implements ```Name<Integer>```, it is a parameter called "Seconds" that expects Integer values.
+A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's `Name` interface.  `Name` is a generic type, with a single mandatory parameter that specifies the type of object to be passed in.  Since `Seconds` implements `Name<Integer>`, it is a parameter called `Seconds` that expects `Integer` values.
 
 All instances of Name must be annotated with ```@NamedParamter```, which takes a number of options:
  * ```default_value``` (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  ```default_class``` takes a Class (instead of a String), while ```default_values``` and ```default_classes``` take sets of values.
