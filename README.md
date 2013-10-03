@@ -1,4 +1,4 @@
-Tang is a configuration managment and checking framework that  emphasizes explicit documentation and automatic checkability of configurations and applications over ad-hoc, application-specific configuration and bootstrapping logic.  It supports distribute, multi-language applications, but gracefully handles simpler use cases as well.
+Tang is a configuration managment and checking framework that  emphasizes explicit documentation and automatic checkability of configurations and applications instead of ad-hoc, application-specific configuration and bootstrapping logic.  It supports distributed, multi-language applications, but gracefully handles simpler use cases as well.
 
 Tang makes use of dependency injection to automatically instantiate applications.  Dependency injectors can be thought of as "make for objects"--given a request for some type of object, and information that explains how dependencies between objects should be resolved, dependency injectors automatically instantiate the requested object and all of the objects it dependes upon.  Tang makes use of a few simple wire formats to support remote, and even cross-language dependency injection.
 
