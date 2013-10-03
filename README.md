@@ -261,7 +261,7 @@ ConfigurationModules serve a number of purposes:
 
 These tools are exposed by com.microsoft.tang.util.Tint, which is included by default in all Tang builds.  As long as Tang is on the classpath, invoking:
 ```
-java com.microsoft.tang.util.Tint -doc tangdoc.html
+java com.microsoft.tang.util.Tint --doc tangdoc.html
 ```
 will perform full static analysis of all classes the class path, and emit a nicely formatted HTML document that contains human readable documentation, and provides cross-references between configuration options, interfaces, classes, and the `ConfigurationModules` that use and set them. 
 
