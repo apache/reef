@@ -118,7 +118,7 @@ Caused by: java.lang.IllegalArgumentException: Cannot sleep for negative time!
 	... 8 more
 ```
 
-In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line, and in a config file.
+In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line and in a config file.
 
 ```java
 package com.example;
@@ -148,14 +148,14 @@ public class Timer {
   }
 }
 ```
-A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's `Name` interface.  `Name` is a generic type, with a single mandatory parameter that specifies the type of object to be passed in.  Since `Seconds` implements `Name<Integer>`, it is a parameter called `Seconds` that expects `Integer` values.
+A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's `Name` interface.  `Name` is a generic type with a single mandatory parameter that specifies the type of object to be passed in.  Since `Seconds` implements `Name<Integer>`, it is a parameter called `Seconds` that expects `Integer` values.
 
-All instances of Name must be annotated with ```@NamedParamter```, which takes a number of options:
- * ```default_value``` (optional): The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  ```default_class``` takes a Class (instead of a String), while ```default_values``` and ```default_classes``` take sets of values.
- * `short_name` (optional): The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling ```registerShortName()``` on the instance of `com.microsoft.tang.formats.CommandLine` that will process the command line options.
- * `doc` (optional): Human readable documentation, describing the purpose of the parameter.
+All instances of Name must be annotated with `@NamedParamter`, which takes the following optional parameters:
+ * `default_value`: The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  `default_class` takes a Class (instead of a String), while `default_values` and `default_classes` take sets of values.
+ * `short_name`: The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling `registerShortName()` on the instance of `com.microsoft.tang.formats.CommandLine` that will process the command line options.
+ * `doc` (optional): Human readable documentation that describes the purpose of the parameter.
 
-Next, the ```@Inject``` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the ```@Parameter``` annotation tells Tang to use the configuration parameter when invoking the constructor.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well:
+Next, the `@Inject` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the `@Parameter` annotation tells Tang to use the configuration parameter when invoking the constructor.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well:
 
 ![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information about Tang named parameters")
 
