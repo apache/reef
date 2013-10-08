@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
@@ -288,6 +289,28 @@ public class TestConfigurationModule {
        .set(SetClassConfigurationModule.P, SubB.class)
        .build();
     Set<Super> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetClass.class);
+    Assert.assertEquals(2, s.size());
+    boolean sawA = false, sawB = false;
+    for(Super sup : s) {
+      if(sup instanceof SubA) {
+        sawA = true;
+      } else if(sup instanceof SubB) {
+        sawB = true;
+      } else {
+        Assert.fail();
+      }
+    }
+    Assert.assertTrue(sawA && sawB);
+  }
+  @Test
+  public void setClassRoundTripTest() throws BindException, InjectionException {
+    Configuration c = SetClassConfigurationModule.CONF
+       .set(SetClassConfigurationModule.P, SubA.class)
+       .set(SetClassConfigurationModule.P, SubB.class)
+       .build();
+    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    ConfigurationFile.addConfiguration(cb, ConfigurationFile.toConfigurationString(c));
+    Set<Super> s = Tang.Factory.getTang().newInjector(cb.build()).getNamedInstance(SetClass.class);
     Assert.assertEquals(2, s.size());
     boolean sawA = false, sawB = false;
     for(Super sup : s) {
