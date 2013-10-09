@@ -717,7 +717,6 @@ public class InjectorImpl implements Injector {
   @Override
   public Injector forkInjector(Configuration... configurations)
       throws BindException {
-    assertNotConcurrent();
     InjectorImpl ret;
     ret = copy(this, configurations);
     return ret;

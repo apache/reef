@@ -541,6 +541,11 @@ public class TestTang {
       i.getInstance(Pass.class);
     }
   }
+  @Test
+  public void testForksInjectorInConstructor() throws BindException, InjectionException {
+    Injector i = Tang.Factory.getTang().newInjector();
+    i.getInstance(ForksInjectorInConstructor.class);
+  }
 }
 class Fail {
   @Inject
@@ -1038,4 +1043,11 @@ interface CheckChildIface {
 }
 class CheckChildImpl implements CheckChildIface{
   @Inject CheckChildImpl() {}
+}
+class ForksInjectorInConstructor {
+  @Inject ForksInjectorInConstructor(Injector i) throws BindException {
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(Number.class, Integer.class);
+    i.forkInjector(cb.build());
+  }
 }
