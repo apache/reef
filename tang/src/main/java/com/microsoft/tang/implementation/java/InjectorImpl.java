@@ -108,7 +108,7 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   private <T> T getCachedInstance(ClassNode<T> cn) {
     if(cn.getFullName().equals("com.microsoft.tang.Injector")) {
-      return (T)forkInjector();
+      return (T)this;// TODO: We should be insisting on injection futures here! .forkInjector();
     } else {
       T t = (T)instances.get(cn);
       if(t instanceof InjectionFuture) {
