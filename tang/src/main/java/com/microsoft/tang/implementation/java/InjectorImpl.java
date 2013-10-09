@@ -38,11 +38,11 @@ import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.util.MonotonicHashSet;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
-import com.microsoft.tang.util.TracingMonotonicMap;
+import com.microsoft.tang.util.TracingMonotonicTreeMap;
 
 public class InjectorImpl implements Injector {
-  final Map<ClassNode<?>, Object> instances = new TracingMonotonicMap<>();
-  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new TracingMonotonicMap<>();
+  final Map<ClassNode<?>, Object> instances = new TracingMonotonicTreeMap<>();
+  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new TracingMonotonicTreeMap<>();
 
   private boolean concurrentModificationGuard = false;
 

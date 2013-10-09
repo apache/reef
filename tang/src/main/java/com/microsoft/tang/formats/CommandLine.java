@@ -19,12 +19,12 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
-import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicTreeMap;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class CommandLine {
   private final ConfigurationBuilder conf;
-  private final Map<String,String> shortNames = new MonotonicMap<>();
+  private final Map<String,String> shortNames = new MonotonicTreeMap<>();
 
   public CommandLine(ConfigurationBuilder conf) {
     this.conf = conf;

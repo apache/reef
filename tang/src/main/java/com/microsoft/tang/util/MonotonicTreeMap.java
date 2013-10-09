@@ -3,7 +3,7 @@ package com.microsoft.tang.util;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class MonotonicMap<T, U> extends TreeMap<T, U> {
+public class MonotonicTreeMap<T, U> extends TreeMap<T, U> {
   private static final long serialVersionUID = 1L;
 
   @Override

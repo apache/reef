@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.microsoft.tang.types.Node;
-import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicTreeMap;
 
 public abstract class AbstractNode implements Node {
   @Override
@@ -15,7 +15,7 @@ public abstract class AbstractNode implements Node {
   private final Node parent;
   private final String name;
   private final String fullName;
-  protected final Map<String, Node> children = new MonotonicMap<>();
+  protected final Map<String, Node> children = new MonotonicTreeMap<>();
 
   @Override
   public String getFullName() {

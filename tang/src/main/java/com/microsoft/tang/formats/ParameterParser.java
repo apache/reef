@@ -5,14 +5,14 @@ import java.lang.reflect.Type;
 
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicTreeMap;
 import com.microsoft.tang.util.ReflectionUtilities;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ParameterParser {
-  MonotonicMap<String, Constructor<? extends ExternalConstructor<?>>> parsers = new MonotonicMap<>();
+  MonotonicTreeMap<String, Constructor<? extends ExternalConstructor<?>>> parsers = new MonotonicTreeMap<>();
  
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void addParser(Class<? extends ExternalConstructor<?>> ec) throws BindException {

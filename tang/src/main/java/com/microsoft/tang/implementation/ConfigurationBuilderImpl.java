@@ -21,6 +21,7 @@ import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicMultiMap;
 import com.microsoft.tang.util.TracingMonotonicMap;
+import com.microsoft.tang.util.TracingMonotonicTreeMap;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // TODO: None of these should be public! - Move to configurationBuilder. Have
@@ -28,10 +29,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // in a sane Configuration interface...
   // TODO: Should be final again!
   public ClassHierarchy namespace;
-  final Map<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicMap<>();
-  final Map<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new TracingMonotonicMap<>();
-  final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicMap<>();
-  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicMap<>();
+  final TracingMonotonicMap<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicTreeMap<>();
+  final TracingMonotonicMap<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new TracingMonotonicTreeMap<>();
+  final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
+  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
   final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
   
   public final static String IMPORT = "import";

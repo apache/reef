@@ -26,7 +26,7 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
-import com.microsoft.tang.util.MonotonicMap;
+import com.microsoft.tang.util.MonotonicTreeMap;
 import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
@@ -42,7 +42,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   private final PackageNode namespace;
   private final TreeSet<String> registeredClasses = new MonotonicSet<>();
   // Note: this is only used to sanity check short names (so that name clashes get resolved).
-  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicMap<>();
+  private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicTreeMap<>();
 
   public final ParameterParser parameterParser = new ParameterParser();
 
