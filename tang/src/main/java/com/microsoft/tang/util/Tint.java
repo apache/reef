@@ -251,14 +251,19 @@ public class Tint {
           ok = false;
         }
         if(ok) {
-          System.err.println("OK: " + f);
+//          System.err.println("OK: " + f);
           try {
             f.setAccessible(true);
             String f_s = ReflectionUtilities.getFullName(f);
             if(!modules.containsKey(f)) {
               modules.put(f,(ConfigurationModule)(f.get(null)));
+              try{
+                modules.get(f).assertStaticClean();
+              } catch (ClassHierarchyException e) {
+                System.err.println(e.getMessage());
+              }
               for(Entry<String, String> e : modules.get(f).toStringPairs()) {
-                System.err.println("e: " + e.getKey() + "=" + e.getValue());
+                //System.err.println("e: " + e.getKey() + "=" + e.getValue());
                 try {
                   Node n = ch.getNode(e.getKey());
                   if(!setters.contains(e.getKey(),f_s)) {
@@ -277,7 +282,7 @@ public class Tint {
                   String s = e.getValue();
                   Node n = ch.getNode(s);
                   if(!usages.contains(ReflectionUtilities.getFullName(f),s)) {
-                    System.err.println("Added usage: " + ReflectionUtilities.getFullName(f) + "=" + s);
+                  //  System.err.println("Added usage: " + ReflectionUtilities.getFullName(f) + "=" + s);
                     usages.put(s,ReflectionUtilities.getFullName(f));
                   }
                   if(n instanceof ClassNode) {

@@ -324,6 +324,17 @@ public class TestConfigurationModule {
     }
     Assert.assertTrue(sawA && sawB);
   }
+  
+  @Test(expected=ClassHierarchyException.class)
+  public void errorOnStaticTimeSet() throws BindException, InjectionException {
+    StaticTimeSet.CONF.assertStaticClean();
+  }
+  @Test(expected=ClassHierarchyException.class)
+  public void errorOnSetMerge() throws BindException, InjectionException {
+    ConfigurationModuleBuilder b = new ConfigurationModuleBuilder() { };
+    b.merge(StaticTimeSet.CONF);
+  }
+  
 }
 @NamedParameter
 class SetName implements Name<Set<String>> { }
@@ -349,4 +360,12 @@ class SubA implements Super {
 }
 class SubB implements Super {
   @Inject public SubB() {}
+}
+
+class StaticTimeSet extends ConfigurationModuleBuilder {
+  public static final OptionalImpl<Super> X = new OptionalImpl<>(); 
+  public static final ConfigurationModule CONF = new StaticTimeSet()
+    .bindImplementation(Super.class, X)
+    .build()
+    .set(X, SubA.class);
 }

@@ -222,4 +222,16 @@ public class ConfigurationModule {
     }
     return sb.toString();
   }
+  public void assertStaticClean() throws ClassHierarchyException {
+    if(!(
+        setImpls.isEmpty() &&
+        setImplSets.isEmpty() &&
+        setLateImplSets.isEmpty() &&
+        setParamSets.isEmpty() &&
+        setLateImpls.isEmpty() &&
+        setParams.isEmpty()
+        )) {
+      throw new ClassHierarchyException("Detected statically set ConfigurationModule Parameter / Implementation.  set() should only be used dynamically.  Use bind...() instead.");
+    }
+  }
 }
