@@ -19,6 +19,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.implementation.ConfigurationBuilderImpl;
 import com.microsoft.tang.implementation.ConfigurationImpl;
 import com.microsoft.tang.types.ClassNode;
@@ -103,30 +104,36 @@ public class ConfigurationFile {
         key = longName;
       }
       for (String value : values) {
-        if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
-          ci.getClassHierarchy().getNode(value);
-          final String[] tok = value.split(ReflectionUtilities.regexp);
-          final String lastTok = tok[tok.length - 1];
-          try {
-            // ci.namespace.getNode(lastTok);
-            ci.getClassHierarchy().getNode(lastTok);
-            throw new IllegalArgumentException("Conflict on short name: " + lastTok);
-          } catch (BindException e) {
-            String oldValue = importedNames.put(lastTok, value);
-            if (oldValue != null) {
-              throw new IllegalArgumentException("Name conflict: "
-                  + lastTok + " maps to " + oldValue + " and " + value);
+        try {
+          if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
+            ci.getClassHierarchy().getNode(value);
+            final String[] tok = value.split(ReflectionUtilities.regexp);
+            final String lastTok = tok[tok.length - 1];
+            try {
+              // ci.namespace.getNode(lastTok);
+              ci.getClassHierarchy().getNode(lastTok);
+              throw new IllegalArgumentException("Conflict on short name: " + lastTok);
+            } catch (BindException e) {
+              String oldValue = importedNames.put(lastTok, value);
+              if (oldValue != null) {
+                throw new IllegalArgumentException("Name conflict: "
+                    + lastTok + " maps to " + oldValue + " and " + value);
+              }
             }
+          } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
+            String parseValue = value.substring(
+                ConfigurationBuilderImpl.INIT.length(), value.length());
+            parseValue = parseValue.replaceAll("^[\\s\\(]+", "");
+            parseValue = parseValue.replaceAll("[\\s\\)]+$", "");
+            String[] classes = parseValue.split("[\\s\\-]+");
+            ci.registerLegacyConstructor(key, classes);
+          } else {
+            ci.bind(key, value);
           }
-        } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
-          String parseValue = value.substring(
-              ConfigurationBuilderImpl.INIT.length(), value.length());
-          parseValue = parseValue.replaceAll("^[\\s\\(]+", "");
-          parseValue = parseValue.replaceAll("[\\s\\)]+$", "");
-          String[] classes = parseValue.split("[\\s\\-]+");
-          ci.registerLegacyConstructor(key, classes);
-        } else {
-          ci.bind(key, value);
+        } catch(BindException e) {
+          throw new BindException("Failed to process configuration tuple: ["+key+"="+value+"]",e);
+        } catch(ClassHierarchyException e) {
+          throw new ClassHierarchyException("Failed to process configuration tuple: ["+key+"="+value+"]",e);
         }
       }
     }
