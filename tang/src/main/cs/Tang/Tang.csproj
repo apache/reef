@@ -42,31 +42,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassHierarchy.cs" />
-    <Compile Include="class_hierarchy.cs">
+    <Compile Include="..\..\proto\class_hierarchy.cs">
+      <Link>class_hierarchy.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>class_hierarchy.proto</DependentUpon>
     </Compile>
-    <Compile Include="injection_plan.cs">
+    <Compile Include="..\..\proto\injection_plan.cs">
+      <Link>injection_plan.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>injection_plan.proto</DependentUpon>
     </Compile>
+    <Compile Include="ClassHierarchy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="class_hierarchy.proto">
+    <None Include="..\..\proto\class_hierarchy.proto">
+      <Link>class_hierarchy.proto</Link>
       <Generator>ProtoBufTool</Generator>
+      <CustomToolNamespace>%3bfixCase</CustomToolNamespace>
       <LastGenOutput>class_hierarchy.cs</LastGenOutput>
-      <CustomToolNamespace>%3bfixCase</CustomToolNamespace>
     </None>
-    <None Include="injection_plan.proto">
+    <None Include="..\..\proto\injection_plan.proto">
+      <Link>injection_plan.proto</Link>
       <Generator>ProtoBufTool</Generator>
-      <LastGenOutput>injection_plan.cs</LastGenOutput>
       <CustomToolNamespace>%3bfixCase</CustomToolNamespace>
+      <LastGenOutput>injection_plan.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
