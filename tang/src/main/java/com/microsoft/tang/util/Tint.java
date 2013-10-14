@@ -239,15 +239,15 @@ public class Tint {
         int mod = f.getModifiers();
         boolean ok = true;
         if(Modifier.isPrivate(mod)) {
-          System.err.println("Style warning: Found private ConfigurationModule" + f);
+          System.err.println("Found private ConfigurationModule " + f);
           ok = false;
         }
         if(!Modifier.isFinal(mod)) {
-          System.err.println("Style warning: Found non-final ConfigurationModule" + f);
+          System.err.println("Found non-final ConfigurationModule " + f);
           ok = false;
         }
         if(!Modifier.isStatic(f.getModifiers())) {
-          System.err.println("Style warning: Found non-static ConfigurationModule " + f);
+          System.err.println("Found non-static ConfigurationModule " + f);
           ok = false;
         }
         if(ok) {
@@ -260,7 +260,7 @@ public class Tint {
               try{
                 modules.get(f).assertStaticClean();
               } catch (ClassHierarchyException e) {
-                System.err.println(e.getMessage());
+                System.err.println(f_s + ": " + e.getMessage());
               }
               for(Entry<String, String> e : modules.get(f).toStringPairs()) {
                 //System.err.println("e: " + e.getKey() + "=" + e.getValue());

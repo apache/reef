@@ -97,7 +97,11 @@ public abstract class ConfigurationModuleBuilder {
     if(d == null) {
       throw new NullPointerException("If merge() was passed a static final field that is initialized to non-null, then this is almost certainly caused by a circular class dependency.");
     }
-    d.assertStaticClean();
+    try {
+      d.assertStaticClean();
+    } catch(ClassHierarchyException e) {
+      throw new ClassHierarchyException(ReflectionUtilities.getFullName(getClass()) + ": detected attempt to merge with ConfigurationModule that has had set() called on it", e);
+    }
     ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.addConfiguration(d.builder.b.build());
