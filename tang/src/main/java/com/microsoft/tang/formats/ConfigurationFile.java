@@ -182,12 +182,12 @@ public class ConfigurationFile {
     for (ClassNode<?> opt : conf.getBoundImplementations()) {
       l.add(opt.getFullName()
           +'='
-          +conf.getBoundImplementation(opt).getFullName());
+          +escape(conf.getBoundImplementation(opt).getFullName()));
     }
     for (ClassNode<?> opt : conf.getBoundConstructors()) {
       l.add(opt.getFullName()
           +'='
-          +conf.getBoundConstructor(opt).getFullName());
+          +escape(conf.getBoundConstructor(opt).getFullName()));
     }
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
       l.add(opt.getFullName()
@@ -198,12 +198,12 @@ public class ConfigurationFile {
       StringBuilder sb = new StringBuilder();
       join(sb, "-", conf.getLegacyConstructor(cn).getArgs());
       l.add(cn.getFullName()
-          +'='
+          +escape('='
           +ConfigurationBuilderImpl.INIT
           +'('
           +sb.toString()
           +')'
-          );
+          ));
       //s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
 //      .append(")\n");
     }
@@ -216,7 +216,7 @@ public class ConfigurationFile {
       } else {
         throw new IllegalStateException();
       }
-      l.add(e.getKey().getFullName() + '=' + val);
+      l.add(e.getKey().getFullName() + '=' + escape(val));
 //      s.append(e.getKey().getFullName()).append('=').append(val).append("\n");
     }
     return l;//s.toString();
