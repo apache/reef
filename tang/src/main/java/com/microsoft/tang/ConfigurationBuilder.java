@@ -80,7 +80,8 @@ public interface ConfigurationBuilder {
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException;
 
+  public void bindSetEntry(String iface, String impl) throws BindException;
 
-
+  public void bindSetEntry(String iface, Node impl) throws BindException;
 
 }
