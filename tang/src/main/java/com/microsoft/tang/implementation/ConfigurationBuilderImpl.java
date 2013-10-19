@@ -99,10 +99,11 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
           .getArgs());
     }
     for (Entry<NamedParameterNode<Set<?>>, Object> e: builder.boundSetEntries) {
+      String name = ((NamedParameterNode<Set<T>>)(NamedParameterNode<?>)e.getKey()).getFullName();
       if(e.getValue() instanceof Node) {
-        bindSetEntry((NamedParameterNode<Set<T>>)(NamedParameterNode<?>)e.getKey(), (Node)e.getValue());
+        bindSetEntry(name, (Node)e.getValue());
       } else if(e.getValue() instanceof String) {
-        bindSetEntry((NamedParameterNode<Set<T>>)(NamedParameterNode<?>)e.getKey(), (String)e.getValue());
+        bindSetEntry(name, (String)e.getValue());
       } else {
         throw new IllegalStateException();
       }
@@ -191,6 +192,20 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     } else {
       namedParameters.put(name, value);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindSetEntry(String iface, String impl)
+      throws BindException {
+    boundSetEntries.put((NamedParameterNode<Set<?>>)namespace.getNode(iface), impl);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindSetEntry(String iface, Node impl)
+      throws BindException {
+    boundSetEntries.put((NamedParameterNode<Set<?>>)namespace.getNode(iface), impl);
   }
 
   @SuppressWarnings("unchecked")

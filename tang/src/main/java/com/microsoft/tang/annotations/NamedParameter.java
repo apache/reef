@@ -12,9 +12,10 @@ import java.lang.annotation.Target;
 public @interface NamedParameter {
   //Class<?> type() default String.class;
   String doc() default "";
+  String short_name() default "";
+  // One of the following should be set.
   String default_value() default "";
   Class<?> default_class() default Void.class;
-  String short_name() default "";
   String[] default_values() default {};
   Class<?>[] default_classes() default {};
 }
