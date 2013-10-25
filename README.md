@@ -337,6 +337,7 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
    * `injector.isInjectable(Timer.class)` checks to see if Timer is injectable without actually performing an injection or running application code.  (Note that, in this example, the Java classloader may have run application code.  For more information, see the advanced tutorials on cross-language injections and securely building configurations for untrusted code.)
    * Finally, we call `injector.getInstance(Timer.class)`.  Internally, this method considers all possible injection plans for `Timer`.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an `InjectionException`.
 
+
 Processing configuration data
 -----------------------------
 
@@ -361,7 +362,37 @@ com.examples.Interface=com.examples.Implementation
 
 tells Tang to create a new Implementation each time it wants to invoke a constructor that asks for an instance of Interface.  In most circumstances, Implementation extends or implements Interface (`ExternalConstructors` are the exception -- see the next section).  In such cases, Tang makes sure that Implementation contains at least one constructor with an `@Inject` annotation, and performs the binding.
 
-### Using external constructors to inject legacy code
+
+Advanced Object Injection Patterns
+----------------------------------
+
+### Cyclic injections with `InjectionFuture`
+
+Unlike other dependency injection frameworks, all Tang injections are performed by invoking object constructors.  Although it is generally considered bad practice to create classes with circular dependencies, there are valid reasons to have two objects that point to each other at runtime.  For concreteness, call these two objects `a` and `b`.
+
+The simplest way to achieve this is to add a setter to one of the objects, and then invoke the setter in the other object's constructor:
+
+```java
+  a.setB(b);
+```
+
+Although this works, it has a few disadvantages:
+ - `a` is no longer immutable (or fully instantiated when its constructor returns), which means that its implementation should contain checks to ensure that b is set exactly once before execution proceeds.
+ - `a`'s dependency on `b` is no longer apparent from `a`'s constructor signatures.
+
+This is a shame; when coupled with immutable fields, Tang's use of constructor-based injetion eliminates both these problems, saving application developers from implementing and documenting setters and runtime checks.
+
+Based on these observations, Tang offers an alternative called an `InjectionFuture`.  In our example, we would declare two consructors:
+```java
+@Inject A(InjectionFuture<B> b) { this.b_f = b; }
+@Inject B(A a ) { this.a = a; }
+```
+Instead of passing `b` directly into `a`'s constructor, Tang creates an `InjectionFuture<B>` with a single method `public B get()`.  `get()` is guaranteed to throw an exception if called before `A`'s constructor returns, and is guaranteed to return the injected instance of `B` if called after Tang's `Injector.getInstance()` successfuly returns.  This allows application designers to break cycles in injections without resorting to mutable fields, or runtime error checking.  `get()` throws a `RuntimeException` that object implementors should ignore and pass up the stack.  Note that calling methods that transitively call `InjectionFuture.get()` within a constructor is fundamentally unsafe.  Such calls have undefined behavior, but Tang makes a best effort attempt to throw an exception when such a call is made.
+
+
+### Using `@Unit` to implement multiple versions of a generic interface
+
+### Using `ExternalConstructor` to inject legacy code or delegate to a subtype during injection.
 
 TODO promote to top-level section.
 
