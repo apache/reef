@@ -19,8 +19,6 @@ namespace Com.Microsoft.Tang.Types
 
         INode GetParent();
 
-        void put(INode node);
-
-        String toString();
+        void Add(INode node);
     }
 }

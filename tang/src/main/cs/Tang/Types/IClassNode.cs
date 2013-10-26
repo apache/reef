@@ -8,9 +8,9 @@ namespace Com.Microsoft.Tang.Types
 {
     public interface IClassNode<T> : INode
     {
-        ConstructorDef<T>[] getInjectableConstructors();
-        ConstructorDef<T> getConstructorDef(params IClassNode<T>[] args);
-        ConstructorDef<T>[] getAllConstructors();
+        IConstructorDef<T>[] getInjectableConstructors();
+        IConstructorDef<T> getConstructorDef(params IClassNode<T>[] args);
+        IConstructorDef<T>[] getAllConstructors();
 
         void PutImpl(IClassNode<T> impl);
         ISet<IClassNode<T>> GetKnownImplementations();

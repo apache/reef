@@ -5,13 +5,13 @@ using System;
 
 namespace Com.Microsoft.Tang.Types
 {
-    public interface ConstructorDef<T> : IComparable
+    public interface IConstructorDef<T> : IComparable
     {
         public String GetClassName();
 
         public IConstructorArg[] GetArgs();
 
-        public bool IsMoreSpecificThan(ConstructorDef<T> def);
+        public bool IsMoreSpecificThan(IConstructorDef<T> def);
 
         public bool TakesParameters(IClassNode<T>[] paramTypes);
     }
