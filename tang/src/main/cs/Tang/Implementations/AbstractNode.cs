@@ -32,17 +32,17 @@ namespace Com.Microsoft.Tang.Implementations
             }
         }
 
-        public override ICollection<INode> GetChildren()
+        public ICollection<INode> GetChildren()
         {
             return children.Values;
         }
 
-        public override String GetName()
+        public String GetName()
         {
             return name;
         }
 
-        public override String GetFullName()
+        public String GetFullName()
         {
             return fullName;
         }
@@ -52,12 +52,12 @@ namespace Com.Microsoft.Tang.Implementations
             return parent;
         }
 
-        public override bool Contains(String key) 
+        public bool Contains(String key) 
         {
             return children.ContainsKey(key);
         }
 
-        public override INode Get(String key)
+        public INode Get(String key)
         {
             INode val;
             if (children.TryGetValue(key, out val))
@@ -67,12 +67,12 @@ namespace Com.Microsoft.Tang.Implementations
             return null;
         }
 
-        public override void Add(INode n)
+        public void Add(INode n)
         {
             children.Add(n.GetName(), n);
         }
 
-        public bool Equals(Object o) 
+        public override bool Equals(Object o) 
         {
             if(o == null) return false;
             if(o == this) return true;

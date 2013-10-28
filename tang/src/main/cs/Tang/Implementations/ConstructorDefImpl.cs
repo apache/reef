@@ -23,19 +23,19 @@ namespace Com.Microsoft.Tang.Implementations
                         if (this.GetArgs()[i].Equals(this.GetArgs()[j])) {
                             throw new ClassHierarchyException(
                                 "Repeated constructor parameter detected.  "
-                                + "Cannot inject constructor " + toString());
+                                + "Cannot inject constructor " + ToString());
                         }
                     }
                 }
             }
         }
 
-        public override IConstructorArg[] GetArgs() 
+        public IConstructorArg[] GetArgs() 
         {
             return args;
         }
 
-        public override String GetClassName() 
+        public String GetClassName() 
         {
             return className;
         }
@@ -90,17 +90,31 @@ namespace Com.Microsoft.Tang.Implementations
             return GetArgs().Length > def.GetArgs().Length;
         }
 
-        public bool TakesParameters(IClassNode<T>[] paramTypes)
+        public bool TakesParameters(IList<IClassNode<T>> paramTypes)
         {
-            if (paramTypes.Length != args.Length) 
+            if (paramTypes.Count != args.Length) 
             {
                 return false;
             }
-            for (int i = 0; i < paramTypes.Length; i++) {
-                if (!args[i].GetType().Equals(paramTypes[i].GetFullName())) {
+
+            int i = 0;
+            foreach (IClassNode<T> t in paramTypes)
+            {
+                if (!args[i].Gettype().Equals(paramTypes[i].GetFullName()))
+                {
                     return false;
                 }
+                else
+                {
+                    i++;
+                }
+
             }
+            //for (int i = 0; i < paramTypes.Length; i++) {
+            //    if (!args[i].Gettype().Equals(paramTypes[i].GetFullName())) {
+            //        return false;
+            //    }
+            //}
             return true;
         }
 
@@ -133,8 +147,9 @@ namespace Com.Microsoft.Tang.Implementations
             return true;
         }
 
-        public override int CompareTo(IConstructorDef<T> o) 
+        public int CompareTo(object obj)
         {
+            IConstructorDef<T> o = (IConstructorDef<T>)obj;
             return ToString().CompareTo(o.ToString());
         }
     }

@@ -2,17 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // ----------------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 
 namespace Com.Microsoft.Tang.Types
 {
     public interface IConstructorDef<T> : IComparable
     {
-        public String GetClassName();
+        String GetClassName();
 
-        public IConstructorArg[] GetArgs();
+        IConstructorArg[] GetArgs();
 
-        public bool IsMoreSpecificThan(IConstructorDef<T> def);
+        bool IsMoreSpecificThan(IConstructorDef<T> def);
 
-        public bool TakesParameters(IClassNode<T>[] paramTypes);
+        bool TakesParameters(IList<IClassNode<T>> paramTypes);
     }
 }

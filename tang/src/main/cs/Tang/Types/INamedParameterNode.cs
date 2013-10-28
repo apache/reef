@@ -7,16 +7,16 @@ namespace Com.Microsoft.Tang.Types
 {
     public interface INamedParameterNode
     {
-        public String GetDocumentation();
+        String GetDocumentation();
 
-        public String GetShortName();
+        String GetShortName();
 
-        public String[] GetDefaultInstanceAsStrings();
+        String[] GetDefaultInstanceAsStrings();
 
-        public String GetSimpleArgName();
+        String GetSimpleArgName();
 
-        public String GetFullArgName();
+        String GetFullArgName();
 
-        public bool IsSet();
+        bool IsSet();
     }
 }

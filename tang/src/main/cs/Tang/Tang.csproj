@@ -42,14 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\proto\class_hierarchy.cs">
+    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\class_hierarchy.cs">
       <Link>class_hierarchy.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>class_hierarchy.proto</DependentUpon>
     </Compile>
-    <Compile Include="..\..\proto\injection_plan.cs">
+    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\injection_plan.cs">
       <Link>injection_plan.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -61,8 +61,8 @@
     <Compile Include="Annotations\NamedParameter.cs" />
     <Compile Include="Annotations\Parameter.cs" />
     <Compile Include="Annotations\Unit.cs" />
-    <Compile Include="ClassHierarchy.cs" />
     <Compile Include="Exceptions\ClassHierarchyException.cs" />
+    <Compile Include="Exceptions\BindException.cs" />
     <Compile Include="Exceptions\UnsupportedOperationException.cs" />
     <Compile Include="Implementations\AbstractNode.cs" />
     <Compile Include="Implementations\ClassNodeImpl.cs" />

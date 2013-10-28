@@ -7,12 +7,12 @@ namespace Com.Microsoft.Tang.Types
 {
     public interface IConstructorArg
     {
-        public String GetName();
+        String GetName();
 
-        public String GetType();
+        String Gettype();
 
-        public bool IsInjectionFuture();
+        bool IsInjectionFuture();
 
-        public String GetNamedParameterName();  
+        String GetNamedParameterName();  
     }
 }

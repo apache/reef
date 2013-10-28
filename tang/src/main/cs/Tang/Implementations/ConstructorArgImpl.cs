@@ -20,22 +20,22 @@ namespace Com.Microsoft.Tang.Implementations
             this.isInjectionFuture = isInjectionFuture;
         }
 
-        public override String GetName() 
+        public String GetName() 
         {
             return name == null ? type : name;
         }
 
-        public override String GetNamedParameterName() 
+        public String GetNamedParameterName() 
         {
             return name;
         }
 
-        public override String GetType()
+        public String Gettype()
         {
             return type;
         }
         
-        public override bool IsInjectionFuture()
+        public bool IsInjectionFuture()
         {
             return isInjectionFuture;
         }

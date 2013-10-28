@@ -24,7 +24,7 @@ namespace Com.Microsoft.Tang.Util
         {
         }
 
-        public override bool Add(T e)
+        public bool Add(T e)
         {
             if (this.Contains(e))
             {
@@ -65,7 +65,7 @@ namespace Com.Microsoft.Tang.Util
             throw new UnsupportedOperationException("Attempt to clear MonotonicSet!");
         }
 
-        public override bool Remove(Object o)
+        public bool Remove(Object o)
         {
             throw new UnsupportedOperationException("Attempt to remove " + o
                 + " from MonotonicSet!");

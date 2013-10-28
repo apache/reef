@@ -8,7 +8,7 @@ namespace Com.Microsoft.Tang.Util
 {
     public class MonotonicTreeMap<TKey, TVal> : SortedDictionary<TKey, TVal> 
     {
-        public override void Add(TKey key, TVal value) 
+        public void Add(TKey key, TVal value) 
         {
             TVal val;
             if (base.TryGetValue(key, out val))
@@ -22,12 +22,12 @@ namespace Com.Microsoft.Tang.Util
             }
         }
 
-        public override void Clear() 
+        public void Clear() 
         {
-        throw new System.NotSupportedException();
+            throw new System.NotSupportedException();
         }
 
-        public override void Remove(TKey key)
+        public void Remove(TKey key)
         {
             throw new NotSupportedException();
         }
