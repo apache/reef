@@ -4,7 +4,7 @@
 namespace Com.Microsoft.Tang.Annotations
 {
     [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class Unit : System.Attribute 
+    public class UnitAttribute : System.Attribute 
     { 
     }
 }

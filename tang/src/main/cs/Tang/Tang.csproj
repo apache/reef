@@ -68,6 +68,7 @@
     <Compile Include="Implementations\ClassNodeImpl.cs" />
     <Compile Include="Implementations\ConstructorArgImpl.cs" />
     <Compile Include="Implementations\ConstructorDefImpl.cs" />
+    <Compile Include="Implementations\NamedParameterNodeImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\IConstructorDef.cs" />
     <Compile Include="Types\IClassNode.cs" />

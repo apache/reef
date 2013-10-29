@@ -4,7 +4,7 @@
 namespace Com.Microsoft.Tang.Annotations
 {
     [System.AttributeUsage(System.AttributeTargets.Constructor)]
-    public class Inject : System.Attribute 
+    public class InjectAttribute : System.Attribute 
     { 
     }
 }
