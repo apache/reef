@@ -29,23 +29,28 @@ namespace Com.Microsoft.Tang.Implementations
             this.defaultInstanceAsStrings = defaultInstanceAsStrings;
         }
 
-        public override String ToString() {
+        public override String ToString()
+        {
             return GetSimpleArgName() + " " + GetName();
         }
 
-        public String GetSimpleArgName() {
+        public String GetSimpleArgName()
+        {
             return simpleArgName;
         }
 
-        public String GetFullArgName() {
+        public String GetFullArgName()
+        {
             return fullArgName;
         }
 
-        public String GetDocumentation() {
+        public String GetDocumentation()
+        {
             return documentation;
         }
 
-        public String GetShortName() {
+        public String GetShortName()
+        {
             return shortName;
         }
 
@@ -54,7 +59,8 @@ namespace Com.Microsoft.Tang.Implementations
             return defaultInstanceAsStrings;
         }
 
-        public bool IsSet() {
+        public bool IsSet()
+        {
             return isSet;
         }
     }

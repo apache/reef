@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace Com.Microsoft.Tang.Types
 {
-    public interface IClassNode<T> : INode
+    public interface IClassNode : INode
     {
-        IConstructorDef<T>[] GetInjectableConstructors();
-        IConstructorDef<T> GetConstructorDef(IList<IClassNode<T>> args);
-        IConstructorDef<T>[] GetAllConstructors();
+        IList<IConstructorDef> GetInjectableConstructors();
+        IConstructorDef GetConstructorDef(IList<IClassNode> args);
+        IList<IConstructorDef> GetAllConstructors();
 
-        void PutImpl(IClassNode<T> impl);
-        ISet<IClassNode<T>> GetKnownImplementations();
+        void PutImpl(IClassNode impl);
+        ISet<IClassNode> GetKnownImplementations();
         String GetDefaultImplementation();
         bool IsUnit();
         bool IsInjectionCandidate();
         bool IsExternalConstructor();
-        bool IsImplementationOf(IClassNode<T> inter);
+        bool IsImplementationOf(IClassNode inter);
     }
 }

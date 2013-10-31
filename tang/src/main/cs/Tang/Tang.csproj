@@ -56,6 +56,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>injection_plan.proto</DependentUpon>
     </Compile>
+    <Compile Include="Annotations\DefaultImplementation.cs" />
     <Compile Include="Annotations\Inject.cs" />
     <Compile Include="Annotations\Name.cs" />
     <Compile Include="Annotations\NamedParameter.cs" />
@@ -63,12 +64,17 @@
     <Compile Include="Annotations\Unit.cs" />
     <Compile Include="Exceptions\ClassHierarchyException.cs" />
     <Compile Include="Exceptions\BindException.cs" />
+    <Compile Include="Exceptions\NameResolutionException.cs" />
     <Compile Include="Exceptions\UnsupportedOperationException.cs" />
     <Compile Include="Implementations\AbstractNode.cs" />
+    <Compile Include="Implementations\ClassHierarchyImpl.cs" />
     <Compile Include="Implementations\ClassNodeImpl.cs" />
     <Compile Include="Implementations\ConstructorArgImpl.cs" />
     <Compile Include="Implementations\ConstructorDefImpl.cs" />
+    <Compile Include="Exceptions\IllegalStateException.cs" />
     <Compile Include="Implementations\NamedParameterNodeImpl.cs" />
+    <Compile Include="Implementations\NodeFactory.cs" />
+    <Compile Include="Implementations\PackageNodeImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\IConstructorDef.cs" />
     <Compile Include="Types\IClassNode.cs" />

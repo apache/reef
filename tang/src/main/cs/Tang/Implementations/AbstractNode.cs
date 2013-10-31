@@ -10,10 +10,10 @@ namespace Com.Microsoft.Tang.Implementations
 {
     public class AbstractNode : INode
     {
-        private readonly INode parent;
-        private readonly String name;
-        private readonly String fullName;
-        protected readonly IDictionary<String, INode> children = new MonotonicTreeMap<string, INode>();
+        protected INode parent;
+        protected String name;
+        protected String fullName;
+        protected IDictionary<String, INode> children = new MonotonicTreeMap<string, INode>();
 
 
         public AbstractNode(INode parent, String name, String fullName)
@@ -37,21 +37,6 @@ namespace Com.Microsoft.Tang.Implementations
             return children.Values;
         }
 
-        public String GetName()
-        {
-            return name;
-        }
-
-        public String GetFullName()
-        {
-            return fullName;
-        }
-
-        public INode GetParent()
-        {
-            return parent;
-        }
-
         public bool Contains(String key) 
         {
             return children.ContainsKey(key);
@@ -71,6 +56,22 @@ namespace Com.Microsoft.Tang.Implementations
         {
             children.Add(n.GetName(), n);
         }
+
+        public string GetFullName()
+        {
+            return this.fullName;
+        }
+
+        public string GetName()
+        {
+            return this.name;
+        }
+
+        public INode GetParent()
+        {
+            return this.parent;
+        }
+
 
         public override bool Equals(Object o) 
         {
@@ -96,12 +97,12 @@ namespace Com.Microsoft.Tang.Implementations
 
         public override String ToString()
         {
-            return "[" + this.GetType().FullName + " '" + GetFullName() + "']";
+            return "[" + this.GetType().FullName + " '" + fullName + "']";
         }
 
         public int CompareTo(INode n)
         {
-            return GetFullName().CompareTo(n.GetFullName());
+            return fullName.CompareTo(n.GetFullName());
         }
     }
 }

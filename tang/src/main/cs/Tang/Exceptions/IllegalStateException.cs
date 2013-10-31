@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Com.Microsoft.Tang.Exceptions
 {
-    class UnsupportedOperationException : Exception
+    public class IllegalStateException : Exception
     {
-        public UnsupportedOperationException(String msg)
+        public IllegalStateException(String msg)
             : base(msg)
         {           
         }
 
-        public UnsupportedOperationException(string message, Exception innerException)
+        public IllegalStateException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

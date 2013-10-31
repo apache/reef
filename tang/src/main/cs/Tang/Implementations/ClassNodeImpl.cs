@@ -9,21 +9,22 @@ using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Implementations
 {
-    public class ClassNodeImpl<T> : AbstractNode, IClassNode<T>
+    public class ClassNodeImpl : AbstractNode, IClassNode
     {
         private readonly bool injectable;
         private readonly bool unit;
         private readonly bool externalConstructor;
-        private readonly IConstructorDef<T>[] injectableConstructors;
-        private readonly IConstructorDef<T>[] allConstructors;
-        private readonly MonotonicSet<IClassNode<T>> knownImpls;
+        private readonly IList<IConstructorDef> injectableConstructors;
+        private readonly IList<IConstructorDef> allConstructors;
+        private readonly MonotonicSet<IClassNode> knownImpls;
         private readonly String defaultImpl;
 
         public ClassNodeImpl(INode parent, String simpleName, String fullName,
             bool unit, bool injectable, bool externalConstructor,
-            IConstructorDef<T>[] injectableConstructors,
-            IConstructorDef<T>[] allConstructors,
-            String defaultImplementation) : base(parent, simpleName, fullName) 
+            IList<IConstructorDef> injectableConstructors,
+            IList<IConstructorDef> allConstructors,
+            String defaultImplementation)
+            : base(parent, simpleName, fullName)
         {
 
             this.unit = unit;
@@ -31,56 +32,57 @@ namespace Com.Microsoft.Tang.Implementations
             this.externalConstructor = externalConstructor;
             this.injectableConstructors = injectableConstructors;
             this.allConstructors = allConstructors;
-            this.knownImpls = new MonotonicSet<IClassNode<T>>();
+            this.knownImpls = new MonotonicSet<IClassNode>();
             this.defaultImpl = defaultImplementation;
         }
 
-        public IConstructorDef<T>[] GetInjectableConstructors()
+        public IList<IConstructorDef> GetInjectableConstructors()
         {
             return injectableConstructors;
         }
 
-        public IConstructorDef<T>[] GetAllConstructors() {
+        public IList<IConstructorDef> GetAllConstructors()
+        {
             return allConstructors;
         }
 
-        public bool IsInjectionCandidate() 
+        public bool IsInjectionCandidate()
         {
             return injectable;
         }
 
-        public bool IsExternalConstructor() 
+        public bool IsExternalConstructor()
         {
             return externalConstructor;
         }
 
-        public override String ToString() 
+        public override String ToString()
         {
             StringBuilder sb = new StringBuilder(base.ToString() + ": ");
-            if (GetInjectableConstructors() != null) 
+            if (GetInjectableConstructors() != null)
             {
-                foreach (IConstructorDef<T> c in GetInjectableConstructors()) 
+                foreach (IConstructorDef c in GetInjectableConstructors())
                 {
                     sb.Append(c.ToString() + ", ");
                 }
-            } 
-            else 
+            }
+            else
             {
                 sb.Append("OBJECT BUILD IN PROGRESS!  BAD NEWS!");
             }
             return sb.ToString();
         }
 
-        public IConstructorDef<T> GetConstructorDef(IList<IClassNode<T>> paramTypes)
+        public IConstructorDef GetConstructorDef(IList<IClassNode> paramTypes)
         {
-            if (!IsInjectionCandidate()) 
+            if (!IsInjectionCandidate())
             {
                 throw new BindException("Cannot @Inject non-static member/local class: "
                 + GetFullName());
             }
-            foreach (IConstructorDef<T> c in GetAllConstructors())
+            foreach (IConstructorDef c in GetAllConstructors())
             {
-                if (c.TakesParameters(paramTypes)) 
+                if (c.TakesParameters(paramTypes))
                 {
                     return c;
                 }
@@ -89,14 +91,14 @@ namespace Com.Microsoft.Tang.Implementations
                 + GetFullName());
         }
 
-        public void PutImpl(IClassNode<T> impl)
+        public void PutImpl(IClassNode impl)
         {
             knownImpls.Add(impl);
         }
 
-        public ISet<IClassNode<T>> GetKnownImplementations() 
+        public ISet<IClassNode> GetKnownImplementations()
         {
-            return new MonotonicSet<IClassNode<T>>(knownImpls);
+            return new MonotonicSet<IClassNode>(knownImpls);
         }
 
         public bool IsUnit()
@@ -104,19 +106,20 @@ namespace Com.Microsoft.Tang.Implementations
             return unit;
         }
 
-        public bool IsImplementationOf(IClassNode<T> inter) 
+        public bool IsImplementationOf(IClassNode inter)
         {
-            IList<IClassNode<T>> worklist = new List<IClassNode<T>>();
-            if (this.Equals(inter)) {
+            IList<IClassNode> worklist = new List<IClassNode>();
+            if (this.Equals(inter))
+            {
                 return true;
             }
             worklist.Add(inter);
-            while (worklist.Count != 0) 
+            while (worklist.Count != 0)
             {
-                IClassNode<T> cn = worklist[worklist.Count - 1];
+                IClassNode cn = worklist[worklist.Count - 1];
                 worklist.RemoveAt(worklist.Count - 1);
-                ISet<IClassNode<T>> impls = cn.GetKnownImplementations();
-                if (impls.Contains(this)) 
+                ISet<IClassNode> impls = cn.GetKnownImplementations();
+                if (impls.Contains(this))
                 {
                     return true;
                 }

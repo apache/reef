@@ -6,14 +6,14 @@ using System.Collections.Generic;
 
 namespace Com.Microsoft.Tang.Types
 {
-    public interface IConstructorDef<T> : IComparable
+    public interface IConstructorDef : IComparable
     {
         String GetClassName();
 
-        IConstructorArg[] GetArgs();
+        IList<IConstructorArg> GetArgs();
 
-        bool IsMoreSpecificThan(IConstructorDef<T> def);
+        bool IsMoreSpecificThan(IConstructorDef def);
 
-        bool TakesParameters(IList<IClassNode<T>> paramTypes);
+        bool TakesParameters(IList<IClassNode> paramTypes);
     }
 }

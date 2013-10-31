@@ -9,7 +9,7 @@ namespace Com.Microsoft.Tang.Implementations
 {
     public class ConstructorArgImpl : IConstructorArg
     {
-        private readonly  String type;
+        private readonly String type;
         private readonly String name;
         private readonly bool isInjectionFuture;
 
@@ -20,12 +20,12 @@ namespace Com.Microsoft.Tang.Implementations
             this.isInjectionFuture = isInjectionFuture;
         }
 
-        public String GetName() 
+        public String GetName()
         {
             return name == null ? type : name;
         }
 
-        public String GetNamedParameterName() 
+        public String GetNamedParameterName()
         {
             return name;
         }
@@ -34,7 +34,7 @@ namespace Com.Microsoft.Tang.Implementations
         {
             return type;
         }
-        
+
         public bool IsInjectionFuture()
         {
             return isInjectionFuture;

@@ -8,34 +8,42 @@ using Com.Microsoft.Tang.Types;
 
 namespace Com.Microsoft.Tang.Implementations
 {
-    public class ConstructorDefImpl<T> : IConstructorDef<T>
+    public class ConstructorDefImpl : IConstructorDef
     {
-        private readonly IConstructorArg[] args;
+        private readonly IList<IConstructorArg> args;
         private readonly String className;
 
-        public ConstructorDefImpl(String className, IConstructorArg[] args, bool injectable)  
+        public ConstructorDefImpl(String className, IConstructorArg[] args, bool injectable) : this(className, injectable)
+        {
+            this.args = args;
+        }
+
+        public ConstructorDefImpl(String className, bool injectable)
         {
             this.className = className;
-            this.args = args;
-            if (injectable) {
-                for (int i = 0; i < this.GetArgs().Length; i++) {
-                    for (int j = i + 1; j < this.GetArgs().Length; j++) {
-                        if (this.GetArgs()[i].Equals(this.GetArgs()[j])) {
-                            throw new ClassHierarchyException(
-                                "Repeated constructor parameter detected.  "
-                                + "Cannot inject constructor " + ToString());
-                        }
-                    }
+            if (injectable)
+            {
+                var duplicateItems = from x in args
+                                     group x by x into grouped
+                                     where grouped.Count() > 1
+                                     select grouped.Key;
+
+                if (duplicateItems.Any())
+                {
+                    throw new ClassHierarchyException(
+                        "Repeated constructor parameter detected.  "
+                        + "Cannot inject constructor " + ToString());
                 }
             }
         }
 
-        public IConstructorArg[] GetArgs() 
+
+        public IList<IConstructorArg> GetArgs()
         {
             return args;
         }
 
-        public String GetClassName() 
+        public String GetClassName()
         {
             return className;
         }
@@ -61,19 +69,19 @@ namespace Com.Microsoft.Tang.Implementations
         {
             StringBuilder sb = new StringBuilder(className);
             sb.Append("(");
-            sb.Append(Join(",", args));
+            sb.Append(Join(",", args.ToArray()));
             sb.Append(")");
             return sb.ToString();
         }
 
         // Return true if our list of args is a superset of those in def.
-        public bool IsMoreSpecificThan(IConstructorDef<T> def)
-        {    
+        public bool IsMoreSpecificThan(IConstructorDef def)
+        {
             // Is everything in def also in this?
-            for (int i = 0; i < def.GetArgs().Length; i++)
+            for (int i = 0; i < def.GetArgs().Count; i++)
             {
                 bool found = false;
-                for (int j = 0; j < this.GetArgs().Length; j++)
+                for (int j = 0; j < this.GetArgs().Count; j++)
                 {
                     if (GetArgs()[j].Equals(def.GetArgs()[i]))
                     {
@@ -87,18 +95,18 @@ namespace Com.Microsoft.Tang.Implementations
             }
             // Everything in def's arg list is in ours.  Do we have at least one extra
             // argument?
-            return GetArgs().Length > def.GetArgs().Length;
+            return GetArgs().Count > def.GetArgs().Count;
         }
 
-        public bool TakesParameters(IList<IClassNode<T>> paramTypes)
+        public bool TakesParameters(IList<IClassNode> paramTypes)
         {
-            if (paramTypes.Count != args.Length) 
+            if (paramTypes.Count != args.Count)
             {
                 return false;
             }
 
             int i = 0;
-            foreach (IClassNode<T> t in paramTypes)
+            foreach (IClassNode t in paramTypes)
             {
                 if (!args[i].Gettype().Equals(paramTypes[i].GetFullName()))
                 {
@@ -118,28 +126,28 @@ namespace Com.Microsoft.Tang.Implementations
             return true;
         }
 
-        public override bool Equals(Object o) 
+        public override bool Equals(Object o)
         {
-            return EqualsIgnoreOrder((IConstructorDef<T>) o);
+            return EqualsIgnoreOrder((IConstructorDef)o);
         }
 
-        private bool EqualsIgnoreOrder(IConstructorDef<T> def) 
+        private bool EqualsIgnoreOrder(IConstructorDef def)
         {
-            if (GetArgs().Length != def.GetArgs().Length) 
+            if (GetArgs().Count != def.GetArgs().Count)
             {
                 return false;
             }
-            for (int i = 0; i < GetArgs().Length; i++) 
+            for (int i = 0; i < GetArgs().Count; i++)
             {
                 bool found = false;
-                for (int j = 0; j < GetArgs().Length; j++) 
+                for (int j = 0; j < GetArgs().Count; j++)
                 {
-                    if (GetArgs()[i].GetName().Equals(GetArgs()[j].GetName())) 
+                    if (GetArgs()[i].GetName().Equals(GetArgs()[j].GetName()))
                     {
                         found = true;
                     }
                 }
-                if (!found) 
+                if (!found)
                 {
                     return false;
                 }
@@ -149,7 +157,7 @@ namespace Com.Microsoft.Tang.Implementations
 
         public int CompareTo(object obj)
         {
-            IConstructorDef<T> o = (IConstructorDef<T>)obj;
+            IConstructorDef o = (IConstructorDef)obj;
             return ToString().CompareTo(o.ToString());
         }
     }
