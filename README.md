@@ -143,9 +143,9 @@ public class Timer {
 }
 ```
 A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's `Name` interface.  `Name` is a generic type with a single mandatory parameter that specifies the type of object to be passed in.  Since `Seconds` implements `Name<Integer>`, it is a parameter called `Seconds` that expects `Integer` values.  More precisely, `Seconds` is actually named `com.example.Timer.Seconds`.  This reliance on language types to define parameter names exposes parameters to the compiler and IDE.  Concretely:
- # `javac` maps from `Seconds` to the full class name in the usual way, preventing parameters with the same name, but in different packages from conflicting.
- # The Java classloader ensures that classes are unique at runtime. 
- # Standard IDE features, such as code navigation, completion and refactoring work as they normally would for class names.
+ * `javac` maps from `Seconds` to the full class name in the usual way, preventing parameters with the same name, but in different packages from conflicting.
+ * The Java classloader ensures that classes are unique at runtime. 
+ * Standard IDE features, such as code navigation, completion and refactoring work as they normally would for class names.
 
 ![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information about Tang named parameters")
 
