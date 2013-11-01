@@ -294,6 +294,18 @@ Named parameter com.microsoft.tang.implementation.UnannotatedName is missing its
 Field com.microsoft.tang.formats.MyMissingBindConfigurationModule.BAD_CONF: Found declared options that were not used in binds: { FOO_NESS }
 ```
 
+Injecting objects with `getInstance()`
+--------------------------------------
+TODO: Describe getInstance(), singleton semantics first.
+
+Then, explain scopes (both on the configuration side and on the fork injector side.
+
+
+Alternative configuration sources
+=================================
+
+Tang provides a number of so-called _formats_ that interface with external configuration data.  ConfigurationModule is one such example (see the tutorial TODO).  This tutorial explains how to use Tang's default command line processing facilities, and properties configuration file parser.
+
 Raw configuration API
 ---------
 Tang also provides a lower level configurtion API for applications that need more dynamic control over their configurations:
@@ -336,11 +348,6 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
    * `injector.isInjectable(Timer.class)` checks to see if Timer is injectable without actually performing an injection or running application code.  (Note that, in this example, the Java classloader may have run application code.  For more information, see the advanced tutorials on cross-language injections and securely building configurations for untrusted code.)
    * Finally, we call `injector.getInstance(Timer.class)`.  Internally, this method considers all possible injection plans for `Timer`.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an `InjectionException`.
 
-
-Processing configuration data
------------------------------
-
-Tang provides a number of so-called _formats_ that interface with external configuration data.  ConfigurationModule is one such example (see the tutorial TODO).  This tutorial explains how to use Tang's default command line processing facilities, and properties configuration file parser.
 
 [**TODO:** explain `processCommandLine()`]
 
