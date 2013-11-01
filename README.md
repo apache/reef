@@ -147,8 +147,6 @@ A few things happened here.  First, we create the new configuration parameter by
  * The Java classloader ensures that classes are unique at runtime. 
  * Standard IDE features, such as code navigation, completion and refactoring work as they normally would for class names.
 
-![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information about Tang named parameters")
-
 
 All instances of `Name` must be annotated with `@NamedParameter`, which takes the following optional parameters:
  * `default_value`: The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  `default_class` takes a Class (instead of a String), while `default_values` and `default_classes` take sets of values.
@@ -156,6 +154,10 @@ All instances of `Name` must be annotated with `@NamedParameter`, which takes th
  * `doc` (optional): Human readable documentation that describes the purpose of the parameter.
 
 Tang only invokes constructors that have been annotated with `@Inject`.  This allows injectable constructors to coexist with ones that should not be invoked via dependency injection (such as ones with destructive side effects, or that expect `null` references).  Constructor parameters must not be ambiguous.  If two parameters in the same constructor have the same type, then they must be annotated with `@Parameter`, which associates a named parameter with the argument.  Furthermore, two parameters to the same constructor cannot have the same name.  This allows Tang to safely invoke parameters without exposing low level details (such as parameter ordering) as configuration options.
+
+Example:
+
+![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information about Tang named parameters")
 
 Configuration modules
 ---------
