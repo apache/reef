@@ -90,7 +90,9 @@ public class Timer {
   }
 }
 ```
-Tang encourages applications to use Plain Old Java Objects (POJOs), and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated:  They simply need to check constructor parameters as any other POJO would.  Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
+Tang encourages applications to use Plain Old Java Objects (POJOs), and emphasizes the use of immutable state for configuration parameters.  This reduces boiler plate (there is no need for extra setter methods), and does not interfere with encapsulation (the fields and even the constructor can be private).  Furthermore, it is trivial for well-written classes to ensure that all objects are completely and properly instantiated:  They simply need to check constructor parameters as any other POJO would, except that Tang never passes `null` references into constructors, allowing their implementations to assume that all parameter values are non-null.
+
+Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
 
 ```
 Exception in thread "main" com.microsoft.tang.exceptions.InjectionException: Could not invoke constructor
@@ -110,7 +112,7 @@ Caused by: java.lang.IllegalArgumentException: Cannot sleep for negative time!
 	... 8 more
 ```
 
-In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line and in a config file.
+In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line and in a config file:
 
 ```java
 package com.example;
@@ -140,17 +142,20 @@ public class Timer {
   }
 }
 ```
-A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's `Name` interface.  `Name` is a generic type with a single mandatory parameter that specifies the type of object to be passed in.  Since `Seconds` implements `Name<Integer>`, it is a parameter called `Seconds` that expects `Integer` values.
+A few things happened here.  First, we create the new configuration parameter by declaring a dummy class that implements Tang's `Name` interface.  `Name` is a generic type with a single mandatory parameter that specifies the type of object to be passed in.  Since `Seconds` implements `Name<Integer>`, it is a parameter called `Seconds` that expects `Integer` values.  More precisely, `Seconds` is actually named `com.example.Timer.Seconds`.  This reliance on language types to define parameter names exposes parameters to the compiler and IDE.  Concretely:
+ # `javac` maps from `Seconds` to the full class name in the usual way, preventing parameters with the same name, but in different packages from conflicting.
+ # The Java classloader ensures that classes are unique at runtime. 
+ # Standard IDE features, such as code navigation, completion and refactoring work as they normally would for class names.
 
-All instances of Name must be annotated with `@NamedParamter`, which takes the following optional parameters:
+![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information about Tang named parameters")
+
+
+All instances of `Name` must be annotated with `@NamedParameter`, which takes the following optional parameters:
  * `default_value`: The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  `default_class` takes a Class (instead of a String), while `default_values` and `default_classes` take sets of values.
  * `short_name`: The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling `registerShortName()` on the instance of `com.microsoft.tang.formats.CommandLine` that will process the command line options.
  * `doc` (optional): Human readable documentation that describes the purpose of the parameter.
 
-Next, the `@Inject` annotation flags the constructor so that Tang will consider it when attempting to instantiate this class.  Finally, the `@Parameter` annotation tells Tang to use the configuration parameter when invoking the constructor.  Using a dummy class allows IDEs to autocomplete configuration parameter names, and lets the compiler confirm them as well:
-
-![screenshot of tooltip](doc/tooltip.png "IDE contextual help contains information about Tang named parameters")
-
+Tang only invokes constructors that have been annotated with `@Inject`.  This allows injectable constructors to coexist with ones that should not be invoked via dependency injection (such as ones with destructive side effects, or that expect `null` references).  Constructor parameters must not be ambiguous.  If two parameters in the same constructor have the same type, then they must be annotated with `@Parameter`, which associates a named parameter with the argument.  Furthermore, two parameters to the same constructor cannot have the same name.  This allows Tang to safely invoke parameters without exposing low level details (such as parameter ordering) as configuration options.
 
 Configuration modules
 ---------
