@@ -67,7 +67,7 @@ Tutorial: Getting started
 
 This tutorial is geared toward people that would like to quickly get started with Tang, or that are modifying an existing Tang application.
 
-Configuration Parameters
+Constructors, @Inject and naming constructor arguments with @Parameter
 ------------------------
 
 Suppose you are implementing a new class, and would like to automatically pass configuration parameters to it at runtime:
