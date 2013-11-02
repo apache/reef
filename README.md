@@ -332,7 +332,7 @@ Following Tang's singleton semantics, the instance returned by `get()` will be t
 
 ```java
 A(B b) {...}
-B(InjectionFuture<A> a) {...};
+B(InjectionFuture<A> a) {...}
 ```
 
 Therefore, along with `forkInjector()` and `bindVolatile()`, this allows Tang to inject arbitrary graphs of objects.
