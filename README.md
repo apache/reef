@@ -296,6 +296,61 @@ Field com.microsoft.tang.formats.MyMissingBindConfigurationModule.BAD_CONF: Foun
 
 Injecting objects with `getInstance()`
 --------------------------------------
+
+Above, we explain how to register constructors with Tang, and how to configure Tang to inject the desired objects at runtime.  This section explains how Tang actually instantiates objects, and how the primitives it provides can be combined to support sophisticated application architectures.
+
+In order to instantiate objects with Tang, one must invoke Tang.Factory.getTang().newInjector(Configuration...).  This returns a new "empty" injector that will honor the configuration options that were set in the provided configurations, and that will have access to a merged version of the classpath they refer to.
+
+In a given Tang injector, all classes are treated as singletons: at most one instance of each class may exist.  Furthermore, Tang Configuration objects are designed to be built up from trees of related (but non-conflicting) configuration files, command line parameters, and so on.  At first, this may seem to be overly restrictive, since it prevents applications from creating multiple instances of the same class (or even two classes that require different values of the same named parameter).
+
+Tang addresses this by providing the runtime environment more explicit control over object and configuration parameter scopes.  Taken together, `forkInjector()`, `bindVolatile()` and `InjectionFuture<T>` allow Tang to inject arbitrary sets of objects (including ones with multiple instances of the same class).
+
+Other injection frameworks take a different approach, and allow class implementations to decide if they should be singletons across a given JVM (e.g., with an `@Singleton` annotation), user session (for web services), user connection, and so on.  This approach has at least two problems:
+ * It is not general purpose: after all, it encodes deployment scenarios into the injection framework and application APIs!
+ * It trades one barrier to composability and reuse: _hard-coded constructor invocations_ with another: _hard-coded runtime environments_.  The former prevents runtime environments from adapting to application-level changes, while the latter prevents application code from adapting to new runtimes.
+
+Tang's approach avoids both issues by giving the implementation of the runtime environment explicit control over object scopes and lifetimes.
+
+`forkInjector()` makes a copy of a given injector, including references to all the objects already instantiated by the original injector.  This allows runtime environments to implement scopes.  First, a root injector is created.  In order to create a child scope, the runtime simply invokes `forkInjector()` on the root context, and optionally passes additional `Configuration` objects in.  These additional configurations allow the runtime to specialize the root context.
+
+Although the forked injector will have access to any objects and configuration bindings that existed when `forkInjector()` was called, neither the original nor the forked injectors will reflect future changes to the other injector.
+
+The second primitive, `bindVolatile()`, provides an injector with an instance of a class or named parameter.  The injector treats this instance as though it had injected the object directly.  This:
+ * allows passing of information between child scopes
+ * makes it possible to create (for example) chains of objects of the same type
+ * and allows objects that cannot be instantiated via Tang to be passed into injectable constructors.
+
+### Cyclic injections
+
+Although the above primitives allow applications to inject arbitrary DAGs (directed acyclic graphs) of objects, they do not support cycles of objects.  Tang provides the `InjectionFuture<T>` interfaces to support such _cyclic injections_.
+
+When Tang encounters a constructor parameter of type `InjectionFuture<T>`, it injects an object that provides a method `T get()`.  If `get()` is called before the constructor it was passed to, it is guaranteed to throw an exception.  However, if it is called after the application-level call to `getInstance()` returned, then `get()` is guranteed to return a non-null reference to an injected instance of the object.  (In between these two points in time, `get()`'s behavior is undefined, but, for the sake of race-detection and forward compatibility it makes a best-effort attempt to throw an exception.)
+
+Following Tang's singleton semantics, the instance returned by `get()` will be the same instance the injector would pass into other constructors or return from `getInstance()`.
+
+`InjectionFuture` can be used to break cycles:
+
+```java
+A(B b) {...}
+B(InjectionFuture<A> a) {...};
+```
+
+Therefore, along with `forkInjector()` and `bindVolatile()`, this allows Tang to inject arbitrary graphs of objects.
+
+Child injectors
+---------------
+Although extremely useful, features such as singletons and volatile parameters create a new problem.  
+
+One common use for singleton objects is to establish session or runtime _context objects_ that are used to track application state or implement network connection pools that should be available across multiple injections.  Without child injectors, such patterns would be impossible with Tang.  In order to avoid situations in which modules accidentally specify conflicting values for configuration parameters, Tang ensures that, once set, no implementation binding or parameter setting can be undone or overwritten.  The problem is that, in order to perform an Injection, the application must specify a complete configuration, hardcoding all future injections to return equivalent arguments.  This makes it impossible to pass request-level or activity-level parameters into future injected objects!
+
+To get around the problem, Tang provides _child injectors_.  Child injectors are built by merging injectors with additional configuration objects.  Any singletons and volatile instances that have been set in the original (parent) injector will be shared with the child injectors.  As with `bindVolatile...()`, `createChildInjector()` does not mutate the parent object, but instead merges the configuration with a new copy.
+
+Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use `bindVolatile...()` to pass in an instance directly (use of `bindVolatile...()` is discouraged, but often necessary).  Then, use `createChildInjector()` to create one new injector for each configuration.
+
+Since `createChildInjector()` does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
+
+
+
 TODO: Describe getInstance(), singleton semantics first.
 
 Then, explain scopes (both on the configuration side and on the fork injector side.
@@ -449,18 +504,6 @@ Injector bindVolatileParameter(Class<? extends Name<T>> iface, T inst) throws Bi
 Note that these methods return new Injector objects.  Tang Injectors are immutable, and the original Injector is not modified by these calls.
 
 A final method, `getNamedParameter()`, is sometimes useful when dealing with instances of objects used for Tang injections.  Unlike `getInstance()`, which performs a normal injection, `getNamedParameter()` instantiates an object in the same way as it would during an injection, as it prepares to pass a configuration parameter to a constructor (note that whether a new instance of the parameter is instantiated for each constructor invocation is not specified by the Tang API, so while the object returned likely `.equals()` the one that would be passed to a constructor, it may or may not `==` it.
-
-Child injectors
----------------
-Although extremely useful, features such as singletons and volatile parameters create a new problem.  Tang Configuration objects are designed to be built up from trees of related (but non-conflicting) configuration files, command line parameters, and so on.
-
-One common use for singleton objects is to establish session or runtime _context objects_ that are used to track application state or implement network connection pools that should be available across multiple injections.  Without child injectors, such patterns would be impossible with Tang.  In order to avoid situations in which modules accidentally specify conflicting values for configuration parameters, Tang ensures that, once set, no implementation binding or parameter setting can be undone or overwritten.  The problem is that, in order to perform an Injection, the application must specify a complete configuration, hardcoding all future injections to return equivalent arguments.  This makes it impossible to pass request-level or activity-level parameters into future injected objects!
-
-To get around the problem, Tang provides _child injectors_.  Child injectors are built by merging injectors with additional configuration objects.  Any singletons and volatile instances that have been set in the original (parent) injector will be shared with the child injectors.  As with `bindVolatile...()`, `createChildInjector()` does not mutate the parent object, but instead merges the configuration with a new copy.
-
-Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use `bindVolatile...()` to pass in an instance directly (use of `bindVolatile...()` is discouraged, but often necessary).  Then, use `createChildInjector()` to create one new injector for each configuration.
-
-Since `createChildInjector()` does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
 
 Roadmap
 =======
