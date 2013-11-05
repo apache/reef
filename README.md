@@ -341,11 +341,10 @@ When `get()` is called after the application-level call to `getInstance()` retur
 
 Following Tang's singleton semantics, the instance returned by `get()` will be the same instance the injector would pass into other constructors or return from `getInstance()`.
 
-<!--
 Alternative configuration sources
 =================================
 
-Tang provides a number of so-called _formats_ that interface with external configuration data.  ConfigurationModule is one such example (see the tutorial TODO).  This tutorial explains how to use Tang's default command line processing facilities, and properties configuration file parser.
+Tang provides a number of so-called _formats_ that interface with external configuration data.  `ConfigurationModule` is one such example (see above).  These formats transform configuration data to and from Tang's raw configuration API.  The raw API provides an implementation of ConfigurationBuilder, which implements most of Tang's configuration checks.  It also provides a `JavaConfigurationBuilder` interface provides convenience methods that take Java Classes, and leverage Java's generic type system to push a range of static type checks to Java compilation time.
 
 Raw configuration API
 ---------
@@ -390,10 +389,6 @@ The first step in using Tang is to get a handle to a Tang object by calling "Tan
    * Finally, we call `injector.getInstance(Timer.class)`.  Internally, this method considers all possible injection plans for `Timer`.  If there is exactly one such plan, it performs the injection.  Otherwise, it throws an `InjectionException`.
 
 
-[**TODO:** explain `processCommandLine()`]
-
-[**TODO:** document configuration file API here]
-
 
 Tang configuration information can be divided into two categories.  The first type, _parameters_, pass values such as strings and integers into constructors.  Users of Tang encode configuration parameters as strings, allowing them to be stored in configuration files, and passed in on the command line.
 
@@ -408,6 +403,14 @@ com.examples.Interface=com.examples.Implementation
 ```
 
 tells Tang to create a new Implementation each time it wants to invoke a constructor that asks for an instance of Interface.  In most circumstances, Implementation extends or implements Interface (`ExternalConstructors` are the exception -- see the next section).  In such cases, Tang makes sure that Implementation contains at least one constructor with an `@Inject` annotation, and performs the binding.
+
+See the `ConfigurationFile` API for more information about processing configuration files in this format.
+
+
+<!--
+[**TODO:** document configuration file API here]
+
+[**TODO:** explain `processCommandLine()`]
 
 
 Advanced Object Injection Patterns
