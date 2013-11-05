@@ -341,7 +341,7 @@ When `get()` is called after the application-level call to `getInstance()` retur
 
 Following Tang's singleton semantics, the instance returned by `get()` will be the same instance the injector would pass into other constructors or return from `getInstance()`.
 
-
+<!--
 Alternative configuration sources
 =================================
 
@@ -514,7 +514,7 @@ java.lang.IllegalArgumentException: Attempt to inject infeasible plan: com.examp
 Since Tang refuses to inject null values into object constructors, the plan to invoke `Timer(null)` is considered infeasible.  Note that this error message enumerates all possible injection plans.  If Timer had more constructors or implementations those would be enumerated here as well.  Similarly, if more than one feasible plan existed, Tang would refuse to perform the injection, and throw a similar exception.
 
 In both cases, the solution is to set additional configuration parameters to create a single feasible plan.  This can be done using any of the methods described above.
-
+-->
 Looking under the hood
 ----------------------
 
@@ -539,11 +539,23 @@ new Timer(Integer Seconds = 10)
 Number of plans:1
 ````
 
-### TypeHierachy
+InjectionPlan objects can be serialized to protocol buffers.  The following file documents their format:
 
-InjectionPlan explains what would happen if you asked Tang to take some action, but it doesn't provide much insight into Tang's view of the object hierarchy, parameter defaults and so on.  TypeHierarchy object encode the state that Tang gets from .class files, including class inheritance relationships, parameter annotations, and so on.
+https://github.com/Microsoft-CISL/TANG/blob/master/tang/src/main/proto/injection_plan.proto
+
+### ClassHierachy
+
+InjectionPlan explains what would happen if you asked Tang to take some action, but it doesn't provide much insight into Tang's view of the object hierarchy, parameter defaults and so on.  ClassHierarchy objects encode the state that Tang gets from .class files, including class inheritance relationships, parameter annotations, and so on.
 
 Internally, in the example above, TypeHierarchy walks the class definition for Timer, looking for superclasses, interfaces, and classes referenced by its constructors.
+
+ClassHierarchy objects can be serialized to protocol buffers.  The following file documents their format:
+
+https://github.com/Microsoft-CISL/TANG/blob/master/tang/src/main/proto/class_hierarchy.proto
+
+The java interfaces are available in this package:
+
+https://github.com/Microsoft-CISL/TANG/tree/master/tang/src/main/java/com/microsoft/tang/types
 
 ## THIRD PARTY SOFTWARE
 This software is built using Maven.  Maven allows you to obtain software libraries from other sources as part of the build process.  Those libraries are offered and distributed by third parties under their own license terms.  Microsoft is not developing, distributing or licensing those libraries to you, but instead, as a convenience, enables you to use this software to obtain those libraries directly from the creators or providers.  By using the software, you acknowledge and agree that you are obtaining the libraries directly from the third parties and under separate license terms, and that it is your responsibility to locate, understand and comply with any such license terms.  Microsoft grants you no license rights for third-party software or libraries that are obtained using this software.
