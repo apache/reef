@@ -322,18 +322,25 @@ The second primitive, `bindVolatile()`, provides an injector with an instance of
 
 Although the above primitives allow applications to inject arbitrary DAGs (directed acyclic graphs) of objects, they do not support cycles of objects.  Tang provides the `InjectionFuture<T>` interfaces to support such _cyclic injections_.
 
-When Tang encounters a constructor parameter of type `InjectionFuture<T>`, it injects an object that provides a method `T get()`.  If `get()` is called before the constructor it was passed to, it is guaranteed to throw an exception.  However, if it is called after the application-level call to `getInstance()` returned, then `get()` is guranteed to return a non-null reference to an injected instance of the object.  (In between these two points in time, `get()`'s behavior is undefined, but, for the sake of race-detection and forward compatibility it makes a best-effort attempt to throw an exception.)
+When Tang encounters a constructor parameter of type `InjectionFuture<T>`, it injects an object that provides a method `T get()` that returns an injected instance of `T`.  
 
-Following Tang's singleton semantics, the instance returned by `get()` will be the same instance the injector would pass into other constructors or return from `getInstance()`.
 
-`InjectionFuture` can be used to break cycles:
+This can be used to break cycles:
 
 ```java
 A(B b) {...}
 B(InjectionFuture<A> a) {...}
 ```
 
-Therefore, along with `forkInjector()` and `bindVolatile()`, this allows Tang to inject arbitrary graphs of objects.
+In order to inject an instance of `A`, Tang first injects an instance of `B` by passing it an `InjectionFuture<A>`.  Tang then invoke's `A`'s constructor, passing in the instance of `B`.  Once the constructor returns, the new instance of `A` is passed into `B`'s `InjectionFuture<A>`.  At this point, it becomes safe for `B` to invoke `get()`, which establishes the circular reference.
+
+Therefore, along with `forkInjector()` and `bindVolatile()`, this allows Tang to inject arbitrary graphs of objects.  This pattern avoids non-final fields (once set, all fields of all objects are constant), and it also avoids boiler plate error handling code that checks to see if `B`'s instance of `A` has been set.
+
+
+When `get()` is called after the application-level call to `getInstance()` returns, it is guranteed to return a non-null reference to an injected instance of the object.  However, if `get()` is called _before_ the constructor it was passed to returns, then it is guaranteed to throw an exception.    In between these two points in time, `get()`'s behavior is undefined, but, for the sake of race-detection and forward compatibility it makes a best-effort attempt to throw an exception.
+
+Following Tang's singleton semantics, the instance returned by `get()` will be the same instance the injector would pass into other constructors or return from `getInstance()`.
+
 
 Child injectors
 ---------------
