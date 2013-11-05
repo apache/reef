@@ -40,6 +40,9 @@ public class CommandLine {
       NamedParameterNode<?> np = (NamedParameterNode<?>)n;
       String shortName = np.getShortName();
       String longName = np.getFullName();
+      if(shortName == null) {
+        throw new BindException("Can't register non-existent short name of named parameter: " + longName);
+      }
       shortNames.put(shortName, longName);
     } else {
       throw new BindException("Can't register short name for non-NamedParameterNode: " + n);
