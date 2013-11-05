@@ -3,8 +3,7 @@
 namespace Com.Microsoft.Tang.Types
 {
     public interface INode : IComparable<INode>, ITraversable<INode> 
-    {
-        
+    {        
         string GetName();
 
         string GetFullName();

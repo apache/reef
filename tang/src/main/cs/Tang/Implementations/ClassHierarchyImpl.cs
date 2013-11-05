@@ -183,30 +183,47 @@ namespace Com.Microsoft.Tang.Implementations
             }
         }
 
-
-
         //return Type if clazz implements Name<T>, null otherwise
         public Type GetNamedParameterTargetOrNull(Type type)
         {
             return null;//TODO
         }
 
-        public INode GetAlreadyBoundNode(Type t)
+        private INode GetAlreadyBoundNode(Type t)
         {
-            INode current = rootNode;
-            foreach (string outClassName in GetEnclosingClassNames(t))
+            string[] outerClassNames = GetEnclosingClassNames(t);
+            string outerClassName = outerClassNames[0];
+            INode current = rootNode.Get(outerClassName);
+
+            if (current == null)
             {
-                current = current.Get(outClassName);
+                throw new NameResolutionException(t.FullName, outerClassName);
+            }
+
+            for (int i = 1; i < outerClassNames.Length; i++)            
+            {
+                current = current.Get(outerClassNames[i]);
                 if (current == null)
                 {
-                    StringBuilder sb = new StringBuilder(outClassName);
-
+                    StringBuilder sb = new StringBuilder(outerClassName);
+                    for (int j = 0; j < i; j++)
+                    {
+                        sb.Append(outerClassNames[j]);
+                        if (j != i - 1)
+                        {
+                            sb.Append(".");
+                        }
+                    }
+                    throw new NameResolutionException(t.FullName, sb.ToString());
                 }
+
             }
-            return null; //TODO
+            return current; 
         }
 
-        public INode GetParentNode(Type type)
+        //starting from the root, get child for each eclosing class excluding the type itsself
+        //all eclosing classes should be already in the hierarchy
+        private INode GetParentNode(Type type)
         {
             INode current = rootNode;
             string[] enclosingPath = GetEnclosingClassNames(type);
@@ -217,7 +234,14 @@ namespace Com.Microsoft.Tang.Implementations
             return current;
         }
 
-        public string[] GetEnclosingClassNames(Type t)
+        //first name is with name space, rest of them are simple names only
+        private string[] GetEnclosingClassNames(Type t)
+        {
+            string[] path = t.FullName.Split('+');
+            return path;
+        }
+
+        private string[] GetEnclosingClassFullNames(Type t)
         {
             string[] path = t.FullName.Split('+');
             for (int i = 1; i < path.Length; i++)
@@ -228,12 +252,12 @@ namespace Com.Microsoft.Tang.Implementations
         }
 
         //return immidiate enclosing class
-        public Type GetIEnclosingClass(Type t)
+        private Type GetIEnclosingClass(Type t)
         {
             //get full name of t, parse it to check if there is any name before it like A+B
             //sample  t = Com.Microsoft.Tang.Examples.B+B1+B2
             //return type of Com.Microsoft.Tang.Examples.B+B1
-            string[] path = GetEnclosingClassNames(t);
+            string[] path = GetEnclosingClassFullNames(t);
             if (path.Length > 1)
             {
                 return Type.GetType(path[path.Length - 2]);
