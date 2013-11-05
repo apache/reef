@@ -1,18 +1,15 @@
-﻿// ----------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// ----------------------------------------------------------------------------------
-using System;
+﻿using System;
 
 namespace Com.Microsoft.Tang.Types
 {
     public interface IConstructorArg
     {
-        String GetName();
+        string GetName();
 
-        String Gettype();
+        string Gettype();
 
         bool IsInjectionFuture();
 
-        String GetNamedParameterName();  
+        string GetNamedParameterName();  
     }
 }

@@ -1,10 +1,10 @@
-﻿// ----------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// ----------------------------------------------------------------------------------
-using System;
+﻿using System;
 
 namespace Com.Microsoft.Tang.Annotations
 {
+    /// <summary>
+    /// NamedParameterAttribute
+    /// </summary>
     [System.AttributeUsage(System.AttributeTargets.Class)]
     public class NamedParameterAttribute : System.Attribute
     {

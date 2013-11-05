@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Com.Microsoft.Tang.Annotations
 {
+    /// <summary>
+    /// DefaultImplementationAttribute
+    /// </summary>
     class DefaultImplementationAttribute : System.Attribute
     {
         public Type Value { get; set; }

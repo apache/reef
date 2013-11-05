@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Com.Microsoft.Tang.Types
 {
     public interface INode : IComparable<INode>, ITraversable<INode> 
     {
         
-        String GetName();
+        string GetName();
 
-        String GetFullName();
+        string GetFullName();
 
-        bool Contains(String key);
+        bool Contains(string key);
 
-        INode Get(String key);
+        INode Get(string key);
 
         INode GetParent();
 

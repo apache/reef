@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Com.Microsoft.Tang.Types
 {
@@ -14,7 +11,7 @@ namespace Com.Microsoft.Tang.Types
 
         void PutImpl(IClassNode impl);
         ISet<IClassNode> GetKnownImplementations();
-        String GetDefaultImplementation();
+        string GetDefaultImplementation();
         bool IsUnit();
         bool IsInjectionCandidate();
         bool IsExternalConstructor();

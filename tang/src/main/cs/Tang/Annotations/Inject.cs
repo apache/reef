@@ -1,8 +1,8 @@
-﻿// ----------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// ----------------------------------------------------------------------------------
-namespace Com.Microsoft.Tang.Annotations
+﻿namespace Com.Microsoft.Tang.Annotations
 {
+    /// <summary>
+    /// InjectAttribute
+    /// </summary>
     [System.AttributeUsage(System.AttributeTargets.Constructor)]
     public class InjectAttribute : System.Attribute 
     { 

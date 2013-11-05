@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Com.Microsoft.Tang.Types
+﻿namespace Com.Microsoft.Tang.Types
 {
     public interface IPackageNode : INode
     {

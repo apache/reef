@@ -1,21 +1,18 @@
-﻿// ----------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// ----------------------------------------------------------------------------------
-using System;
+﻿using System;
 
 namespace Com.Microsoft.Tang.Types
 {
     public interface INamedParameterNode : INode
     {
-        String GetDocumentation();
+        string GetDocumentation();
 
-        String GetShortName();
+        string GetShortName();
 
-        String[] GetDefaultInstanceAsStrings();
+        string[] GetDefaultInstanceAsStrings();
 
-        String GetSimpleArgName();
+        string GetSimpleArgName();
 
-        String GetFullArgName();
+        string GetFullArgName();
 
         bool IsSet();
     }
