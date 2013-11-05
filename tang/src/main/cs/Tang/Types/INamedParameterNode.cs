@@ -5,7 +5,7 @@ using System;
 
 namespace Com.Microsoft.Tang.Types
 {
-    public interface INamedParameterNode
+    public interface INamedParameterNode : INode
     {
         String GetDocumentation();
 

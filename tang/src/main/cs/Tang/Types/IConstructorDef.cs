@@ -8,7 +8,7 @@ namespace Com.Microsoft.Tang.Types
 {
     public interface IConstructorDef : IComparable
     {
-        String GetClassName();
+        string GetClassName();
 
         IList<IConstructorArg> GetArgs();
 

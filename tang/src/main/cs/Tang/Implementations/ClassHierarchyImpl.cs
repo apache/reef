@@ -8,26 +8,27 @@ using class_hierarchy;
 using Com.Microsoft.Tang.Annotations;
 using Com.Microsoft.Tang.Exceptions;
 using Com.Microsoft.Tang.Types;
+using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Implementations
 {
     public class ClassHierarchyImpl
     {
-        INode rootNode = new PackageNodeImpl();
+        private INode rootNode = NodeFactory.CreateRootPackageNode();
+        private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
 
         public ClassHierarchyImpl(String file)
         {
             var assembly = Assembly.LoadFrom(file);
             foreach (var t in assembly.GetTypes())
             {
-//                rootNode.Add(RegisterType(rootNode, t));
                 RegisterType(t);
             }
         }
 
-        public INode RegisterType(string typeFullName)
+        public INode RegisterType(string assemblyQualifiedName)
         {
-            return RegisterType(Type.GetType(typeFullName));
+            return RegisterType(Type.GetType(assemblyQualifiedName));
         }
 
         public INode RegisterType(Type type)
@@ -74,13 +75,15 @@ namespace Com.Microsoft.Tang.Implementations
                         RegisterType(constructorArg.GetType());  //GetType returns param's Type.fullname
                         if (constructorArg.GetNamedParameterName() != null)
                         {
-                            NamedParameterNode np = (NamedParameterNode)RegisterType(constructorArg.GetNamedParameterName());
-                            if (np != null)
+                            INamedParameterNode np = (INamedParameterNode)RegisterType(constructorArg.GetNamedParameterName());
+                            if (np.IsSet())
                             {
                                 //TODO
                             }
-                            //else should throw exception
-
+                            else
+                            {
+                                //check is not isCoercable, then throw ClassHierarchyException
+                            }
                         }
                     }
                 }
@@ -144,13 +147,40 @@ namespace Com.Microsoft.Tang.Implementations
 
             if (argType == null)
             {
-                return CreateClassNode(parent, type);
+                return NodeFactory.CreateClassNode(parent, type);
             }
             else
             {
-                CreateNamedParameterNode(parent, type, argType);
+                INamedParameterNode np = NodeFactory.CreateNamedParameterNode(parent, type, argType);
+
+                //TODO
+                //if(parameterParser.canParse(ReflectionUtilities.getFullName(argType))) {
+                //    if(clazz.getAnnotation(NamedParameter.class).default_class() != Void.class) {
+                //      throw new ClassHierarchyException("Named parameter " + ReflectionUtilities.getFullName(clazz) + " defines default implementation for parsable type " + ReflectionUtilities.getFullName(argType));
+                //    }
+                //}
+
+                string shortName = np.GetShortName();
+                if (shortName != null)
+                {
+                    INamedParameterNode oldNode = null;
+                    shortNames.TryGetValue(shortName, out oldNode);
+                    if (oldNode != null)
+                    {
+                        if (oldNode.GetFullName().Equals(np.GetFullName()))
+                        {
+                            throw new IllegalStateException("Tried to double bind "
+                                + oldNode.GetFullName() + " to short name " + shortName);
+                        }
+                        throw new ClassHierarchyException("Named parameters " + oldNode.GetFullName()
+                            + " and " + np.GetFullName() + " have the same short name: "
+                            + shortName);
+                    }
+                    shortNames.Add(shortName, np);
+
+                }
+                return np;
             }
-            return null;
         }
 
 
@@ -161,65 +191,18 @@ namespace Com.Microsoft.Tang.Implementations
             return null;//TODO
         }
 
-        public INamedParameterNode CreateNamedParameterNode(INode parent, Type type, Type argType)
-        {
-            return null;// TODO
-        }
-
-        public  INode CreateClassNode(INode parent, Type type)
-        {
-            var namedParameter = type.GetCustomAttribute<NamedParameterAttribute>();
-            var isUnit = null != type.GetCustomAttribute<UnitAttribute>();
-            string simpleName = type.Name;
-            string fullName = type.FullName;
-            bool isStatic = type.IsSealed && type.IsAbstract;
-            bool injectable = true; // to do
-            bool isAssignableFromExternalConstructor = true;//to do 
-
-            var injectableConstructors = new List<IConstructorDef>();
-            var allConstructors = new List<IConstructorDef>();
-
-            foreach (var c in type.GetConstructors())
-            {
-                var isConstructorInjectable = null != c.GetCustomAttribute<InjectAttribute>();
-
-                ConstructorDefImpl constructorDef = new ConstructorDefImpl(c.DeclaringType.FullName, isConstructorInjectable);
-                foreach (var p in c.GetParameters())
-                {
-                    var param = p.GetCustomAttribute<ParameterAttribute>();
-                    if (param != null)
-                    {
-                        string namedParameterName = param.GetType().FullName;
-                        String ParameterTypeName = param.GetType().FullName;
-                        bool isInjectionFuture = true; // TODO
-                        ConstructorArgImpl arg = new ConstructorArgImpl(ParameterTypeName, namedParameterName, isInjectionFuture);
-                        constructorDef.GetArgs().Add(arg);
-                    }
-
-                }
-
-                if (isConstructorInjectable)
-                {
-                    injectableConstructors.Add(constructorDef);
-                }
-                allConstructors.Add(constructorDef);
-
-            }
-
-            String defaultImplementation = null;
-            var defaultImpl = type.GetCustomAttribute<DefaultImplementationAttribute>();
-            if (null != defaultImpl)
-            {
-                Type defaultImplementationClazz = defaultImpl.Value;
-                defaultImplementation = defaultImplementationClazz.FullName;
-            }
-
-
-            return new ClassNodeImpl(rootNode, simpleName, fullName, isUnit, injectable, isAssignableFromExternalConstructor, injectableConstructors, allConstructors, defaultImplementation);
-        }
-
         public INode GetAlreadyBoundNode(Type t)
         {
+            INode current = rootNode;
+            foreach (string outClassName in GetEnclosingClassNames(t))
+            {
+                current = current.Get(outClassName);
+                if (current == null)
+                {
+                    StringBuilder sb = new StringBuilder(outClassName);
+
+                }
+            }
             return null; //TODO
         }
 
