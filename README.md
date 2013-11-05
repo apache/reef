@@ -342,25 +342,6 @@ When `get()` is called after the application-level call to `getInstance()` retur
 Following Tang's singleton semantics, the instance returned by `get()` will be the same instance the injector would pass into other constructors or return from `getInstance()`.
 
 
-Child injectors
----------------
-Although extremely useful, features such as singletons and volatile parameters create a new problem.  
-
-One common use for singleton objects is to establish session or runtime _context objects_ that are used to track application state or implement network connection pools that should be available across multiple injections.  Without child injectors, such patterns would be impossible with Tang.  In order to avoid situations in which modules accidentally specify conflicting values for configuration parameters, Tang ensures that, once set, no implementation binding or parameter setting can be undone or overwritten.  The problem is that, in order to perform an Injection, the application must specify a complete configuration, hardcoding all future injections to return equivalent arguments.  This makes it impossible to pass request-level or activity-level parameters into future injected objects!
-
-To get around the problem, Tang provides _child injectors_.  Child injectors are built by merging injectors with additional configuration objects.  Any singletons and volatile instances that have been set in the original (parent) injector will be shared with the child injectors.  As with `bindVolatile...()`, `createChildInjector()` does not mutate the parent object, but instead merges the configuration with a new copy.
-
-Returning to our example, in order to share singletons between objects that are injected using different configurations, simply create an injector, and a set of configurations (one for each object to be instantiated).  Create singletons in the injector (preferred), or use `bindVolatile...()` to pass in an instance directly (use of `bindVolatile...()` is discouraged, but often necessary).  Then, use `createChildInjector()` to create one new injector for each configuration.
-
-Since `createChildInjector()` does not modify the parent injector, the children can be created all at once in the beginning (which finds problems earlier), or the child injectors can be created one at a time, allowing them to reflect values computed by previously injected objects.
-
-
-
-TODO: Describe getInstance(), singleton semantics first.
-
-Then, explain scopes (both on the configuration side and on the fork injector side.
-
-
 Alternative configuration sources
 =================================
 
