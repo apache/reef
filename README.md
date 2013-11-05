@@ -95,21 +95,19 @@ Tang encourages applications to use Plain Old Java Objects (POJOs), and emphasiz
 Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
 
 ```
-Exception in thread "main" com.microsoft.tang.exceptions.InjectionException: Could not invoke constructor
-	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:584)
-	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:448)
-	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:465)
-	at com.microsoft.tang.examples.Timer.main(Timer.java:44)
-Caused by: java.lang.reflect.InvocationTargetException
+Exception in thread "main" com.microsoft.tang.exceptions.InjectionException: Could not invoke constructor: new Timer(Integer Seconds = -1)
+	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:585)
+	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:449)
+	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:466)
+	at com.microsoft.tang.examples.Timer.main(Timer.java:48)
+Caused by: java.lang.IllegalArgumentException: Cannot sleep for negative time!
+	at com.microsoft.tang.examples.Timer.<init>(Timer.java:25)
 	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
 	at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
 	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
 	at java.lang.reflect.Constructor.newInstance(Unknown Source)
-	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:568)
+	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:569)
 	... 3 more
-Caused by: java.lang.IllegalArgumentException: Cannot sleep for negative time!
-	at com.microsoft.tang.examples.Timer.<init>(Timer.java:24)
-	... 8 more
 ```
 
 In order for Tang to instantiate an object, we need to annotate the constructor with an `@Inject` annotation.  While we're at it, we'll define a configuration parameter, allowing us to specify seconds on the command line and in a config file:
