@@ -31,7 +31,6 @@ namespace Com.Microsoft.Tang.TestDriver
                     System.Console.WriteLine("this is a static" + t.FullName);
 
 
-                Type argType = ClassHierarchyImpl.GetNamedParameterTargetOrNull(t);
                 if (argType != null)
                 {
                     System.Console.WriteLine("GetGenericArguments " + argType.Name);

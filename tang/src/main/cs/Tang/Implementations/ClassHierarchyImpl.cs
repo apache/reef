@@ -143,6 +143,7 @@ namespace Com.Microsoft.Tang.Implementations
         public INode BuildPathToNode(Type type)
         {
             INode parent = GetParentNode(type);
+
             Type argType = GetNamedParameterTargetOrNull(type);
 
             if (argType == null)
