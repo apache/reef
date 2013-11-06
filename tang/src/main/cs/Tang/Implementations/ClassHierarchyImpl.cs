@@ -183,10 +183,30 @@ namespace Com.Microsoft.Tang.Implementations
             }
         }
 
-        //return Type if clazz implements Name<T>, null otherwise
+        //return Type T if type implements Name<T>, null otherwise
+        //e.g. [NamedParameter(typeof(System.String), "Number of seconds to sleep", "10", "sec")]
+        //class Seconds : Name<Int32> { }
+        //return Int32
         public Type GetNamedParameterTargetOrNull(Type type)
         {
-            return null;//TODO
+            var npAnnotation = type.GetCustomAttribute<NamedParameterAttribute>();
+            if (npAnnotation != null)
+            {
+                Type[] intfs = type.GetInterfaces();
+                if (intfs.Length == 1)
+                {
+                    if (intfs[0].Name.Equals("Name`1"))
+                    {
+                        Type[] args = intfs[0].GetGenericArguments();
+                        if (args.Length == 1)
+                        {
+                            return args[0];
+                        }
+                    }
+                }
+
+            }
+            return null;   
         }
 
         private INode GetAlreadyBoundNode(Type t)
@@ -222,7 +242,7 @@ namespace Com.Microsoft.Tang.Implementations
         }
 
         //starting from the root, get child for each eclosing class excluding the type itsself
-        //all eclosing classes should be already in the hierarchy
+        //all enclosing classes should be already in the hierarchy
         private INode GetParentNode(Type type)
         {
             INode current = rootNode;
