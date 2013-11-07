@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Com.Microsoft.Tang.Annotations;
 using Com.Microsoft.Tang.Types;
+using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Implementations
 {
@@ -33,20 +34,7 @@ namespace Com.Microsoft.Tang.Implementations
             {
                 var isConstructorInjectable = null != c.GetCustomAttribute<InjectAttribute>();
 
-                ConstructorDefImpl constructorDef = new ConstructorDefImpl(c.DeclaringType.FullName, isConstructorInjectable);
-                foreach (var p in c.GetParameters())
-                {
-                    var param = p.GetCustomAttribute<ParameterAttribute>();
-                    if (param != null)
-                    {
-                        string namedParameterName = param.GetType().FullName;
-                        String ParameterTypeName = param.GetType().FullName;
-                        bool isInjectionFuture = true; // TODO
-                        ConstructorArgImpl arg = new ConstructorArgImpl(ParameterTypeName, namedParameterName, isInjectionFuture);
-                        constructorDef.GetArgs().Add(arg);
-                    }
-
-                }
+                ConstructorDefImpl constructorDef = createConstructorDef(injectable, c, isConstructorInjectable);
 
                 if (isConstructorInjectable)
                 {
@@ -67,11 +55,55 @@ namespace Com.Microsoft.Tang.Implementations
             return new ClassNodeImpl(parent, simpleName, fullName, isUnit, injectable, isAssignableFromExternalConstructor, injectableConstructors, allConstructors, defaultImplementation);
         }
 
-        public static INamedParameterNode CreateNamedParameterNode(INode parent, Type type, Type argType)
+        private static ConstructorDefImpl createConstructorDef(bool injectable, ConstructorInfo constructor, bool isConstructorInjectable)
         {
-            return null;// TODO
+            var parameters = constructor.GetParameters();
+
+            //Type[] parameterTypes = new Type[parameters.Length];
+            //for (int i = 0; i < parameters.Length; i++)
+            //{
+            //    parameterTypes[i] = parameters[i].GetType();
+            //}
+
+            IConstructorArg[] args = new ConstructorArgImpl[parameters.Length];
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                //TODO for getInterfaceTarget() call
+                Type type = parameters[i].ParameterType;
+                bool isFuture = false;
+
+                ParameterAttribute named = parameters[i].GetCustomAttribute<ParameterAttribute>();
+                args[i] = new ConstructorArgImpl(type.FullName, named == null ? null : named.Value.AssemblyQualifiedName, isFuture);
+            }
+            return new ConstructorDefImpl(constructor.DeclaringType.FullName, args, isConstructorInjectable); 
         }
 
+        //TimerNode, Seconds, Int32
+        public static INamedParameterNode CreateNamedParameterNode(INode parent, Type type, Type argType)
+        {
+            Type argRawClass = ReflectionUtilities.GetRawClass(argType);
 
+            bool isSet = false; //if it is Set TODO
+           
+            string simpleName = type.Name;
+            string fullName = type.FullName;
+            string fullArgName = argType.FullName;
+            string simpleArgName = argType.Name;
+
+            NamedParameterAttribute namedParameter = type.GetCustomAttribute<NamedParameterAttribute>();
+
+            //if (namedParameter == null)
+            //{
+            //    throw new IllegalStateException("Got name without named parameter post-validation!");
+            //}
+
+            string[] defaultInstanceAsStrings = new string[]{};
+            string documentation = namedParameter.Documentation;
+            string shortName = namedParameter.ShortName;
+
+            return new NamedParameterNodeImpl(parent, simpleName, fullName,
+                fullArgName, simpleArgName, isSet, documentation, shortName, defaultInstanceAsStrings);
+        }
     }
 }

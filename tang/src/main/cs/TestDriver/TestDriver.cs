@@ -13,12 +13,31 @@ namespace Com.Microsoft.Tang.TestDriver
     {
         public static void Main(string[] args)
         {
+            ClassHierarchyImpl classHierarchyImpl = new ClassHierarchyImpl(@"Com.Microsoft.Tang.Examples.dll");
+
+
+
             var asm = Assembly.LoadFrom(@"Com.Microsoft.Tang.Examples.dll");
             var types = asm.GetTypes();
 
-            Test test = new Test();
-            test.Add(4);
-            test.Add("avc");
+            Type type = Type.GetType(@"Com.Microsoft.Tang.Examples.Timer+Seconds");
+
+            //Unit testing
+            //Test test = new Test();
+            //test.Add(4);
+            //test.Add("avc");
+
+            //GetRawType testing
+            Generic<int> gtObj = new Generic<int>();
+            Type gt = gtObj.GetType();
+            bool isG = gt.IsGenericType;
+            Type gtd = gt.GetGenericTypeDefinition();
+
+            IList<int> gtObj1 = new List<int>();
+            Type gt1 = gtObj1.GetType();
+            bool isG1 = gt1.IsGenericType;
+            Type gtd1 = gt1.GetGenericTypeDefinition();
+    
 
             foreach (Type t in types)
             {
@@ -30,11 +49,8 @@ namespace Com.Microsoft.Tang.TestDriver
                 if (t.IsAbstract && t.IsSealed)
                     System.Console.WriteLine("this is a static" + t.FullName);
 
+                
 
-                if (argType != null)
-                {
-                    System.Console.WriteLine("GetGenericArguments " + argType.Name);
-                }
 
                 Type[] intfs = t.GetInterfaces();
                 foreach (Type f in intfs)
@@ -94,8 +110,8 @@ namespace Com.Microsoft.Tang.TestDriver
                 if (namedParameter != null)
                 {
                     System.Console.WriteLine(namedParameter);
-                    System.Console.WriteLine(namedParameter.Documentation);
-                    System.Console.WriteLine(namedParameter.DefaultInstance);
+                    System.Console.WriteLine(namedParameter.ShortName);
+                    System.Console.WriteLine(namedParameter.DefaultValue);
                 }
                 System.Console.WriteLine("<<<<<<");
             }
@@ -103,8 +119,8 @@ namespace Com.Microsoft.Tang.TestDriver
             
             Type t3 = Type.GetType(typeof(Com.Microsoft.Tang.TestDriver.TestDriver).AssemblyQualifiedName);
 
-            //var t44 = typeof (IEnumerable<List<String>>);
-            //var x101 = t44.AssemblyQualifiedName;
+            var tn = typeof (Name<int>);
+            var tnName = tn.Name;
             
            
             Type t4 = typeof(Com.Microsoft.Tang.Examples.B);
@@ -167,6 +183,11 @@ namespace Com.Microsoft.Tang.TestDriver
                     System.Console.WriteLine("constructor param " + pm.Name);
                 }
             }
+        }
+
+        class Generic<T>
+        {
+
         }
 
         class Test : IList<int>, IList<string>

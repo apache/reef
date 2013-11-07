@@ -85,6 +85,7 @@
     <Compile Include="Types\INamedParameterNode.cs" />
     <Compile Include="Util\MonotonicSet.cs" />
     <Compile Include="Util\MonotonicTreeMap.cs" />
+    <Compile Include="Util\ReflectionUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\proto\class_hierarchy.proto">

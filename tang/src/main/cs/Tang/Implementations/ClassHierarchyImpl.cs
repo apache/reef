@@ -24,11 +24,18 @@ namespace Com.Microsoft.Tang.Implementations
             {
                 RegisterType(t);
             }
+
+
         }
 
         public INode RegisterType(string assemblyQualifiedName)
         {
-            return RegisterType(Type.GetType(assemblyQualifiedName));
+            Type type = Type.GetType(assemblyQualifiedName);
+            if (type != null)
+            {
+                return RegisterType(Type.GetType(assemblyQualifiedName));
+            }
+            return null;
         }
 
         public INode RegisterType(Type type)
@@ -72,7 +79,11 @@ namespace Com.Microsoft.Tang.Implementations
                 {
                     foreach (IConstructorArg constructorArg in constructorDef.GetArgs())
                     {
-                        RegisterType(constructorArg.GetType());  //GetType returns param's Type.fullname
+                        if (constructorArg.Gettype() == null)
+                        {
+                            throw new ArgumentException("not type in arg");
+                        }
+                        RegisterType(constructorArg.Gettype());  //GetType returns param's Type.fullname
                         if (constructorArg.GetNamedParameterName() != null)
                         {
                             INamedParameterNode np = (INamedParameterNode)RegisterType(constructorArg.GetNamedParameterName());
@@ -102,13 +113,15 @@ namespace Com.Microsoft.Tang.Implementations
 
         private INode RegisterClass(Type type)
         {
-            INode node = GetAlreadyBoundNode(type);
-            if (node != null)
+            try
             {
-                return node;
+                return  GetAlreadyBoundNode(type);
+            }
+            catch(NameResolutionException e)
+            {
             }
 
-            node = BuildPathToNode(type);
+            INode node = BuildPathToNode(type);
 
             IClassNode classNode = node as IClassNode;
             if (classNode != null)
@@ -196,7 +209,7 @@ namespace Com.Microsoft.Tang.Implementations
                 Type[] intfs = type.GetInterfaces();
                 if (intfs.Length == 1)
                 {
-                    if (intfs[0].Name.Equals("Name`1"))
+                    if (intfs[0].Name.Equals(GetNameOfNameInterface()))
                     {
                         Type[] args = intfs[0].GetGenericArguments();
                         if (args.Length == 1)
@@ -212,7 +225,7 @@ namespace Com.Microsoft.Tang.Implementations
 
         private INode GetAlreadyBoundNode(Type t)
         {
-            string[] outerClassNames = GetEnclosingClassNames(t);
+            string[] outerClassNames = GetEnclosingClassShortNames(t);
             string outerClassName = outerClassNames[0];
             INode current = rootNode.Get(outerClassName);
 
@@ -247,7 +260,7 @@ namespace Com.Microsoft.Tang.Implementations
         private INode GetParentNode(Type type)
         {
             INode current = rootNode;
-            string[] enclosingPath = GetEnclosingClassNames(type);
+            string[] enclosingPath = GetEnclosingClassShortNames(type);
             for (int i = 0; i < enclosingPath.Length - 1; i++)
             {
                 current = current.Get(enclosingPath[i]);
@@ -272,6 +285,21 @@ namespace Com.Microsoft.Tang.Implementations
             return path;
         }
 
+        //return all parent class names including itself
+        private string[] GetEnclosingClassShortNames(Type t)
+        {
+            string[] path = t.FullName.Split('+');
+
+            if (path.Length == 1)
+            {
+                return new string[1] { t.Name };
+            }
+            string[] first = path[0].Split('.');
+            path[0] = first[first.Length - 1];
+
+            return path;
+        }
+
         //return immidiate enclosing class
         private Type GetIEnclosingClass(Type t)
         {
@@ -284,6 +312,12 @@ namespace Com.Microsoft.Tang.Implementations
                 return Type.GetType(path[path.Length - 2]);
             }
             return null; // TODO
+        }
+
+        private string GetNameOfNameInterface()
+        {
+            var tn = typeof(Name<int>);
+            return tn.Name;
         }
     }
 }

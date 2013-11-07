@@ -5,7 +5,7 @@ namespace Com.Microsoft.Tang.Examples
 {
     public class Timer
     {
-        [NamedParameter(typeof(System.String), "Number of seconds to sleep", "10", "sec")]
+        [NamedParameter("Number of seconds to sleep", "sec", "10")]
         class Seconds : Name<Int32> { }
         private readonly int seconds;
 

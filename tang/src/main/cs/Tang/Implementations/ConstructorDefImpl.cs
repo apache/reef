@@ -10,16 +10,12 @@ namespace Com.Microsoft.Tang.Implementations
 {
     public class ConstructorDefImpl : IConstructorDef
     {
-        private readonly IList<IConstructorArg> args;
+        private readonly IList<IConstructorArg> args = new List<IConstructorArg>();
         private readonly String className;
 
-        public ConstructorDefImpl(String className, IConstructorArg[] args, bool injectable) : this(className, injectable)
+        public ConstructorDefImpl(String className, IConstructorArg[] args, bool injectable)
         {
             this.args = args;
-        }
-
-        public ConstructorDefImpl(String className, bool injectable)
-        {
             this.className = className;
             if (injectable)
             {
