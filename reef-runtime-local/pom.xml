@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.microsoft.reef</groupId>
+        <artifactId>reef-project</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>reef-runtime-local</artifactId>
+    <name>REEF Runtime Local</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <description>A local implementation of REEF that uses local JVMsfor execution.</description>
+
+    <build>
+        <resources>
+            <resource>
+                <targetPath>META-INF/</targetPath>
+                <filtering>false</filtering>
+                <directory>${basedir}/conf</directory>
+                <includes>
+                    <include>*.xml</include>
+                    <include>*.properties</include>
+                </includes>
+                <excludes>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
+
+</project>

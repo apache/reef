@@ -1,0 +1,193 @@
+/**
+ * Copyright (C) 2013 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.microsoft.reef.runtime.common.driver;
+
+import com.microsoft.reef.driver.catalog.NodeDescriptor;
+import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.contexts.ClosedContext;
+import com.microsoft.reef.driver.contexts.FailedContext;
+import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
+import com.microsoft.reef.util.Optional;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.formats.ConfigurationFile;
+
+import java.util.logging.Logger;
+
+public final class EvaluatorContext implements ActiveContext {
+
+  private final static Logger LOG = Logger.getLogger(ActiveContext.class.getName());
+
+  private final String identifier;
+
+  private final Optional<String> parentID;
+
+  private final EvaluatorManager evaluatorManager;
+
+  private boolean closed = false;
+
+  public EvaluatorContext(final EvaluatorManager evaluatorManager, String identifier, Optional<String> parentID) {
+    this.identifier = identifier;
+    this.parentID = parentID;
+    this.evaluatorManager = evaluatorManager;
+  }
+
+  @Override
+  public void close() {
+    if (this.closed) throw new RuntimeException("Active context already closed");
+    LOG.info("Submit close context: RunningEvaluator id[" + getEvaluatorId() + "] for context id[" + getId() + "]");
+
+    final EvaluatorRuntimeProtocol.ActivityControlProto activityControlProto =
+        EvaluatorRuntimeProtocol.ActivityControlProto.newBuilder()
+            .setRemoveContext(
+                EvaluatorRuntimeProtocol.RemoveContextProto.newBuilder()
+                    .setContextId(getId())
+                    .build()).build();
+    this.evaluatorManager.handle(activityControlProto);
+    this.closed = true;
+  }
+
+  @Override
+  public void submitActivity(Configuration activityConfiguration) {
+    if (this.closed) throw new RuntimeException("Active context already closed");
+    LOG.info("Submit activity: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
+
+    final EvaluatorRuntimeProtocol.ActivityControlProto activityControlProto =
+        EvaluatorRuntimeProtocol.ActivityControlProto.newBuilder()
+            .setStartActivity(
+                EvaluatorRuntimeProtocol.StartActivityProto.newBuilder()
+                    .setContextId(this.identifier)
+                    .setConfiguration(ConfigurationFile.toConfigurationString(activityConfiguration))
+                    .build()).build();
+    this.evaluatorManager.handle(activityControlProto);
+  }
+
+  @Override
+  public void submitContext(final Configuration contextConfiguration) {
+    if (this.closed) throw new RuntimeException("Active context already closed");
+    LOG.info("Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
+
+    final EvaluatorRuntimeProtocol.ActivityControlProto activityControlProto =
+        EvaluatorRuntimeProtocol.ActivityControlProto.newBuilder()
+            .setAddContext(
+                EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
+                    .setParentContextId(getId())
+                    .setContextConfiguration(ConfigurationFile.toConfigurationString(contextConfiguration))
+                    .build()).build();
+    this.evaluatorManager.handle(activityControlProto);
+
+  }
+
+  @Override
+  public void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration) {
+    if (this.closed) throw new RuntimeException("Active context already closed");
+    LOG.info("Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
+
+    final EvaluatorRuntimeProtocol.ActivityControlProto activityControlProto =
+        EvaluatorRuntimeProtocol.ActivityControlProto.newBuilder()
+            .setAddContext(
+                EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
+                    .setParentContextId(getId())
+                    .setContextConfiguration(ConfigurationFile.toConfigurationString(contextConfiguration))
+                    .setServiceConfiguration(ConfigurationFile.toConfigurationString(serviceConfiguration))
+                    .build()).build();
+    this.evaluatorManager.handle(activityControlProto);
+  }
+
+  @Override
+  public String getEvaluatorId() {
+    return this.evaluatorManager.getId();
+  }
+
+  @Override
+  public Optional<String> getParentId() {
+    return this.parentID;
+  }
+
+  @Override
+  public NodeDescriptor getNodeDescriptor() {
+    return this.evaluatorManager.getNodeDescriptor();
+  }
+
+  @Override
+  public String getId() {
+    return this.identifier;
+  }
+
+  final ClosedContext getClosedContext(final ActiveContext parentContext) {
+    return new ClosedContext() {
+
+      @Override
+      public ActiveContext getParentContext() {
+        return parentContext;
+      }
+
+      @Override
+      public String getId() {
+        return EvaluatorContext.this.getId();
+      }
+
+      @Override
+      public String getEvaluatorId() {
+        return EvaluatorContext.this.getEvaluatorId();
+      }
+
+      @Override
+      public Optional<String> getParentId() {
+        return EvaluatorContext.this.getParentId();
+      }
+
+      @Override
+      public NodeDescriptor getNodeDescriptor() {
+        return EvaluatorContext.this.getNodeDescriptor();
+      }
+    };
+  }
+
+
+  final FailedContext getFailedContext(final Optional<ActiveContext> parentContext, final Exception reason) {
+    return new FailedContext() {
+      @Override
+      public Optional<ActiveContext> getParentContext() {
+        return parentContext;
+      }
+
+      @Override
+      public Throwable getReason() {
+        return reason;
+      }
+
+      @Override
+      public String getId() {
+        return EvaluatorContext.this.getId();
+      }
+
+      @Override
+      public String getEvaluatorId() {
+        return EvaluatorContext.this.getEvaluatorId();
+      }
+
+      @Override
+      public Optional<String> getParentId() {
+        return EvaluatorContext.this.getParentId();
+      }
+
+      @Override
+      public NodeDescriptor getNodeDescriptor() {
+        return EvaluatorContext.this.getNodeDescriptor();
+      }
+    };
+  }
+}

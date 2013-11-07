@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.microsoft.reef</groupId>
+        <artifactId>reef-project</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>reef-checkpoint</artifactId>
+    <name>REEF Checkpoint</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <test.build.webapps>${project.build.directory}/test-classes/webapps</test.build.webapps>
+    </properties>
+    <build>
+        <resources>
+            <resource>
+                <targetPath>META-INF/conf</targetPath>
+                <filtering>false</filtering>
+                <directory>${basedir}/src/main/conf</directory>
+                <includes>
+                    <include>*.xml</include>
+                    <include>*.properties</include>
+                    <include>webapps/**</include>
+                </includes>
+                <excludes>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-annotations</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

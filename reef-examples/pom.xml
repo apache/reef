@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>reef-examples</artifactId>
+    <name>REEF Examples</name>
+
+    <parent>
+        <groupId>com.microsoft.reef</groupId>
+        <artifactId>reef-project</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+
+    <dependencies>
+        <!-- REEF -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-runtime-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-runtime-yarn</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-io</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-checkpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- End of REEF -->
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+    <profiles>
+
+        <profile>
+            <id>HelloREEF</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <!-- <argument>-Dlog4j.debug=true</argument> -->
+                                <argument>com.microsoft.reef.examples.hello.HelloREEF</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>DistributedShell_local</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <argument>com.microsoft.reef.examples.ds.DSClient</argument>
+                                <argument>-local</argument>
+                                <argument>true</argument>
+                                <argument>-cmd</argument>
+                                <argument>echo Hello REEF</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>MatMult</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <argument>com.microsoft.reef.examples.groupcomm.matmul.MatMultREEF</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>DistributedShell_yarn</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <argument>com.microsoft.reef.examples.ds.DSClient</argument>
+                                <argument>-local</argument>
+                                <argument>false</argument>
+                                <argument>-cmd</argument>
+                                <argument>echo Hello REEF</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>PersistentEval</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <argument>com.microsoft.reef.examples.persistent_eval.Launch</argument>
+                                <!-- <argument>-cmd</argument>
+                                <argument>date</argument>
+                                <argument>-num_runs</argument>
+                                <argument>20</argument>
+                                <argument>-local</argument>
+                                <argument>true</argument> -->
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>PersistentEval_yarn</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <argument>com.microsoft.reef.examples.persistent_eval.Launch</argument>
+                                <argument>-cmd</argument>
+                                <argument>date</argument>
+                                <argument>-num_runs</argument>
+                                <argument>20</argument>
+                                <argument>-local</argument>
+                                <argument>false</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>SuspendDemo</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <argument>com.microsoft.reef.examples.suspend.Launch</argument>
+                                <argument>-delay</argument>
+                                <argument>1</argument>
+                                <argument>-cycles</argument>
+                                <argument>20</argument>
+                                <argument>-local</argument>
+                                <argument>true</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

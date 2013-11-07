@@ -1,0 +1,19 @@
+option java_package = "com.microsoft.reef.io.network.proto";
+option java_outer_classname = "ReefNetworkGroupCommProtos";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+
+message GroupCommMessage {
+  enum Type { Scatter=1; Gather=2; Broadcast=3; Reduce=4; AllGather=5; AllReduce=6; ReduceScatter=7;}
+
+  // identifies which field is filled in
+  required Type type = 1;
+  
+  required string srcid = 2;
+  required string destid = 3;
+  repeated GroupMessageBody msgs = 4;
+}
+
+message GroupMessageBody {
+  required bytes data = 1;
+}
