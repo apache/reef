@@ -1,0 +1,16 @@
+tmp
+bin
+tang.conf
+.DS_Store
+target
+generated
+.settings
+.classpath
+.project
+.sw[op]
+*.sw[op]
+.externalToolBuilders
+nbactions.xml
+.idea
+*.iml
+
