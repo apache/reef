@@ -16,7 +16,6 @@ namespace Com.Microsoft.Tang.TestDriver
             ClassHierarchyImpl classHierarchyImpl = new ClassHierarchyImpl(@"Com.Microsoft.Tang.Examples.dll");
 
 
-
             var asm = Assembly.LoadFrom(@"Com.Microsoft.Tang.Examples.dll");
             var types = asm.GetTypes();
 
