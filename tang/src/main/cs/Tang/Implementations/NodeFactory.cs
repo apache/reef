@@ -24,8 +24,8 @@ namespace Com.Microsoft.Tang.Implementations
             string simpleName = type.Name;
             string fullName = type.FullName;
             bool isStatic = type.IsSealed && type.IsAbstract;
-            bool injectable = true; // to do
-            bool isAssignableFromExternalConstructor = true;//to do 
+            bool injectable = true; // TODO
+            bool isAssignableFromExternalConstructor = true; //TODO
 
             var injectableConstructors = new List<IConstructorDef>();
             var allConstructors = new List<IConstructorDef>();
@@ -34,7 +34,7 @@ namespace Com.Microsoft.Tang.Implementations
             {
                 var isConstructorInjectable = null != c.GetCustomAttribute<InjectAttribute>();
 
-                ConstructorDefImpl constructorDef = createConstructorDef(injectable, c, isConstructorInjectable);
+                ConstructorDefImpl constructorDef = CreateConstructorDef(injectable, c, isConstructorInjectable);
 
                 if (isConstructorInjectable)
                 {
@@ -55,15 +55,9 @@ namespace Com.Microsoft.Tang.Implementations
             return new ClassNodeImpl(parent, simpleName, fullName, isUnit, injectable, isAssignableFromExternalConstructor, injectableConstructors, allConstructors, defaultImplementation);
         }
 
-        private static ConstructorDefImpl createConstructorDef(bool injectable, ConstructorInfo constructor, bool isConstructorInjectable)
+        private static ConstructorDefImpl CreateConstructorDef(bool injectable, ConstructorInfo constructor, bool isConstructorInjectable)
         {
             var parameters = constructor.GetParameters();
-
-            //Type[] parameterTypes = new Type[parameters.Length];
-            //for (int i = 0; i < parameters.Length; i++)
-            //{
-            //    parameterTypes[i] = parameters[i].GetType();
-            //}
 
             IConstructorArg[] args = new ConstructorArgImpl[parameters.Length];
 
@@ -84,7 +78,7 @@ namespace Com.Microsoft.Tang.Implementations
         {
             Type argRawClass = ReflectionUtilities.GetRawClass(argType);
 
-            bool isSet = false; //if it is Set TODO
+            bool isSet = false; //TODO
            
             string simpleName = type.Name;
             string fullName = type.FullName;

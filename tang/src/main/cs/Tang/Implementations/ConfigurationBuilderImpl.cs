@@ -25,7 +25,23 @@ namespace Com.Microsoft.Tang.Implementations
             throw new NotImplementedException();
         }
 
-        public void bindImplementation(Type iface, Type impl)
+        public void BindImplementation(Type iface, Type impl)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public IConfiguration Build()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Bind(Types.INode key, Types.INode value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void BindNamedParameter(Type iface, Type impl)
         {
             throw new NotImplementedException();
         }

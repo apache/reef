@@ -114,11 +114,6 @@ namespace Com.Microsoft.Tang.Implementations
                 }
 
             }
-            //for (int i = 0; i < paramTypes.Length; i++) {
-            //    if (!args[i].Gettype().Equals(paramTypes[i].GetFullName())) {
-            //        return false;
-            //    }
-            //}
             return true;
         }
 

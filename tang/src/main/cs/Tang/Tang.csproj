@@ -70,12 +70,14 @@
     <Compile Include="Implementations\ClassHierarchyImpl.cs" />
     <Compile Include="Implementations\ClassNodeImpl.cs" />
     <Compile Include="Implementations\ConfigurationBuilderImpl.cs" />
+    <Compile Include="Implementations\ConfigurationImpl.cs" />
     <Compile Include="Implementations\ConstructorArgImpl.cs" />
     <Compile Include="Implementations\ConstructorDefImpl.cs" />
     <Compile Include="Exceptions\IllegalStateException.cs" />
     <Compile Include="Implementations\NamedParameterNodeImpl.cs" />
     <Compile Include="Implementations\NodeFactory.cs" />
     <Compile Include="Implementations\PackageNodeImpl.cs" />
+    <Compile Include="Interface\IConfiguration.cs" />
     <Compile Include="Interface\IClassHierarchy.cs" />
     <Compile Include="Interface\IConfigurationBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

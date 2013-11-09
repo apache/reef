@@ -2,15 +2,10 @@
 
 namespace Com.Microsoft.Tang.Annotations
 {
-    /// <summary>
-    /// NamedParameterAttribute
-    /// </summary>
     [System.AttributeUsage(System.AttributeTargets.Class)]
     public class NamedParameterAttribute : System.Attribute
     {
         public string Documentation { get; set; }
-        //public Type ArgClass { get; set; }
-        //public string DefaultInstance { get; set; }
         public string ShortName { get; set; }
         public string DefaultValue { get; set; }
         public Type DefaultClass { get; set; }

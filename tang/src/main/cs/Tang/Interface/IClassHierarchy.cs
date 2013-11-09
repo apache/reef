@@ -12,6 +12,6 @@ namespace Com.Microsoft.Tang.Interface
         INode GetNode(string fullName);
         INode GetNamespace();
         bool IsImplementation(IClassNode inter, IClassNode impl);
-        IClassHierarchy merge(IClassHierarchy ch);
+        IClassHierarchy Merge(IClassHierarchy ch);
     }
 }

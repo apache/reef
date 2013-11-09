@@ -7,25 +7,25 @@ using System.Threading.Tasks;
 using class_hierarchy;
 using Com.Microsoft.Tang.Annotations;
 using Com.Microsoft.Tang.Exceptions;
+using Com.Microsoft.Tang.Interface;
 using Com.Microsoft.Tang.Types;
 using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Implementations
 {
-    public class ClassHierarchyImpl
+    public class ClassHierarchyImpl : IClassHierarchy
     {
         private INode rootNode = NodeFactory.CreateRootPackageNode();
         private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
+        public Assembly assembly { get; private set; }
 
         public ClassHierarchyImpl(String file)
         {
-            var assembly = Assembly.LoadFrom(file);
+            assembly = Assembly.LoadFrom(file);
             foreach (var t in assembly.GetTypes())
             {
                 RegisterType(t);
             }
-
-
         }
 
         public INode RegisterType(string assemblyQualifiedName)
@@ -83,13 +83,13 @@ namespace Com.Microsoft.Tang.Implementations
                         {
                             throw new ArgumentException("not type in arg");
                         }
-                        RegisterType(constructorArg.Gettype());  //GetType returns param's Type.fullname
+                        RegisterType(constructorArg.Gettype());  //Gettype returns param's Type.fullname
                         if (constructorArg.GetNamedParameterName() != null)
                         {
                             INamedParameterNode np = (INamedParameterNode)RegisterType(constructorArg.GetNamedParameterName());
                             if (np.IsSet())
                             {
-                                //TODO
+                                throw new NotImplementedException();
                             }
                             else
                             {
@@ -318,6 +318,37 @@ namespace Com.Microsoft.Tang.Implementations
         {
             var tn = typeof(Name<int>);
             return tn.Name;
+        }
+
+        public INode GetNode(string fullName)
+        {
+            return this.GetNode(this.assembly.GetType(fullName));
+        }
+
+        public INode GetNode(Type type)
+        {
+            INode current = rootNode;
+            string[] enclosingPath = GetEnclosingClassShortNames(type);
+            for (int i = 0; i < enclosingPath.Length; i++)
+            {
+                current = current.Get(enclosingPath[i]);
+            }
+            return current;
+        }
+
+        public INode GetNamespace()
+        {
+            return rootNode;
+        }
+
+        public bool IsImplementation(IClassNode inter, IClassNode impl)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IClassHierarchy Merge(IClassHierarchy ch)
+        {
+            throw new NotImplementedException();
         }
     }
 }
