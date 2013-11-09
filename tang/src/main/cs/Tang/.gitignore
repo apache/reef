@@ -1,6 +1,2 @@
-*.suo
-obj
-packages
-## Derived files
 class_hierarchy.cs
 injection_plan.cs

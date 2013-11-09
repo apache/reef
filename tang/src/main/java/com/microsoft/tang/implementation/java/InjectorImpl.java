@@ -1,5 +1,6 @@
 package com.microsoft.tang.implementation.java;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
@@ -581,7 +582,7 @@ public class InjectorImpl implements Injector {
         instances.put(constructor.getNode(), ret);
         return ret;
       } catch (ReflectiveOperationException e) {
-        throw new InjectionException("Could not invoke constructor", e);
+        throw new InjectionException("Could not invoke constructor: " + plan, e instanceof InvocationTargetException ? e.getCause() : e);
       } finally {
         concurrentModificationGuard = false;
       }
