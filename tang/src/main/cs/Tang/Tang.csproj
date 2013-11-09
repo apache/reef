@@ -7,8 +7,8 @@
     <ProjectGuid>{EAA695CA-473C-4978-A45D-D7182CE151A7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tang</RootNamespace>
-    <AssemblyName>Tang</AssemblyName>
+    <RootNamespace>Com.Microsoft.Tang</RootNamespace>
+    <AssemblyName>Com.Microsoft.Tang</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="protobuf-net">
-      <HintPath>packages\protobuf-net.2.0.0.621\lib\net40\protobuf-net.dll</HintPath>
+      <HintPath>packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -42,22 +42,49 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\proto\class_hierarchy.cs">
+    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\class_hierarchy.cs">
       <Link>class_hierarchy.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>class_hierarchy.proto</DependentUpon>
     </Compile>
-    <Compile Include="..\..\proto\injection_plan.cs">
+    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\injection_plan.cs">
       <Link>injection_plan.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>injection_plan.proto</DependentUpon>
     </Compile>
-    <Compile Include="ClassHierarchy.cs" />
+    <Compile Include="Annotations\DefaultImplementation.cs" />
+    <Compile Include="Annotations\Inject.cs" />
+    <Compile Include="Annotations\Name.cs" />
+    <Compile Include="Annotations\NamedParameter.cs" />
+    <Compile Include="Annotations\Parameter.cs" />
+    <Compile Include="Annotations\Unit.cs" />
+    <Compile Include="Exceptions\ClassHierarchyException.cs" />
+    <Compile Include="Exceptions\BindException.cs" />
+    <Compile Include="Exceptions\NameResolutionException.cs" />
+    <Compile Include="Exceptions\UnsupportedOperationException.cs" />
+    <Compile Include="Implementations\AbstractNode.cs" />
+    <Compile Include="Implementations\ClassHierarchyImpl.cs" />
+    <Compile Include="Implementations\ClassNodeImpl.cs" />
+    <Compile Include="Implementations\ConstructorArgImpl.cs" />
+    <Compile Include="Implementations\ConstructorDefImpl.cs" />
+    <Compile Include="Exceptions\IllegalStateException.cs" />
+    <Compile Include="Implementations\NamedParameterNodeImpl.cs" />
+    <Compile Include="Implementations\NodeFactory.cs" />
+    <Compile Include="Implementations\PackageNodeImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\IConstructorDef.cs" />
+    <Compile Include="Types\IClassNode.cs" />
+    <Compile Include="Types\IConstructorArg.cs" />
+    <Compile Include="Types\INode.cs" />
+    <Compile Include="Types\IPackageNode.cs" />
+    <Compile Include="Types\ITraversable.cs" />
+    <Compile Include="Types\INamedParameterNode.cs" />
+    <Compile Include="Util\MonotonicSet.cs" />
+    <Compile Include="Util\MonotonicTreeMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\proto\class_hierarchy.proto">
@@ -72,8 +99,11 @@
       <CustomToolNamespace>%3bfixCase</CustomToolNamespace>
       <LastGenOutput>injection_plan.cs</LastGenOutput>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,0 +1,5 @@
+*.suo
+obj
+packages
+## Derived files
+
