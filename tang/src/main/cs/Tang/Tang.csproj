@@ -69,12 +69,17 @@
     <Compile Include="Implementations\AbstractNode.cs" />
     <Compile Include="Implementations\ClassHierarchyImpl.cs" />
     <Compile Include="Implementations\ClassNodeImpl.cs" />
+    <Compile Include="Implementations\ConfigurationBuilderImpl.cs" />
+    <Compile Include="Implementations\ConfigurationImpl.cs" />
     <Compile Include="Implementations\ConstructorArgImpl.cs" />
     <Compile Include="Implementations\ConstructorDefImpl.cs" />
     <Compile Include="Exceptions\IllegalStateException.cs" />
     <Compile Include="Implementations\NamedParameterNodeImpl.cs" />
     <Compile Include="Implementations\NodeFactory.cs" />
     <Compile Include="Implementations\PackageNodeImpl.cs" />
+    <Compile Include="Interface\IConfiguration.cs" />
+    <Compile Include="Interface\IClassHierarchy.cs" />
+    <Compile Include="Interface\IConfigurationBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\IConstructorDef.cs" />
     <Compile Include="Types\IClassNode.cs" />
@@ -85,6 +90,7 @@
     <Compile Include="Types\INamedParameterNode.cs" />
     <Compile Include="Util\MonotonicSet.cs" />
     <Compile Include="Util\MonotonicTreeMap.cs" />
+    <Compile Include="Util\ReflectionUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\proto\class_hierarchy.proto">

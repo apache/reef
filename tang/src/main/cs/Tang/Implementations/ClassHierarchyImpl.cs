@@ -7,19 +7,21 @@ using System.Threading.Tasks;
 using class_hierarchy;
 using Com.Microsoft.Tang.Annotations;
 using Com.Microsoft.Tang.Exceptions;
+using Com.Microsoft.Tang.Interface;
 using Com.Microsoft.Tang.Types;
 using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Implementations
 {
-    public class ClassHierarchyImpl
+    public class ClassHierarchyImpl : IClassHierarchy
     {
         private INode rootNode = NodeFactory.CreateRootPackageNode();
         private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
+        public Assembly assembly { get; private set; }
 
         public ClassHierarchyImpl(String file)
         {
-            var assembly = Assembly.LoadFrom(file);
+            assembly = Assembly.LoadFrom(file);
             foreach (var t in assembly.GetTypes())
             {
                 RegisterType(t);
@@ -28,7 +30,12 @@ namespace Com.Microsoft.Tang.Implementations
 
         public INode RegisterType(string assemblyQualifiedName)
         {
-            return RegisterType(Type.GetType(assemblyQualifiedName));
+            Type type = Type.GetType(assemblyQualifiedName);
+            if (type != null)
+            {
+                return RegisterType(Type.GetType(assemblyQualifiedName));
+            }
+            return null;
         }
 
         public INode RegisterType(Type type)
@@ -72,13 +79,17 @@ namespace Com.Microsoft.Tang.Implementations
                 {
                     foreach (IConstructorArg constructorArg in constructorDef.GetArgs())
                     {
-                        RegisterType(constructorArg.GetType());  //GetType returns param's Type.fullname
+                        if (constructorArg.Gettype() == null)
+                        {
+                            throw new ArgumentException("not type in arg");
+                        }
+                        RegisterType(constructorArg.Gettype());  //Gettype returns param's Type.fullname
                         if (constructorArg.GetNamedParameterName() != null)
                         {
                             INamedParameterNode np = (INamedParameterNode)RegisterType(constructorArg.GetNamedParameterName());
                             if (np.IsSet())
                             {
-                                //TODO
+                                throw new NotImplementedException();
                             }
                             else
                             {
@@ -102,13 +113,15 @@ namespace Com.Microsoft.Tang.Implementations
 
         private INode RegisterClass(Type type)
         {
-            INode node = GetAlreadyBoundNode(type);
-            if (node != null)
+            try
             {
-                return node;
+                return  GetAlreadyBoundNode(type);
+            }
+            catch(NameResolutionException e)
+            {
             }
 
-            node = BuildPathToNode(type);
+            INode node = BuildPathToNode(type);
 
             IClassNode classNode = node as IClassNode;
             if (classNode != null)
@@ -143,6 +156,7 @@ namespace Com.Microsoft.Tang.Implementations
         public INode BuildPathToNode(Type type)
         {
             INode parent = GetParentNode(type);
+
             Type argType = GetNamedParameterTargetOrNull(type);
 
             if (argType == null)
@@ -183,15 +197,35 @@ namespace Com.Microsoft.Tang.Implementations
             }
         }
 
-        //return Type if clazz implements Name<T>, null otherwise
+        //return Type T if type implements Name<T>, null otherwise
+        //e.g. [NamedParameter(typeof(System.String), "Number of seconds to sleep", "10", "sec")]
+        //class Seconds : Name<Int32> { }
+        //return Int32
         public Type GetNamedParameterTargetOrNull(Type type)
         {
-            return null;//TODO
+            var npAnnotation = type.GetCustomAttribute<NamedParameterAttribute>();
+            if (npAnnotation != null)
+            {
+                Type[] intfs = type.GetInterfaces();
+                if (intfs.Length == 1)
+                {
+                    if (intfs[0].Name.Equals(GetNameOfNameInterface()))
+                    {
+                        Type[] args = intfs[0].GetGenericArguments();
+                        if (args.Length == 1)
+                        {
+                            return args[0];
+                        }
+                    }
+                }
+
+            }
+            return null;   
         }
 
         private INode GetAlreadyBoundNode(Type t)
         {
-            string[] outerClassNames = GetEnclosingClassNames(t);
+            string[] outerClassNames = GetEnclosingClassShortNames(t);
             string outerClassName = outerClassNames[0];
             INode current = rootNode.Get(outerClassName);
 
@@ -222,11 +256,11 @@ namespace Com.Microsoft.Tang.Implementations
         }
 
         //starting from the root, get child for each eclosing class excluding the type itsself
-        //all eclosing classes should be already in the hierarchy
+        //all enclosing classes should be already in the hierarchy
         private INode GetParentNode(Type type)
         {
             INode current = rootNode;
-            string[] enclosingPath = GetEnclosingClassNames(type);
+            string[] enclosingPath = GetEnclosingClassShortNames(type);
             for (int i = 0; i < enclosingPath.Length - 1; i++)
             {
                 current = current.Get(enclosingPath[i]);
@@ -251,6 +285,21 @@ namespace Com.Microsoft.Tang.Implementations
             return path;
         }
 
+        //return all parent class names including itself
+        private string[] GetEnclosingClassShortNames(Type t)
+        {
+            string[] path = t.FullName.Split('+');
+
+            if (path.Length == 1)
+            {
+                return new string[1] { t.Name };
+            }
+            string[] first = path[0].Split('.');
+            path[0] = first[first.Length - 1];
+
+            return path;
+        }
+
         //return immidiate enclosing class
         private Type GetIEnclosingClass(Type t)
         {
@@ -263,6 +312,43 @@ namespace Com.Microsoft.Tang.Implementations
                 return Type.GetType(path[path.Length - 2]);
             }
             return null; // TODO
+        }
+
+        private string GetNameOfNameInterface()
+        {
+            var tn = typeof(Name<int>);
+            return tn.Name;
+        }
+
+        public INode GetNode(string fullName)
+        {
+            return this.GetNode(this.assembly.GetType(fullName));
+        }
+
+        public INode GetNode(Type type)
+        {
+            INode current = rootNode;
+            string[] enclosingPath = GetEnclosingClassShortNames(type);
+            for (int i = 0; i < enclosingPath.Length; i++)
+            {
+                current = current.Get(enclosingPath[i]);
+            }
+            return current;
+        }
+
+        public INode GetNamespace()
+        {
+            return rootNode;
+        }
+
+        public bool IsImplementation(IClassNode inter, IClassNode impl)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IClassHierarchy Merge(IClassHierarchy ch)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading;
 using Com.Microsoft.Tang.Annotations;
 
 namespace Com.Microsoft.Tang.Examples
 {
     public class Timer
     {
-        [NamedParameter(typeof(System.String), "Number of seconds to sleep", "10", "sec")]
+        [NamedParameter("Number of seconds to sleep", "sec", "10")]
         class Seconds : Name<Int32> { }
         private readonly int seconds;
 
@@ -18,26 +19,10 @@ namespace Com.Microsoft.Tang.Examples
             }
             this.seconds = seconds;
         }
-    }
 
-    public interface  A
-    {
-
-    }
-
-    public class B : A
-    {
-        public class B1 {
-            public class B2 {}
+        public void sleep()  
+        {
+            Thread.Sleep(seconds * 1000);
         }
     }
-
-    public class C : B
-    {
-    }
-
-    public static class E
-    {
-    }
-
 }

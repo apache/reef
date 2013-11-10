@@ -20,17 +20,17 @@ namespace Com.Microsoft.Tang.Implementations
             this.isInjectionFuture = isInjectionFuture;
         }
 
-        public String GetName()
+        public string GetName()
         {
             return name == null ? type : name;
         }
 
-        public String GetNamedParameterName()
+        public string GetNamedParameterName()
         {
             return name;
         }
 
-        public String Gettype()
+        public string Gettype()
         {
             return type;
         }
