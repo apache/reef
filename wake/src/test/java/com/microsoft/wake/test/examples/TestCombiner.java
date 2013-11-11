@@ -56,12 +56,12 @@ public class TestCombiner {
           public void onNext(Entry<Integer, Integer> value) {
             System.out.println(value.getKey() + "=" + value.getValue());
             x.incrementAndGet();
-//            try {
-//              if(!done) 
-//                Thread.sleep(100);
-//            } catch (InterruptedException e) {
-//              throw new IllegalStateException(e);
-//            }
+            try {
+              if(!done) 
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+              throw new IllegalStateException(e);
+            }
           }
 
           @Override
