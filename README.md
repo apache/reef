@@ -363,7 +363,7 @@ import com.microsoft.tang.exceptions.InjectionException;
   public static void main(String[] args) throws BindException, InjectionException {
     Tang tang = Tang.Factory.getTang();
     ConfigurationBuilder cb = (ConfigurationBuilder)tang.newConfigurationBuilder();
-    cb.bindNamedParameter(Timer.Sleep.class, 5);
+    cb.bindNamedParameter(Timer.Seconds.class, 5);
     Configuration conf = cb.build();
     Injector injector = tang.newInjector(conf);
     if(!injector.isInjectable(Timer.class)) {
