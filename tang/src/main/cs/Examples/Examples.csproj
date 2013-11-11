@@ -39,6 +39,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DocumentedLocalNamedParameter.cs" />
+    <Compile Include="NamedParameterConstructors.cs" />
+    <Compile Include="ShortNameFooAB.cs" />
+    <Compile Include="SimpleConstructors.cs" />
     <Compile Include="TestClasses.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

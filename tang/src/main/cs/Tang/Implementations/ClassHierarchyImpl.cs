@@ -322,7 +322,17 @@ namespace Com.Microsoft.Tang.Implementations
 
         public INode GetNode(string fullName)
         {
-            return this.GetNode(this.assembly.GetType(fullName));
+            Type t = Type.GetType(fullName);
+            if (t == null)
+            {
+                t = this.assembly.GetType(fullName);
+            }
+
+            if (t == null)
+            {
+                throw new NameResolutionException(fullName, fullName);
+            }
+            return this.GetNode(t);
         }
 
         public INode GetNode(Type type)
