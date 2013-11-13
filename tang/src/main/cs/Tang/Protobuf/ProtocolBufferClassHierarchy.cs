@@ -9,11 +9,15 @@ using System.Collections.Generic;
 using ProtoBuf;
 using Com.Microsoft.Tang.Exceptions;
 using System.IO;
+using Com.Microsoft.Tang.Implementations;
+using System.Collections;
 
 namespace Com.Microsoft.Tang.Protobuf
 {
-    public class ProtocolBufferClassHierarchy
+    public class ProtocolBufferClassHierarchy : IClassHierarchy
     {
+        private IPackageNode rootNode;
+
         public static void Serialize(string fileName, IClassHierarchy classHierarchy)
         {
             ClassHierarchyProto.Node node = Serialize(classHierarchy);
@@ -218,17 +222,190 @@ namespace Com.Microsoft.Tang.Protobuf
             return n;
         }
 
-
         public static IClassHierarchy DeSerialize(string fileName)
         {
-            ClassHierarchyProto.Node newNode;
+            ClassHierarchyProto.Node root;
 
             using (var file = File.OpenRead(fileName))
             {
-                newNode = Serializer.Deserialize<ClassHierarchyProto.Node>(file);
+                root = Serializer.Deserialize<ClassHierarchyProto.Node>(file);
             }
 
-            return null;
+           return new ProtocolBufferClassHierarchy(root);
+        }
+
+        public ProtocolBufferClassHierarchy(ClassHierarchyProto.Node root) 
+        {
+            this.rootNode = new PackageNodeImpl();
+            if (root.package_node == null) 
+            {
+                throw new ArgumentException("Expected a package node.  Got: " + root);
+            }
+            // Register all the classes.
+            foreach (ClassHierarchyProto.Node child in root.children) 
+            {
+                ParseSubHierarchy(rootNode, child);
+            }
+    
+            // Now, register the implementations
+            foreach (ClassHierarchyProto.Node child in root.children)
+            {
+                WireUpInheritanceRelationships(child);
+            }
+        }
+
+        private static void ParseSubHierarchy(INode parent, ClassHierarchyProto.Node n)
+        {
+            INode parsed;
+            if (n.package_node != null)
+            {
+                parsed = new PackageNodeImpl(parent, n.name, n.full_name);
+            }
+            else if (n.named_parameter_node != null)
+            {
+                ClassHierarchyProto.NamedParameterNode np = n.named_parameter_node;
+                parsed = new NamedParameterNodeImpl(parent, n.name,
+                    n.full_name, np.full_arg_class_name, np.simple_arg_class_name,
+                    np.is_set, np.documentation, np.short_name,
+                    np.instance_default.ToArray());
+            }
+            else if (n.class_node != null)
+            {
+                ClassHierarchyProto.ClassNode cn = n.class_node;
+                IList<IConstructorDef> injectableConstructors = new List<IConstructorDef>();
+                IList<IConstructorDef> allConstructors = new List<IConstructorDef>();
+
+                foreach (ClassHierarchyProto.ConstructorDef injectable in cn.InjectableConstructors)
+                {
+                    IConstructorDef def = ParseConstructorDef(injectable, true);
+                    injectableConstructors.Add(def);
+                    allConstructors.Add(def);
+                }
+                foreach (ClassHierarchyProto.ConstructorDef other in cn.OtherConstructors)
+                {
+                    IConstructorDef def = ParseConstructorDef(other, false);
+                    allConstructors.Add(def);
+
+                }
+
+                IConstructorDef[] dummy = new ConstructorDefImpl[0];
+                parsed = new ClassNodeImpl(parent, n.name, n.full_name,
+                cn.is_unit, cn.is_injection_candidate,
+                cn.is_external_constructor, injectableConstructors,
+                allConstructors, cn.default_implementation);
+            }
+
+            else
+            {
+                throw new IllegalStateException("Bad protocol buffer: got abstract node" + n);
+            }
+
+            foreach (ClassHierarchyProto.Node child in n.children) 
+            {
+                ParseSubHierarchy(parsed, child);
+            }
+        }
+
+        private static IConstructorDef ParseConstructorDef(ClassHierarchyProto.ConstructorDef def, bool isInjectable) 
+        {
+            IList<IConstructorArg> args = new List<IConstructorArg>();
+            foreach (ClassHierarchyProto.ConstructorArg arg in def.args) 
+            {
+                args.Add(new ConstructorArgImpl(arg.full_arg_class_name, arg.named_parameter_name, arg.is_injection_future));
+            }
+            return new ConstructorDefImpl(def.full_class_name, args.ToArray(), isInjectable);
+        }
+
+        private void WireUpInheritanceRelationships(ClassHierarchyProto.Node n)
+        {
+            if (n.class_node != null)
+            {
+                ClassHierarchyProto.ClassNode cn = n.class_node;
+                IClassNode iface;
+                try
+                {
+                    iface = (IClassNode)GetNode(n.full_name);
+                }
+                catch (NameResolutionException e)
+                {
+                    throw new IllegalStateException("When reading protocol buffer node "
+                        + n.full_name + " does not exist.  Full record is " + n, e);
+                }
+                foreach (String impl in cn.impl_full_names)
+                {
+                    try
+                    {
+                        iface.PutImpl((IClassNode)GetNode(impl));
+                    }
+                    catch (NameResolutionException e)
+                    {
+                        throw new IllegalStateException("When reading protocol buffer node "
+                            + n + " refers to non-existent implementation:" + impl);
+                    }
+                    catch (InvalidCastException e)
+                    {
+                        try
+                        {
+                            throw new IllegalStateException(
+                                "When reading protocol buffer node " + n
+                                + " found implementation" + GetNode(impl)
+                                + " which is not a ClassNode!");
+                        }
+                        catch (NameResolutionException e2)
+                        {
+                            throw new IllegalStateException(
+                                "Got 'cant happen' exception when producing error message for " + e);
+                        }
+                    }
+                }
+            }
+        }
+
+        public INode GetNode(String fullName)
+        {       
+            INode current = rootNode;
+            string[] enclosingPath = ClassHierarchyImpl.GetEnclosingClassShortNames(fullName);
+            for (int i = 0; i < enclosingPath.Length; i++)
+            {
+                current = current.Get(enclosingPath[i]);
+                if (current == null)
+                {
+                    throw new NameResolutionException(fullName, enclosingPath[i]);
+                }
+            }
+ 
+            return current;
+        }
+
+
+        private string[] GetEnclosingClassShortNames(string fullName)
+        {
+            string[] path = fullName.Split('+');
+
+            if (path.Length == 1)
+            {
+               // path[0] = name;
+            }
+            string[] first = path[0].Split('.');
+            path[0] = first[first.Length - 1];
+
+            return path;
+        }
+
+
+        public INode GetNamespace()
+        {
+            return rootNode;
+        }
+
+        public bool IsImplementation(IClassNode inter, IClassNode impl)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IClassHierarchy Merge(IClassHierarchy ch)
+        {
+            throw new NotImplementedException();
         }
     }
 }

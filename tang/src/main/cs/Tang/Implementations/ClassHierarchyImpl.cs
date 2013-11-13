@@ -284,20 +284,53 @@ namespace Com.Microsoft.Tang.Implementations
             return path;
         }
 
-        //return all parent class names including itself
-        private string[] GetEnclosingClassShortNames(Type t)
+        public static string[] GetEnclosingClassShortNames(Type t)
         {
-            string[] path = t.FullName.Split('+');
+            return GetEnclosingClassShortNames(t.FullName);
+        }
 
-            if (path.Length == 1)
+        public static string[] GetEnclosingClassShortNames(string fullName)
+        {
+            string[] path = fullName.Split('+');
+            string sysName = ParseSystemName(fullName);
+
+            if (path.Length > 1 || sysName == null)
             {
-                return new string[1] { t.Name };
+                string[] first = path[0].Split('.');
+                path[0] = first[first.Length - 1];
             }
-            string[] first = path[0].Split('.');
-            path[0] = first[first.Length - 1];
+            else
+            {
+                path[0] = sysName;
+            }
 
             return path;
         }
+
+        public static string ParseSystemName(string name)
+        {
+            string[] token = name.Split('[');
+            if (token.Length > 1) //system name System.IComparable`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]
+            {
+                string[] prefixes = token[0].Split('.');
+                return prefixes[prefixes.Length - 1];
+            }
+            return null;
+        }
+
+        //private string[] GetEnclosingClassShortNames(Type t)
+        //{
+        //    string[] path = t.FullName.Split('+');
+
+        //    if (path.Length == 1)
+        //    {
+        //        return new string[1] { t.Name };
+        //    }
+
+        //    string[] first = path[0].Split('.');
+        //    path[0] = first[first.Length - 1];
+        //    return path;
+        //}
 
         //return immidiate enclosing class
         private Type GetIEnclosingClass(Type t)

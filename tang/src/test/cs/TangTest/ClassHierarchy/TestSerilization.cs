@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Com.Microsoft.Tang.Implementations;
 using Com.Microsoft.Tang.Interface;
 using Com.Microsoft.Tang.Protobuf;
+using Com.Microsoft.Tang.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Com.Microsoft.TangTest.ClassHierarchy
@@ -48,7 +49,15 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchy()
         {
-            ProtocolBufferClassHierarchy.DeSerialize("node.bin");
+            IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("node.bin");
+
+            IClassNode timerClassNode = (IClassNode)ch.GetNode("Com.Microsoft.Tang.Examples.Timer");
+            INode secondNode = ch.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
+
+            IClassNode cls = (IClassNode)ch.GetNode("Com.Microsoft.Tang.Examples.SimpleConstructors");
+            Assert.IsTrue(cls.GetChildren().Count == 0);
+            IList<IConstructorDef> def = cls.GetInjectableConstructors();
+            Assert.AreEqual(3, def.Count);
         }
     }
 }
