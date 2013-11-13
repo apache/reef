@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using class_hierarchy;
 using Com.Microsoft.Tang.Annotations;
 using Com.Microsoft.Tang.Exceptions;
 using Com.Microsoft.Tang.Interface;
