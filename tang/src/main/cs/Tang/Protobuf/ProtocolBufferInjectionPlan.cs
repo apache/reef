@@ -15,7 +15,7 @@ namespace Com.Microsoft.Tang.Protobuf
     public class ProtocolBufferInjectionPlan
     {
 
-        public static InjectionPlanProto.InjectionPlan NewConstructor(string fullName, List<InjectionPlanProto.InjectionPlan> plans) 
+        private InjectionPlanProto.InjectionPlan NewConstructor(string fullName, List<InjectionPlanProto.InjectionPlan> plans) 
         {
             InjectionPlanProto.Constructor cconstr = new InjectionPlanProto.Constructor();
             foreach (InjectionPlanProto.InjectionPlan p in plans)
@@ -29,7 +29,7 @@ namespace Com.Microsoft.Tang.Protobuf
             return plan;
         }
 
-        public static InjectionPlanProto.InjectionPlan NewSubplan(string fullName, int selectedPlan, List<InjectionPlanProto.InjectionPlan> plans) 
+        private InjectionPlanProto.InjectionPlan NewSubplan(string fullName, int selectedPlan, List<InjectionPlanProto.InjectionPlan> plans) 
         {
             InjectionPlanProto.Subplan subPlan = new InjectionPlanProto.Subplan();
 
@@ -45,7 +45,7 @@ namespace Com.Microsoft.Tang.Protobuf
             return plan;
         }
 
-        public static InjectionPlanProto.InjectionPlan NewInstance(string fullName, string value)
+        private InjectionPlanProto.InjectionPlan NewInstance(string fullName, string value)
         {
             InjectionPlanProto.Instance instance = new InjectionPlanProto.Instance();
             instance.value = value;
@@ -57,7 +57,7 @@ namespace Com.Microsoft.Tang.Protobuf
 
         }
 
-        public static void Serialize(string fileName, InjectionPlan ip)
+        public void Serialize(string fileName, InjectionPlan ip)
         {
             InjectionPlanProto.InjectionPlan plan = Serialize(ip);
 
@@ -67,7 +67,7 @@ namespace Com.Microsoft.Tang.Protobuf
             }
         }
 
-        public static InjectionPlanProto.InjectionPlan Serialize(InjectionPlan ip) 
+        public InjectionPlanProto.InjectionPlan Serialize(InjectionPlan ip) 
         {
             if (ip is Constructor) 
             {
@@ -103,7 +103,7 @@ namespace Com.Microsoft.Tang.Protobuf
             }
         }
 
-        public static InjectionPlan DeSerialize(string fileName, IClassHierarchy ch)
+        public InjectionPlan DeSerialize(string fileName, IClassHierarchy ch)
         {
             InjectionPlanProto.InjectionPlan protoPlan;
 
@@ -115,7 +115,7 @@ namespace Com.Microsoft.Tang.Protobuf
             return Deserialize(ch, protoPlan);
         }
 
-        public static InjectionPlan Deserialize(IClassHierarchy ch, InjectionPlanProto.InjectionPlan ip) 
+        public InjectionPlan Deserialize(IClassHierarchy ch, InjectionPlanProto.InjectionPlan ip) 
         {
             string fullName = ip.name;
             if (ip.constructor != null) 
@@ -167,7 +167,7 @@ namespace Com.Microsoft.Tang.Protobuf
             }
         }
 
-        private static object Parse(String type, String value)
+        private object Parse(String type, String value)
         {
             // XXX this is a placeholder for now.  We need a parser API that will
             // either produce a live java object or (partially) validate stuff to
