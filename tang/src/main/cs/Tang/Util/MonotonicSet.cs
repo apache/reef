@@ -11,9 +11,14 @@ namespace Com.Microsoft.Tang.Util
         {
         }
 
-        public MonotonicSet(SortedSet<T> c) : base(c.Comparer)
+        //public MonotonicSet(SortedSet<T> c) : base(c.Comparer)
+        //{
+        //    AddAll(c);
+        //}
+
+        public MonotonicSet(ICollection<T> c)
+            : base(c)
         {
-            AddAll(c);
         }
 
         public MonotonicSet(IComparer<T> c)

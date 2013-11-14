@@ -38,8 +38,8 @@ public class SetInjectionPlan<T> extends InjectionPlan<T> {
 
   @Override
   public boolean isInjectable() {
-    return isInjectable;
-  }
+        return isInjectable;
+    }
 
   @Override
   @Deprecated
@@ -83,12 +83,12 @@ public class SetInjectionPlan<T> extends InjectionPlan<T> {
 
   @Override
   public String toShallowString() {
-    StringBuilder sb = new StringBuilder("set { ");
-    for(InjectionPlan<T> ip : entries) {
-      sb.append("\n" + ip.toShallowString());
+        StringBuilder sb = new StringBuilder("set { ");
+        for(InjectionPlan<T> ip : entries) {
+            sb.append("\n" + ip.toShallowString());
+        }
+        sb.append("\n } ");
+        return null;
     }
-    sb.append("\n } ");
-    return null;
-  }
 
 }
