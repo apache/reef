@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.client;
 
+import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalImpl;
@@ -28,25 +29,69 @@ import com.microsoft.wake.remote.RemoteConfiguration;
 public class ClientConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * An implementation of JobObserver to inform of Job start and such.
+   * Event handler for messages from the running job.
+   * Default implementation just writes message to the log.
+   * A message contains a status and a client-defined message payload.
    */
-  public static final RequiredImpl<JobObserver> JOB_OBSERVER = new RequiredImpl<>();
+  public static final OptionalImpl<EventHandler<JobMessage>> ON_JOB_MESSAGE = new OptionalImpl<>();
+
   /**
-   * An implementation of RuntimeErrorHandler to inform of runtime errors.
-   * By default, a runtime error throws a RuntimeException in the client JVM.
+   * Handler for the event when a submitted REEF Job is running.
+   * Default implementation just writes to the log.
    */
-  public static final OptionalImpl<RuntimeErrorHandler> RUNTIME_ERROR_HANDLER = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<RunningJob>> ON_JOB_RUNNING = new OptionalImpl<>();
+
+  /**
+   * Handler for the event when a submitted REEF Job is completed.
+   * Default implementation just writes to the log.
+   */
+  public static final OptionalImpl<EventHandler<CompletedJob>> ON_JOB_COMPLETED = new OptionalImpl<>();
+
+  /**
+   * Handler for the event when a submitted REEF Job has failed.
+   * Default implementation logs an error and rethrows the exception in the client JVM.
+   */
+  public static final OptionalImpl<EventHandler<FailedJob>> ON_JOB_FAILED = new OptionalImpl<>();
+
+  /**
+   * Receives fatal runtime errors. The presence of this error means that the
+   * underlying REEF instance is no longer able to execute REEF jobs. The
+   * actual Jobs may or may not still be running.
+   * Default implementation logs an error and rethrows the exception in the client JVM.
+   */
+  public static final OptionalImpl<EventHandler<RuntimeError>> ON_RUNTIME_ERROR = new OptionalImpl<>();
+
   /**
    * Error handler for events on Wake-spawned threads.
    * Exceptions that are thrown on wake-spawned threads (e.g. in EventHandlers) will be caught by Wake and delivered to
-   * this handler. Default behvior is to log the exceptions and rethrow them as RuntimeExceptions.
+   * this handler. Default behavior is to log the exceptions and rethrow them as RuntimeExceptions.
    */
-  public static final OptionalImpl<EventHandler<Throwable>> WAKE_ERROR_HANDLER = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<Throwable>> ON_WAKE_ERROR = new OptionalImpl<>();
+
+  /**
+   * An implementation of JobObserver to inform of Job start and such.
+   * @deprecated Use individual handlers ON_JOB_* instead.
+   */
+  @Deprecated
+  public static final RequiredImpl<JobObserver> JOB_OBSERVER = new RequiredImpl<>();
+
+  /**
+   * An implementation of RuntimeErrorHandler to inform of runtime errors.
+   * By default, a runtime error throws a RuntimeException in the client JVM.
+   * @deprecated Use ON_RUNTIME_ERROR handler instead.
+   */
+  @Deprecated
+  public static final OptionalImpl<RuntimeErrorHandler> RUNTIME_ERROR_HANDLER = new OptionalImpl<>();
 
   public static final ConfigurationModule CONF = new ClientConfiguration()
+      .bindSetEntry(ClientConfigurationOptions.JobMessageHandlers.class, ON_JOB_MESSAGE)
+      .bindSetEntry(ClientConfigurationOptions.RunningJobHandlers.class, ON_JOB_RUNNING)
+      .bindSetEntry(ClientConfigurationOptions.CompletedJobHandlers.class, ON_JOB_COMPLETED)
+      .bindSetEntry(ClientConfigurationOptions.FailedJobHandlers.class, ON_JOB_FAILED)
+      .bindSetEntry(ClientConfigurationOptions.RuntimeErrorHandlers.class, ON_RUNTIME_ERROR)
       .bindImplementation(JobObserver.class, JOB_OBSERVER)
       .bindImplementation(RuntimeErrorHandler.class, RUNTIME_ERROR_HANDLER)
-      .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, WAKE_ERROR_HANDLER)
       .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")
+      .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, ON_WAKE_ERROR)
       .build();
 }

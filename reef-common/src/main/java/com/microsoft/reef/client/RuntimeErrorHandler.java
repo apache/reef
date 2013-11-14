@@ -28,6 +28,7 @@ import com.microsoft.tang.annotations.DefaultImplementation;
  */
 @Public
 @ClientSide
+@Deprecated
 @DefaultImplementation(DefaultRuntimeErrorHandler.class)
 public interface RuntimeErrorHandler {
 
