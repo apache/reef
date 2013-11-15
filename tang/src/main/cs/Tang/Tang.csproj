@@ -86,7 +86,7 @@
     <Compile Include="Implementations\PackageNodeImpl.cs" />
     <Compile Include="Implementations\SetInjectionPlan.cs" />
     <Compile Include="Implementations\Subplan.cs" />
-    <Compile Include="Interface\Aspect.cs" />
+    <Compile Include="Interface\IAspect.cs" />
     <Compile Include="Interface\ICsClassHierarchy.cs" />
     <Compile Include="Interface\IConfiguration.cs" />
     <Compile Include="Interface\IClassHierarchy.cs" />
