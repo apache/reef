@@ -22,40 +22,63 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.Signal;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
+import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
+import com.microsoft.reef.util.ExceptionHandlingEventHandler;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
-import javax.inject.Inject;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.inject.Inject;
 
 public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> {
 
   private static final Logger LOG = Logger.getLogger(RunningJob.class.getName());
 
-  private final String jobid;
-  private final JobObserver jobObserver;
+  private final String jobId;
   private final EventHandler<JobControlProto> jobControlHandler;
 
-  @Inject
-  RunningJobImpl(final RemoteManager remoteManager, final JobObserver jobObserver, final JobStatusProto status,
-                 @Parameter(ClientManager.DriverRemoteIdentifier.class) final String driverRID) {
-    this.jobid = status.getIdentifier();
-    this.jobObserver = jobObserver;
+  private final EventHandler<RunningJob> runningJobEventHandler;
+  private final EventHandler<CompletedJob> completedJobEventHandler;
+  private final EventHandler<FailedJob> failedJobEventHandler;
+  private final EventHandler<JobMessage> jobMessageEventHandler;
 
+  private final EventHandler<Throwable> errorHandler = new EventHandler<Throwable>() {
+    @Override
+    public void onNext(final Throwable error) {
+      LOG.log(Level.SEVERE, "Error delivering message", error);
+      // FIXME: handle the error properly
+    }
+  };
+
+  @Inject
+  RunningJobImpl(final RemoteManager remoteManager, final JobStatusProto status,
+      final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
+      final @Parameter(ClientConfigurationOptions.RunningJobHandlers.class) Set<EventHandler<RunningJob>> runningJobEventHandlers,
+      final @Parameter(ClientConfigurationOptions.CompletedJobHandlers.class) Set<EventHandler<CompletedJob>> completedJobEventHandlers,
+      final @Parameter(ClientConfigurationOptions.FailedJobHandlers.class) Set<EventHandler<FailedJob>> failedJobEventHandlers,
+      final @Parameter(ClientConfigurationOptions.JobMessageHandlers.class) Set<EventHandler<JobMessage>> jobMessageEventHandlers) {
+
+    this.jobId = status.getIdentifier();
+
+    this.runningJobEventHandler = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(runningJobEventHandlers), errorHandler);
+    this.completedJobEventHandler = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(completedJobEventHandlers), errorHandler);
+    this.failedJobEventHandler = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(failedJobEventHandlers), errorHandler);
+    this.jobMessageEventHandler = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(jobMessageEventHandlers), errorHandler);
     this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
 
-    this.jobObserver.onNext(this);
-    onNext(status);
+    this.runningJobEventHandler.onNext(this);
+    this.onNext(status);
   }
 
   @Override
   public void close() {
     this.jobControlHandler.onNext(
         JobControlProto.newBuilder()
-            .setIdentifier(this.jobid)
+            .setIdentifier(this.jobId)
             .setSignal(Signal.SIG_TERMINATE)
             .build());
   }
@@ -64,7 +87,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   public void close(final byte[] message) {
     this.jobControlHandler.onNext(
         JobControlProto.newBuilder()
-            .setIdentifier(this.jobid)
+            .setIdentifier(this.jobId)
             .setSignal(Signal.SIG_TERMINATE)
             .setMessage(ByteString.copyFrom(message))
             .build());
@@ -72,14 +95,14 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
 
   @Override
   public String getId() {
-    return this.jobid;
+    return this.jobId;
   }
 
   @Override
   public void send(byte[] message) {
     this.jobControlHandler.onNext(
         JobControlProto.newBuilder()
-            .setIdentifier(this.jobid)
+            .setIdentifier(this.jobId)
             .setMessage(ByteString.copyFrom(message))
             .build());
   }
@@ -90,48 +113,49 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
       final ReefServiceProtos.State state = value.getState();
 
       if (value.hasMessage()) {
-        this.jobObserver.onNext(new JobMessage(getId(), value.getMessage().toByteArray()));
+        this.jobMessageEventHandler.onNext(new JobMessage(getId(), value.getMessage().toByteArray()));
       }
 
       if (state == ReefServiceProtos.State.DONE) {
 
         Logger.getLogger(RunningJobImpl.class.getName()).log(Level.INFO, "Received a JobStatus.DONE");
 
-        this.jobObserver.onNext(new CompletedJob() {
+        this.completedJobEventHandler.onNext(new CompletedJob() {
           @Override
           public String getId() {
-            return RunningJobImpl.this.jobid;
+            return RunningJobImpl.this.jobId;
           }
 
           @Override
           public String toString() {
-            return "CompletedJob{" + "jobid=" + getId() + '}';
+            return "CompletedJob{" + "jobId=" + getId() + '}';
           }
         });
+
       } else if (state == ReefServiceProtos.State.FAILED) {
         final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-        final JobException exception = value.hasException() ? new JobException(this.jobid, codec.decode(value.getException().toByteArray()))
-            : new JobException(this.jobid, "Unknown failure cause");
-        this.jobObserver.onError(new FailedJob() {
+        final JobException error = value.hasException() ?
+            new JobException(this.jobId, codec.decode(value.getException().toByteArray())) :
+            new JobException(this.jobId, "Unknown failure cause");
+        this.failedJobEventHandler.onNext(new FailedJob() {
           @Override
           public JobException getJobException() {
-            return exception;
+            return error;
           }
 
           @Override
           public String getId() {
-            return RunningJobImpl.this.jobid;
+            return RunningJobImpl.this.jobId;
           }
         });
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override
   public String toString() {
-    return "RunningJobImpl{" + "jobid=" + this.jobid + '}';
+    return "RunningJobImpl{" + "jobId=" + this.jobId + '}';
   }
 }
