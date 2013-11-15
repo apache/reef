@@ -33,8 +33,7 @@ import java.util.logging.Logger;
 
 public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> {
 
-  private static final Logger LOG = Logger.getLogger(RunningJob.class.toString());
-
+  private static final Logger LOG = Logger.getLogger(RunningJob.class.getName());
 
   private final String jobid;
   private final JobObserver jobObserver;
@@ -54,12 +53,21 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
 
   @Override
   public void close() {
-    this.jobControlHandler.onNext(JobControlProto.newBuilder().setIdentifier(this.jobid.toString()).setSignal(Signal.SIG_TERMINATE).build());
+    this.jobControlHandler.onNext(
+        JobControlProto.newBuilder()
+            .setIdentifier(this.jobid)
+            .setSignal(Signal.SIG_TERMINATE)
+            .build());
   }
 
   @Override
   public void close(final byte[] message) {
-    this.jobControlHandler.onNext(JobControlProto.newBuilder().setIdentifier(this.jobid.toString()).setSignal(Signal.SIG_TERMINATE).setMessage(ByteString.copyFrom(message)).build());
+    this.jobControlHandler.onNext(
+        JobControlProto.newBuilder()
+            .setIdentifier(this.jobid)
+            .setSignal(Signal.SIG_TERMINATE)
+            .setMessage(ByteString.copyFrom(message))
+            .build());
   }
 
   @Override
@@ -69,11 +77,15 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
 
   @Override
   public void send(byte[] message) {
-    this.jobControlHandler.onNext(JobControlProto.newBuilder().setIdentifier(this.jobid.toString()).setMessage(ByteString.copyFrom(message)).build());
+    this.jobControlHandler.onNext(
+        JobControlProto.newBuilder()
+            .setIdentifier(this.jobid)
+            .setMessage(ByteString.copyFrom(message))
+            .build());
   }
 
   @Override
-  public void onNext(JobStatusProto value) {
+  public void onNext(final JobStatusProto value) {
     try {
       final ReefServiceProtos.State state = value.getState();
 
@@ -82,6 +94,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
       }
 
       if (state == ReefServiceProtos.State.DONE) {
+
         Logger.getLogger(RunningJobImpl.class.getName()).log(Level.INFO, "Received a JobStatus.DONE");
 
         this.jobObserver.onNext(new CompletedJob() {
@@ -119,6 +132,6 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
 
   @Override
   public String toString() {
-    return "RunningJobImpl{" + "jobid=" + jobid + '}';
+    return "RunningJobImpl{" + "jobid=" + this.jobid + '}';
   }
 }

@@ -58,8 +58,7 @@ public class Launcher {
       "java.util.logging.config.class"
   };
 
-  private final static Logger LOG = Logger.getLogger(Launcher.class.toString());
-
+  private final static Logger LOG = Logger.getLogger(Launcher.class.getName());
 
   /**
    * Logs the currently running threads.

@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 @Unit
 final class Driver {
 
-  private static final Logger LOG = Logger.getLogger(Driver.class.toString());
+  private static final Logger LOG = Logger.getLogger(Driver.class.getName());
 
   private final int numberOfIterations;
   private final JobMessageObserver client;
