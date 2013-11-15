@@ -22,6 +22,10 @@ namespace Com.Microsoft.Tang.Interface
         
         InjectionPlan GetInjectionPlan(Type name);
 
+        void BindAspect(Aspect a);
+
+        Aspect GetAspect();
+
         bool IsInjectable(string name);
 
         bool IsParameterSet(String name);
