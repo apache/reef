@@ -19,7 +19,6 @@ import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalImpl;
-import com.microsoft.tang.formats.RequiredImpl;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteConfiguration;
 
@@ -73,7 +72,7 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
    * @deprecated Use individual handlers ON_JOB_* instead.
    */
   @Deprecated
-  public static final RequiredImpl<JobObserver> JOB_OBSERVER = new RequiredImpl<>();
+  public static final OptionalImpl<JobObserver> JOB_OBSERVER = new OptionalImpl<>();
 
   /**
    * An implementation of RuntimeErrorHandler to inform of runtime errors.
@@ -84,11 +83,11 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<RuntimeErrorHandler> RUNTIME_ERROR_HANDLER = new OptionalImpl<>();
 
   public static final ConfigurationModule CONF = new ClientConfiguration()
-      .bindSetEntry(ClientConfigurationOptions.JobMessageHandlers.class, ON_JOB_MESSAGE)
-      .bindSetEntry(ClientConfigurationOptions.RunningJobHandlers.class, ON_JOB_RUNNING)
-      .bindSetEntry(ClientConfigurationOptions.CompletedJobHandlers.class, ON_JOB_COMPLETED)
-      .bindSetEntry(ClientConfigurationOptions.FailedJobHandlers.class, ON_JOB_FAILED)
-      .bindSetEntry(ClientConfigurationOptions.RuntimeErrorHandlers.class, ON_RUNTIME_ERROR)
+      .bind(ClientConfigurationOptions.JobMessageHandler.class, ON_JOB_MESSAGE)
+      .bind(ClientConfigurationOptions.RunningJobHandler.class, ON_JOB_RUNNING)
+      .bind(ClientConfigurationOptions.CompletedJobHandler.class, ON_JOB_COMPLETED)
+      .bind(ClientConfigurationOptions.FailedJobHandler.class, ON_JOB_FAILED)
+      .bind(ClientConfigurationOptions.RuntimeErrorHandler.class, ON_RUNTIME_ERROR)
       .bindImplementation(JobObserver.class, JOB_OBSERVER)
       .bindImplementation(RuntimeErrorHandler.class, RUNTIME_ERROR_HANDLER)
       .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")

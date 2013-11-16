@@ -19,11 +19,15 @@ import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Default event handler for REEF RuntimeError: rethrow the exception.
  */
 public final class DefaultJobRuntimeErrorHandler implements EventHandler<RuntimeError> {
+
+  private static final Logger LOG = Logger.getLogger(DefaultJobRuntimeErrorHandler.class.getName());
 
   @Inject
   public DefaultJobRuntimeErrorHandler() {
@@ -31,6 +35,8 @@ public final class DefaultJobRuntimeErrorHandler implements EventHandler<Runtime
 
   @Override
   public void onNext(final RuntimeError error) {
-    throw new RuntimeException("REEF runtime error: " + error, error.getException());
+    LOG.log(Level.SEVERE, "Runtime error: " + error, error.getException());
+    // throw new RuntimeException("REEF runtime error: " + error, error.getException());
+    System.exit(1);
   }
 }

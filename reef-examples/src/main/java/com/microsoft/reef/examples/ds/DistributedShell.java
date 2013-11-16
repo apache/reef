@@ -16,17 +16,20 @@
 package com.microsoft.reef.examples.ds;
 
 import com.microsoft.reef.client.*;
-import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.reef.utils.EnvironmentUtils;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +37,8 @@ import java.util.logging.Logger;
 /**
  * Distributed Shell Client.
  */
-public class DistributedShell implements JobObserver, RuntimeErrorHandler {
+@Unit
+public final class DistributedShell {
 
   /**
    * Standard java logger.
@@ -64,15 +68,9 @@ public class DistributedShell implements JobObserver, RuntimeErrorHandler {
    */
   @Inject
   DistributedShell(final REEF reef, @Parameter(DSClient.Files.class) final String resources) {
-
     this.reef = reef;
-    this.resources = new ArrayList<>();
-
-    if (!DSClient.EMPTY_FILES.equals(resources)) {
-      for (final String resource : resources.split(":")) {
-        this.resources.add(resource);
-      }
-    }
+    this.resources = DSClient.EMPTY_FILES.equals(resources)
+        ? Collections.<String>emptyList() : Arrays.asList(resources.split(":"));
   }
 
   /**
@@ -84,7 +82,7 @@ public class DistributedShell implements JobObserver, RuntimeErrorHandler {
   public void submit(final String cmd) throws BindException {
 
     final String jobid = "distributed-shell-" + System.currentTimeMillis();
-    LOG.log(Level.INFO, "DISTRIBUTED SHELL\n{0} CMD> {1}", new Object[]{jobid, cmd});
+    LOG.log(Level.INFO, "DISTRIBUTED SHELL\n{0} CMD> {1}", new Object[] { jobid, cmd });
 
     ConfigurationModule driverConf = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, jobid)
@@ -106,58 +104,31 @@ public class DistributedShell implements JobObserver, RuntimeErrorHandler {
    * Receive message from the DistributedShellJobDriver.
    * There is only one message, which comes at the end of the driver execution
    * and contains shell command output on each node.
-   * This method is inherited from the JobObserver interface.
    */
-  @Override
-  public synchronized void onNext(final JobMessage message) {
-    final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
-    assert (this.dsResult == null);
-    this.dsResult = codec.decode(message.get());
-  }
-
-  /**
-   * Receive notification from DistributedShellJobDriver that the job is about to run.
-   * This method is inherited from the JobObserver interface.
-   */
-  @Override
-  public void onNext(final RunningJob job) {
-    LOG.log(Level.INFO, "Running job: {0}", job.getId());
-  }
-
-  /**
-   * Receive notification from DistributedShellJobDriver that the job had failed.
-   * This method is inherited from the JobObserver interface.
-   */
-  @Override
-  public synchronized void onError(final FailedJob job) {
-    LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
-    if (job.getJobException() != null) {
-      job.getJobException().printStackTrace();
+  final class JobMessageHandler implements EventHandler<JobMessage> {
+    @Override
+    public void onNext(final JobMessage message) {
+      final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
+      final String msg = codec.decode(message.get());
+      LOG.log(Level.INFO, "Got message: {0}", msg);
+      synchronized (DistributedShell.this) {
+        assert (DistributedShell.this.dsResult == null);
+        DistributedShell.this.dsResult = msg;
+      }
     }
-    System.exit(1);
   }
 
   /**
    * Receive notification from DistributedShellJobDriver that the job had completed successfully.
-   * This method is inherited from the JobObserver interface.
    */
-  @Override
-  public synchronized void onNext(final CompletedJob job) {
-    LOG.log(Level.INFO, "Completed job: {0}", job.getId());
-    this.notify();
-  }
-
-  /**
-   * Receive notification that there was an exception thrown from the DistributedShellJobDriver.
-   * This method is inherited from the RuntimeErrorHandler interface.
-   */
-  @Override
-  public synchronized void onError(final RuntimeError error) {
-    LOG.log(Level.SEVERE, "RUNTIME ERROR: " + error, error.getException());
-    if (error.getException() != null) {
-      error.getException().printStackTrace();
+  final class CompletedJobHandler implements EventHandler<CompletedJob> {
+    @Override
+    public void onNext(final CompletedJob job) {
+      LOG.log(Level.INFO, "Completed job: {0}", job.getId());
+      synchronized (DistributedShell.this) {
+        DistributedShell.this.notify();
+      }
     }
-    System.exit(1);
   }
 
   /**

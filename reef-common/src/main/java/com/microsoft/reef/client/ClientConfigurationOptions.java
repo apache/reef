@@ -23,8 +23,6 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
 
-import java.util.Set;
-
 /**
  * Hosts all named parameters for REEF Client.
  */
@@ -34,26 +32,26 @@ public final class ClientConfigurationOptions {
 
   @NamedParameter(doc = "Client EventHandler that gets messages from the Driver.",
                   default_classes = DefaultJobMessageHandler.class)
-  public final static class JobMessageHandlers implements Name<Set<EventHandler<JobMessage>>> {
+  public final static class JobMessageHandler implements Name<EventHandler<JobMessage>> {
   }
 
   @NamedParameter(doc = "Client EventHandler triggered when the REEF job is running.",
                   default_classes = DefaultRunningJobHandler.class)
-  public final static class RunningJobHandlers implements Name<Set<EventHandler<RunningJob>>> {
+  public final static class RunningJobHandler implements Name<EventHandler<RunningJob>> {
   }
 
   @NamedParameter(doc = "Client EventHandler triggered when REEF job completes.",
                   default_classes = DefaultCompletedJobHandler.class)
-  public final static class CompletedJobHandlers implements Name<Set<EventHandler<CompletedJob>>> {
+  public final static class CompletedJobHandler implements Name<EventHandler<CompletedJob>> {
   }
 
   @NamedParameter(doc = "Client EventHandler triggered on remote job failure.",
                   default_classes = DefaultFailedJobHandler.class)
-  public final static class FailedJobHandlers implements Name<Set<EventHandler<FailedJob>>> {
+  public final static class FailedJobHandler implements Name<EventHandler<FailedJob>> {
   }
 
   @NamedParameter(doc = "Client EventHandler triggered on REEF runtime error.",
                   default_classes = DefaultJobRuntimeErrorHandler.class)
-  public final static class RuntimeErrorHandlers implements Name<Set<EventHandler<RuntimeError>>> {
+  public final static class RuntimeErrorHandler implements Name<EventHandler<RuntimeError>> {
   }
 }

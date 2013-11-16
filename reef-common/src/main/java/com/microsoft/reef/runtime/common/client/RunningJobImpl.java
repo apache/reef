@@ -22,13 +22,11 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.Signal;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
-import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
@@ -88,27 +86,25 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
     this.onNext(status);
   }
 
-/*
   @Inject
   RunningJobImpl(final RemoteManager remoteManager, final JobStatusProto status,
       final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
-      final @Parameter(ClientConfigurationOptions.RunningJobHandlers.class) Set<EventHandler<RunningJob>> runningJobEventHandlers,
-      final @Parameter(ClientConfigurationOptions.CompletedJobHandlers.class) Set<EventHandler<CompletedJob>> completedJobEventHandlers,
-      final @Parameter(ClientConfigurationOptions.FailedJobHandlers.class) Set<EventHandler<FailedJob>> failedJobEventHandlers,
-      final @Parameter(ClientConfigurationOptions.JobMessageHandlers.class) Set<EventHandler<JobMessage>> jobMessageEventHandlers) {
+      final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
+      final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
+      final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
+      final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler) {
 
     this.jobId = status.getIdentifier();
 
-    this.runningJobEventHandler = new BroadCastEventHandler<>(runningJobEventHandlers);
-    this.completedJobEventHandler = new BroadCastEventHandler<>(completedJobEventHandlers);
-    this.failedJobEventHandler = new BroadCastEventHandler<>(failedJobEventHandlers);
-    this.jobMessageEventHandler = new BroadCastEventHandler<>(jobMessageEventHandlers);
+    this.runningJobEventHandler = runningJobEventHandler;
+    this.completedJobEventHandler = completedJobEventHandler;
+    this.failedJobEventHandler = failedJobEventHandler;
+    this.jobMessageEventHandler = jobMessageEventHandler;
     this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
 
     this.runningJobEventHandler.onNext(this);
     this.onNext(status);
   }
-*/
 
   @Override
   public void close() {

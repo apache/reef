@@ -17,12 +17,18 @@ package com.microsoft.reef.client;
 
 import com.microsoft.reef.util.RuntimeError;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Deprecated
 final class DefaultRuntimeErrorHandler implements RuntimeErrorHandler {
 
   private static final Logger LOG = Logger.getLogger(DefaultRuntimeErrorHandler.class.getName());
+
+  @Inject
+  public DefaultRuntimeErrorHandler() {
+  }
 
   @Override
   public void onError(final RuntimeError error) {
