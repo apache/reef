@@ -17,22 +17,7 @@ namespace Com.Microsoft.Tang.TestDriver
 
         public static void Main(string[] args)
         {
-            EndToEnd();
-        }
-
-        private static void EndToEnd()
-        {
-            var asm = Assembly.LoadFrom(file);
-            Type timerType = typeof(Com.Microsoft.Tang.Examples.Timer);
-            Type namedParameter = asm.GetType(@"Com.Microsoft.Tang.Examples.Timer+Seconds");
-
-            ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
-            cb.BindNamedParameter(namedParameter, "2");
-            IConfiguration conf = cb.Build();
-            IInjector injector = tang.NewInjector(conf);
-            var timer = (Com.Microsoft.Tang.Examples.Timer)injector.GetInstance(timerType);
-            timer.sleep();
+            CreateClassHierarchy();
         }
 
         public static void CreateClassHierarchy()

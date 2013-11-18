@@ -21,7 +21,7 @@ namespace Com.Microsoft.Tang.Implementations
         private Aspect aspect;
         private readonly ISet<InjectionFuture> pendingFutures = new HashSet<InjectionFuture>();
 
-        static readonly InjectionPlan BUILDING = new BuildingInjectionPlan(null); //TODO anounimouse class
+        static readonly InjectionPlan BUILDING = new BuildingInjectionPlan(null); //TODO anonymous class
 
 
         public InjectorImpl(IConfiguration c) 
