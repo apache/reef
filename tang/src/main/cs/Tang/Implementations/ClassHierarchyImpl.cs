@@ -18,12 +18,31 @@ namespace Com.Microsoft.Tang.Implementations
         private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
         public Assembly assembly { get; private set; }
 
+        public ParameterParser parameterParser = new ParameterParser();
+
         public ClassHierarchyImpl(String file)
         {
             assembly = Assembly.LoadFrom(file);
             foreach (var t in assembly.GetTypes())
             {
                 RegisterType(t);
+            }
+        }
+
+        //handle one assembly  without parameterParsers for now
+        public ClassHierarchyImpl(string[] assemblies, Type[] parameterParsers) 
+        {
+            if (assemblies.Length == 0)
+            {
+                assemblies = new string[] { @"Com.Microsoft.Tang.Examples.dll" };  // HACK for testing
+            }
+            foreach (var a in assemblies)
+            {
+                assembly = Assembly.LoadFrom(a);
+                foreach (var t in assembly.GetTypes())
+                {
+                    RegisterType(t);
+                }
             }
         }
 
@@ -385,28 +404,117 @@ namespace Com.Microsoft.Tang.Implementations
 
         public bool IsImplementation(IClassNode inter, IClassNode impl)
         {
-            throw new NotImplementedException();
+            return impl.IsImplementationOf(inter);
         }
 
         public IClassHierarchy Merge(IClassHierarchy ch)
         {
-            throw new NotImplementedException();
+            return ch;  //TODO
+            //throw new NotImplementedException();
         }
 
 
         public Type ClassForName(string name)
         {
-            return Type.GetType(name); //test to verify
+            Type t = null;
+            t = Type.GetType(name);
+            if (t == null)
+            {
+                t = this.assembly.GetType(name);
+            }
+            return t;
         }
 
-        public object Parse(INamedParameterNode name, string value)
+        public object Parse(INamedParameterNode np, string value)
         {
-            throw new NotImplementedException();
+            IClassNode iface;
+            try 
+            {
+                iface = (IClassNode)GetNode(np.GetFullArgName());
+            } 
+            catch(NameResolutionException e) 
+            {
+                throw new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " + np.GetFullName() + " argument type is " + np.GetFullArgName());
+            }
+            Type clazz;
+            String fullName;
+            try 
+            {
+                clazz = (Type)ClassForName(iface.GetFullName());
+                fullName = null;
+            } 
+            catch(TypeLoadException e) 
+            {
+                clazz = null;
+                fullName = iface.GetFullName();
+            }
+            try 
+            {
+                if(clazz != null) 
+                {
+                    return parameterParser.Parse(clazz, value);
+                } 
+                else 
+                {
+                    return parameterParser.Parse(fullName, value);
+                }
+            } 
+            catch (UnsupportedOperationException e) 
+            {
+                try 
+                {
+                    INode impl = GetNode(value);
+                    if (impl is IClassNode) 
+                    {
+                        if (IsImplementation(iface, (IClassNode)impl)) 
+                        {
+                            return impl;
+                        }
+                    }
+                    throw new ParseException("Name<" + iface.GetFullName() + "> " + np.GetFullName() + " cannot take non-subclass " + impl.GetFullName(), e);
+                } 
+                catch(NameResolutionException e2) 
+                {
+                    throw new ParseException("Name<" + iface.GetFullName() + "> " + np.GetFullName() + " cannot take non-class " + value, e);
+                }
+            }
         }
 
         public object ParseDefaultValue(INamedParameterNode name)
         {
-            throw new NotImplementedException();
+            string[] vals = name.GetDefaultInstanceAsStrings();
+            object[] ret = new Object[vals.Length];
+            for (int i = 0; i < vals.Length; i++)
+            {
+                string val = vals[i];
+                try
+                {
+                    ret[i] = Parse(name, val);
+                }
+                catch (ParseException e)
+                {
+                    throw new ClassHierarchyException("Could not parse default value", e);
+                }
+            }
+            if (name.IsSet())
+            {
+                return new HashSet<object>(ret.ToList<object>());
+            }
+            else
+            {
+                if (ret.Length == 0)
+                {
+                    return null;
+                }
+                else if (ret.Length == 1)
+                {
+                    return ret[0];
+                }
+                else
+                {
+                    throw new IllegalStateException("Multiple defaults for non-set named parameter! " + name.GetFullName());
+                }
+            }
         }
     }
 }

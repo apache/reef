@@ -19,7 +19,8 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [ClassInitialize]
         public static void ClassSetup(TestContext context)
         {
-            ns = new ClassHierarchyImpl(@"Com.Microsoft.Tang.Examples.dll");
+            ns = TangFactory.GetTang().GetClassHierarchy(@"Com.Microsoft.Tang.Examples.dll");
+            //ns = new ClassHierarchyImpl(@"Com.Microsoft.Tang.Examples.dll");
         }
 
         [ClassCleanup]

@@ -8,6 +8,6 @@ namespace Com.Microsoft.Tang.Interface
 {
     public interface IExternalConstructor
     {
-        object newInstance();
+        object NewInstance();
     }
 }

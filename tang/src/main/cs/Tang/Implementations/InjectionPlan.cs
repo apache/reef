@@ -149,4 +149,53 @@ namespace Com.Microsoft.Tang.Implementations
         public abstract string ToShallowString();
 
     }
+
+    public class BuildingInjectionPlan : InjectionPlan
+    {
+
+        public BuildingInjectionPlan(INode node)
+            : base(node)
+        {
+        }
+
+        public override int GetNumAlternatives()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool IsAmbiguous()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool IsInjectable()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool HasFutureDependency()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override string ToAmbiguousInjectString()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override string ToInfeasibleInjectString()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override bool IsInfeasibleLeaf()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override string ToShallowString()
+        {
+            throw new NotSupportedException();
+        }
+    }
 }
