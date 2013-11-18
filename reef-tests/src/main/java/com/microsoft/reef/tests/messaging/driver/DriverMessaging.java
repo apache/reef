@@ -21,14 +21,17 @@ import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.reef.utils.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class DriverMessaging implements JobObserver, RuntimeErrorHandler {
+@Unit
+public final class DriverMessaging {
 
   private static final Logger LOG = Logger.getLogger(DriverMessaging.class.getName());
 
@@ -36,7 +39,6 @@ public final class DriverMessaging implements JobObserver, RuntimeErrorHandler {
 
   private String lastMessage = null;
   private Optional<RunningJob> theJob = Optional.empty();
-
   private LauncherStatus status = LauncherStatus.INIT;
 
   @Inject
@@ -44,44 +46,65 @@ public final class DriverMessaging implements JobObserver, RuntimeErrorHandler {
     this.reef = reef;
   }
 
-  @Override
-  public synchronized void onNext(final JobMessage message) {
-    final String msg = new String(message.get());
-    if (!msg.equals(this.lastMessage)) {
-      LOG.log(Level.SEVERE, "Expected '{0}' but got '{1}", new Object[] { this.lastMessage, msg });
-      this.status = LauncherStatus.FAILED;
-      this.notify();
+  final class JobMessageHandler implements EventHandler<JobMessage> {
+    @Override
+    public void onNext(final JobMessage message) {
+      final String msg = new String(message.get());
+      synchronized (DriverMessaging.this) {
+        if (!msg.equals(DriverMessaging.this.lastMessage)) {
+          LOG.log(Level.SEVERE, "Expected '{0}' but got '{1}",
+                  new Object[] { DriverMessaging.this.lastMessage, msg });
+          DriverMessaging.this.status = LauncherStatus.FAILED;
+          DriverMessaging.this.notify();
+        }
+      }
     }
   }
 
-  @Override
-  public void onNext(final RunningJob job) {
-    LOG.log(Level.INFO, "The Job {0} is running", job.getId());
-    this.status = LauncherStatus.RUNNING;
-    this.theJob = Optional.of(job);
-    this.lastMessage = "Hello, REEF!";
-    this.theJob.get().send(this.lastMessage.getBytes());
+  final class RunningJobHandler implements EventHandler<RunningJob> {
+    @Override
+    public void onNext(final RunningJob job) {
+      LOG.log(Level.INFO, "The Job {0} is running", job.getId());
+      synchronized (DriverMessaging.this) {
+        DriverMessaging.this.status = LauncherStatus.RUNNING;
+        DriverMessaging.this.theJob = Optional.of(job);
+        DriverMessaging.this.lastMessage = "Hello, REEF!";
+        DriverMessaging.this.theJob.get().send(DriverMessaging.this.lastMessage.getBytes());
+      }
+    }
   }
 
-  @Override
-  public synchronized void onNext(final CompletedJob job) {
-    LOG.log(Level.INFO, "Job Completed: {0}", job);
-    this.status = LauncherStatus.COMPLETED;
-    this.notify();
+  final class CompletedJobHandler implements EventHandler<CompletedJob> {
+    @Override
+    public void onNext(final CompletedJob job) {
+      LOG.log(Level.INFO, "Job Completed: {0}", job);
+      synchronized (DriverMessaging.this) {
+        DriverMessaging.this.status = LauncherStatus.COMPLETED;
+        DriverMessaging.this.notify();
+      }
+    }
   }
 
-  @Override
-  public synchronized void onError(final FailedJob job) {
-    LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), job.getJobException());
-    this.status = LauncherStatus.FAILED(job.getJobException());
-    this.notify();
+  final class FailedJobHandler implements EventHandler<FailedJob> {
+    @Override
+    public void onNext(final FailedJob job) {
+      LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), job.getJobException());
+      synchronized (DriverMessaging.this) {
+        DriverMessaging.this.status = LauncherStatus.FAILED(job.getJobException());
+        DriverMessaging.this.notify();
+      }
+    }
   }
 
-  @Override
-  public synchronized void onError(final RuntimeError error) {
-    LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getException());
-    this.status = LauncherStatus.FAILED(error.getException());
-    this.notify();
+  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+    @Override
+    public void onNext(final RuntimeError error) {
+      LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getException());
+      synchronized (DriverMessaging.this) {
+        DriverMessaging.this.status = LauncherStatus.FAILED(error.getException());
+        DriverMessaging.this.notify();
+      }
+    }
   }
 
   public synchronized void close() {
@@ -138,8 +161,11 @@ public final class DriverMessaging implements JobObserver, RuntimeErrorHandler {
                                    final int launcherTimeout) throws BindException, InjectionException {
 
     final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.JOB_OBSERVER, DriverMessaging.class)
-        .set(ClientConfiguration.RUNTIME_ERROR_HANDLER, DriverMessaging.class)
+        .set(ClientConfiguration.ON_JOB_RUNNING, DriverMessaging.RunningJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_MESSAGE, DriverMessaging.JobMessageHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, DriverMessaging.CompletedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_FAILED, DriverMessaging.FailedJobHandler.class)
+        .set(ClientConfiguration.ON_RUNTIME_ERROR, DriverMessaging.RuntimeErrorHandler.class)
         .build();
 
     return Tang.Factory.getTang()

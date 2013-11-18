@@ -22,14 +22,17 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SuspendClient implements JobObserver, RuntimeErrorHandler {
+@Unit
+public class SuspendClient implements JobObserver {
 
   /**
    * Standard java logger.
@@ -152,14 +155,15 @@ public class SuspendClient implements JobObserver, RuntimeErrorHandler {
 
   /**
    * Receive notification that there was an exception thrown from the job driver.
-   * This method is inherited from the RuntimeErrorHandler interface.
-   *
-   * @param error an error occurred on the driver side.
    */
-  @Override
-  public synchronized void onError(final RuntimeError error) {
-    LOG.log(Level.SEVERE, "ERROR: " + error, error.getException());
-    this.notify();
+  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+    @Override
+    public void onNext(final RuntimeError error) {
+      LOG.log(Level.SEVERE, "ERROR: " + error, error.getException());
+      synchronized (SuspendClient.class) {
+        SuspendClient.this.notify();
+      }
+    }
   }
 
   /**

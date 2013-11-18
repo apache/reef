@@ -74,14 +74,6 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
   @Deprecated
   public static final OptionalImpl<JobObserver> JOB_OBSERVER = new OptionalImpl<>();
 
-  /**
-   * An implementation of RuntimeErrorHandler to inform of runtime errors.
-   * By default, a runtime error throws a RuntimeException in the client JVM.
-   * @deprecated Use ON_RUNTIME_ERROR handler instead.
-   */
-  @Deprecated
-  public static final OptionalImpl<RuntimeErrorHandler> RUNTIME_ERROR_HANDLER = new OptionalImpl<>();
-
   public static final ConfigurationModule CONF = new ClientConfiguration()
       .bind(ClientConfigurationOptions.JobMessageHandler.class, ON_JOB_MESSAGE)
       .bind(ClientConfigurationOptions.RunningJobHandler.class, ON_JOB_RUNNING)
@@ -89,7 +81,6 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
       .bind(ClientConfigurationOptions.FailedJobHandler.class, ON_JOB_FAILED)
       .bind(ClientConfigurationOptions.RuntimeErrorHandler.class, ON_RUNTIME_ERROR)
       .bindImplementation(JobObserver.class, JOB_OBSERVER)
-      .bindImplementation(RuntimeErrorHandler.class, RUNTIME_ERROR_HANDLER)
       .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")
       .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, ON_WAKE_ERROR)
       .build();

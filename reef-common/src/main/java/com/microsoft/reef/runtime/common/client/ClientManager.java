@@ -15,9 +15,9 @@
  */
 package com.microsoft.reef.runtime.common.client;
 
+import com.microsoft.reef.client.ClientConfigurationOptions;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.client.REEF;
-import com.microsoft.reef.client.RuntimeErrorHandler;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.JobSubmissionProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.FileResourceProto;
@@ -35,6 +35,7 @@ import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ConfigurationFile;
@@ -86,10 +87,10 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   private final String userName = System.getProperty("user.name");
   private final Map<String, RunningJobImpl> runningJobMap = new HashMap<>();
 
-
   @Inject
   ClientManager(final Injector injector,
-                final InjectionFuture<RuntimeErrorHandler> runtimeErrorHandlerFuture,
+                final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class)
+                        InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture,
                 final RemoteManager remoteManager,
                 final JobSubmissionHandler jobSubmissionHandler) {
 
@@ -98,7 +99,8 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     this.jobSubmissionHandler = jobSubmissionHandler;
 
     this.masterChannel = this.remoteManager.registerHandler(JobStatusProto.class, this);
-    this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class, new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture));
+    this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class,
+        new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture));
   }
 
   @Override
@@ -200,19 +202,18 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
   @Override
   public synchronized final void onNext(final RemoteMessage<JobStatusProto> message) {
+    final JobStatusProto status = message.getMessage();
     try {
-      final JobStatusProto status = message.getMessage();
-
       if (status.getState() == ReefServiceProtos.State.INIT) {
         assert (!this.runningJobMap.containsKey(status.getIdentifier()));
-        LOG.info("Initializing running job " + status.getIdentifier());
+        LOG.log(Level.INFO, "Initializing running job {0}", status.getIdentifier());
         final Injector child = this.injector.createChildInjector();
         child.bindVolatileParameter(DriverRemoteIdentifier.class, message.getIdentifier().toString());
         child.bindVolatileInstance(JobStatusProto.class, status);
 
         final RunningJobImpl runningJob = child.getInstance(RunningJobImpl.class);
         this.runningJobMap.put(status.getIdentifier(), runningJob);
-        LOG.info("Launched running job " + status.getIdentifier());
+        LOG.log(Level.INFO, "Launched running job {0}", status.getIdentifier());
       } else if (this.runningJobMap.containsKey(status.getIdentifier())) {
         this.runningJobMap.get(status.getIdentifier()).onNext(status);
         if (status.getState() != ReefServiceProtos.State.RUNNING) {
@@ -221,12 +222,14 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
       } else {
         throw new RuntimeException("Unknown running job status: " + status);
       }
-    } catch (final BindException | InjectionException e) {
+    } catch (final BindException | InjectionException configError) {
+      LOG.log(Level.WARNING, "Configuration error for: " + status, configError);
       try {
         this.masterChannel.close();
-      } catch (Exception e1) {
+      } catch (final Exception ex) {
+        LOG.log(Level.WARNING, "Could not close master channel for: " + status, ex);
       }
-      throw new RuntimeException(e);
+      throw new RuntimeException("Configuration error for: " + status, configError);
     }
   }
 
@@ -243,7 +246,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
    */
   private static File toJar(final File file) throws IOException {
     final File jarFile = File.createTempFile(file.getName(), ".jar", tempFolder);
-    LOG.log(Level.INFO, "Adding contents of folder " + file + " to " + jarFile);
+    LOG.log(Level.INFO, "Adding contents of folder {0} to {1}", new Object[] { file, jarFile });
     try (final JARFileMaker jarMaker = new JARFileMaker(jarFile)) {
       jarMaker.addChildren(file);
     }
@@ -252,16 +255,16 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
   private final static class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<RuntimeErrorProto>> {
 
-    private final InjectionFuture<RuntimeErrorHandler> runtimeErrorHandlerFuture;
+    private final InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture;
 
-    RuntimeErrorProtoHandler(final InjectionFuture<RuntimeErrorHandler> runtimeErrorHandlerFuture) {
+    RuntimeErrorProtoHandler(final InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture) {
       this.runtimeErrorHandlerFuture = runtimeErrorHandlerFuture;
     }
 
     @Override
     public void onNext(final RemoteMessage<RuntimeErrorProto> error) {
       LOG.log(Level.WARNING, "Runtime Error: {0}", error.getMessage().getMessage());
-      this.runtimeErrorHandlerFuture.get().onError(new RuntimeError(error.getMessage()));
+      this.runtimeErrorHandlerFuture.get().onNext(new RuntimeError(error.getMessage()));
     }
   }
 }

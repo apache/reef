@@ -25,18 +25,17 @@ import java.util.logging.Logger;
 /**
  * Default event handler for REEF RuntimeError: rethrow the exception.
  */
-public final class DefaultJobRuntimeErrorHandler implements EventHandler<RuntimeError> {
+public final class DefaultRuntimeErrorHandler implements EventHandler<RuntimeError> {
 
-  private static final Logger LOG = Logger.getLogger(DefaultJobRuntimeErrorHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(DefaultRuntimeErrorHandler.class.getName());
 
   @Inject
-  public DefaultJobRuntimeErrorHandler() {
+  public DefaultRuntimeErrorHandler() {
   }
 
   @Override
   public void onNext(final RuntimeError error) {
     LOG.log(Level.SEVERE, "Runtime error: " + error, error.getException());
-    // throw new RuntimeException("REEF runtime error: " + error, error.getException());
-    System.exit(1);
+    throw new RuntimeException("REEF runtime error: " + error, error.getException());
   }
 }

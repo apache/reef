@@ -51,7 +51,7 @@ public final class ClientConfigurationOptions {
   }
 
   @NamedParameter(doc = "Client EventHandler triggered on REEF runtime error.",
-                  default_classes = DefaultJobRuntimeErrorHandler.class)
+                  default_classes = DefaultRuntimeErrorHandler.class)
   public final static class RuntimeErrorHandler implements Name<EventHandler<RuntimeError>> {
   }
 }
