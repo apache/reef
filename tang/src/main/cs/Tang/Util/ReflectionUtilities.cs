@@ -34,5 +34,44 @@ namespace Com.Microsoft.Tang.Util
             //TODO
             return type;
         }
+
+          public static IEnumerable<Type> ClassAndAncestors(Type c) 
+          {
+              List<Type> workQueue = new List<Type>();
+              workQueue.Add(c);
+              //TODO
+              return workQueue;
+          }
+
+        public static Type BoxClass(Type c) 
+        {
+            if (c.IsPrimitive && c != typeof(Type)) 
+            {
+            if (c == typeof(bool)) {
+                return typeof(Boolean);
+            } else if (c == typeof(byte)) {
+                return typeof(Byte);
+            } else if (c == typeof(char)) {
+                return typeof(Char);
+            //} else if (c == typeof(short)) {
+            //    return typeof(Short);
+            } else if (c == typeof(int)) {
+                return typeof(Int32);
+            }
+            else if (c == typeof(long))
+            {
+                return typeof(long);
+            //} else if (c == typeof(float) {
+            //    return typeof(Float);
+            } else if (c == typeof(double)) {
+                return typeof(Double);
+            } else {
+                throw new NotSupportedException(
+                    "Encountered unknown primitive type!");
+            }
+            } else {
+                return c;
+            }
+  }
     }
 }

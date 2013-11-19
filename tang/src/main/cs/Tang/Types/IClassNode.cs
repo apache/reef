@@ -6,7 +6,7 @@ namespace Com.Microsoft.Tang.Types
     public interface IClassNode : INode
     {
         IList<IConstructorDef> GetInjectableConstructors();
-        IConstructorDef GetConstructorDef(IList<IClassNode> args);
+        IConstructorDef GetConstructorDef(IList<INode> args);
         IList<IConstructorDef> GetAllConstructors();
 
         void PutImpl(IClassNode impl);

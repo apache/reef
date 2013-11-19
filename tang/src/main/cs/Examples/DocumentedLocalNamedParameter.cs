@@ -9,6 +9,7 @@ namespace Com.Microsoft.Tang.Examples
 {
     public class DocumentedLocalNamedParameter
     {
+        string value;
         [NamedParameter(Documentation = "doc stuff", ShortName = "DocFoo", DefaultValue = "some value")]
         sealed class Foo : Name<String> 
         {
@@ -17,6 +18,13 @@ namespace Com.Microsoft.Tang.Examples
         [Inject]
         public DocumentedLocalNamedParameter([Parameter(Value = typeof(Foo))] String s) 
         {
+            value = s;
+        }
+
+        public string ToString()
+        {
+            System.Console.WriteLine(value);
+            return value;
         }
     }
 }

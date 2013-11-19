@@ -21,9 +21,9 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
 
   public JavaConfigurationBuilderImpl(URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parsers)
-      throws BindException {
-    super(jars,confs,parsers);
-  }
+            throws BindException {
+        super(jars,confs,parsers);
+    }
   JavaConfigurationBuilderImpl(){
     super();
   }

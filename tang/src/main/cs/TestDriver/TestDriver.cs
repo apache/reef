@@ -6,18 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Com.Microsoft.Tang.Annotations;
 using Com.Microsoft.Tang.Implementations;
+using Com.Microsoft.Tang.Interface;
 using Com.Microsoft.Tang.Types;
 
 namespace Com.Microsoft.Tang.TestDriver
 {
     public class TestDriver
     {
+        static string file = @"Com.Microsoft.Tang.Examples.dll";
+
         public static void Main(string[] args)
         {
-            ClassHierarchyImpl classHierarchyImpl = new ClassHierarchyImpl(@"Com.Microsoft.Tang.Examples.dll");
-            GetNodeFromHierarchy(classHierarchyImpl);
+            CreateClassHierarchy();
         }
 
+        public static void CreateClassHierarchy()
+        {
+            ClassHierarchyImpl classHierarchyImpl = new ClassHierarchyImpl(file);
+            GetNodeFromHierarchy(classHierarchyImpl);
+        }
 
         public static void GetNodeFromHierarchy(ClassHierarchyImpl classHierarchyImpl)
         {

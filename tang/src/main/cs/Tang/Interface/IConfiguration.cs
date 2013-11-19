@@ -9,10 +9,19 @@ namespace Com.Microsoft.Tang.Interface
 {
     public interface IConfiguration
     {
-        IList<IClassNode> GetBoundImplementations();
-        
-        IList<IClassNode> GetBoundConstructors();
+        IConfigurationBuilder newBuilder();
+        string GetNamedParameter(INamedParameterNode np);
+        IClassHierarchy GetClassHierarchy();
 
-        IList<IClassNode> GetNamedParameters();
+        ISet<Object> GetBoundSet(INamedParameterNode np); //named parameter for a set
+
+        IClassNode GetBoundConstructor(IClassNode cn);
+        IClassNode GetBoundImplementation(IClassNode cn);
+        IConstructorDef GetLegacyConstructor(IClassNode cn);
+
+        ICollection<IClassNode> GetBoundImplementations();
+        ICollection<IClassNode> GetBoundConstructors();
+        ICollection<INamedParameterNode> GetNamedParameters();
+        ICollection<IClassNode> GetLegacyConstructors();
     }
 }

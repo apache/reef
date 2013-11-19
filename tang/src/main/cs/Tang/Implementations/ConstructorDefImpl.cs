@@ -94,7 +94,7 @@ namespace Com.Microsoft.Tang.Implementations
             return GetArgs().Count > def.GetArgs().Count;
         }
 
-        public bool TakesParameters(IList<IClassNode> paramTypes)
+        public bool TakesParameters(IList<INode> paramTypes)
         {
             if (paramTypes.Count != args.Count)
             {
@@ -102,9 +102,18 @@ namespace Com.Microsoft.Tang.Implementations
             }
 
             int i = 0;
-            foreach (IClassNode t in paramTypes)
+            foreach (INode t in paramTypes)
             {
-                if (!args[i].Gettype().Equals(paramTypes[i].GetFullName()))
+                string s;
+                if (t is INamedParameterNode)
+                {
+                    s = ((INamedParameterNode)paramTypes[i]).GetFullArgName();
+                }
+                else
+                {
+                    s = paramTypes[i].GetFullName();
+                }
+                if (!args[i].Gettype().Equals(s))
                 {
                     return false;
                 }
