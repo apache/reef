@@ -25,6 +25,8 @@ public interface Tang {
    * Returns an Injector based on an empty Configuration.
    */
   public Injector newInjector();
+  
+  public ConfigurationBuilder newConfigurationBuilder(ClassHierarchy ch);
 
   /**
    * Create a new ConfigurationBuilder
@@ -75,5 +77,6 @@ public interface Tang {
   }
   public JavaClassHierarchy getDefaultClassHierarchy();
   public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars, Class<? extends ExternalConstructor<?>>[] parsers);
+
 
 }

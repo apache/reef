@@ -403,6 +403,10 @@ public class InjectorImpl implements Injector {
     buildInjectionPlan(n, memo);
     return memo.get(n);
   }
+  @Override
+  public InjectionPlan<?> getInjectionPlan(String name) throws NameResolutionException {
+    return getInjectionPlan(namespace.getNode(name));
+  }
 
   @SuppressWarnings("unchecked")
   public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) {
