@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.persistent_eval;
+package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.util.RuntimeError;
@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Persistent Evaluator Shell Client.
+ * Retained Evaluator Shell Client.
  */
 @Unit
 public class JobClient implements JobObserver {
@@ -106,7 +106,7 @@ public class JobClient implements JobObserver {
   private boolean isBusy = true;
 
   /**
-   * Persistent Evaluator client.
+   * Retained Evaluator client.
    * Parameters are injected automatically by TANG.
    *
    * @param command Shell command to run on each Evaluator.
@@ -161,7 +161,7 @@ public class JobClient implements JobObserver {
       String cmd;
       try {
         do {
-          System.out.print("\nPE> ");
+          System.out.print("\nRE> ");
           cmd = this.prompt.readLine();
         } while (cmd != null && cmd.trim().isEmpty());
       } catch (final IOException ex) {

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * The Persistent Evaluators example.
+ * The Retained Evaluators example.
  */
-package com.microsoft.reef.examples.persistent_eval;
+package com.microsoft.reef.examples.retained_eval;

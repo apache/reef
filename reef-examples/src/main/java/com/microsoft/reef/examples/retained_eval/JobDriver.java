@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.persistent_eval;
+package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.driver.activity.*;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
@@ -42,7 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Persistent Evaluator example job driver. Execute shell command on all evaluators,
+ * Retained Evaluator example job driver. Execute shell command on all evaluators,
  * capture stdout, and return concatenated results back to the client.
  */
 @Unit

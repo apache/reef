@@ -160,7 +160,7 @@
         </profile>
 
         <profile>
-            <id>PersistentEval</id>
+            <id>RetainedEval</id>
             <build>
                 <defaultGoal>exec:exec</defaultGoal>
                 <plugins>
@@ -174,7 +174,7 @@
                                 <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
-                                <argument>com.microsoft.reef.examples.persistent_eval.Launch</argument>
+                                <argument>com.microsoft.reef.examples.retained_eval.Launch</argument>
                                 <!-- <argument>-cmd</argument>
                                 <argument>date</argument>
                                 <argument>-num_runs</argument>
@@ -189,7 +189,7 @@
         </profile>
 
         <profile>
-            <id>PersistentEval_yarn</id>
+            <id>RetainedEval_yarn</id>
             <build>
                 <defaultGoal>exec:exec</defaultGoal>
                 <plugins>
@@ -203,7 +203,7 @@
                                 <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
-                                <argument>com.microsoft.reef.examples.persistent_eval.Launch</argument>
+                                <argument>com.microsoft.reef.examples.retained_eval.Launch</argument>
                                 <argument>-cmd</argument>
                                 <argument>date</argument>
                                 <argument>-num_runs</argument>
