@@ -9,7 +9,7 @@ namespace Com.Microsoft.Tang.Implementations
 {
     public class CsInstance : InjectionPlan
     {
-        object instance;
+        public readonly object instance;
 
         public CsInstance(INode name, object instance) : base(name)
         {

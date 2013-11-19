@@ -12,7 +12,7 @@ using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Implementations
 {
-    public class ClassHierarchyImpl : IClassHierarchy
+    public class ClassHierarchyImpl : ICsClassHierarchy
     {
         private INode rootNode = NodeFactory.CreateRootPackageNode();
         private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
@@ -389,6 +389,22 @@ namespace Com.Microsoft.Tang.Implementations
         }
 
         public IClassHierarchy Merge(IClassHierarchy ch)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public Type ClassForName(string name)
+        {
+            return Type.GetType(name); //test to verify
+        }
+
+        public object Parse(INamedParameterNode name, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ParseDefaultValue(INamedParameterNode name)
         {
             throw new NotImplementedException();
         }

@@ -72,7 +72,7 @@ namespace Com.Microsoft.Tang.Protobuf
             if (ip is Constructor) 
             {
                 Constructor cons = (Constructor) ip;
-                InjectionPlan[] args = cons.getArgs();
+                InjectionPlan[] args = cons.GetArgs();
                 InjectionPlanProto.InjectionPlan[] protoArgs = new InjectionPlanProto.InjectionPlan[args.Length];
                 for (int i = 0; i < args.Length; i++) 
                 {

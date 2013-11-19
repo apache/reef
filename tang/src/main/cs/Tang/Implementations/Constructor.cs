@@ -17,7 +17,7 @@ namespace Com.Microsoft.Tang.Implementations
         bool isAmbiguous;
         bool isInjectable;
 
-        public InjectionPlan[] getArgs() 
+        public InjectionPlan[] GetArgs() 
         {
             return args;
         }
