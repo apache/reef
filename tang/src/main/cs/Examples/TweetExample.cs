@@ -53,7 +53,6 @@ namespace Com.Microsoft.Tang.Examples
         long phoneNumber;
 
         [NamedParameter("Phone number", "number", "1800")]
-        //class PhoneNumber : Name<Int32> { }
         class PhoneNumber : Name<long> { }
         [Inject]
         public Tweeter(TweetFactory tw, SMS sms, [Parameter(Value = typeof(PhoneNumber))] long phoneNumber)
@@ -74,34 +73,4 @@ namespace Com.Microsoft.Tang.Examples
             sms.SendSMS(tw.GetTweet(), phoneNumber);
         }
     }
-
-
-    //public class Tweeter
-    //{
-    //    TweetFactory tw;
-    //    SMS sms;
-    //    int phoneNumber;
-
-    //    [NamedParameter("Phone number", "number", "1800")]
-    //    class PhoneNumber : Name<Int32> { }
-    //    //class PhoneNumber : Name<long> { }
-    //    [Inject]
-    //    public Tweeter(TweetFactory tw, SMS sms, [Parameter(Value = typeof(PhoneNumber))] int phoneNumber)
-    //    {
-    //        this.tw = tw;
-    //        this.sms = sms;
-    //        this.phoneNumber = phoneNumber;
-    //    }
-
-    //    [Inject]
-    //    public Tweeter([Parameter(Value = typeof(PhoneNumber))] int phoneNumber)
-    //    {
-    //        this.phoneNumber = phoneNumber;
-    //    }
-
-    //    public void sendMessage()
-    //    {
-    //        sms.SendSMS(tw.GetTweet(), phoneNumber);
-    //    }
-    //}
 }
