@@ -124,7 +124,7 @@ public final class Launch {
 
     final Configuration clientConfiguration = ClientConfiguration.CONF
         .set(ClientConfiguration.JOB_OBSERVER, JobClient.class)
-        .set(ClientConfiguration.RUNTIME_ERROR_HANDLER, JobClient.class)
+        .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
         .build();
 
     // TODO: Remove the injector, have stuff injected.

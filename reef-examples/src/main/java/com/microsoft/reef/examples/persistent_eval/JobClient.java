@@ -21,7 +21,9 @@ import com.microsoft.reef.utils.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
@@ -34,7 +36,8 @@ import java.util.logging.Logger;
 /**
  * Persistent Evaluator Shell Client.
  */
-public class JobClient implements JobObserver, RuntimeErrorHandler {
+@Unit
+public class JobClient implements JobObserver {
 
   /**
    * Standard java logger.
@@ -167,9 +170,7 @@ public class JobClient implements JobObserver, RuntimeErrorHandler {
       }
       if (cmd == null || cmd.equals("exit")) {
         this.runningJob.close();
-        this.runningJob = null;
-        this.isBusy = false;
-        this.notify();
+        stopAndNotify();
       } else {
         this.submitTask(cmd);
       }
@@ -217,7 +218,7 @@ public class JobClient implements JobObserver, RuntimeErrorHandler {
     ++this.numRuns;
 
     LOG.log(Level.INFO, "Task {0} completed in {1} msec.:\n{2}",
-        new Object[]{this.numRuns, jobTime, result});
+            new Object[] { this.numRuns, jobTime, result });
 
     System.out.println(result);
 
@@ -229,9 +230,7 @@ public class JobClient implements JobObserver, RuntimeErrorHandler {
             "All {0} tasks complete; Average task time: {1}. Closing the job driver.",
             new Object[]{this.maxRuns, this.totalTime / (double) this.maxRuns});
         this.runningJob.close();
-        this.runningJob = null;
-        this.isBusy = false;
-        this.notify();
+        stopAndNotify();
       }
     }
   }
@@ -241,11 +240,9 @@ public class JobClient implements JobObserver, RuntimeErrorHandler {
    * This method is inherited from the JobObserver interface.
    */
   @Override
-  public synchronized void onError(final FailedJob job) {
+  public void onError(final FailedJob job) {
     LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
-    this.runningJob = null;
-    this.isBusy = false;
-    this.notify();
+    stopAndNotify();
   }
 
   /**
@@ -253,20 +250,26 @@ public class JobClient implements JobObserver, RuntimeErrorHandler {
    * This method is inherited from the JobObserver interface.
    */
   @Override
-  public synchronized void onNext(final CompletedJob job) {
+  public void onNext(final CompletedJob job) {
     LOG.log(Level.INFO, "Completed job: {0}", job.getId());
-    this.runningJob = null;
-    this.isBusy = false;
-    this.notify();
+    stopAndNotify();
   }
 
   /**
    * Receive notification that there was an exception thrown from the job driver.
-   * This method is inherited from the RuntimeErrorHandler interface.
    */
-  @Override
-  public synchronized void onError(final RuntimeError error) {
-    LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getException());
+  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+    @Override
+    public void onNext(final RuntimeError error) {
+      LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getException());
+      stopAndNotify();
+    }
+  }
+
+  /**
+   * Notify the process in waitForCompletion() method that the main process has finished.
+   */
+  private synchronized void stopAndNotify() {
     this.runningJob = null;
     this.isBusy = false;
     this.notify();

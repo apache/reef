@@ -78,7 +78,7 @@ import java.util.logging.Logger;
 @Unit
 final class DriverManager implements EvaluatorRequestor {
 
-  private final static Logger LOG = Logger.getLogger(DriverManager.class.toString());
+  private final static Logger LOG = Logger.getLogger(DriverManager.class.getName());
 
   private final Injector injector;
   private final InjectionFuture<Clock> clockFuture;

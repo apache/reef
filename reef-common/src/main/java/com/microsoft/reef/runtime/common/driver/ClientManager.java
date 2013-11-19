@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 @Private
 class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProto> {
 
-  private final static Logger LOG = Logger.getLogger(DriverManager.class.toString());
+  private final static Logger LOG = Logger.getLogger(DriverManager.class.getName());
 
   private final InjectionFuture<Clock> futureClock;
 

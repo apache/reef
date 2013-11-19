@@ -13,20 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.client;
+package com.microsoft.reef.runtime.common.client.defaults;
 
+import com.microsoft.reef.annotations.Provided;
+import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.wake.EventHandler;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final class DefaultRuntimeErrorHandler implements RuntimeErrorHandler {
+/**
+ * Default event handler for REEF RuntimeError: rethrow the exception.
+ */
+@Provided
+@ClientSide
+public final class DefaultRuntimeErrorHandler implements EventHandler<RuntimeError> {
 
   private static final Logger LOG = Logger.getLogger(DefaultRuntimeErrorHandler.class.getName());
 
+  @Inject
+  private DefaultRuntimeErrorHandler() {
+  }
+
   @Override
-  public void onError(final RuntimeError error) {
+  public void onNext(final RuntimeError error) {
     LOG.log(Level.SEVERE, "Runtime error: " + error, error.getException());
-    System.exit(1);
+    throw new RuntimeException("REEF runtime error: " + error, error.getException());
   }
 }

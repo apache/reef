@@ -27,98 +27,168 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
-import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.inject.Inject;
 
 public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> {
 
-  private static final Logger LOG = Logger.getLogger(RunningJob.class.toString());
+  private static final Logger LOG = Logger.getLogger(RunningJob.class.getName());
 
-
-  private final String jobid;
-  private final JobObserver jobObserver;
+  private final String jobId;
   private final EventHandler<JobControlProto> jobControlHandler;
 
-  @Inject
-  RunningJobImpl(final RemoteManager remoteManager, final JobObserver jobObserver, final JobStatusProto status,
-                 @Parameter(ClientManager.DriverRemoteIdentifier.class) final String driverRID) {
-    this.jobid = status.getIdentifier();
-    this.jobObserver = jobObserver;
+  private final EventHandler<RunningJob> runningJobEventHandler;
+  private final EventHandler<CompletedJob> completedJobEventHandler;
+  private final EventHandler<FailedJob> failedJobEventHandler;
+  private final EventHandler<JobMessage> jobMessageEventHandler;
 
+  @Inject
+  @Deprecated
+  RunningJobImpl(final RemoteManager remoteManager,
+                 final JobObserver jobObserver,
+                 final JobStatusProto status,
+                 final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID) {
+
+    this.jobId = status.getIdentifier();
+
+    this.runningJobEventHandler = new EventHandler<RunningJob>() {
+      @Override
+      public final void onNext(final RunningJob job) {
+        jobObserver.onNext(job);
+      }
+    };
+
+    this.completedJobEventHandler = new EventHandler<CompletedJob>() {
+      @Override
+      public final void onNext(final CompletedJob job) {
+        jobObserver.onNext(job);
+      }
+    };
+
+    this.failedJobEventHandler = new EventHandler<FailedJob>() {
+      @Override
+      public final void onNext(final FailedJob job) {
+        jobObserver.onError(job);
+      }
+    };
+
+    this.jobMessageEventHandler = new EventHandler<JobMessage>() {
+      @Override
+      public final void onNext(final JobMessage message) {
+        jobObserver.onNext(message);
+      }
+    };
+
+   this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
+
+    this.runningJobEventHandler.onNext(this);
+    this.onNext(status);
+  }
+
+  @Inject
+  RunningJobImpl(final RemoteManager remoteManager, final JobStatusProto status,
+      final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
+      final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
+      final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
+      final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
+      final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler) {
+
+    this.jobId = status.getIdentifier();
+
+    this.runningJobEventHandler = runningJobEventHandler;
+    this.completedJobEventHandler = completedJobEventHandler;
+    this.failedJobEventHandler = failedJobEventHandler;
+    this.jobMessageEventHandler = jobMessageEventHandler;
     this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
 
-    this.jobObserver.onNext(this);
-    onNext(status);
+    this.runningJobEventHandler.onNext(this);
+    this.onNext(status);
   }
 
   @Override
   public void close() {
-    this.jobControlHandler.onNext(JobControlProto.newBuilder().setIdentifier(this.jobid.toString()).setSignal(Signal.SIG_TERMINATE).build());
+    this.jobControlHandler.onNext(
+        JobControlProto.newBuilder()
+            .setIdentifier(this.jobId)
+            .setSignal(Signal.SIG_TERMINATE)
+            .build());
   }
 
   @Override
   public void close(final byte[] message) {
-    this.jobControlHandler.onNext(JobControlProto.newBuilder().setIdentifier(this.jobid.toString()).setSignal(Signal.SIG_TERMINATE).setMessage(ByteString.copyFrom(message)).build());
+    this.jobControlHandler.onNext(
+        JobControlProto.newBuilder()
+            .setIdentifier(this.jobId)
+            .setSignal(Signal.SIG_TERMINATE)
+            .setMessage(ByteString.copyFrom(message))
+            .build());
   }
 
   @Override
   public String getId() {
-    return this.jobid;
+    return this.jobId;
   }
 
   @Override
   public void send(byte[] message) {
-    this.jobControlHandler.onNext(JobControlProto.newBuilder().setIdentifier(this.jobid.toString()).setMessage(ByteString.copyFrom(message)).build());
+    this.jobControlHandler.onNext(
+        JobControlProto.newBuilder()
+            .setIdentifier(this.jobId)
+            .setMessage(ByteString.copyFrom(message))
+            .build());
   }
 
   @Override
-  public void onNext(JobStatusProto value) {
-    try {
-      final ReefServiceProtos.State state = value.getState();
+  public void onNext(final JobStatusProto value) {
 
-      if (value.hasMessage()) {
-        this.jobObserver.onNext(new JobMessage(getId(), value.getMessage().toByteArray()));
-      }
+    final ReefServiceProtos.State state = value.getState();
+    LOG.log(Level.INFO, "Received job status: {0} from {1}",
+            new Object[] { state, value.getIdentifier() });
 
-      if (state == ReefServiceProtos.State.DONE) {
-        Logger.getLogger(RunningJobImpl.class.getName()).log(Level.INFO, "Received a JobStatus.DONE");
-
-        this.jobObserver.onNext(new CompletedJob() {
-          @Override
-          public String getId() {
-            return RunningJobImpl.this.jobid;
-          }
-
-          @Override
-          public String toString() {
-            return "CompletedJob{" + "jobid=" + getId() + '}';
-          }
-        });
-      } else if (state == ReefServiceProtos.State.FAILED) {
-        final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-        final JobException exception = value.hasException() ? new JobException(this.jobid, codec.decode(value.getException().toByteArray()))
-            : new JobException(this.jobid, "Unknown failure cause");
-        this.jobObserver.onError(new FailedJob() {
-          @Override
-          public JobException getJobException() {
-            return exception;
-          }
-
-          @Override
-          public String getId() {
-            return RunningJobImpl.this.jobid;
-          }
-        });
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    if (value.hasMessage()) {
+      this.jobMessageEventHandler.onNext(
+          new JobMessage(getId(), value.getMessage().toByteArray()));
     }
 
+    if (state == ReefServiceProtos.State.DONE) {
+
+      this.completedJobEventHandler.onNext(new CompletedJob() {
+        @Override
+        public String getId() {
+          return RunningJobImpl.this.jobId;
+        }
+
+        @Override
+        public String toString() {
+          return "CompletedJob{" + "jobId=" + getId() + '}';
+        }
+      });
+
+    } else if (state == ReefServiceProtos.State.FAILED) {
+
+      final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
+
+      final JobException error = value.hasException() ?
+          new JobException(this.jobId, codec.decode(value.getException().toByteArray())) :
+          new JobException(this.jobId, "Unknown failure cause");
+
+      this.failedJobEventHandler.onNext(new FailedJob() {
+        @Override
+        public JobException getJobException() {
+          return error;
+        }
+
+        @Override
+        public String getId() {
+          return RunningJobImpl.this.jobId;
+        }
+      });
+    }
   }
 
   @Override
   public String toString() {
-    return "RunningJobImpl{" + "jobid=" + jobid + '}';
+    return "RunningJobImpl{" + "jobId=" + this.jobId + '}';
   }
 }

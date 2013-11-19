@@ -46,95 +46,121 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
    * Identifies the driver and therefore the JOB. Expect to see this e.g. on YARN's dashboard.
    */
   public static final RequiredParameter<String> DRIVER_IDENTIFIER = new RequiredParameter<>();
+
   /**
    * The size of the container allocated for the Driver. One of SMALL, MEDIUM, LARGE and XLARGE. Defaults to SMALL.
    */
   public static final OptionalParameter<String> DRIVER_SIZE = new OptionalParameter<>();
+
   /**
    * Files to be made available on the Driver and all Evaluators.
    */
   public static final OptionalParameter<String> GLOBAL_FILES = new OptionalParameter<>();
+
   /**
    * Libraries to be made available on the Driver and all Evaluators.
    */
   public static final OptionalParameter<String> GLOBAL_LIBRARIES = new OptionalParameter<>();
+
   /**
    * Files to be made available on the Driver only.
    */
   public static final OptionalParameter<String> LOCAL_FILES = new OptionalParameter<>();
+
   /**
    * Libraries to be made available on the Driver only.
    */
   public static final OptionalParameter<String> LOCAL_LIBRARIES = new OptionalParameter<>();
+
   /**
    * The event handler invoked right after the driver boots up.
    */
   public static final RequiredImpl<EventHandler<StartTime>> ON_DRIVER_STARTED = new RequiredImpl<>();
+
   /**
    * The event handler invoked right before the driver shuts down. Defaults to ignore.
    */
   public static final OptionalImpl<EventHandler<StopTime>> ON_DRIVER_STOP = new OptionalImpl<>();
-  // EVALUATOR HANDLER BINDINGS
+
+  // ***** EVALUATOR HANDLER BINDINGS:
+
   /**
    * Event handler for allocated evaluators. Defaults to returning the evaluator if not bound.
    */
   public static final OptionalImpl<EventHandler<AllocatedEvaluator>> ON_EVALUATOR_ALLOCATED = new OptionalImpl<>();
+
   /**
    * Event handler for completed evaluators. Defaults to logging if not bound.
    */
   public static final OptionalImpl<EventHandler<CompletedEvaluator>> ON_EVALUATOR_COMPLETED = new OptionalImpl<>();
+
   /**
    * Event handler for failed evaluators. Defaults to job failure if not bound.
    */
   public static final OptionalImpl<EventHandler<FailedEvaluator>> ON_EVALUATOR_FAILED = new OptionalImpl<>();
-  // ACTIVITY HANDLER BINDINGS
+
+  // ***** ACTIVITY HANDLER BINDINGS:
+
   /**
    * Event handler for activity messages. Defaults to logging if not bound.
    */
   public static final OptionalImpl<EventHandler<ActivityMessage>> ON_ACTIVITY_MESSAGE = new OptionalImpl<>();
+
   /**
    * Event handler for completed activities. Defaults to closing the context the activity ran on if not bound.
    */
   public static final OptionalImpl<EventHandler<CompletedActivity>> ON_ACTIVITY_COMPLETED = new OptionalImpl<>();
+
   /**
    * Event handler for failed activities. Defaults to job failure if not bound.
    */
   public static final OptionalImpl<EventHandler<FailedActivity>> ON_ACTIVITY_FAILED = new OptionalImpl<>();
+
   /**
    * Event handler for running activities. Defaults to logging if not bound.
    */
   public static final OptionalImpl<EventHandler<RunningActivity>> ON_ACTIVITY_RUNNING = new OptionalImpl<>();
+
   /**
    * Event handler for suspended activities. Defaults to job failure if not bound. Rationale: many jobs don't support
    * activity suspension. Hence, this parameter should be optional. The only sane default is to crash the job, then.
    */
   public static final OptionalImpl<EventHandler<SuspendedActivity>> ON_ACTIVITY_SUSPENDED = new OptionalImpl<>();
-  // CLIENT HANDLER BINDINGS
+
+  // ***** CLIENT HANDLER BINDINGS:
+
   /**
    * Event handler for client messages. Defaults to logging if not bound.
    */
   public static final OptionalImpl<EventHandler<byte[]>> ON_CLIENT_MESSAGE = new OptionalImpl<>();
+
   /**
    * Event handler for close messages sent by the client. Defaults to job failure if not bound.
    */
   public static final OptionalImpl<EventHandler<Void>> ON_CLIENT_CLOSED = new OptionalImpl<>();
+
   /**
    * Event handler for close messages sent by the client. Defaults to job failure if not bound.
    */
   public static final OptionalImpl<EventHandler<byte[]>> ON_CLIENT_CLOSED_WITH_MESSAGE = new OptionalImpl<>();
-  // Context handlers
+
+  // ***** CONTEXT HANDLER BINDINGS:
+
   /**
    * Event handler for active contexts. Defaults to closing the context if not bound.
    */
   public static final OptionalImpl<EventHandler<ActiveContext>> ON_CONTEXT_ACTIVE = new OptionalImpl<>();
+
   /**
    * Event handler for closed contexts. Defaults to logging if not bound.
    */
   public static final OptionalImpl<EventHandler<ClosedContext>> ON_CONTEXT_CLOSED = new OptionalImpl<>();
+
   /**
    * Event handler for closed contexts. Defaults to job failure if not bound.
    */
   public static final OptionalImpl<EventHandler<FailedContext>> ON_CONTEXT_FAILED = new OptionalImpl<>();
+
   /**
    * Event handler for context messages. Defaults to logging if not bound.
    */

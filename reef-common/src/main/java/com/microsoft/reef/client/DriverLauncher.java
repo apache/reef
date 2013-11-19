@@ -21,8 +21,10 @@ import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -39,7 +41,8 @@ import java.util.logging.Logger;
 @Public
 @Provided
 @ClientSide
-public final class DriverLauncher implements JobObserver, RuntimeErrorHandler {
+@Unit
+public final class DriverLauncher {
 
   private static final Logger LOG = Logger.getLogger(DriverLauncher.class.getName());
 
@@ -55,69 +58,48 @@ public final class DriverLauncher implements JobObserver, RuntimeErrorHandler {
   }
 
   /**
-   * Get a message from the job driver. (a JobObserver method).
-   *
-   * @param message a job id and a message from that job.
+   * Job driver notifies us that the job is running.
    */
-  @Override
-  public void onNext(final JobMessage message) {
-    LOG.log(Level.INFO, "The Job {0} sent a message: {1}",
-        new Object[]{message.getId(), message});
-  }
-
-  /**
-   * Job driver notifies us that the job is running. (a JobObserver method).
-   *
-   * @param job a handler of a running job.
-   */
-  @Override
-  public void onNext(final RunningJob job) {
-    LOG.log(Level.INFO, "The Job {0} is running", job.getId());
-    this.status = LauncherStatus.RUNNING;
-    this.theJob = job;
-  }
-
-  /**
-   * Job driver notifies us that the job had failed. (a JobObserver method).
-   *
-   * @param job failed job info (mostly has just a job ID).
-   */
-  @Override
-  public void onError(final FailedJob job) {
-    final Throwable ex = job.getJobException();
-    LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), ex);
-    synchronized (this) {
-      this.status = LauncherStatus.FAILED(ex);
-      this.notify();
+  final class RunningJobHandler implements EventHandler<RunningJob> {
+    @Override
+    public void onNext(final RunningJob job) {
+      LOG.log(Level.INFO, "The Job {0} is running", job.getId());
+      setStatusAndNotify(LauncherStatus.RUNNING);
     }
   }
 
   /**
-   * Job driver notifies us that the job had completed successfully. (a JobObserver method).
-   *
-   * @param job completed job info (mostly has just a job ID).
+   * Job driver notifies us that the job had failed.
    */
-  @Override
-  public void onNext(final CompletedJob job) {
-    LOG.log(Level.INFO, "Job Completed: {0}", job);
-    synchronized (this) {
-      this.status = LauncherStatus.COMPLETED;
-      this.notify();
+  final class FailedJobHandler implements EventHandler<FailedJob> {
+    @Override
+    public void onNext(final FailedJob job) {
+      final Throwable ex = job.getJobException();
+      LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), ex);
+      setStatusAndNotify(LauncherStatus.FAILED(ex));
     }
   }
 
   /**
-   * An error in the job driver. (a RuntimeErrorHandler method).
-   *
-   * @param error an error message.
+   * Job driver notifies us that the job had completed successfully.
    */
-  @Override
-  public void onError(final RuntimeError error) {
-    final Throwable ex = error.getException();
-    LOG.log(Level.SEVERE, "Received a runtime error", ex);
-    synchronized (this) {
-      this.status = LauncherStatus.FAILED(ex);
-      this.notify();
+  final class CompletedJobHandler implements EventHandler<CompletedJob> {
+    @Override
+    public void onNext(final CompletedJob job) {
+      LOG.log(Level.INFO, "Job Completed: {0}", job);
+      setStatusAndNotify(LauncherStatus.COMPLETED);
+    }
+  }
+
+  /**
+   * Handler an error in the job driver.
+   */
+  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+    @Override
+    public void onNext(final RuntimeError error) {
+      final Throwable ex = error.getException();
+      LOG.log(Level.SEVERE, "Received a runtime error", ex);
+      setStatusAndNotify(LauncherStatus.FAILED(ex));
     }
   }
 
@@ -188,8 +170,10 @@ public final class DriverLauncher implements JobObserver, RuntimeErrorHandler {
    */
   public static DriverLauncher getLauncher(final Configuration runtimeConfiguration) throws BindException, InjectionException {
     final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.JOB_OBSERVER, DriverLauncher.class)
-        .set(ClientConfiguration.RUNTIME_ERROR_HANDLER, DriverLauncher.class)
+        .set(ClientConfiguration.ON_JOB_RUNNING, DriverLauncher.RunningJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, DriverLauncher.CompletedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_FAILED, DriverLauncher.FailedJobHandler.class)
+        .set(ClientConfiguration.ON_RUNTIME_ERROR, DriverLauncher.RuntimeErrorHandler.class)
         .build();
     return Tang.Factory.getTang()
         .newInjector(runtimeConfiguration, clientConfiguration)
@@ -201,6 +185,14 @@ public final class DriverLauncher implements JobObserver, RuntimeErrorHandler {
    */
   public LauncherStatus getStatus() {
     return this.status;
+  }
+
+  /**
+   * Update job status and notify the waiting thread.
+   */
+  private synchronized void setStatusAndNotify(final LauncherStatus status) {
+    this.status = status;
+    this.notify();
   }
 
   @Override

@@ -25,6 +25,7 @@ import com.microsoft.reef.annotations.audience.Public;
  */
 @Public
 @ClientSide
+@Deprecated
 public interface JobObserver {
 
   /**

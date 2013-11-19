@@ -15,9 +15,9 @@
  */
 package com.microsoft.reef.runtime.common.client;
 
+import com.microsoft.reef.client.ClientConfigurationOptions;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.client.REEF;
-import com.microsoft.reef.client.RuntimeErrorHandler;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.JobSubmissionProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.FileResourceProto;
@@ -27,7 +27,7 @@ import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.RuntimeError;
-import com.microsoft.reef.utils.IOUtils;
+import com.microsoft.reef.utils.EnvironmentUtils;
 import com.microsoft.reef.utils.JARFileMaker;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.InjectionFuture;
@@ -35,6 +35,7 @@ import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ConfigurationFile;
@@ -44,6 +45,7 @@ import com.microsoft.wake.remote.RemoteMessage;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -53,31 +55,30 @@ import java.util.logging.Logger;
 
 public final class ClientManager implements REEF, EventHandler<RemoteMessage<JobStatusProto>> {
 
-  private static final String REEF = new StringBuilder()
-      .append("\nPowered by\n")
-      .append("     ___________  ______  ______  _______" + "\n")
-      .append("    /  ______  / /  ___/ /  ___/ /  ____/" + "\n")
-      .append("   /     _____/ /  /__  /  /__  /  /___" + "\n")
-      .append("  /  /\\  \\     /  ___/ /  ___/ /  ____/" + "\n")
-      .append(" /  /  \\  \\   /  /__  /  /__  /  /" + "\n")
-      .append("/__/    \\__\\ /_____/ /_____/ /__/" + "    version 0.1.0\n\n")
-      .append("From Microsoft CISL\n\n").toString();
-
   static {
-    System.out.println(REEF);
+    System.out.println(
+        "\nPowered by\n" +
+        "     ___________  ______  ______  _______" + "\n" +
+        "    /  ______  / /  ___/ /  ___/ /  ____/" + "\n" +
+        "   /     _____/ /  /__  /  /__  /  /___"   + "\n" +
+        "  /  /\\  \\     /  ___/ /  ___/ /  ____/" + "\n" +
+        " /  /  \\  \\   /  /__  /  /__  /  /"      + "\n" +
+        "/__/    \\__\\ /_____/ /_____/ /__/    version " + EnvironmentUtils.getReefVersion() + "\n\n" +
+        "From Microsoft CISL\n");
   }
 
   private static final File tempFolder;
 
   static {
     try {
-      tempFolder = IOUtils.makeTempFolder("reef-tmp-tempFolder", "");
-    } catch (IOException e) {
+      tempFolder = Files.createTempDirectory("reef-tmp-tempFolder").toFile();
+    } catch (final IOException e) {
       throw new RuntimeException("Can't create temp tempFolder.", e);
     }
   }
 
-  private final static Logger LOG = Logger.getLogger(ClientManager.class.toString());
+  private final static Logger LOG = Logger.getLogger(ClientManager.class.getName());
+
   private final Injector injector;
   private final RemoteManager remoteManager;
   private final JobSubmissionHandler jobSubmissionHandler;
@@ -86,29 +87,34 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   private final String userName = System.getProperty("user.name");
   private final Map<String, RunningJobImpl> runningJobMap = new HashMap<>();
 
-
   @Inject
-  ClientManager(final Injector injector, final InjectionFuture<RuntimeErrorHandler> runtimeErrorHandlerFuture, final RemoteManager remoteManager, final JobSubmissionHandler jobSubmissionHandler) {
+  ClientManager(final Injector injector,
+                final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class)
+                        InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture,
+                final RemoteManager remoteManager,
+                final JobSubmissionHandler jobSubmissionHandler) {
+
     this.injector = injector;
     this.remoteManager = remoteManager;
     this.jobSubmissionHandler = jobSubmissionHandler;
 
     this.masterChannel = this.remoteManager.registerHandler(JobStatusProto.class, this);
-    this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class, new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture));
+    this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class,
+        new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture));
   }
 
   @Override
   public final void close() {
 
     if (this.runningJobMap.size() > 0) {
-      LOG.warning("unclean shutdown: " + this.runningJobMap.size() + " jobs still running.");
+      LOG.log(Level.WARNING, "unclean shutdown: {0} jobs still running.", this.runningJobMap.size());
       for (final RunningJobImpl runningJob : this.runningJobMap.values()) {
-        LOG.warning("Force close job " + runningJob.getId());
+        LOG.log(Level.WARNING, "Force close job {0}", runningJob.getId());
         runningJob.close();
       }
     }
 
-    // This pushes the close into a separate thread in the absense of a fix for Wake-78
+    // This pushes the close into a separate thread in the absence of a fix for Wake-78
     final Runnable r = new Runnable() {
       @Override
       public void run() {
@@ -153,34 +159,34 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
 
       for (final String globalFileName : injector.getNamedParameter(DriverConfigurationOptions.GlobalFiles.class)) {
-        LOG.log(Level.FINE, "Adding global file: " + globalFileName);
+        LOG.log(Level.FINE, "Adding global file: {0}", globalFileName);
         jbuilder.addGlobalFile(getFileResourceProto(new File(globalFileName), FileType.PLAIN));
       }
 
       for (final String globalLibraryName : injector.getNamedParameter(DriverConfigurationOptions.GlobalLibraries.class)) {
-        LOG.log(Level.FINE, "Adding global library: " + globalLibraryName);
+        LOG.log(Level.FINE, "Adding global library: {0}", globalLibraryName);
         jbuilder.addGlobalFile(getFileResourceProto(new File(globalLibraryName), FileType.LIB));
       }
 
       for (final String localFileName : injector.getNamedParameter(DriverConfigurationOptions.LocalFiles.class)) {
-        LOG.log(Level.FINE, "Adding local file: " + localFileName);
+        LOG.log(Level.FINE, "Adding local file: {0}", localFileName);
         jbuilder.addLocalFile(getFileResourceProto(new File(localFileName), FileType.PLAIN));
       }
 
       for (final String localLibraryName : injector.getNamedParameter(DriverConfigurationOptions.LocalLibraries.class)) {
-        LOG.log(Level.FINE, "Adding local library: " + localLibraryName);
+        LOG.log(Level.FINE, "Adding local library: {0}", localLibraryName);
         jbuilder.addLocalFile(getFileResourceProto(new File(localLibraryName), FileType.LIB));
       }
 
-
       this.jobSubmissionHandler.onNext(jbuilder.build());
+
     } catch (final Exception e) {
-      LOG.log(Level.SEVERE, "Exception while processing driver configuration.");
+      LOG.log(Level.SEVERE, "Exception while processing driver configuration.", e);
       try {
         this.masterChannel.close();
         this.errorChannel.close();
       } catch (final Exception e1) {
-        LOG.log(Level.SEVERE, "Exception while closing communication channels.");
+        LOG.log(Level.SEVERE, "Exception while closing communication channels.", e1);
       }
       throw new RuntimeException(e);
     }
@@ -196,19 +202,18 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
   @Override
   public synchronized final void onNext(final RemoteMessage<JobStatusProto> message) {
+    final JobStatusProto status = message.getMessage();
     try {
-      final JobStatusProto status = message.getMessage();
-
       if (status.getState() == ReefServiceProtos.State.INIT) {
         assert (!this.runningJobMap.containsKey(status.getIdentifier()));
-        LOG.info("Initializing running job " + status.getIdentifier());
+        LOG.log(Level.INFO, "Initializing running job {0}", status.getIdentifier());
         final Injector child = this.injector.createChildInjector();
         child.bindVolatileParameter(DriverRemoteIdentifier.class, message.getIdentifier().toString());
         child.bindVolatileInstance(JobStatusProto.class, status);
 
         final RunningJobImpl runningJob = child.getInstance(RunningJobImpl.class);
         this.runningJobMap.put(status.getIdentifier(), runningJob);
-        LOG.info("Launched running job " + status.getIdentifier());
+        LOG.log(Level.INFO, "Launched running job {0}", status.getIdentifier());
       } else if (this.runningJobMap.containsKey(status.getIdentifier())) {
         this.runningJobMap.get(status.getIdentifier()).onNext(status);
         if (status.getState() != ReefServiceProtos.State.RUNNING) {
@@ -217,12 +222,14 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
       } else {
         throw new RuntimeException("Unknown running job status: " + status);
       }
-    } catch (final BindException | InjectionException e) {
+    } catch (final BindException | InjectionException configError) {
+      LOG.log(Level.WARNING, "Configuration error for: " + status, configError);
       try {
         this.masterChannel.close();
-      } catch (Exception e1) {
+      } catch (final Exception ex) {
+        LOG.log(Level.WARNING, "Could not close master channel for: " + status, ex);
       }
-      throw new RuntimeException(e);
+      throw new RuntimeException("Configuration error for: " + status, configError);
     }
   }
 
@@ -239,28 +246,25 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
    */
   private static File toJar(final File file) throws IOException {
     final File jarFile = File.createTempFile(file.getName(), ".jar", tempFolder);
-    LOG.log(Level.INFO, "Adding contents of folder " + file + " to " + jarFile);
+    LOG.log(Level.INFO, "Adding contents of folder {0} to {1}", new Object[] { file, jarFile });
     try (final JARFileMaker jarMaker = new JARFileMaker(jarFile)) {
       jarMaker.addChildren(file);
     }
     return jarFile;
   }
 
-
   private final static class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<RuntimeErrorProto>> {
 
-    private final InjectionFuture<RuntimeErrorHandler> runtimeErrorHandlerFuture;
+    private final InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture;
 
-    RuntimeErrorProtoHandler(final InjectionFuture<RuntimeErrorHandler> runtimeErrorHandlerFuture) {
+    RuntimeErrorProtoHandler(final InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture) {
       this.runtimeErrorHandlerFuture = runtimeErrorHandlerFuture;
     }
 
     @Override
-    public void onNext(final RemoteMessage<RuntimeErrorProto> value) {
-      LOG.warning("Runtime Error: " + value.getMessage().getMessage());
-      this.runtimeErrorHandlerFuture.get().onError(new RuntimeError(value.getMessage()));
+    public void onNext(final RemoteMessage<RuntimeErrorProto> error) {
+      LOG.log(Level.WARNING, "Runtime Error: {0}", error.getMessage().getMessage());
+      this.runtimeErrorHandlerFuture.get().onNext(new RuntimeError(error.getMessage()));
     }
   }
-
-
 }

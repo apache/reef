@@ -126,8 +126,8 @@ public final class DSClient {
     }
 
     final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.JOB_OBSERVER, DistributedShell.class)
-        .set(ClientConfiguration.RUNTIME_ERROR_HANDLER, DistributedShell.class)
+        .set(ClientConfiguration.ON_JOB_MESSAGE, DistributedShell.JobMessageHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, DistributedShell.CompletedJobHandler.class)
         .build();
 
     return Tang.Factory.getTang()

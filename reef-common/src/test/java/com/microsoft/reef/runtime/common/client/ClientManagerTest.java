@@ -21,6 +21,7 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
+import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
 import com.microsoft.wake.EventHandler;
@@ -43,7 +44,7 @@ public class ClientManagerTest {
 
   private JobObserver jobObserver;
 
-  private RuntimeErrorHandler runtimeErrorHandler;
+  private EventHandler<RuntimeError> runtimeErrorHandler;
 
   /**
    * Create some basic mockups
@@ -55,11 +56,11 @@ public class ClientManagerTest {
 
     this.remoteManager = Mockito.mock(RemoteManager.class);
     this.jobObserver = Mockito.mock(JobObserver.class);
-    this.runtimeErrorHandler = Mockito.mock(RuntimeErrorHandler.class);
+    this.runtimeErrorHandler = Mockito.mock(EventHandler.class);
     this.jobSubmissionHandler = Mockito.mock(JobSubmissionHandler.class);
 
     Mockito.when(this.injector.getInstance(JobObserver.class)).thenReturn(this.jobObserver);
-    Mockito.when(this.injector.getInstance(RuntimeErrorHandler.class)).thenReturn(this.runtimeErrorHandler);
+    Mockito.when(this.injector.getInstance(EventHandler.class)).thenReturn(this.runtimeErrorHandler);
     Mockito.when(this.injector.getInstance(RunningJob.class)).thenReturn(Mockito.mock(RunningJob.class));
     Mockito.when(this.injector.createChildInjector()).thenReturn(this.injector);
 
@@ -90,7 +91,6 @@ public class ClientManagerTest {
 
     clientManager.onNext(message);
   }
-
 
   /**
    * Test the creation of a RunningJob. When a RunningJob is created it needs to inform
