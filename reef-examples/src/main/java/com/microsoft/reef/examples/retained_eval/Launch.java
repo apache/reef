@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.persistent_eval;
+package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.client.ClientConfiguration;
 import com.microsoft.reef.client.REEF;
@@ -36,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Persistent Evaluators example - main class.
+ * Retained Evaluators example - main class.
  */
 public final class Launch {
 
@@ -150,7 +150,7 @@ public final class Launch {
   }
 
   /**
-   * Main method that starts the Persistent Evaluators job.
+   * Main method that starts the Retained Evaluators job.
    *
    * @param args command line parameters.
    */
