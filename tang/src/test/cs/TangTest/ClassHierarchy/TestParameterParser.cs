@@ -26,5 +26,13 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
             Boolean o = (Boolean)parser.Parse(typeof(Boolean), "false");
 
         }
+
+        [TestMethod]
+        public void ParseLongTest()
+        {
+            var parser = new ParameterParser();
+            long o = (long)parser.Parse(typeof(long), "8675309");
+
+        }
     }
 }

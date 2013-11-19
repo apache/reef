@@ -57,8 +57,10 @@ namespace Com.Microsoft.Tang.Util
             //    return typeof(Short);
             } else if (c == typeof(int)) {
                 return typeof(Int32);
-            //} else if (c == typeof(long)) {
-            //    return typeof(Long);
+            }
+            else if (c == typeof(long))
+            {
+                return typeof(long);
             //} else if (c == typeof(float) {
             //    return typeof(Float);
             } else if (c == typeof(double)) {

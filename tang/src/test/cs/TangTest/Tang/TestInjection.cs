@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Com.Microsoft.Tang.Examples;
 using Com.Microsoft.Tang.Implementations;
 using Com.Microsoft.Tang.Interface;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Com.Microsoft.TangTest.Tang
 {
     [TestClass]
-    public class Injection
+    public class TestInjection
     {
         static string file = @"Com.Microsoft.Tang.Examples.dll";
         static Assembly asm = null;
@@ -88,6 +89,23 @@ namespace Com.Microsoft.TangTest.Tang
             IInjector injector = tang.NewInjector(conf);
             var simpleConstructor = (Com.Microsoft.Tang.Examples.SimpleConstructors)injector.GetInstance(simpleConstructorType);
             Assert.IsNotNull(simpleConstructor);
+        }
+
+        [TestMethod]
+        public void TestTweetExample()
+        {
+            Type tweeterType = typeof(Com.Microsoft.Tang.Examples.Tweeter);
+            Type namedParameter = asm.GetType(@"Com.Microsoft.Tang.Examples.Tweeter+PhoneNumber");
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+
+            cb.BindImplementation(typeof(TweetFactory), typeof(MockTweetFactory));
+            cb.BindImplementation(typeof(SMS), typeof(MockSMS));
+            cb.BindNamedParameter(namedParameter, "8675309");
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var tweeter = (Com.Microsoft.Tang.Examples.Tweeter)injector.GetInstance(tweeterType);
+            tweeter.sendMessage();
         }
     }
 }

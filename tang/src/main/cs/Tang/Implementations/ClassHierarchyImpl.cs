@@ -193,7 +193,7 @@ namespace Com.Microsoft.Tang.Implementations
                 //}
 
                 string shortName = np.GetShortName();
-                if (shortName != null)
+                if (shortName != null && !shortName.Equals(""))
                 {
                     INamedParameterNode oldNode = null;
                     shortNames.TryGetValue(shortName, out oldNode);

@@ -77,6 +77,10 @@ namespace Com.Microsoft.Tang.Implementations
             {
                 return (object) (Int32) Int32.Parse(value);
             }
+            if (name.Equals(typeof(long).Name))
+            {
+                return (object)(Int64)Int64.Parse(value);
+            }
             //if (name.Equals(Long.class.getName())) {
             //    return (T) (Long) Long.parseLong(value);
             //}
