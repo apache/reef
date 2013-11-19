@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.client.defaults;
 
+import com.microsoft.reef.annotations.Provided;
+import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.JobMessage;
 import com.microsoft.reef.client.RunningJob;
 import com.microsoft.wake.EventHandler;
@@ -24,14 +26,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default event handler for RunningJob: Logging it.
+ * Default event handler for job message: Logging it.
  */
+@Provided
+@ClientSide
 public final class DefaultJobMessageHandler implements EventHandler<JobMessage> {
 
   private static final Logger LOG = Logger.getLogger(DefaultJobMessageHandler.class.getName());
 
   @Inject
-  public DefaultJobMessageHandler() {
+  private DefaultJobMessageHandler() {
   }
 
   @Override

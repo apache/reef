@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.client.defaults;
 
+import com.microsoft.reef.annotations.Provided;
+import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.wake.EventHandler;
 
@@ -25,12 +27,14 @@ import java.util.logging.Logger;
 /**
  * Default event handler for REEF RuntimeError: rethrow the exception.
  */
+@Provided
+@ClientSide
 public final class DefaultRuntimeErrorHandler implements EventHandler<RuntimeError> {
 
   private static final Logger LOG = Logger.getLogger(DefaultRuntimeErrorHandler.class.getName());
 
   @Inject
-  public DefaultRuntimeErrorHandler() {
+  private DefaultRuntimeErrorHandler() {
   }
 
   @Override

@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.client.defaults;
 
+import com.microsoft.reef.annotations.Provided;
+import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.FailedJob;
 import com.microsoft.wake.EventHandler;
 import javax.inject.Inject;
@@ -22,10 +24,12 @@ import javax.inject.Inject;
 /**
  * Default event handler for FailedJob: rethrow the exception.
  */
+@Provided
+@ClientSide
 public final class DefaultFailedJobHandler implements EventHandler<FailedJob> {
 
   @Inject
-  public DefaultFailedJobHandler() {
+  private DefaultFailedJobHandler() {
   }
 
   @Override

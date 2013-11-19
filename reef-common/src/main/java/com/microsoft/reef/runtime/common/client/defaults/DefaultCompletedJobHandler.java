@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.client.defaults;
 
+import com.microsoft.reef.annotations.Provided;
+import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.CompletedJob;
 import com.microsoft.wake.EventHandler;
 
@@ -25,12 +27,14 @@ import java.util.logging.Logger;
 /**
  * Default event handler for CompletedJob: Logging it.
  */
+@Provided
+@ClientSide
 public final class DefaultCompletedJobHandler implements EventHandler<CompletedJob> {
 
   private static final Logger LOG = Logger.getLogger(DefaultCompletedJobHandler.class.getName());
 
   @Inject
-  public DefaultCompletedJobHandler() {
+  private DefaultCompletedJobHandler() {
   }
 
   @Override
