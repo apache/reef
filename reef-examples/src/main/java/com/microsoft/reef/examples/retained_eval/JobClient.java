@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  * Retained Evaluator Shell Client.
  */
 @Unit
-public class JobClient implements JobObserver {
+public class JobClient {
 
   /**
    * Standard java logger.
@@ -196,63 +196,72 @@ public class JobClient implements JobObserver {
    * Receive notification from the job driver that the job is running.
    * This method is inherited from the JobObserver interface.
    */
-  @Override
-  public synchronized void onNext(final RunningJob job) {
-    LOG.log(Level.INFO, "Running job: {0}", job.getId());
-    this.runningJob = job;
-    this.submitTask();
+  final class RunningJobHandler implements EventHandler<RunningJob> {
+    @Override
+    public void onNext(final RunningJob job) {
+      LOG.log(Level.INFO, "Running job: {0}", job.getId());
+      synchronized (JobClient.this) {
+        JobClient.this.runningJob = job;
+        JobClient.this.submitTask();
+      }
+    }
   }
 
   /**
    * Receive message from the job driver.
    * There is only one message, which comes at the end of the driver execution
    * and contains shell command output on each node.
-   * This method is inherited from the JobObserver interface.
    */
-  @Override
-  public synchronized void onNext(final JobMessage message) {
+  final class JobMessageHandler implements EventHandler<JobMessage> {
+    @Override
+    public void onNext(final JobMessage message) {
+      synchronized (JobClient.this) {
 
-    final String result = CODEC.decode(message.get());
-    final long jobTime = System.currentTimeMillis() - this.startTime;
-    this.totalTime += jobTime;
-    ++this.numRuns;
+        final String result = CODEC.decode(message.get());
+        final long jobTime = System.currentTimeMillis() - startTime;
+        totalTime += jobTime;
+        ++numRuns;
 
-    LOG.log(Level.INFO, "Task {0} completed in {1} msec.:\n{2}",
-            new Object[] { this.numRuns, jobTime, result });
+        LOG.log(Level.INFO, "Task {0} completed in {1} msec.:\n{2}",
+                new Object[] { numRuns, jobTime, result });
 
-    System.out.println(result);
+        System.out.println(result);
 
-    if (this.runningJob != null) {
-      if (this.isInteractive || this.numRuns < this.maxRuns) {
-        this.submitTask();
-      } else {
-        LOG.log(Level.INFO,
-            "All {0} tasks complete; Average task time: {1}. Closing the job driver.",
-            new Object[]{this.maxRuns, this.totalTime / (double) this.maxRuns});
-        this.runningJob.close();
-        stopAndNotify();
+        if (runningJob != null) {
+          if (isInteractive || numRuns < maxRuns) {
+            submitTask();
+          } else {
+            LOG.log(Level.INFO,
+                "All {0} tasks complete; Average task time: {1}. Closing the job driver.",
+                new Object[] { maxRuns, totalTime / (double)maxRuns });
+            runningJob.close();
+            stopAndNotify();
+          }
+        }
       }
     }
   }
 
   /**
    * Receive notification from the job driver that the job had failed.
-   * This method is inherited from the JobObserver interface.
    */
-  @Override
-  public void onError(final FailedJob job) {
-    LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
-    stopAndNotify();
+  final class FailedJobHandler implements EventHandler<FailedJob> {
+    @Override
+    public void onNext(final FailedJob job) {
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
+      stopAndNotify();
+    }
   }
 
   /**
    * Receive notification from the job driver that the job had completed successfully.
-   * This method is inherited from the JobObserver interface.
    */
-  @Override
-  public void onNext(final CompletedJob job) {
-    LOG.log(Level.INFO, "Completed job: {0}", job.getId());
-    stopAndNotify();
+  final class CompletedJobHandler implements EventHandler<CompletedJob> {
+    @Override
+    public void onNext(final CompletedJob job) {
+      LOG.log(Level.INFO, "Completed job: {0}", job.getId());
+      stopAndNotify();
+    }
   }
 
   /**

@@ -40,30 +40,11 @@ public class SuspendClientControl implements AutoCloseable {
   public static final class Port implements Name<Integer> {
   }
 
-  private transient RunningJob runningJob;
-
-  private final transient Transport transport;
-
   private static final Logger LOG = Logger.getLogger(Control.class.getName());
+  private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
 
-  private static final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
-
-  private class ControlMessageHandler implements EventHandler<RemoteEvent<byte[]>> {
-
-    /**
-     * Forward remote message to the job driver.
-     *
-     * @param msg Remote message from Control process.
-     */
-    @Override
-    public void onNext(final RemoteEvent<byte[]> msg) {
-      LOG.log(Level.INFO, "Control message: {0} destination: {1}",
-          new Object[]{codec.decode(msg.getEvent()), runningJob});
-      if (runningJob != null) {
-        runningJob.send(msg.getEvent());
-      }
-    }
-  }
+  private transient RunningJob runningJob;
+  private final transient Transport transport;
 
   @Inject
   public SuspendClientControl(@Parameter(SuspendClientControl.Port.class) final int port) {
@@ -72,7 +53,21 @@ public class SuspendClientControl implements AutoCloseable {
     this.transport = new NettyMessagingTransport("localhost", port, recvStage, recvStage);
   }
 
-  public void setRunningJob(final RunningJob job) {
+  /**
+   * Forward remote message to the job driver.
+   */
+  private class ControlMessageHandler implements EventHandler<RemoteEvent<byte[]>> {
+    @Override
+    public synchronized void onNext(final RemoteEvent<byte[]> msg) {
+      LOG.log(Level.INFO, "Control message: {0} destination: {1}",
+              new Object[] { CODEC.decode(msg.getEvent()), runningJob });
+      if (runningJob != null) {
+        runningJob.send(msg.getEvent());
+      }
+    }
+  }
+
+  public synchronized void setRunningJob(final RunningJob job) {
     this.runningJob = job;
   }
 
