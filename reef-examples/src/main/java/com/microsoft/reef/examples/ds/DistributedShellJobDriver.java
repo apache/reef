@@ -214,7 +214,7 @@ public final class DistributedShellJobDriver {
   final class StopHandler implements EventHandler<StopTime> {
     @Override
     public void onNext(final StopTime stopTime) {
-      // Construct the final result and forward it to the JobObserver
+      // Construct the final result and forward it to the Client
       final StringBuilder sb = new StringBuilder();
       for (final String result : DistributedShellJobDriver.this.results) {
         sb.append('\n').append(result);

@@ -261,7 +261,7 @@ public final class JobDriver {
   }
 
   /**
-   * Construct the final result and forward it to the JobObserver.
+   * Construct the final result and forward it to the Client.
    */
   private void returnResults() {
     final StringBuilder sb = new StringBuilder();

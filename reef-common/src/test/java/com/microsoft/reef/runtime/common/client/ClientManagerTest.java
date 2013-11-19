@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-public class ClientManagerTest {
+public final class ClientManagerTest {
 
   private Injector injector;
 
@@ -51,7 +51,7 @@ public class ClientManagerTest {
    *
    * @throws Exception when something goes wrong
    */
-  private final void reset() throws Exception {
+  private void reset() throws Exception {
     this.injector = Mockito.mock(Injector.class);
 
     this.remoteManager = Mockito.mock(RemoteManager.class);
@@ -74,7 +74,7 @@ public class ClientManagerTest {
    * @throws Exception when something goes wrong
    */
   @Test
-  public final void SimpleClientManagerTest() throws Exception {
+  public void SimpleClientManagerTest() throws Exception {
     reset();
 
     final ReefServiceProtos.JobStatusProto status = ReefServiceProtos.JobStatusProto.newBuilder()
@@ -101,7 +101,8 @@ public class ClientManagerTest {
    * @throws Exception when something goes wrong
    */
   @Test
-  public final void TestRunningJobImplJobObserverHandlers() throws Exception {
+  public void TestRunningJobImplJobObserverHandlers() throws Exception {
+
     reset();
 
     {
@@ -149,7 +150,8 @@ public class ClientManagerTest {
    * @throws Exception when something goes wrong
    */
   @Test
-  public final void TestJobControlProto() throws Exception {
+  public void TestJobControlProto() throws Exception {
+
     reset();
 
     final EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlProtoHandler = Mockito.mock(EventHandler.class);

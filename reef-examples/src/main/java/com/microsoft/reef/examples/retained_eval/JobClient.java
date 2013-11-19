@@ -194,7 +194,6 @@ public class JobClient {
 
   /**
    * Receive notification from the job driver that the job is running.
-   * This method is inherited from the JobObserver interface.
    */
   final class RunningJobHandler implements EventHandler<RunningJob> {
     @Override
