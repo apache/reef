@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using class_hierarchy;
 using Com.Microsoft.Tang.Annotations;
 using Com.Microsoft.Tang.Exceptions;
 using Com.Microsoft.Tang.Interface;
@@ -285,20 +284,53 @@ namespace Com.Microsoft.Tang.Implementations
             return path;
         }
 
-        //return all parent class names including itself
-        private string[] GetEnclosingClassShortNames(Type t)
+        public static string[] GetEnclosingClassShortNames(Type t)
         {
-            string[] path = t.FullName.Split('+');
+            return GetEnclosingClassShortNames(t.FullName);
+        }
 
-            if (path.Length == 1)
+        public static string[] GetEnclosingClassShortNames(string fullName)
+        {
+            string[] path = fullName.Split('+');
+            string sysName = ParseSystemName(fullName);
+
+            if (path.Length > 1 || sysName == null)
             {
-                return new string[1] { t.Name };
+                string[] first = path[0].Split('.');
+                path[0] = first[first.Length - 1];
             }
-            string[] first = path[0].Split('.');
-            path[0] = first[first.Length - 1];
+            else
+            {
+                path[0] = sysName;
+            }
 
             return path;
         }
+
+        public static string ParseSystemName(string name)
+        {
+            string[] token = name.Split('[');
+            if (token.Length > 1) //system name System.IComparable`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]
+            {
+                string[] prefixes = token[0].Split('.');
+                return prefixes[prefixes.Length - 1];
+            }
+            return null;
+        }
+
+        //private string[] GetEnclosingClassShortNames(Type t)
+        //{
+        //    string[] path = t.FullName.Split('+');
+
+        //    if (path.Length == 1)
+        //    {
+        //        return new string[1] { t.Name };
+        //    }
+
+        //    string[] first = path[0].Split('.');
+        //    path[0] = first[first.Length - 1];
+        //    return path;
+        //}
 
         //return immidiate enclosing class
         private Type GetIEnclosingClass(Type t)
@@ -322,7 +354,17 @@ namespace Com.Microsoft.Tang.Implementations
 
         public INode GetNode(string fullName)
         {
-            return this.GetNode(this.assembly.GetType(fullName));
+            Type t = Type.GetType(fullName);
+            if (t == null)
+            {
+                t = this.assembly.GetType(fullName);
+            }
+
+            if (t == null)
+            {
+                throw new NameResolutionException(fullName, fullName);
+            }
+            return this.GetNode(t);
         }
 
         public INode GetNode(Type type)

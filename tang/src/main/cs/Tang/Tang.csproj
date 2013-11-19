@@ -42,14 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\class_hierarchy.cs">
+    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\class_hierarchy.cs"> 
       <Link>class_hierarchy.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>class_hierarchy.proto</DependentUpon>
     </Compile>
-    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\injection_plan.cs">
+    <Compile Include="..\..\..\..\target\generated-sources\proto\com\microsoft\tang\proto\injection_plan.cs"> 
       <Link>injection_plan.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -81,6 +81,9 @@
     <Compile Include="Interface\IClassHierarchy.cs" />
     <Compile Include="Interface\IConfigurationBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+   <!-- <Compile Include="Protobuf\class_hierarchy.cs" /> 
+    <Compile Include="Protobuf\injection_plan.cs" />-->
+    <Compile Include="Protobuf\ProtocolBufferClassHierarchy.cs" />
     <Compile Include="Types\IConstructorDef.cs" />
     <Compile Include="Types\IClassNode.cs" />
     <Compile Include="Types\IConstructorArg.cs" />
