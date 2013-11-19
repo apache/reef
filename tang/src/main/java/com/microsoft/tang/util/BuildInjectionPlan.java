@@ -25,7 +25,7 @@ import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.implementation.InjectionPlan;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferInjectionPlan;
-import com.microsoft.tang.proto.ClassHierarchyProto.Node;
+import com.microsoft.tang.proto.ClassHierarchyProto;
 
 public class BuildInjectionPlan {
   @NamedParameter(short_name="class")
@@ -70,10 +70,10 @@ public class BuildInjectionPlan {
     final Tang t = Tang.Factory.getTang();
 
     final InputStream chin = new FileInputStream(ch);
-    final Node root;
+    final ClassHierarchyProto.Node root;
 
     try {
-      root = Node.parseFrom(chin);
+      root = ClassHierarchyProto.Node.parseFrom(chin);
     } finally {
       chin.close();
     }
