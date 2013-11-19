@@ -14,9 +14,6 @@ namespace Com.Microsoft.Tang.TestDriver
     {
         public static void Main(string[] args)
         {
-//            GetEnclosingClassShortNames("Com.Microsoft.Tang.Examples.B+B1+B2");
-  //          GetEnclosingClassShortNames("Com.Microsoft.Tang.Examples.B");
-            GetEnclosingClassShortNames("System.IComparable`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]");
             ClassHierarchyImpl classHierarchyImpl = new ClassHierarchyImpl(@"Com.Microsoft.Tang.Examples.dll");
             GetNodeFromHierarchy(classHierarchyImpl);
         }
@@ -42,37 +39,6 @@ namespace Com.Microsoft.Tang.TestDriver
                     INode argNode = classHierarchyImpl.GetNode(nt);
                 }
             }
-        }
-
-
-        public static  string[] GetEnclosingClassShortNames(string fullName)
-        {
-            string[] path = fullName.Split('+');
-            string ss = systemName(fullName);
-
-
-            if (path.Length > 1 || ss == null)
-            {
-                string[] first = path[0].Split('.');
-                path[0] = first[first.Length - 1];
-            }
-            else
-            {
-                path[0] = ss;
-            }
-
-            return path;
-        }
-
-        public static string systemName(string name)
-        {
-            string[] token = name.Split('[');
-            if (token.Length > 1) //system name System.IComparable`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]
-            {
-                string[] prefixes = token[0].Split('.');
-                return prefixes[prefixes.Length - 1];
-            }
-            return null;
         }
     }
  }
