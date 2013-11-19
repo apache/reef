@@ -73,7 +73,7 @@ namespace Com.Microsoft.Tang.Implementations
             return sb.ToString();
         }
 
-        public IConstructorDef GetConstructorDef(IList<IClassNode> paramTypes)
+        public IConstructorDef GetConstructorDef(IList<INode> paramTypes)
         {
             if (!IsInjectionCandidate())
             {

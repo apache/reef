@@ -125,11 +125,11 @@ namespace Com.Microsoft.Tang.Protobuf
 
                 InjectionPlanProto.InjectionPlan[] protoBufArgs = cons.args.ToArray();
 
-                IClassNode[] cnArgs = new IClassNode[protoBufArgs.Length];
+                INode[] cnArgs = new INode[protoBufArgs.Length];
 
                 for (int i = 0; i < protoBufArgs.Length; i++) 
                 {
-                    cnArgs[i] = (IClassNode) ch.GetNode(protoBufArgs[i].name);
+                    cnArgs[i] = (INode) ch.GetNode(protoBufArgs[i].name);
                 }
 
                 InjectionPlan[] ipArgs = new InjectionPlan[protoBufArgs.Length];

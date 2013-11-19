@@ -11,6 +11,6 @@ namespace Com.Microsoft.Tang.Types
 
         bool IsMoreSpecificThan(IConstructorDef def);
 
-        bool TakesParameters(IList<IClassNode> paramTypes);
+        bool TakesParameters(IList<INode> paramTypes);
     }
 }
