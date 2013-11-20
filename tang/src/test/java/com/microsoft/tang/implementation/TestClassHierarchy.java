@@ -124,7 +124,7 @@ public class TestClassHierarchy {
   @Test
   public void testNamedParameterTypeMismatch() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter type mismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer");
+    thrown.expectMessage("Named parameter type mismatch in com.microsoft.tang.implementation.NamedParameterTypeMismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer");
     ns.getNode(s(NamedParameterTypeMismatch.class));
   }
 
