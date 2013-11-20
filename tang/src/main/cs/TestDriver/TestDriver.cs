@@ -33,7 +33,7 @@ namespace Com.Microsoft.Tang.TestDriver
             INode secondNode = classHierarchyImpl.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
 
             string classNmae = timerClassNode.GetFullName();
-            Type clazz = classHierarchyImpl.assembly.GetType(classNmae);
+            //Type clazz = classHierarchyImpl.loader.GetType(classNmae);
 
             IList<IConstructorDef> constuctorDefs = timerClassNode.GetAllConstructors();
             foreach (IConstructorDef consDef in constuctorDefs)

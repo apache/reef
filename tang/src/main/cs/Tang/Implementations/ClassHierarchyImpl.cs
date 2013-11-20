@@ -14,28 +14,30 @@ namespace Com.Microsoft.Tang.Implementations
 {
     public class ClassHierarchyImpl : ICsClassHierarchy
     {
-        private INode rootNode = NodeFactory.CreateRootPackageNode();
+        private INode rootNode;
         private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
-        public Assembly assembly { get; private set; }
+        private IList<string> assemblies;
+        private AssemblyLoader loader = null;
 
         public ParameterParser parameterParser = new ParameterParser();
 
-        public ClassHierarchyImpl(String file)
+        public ClassHierarchyImpl(String file) : this(new string[] { file }, new Type[0])
         {
-            assembly = Assembly.LoadFrom(file);
-            foreach (var t in assembly.GetTypes())
-            {
-                RegisterType(t);
-            }
         }
 
-        //handle one assembly  without parameterParsers for now
+        public ClassHierarchyImpl(string[] assemblies) : this(assemblies, new Type[0])
+        {
+        }
+
         public ClassHierarchyImpl(string[] assemblies, Type[] parameterParsers) 
         {
-            foreach (var a in assemblies)
+            this.assemblies = assemblies;
+            rootNode = NodeFactory.CreateRootPackageNode();
+            loader = new AssemblyLoader(assemblies);
+
+            foreach (var a in loader.Assemblies)
             {
-                assembly = Assembly.LoadFrom(a);
-                foreach (var t in assembly.GetTypes())
+                foreach (var t in a.GetTypes())
                 {
                     RegisterType(t);
                 }
@@ -355,24 +357,12 @@ namespace Com.Microsoft.Tang.Implementations
 
         public IClassHierarchy Merge(IClassHierarchy ch)
         {
-            if (this.assembly == null)
+            if (this.assemblies.Count == 0)
             {
                 return ch;  
             }
 
             return ch;//TODO
-        }
-
-
-        public Type ClassForName(string name)
-        {
-            Type t = null;
-            t = Type.GetType(name);
-            if (t == null)
-            {
-                t = this.assembly.GetType(name);
-            }
-            return t;
         }
 
         public object Parse(INamedParameterNode np, string value)
@@ -467,14 +457,14 @@ namespace Com.Microsoft.Tang.Implementations
             }
         }
 
+        public Type ClassForName(string name)
+        {
+            return this.GetType(name);
+        }
+
         public Type GetType(string name)
         {
-            Type t = Type.GetType(name);
-            if (t == null)
-            {
-                t = assembly.GetType(name);
-            }
-            return t;
+            return this.loader.GetType(name);
         }
     }
 }
