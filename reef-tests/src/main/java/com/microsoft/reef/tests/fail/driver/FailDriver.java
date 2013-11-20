@@ -167,8 +167,8 @@ public final class FailDriver {
             .set(ActivityConfiguration.ACTIVITY, NoopActivity.class)
             .set(ActivityConfiguration.ON_MESSAGE, NoopActivity.DriverMessageHandler.class)
             .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
-            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
             .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
+            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
             .set(ActivityConfiguration.ON_GET_MESSAGE, NoopActivity.class)
             .build());
       } catch (final BindException ex) {
@@ -239,8 +239,8 @@ public final class FailDriver {
             .set(ActivityConfiguration.ACTIVITY, NoopActivity.class)
             .set(ActivityConfiguration.ON_MESSAGE, NoopActivity.DriverMessageHandler.class)
             .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
-            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
             .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
+            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
             .set(ActivityConfiguration.ON_GET_MESSAGE, NoopActivity.class)
             .set(ActivityConfiguration.MEMENTO, DatatypeConverter.printBase64Binary(HELLO_STR))
             .build());
