@@ -123,7 +123,10 @@ public final class Launch {
     final Configuration commandLineConf = parseCommandLine(args);
 
     final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.JOB_OBSERVER, JobClient.class)
+        .set(ClientConfiguration.ON_JOB_RUNNING, JobClient.RunningJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_MESSAGE, JobClient.JobMessageHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, JobClient.CompletedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_FAILED, JobClient.FailedJobHandler.class)
         .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
         .build();
 

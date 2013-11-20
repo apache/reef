@@ -25,14 +25,13 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-public class SuspendClient implements JobObserver {
+public class SuspendClient {
 
   /**
    * Standard java logger.
@@ -48,13 +47,6 @@ public class SuspendClient implements JobObserver {
    * Reference to the REEF framework.
    */
   private final REEF reef;
-
-  private final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
-
-  /**
-   * A reference to the running job that allows client to send messages back to the job driver
-   */
-  private RunningJob runningJob;
 
   /**
    * Controller that listens for suspend/resume commands on a specified port.
@@ -105,52 +97,44 @@ public class SuspendClient implements JobObserver {
   }
 
   /**
-   * Receive message from the driver.
-   * This method is inherited from the JobObserver interface.
-   *
-   * @param message message from the job driver.
-   */
-  @Override
-  public synchronized void onNext(final JobMessage message) {
-    final String msgString = this.codec.decode(message.get());
-    LOG.log(Level.INFO, "Driver: {0} -> Client: {1}", new Object[]{message.getId(), msgString});
-  }
-
-  /**
    * Receive notification from the driver that the job is about to run.
-   * This method is inherited from the JobObserver interface.
-   *
-   * @param job a proxy to the running job driver that can be used for sending messages.
+   * RunningJob object is a proxy to the running job driver that can be used for sending messages.
    */
-  @Override
-  public void onNext(final RunningJob job) {
-    LOG.log(Level.INFO, "Running job: {0}", job.getId());
-    this.runningJob = job;
-    this.controlListener.setRunningJob(job);
+  final class RunningJobHandler implements EventHandler<RunningJob> {
+    @Override
+    public void onNext(final RunningJob job) {
+      LOG.log(Level.INFO, "Running job: {0}", job.getId());
+      SuspendClient.this.controlListener.setRunningJob(job);
+    }
   }
 
   /**
    * Receive notification from the driver that the job had failed.
-   * This method is inherited from the JobObserver interface.
    *
-   * @param job failed job driver (contains job ID and exception thrown from the driver).
+   * FailedJob is a proxy for the failed job driver
+   * (contains job ID and exception thrown from the driver).
    */
-  @Override
-  public synchronized void onError(final FailedJob job) {
-    LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
-    this.notify();
+  final class FailedJobHandler implements EventHandler<FailedJob> {
+    @Override
+    public void onNext(final FailedJob job) {
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
+      synchronized (SuspendClient.this) {
+        SuspendClient.this.notify();
+      }
+    }
   }
 
   /**
    * Receive notification from the driver that the job had completed successfully.
-   * This method is inherited from the JobObserver interface.
-   *
-   * @param job completed job driver (has job ID).
    */
-  @Override
-  public synchronized void onNext(final CompletedJob job) {
-    LOG.log(Level.INFO, "Completed job: {0}", job.getId());
-    this.notify();
+  final class CompletedJobHandler implements EventHandler<CompletedJob> {
+    @Override
+    public void onNext(final CompletedJob job) {
+      LOG.log(Level.INFO, "Completed job: {0}", job.getId());
+      synchronized (SuspendClient.this) {
+        SuspendClient.this.notify();
+      }
+    }
   }
 
   /**

@@ -121,7 +121,9 @@ public final class Launch {
     final Configuration commandLineConf = parseCommandLine(args);
 
     final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.JOB_OBSERVER, SuspendClient.class)
+        .set(ClientConfiguration.ON_JOB_RUNNING, SuspendClient.RunningJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_FAILED, SuspendClient.FailedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, SuspendClient.CompletedJobHandler.class)
         .set(ClientConfiguration.ON_RUNTIME_ERROR, SuspendClient.RuntimeErrorHandler.class)
         .build();
 

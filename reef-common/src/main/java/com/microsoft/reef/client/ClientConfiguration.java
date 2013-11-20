@@ -67,21 +67,13 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalImpl<EventHandler<Throwable>> ON_WAKE_ERROR = new OptionalImpl<>();
 
-  /**
-   * An implementation of JobObserver to inform of Job start and such.
-   * @deprecated Use individual handlers ON_JOB_* instead.
-   */
-  @Deprecated
-  public static final OptionalImpl<JobObserver> JOB_OBSERVER = new OptionalImpl<>();
-
   public static final ConfigurationModule CONF = new ClientConfiguration()
       .bind(ClientConfigurationOptions.JobMessageHandler.class, ON_JOB_MESSAGE)
       .bind(ClientConfigurationOptions.RunningJobHandler.class, ON_JOB_RUNNING)
       .bind(ClientConfigurationOptions.CompletedJobHandler.class, ON_JOB_COMPLETED)
       .bind(ClientConfigurationOptions.FailedJobHandler.class, ON_JOB_FAILED)
       .bind(ClientConfigurationOptions.RuntimeErrorHandler.class, ON_RUNTIME_ERROR)
-      .bindImplementation(JobObserver.class, JOB_OBSERVER)
-      .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")
       .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, ON_WAKE_ERROR)
+      .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")
       .build();
 }
