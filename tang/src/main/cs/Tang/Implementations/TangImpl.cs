@@ -30,14 +30,15 @@ namespace Com.Microsoft.Tang.Implementations
 
         public IInjector NewInjector(IConfiguration conf)
         {
-            try
-            {
-                return NewInjector(new ConfigurationImpl[] { (ConfigurationImpl)conf });
-            }
-            catch (BindException e)
-            {
-                throw new IllegalStateException("Unexpected error cloning configuration", e);
-            }
+            return new InjectorImpl(conf);
+            //try
+            //{
+            //    return NewInjector(new ConfigurationImpl[] { (ConfigurationImpl)conf });
+            //}
+            //catch (BindException e)
+            //{
+            //    throw new IllegalStateException("Unexpected error cloning configuration", e);
+            //}
         }
 
         public IClassHierarchy GetClassHierarchy(string assembly)
@@ -88,6 +89,11 @@ namespace Com.Microsoft.Tang.Implementations
                 throw new IllegalStateException(
                     "Caught unexpeceted bind exception!  Implementation bug.", e);
             }
+        }
+
+        public ICsConfigurationBuilder NewConfigurationBuilder(ICsClassHierarchy classHierarchy)
+        {
+            return new CsConfigurationBuilderImpl(classHierarchy);
         }
 
         public ICsConfigurationBuilder NewConfigurationBuilder(IConfiguration[] confs)

@@ -12,8 +12,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Com.Microsoft.TangTest.ClassHierarchy
 {
-
-
     [TestClass]
     public class TestSerilization
     {
@@ -29,39 +27,47 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            System.Console.WriteLine("ClassCleanup");
         }
 
         [TestInitialize()]
         public void TestSetup()
         {
-            System.Console.WriteLine("TestSetup");
         }
 
         [TestCleanup()]
         public void TestCleanup()
         {
-            System.Console.WriteLine("TestCleanup");
         }
 
         [TestMethod]
         public void TestSerializeClassHierarchy()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"Com.Microsoft.Tang.Examples.dll");
+            IClassNode timerClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer");
             ProtocolBufferClassHierarchy.Serialize("node.bin", ns);
         }
 
         [TestMethod]
         public void TestDeSerializeClassHierarchy()
         {
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"Com.Microsoft.Tang.Examples.dll");
+            IClassNode timerClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer");
+            INode secondNode = (INode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
+            IClassNode SimpleConstructorsClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.SimpleConstructors");
+            
+            ProtocolBufferClassHierarchy.Serialize("node.bin", ns);
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("node.bin");
 
-            IClassNode timerClassNode = (IClassNode)ch.GetNode("Com.Microsoft.Tang.Examples.Timer");
-            INode secondNode = ch.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
+            IClassNode timerClassNode2 = (IClassNode)ch.GetNode("Com.Microsoft.Tang.Examples.Timer");
+            INode secondNode2 = ch.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
+            IClassNode SimpleConstructorsClassNode2 = (IClassNode)ch.GetNode("Com.Microsoft.Tang.Examples.SimpleConstructors");
 
-            IClassNode cls = (IClassNode)ch.GetNode("Com.Microsoft.Tang.Examples.SimpleConstructors");
-            Assert.IsTrue(cls.GetChildren().Count == 0);
-            IList<IConstructorDef> def = cls.GetInjectableConstructors();
+            Assert.AreEqual(timerClassNode.GetFullName(), timerClassNode2.GetFullName());
+            Assert.AreEqual(secondNode.GetFullName(), secondNode.GetFullName());
+            Assert.AreEqual(SimpleConstructorsClassNode.GetFullName(), SimpleConstructorsClassNode2.GetFullName());
+
+            Assert.IsTrue(SimpleConstructorsClassNode2.GetChildren().Count == 0);
+            IList<IConstructorDef> def = SimpleConstructorsClassNode2.GetInjectableConstructors();
             Assert.AreEqual(3, def.Count);
         }
 

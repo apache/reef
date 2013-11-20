@@ -11,6 +11,7 @@ using Com.Microsoft.Tang.Exceptions;
 using System.IO;
 using Com.Microsoft.Tang.Implementations;
 using System.Collections;
+using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Protobuf
 {
@@ -364,7 +365,7 @@ namespace Com.Microsoft.Tang.Protobuf
         public INode GetNode(String fullName)
         {       
             INode current = rootNode;
-            string[] enclosingPath = ClassHierarchyImpl.GetEnclosingClassShortNames(fullName);
+            string[] enclosingPath = ClassNameParser.GetEnclosingClassShortNames(fullName);
             for (int i = 0; i < enclosingPath.Length; i++)
             {
                 current = current.Get(enclosingPath[i]);

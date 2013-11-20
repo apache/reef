@@ -55,6 +55,7 @@
     <Compile Include="ClassHierarchy\TestSerilization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tang\TestInjection.cs" />
+    <Compile Include="Utilities\TestUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\main\cs\Examples\Examples.csproj">

@@ -33,7 +33,7 @@ namespace Com.Microsoft.Tang.Implementations
             }
         }
 
-        protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t) 
+        public ConfigurationBuilderImpl(ConfigurationBuilderImpl t) 
         {
             this.ClassHierarchy = t.GetClassHierarchy();
             try {
@@ -43,6 +43,11 @@ namespace Com.Microsoft.Tang.Implementations
             {
                 throw new IllegalStateException("Could not copy builder", e);
             }
+        }
+
+        public ConfigurationBuilderImpl(IClassHierarchy classHierarchy)
+        {
+            this.ClassHierarchy = classHierarchy;
         }
 
         protected ConfigurationBuilderImpl(string[] assemblies) : this(assemblies, new IConfiguration[0], new Type[0])
@@ -122,7 +127,8 @@ namespace Com.Microsoft.Tang.Implementations
 
         public IConfiguration Build()
         {
-            return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
+//            return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
+            return new ConfigurationImpl(this);
         }
 
         public void Bind(string key, string value)

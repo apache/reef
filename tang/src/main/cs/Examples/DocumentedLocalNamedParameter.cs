@@ -23,7 +23,6 @@ namespace Com.Microsoft.Tang.Examples
 
         public string ToString()
         {
-            System.Console.WriteLine(value);
             return value;
         }
     }

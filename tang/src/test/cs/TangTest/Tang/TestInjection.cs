@@ -26,19 +26,16 @@ namespace Com.Microsoft.TangTest.Tang
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            System.Console.WriteLine("ClassCleanup");
         }
 
         [TestInitialize()]
         public void TestSetup()
         {
-            System.Console.WriteLine("TestSetup");
         }
 
         [TestCleanup()]
         public void TestCleanup()
         {
-            System.Console.WriteLine("TestCleanup");
         }
 
         [TestMethod]
@@ -49,6 +46,28 @@ namespace Com.Microsoft.TangTest.Tang
 
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+            cb.BindNamedParameter(namedParameter, "2");
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var timer = (Com.Microsoft.Tang.Examples.Timer)injector.GetInstance(timerType);
+
+            Assert.IsNotNull(timer);
+
+            System.Console.WriteLine("Tick...");
+            timer.sleep();
+            System.Console.WriteLine("Tock...");
+        }
+
+        [TestMethod]
+        public void TestTimerWithClassHierarchy()
+        {
+            Type timerType = typeof(Com.Microsoft.Tang.Examples.Timer);
+            Type namedParameter = asm.GetType(@"Com.Microsoft.Tang.Examples.Timer+Seconds");
+
+            ClassHierarchyImpl classHierarchyImpl = new ClassHierarchyImpl(file);
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(classHierarchyImpl);
             cb.BindNamedParameter(namedParameter, "2");
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
@@ -89,6 +108,22 @@ namespace Com.Microsoft.TangTest.Tang
             IInjector injector = tang.NewInjector(conf);
             var simpleConstructor = (Com.Microsoft.Tang.Examples.SimpleConstructors)injector.GetInstance(simpleConstructorType);
             Assert.IsNotNull(simpleConstructor);
+        }
+
+        [TestMethod]
+        public void TestActivity()
+        {
+            Type activityType = typeof(Com.Microsoft.Tang.Examples.HelloActivity);
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityType);
+            Assert.IsNotNull(activityRef);
+
+            byte[] b = new byte[10];
+            activityRef.Call(b);
         }
 
         [TestMethod]

@@ -24,7 +24,10 @@ namespace Com.Microsoft.Tang.Implementations
 
         public IConfigurationBuilder newBuilder()
         {
-            return ((ConfigurationImpl)Builder.Build()).Builder;
+            //create a new builder using the current Builder, and craete a new COnfiguration that wraps teh builder.
+            IConfiguration c = new ConfigurationBuilderImpl(Builder).Build();
+            return ((ConfigurationImpl)c).Builder;
+            //return ((ConfigurationImpl)Builder.Build()).Builder;
         }
            
         public ICollection<IClassNode> GetBoundImplementations()
