@@ -154,26 +154,26 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
           .setIdentifier(injector.getNamedInstance(DriverConfigurationOptions.DriverIdentifier.class))
           .setRemoteId(this.remoteManager.getMyIdentifier())
           .setUserName(this.userName)
-          .setDriverSize(ReefServiceProtos.SIZE.valueOf(injector.getNamedParameter(DriverConfigurationOptions.DriverSize.class)))
+          .setDriverSize(ReefServiceProtos.SIZE.valueOf(injector.getNamedInstance(DriverConfigurationOptions.DriverSize.class)))
           .setConfiguration(ConfigurationFile.toConfigurationString(driverConf));
 
 
-      for (final String globalFileName : injector.getNamedParameter(DriverConfigurationOptions.GlobalFiles.class)) {
+      for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
         LOG.log(Level.FINE, "Adding global file: {0}", globalFileName);
         jbuilder.addGlobalFile(getFileResourceProto(new File(globalFileName), FileType.PLAIN));
       }
 
-      for (final String globalLibraryName : injector.getNamedParameter(DriverConfigurationOptions.GlobalLibraries.class)) {
+      for (final String globalLibraryName : injector.getNamedInstance(DriverConfigurationOptions.GlobalLibraries.class)) {
         LOG.log(Level.FINE, "Adding global library: {0}", globalLibraryName);
         jbuilder.addGlobalFile(getFileResourceProto(new File(globalLibraryName), FileType.LIB));
       }
 
-      for (final String localFileName : injector.getNamedParameter(DriverConfigurationOptions.LocalFiles.class)) {
+      for (final String localFileName : injector.getNamedInstance(DriverConfigurationOptions.LocalFiles.class)) {
         LOG.log(Level.FINE, "Adding local file: {0}", localFileName);
         jbuilder.addLocalFile(getFileResourceProto(new File(localFileName), FileType.PLAIN));
       }
 
-      for (final String localLibraryName : injector.getNamedParameter(DriverConfigurationOptions.LocalLibraries.class)) {
+      for (final String localLibraryName : injector.getNamedInstance(DriverConfigurationOptions.LocalLibraries.class)) {
         LOG.log(Level.FINE, "Adding local library: {0}", localLibraryName);
         jbuilder.addLocalFile(getFileResourceProto(new File(localLibraryName), FileType.LIB));
       }
