@@ -362,14 +362,14 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param activityControlProto message contains activity control info.
    */
-  final void handle(EvaluatorRuntimeProtocol.ActivityControlProto activityControlProto) {
+  final void handle(EvaluatorRuntimeProtocol.ContextControlProto activityControlProto) {
     LOG.finest("activity control message from " + this.evaluatorID);
 
     final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
         EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
             .setTimestamp(System.currentTimeMillis())
             .setIdentifier(getId().toString())
-            .setActivityControl(activityControlProto).build();
+            .setContextControl(activityControlProto).build();
     handle(evaluatorControlProto);
   }
 

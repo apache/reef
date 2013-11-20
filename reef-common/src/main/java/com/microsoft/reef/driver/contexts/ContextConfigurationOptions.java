@@ -18,6 +18,7 @@ package com.microsoft.reef.driver.contexts;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.evaluator.context.ContextMessageHandler;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;
@@ -54,5 +55,10 @@ public class ContextConfigurationOptions extends ConfigurationModuleBuilder {
   @NamedParameter(doc = "The set of ContextMessageSource implementations called during heartbeats.",
       default_classes = DefaultContextMessageSource.class)
   public class ContextMessageSources implements Name<Set<ContextMessageSource>> {
+  }
+
+  @NamedParameter(doc = "The set of Context message handlers.",
+      default_classes = DefaultContextMessageHandler.class)
+  public class ContextMessageHandlers implements Name<Set<ContextMessageHandler>> {
   }
 }
