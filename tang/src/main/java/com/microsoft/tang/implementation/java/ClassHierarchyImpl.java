@@ -1,7 +1,5 @@
 package com.microsoft.tang.implementation.java;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -21,8 +19,6 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.exceptions.ParseException;
-import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.ParameterParser;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorArg;
