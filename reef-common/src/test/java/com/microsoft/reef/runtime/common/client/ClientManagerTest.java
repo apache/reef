@@ -42,8 +42,10 @@ public final class ClientManagerTest {
 
   private JobSubmissionHandler jobSubmissionHandler;
 
-  private JobObserver jobObserver;
-
+  private EventHandler<RunningJob> runningJobHandler;
+  private EventHandler<CompletedJob> completedJobHandler;
+  private EventHandler<FailedJob> failedJobHandler;
+  private EventHandler<JobMessage> jobMessageHandler;
   private EventHandler<RuntimeError> runtimeErrorHandler;
 
   /**
@@ -51,16 +53,25 @@ public final class ClientManagerTest {
    *
    * @throws Exception when something goes wrong
    */
-  private void reset() throws Exception {
+  private final void reset() throws Exception {
+
     this.injector = Mockito.mock(Injector.class);
 
     this.remoteManager = Mockito.mock(RemoteManager.class);
-    this.jobObserver = Mockito.mock(JobObserver.class);
-    this.runtimeErrorHandler = Mockito.mock(EventHandler.class);
     this.jobSubmissionHandler = Mockito.mock(JobSubmissionHandler.class);
 
-    Mockito.when(this.injector.getInstance(JobObserver.class)).thenReturn(this.jobObserver);
+    this.runtimeErrorHandler = Mockito.mock(EventHandler.class);
+    this.runningJobHandler = Mockito.mock(EventHandler.class);
+    this.completedJobHandler = Mockito.mock(EventHandler.class);
+    this.failedJobHandler = Mockito.mock(EventHandler.class);
+    this.jobMessageHandler = Mockito.mock(EventHandler.class);
+
+    Mockito.when(this.injector.getInstance(EventHandler.class)).thenReturn(this.runningJobHandler);
+    Mockito.when(this.injector.getInstance(EventHandler.class)).thenReturn(this.completedJobHandler);
+    Mockito.when(this.injector.getInstance(EventHandler.class)).thenReturn(this.jobMessageHandler);
+    Mockito.when(this.injector.getInstance(EventHandler.class)).thenReturn(this.failedJobHandler);
     Mockito.when(this.injector.getInstance(EventHandler.class)).thenReturn(this.runtimeErrorHandler);
+
     Mockito.when(this.injector.getInstance(RunningJob.class)).thenReturn(Mockito.mock(RunningJob.class));
     Mockito.when(this.injector.createChildInjector()).thenReturn(this.injector);
 
@@ -94,52 +105,58 @@ public final class ClientManagerTest {
 
   /**
    * Test the creation of a RunningJob. When a RunningJob is created it needs to inform
-   * the client via the JobObserver API. This test ensures that the JobObserver is indeed
-   * informed in accordance to the status of the job. This handles the code path that occurs
-   * when a job is first created.
+   * the client via the Client API. This test ensures that the Client is indeed informed
+   * in accordance to the status of the job. This handles the code path that occurs when
+   * a job is first created.
    *
    * @throws Exception when something goes wrong
    */
   @Test
-  public void TestRunningJobImplJobObserverHandlers() throws Exception {
+  public final void TestRunningJobImplJobObserverHandlers() throws Exception {
 
     reset();
 
     {
       // Create a RunningJob with status RUNNING
-      Mockito.doNothing().when(this.jobObserver).onNext(Mockito.<RunningJob>any());
-      Mockito.doThrow(new RuntimeException("Job is not completed!")).when(this.jobObserver).onNext(Mockito.<CompletedJob>any());
-      Mockito.doThrow(new RuntimeException("Job is not failed!")).when(this.jobObserver).onError(Mockito.<FailedJob>any());
+      Mockito.doNothing().when(this.runningJobHandler).onNext(Mockito.<RunningJob>any());
+      Mockito.doThrow(new RuntimeException("Job is not completed!")).when(this.completedJobHandler).onNext(Mockito.<CompletedJob>any());
+      Mockito.doThrow(new RuntimeException("Job is not failed!")).when(this.failedJobHandler).onNext(Mockito.<FailedJob>any());
       final ReefServiceProtos.JobStatusProto status = ReefServiceProtos.JobStatusProto.newBuilder()
           .setState(ReefServiceProtos.State.INIT)
           .setIdentifier("test")
           .build();
-      final RunningJob job = new RunningJobImpl(this.remoteManager, this.jobObserver, status, "test");
+
+      final RunningJob job = new RunningJobImpl(this.remoteManager, status, "test",
+          this.runningJobHandler, this.completedJobHandler, this.failedJobHandler, this.jobMessageHandler);
     }
 
     {
       // Create a RunningJob with status DONE
       // This should generate a RunningJob, followed by a CompleteJob
-      Mockito.doNothing().when(this.jobObserver).onNext(Mockito.<RunningJob>any());
-      Mockito.doNothing().when(this.jobObserver).onNext(Mockito.<CompletedJob>any());
-      Mockito.doThrow(new RuntimeException("Job is not failed!")).when(this.jobObserver).onError(Mockito.<FailedJob>any());
+      Mockito.doNothing().when(this.runningJobHandler).onNext(Mockito.<RunningJob>any());
+      Mockito.doNothing().when(this.completedJobHandler).onNext(Mockito.<CompletedJob>any());
+      Mockito.doThrow(new RuntimeException("Job is not failed!")).when(this.failedJobHandler).onNext(Mockito.<FailedJob>any());
       final ReefServiceProtos.JobStatusProto status = ReefServiceProtos.JobStatusProto.newBuilder()
           .setState(ReefServiceProtos.State.DONE)
           .setIdentifier("test")
           .build();
-      final RunningJob job = new RunningJobImpl(this.remoteManager, this.jobObserver, status, "test");
+
+      final RunningJob job = new RunningJobImpl(this.remoteManager, status, "test",
+          this.runningJobHandler, this.completedJobHandler, this.failedJobHandler, this.jobMessageHandler);
     }
 
     {
       // Create a RunningJob with status FAILED
       // This should create a RunningJob, followed by a FailedJob
-      Mockito.doThrow(new RuntimeException("Job is not completed!")).when(this.jobObserver).onNext(Mockito.<CompletedJob>any());
-      Mockito.doNothing().when(this.jobObserver).onError(Mockito.<FailedJob>any());
+      Mockito.doThrow(new RuntimeException("Job is not completed!")).when(this.completedJobHandler).onNext(Mockito.<CompletedJob>any());
+      Mockito.doNothing().when(this.failedJobHandler).onNext(Mockito.<FailedJob>any());
       final ReefServiceProtos.JobStatusProto status = ReefServiceProtos.JobStatusProto.newBuilder()
           .setState(ReefServiceProtos.State.FAILED)
           .setIdentifier("test")
           .build();
-      final RunningJob job = new RunningJobImpl(this.remoteManager, this.jobObserver, status, "test");
+
+      final RunningJob job = new RunningJobImpl(this.remoteManager, status, "test",
+          this.runningJobHandler, this.completedJobHandler, this.failedJobHandler, this.jobMessageHandler);
     }
   }
 
@@ -161,7 +178,10 @@ public final class ClientManagerTest {
         .setState(ReefServiceProtos.State.INIT)
         .setIdentifier("test")
         .build();
-    final RunningJob job = new RunningJobImpl(this.remoteManager, this.jobObserver, status, "test");
+
+    final RunningJob job = new RunningJobImpl(this.remoteManager, status, "test",
+        this.runningJobHandler, this.completedJobHandler, this.failedJobHandler, this.jobMessageHandler);
+
     job.close();
 
     final ArgumentCaptor<ClientRuntimeProtocol.JobControlProto> argument = ArgumentCaptor.forClass(ClientRuntimeProtocol.JobControlProto.class);

@@ -44,49 +44,6 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   private final EventHandler<JobMessage> jobMessageEventHandler;
 
   @Inject
-  @Deprecated
-  RunningJobImpl(final RemoteManager remoteManager,
-                 final JobObserver jobObserver,
-                 final JobStatusProto status,
-                 final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID) {
-
-    this.jobId = status.getIdentifier();
-
-    this.runningJobEventHandler = new EventHandler<RunningJob>() {
-      @Override
-      public final void onNext(final RunningJob job) {
-        jobObserver.onNext(job);
-      }
-    };
-
-    this.completedJobEventHandler = new EventHandler<CompletedJob>() {
-      @Override
-      public final void onNext(final CompletedJob job) {
-        jobObserver.onNext(job);
-      }
-    };
-
-    this.failedJobEventHandler = new EventHandler<FailedJob>() {
-      @Override
-      public final void onNext(final FailedJob job) {
-        jobObserver.onError(job);
-      }
-    };
-
-    this.jobMessageEventHandler = new EventHandler<JobMessage>() {
-      @Override
-      public final void onNext(final JobMessage message) {
-        jobObserver.onNext(message);
-      }
-    };
-
-   this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
-
-    this.runningJobEventHandler.onNext(this);
-    this.onNext(status);
-  }
-
-  @Inject
   RunningJobImpl(final RemoteManager remoteManager, final JobStatusProto status,
       final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
       final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
