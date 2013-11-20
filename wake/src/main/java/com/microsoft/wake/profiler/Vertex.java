@@ -1,10 +1,8 @@
 package com.microsoft.wake.profiler;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import com.microsoft.tang.types.ConstructorDef;
-import com.microsoft.tang.util.MonotonicHashSet;
 
 /**
  * A vertex in the object graph.  There is no edge type, since that would be redundant.
@@ -22,7 +20,7 @@ public class Vertex<T> {
     this.name = name;
     this.constructorDef = constructorDef;
     this.constructorArguments = constructorArguments;
-    for(Vertex v : constructorArguments) {
+    for(Vertex<?> v : constructorArguments) {
       if(v == null) {
         throw new NullPointerException();
       }
@@ -34,7 +32,7 @@ public class Vertex<T> {
     this.name = null;
     this.constructorDef = constructorDef;
     this.constructorArguments = constructorArguments;
-    for(Vertex v : constructorArguments) {
+    for(Vertex<?> v : constructorArguments) {
       if(v == null) {
         throw new NullPointerException();
       }
