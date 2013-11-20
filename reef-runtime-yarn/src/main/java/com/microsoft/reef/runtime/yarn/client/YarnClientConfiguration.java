@@ -19,6 +19,7 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.client.RunningJob;
+import com.microsoft.reef.runtime.common.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.client.ClientManager;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -29,6 +30,7 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.tang.formats.RequiredParameter;
+import com.microsoft.wake.remote.RemoteConfiguration;
 
 /**
  * A ConfigurationModule for the YARN runtime.
@@ -59,6 +61,8 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
       // Bind the common runtime
       .bindImplementation(REEF.class, ClientManager.class)
       .bindImplementation(RunningJob.class, RunningJobImpl.class)
+          // Bind the message codec for REEF.
+      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
           // Bind YARN
       .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
           // Bind the parameters given by the user

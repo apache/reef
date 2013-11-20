@@ -8,14 +8,23 @@ import com.microsoft.reef.proto.REEFProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.wake.remote.Codec;
 
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Codec for REEF's control flow messages.
  */
 public final class REEFMessageCodec implements Codec<GeneratedMessage> {
 
+
+  @Inject
+  private REEFMessageCodec() {
+    Logger.getLogger(REEFMessageCodec.class.getName()).log(Level.INFO, "REEFMessageCodec instantiated.");
+  }
+
   @Override
   public GeneratedMessage decode(final byte[] bytes) {
-
     try {
       final REEFProtocol.REEFMessage message = REEFProtocol.REEFMessage.parseFrom(bytes);
       if (message.hasJobSubmission()) {
