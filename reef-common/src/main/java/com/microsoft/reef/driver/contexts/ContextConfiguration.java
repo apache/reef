@@ -21,7 +21,7 @@ import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;
@@ -78,15 +78,11 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
   public static final ConfigurationModule CONF = new ContextConfiguration()
       .bindSetEntry(StartHandlers.class, CONTEXT_START_HANDLER)
       .bindSetEntry(StopHandlers.class, CONTEXT_STOP_HANDLER)
-
-      .bindSetEntry(ActivityConfiguration.StartHandlers.class, ACTIVITY_START_HANDLER)
-      .bindSetEntry(ActivityConfiguration.StopHandlers.class, ACTIVITY_STOP_HANDLER)
-
+      .bindSetEntry(ActivityConfigurationOptions.StartHandlers.class, ACTIVITY_START_HANDLER)
+      .bindSetEntry(ActivityConfigurationOptions.StopHandlers.class, ACTIVITY_STOP_HANDLER)
       .bindSetEntry(ContextMessageSources.class, CONTEXT_MESSAGE_SOURCE)
-
       .bindNamedParameter(ContextIdentifier.class, IDENTIFIER)
       .build();
-
 
   @NamedParameter(doc = "The set of event handlers for the ContextStart event.", default_classes = DefaultContextStartHandler.class)
   @Private

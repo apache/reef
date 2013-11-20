@@ -257,7 +257,7 @@ public class SuspendDriver {
         context.submitActivity(ActivityConfiguration.CONF
             .set(ActivityConfiguration.IDENTIFIER, context.getId() + "_activity")
             .set(ActivityConfiguration.ACTIVITY, SuspendTestActivity.class)
-            .set(ActivityConfiguration.SUSPEND_HANDLER, SuspendTestActivity.SuspendHandler.class)
+            .set(ActivityConfiguration.ON_SUSPEND, SuspendTestActivity.SuspendHandler.class)
             .build());
       } catch (final BindException ex) {
         LOG.log(Level.SEVERE, "Bad Activity configuration for context: " + context.getId(), ex);

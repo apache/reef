@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.evaluator.activity;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -66,7 +66,7 @@ public final class ActivityClientCodeException extends Exception {
    */
   public static String getActivityIdentifier(final Configuration c) {
     try {
-      return Tang.Factory.getTang().newInjector(c).getNamedParameter(ActivityConfiguration.Identifier.class);
+      return Tang.Factory.getTang().newInjector(c).getNamedParameter(ActivityConfigurationOptions.Identifier.class);
     } catch (final InjectionException e) {
       throw new RuntimeException("Unable to determine activity identifier. Giving up.", e);
     }

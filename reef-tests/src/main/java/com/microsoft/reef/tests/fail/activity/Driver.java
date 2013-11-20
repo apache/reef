@@ -103,25 +103,25 @@ public final class Driver {
           case "FailActivityMsg":
             LOG.log(Level.INFO, "MessageHandler: {0}", failActivity);
             activityConfig = activityConfig.set(
-                ActivityConfiguration.MESSAGE_HANDLER,
+                ActivityConfiguration.ON_MESSAGE,
                 (Class<? extends EventHandler<DriverMessage>>) failActivity);
             break;
           case "FailActivitySuspend":
             LOG.log(Level.INFO, "SuspendHandler: {0}", failActivity);
             activityConfig = activityConfig.set(
-                ActivityConfiguration.SUSPEND_HANDLER,
+                ActivityConfiguration.ON_SUSPEND,
                 (Class<? extends EventHandler<SuspendEvent>>) failActivity);
             break;
           case "FailActivityStart":
             LOG.log(Level.INFO, "StartHandler: {0}", failActivity);
             activityConfig = activityConfig.set(
-                ActivityConfiguration.ACTIVITY_START_HANDLER,
+                ActivityConfiguration.ON_ACTIVITY_STARTED,
                 (Class<? extends EventHandler<ActivityStart>>) failActivity);
             break;
           case "FailActivityStop":
             LOG.log(Level.INFO, "StopHandler: {0}", failActivity);
             activityConfig = activityConfig.set(
-                ActivityConfiguration.ACTIVITY_STOP_HANDLER,
+                ActivityConfiguration.ON_ACTIVITY_STOP,
                 (Class<? extends EventHandler<ActivityStop>>) failActivity);
             break;
         }

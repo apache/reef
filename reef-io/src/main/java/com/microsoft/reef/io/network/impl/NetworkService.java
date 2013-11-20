@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.io.network.impl;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.reef.io.naming.Naming;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.ConnectionFactory;
@@ -41,7 +41,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * Network service for Activity
  */
@@ -59,15 +58,15 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   @Inject
   public NetworkService(
-      @Parameter(ActivityConfiguration.Identifier.class) String myId,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
-      @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
-      @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
-      @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
-      @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
-      @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
-      @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
-      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
+      final @Parameter(ActivityConfigurationOptions.Identifier.class) String myId,
+      final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
+      final @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
+      final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
+      final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
+      final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
+      final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
+      final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
+      final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
 
     this.myId = factory.getNewInstance(myId);
     this.factory = factory;
@@ -124,7 +123,6 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     Connection<T> existing = idToConnMap.putIfAbsent(destId, conn);
     return (existing == null) ? conn : existing;
   }
-
 }
 
 class MessageHandler<T> implements EventHandler<TransportEvent> {
@@ -143,5 +141,4 @@ class MessageHandler<T> implements EventHandler<TransportEvent> {
     NSMessage<T> obj = codec.decode(data);
     handler.onNext(obj);
   }
-
 }

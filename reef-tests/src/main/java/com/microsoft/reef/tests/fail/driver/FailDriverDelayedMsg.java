@@ -77,11 +77,11 @@ public final class FailDriverDelayedMsg {
         context.submitActivity(ActivityConfiguration.CONF
             .set(ActivityConfiguration.IDENTIFIER, "Activity_" + context.getId())
             .set(ActivityConfiguration.ACTIVITY, NoopActivity.class)
-            .set(ActivityConfiguration.MESSAGE_HANDLER, NoopActivity.DriverMessageHandler.class)
-            .set(ActivityConfiguration.SUSPEND_HANDLER, NoopActivity.ActivitySuspendHandler.class)
-            .set(ActivityConfiguration.ACTIVITY_STOP_HANDLER, NoopActivity.ActivityStopHandler.class)
-            .set(ActivityConfiguration.CLOSE_HANDLER, NoopActivity.ActivityCloseHandler.class)
-            .set(ActivityConfiguration.ACTIVITY_MESSAGE_SOURCE, NoopActivity.class)
+            .set(ActivityConfiguration.ON_MESSAGE, NoopActivity.DriverMessageHandler.class)
+            .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
+            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
+            .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
+            .set(ActivityConfiguration.ON_GET_MESSAGE, NoopActivity.class)
             .build());
       } catch (final BindException ex) {
         LOG.log(Level.WARNING, "Activity configuration error", ex);
