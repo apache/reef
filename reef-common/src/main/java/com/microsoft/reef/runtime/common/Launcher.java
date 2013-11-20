@@ -95,6 +95,8 @@ public class Launcher {
     // Bind the wake error handler
     commandLineBuilder.bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class);
     commandLineBuilder.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER");
+    // Bind the wake codec
+    commandLineBuilder.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
     return commandLineBuilder.build();
   }
 

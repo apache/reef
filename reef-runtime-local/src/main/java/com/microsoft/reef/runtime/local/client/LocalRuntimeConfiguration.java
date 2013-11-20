@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.local.client;
 
 import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.client.RunningJob;
+import com.microsoft.reef.runtime.common.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.client.ClientManager;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -26,6 +27,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
+import com.microsoft.wake.remote.RemoteConfiguration;
 
 import javax.inject.Inject;
 import java.util.concurrent.ExecutorService;
@@ -79,6 +81,8 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(RunningJob.class, RunningJobImpl.class)
       .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
+          // Bind the message codec for REEF.
+      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
       .bindNamedParameter(NumberOfThreads.class, NUMBER_OF_THREADS)
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .build();

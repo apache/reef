@@ -101,6 +101,8 @@ public final class LaunchClass implements AutoCloseable, Runnable {
       clockConfigurationBuilder.bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class);
       clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class);
       clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER");
+      clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
+
       if (isProfilingEnabled) {
         clockConfigurationBuilder.bindSetEntry(Clock.StopHandler.class, ProfilingStopHandler.class);
       }
