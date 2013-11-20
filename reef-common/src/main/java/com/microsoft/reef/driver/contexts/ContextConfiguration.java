@@ -54,6 +54,7 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
    * Event handlers to be informed right before an Activity enters its call() method.
    */
   public static final OptionalImpl<EventHandler<ActivityStart>> ON_ACTIVITY_STARTED = new OptionalImpl<>();
+
   /**
    * Event handlers to be informed right after an Activity exits its call() method.
    */
