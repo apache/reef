@@ -66,7 +66,7 @@ public final class ActivityClientCodeException extends Exception {
    */
   public static String getActivityIdentifier(final Configuration c) {
     try {
-      return Tang.Factory.getTang().newInjector(c).getNamedParameter(ActivityConfiguration.Identifier.class);
+      return Tang.Factory.getTang().newInjector(c).getNamedInstance(ActivityConfiguration.Identifier.class);
     } catch (final InjectionException e) {
       throw new RuntimeException("Unable to determine activity identifier. Giving up.", e);
     }

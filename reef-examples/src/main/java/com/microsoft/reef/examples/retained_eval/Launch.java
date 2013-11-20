@@ -103,8 +103,8 @@ public final class Launch {
       throws InjectionException, BindException {
     final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(Command.class, injector.getNamedParameter(Command.class));
-    cb.bindNamedParameter(NumRuns.class, String.valueOf(injector.getNamedParameter(NumRuns.class)));
+    cb.bindNamedParameter(Command.class, injector.getNamedInstance(Command.class));
+    cb.bindNamedParameter(NumRuns.class, String.valueOf(injector.getNamedInstance(NumRuns.class)));
     return cb.build();
   }
 
