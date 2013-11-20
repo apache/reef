@@ -41,6 +41,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   protected ConfigurationBuilderImpl() {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
+  protected ConfigurationBuilderImpl(ClassHierarchy namespace) {
+    this.namespace = namespace;
+  }
 
   protected ConfigurationBuilderImpl(URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {

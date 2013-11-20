@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
+
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.JavaClassHierarchy;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -33,6 +36,10 @@ public class TangImpl implements Tang {
       throw new IllegalStateException(
           "Caught unexpeceted bind exception!  Implementation bug.", e);
     }
+  }
+  @Override
+  public ConfigurationBuilder newConfigurationBuilder(ClassHierarchy ch) {
+    return new ConfigurationBuilderImpl(ch);
   }
 
   @SuppressWarnings("unchecked")
@@ -135,5 +142,6 @@ public class TangImpl implements Tang {
       throw new IllegalStateException("Unexpected error from empty configuration", e);
     }
   }
+
 
 }

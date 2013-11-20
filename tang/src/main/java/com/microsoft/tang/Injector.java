@@ -121,6 +121,8 @@ public interface Injector {
 
   boolean isParameterSet(Class<? extends Name<?>> name) throws BindException;
 
+  InjectionPlan<?> getInjectionPlan(String name) throws NameResolutionException;
+  
   <T> InjectionPlan<T> getInjectionPlan(Class<T> name);
 
   Injector forkInjector();
