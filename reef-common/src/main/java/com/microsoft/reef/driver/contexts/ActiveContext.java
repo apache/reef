@@ -37,7 +37,7 @@ import com.microsoft.tang.Configuration;
  * <p/>
  * Contexts form a stack. Only the topmost context is active. Child contexts or activities can be submitted to the
  * active context. Contexts can be closed, in which case their parent becomes active.
- * In the case of the root context, closing is equivalent to releasing the Evaluator. A child context “sees�? all
+ * In the case of the root context, closing is equivalent to releasing the Evaluator. A child context “sees�? all
  * Configuration in its parent Contexts. Activities are submitted to and executed in a context.
  */
 @Public
@@ -57,5 +57,11 @@ public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase,
   @Override
   public void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration);
 
+  /**
+   * Send the active context the message, which will be delivered to all registered
+   * {@link com.microsoft.reef.evaluator.context.ContextMessageHandler}, for this context.
+   * @param message
+   */
+  public void sendMessage(final byte[] message);
 
 }

@@ -314,6 +314,14 @@ public final class ContextRuntime {
   }
 
   /**
+   * Handle the context message.
+   * @param message sent by the driver
+   */
+  final void handleContextMessage(final byte[] message) {
+    this.contextLifeCycle.handleContextMessage(message);
+  }
+
+  /**
    * @return the state of the running Activity, if one is running.
    */
   Optional<ReefServiceProtos.ActivityStatusProto> getActivityStatus() {

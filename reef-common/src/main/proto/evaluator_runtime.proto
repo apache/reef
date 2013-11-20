@@ -40,8 +40,14 @@ message SuspendActivityProto {
 /////////////////////////////////////////
 // Message aggregators
 
-message ActivityControlProto {
+message ContextMessageProto {
+    required string context_id = 1;
+    required bytes message = 2;
+}
+
+message ContextControlProto {
     optional bytes activity_message = 1;
+    optional ContextMessageProto context_message = 2;
 
     optional AddContextProto add_context           = 5;
     optional RemoveContextProto remove_context     = 6;
@@ -61,6 +67,6 @@ message EvaluatorControlProto {
     required int64 timestamp = 1;
     required string identifier = 2;
 
-    optional ActivityControlProto activity_control = 3;
+    optional ContextControlProto context_control = 3;
     optional KillEvaluatorProto kill_evaluator = 4;
 }

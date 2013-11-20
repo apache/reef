@@ -87,10 +87,10 @@ final class EvaluatorRuntime {
             + ReefServiceProtos.State.RUNNING + " but rather " + this.state));
       } else {
 
-        if (message.hasActivityControl()) {
+        if (message.hasContextControl()) {
           LOG.info("Send activity control message to ContextManager");
           try {
-            this.contextManager.handleActivityControl(message.getActivityControl());
+            this.contextManager.handleActivityControl(message.getContextControl());
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
               this.state = ReefServiceProtos.State.DONE;
               this.heartBeatManager.onNext(this.getEvaluatorStatus());

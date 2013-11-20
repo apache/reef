@@ -117,7 +117,7 @@ public final class ContextManager implements AutoCloseable {
    *
    * @param controlMessage the message to process
    */
-  public void handleActivityControl(final EvaluatorRuntimeProtocol.ActivityControlProto controlMessage) {
+  public void handleActivityControl(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
 
     synchronized (this.heartBeatManager) {
       try {
@@ -146,6 +146,19 @@ public final class ContextManager implements AutoCloseable {
           this.contextStack.peek().suspendActivity(message);
         } else if (controlMessage.hasActivityMessage()) {
           this.contextStack.peek().deliverActivityMessage(message);
+        } else if (controlMessage.hasContextMessage()) {
+          final EvaluatorRuntimeProtocol.ContextMessageProto contextMessageProto = controlMessage.getContextMessage();
+          boolean deliveredMessage = false;
+          for (final ContextRuntime context : this.contextStack) {
+            if (context.getIdentifier().equals(contextMessageProto.getContextId())) {
+              context.handleContextMessage(contextMessageProto.getMessage().toByteArray());
+              deliveredMessage = true;
+              break;
+            }
+          }
+          if (!deliveredMessage) {
+            throw new IllegalStateException("Sent message to unknown context " + contextMessageProto.getContextId());
+          }
         } else {
           throw new RuntimeException("Unknown activity control message: " + controlMessage.toString());
         }
