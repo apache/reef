@@ -2,6 +2,11 @@ package com.microsoft.reef.runtime.common;
 
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.microsoft.reef.annotations.Provided;
+import com.microsoft.reef.annotations.audience.ClientSide;
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.annotations.audience.EvaluatorSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.REEFProtocol;
@@ -15,6 +20,11 @@ import java.util.logging.Logger;
 /**
  * Codec for REEF's control flow messages.
  */
+@Private
+@Provided
+@ClientSide
+@DriverSide
+@EvaluatorSide
 public final class REEFMessageCodec implements Codec<GeneratedMessage> {
 
 
