@@ -143,9 +143,9 @@ public final class DSClient {
       throws InjectionException, BindException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
-    cb.bindNamedParameter(Local.class, injector.getNamedParameter(Local.class).toString());
-    cb.bindNamedParameter(Command.class, injector.getNamedParameter(Command.class));
-    cb.bindNamedParameter(Files.class, injector.getNamedParameter(Files.class));
+    cb.bindNamedParameter(Local.class, injector.getNamedInstance(Local.class).toString());
+    cb.bindNamedParameter(Command.class, injector.getNamedInstance(Command.class));
+    cb.bindNamedParameter(Files.class, injector.getNamedInstance(Files.class));
     return cb.build();
   }
 

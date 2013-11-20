@@ -84,7 +84,7 @@ public final class ContextRuntime {
     this.parentContext = parentContext;
     // Trigger the instantiation of the services
     try {
-      final Set<Object> services = serviceInjector.getNamedParameter(ServiceConfiguration.Services.class);
+      final Set<Object> services = serviceInjector.getNamedInstance(ServiceConfiguration.Services.class);
       this.contextInjector = serviceInjector.forkInjector(contextConfiguration);
 
       this.contextLifeCycle = this.contextInjector.getInstance(ContextLifeCycle.class);
