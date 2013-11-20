@@ -71,8 +71,8 @@ final class Driver {
       LOG.log(Level.INFO, "Submitting root context");
       try {
         final Configuration contextConfiguration = ContextConfiguration.CONF
-            .set(ContextConfiguration.CONTEXT_START_HANDLER, ContextStartHandler1.class)
-            .set(ContextConfiguration.CONTEXT_STOP_HANDLER, ContextStopHandler1.class)
+            .set(ContextConfiguration.ON_CONTEXT_STARTED, ContextStartHandler1.class)
+            .set(ContextConfiguration.ON_CONTEXT_STOP, ContextStopHandler1.class)
             .set(ContextConfiguration.IDENTIFIER, CONTEXT_1_IDENTIFIER)
             .build();
         allocatedEvaluator.submitContext(contextConfiguration);
@@ -98,8 +98,8 @@ final class Driver {
         LOG.log(Level.INFO, "Submitting sub context");
         try {
           final Configuration contextConfiguration = ContextConfiguration.CONF
-              .set(ContextConfiguration.CONTEXT_START_HANDLER, ContextStartHandler2.class)
-              .set(ContextConfiguration.CONTEXT_STOP_HANDLER, ContextStopHandler2.class)
+              .set(ContextConfiguration.ON_CONTEXT_STARTED, ContextStartHandler2.class)
+              .set(ContextConfiguration.ON_CONTEXT_STOP, ContextStopHandler2.class)
               .set(ContextConfiguration.IDENTIFIER, CONTEXT_2_IDENTIFIER)
               .build();
           activeContext.submitContext(contextConfiguration);

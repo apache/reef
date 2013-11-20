@@ -74,8 +74,8 @@ public final class Driver {
         final Configuration activityConfig = ActivityConfiguration.CONF
             .set(ActivityConfiguration.IDENTIFIER, activityId)
             .set(ActivityConfiguration.ACTIVITY, ActivityMsg.class)
-            .set(ActivityConfiguration.MESSAGE_HANDLER, ActivityMsg.DriverMessageHandler.class)
-            .set(ActivityConfiguration.ACTIVITY_MESSAGE_SOURCE, ActivityMsg.class)
+            .set(ActivityConfiguration.ON_MESSAGE, ActivityMsg.DriverMessageHandler.class)
+            .set(ActivityConfiguration.ON_GET_MESSAGE, ActivityMsg.class)
             .build();
 
         eval.submitContextAndActivity(contextConfig, activityConfig);

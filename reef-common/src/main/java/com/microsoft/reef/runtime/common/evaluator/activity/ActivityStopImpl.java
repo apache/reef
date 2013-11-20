@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.evaluator.activity;
 
 import com.microsoft.reef.activity.events.ActivityStop;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ final class ActivityStopImpl implements ActivityStop {
   private final String id;
 
   @Inject
-  ActivityStopImpl(final @Parameter(ActivityConfiguration.Identifier.class) String id) {
+  ActivityStopImpl(final @Parameter(ActivityConfigurationOptions.Identifier.class) String id) {
     this.id = id;
   }
 

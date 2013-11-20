@@ -21,7 +21,7 @@ import com.microsoft.reef.activity.events.DriverMessage;
 import com.microsoft.reef.activity.events.SuspendEvent;
 import com.microsoft.reef.annotations.audience.EvaluatorSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos.ActivityStatusProto;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.util.Optional;
@@ -62,9 +62,9 @@ public final class ActivityRuntime extends Thread {
   private ActivityRuntime(final HeartBeatManager heartBeatManager,
                           final Activity activity,
                           final ActivityStatus currentStatus,
-                          final @Parameter(ActivityConfiguration.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-                          final @Parameter(ActivityConfiguration.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-                          final @Parameter(ActivityConfiguration.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler) {
+                          final @Parameter(ActivityConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
+                          final @Parameter(ActivityConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
+                          final @Parameter(ActivityConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler) {
     this(heartBeatManager, activity, currentStatus, f_closeHandler, f_suspendHandler, f_messageHandler, null);
   }
 
@@ -73,10 +73,10 @@ public final class ActivityRuntime extends Thread {
   private ActivityRuntime(final HeartBeatManager heartBeatManager,
                           final Activity activity,
                           final ActivityStatus currentStatus,
-                          final @Parameter(ActivityConfiguration.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-                          final @Parameter(ActivityConfiguration.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-                          final @Parameter(ActivityConfiguration.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
-                          final @Parameter(ActivityConfiguration.Memento.class) String memento) {
+                          final @Parameter(ActivityConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
+                          final @Parameter(ActivityConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
+                          final @Parameter(ActivityConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+                          final @Parameter(ActivityConfigurationOptions.Memento.class) String memento) {
     this.heartBeatManager = heartBeatManager;
     this.activity = activity;
     this.memento = null == memento ? Optional.<byte[]>empty() :
@@ -213,5 +213,4 @@ public final class ActivityRuntime extends Thread {
   final String getContextID() {
     return this.currentStatus.getContextID();
   }
-
 }

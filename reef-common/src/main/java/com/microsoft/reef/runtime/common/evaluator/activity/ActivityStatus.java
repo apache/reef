@@ -18,8 +18,8 @@ package com.microsoft.reef.runtime.common.evaluator.activity;
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.activity.ActivityMessage;
 import com.microsoft.reef.activity.ActivityMessageSource;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
-import com.microsoft.reef.driver.contexts.ContextConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
+import com.microsoft.reef.driver.contexts.ContextConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.util.Optional;
@@ -63,9 +63,9 @@ public final class ActivityStatus {
   }
 
   @Inject
-  ActivityStatus(final @Parameter(ActivityConfiguration.Identifier.class) String activityID,
-                 final @Parameter(ContextConfiguration.ContextIdentifier.class) String contextID,
-                 final @Parameter(ActivityConfiguration.ActivityMessageSources.class) Set<ActivityMessageSource> evaluatorMessageSources,
+  ActivityStatus(final @Parameter(ActivityConfigurationOptions.Identifier.class) String activityID,
+                 final @Parameter(ContextConfigurationOptions.ContextIdentifier.class) String contextID,
+                 final @Parameter(ActivityConfigurationOptions.ActivityMessageSources.class) Set<ActivityMessageSource> evaluatorMessageSources,
                  final ActivityLifeCycle activityLifeCycle,
                  final HeartBeatManager heartBeatManager) {
     this.activityID = activityID;

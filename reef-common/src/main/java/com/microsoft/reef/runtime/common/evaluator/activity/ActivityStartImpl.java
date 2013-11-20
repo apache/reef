@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.evaluator.activity;
 
 import com.microsoft.reef.activity.events.ActivityStart;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -29,7 +29,7 @@ final class ActivityStartImpl implements ActivityStart {
   private final String id;
 
   @Inject
-  ActivityStartImpl(final @Parameter(ActivityConfiguration.Identifier.class) String id) {
+  ActivityStartImpl(final @Parameter(ActivityConfigurationOptions.Identifier.class) String id) {
     this.id = id;
   }
 

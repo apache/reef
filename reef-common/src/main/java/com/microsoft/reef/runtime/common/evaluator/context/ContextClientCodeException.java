@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.evaluator.context;
 
-import com.microsoft.reef.driver.contexts.ContextConfiguration;
+import com.microsoft.reef.driver.contexts.ContextConfigurationOptions;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
@@ -66,7 +66,8 @@ public final class ContextClientCodeException extends Exception {
    */
   public static String getIdentifier(final Configuration c) {
     try {
-      return Tang.Factory.getTang().newInjector(c).getNamedInstance(ContextConfiguration.ContextIdentifier.class);
+      return Tang.Factory.getTang().newInjector(c).getNamedInstance(
+          ContextConfigurationOptions.ContextIdentifier.class);
     } catch (final InjectionException e) {
       throw new RuntimeException("Unable to determine context identifier. Giving up.", e);
     }

@@ -17,7 +17,7 @@ package com.microsoft.reef.runtime.common.evaluator.activity;
 
 import com.microsoft.reef.activity.events.ActivityStart;
 import com.microsoft.reef.activity.events.ActivityStop;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 
@@ -35,8 +35,8 @@ final class ActivityLifeCycle {
   private final ActivityStop activityStop;
 
   @Inject
-  ActivityLifeCycle(final @Parameter(ActivityConfiguration.StopHandlers.class) Set<EventHandler<ActivityStop>> activityStopHandlers,
-                    final @Parameter(ActivityConfiguration.StartHandlers.class) Set<EventHandler<ActivityStart>> activityStartHandlers,
+  ActivityLifeCycle(final @Parameter(ActivityConfigurationOptions.StopHandlers.class) Set<EventHandler<ActivityStop>> activityStopHandlers,
+                    final @Parameter(ActivityConfigurationOptions.StartHandlers.class) Set<EventHandler<ActivityStart>> activityStartHandlers,
                     final ActivityStartImpl activityStart,
                     final ActivityStopImpl activityStop) {
     this.activityStopHandlers = activityStopHandlers;
