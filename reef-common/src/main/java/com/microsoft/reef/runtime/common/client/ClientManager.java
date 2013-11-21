@@ -45,6 +45,8 @@ import com.microsoft.wake.remote.RemoteMessage;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,13 +60,13 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   static {
     System.out.println(
         "\nPowered by\n" +
-        "     ___________  ______  ______  _______" + "\n" +
-        "    /  ______  / /  ___/ /  ___/ /  ____/" + "\n" +
-        "   /     _____/ /  /__  /  /__  /  /___"   + "\n" +
-        "  /  /\\  \\     /  ___/ /  ___/ /  ____/" + "\n" +
-        " /  /  \\  \\   /  /__  /  /__  /  /"      + "\n" +
-        "/__/    \\__\\ /_____/ /_____/ /__/    version " + EnvironmentUtils.getReefVersion() + "\n\n" +
-        "From Microsoft CISL\n");
+            "     ___________  ______  ______  _______" + "\n" +
+            "    /  ______  / /  ___/ /  ___/ /  ____/" + "\n" +
+            "   /     _____/ /  /__  /  /__  /  /___" + "\n" +
+            "  /  /\\  \\     /  ___/ /  ___/ /  ____/" + "\n" +
+            " /  /  \\  \\   /  /__  /  /__  /  /" + "\n" +
+            "/__/    \\__\\ /_____/ /_____/ /__/    version " + EnvironmentUtils.getReefVersion() + "\n\n" +
+            "From Microsoft CISL\n");
   }
 
   private static final File tempFolder;
@@ -90,7 +92,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   @Inject
   ClientManager(final Injector injector,
                 final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class)
-                        InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture,
+                InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture,
                 final RemoteManager remoteManager,
                 final JobSubmissionHandler jobSubmissionHandler) {
 
@@ -160,22 +162,22 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
       for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
         LOG.log(Level.FINE, "Adding global file: {0}", globalFileName);
-        jbuilder.addGlobalFile(getFileResourceProto(new File(globalFileName), FileType.PLAIN));
+        jbuilder.addGlobalFile(getFileResourceProto(globalFileName, FileType.PLAIN));
       }
 
       for (final String globalLibraryName : injector.getNamedInstance(DriverConfigurationOptions.GlobalLibraries.class)) {
         LOG.log(Level.FINE, "Adding global library: {0}", globalLibraryName);
-        jbuilder.addGlobalFile(getFileResourceProto(new File(globalLibraryName), FileType.LIB));
+        jbuilder.addGlobalFile(getFileResourceProto(globalLibraryName, FileType.LIB));
       }
 
       for (final String localFileName : injector.getNamedInstance(DriverConfigurationOptions.LocalFiles.class)) {
         LOG.log(Level.FINE, "Adding local file: {0}", localFileName);
-        jbuilder.addLocalFile(getFileResourceProto(new File(localFileName), FileType.PLAIN));
+        jbuilder.addLocalFile(getFileResourceProto(localFileName, FileType.PLAIN));
       }
 
       for (final String localLibraryName : injector.getNamedInstance(DriverConfigurationOptions.LocalLibraries.class)) {
         LOG.log(Level.FINE, "Adding local library: {0}", localLibraryName);
-        jbuilder.addLocalFile(getFileResourceProto(new File(localLibraryName), FileType.LIB));
+        jbuilder.addLocalFile(getFileResourceProto(localLibraryName, FileType.LIB));
       }
 
       this.jobSubmissionHandler.onNext(jbuilder.build());
@@ -192,11 +194,25 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     }
   }
 
-  private final FileResourceProto getFileResourceProto(final File file, final FileType type) throws IOException {
-    if (file.isDirectory()) {
-      return getFileResourceProto(toJar(file), type);
-    } else {
-      return FileResourceProto.newBuilder().setName(file.getName()).setPath(file.getPath()).setType(type).build();
+  private final FileResourceProto getFileResourceProto(final String fileName, final FileType type) throws IOException {
+    final File file = new File(fileName);
+    if (file.exists()) { // It is a local file and can be added.
+      if (file.isDirectory()) { // if it is a directory, create a JAR file of it and add that instead.
+        final File jarFile = toJar(file);
+        return FileResourceProto.newBuilder().setName(jarFile.getName()).setPath(jarFile.getPath()).setType(type).build();
+      } else { // Just add the file
+        return FileResourceProto.newBuilder().setName(file.getName()).setPath(file.getPath()).setType(type).build();
+      }
+    } else { // The file isn't in the local filesytem. Assume that the file is actually a URI.
+      // We then assume that the underlying resource manager knows how to deal with it.
+      try {
+        final URI uri = new URI(fileName);
+        final String path = uri.getPath();
+        final String name = path.substring(path.lastIndexOf('/') + 1);
+        return FileResourceProto.newBuilder().setName(name).setPath(uri.toString()).setType(type).build();
+      } catch (final URISyntaxException e) {
+        throw new IOException("Unable to parse URI.", e);
+      }
     }
   }
 
@@ -246,7 +262,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
    */
   private static File toJar(final File file) throws IOException {
     final File jarFile = File.createTempFile(file.getName(), ".jar", tempFolder);
-    LOG.log(Level.INFO, "Adding contents of folder {0} to {1}", new Object[] { file, jarFile });
+    LOG.log(Level.INFO, "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});
     try (final JARFileMaker jarMaker = new JARFileMaker(jarFile)) {
       jarMaker.addChildren(file);
     }
