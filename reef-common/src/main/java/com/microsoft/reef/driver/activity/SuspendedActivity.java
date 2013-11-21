@@ -18,7 +18,7 @@ package com.microsoft.reef.driver.activity;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.io.Message;
 import com.microsoft.reef.io.naming.Identifiable;
 
@@ -31,7 +31,7 @@ import com.microsoft.reef.io.naming.Identifiable;
 public interface SuspendedActivity extends Message, Identifiable {
   /**
    * @return the context the activity ran on. This context is now available to run another activity or to spwan new
-   *         child contexts
+   *         child context
    */
   public ActiveContext getActiveContext();
 

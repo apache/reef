@@ -13,37 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.contexts;
+package com.microsoft.reef.driver.context;
 
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.io.Message;
-import com.microsoft.reef.io.naming.Identifiable;
 
 /**
- * Driver-side representation of a message sent by a context to a driver.
+ * A Context that has been closed succesfully.
  */
 @Public
 @DriverSide
 @Provided
-public interface ContextMessage extends Message, Identifiable {
+public interface ClosedContext extends ContextBase {
 
   /**
-   * @return the message.
+   * @return the new top of the stack of context.
    */
-  @Override
-  public byte[] get();
-
-  /**
-   * @return the ID of the sending Context.
-   */
-  @Override
-  public String getId();
-
-  /**
-   * @return the ID of the ContextMessageSource
-   */
-  public String getMessageSourceID();
-
+  public ActiveContext getParentContext();
 }

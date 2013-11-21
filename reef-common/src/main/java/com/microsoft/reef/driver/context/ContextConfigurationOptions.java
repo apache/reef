@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.contexts;
+package com.microsoft.reef.driver.context;
 
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;

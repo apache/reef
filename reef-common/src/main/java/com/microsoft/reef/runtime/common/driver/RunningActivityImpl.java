@@ -17,7 +17,7 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.driver.activity.RunningActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.ContextControlProto;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.StopActivityProto;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.SuspendActivityProto;

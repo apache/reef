@@ -15,16 +15,11 @@
  */
 package com.microsoft.reef.runtime.common.driver.contexts.defaults;
 
-import com.microsoft.reef.driver.contexts.ContextConfigurationOptions;
+import com.microsoft.reef.driver.context.ContextConfigurationOptions;
 import com.microsoft.reef.evaluator.context.ContextMessageHandler;
-import com.microsoft.reef.evaluator.context.events.ContextStart;
-import com.microsoft.reef.runtime.common.evaluator.context.ContextClientCodeException;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Default handler for ContextStart

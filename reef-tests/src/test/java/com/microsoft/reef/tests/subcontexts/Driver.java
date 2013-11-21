@@ -16,9 +16,9 @@
 package com.microsoft.reef.tests.subcontexts;
 
 
-import com.microsoft.reef.driver.contexts.ActiveContext;
-import com.microsoft.reef.driver.contexts.ClosedContext;
-import com.microsoft.reef.driver.contexts.ContextConfiguration;
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ClosedContext;
+import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;

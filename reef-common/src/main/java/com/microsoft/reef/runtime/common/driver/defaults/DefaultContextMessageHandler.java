@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.driver.defaults;
 
-import com.microsoft.reef.driver.contexts.ContextMessage;
+import com.microsoft.reef.driver.context.ContextMessage;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;

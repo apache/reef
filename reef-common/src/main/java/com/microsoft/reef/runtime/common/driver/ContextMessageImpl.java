@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.driver;
 
-import com.microsoft.reef.driver.contexts.ContextMessage;
+import com.microsoft.reef.driver.context.ContextMessage;
 
 final class ContextMessageImpl implements ContextMessage {
   private final byte[] theMessage;

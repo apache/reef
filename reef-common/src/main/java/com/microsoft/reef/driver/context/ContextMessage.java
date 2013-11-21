@@ -13,42 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.contexts;
+package com.microsoft.reef.driver.context;
 
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
+import com.microsoft.reef.io.Message;
 import com.microsoft.reef.io.naming.Identifiable;
-import com.microsoft.reef.util.Optional;
 
 /**
- * A common base interface for Contexts, available or failed.
+ * Driver-side representation of a message sent by a context to a driver.
  */
 @Public
 @DriverSide
 @Provided
-public interface ContextBase extends Identifiable {
+public interface ContextMessage extends Message, Identifiable {
 
   /**
-   * @return the ID of this EvaluatorContext.
+   * @return the message.
+   */
+  @Override
+  public byte[] get();
+
+  /**
+   * @return the ID of the sending Context.
    */
   @Override
   public String getId();
 
   /**
-   * @return the identifier of the Evaluator this EvaluatorContext is instantiated on.
+   * @return the ID of the ContextMessageSource
    */
-  public String getEvaluatorId();
-
-  /**
-   * @return the ID of the parent context, if there is any.
-   */
-  public Optional<String> getParentId();
-
-  /**
-   * @return the node descriptor of the Evaluator this Context is active on.
-   */
-  public NodeDescriptor getNodeDescriptor();
+  public String getMessageSourceID();
 
 }

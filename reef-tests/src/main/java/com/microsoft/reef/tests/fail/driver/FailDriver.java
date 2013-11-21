@@ -16,7 +16,7 @@
 package com.microsoft.reef.tests.fail.driver;
 
 import com.microsoft.reef.driver.activity.*;
-import com.microsoft.reef.driver.contexts.*;
+import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.reef.tests.exceptions.SimulatedDriverFailure;

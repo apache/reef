@@ -16,7 +16,7 @@
 package com.microsoft.reef.examples.groupcomm.matmul;
 
 import com.microsoft.reef.driver.activity.ActivityConfiguration;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.io.network.group.config.GroupOperators;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifier;
@@ -130,7 +130,7 @@ public class ActivitySubmitter implements EventHandler<Iterable<ActiveContext>> 
    */
   @Override
   public void onNext(Iterable<ActiveContext> contexts) {
-    logger.log(Level.INFO, "All contexts are running");
+    logger.log(Level.INFO, "All context are running");
     logger.log(Level.INFO,
         "Setting Up Structures for creating Group Comm Operator Configurations");
     // TODO: After we fix issue #143, we need not worry about

@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.driver.defaults;
 
-import com.microsoft.reef.driver.contexts.FailedContext;
+import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;

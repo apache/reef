@@ -17,8 +17,8 @@ package com.microsoft.reef.tests.activityresubmit;
 
 import com.microsoft.reef.driver.activity.ActivityConfiguration;
 import com.microsoft.reef.driver.activity.FailedActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
-import com.microsoft.reef.driver.contexts.ContextConfiguration;
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;

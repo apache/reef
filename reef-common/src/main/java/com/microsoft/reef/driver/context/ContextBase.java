@@ -13,22 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.contexts;
+package com.microsoft.reef.driver.context;
 
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.driver.catalog.NodeDescriptor;
+import com.microsoft.reef.io.naming.Identifiable;
+import com.microsoft.reef.util.Optional;
 
 /**
- * A Context that has been closed succesfully.
+ * A common base interface for Contexts, available or failed.
  */
 @Public
 @DriverSide
 @Provided
-public interface ClosedContext extends ContextBase {
+public interface ContextBase extends Identifiable {
 
   /**
-   * @return the new top of the stack of contexts.
+   * @return the ID of this EvaluatorContext.
    */
-  public ActiveContext getParentContext();
+  @Override
+  public String getId();
+
+  /**
+   * @return the identifier of the Evaluator this EvaluatorContext is instantiated on.
+   */
+  public String getEvaluatorId();
+
+  /**
+   * @return the ID of the parent context, if there is any.
+   */
+  public Optional<String> getParentId();
+
+  /**
+   * @return the node descriptor of the Evaluator this Context is active on.
+   */
+  public NodeDescriptor getNodeDescriptor();
+
 }

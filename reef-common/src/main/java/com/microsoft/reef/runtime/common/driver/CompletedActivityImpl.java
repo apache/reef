@@ -17,7 +17,7 @@ package com.microsoft.reef.runtime.common.driver;
 
 
 import com.microsoft.reef.driver.activity.CompletedActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 
 final class CompletedActivityImpl implements CompletedActivity {
 

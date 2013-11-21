@@ -18,7 +18,7 @@ package com.microsoft.reef.examples.retained_eval;
 import com.microsoft.reef.driver.activity.*;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
-import com.microsoft.reef.driver.contexts.*;
+import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -209,7 +209,7 @@ public final class JobDriver {
 
   /**
    * Receive notification that the Context had completed.
-   * Remove context from the list of active contexts.
+   * Remove context from the list of active context.
    */
   final class ClosedContextHandler implements EventHandler<ClosedContext> {
     @Override
@@ -223,7 +223,7 @@ public final class JobDriver {
 
   /**
    * Receive notification that the Context had failed.
-   * Remove context from the list of active contexts and notify the client.
+   * Remove context from the list of active context and notify the client.
    */
   final class FailedContextHandler implements EventHandler<FailedContext> {
     @Override
