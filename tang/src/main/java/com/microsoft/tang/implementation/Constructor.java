@@ -170,9 +170,9 @@ final public class Constructor<T> extends InjectionPlan<T> {
     if (leaves.size() == 1) {
      return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName();
     } else {
-      final StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [ ");
+      final StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [\n\t");
       for (final InjectionPlan<?> leaf : leaves) {
-        sb.append(leaf.getNode().getFullName() + ' ');
+        sb.append(leaf.getNode().getFullName() + "\n\t");
       }
       sb.append(']');
       return sb.toString();
