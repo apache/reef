@@ -60,7 +60,7 @@ public class ActivityConfiguration extends ConfigurationModuleBuilder {
   /**
    * Message source invoked upon each evaluator heartbeat.
    */
-  public static final OptionalImpl<ActivityMessageSource> ON_GET_MESSAGE = new OptionalImpl<>();
+  public static final OptionalImpl<ActivityMessageSource> ON_SEND_MESSAGE = new OptionalImpl<>();
 
   /**
    * Event handler to receive ActivityStart after the Activity.call() method was called.
@@ -82,7 +82,7 @@ public class ActivityConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ActivityConfigurationOptions.CloseHandler.class, ON_CLOSE)
       .bindNamedParameter(ActivityConfigurationOptions.SuspendHandler.class, ON_SUSPEND)
       .bindNamedParameter(ActivityConfigurationOptions.MessageHandler.class, ON_MESSAGE)
-      .bindSetEntry(ActivityConfigurationOptions.ActivityMessageSources.class, ON_GET_MESSAGE)
+      .bindSetEntry(ActivityConfigurationOptions.ActivityMessageSources.class, ON_SEND_MESSAGE)
       .bindSetEntry(ActivityConfigurationOptions.StartHandlers.class, ON_ACTIVITY_STARTED)
       .bindSetEntry(ActivityConfigurationOptions.StopHandlers.class, ON_ACTIVITY_STOP)
       .build();

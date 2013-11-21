@@ -142,7 +142,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   /**
    * Event handler for close messages sent by the client. Defaults to job failure if not bound.
    */
-  public static final OptionalImpl<EventHandler<byte[]>> ON_CLIENT_CLOSED_WITH_MESSAGE = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<byte[]>> ON_CLIENT_CLOSED_MESSAGE = new OptionalImpl<>();
 
   // ***** CONTEXT HANDLER BINDINGS:
 
@@ -203,7 +203,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
           // Client handlers
       .bindSetEntry(DriverConfigurationOptions.ClientMessageHandlers.class, ON_CLIENT_MESSAGE)
       .bindSetEntry(DriverConfigurationOptions.ClientCloseHandlers.class, ON_CLIENT_CLOSED)
-      .bindSetEntry(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class, ON_CLIENT_CLOSED_WITH_MESSAGE)
+      .bindSetEntry(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class, ON_CLIENT_CLOSED_MESSAGE)
 
       .build();
 }
