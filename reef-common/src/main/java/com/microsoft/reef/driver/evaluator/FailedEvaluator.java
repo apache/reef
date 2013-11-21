@@ -19,7 +19,7 @@ import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.driver.activity.FailedActivity;
-import com.microsoft.reef.driver.contexts.FailedContext;
+import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.util.Optional;
@@ -40,7 +40,7 @@ public interface FailedEvaluator extends Identifiable {
   public EvaluatorException getEvaluatorException();
 
   /**
-   * @return the list of all contexts that failed due to the evaluator failure.
+   * @return the list of all context that failed due to the evaluator failure.
    */
   public List<FailedContext> getFailedContextList();
 

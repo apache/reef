@@ -18,8 +18,8 @@ package com.microsoft.reef.tests.fail.driver;
 import com.microsoft.reef.driver.activity.ActivityConfiguration;
 import com.microsoft.reef.driver.activity.ActivityMessage;
 import com.microsoft.reef.driver.activity.RunningActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
-import com.microsoft.reef.driver.contexts.ContextConfiguration;
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
@@ -81,7 +81,7 @@ public final class FailDriverDelayedMsg {
             .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
             .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
             .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
-            .set(ActivityConfiguration.ON_GET_MESSAGE, NoopActivity.class)
+            .set(ActivityConfiguration.ON_SEND_MESSAGE, NoopActivity.class)
             .build());
       } catch (final BindException ex) {
         LOG.log(Level.WARNING, "Activity configuration error", ex);

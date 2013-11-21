@@ -19,7 +19,7 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.activity.ActivityMessage;
 import com.microsoft.reef.activity.ActivityMessageSource;
 import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
-import com.microsoft.reef.driver.contexts.ContextConfigurationOptions;
+import com.microsoft.reef.driver.context.ContextConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.util.Optional;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.contexts;
+package com.microsoft.reef.driver.context;
 
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.util.ObjectInstantiationLogger;
@@ -28,13 +28,13 @@ import java.util.Set;
 /**
  * Configuration module for services. The configuration created here can be passed alongside a ContextConfiguration
  * to form a context. Different from bindings made in the ContextConfiguration, those made here will be passed along
- * to child contexts.
+ * to child context.
  */
 public class ServiceConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * A set of services to instantiate. All classes given here will be instantiated in the context, and their references
-   * will be made available to child contexts and activities.
+   * will be made available to child context and activities.
    */
   public static final OptionalParameter<Object> SERVICES = new OptionalParameter<>();
 
@@ -45,7 +45,7 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(Services.class, SERVICES)
       .build();
 
-  @NamedParameter(doc = "A set of classes to be instantiated and shared as singletons within this context and all child contexts",
+  @NamedParameter(doc = "A set of classes to be instantiated and shared as singletons within this context and all child context",
       default_classes = ObjectInstantiationLogger.class)
   @Private
   public static class Services implements Name<Set<Object>> {

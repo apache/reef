@@ -16,7 +16,7 @@
 package com.microsoft.reef.tests.fail.driver;
 
 import com.microsoft.reef.driver.activity.*;
-import com.microsoft.reef.driver.contexts.*;
+import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.reef.tests.exceptions.SimulatedDriverFailure;
@@ -169,7 +169,7 @@ public final class FailDriver {
             .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
             .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
             .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
-            .set(ActivityConfiguration.ON_GET_MESSAGE, NoopActivity.class)
+            .set(ActivityConfiguration.ON_SEND_MESSAGE, NoopActivity.class)
             .build());
       } catch (final BindException ex) {
         LOG.log(Level.WARNING, "Activity configuration error", ex);
@@ -241,7 +241,7 @@ public final class FailDriver {
             .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
             .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
             .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
-            .set(ActivityConfiguration.ON_GET_MESSAGE, NoopActivity.class)
+            .set(ActivityConfiguration.ON_SEND_MESSAGE, NoopActivity.class)
             .set(ActivityConfiguration.MEMENTO, DatatypeConverter.printBase64Binary(HELLO_STR))
             .build());
       } catch (final BindException ex) {

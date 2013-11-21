@@ -37,7 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages the stack of contexts in the Evaluator.
+ * Manages the stack of context in the Evaluator.
  */
 @Private
 @EvaluatorSide
@@ -46,7 +46,7 @@ public final class ContextManager implements AutoCloseable {
   private static final Logger LOG = Logger.getLogger(ContextManager.class.getName());
 
   /**
-   * The stack of contexts.
+   * The stack of context.
    */
   private final Stack<ContextRuntime> contextStack = new Stack<>();
   /**
@@ -184,7 +184,7 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * @return the status of all contexts in the stack.
+   * @return the status of all context in the stack.
    */
   public Collection<ReefServiceProtos.ContextStatusProto> getContextStatusCollection() {
     synchronized (this.contextStack) {

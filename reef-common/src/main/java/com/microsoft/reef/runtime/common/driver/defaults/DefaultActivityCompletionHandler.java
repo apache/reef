@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.driver.defaults;
 
 import com.microsoft.reef.driver.activity.CompletedActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;

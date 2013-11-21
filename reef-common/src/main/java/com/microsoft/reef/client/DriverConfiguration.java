@@ -20,10 +20,10 @@ import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.driver.activity.*;
-import com.microsoft.reef.driver.contexts.ActiveContext;
-import com.microsoft.reef.driver.contexts.ClosedContext;
-import com.microsoft.reef.driver.contexts.ContextMessage;
-import com.microsoft.reef.driver.contexts.FailedContext;
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ClosedContext;
+import com.microsoft.reef.driver.context.ContextMessage;
+import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
@@ -142,22 +142,22 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   /**
    * Event handler for close messages sent by the client. Defaults to job failure if not bound.
    */
-  public static final OptionalImpl<EventHandler<byte[]>> ON_CLIENT_CLOSED_WITH_MESSAGE = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<byte[]>> ON_CLIENT_CLOSED_MESSAGE = new OptionalImpl<>();
 
   // ***** CONTEXT HANDLER BINDINGS:
 
   /**
-   * Event handler for active contexts. Defaults to closing the context if not bound.
+   * Event handler for active context. Defaults to closing the context if not bound.
    */
   public static final OptionalImpl<EventHandler<ActiveContext>> ON_CONTEXT_ACTIVE = new OptionalImpl<>();
 
   /**
-   * Event handler for closed contexts. Defaults to logging if not bound.
+   * Event handler for closed context. Defaults to logging if not bound.
    */
   public static final OptionalImpl<EventHandler<ClosedContext>> ON_CONTEXT_CLOSED = new OptionalImpl<>();
 
   /**
-   * Event handler for closed contexts. Defaults to job failure if not bound.
+   * Event handler for closed context. Defaults to job failure if not bound.
    */
   public static final OptionalImpl<EventHandler<FailedContext>> ON_CONTEXT_FAILED = new OptionalImpl<>();
 
@@ -203,7 +203,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
           // Client handlers
       .bindSetEntry(DriverConfigurationOptions.ClientMessageHandlers.class, ON_CLIENT_MESSAGE)
       .bindSetEntry(DriverConfigurationOptions.ClientCloseHandlers.class, ON_CLIENT_CLOSED)
-      .bindSetEntry(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class, ON_CLIENT_CLOSED_WITH_MESSAGE)
+      .bindSetEntry(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class, ON_CLIENT_CLOSED_MESSAGE)
 
       .build();
 }

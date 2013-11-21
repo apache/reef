@@ -19,7 +19,7 @@ import com.microsoft.reef.driver.activity.ActivityConfiguration;
 import com.microsoft.reef.driver.activity.ActivityMessage;
 import com.microsoft.reef.driver.activity.RunningActivity;
 import com.microsoft.reef.driver.client.JobMessageObserver;
-import com.microsoft.reef.driver.contexts.ContextConfiguration;
+import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
@@ -75,7 +75,7 @@ public final class Driver {
             .set(ActivityConfiguration.IDENTIFIER, activityId)
             .set(ActivityConfiguration.ACTIVITY, ActivityMsg.class)
             .set(ActivityConfiguration.ON_MESSAGE, ActivityMsg.DriverMessageHandler.class)
-            .set(ActivityConfiguration.ON_GET_MESSAGE, ActivityMsg.class)
+            .set(ActivityConfiguration.ON_SEND_MESSAGE, ActivityMsg.class)
             .build();
 
         eval.submitContextAndActivity(contextConfig, activityConfig);

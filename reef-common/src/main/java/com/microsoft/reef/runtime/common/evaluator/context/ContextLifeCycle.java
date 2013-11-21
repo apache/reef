@@ -16,8 +16,7 @@
 package com.microsoft.reef.runtime.common.evaluator.context;
 
 import com.google.common.collect.ImmutableSet;
-import com.microsoft.reef.driver.contexts.ContextConfigurationOptions;
-import com.microsoft.reef.evaluator.context.ContextMessageHandler;
+import com.microsoft.reef.driver.context.ContextConfigurationOptions;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;

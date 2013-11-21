@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.evaluator.context;
 
-import com.microsoft.reef.driver.contexts.ContextConfigurationOptions;
+import com.microsoft.reef.driver.context.ContextConfigurationOptions;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;

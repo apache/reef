@@ -19,7 +19,7 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.EvaluatorSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.contexts.ServiceConfiguration;
+import com.microsoft.reef.driver.context.ServiceConfiguration;
 import com.microsoft.reef.evaluator.context.ContextMessage;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.proto.ReefServiceProtos;

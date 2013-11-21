@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.activity.SuspendedActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 
 final class SuspendedActivityImpl implements SuspendedActivity {
   private final ActiveContext context;

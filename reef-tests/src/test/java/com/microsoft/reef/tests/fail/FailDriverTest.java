@@ -20,7 +20,7 @@ import com.microsoft.reef.driver.activity.ActivityMessage;
 import com.microsoft.reef.driver.activity.CompletedActivity;
 import com.microsoft.reef.driver.activity.RunningActivity;
 import com.microsoft.reef.driver.activity.SuspendedActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.tests.TestEnvironment;

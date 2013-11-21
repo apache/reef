@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.activity.FailedActivity;
-import com.microsoft.reef.driver.contexts.FailedContext;
+import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.util.Optional;

@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.activity.FailedActivity;
-import com.microsoft.reef.driver.contexts.ActiveContext;
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.util.Optional;
 
 final class FailedActivityImpl implements FailedActivity {

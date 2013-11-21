@@ -16,7 +16,7 @@
 package com.microsoft.reef.examples.groupcomm.matmul;
 
 import com.microsoft.reef.driver.activity.*;
-import com.microsoft.reef.driver.contexts.*;
+import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.examples.utils.wake.BlockingEventHandler;
 import com.microsoft.tang.annotations.Name;
