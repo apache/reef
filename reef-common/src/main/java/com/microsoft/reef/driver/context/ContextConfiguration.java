@@ -64,13 +64,13 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
   /**
    * Source of messages to be called whenever the evaluator is about to make a heartbeat.
    */
-  public static final OptionalImpl<ContextMessageSource> ON_CONTEXT_GET_MESSAGE = new OptionalImpl<>();
+  public static final OptionalImpl<ContextMessageSource> ON_SEND_MESSAGE = new OptionalImpl<>();
 
   /**
    * Driver has sent the context a message, and this parameter is used to register a handler
    * on the context for processing that message.
    */
-  public static final OptionalImpl<ContextMessageHandler> ON_CONTEXT_RECEIVE_MESSAGE = new OptionalImpl<>();
+  public static final OptionalImpl<ContextMessageHandler> ON_MESSAGE = new OptionalImpl<>();
 
   /**
    * A ConfigurationModule for context.
@@ -79,8 +79,8 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ContextConfigurationOptions.ContextIdentifier.class, IDENTIFIER)
       .bindSetEntry(ContextConfigurationOptions.StartHandlers.class, ON_CONTEXT_STARTED)
       .bindSetEntry(ContextConfigurationOptions.StopHandlers.class, ON_CONTEXT_STOP)
-      .bindSetEntry(ContextConfigurationOptions.ContextMessageSources.class, ON_CONTEXT_GET_MESSAGE)
-      .bindSetEntry(ContextConfigurationOptions.ContextMessageHandlers.class, ON_CONTEXT_RECEIVE_MESSAGE)
+      .bindSetEntry(ContextConfigurationOptions.ContextMessageSources.class, ON_SEND_MESSAGE)
+      .bindSetEntry(ContextConfigurationOptions.ContextMessageHandlers.class, ON_MESSAGE)
       .bindSetEntry(ActivityConfigurationOptions.StartHandlers.class, ON_ACTIVITY_STARTED)
       .bindSetEntry(ActivityConfigurationOptions.StopHandlers.class, ON_ACTIVITY_STOP)
       .build();
