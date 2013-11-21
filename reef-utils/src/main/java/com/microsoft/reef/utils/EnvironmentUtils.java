@@ -43,6 +43,7 @@ public final class EnvironmentUtils {
   /**
    * Get a set of all classpath entries EXCEPT of those under
    * $JAVA_HOME, $YARN_HOME, and $HADOOP_HOME.
+   *
    * @return A set of classpath entries as strings.
    */
   public static Set<String> getAllClasspathJars() {
@@ -52,6 +53,7 @@ public final class EnvironmentUtils {
   /**
    * Get a set of all classpath entries EXCEPT of those under excludeEnv directories.
    * Every excludeEnv entry is an environment variable name.
+   *
    * @return A set of classpath entries as strings.
    */
   public static Set<String> getAllClasspathJars(final String... excludeEnv) {
@@ -60,22 +62,24 @@ public final class EnvironmentUtils {
     final Set<String> excludePaths = new HashSet<>();
 
     for (final String env : excludeEnv) {
-      final String path = System.getenv(env);
-      if (path != null) {
-        excludePaths.add(path.trim());
+      final File file = new File(env);
+      if (file.exists()) {
+        excludePaths.add(file.getAbsolutePath());
       }
     }
 
-    for (String path : System.getProperty("java.class.path").split(File.pathSeparator)) {
-      if (!path.trim().isEmpty()) {
-        boolean notFound = true;
+    for (final String path : System.getProperty("java.class.path").split(File.pathSeparator)) {
+      final File file = new File(path);
+      if (file.exists()) {
+        final String absolutePath = file.getAbsolutePath();
+        boolean toBeAdded = true;
         for (final String prefix : excludePaths) {
-          if (path.startsWith(prefix)) {
-            notFound = false;
+          if (absolutePath.startsWith(prefix)) {
+            toBeAdded = false;
           }
         }
-        if (notFound) {
-          jars.add(path);
+        if (toBeAdded) {
+          jars.add(absolutePath);
         }
       }
     }
