@@ -85,7 +85,10 @@ namespace Com.Microsoft.TangTest.Tang
             IInjector injector = tang.NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt");
             var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
 
-            var o = (com.microsoft.reef.activity.HelloActivity)TangFactory.GetTang().NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt").GetInstance(typeof(com.microsoft.reef.activity.IActivity));
+            //combined line sample
+            var o = (com.microsoft.reef.activity.HelloActivity)TangFactory.GetTang()
+                .NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt")
+                .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
 
             Assert.IsNotNull(activityRef);
             byte[] b = new byte[10];
