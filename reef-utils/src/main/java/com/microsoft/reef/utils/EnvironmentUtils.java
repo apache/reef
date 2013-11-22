@@ -20,10 +20,15 @@ import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.tang.formats.Param;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class EnvironmentUtils {
+
+  private static final Logger LOG = Logger.getLogger(EnvironmentUtils.class.getName());
 
   public static String getReefHome() {
     final String reefHome = System.getProperty("REEF_HOME", System.getenv("REEF_HOME"));
@@ -62,25 +67,33 @@ public final class EnvironmentUtils {
     final Set<String> excludePaths = new HashSet<>();
 
     for (final String env : excludeEnv) {
-      final File file = new File(env);
-      if (file.exists()) {
-        excludePaths.add(file.getAbsolutePath());
+      try {
+        final File file = new File(env);
+        if (file.exists()) {
+          excludePaths.add(file.getCanonicalPath());
+        }
+      } catch (final IOException ex) {
+        LOG.log(Level.FINE, "Skip environment variable {0}: {1}", new Object[] { env, ex });
       }
     }
 
     for (final String path : System.getProperty("java.class.path").split(File.pathSeparator)) {
-      final File file = new File(path);
-      if (file.exists()) {
-        final String absolutePath = file.getAbsolutePath();
-        boolean toBeAdded = true;
-        for (final String prefix : excludePaths) {
-          if (absolutePath.startsWith(prefix)) {
-            toBeAdded = false;
+      try {
+        final File file = new File(path);
+        if (file.exists()) {
+          final String absolutePath = file.getCanonicalPath();
+          boolean toBeAdded = true;
+          for (final String prefix : excludePaths) {
+            if (absolutePath.startsWith(prefix)) {
+              toBeAdded = false;
+            }
+          }
+          if (toBeAdded) {
+            jars.add(absolutePath);
           }
         }
-        if (toBeAdded) {
-          jars.add(absolutePath);
-        }
+      } catch (final IOException ex) {
+        LOG.log(Level.FINE, "Skip path: {0}: {1}", new Object[] { path, ex });
       }
     }
 
