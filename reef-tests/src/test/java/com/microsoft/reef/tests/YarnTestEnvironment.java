@@ -16,12 +16,11 @@
 package com.microsoft.reef.tests;
 
 import com.microsoft.reef.client.REEF;
-import com.microsoft.reef.utils.EnvironmentUtils;
+import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

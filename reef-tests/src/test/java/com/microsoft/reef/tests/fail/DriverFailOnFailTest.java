@@ -22,7 +22,7 @@ import com.microsoft.reef.tests.TestEnvironmentFactory;
 import com.microsoft.reef.tests.TestUtils;
 import com.microsoft.reef.tests.exceptions.SimulatedDriverFailure;
 import com.microsoft.reef.tests.fail.driver.DriverFailOnFail;
-import com.microsoft.reef.utils.EnvironmentUtils;
+import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
