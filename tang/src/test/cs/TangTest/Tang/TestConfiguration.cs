@@ -69,6 +69,30 @@ namespace Com.Microsoft.TangTest.Tang
         }
 
         [TestMethod]
+        public void TestActivityConfigWithSeperateAssembly()
+        {
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity.dll" });
+            cb.BindImplementation(activityInterfaceType, activityType);
+            IConfiguration conf = cb.Build();
+
+            ConfigurationFile.WriteConfigurationFile(conf, "activityConf1.txt");
+            IDictionary<string, string> p = ReadFromFile("activityConf1.txt");
+
+            IInjector injector = tang.NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt");
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
+
+            var o = (com.microsoft.reef.activity.HelloActivity)TangFactory.GetTang().NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt").GetInstance(typeof(com.microsoft.reef.activity.IActivity));
+
+            Assert.IsNotNull(activityRef);
+            byte[] b = new byte[10];
+            activityRef.Call(b);
+        }
+
+        [TestMethod]
         public void TestActivityConfig()
         {
             Type activityInterfaceType = typeof(Com.Microsoft.Tang.Examples.IActivity);
@@ -89,7 +113,6 @@ namespace Com.Microsoft.TangTest.Tang
             byte[] b = new byte[10];
             activityRef.Call(b);
         }
-
 
         [TestMethod]
         public void TestTweetConfiguration()

@@ -59,6 +59,10 @@
     <Compile Include="Utilities\TestUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\main\cs\Activity\Activity.csproj">
+      <Project>{3a8e3292-95dc-4a49-aea8-10a0bc8bfda6}</Project>
+      <Name>Activity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\main\cs\Examples\Examples.csproj">
       <Project>{1635cd8b-1cd9-413d-8704-3b72c9d85bff}</Project>
       <Name>Examples</Name>
