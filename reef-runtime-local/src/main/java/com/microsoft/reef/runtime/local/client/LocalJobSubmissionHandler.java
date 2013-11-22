@@ -70,6 +70,21 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
     this.rootFolderName = rootFolderName;
   }
 
+  @Inject
+  public LocalJobSubmissionHandler(final ExecutorService executor,
+                                   final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads) {
+    this.executor = executor;
+    this.nThreads = nThreads;
+
+    final File target = new File("target");
+    if (target.exists() && target.isDirectory()) {
+      this.rootFolderName = new File(target, "REEF_LOCAL_RUNTIME").getAbsolutePath();
+    } else {
+      this.rootFolderName = new File("REEF_LOCAL_RUNTIME").getAbsolutePath();
+    }
+  }
+
+
   @Override
   public final void close() {
     this.executor.shutdown();

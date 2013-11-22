@@ -54,7 +54,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final class NumberOfThreads implements Name<Integer> {
   }
 
-  @NamedParameter(default_value = "./REEF_LOCAL_RUNTIME", doc = "The folder where logs etc. shall be stored")
+  @NamedParameter(doc = "The folder where logs etc. shall be stored.")
   public static class RootFolder implements Name<String> {
   }
 
@@ -70,6 +70,9 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
    * The folder in which the sub-folders, one per Node, will be created. Those will contain one folder per
    * Evaluator instantiated on the virtual node. Those inner folders will be named by the time when the Evaluator was
    * launched.
+   * <p/>
+   * If none is given, the folder "REEF_LOCAL_RUNTIME" will be created in the "target" folder if that exists. Otherwise,
+   * it will be created in the current working directory.
    */
   public static final OptionalParameter<String> RUNTIME_ROOT_FOLDER = new OptionalParameter<>();
 
