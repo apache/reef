@@ -60,13 +60,36 @@ namespace Com.Microsoft.TangTest.Tang
             ConfigurationFile.AddConfiguration(cb1, "activityConf.txt");
             IConfiguration conf1 = cb1.Build();
 
-            IInjector injector = tang.NewInjector(conf1);
+            IInjector injector = tang1.NewInjector(conf1);
             var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityInterfaceType);
             Assert.IsNotNull(activityRef);
 
             byte[] b = new byte[10];
             activityRef.Call(b);
         }
+
+        [TestMethod]
+        public void TestActivityConfig()
+        {
+            Type activityInterfaceType = typeof(Com.Microsoft.Tang.Examples.IActivity);
+            Type activityType = typeof(Com.Microsoft.Tang.Examples.HelloActivity);
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+            cb.BindImplementation(activityInterfaceType, activityType);
+            IConfiguration conf = cb.Build();
+
+            ConfigurationFile.WriteConfigurationFile(conf, "activityConf.txt");
+            IDictionary<string, string> p = ReadFromFile("activityConf.txt");
+
+            IInjector injector = tang.NewInjector(new string[] { file }, "activityConf.txt");
+            var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityInterfaceType);
+
+            Assert.IsNotNull(activityRef);
+            byte[] b = new byte[10];
+            activityRef.Call(b);
+        }
+
 
         [TestMethod]
         public void TestTweetConfiguration()
@@ -89,7 +112,28 @@ namespace Com.Microsoft.TangTest.Tang
             ConfigurationFile.AddConfiguration(cb1, "tweeterConf.txt");
             IConfiguration conf1 = cb1.Build();
 
-            IInjector injector = tang.NewInjector(conf1);
+            IInjector injector = tang1.NewInjector(conf1);
+            var tweeter = (Com.Microsoft.Tang.Examples.Tweeter)injector.GetInstance(tweeterType);
+            tweeter.sendMessage();
+        }
+
+        [TestMethod]
+        public void TestTweetConfig()
+        {
+            Type tweeterType = typeof(Com.Microsoft.Tang.Examples.Tweeter);
+            Type namedParameter = asm.GetType(@"Com.Microsoft.Tang.Examples.Tweeter+PhoneNumber");
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+
+            cb.BindImplementation(typeof(TweetFactory), typeof(MockTweetFactory));
+            cb.BindImplementation(typeof(SMS), typeof(MockSMS));
+            cb.BindNamedParameter(namedParameter, "8675309");
+            IConfiguration conf = cb.Build();
+
+            ConfigurationFile.WriteConfigurationFile(conf, "tweeterConf.txt");
+            IDictionary<string, string> p = ReadFromFile("tweeterConf.txt");
+
+            IInjector injector = tang.NewInjector(new string[] { file }, "tweeterConf.txt");
             var tweeter = (Com.Microsoft.Tang.Examples.Tweeter)injector.GetInstance(tweeterType);
             tweeter.sendMessage();
         }
@@ -142,7 +186,7 @@ namespace Com.Microsoft.TangTest.Tang
             ConfigurationFile.AddConfiguration(cb1, "docLoadConf.txt");
             IConfiguration conf1 = cb1.Build();
 
-            IInjector injector = tang.NewInjector(conf1);
+            IInjector injector = tang1.NewInjector(conf1);
             var doc = (Com.Microsoft.Tang.Examples.DocumentedLocalNamedParameter)injector.GetInstance(documentedLocalNamedParameterType);
 
             Assert.IsNotNull(doc);
@@ -172,7 +216,7 @@ namespace Com.Microsoft.TangTest.Tang
             ConfigurationFile.AddConfiguration(cb1, "timerConfH.txt");
             IConfiguration conf1 = cb1.Build();
 
-            IInjector injector = tang.NewInjector(conf1);
+            IInjector injector = tang1.NewInjector(conf1);
             var timer = (Com.Microsoft.Tang.Examples.Timer)injector.GetInstance(timerType);
 
             Assert.IsNotNull(timer);
