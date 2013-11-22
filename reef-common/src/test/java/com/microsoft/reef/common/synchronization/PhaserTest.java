@@ -25,10 +25,10 @@ import java.util.logging.Logger;
 public class PhaserTest {
   private static final Logger LOG = Logger.getLogger(PhaserTest.class.getName());
 
-  @Rule
+//  @Rule
   public TestName name = new TestName();
 
-  @Test
+//  @Test
   public void testPhaser() throws Exception {
     System.out.println(name.getMethodName());
 
@@ -121,7 +121,7 @@ public class PhaserTest {
     rm2.close();
   }
 
-  @Test
+//  @Test
   public void testDelayedRegistration() throws Exception {
     System.out.println(name.getMethodName());
 
@@ -211,7 +211,7 @@ public class PhaserTest {
     rm2.close();
   }
 
-  @Test
+//  @Test
   public void testParentToMany() throws Exception {
     LOG.log(Level.FINE, "Starting: " + name.getMethodName());
 
