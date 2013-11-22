@@ -20,7 +20,8 @@ import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.tang.formats.Param;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -64,16 +65,12 @@ public final class EnvironmentUtils {
   public static Set<String> getAllClasspathJars(final String... excludeEnv) {
 
     final Set<String> jars = new HashSet<>();
-    final Set<String> excludePaths = new HashSet<>();
+    final Set<Path> excludePaths = new HashSet<>();
 
     for (final String env : excludeEnv) {
-      try {
-        final File file = new File(env);
-        if (file.exists()) {
-          excludePaths.add(file.getCanonicalPath());
-        }
-      } catch (final IOException ex) {
-        LOG.log(Level.FINE, "Skip environment variable {0}: {1}", new Object[] { env, ex });
+      final File file = new File(env);
+      if (file.exists()) {
+        excludePaths.add(file.toPath());
       }
     }
 
@@ -81,18 +78,18 @@ public final class EnvironmentUtils {
       try {
         final File file = new File(path);
         if (file.exists()) {
-          final String absolutePath = file.getCanonicalPath();
+          final Path absolutePath = file.toPath();
           boolean toBeAdded = true;
-          for (final String prefix : excludePaths) {
+          for (final Path prefix : excludePaths) {
             if (absolutePath.startsWith(prefix)) {
               toBeAdded = false;
             }
           }
           if (toBeAdded) {
-            jars.add(absolutePath);
+            jars.add(absolutePath.toString());
           }
         }
-      } catch (final IOException ex) {
+      } catch (final InvalidPathException ex) {
         LOG.log(Level.FINE, "Skip path: {0}: {1}", new Object[] { path, ex });
       }
     }
