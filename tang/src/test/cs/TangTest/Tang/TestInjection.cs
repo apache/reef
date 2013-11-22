@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Com.Microsoft.Tang.Examples;
+using Com.Microsoft.Tang.formats;
 using Com.Microsoft.Tang.Implementations;
 using Com.Microsoft.Tang.Interface;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -127,6 +129,25 @@ namespace Com.Microsoft.TangTest.Tang
         }
 
         [TestMethod]
+        public void TestActivityWithBinding()
+        {
+            Type activityInterfaceType = typeof(Com.Microsoft.Tang.Examples.IActivity);
+            Type activityType = typeof(Com.Microsoft.Tang.Examples.HelloActivity);
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+            cb.BindImplementation(activityInterfaceType, activityType);
+
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityInterfaceType);
+            Assert.IsNotNull(activityRef);
+
+            byte[] b = new byte[10];
+            activityRef.Call(b);
+        }
+
+        [TestMethod]
         public void TestTweetExample()
         {
             Type tweeterType = typeof(Com.Microsoft.Tang.Examples.Tweeter);
@@ -141,6 +162,9 @@ namespace Com.Microsoft.TangTest.Tang
             IInjector injector = tang.NewInjector(conf);
             var tweeter = (Com.Microsoft.Tang.Examples.Tweeter)injector.GetInstance(tweeterType);
             tweeter.sendMessage();
+
+            var sms = (Com.Microsoft.Tang.Examples.SMS)injector.GetInstance(typeof(SMS));
+            var factory = (Com.Microsoft.Tang.Examples.TweetFactory)injector.GetInstance(typeof(TweetFactory));
         }
     }
 }

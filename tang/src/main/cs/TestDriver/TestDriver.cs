@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -17,7 +18,8 @@ namespace Com.Microsoft.Tang.TestDriver
 
         public static void Main(string[] args)
         {
-            PlayGround();
+            FileTest();
+            TypeTest();
             CreateClassHierarchy();
         }
 
@@ -49,7 +51,64 @@ namespace Com.Microsoft.Tang.TestDriver
             }
         }
 
-        public static void PlayGround()
+        public static void FileTest()
+        {
+            WriteLine("testfile1.txt");
+            WriteToString("testfile2.txt");
+
+            ReadFromFile("testfile1.txt");
+            ReadFromFile("testfile2.txt");
+        }
+
+        private static void ReadFromFile(string fileName)
+        {
+            IDictionary<string, string> property = new Dictionary<string, string>();
+            using (StreamReader sr = new StreamReader(fileName))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    string[] p = line.Split('=');
+                    property.Add(p[0], p[1]);
+                }
+            }
+        }
+
+        private static void WriteToString(string fileName)
+        {
+            List<string> l = new List<string>();
+            l.Add("key1=value1");
+            l.Add("key2=value2");
+            l.Add("key3=value3");
+            l.Add("key4=value4");
+
+            StringBuilder sb = new StringBuilder();
+            foreach (string s in l)
+            {
+                sb.Append(s);
+                sb.Append('\n');
+            }
+
+            FileStream aFile2 = new FileStream(fileName, FileMode.OpenOrCreate);
+            using (StreamWriter sw = new StreamWriter(aFile2))
+            {
+                sw.Write(sb.ToString());
+            }
+        }
+
+        private static void WriteLine(string fileName)
+        {
+            FileStream aFile = new FileStream(fileName, FileMode.OpenOrCreate);
+            using (StreamWriter sw = new StreamWriter(aFile))
+            {
+
+                sw.WriteLine("key1=value1");
+                sw.WriteLine("key2=value2");
+                sw.WriteLine("key3=value3");
+                sw.WriteLine("key4=value4");
+            }
+        }
+        public static void TypeTest()
         {
             var asm = Assembly.LoadFrom(@"Com.Microsoft.Tang.Examples.dll");
             var types = asm.GetTypes();

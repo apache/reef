@@ -69,10 +69,10 @@ namespace Com.Microsoft.Tang.Implementations
             if (name.Equals(typeof(Char).Name)) {
                 return (object) (Char) value[0];
             }
-            //if (name.Equals(typeof(Short).Name)) 
-            //{
-            //    return (T) (Short) Short.parseShort(value);
-            //}
+            if (name.Equals(typeof(short).Name))
+            {
+                return (System.Int16)System.Int16.Parse(value);
+            }
             if (name.Equals(typeof(int).Name))
             {
                 return (object) (Int32) Int32.Parse(value);
@@ -81,13 +81,10 @@ namespace Com.Microsoft.Tang.Implementations
             {
                 return (object)(Int64)Int64.Parse(value);
             }
-            //if (name.Equals(Long.class.getName())) {
-            //    return (T) (Long) Long.parseLong(value);
-            //}
-            //if (name.Equals(typeof(Float).Name)) 
-            //{
-            //    return (object) (Float) Float.parseFloat(value);
-            //}
+            if (name.Equals(typeof(float).Name))
+            {
+                return (object)(Single)Single.Parse(value);
+            }
             if (name.Equals(typeof(Double).Name) )
             {
                 return (object) (Double) Double.Parse(value);
@@ -95,6 +92,12 @@ namespace Com.Microsoft.Tang.Implementations
             if (name.Equals(typeof(Boolean).Name)) 
             {
                 return (object) (Boolean) Boolean.Parse(value);
+            }
+            if (name.Equals(typeof(byte[]).Name))  //TO verify
+            {
+                byte[] bytes = new byte[value.Length * sizeof(char)];
+                System.Buffer.BlockCopy(value.ToCharArray(), 0, bytes, 0, bytes.Length);
+                return bytes;
             }
             //if (name.Equals(Void.class.getName())) {
             //    throw new ClassCastException("Can't instantiate void");

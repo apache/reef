@@ -53,16 +53,16 @@ namespace Com.Microsoft.Tang.Util
                 return typeof(Byte);
             } else if (c == typeof(char)) {
                 return typeof(Char);
-            //} else if (c == typeof(short)) {
-            //    return typeof(Short);
+            } else if (c == typeof(short)) {
+                return typeof(Int16);
             } else if (c == typeof(int)) {
                 return typeof(Int32);
             }
             else if (c == typeof(long))
             {
                 return typeof(long);
-            //} else if (c == typeof(float) {
-            //    return typeof(Float);
+            } else if (c == typeof(float)) {
+                return typeof(Single);
             } else if (c == typeof(double)) {
                 return typeof(Double);
             } else {

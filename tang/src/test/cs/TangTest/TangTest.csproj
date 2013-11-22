@@ -54,6 +54,7 @@
     <Compile Include="ClassHierarchy\TestParameterParser.cs" />
     <Compile Include="ClassHierarchy\TestSerilization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tang\TestConfiguration.cs" />
     <Compile Include="Tang\TestInjection.cs" />
     <Compile Include="Utilities\TestUtilities.cs" />
   </ItemGroup>
