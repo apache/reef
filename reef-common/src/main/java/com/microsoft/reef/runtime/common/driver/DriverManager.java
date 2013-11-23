@@ -143,7 +143,7 @@ final class DriverManager implements EvaluatorRequestor {
 
   @Override
   public void submit(final EvaluatorRequest req) {
-    LOG.info("Got an EvaluatorRequest");
+    LOG.log(Level.FINEST, "Got an EvaluatorRequest");
     final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto.newBuilder();
     switch (req.getSize()) {
       case MEDIUM:

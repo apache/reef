@@ -108,7 +108,7 @@ public final class ContextRuntime {
    */
   ContextRuntime(final Injector serviceInjector, final Configuration contextConfiguration) throws ContextClientCodeException {
     this(serviceInjector, contextConfiguration, Optional.<ContextRuntime>empty());
-    LOG.log(Level.INFO, "Instantiating root context");
+    LOG.log(Level.FINEST, "Instantiating root context");
   }
 
 
@@ -207,7 +207,7 @@ public final class ContextRuntime {
         activityRuntime.initialize();
         activityRuntime.start();
         this.activity = Optional.of(activityRuntime);
-        LOG.info("Started activity '" + activityRuntime.getActivityId());
+        LOG.log(Level.FINEST, "Started activity '" + activityRuntime.getActivityId());
       } catch (final BindException | InjectionException e) {
         throw new ActivityClientCodeException(ActivityClientCodeException.getActivityIdentifier(activityConfiguration),
             this.getIdentifier(),

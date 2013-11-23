@@ -36,13 +36,10 @@ import java.util.logging.Logger;
 @Unit
 public class HeartBeatManager {
   private static final Logger LOG = Logger.getLogger(HeartBeatManager.class.getName());
-
   private final Clock clock;
   private final int heartbeatPeriod;
   private final EventHandler<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatHandler;
-
   private final InjectionFuture<EvaluatorRuntime> evaluatorRuntime;
-
   private final InjectionFuture<ContextManager> contextManager;
 
   @Inject
@@ -65,7 +62,7 @@ public class HeartBeatManager {
   public void onNext() {
     synchronized (this) {
       final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto = this.getEvaluatorHeartbeatProto();
-      LOG.info("heartbeat: " + heartbeatProto);
+      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
       this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
     }
   }
@@ -82,7 +79,7 @@ public class HeartBeatManager {
           this.evaluatorRuntime.get().getEvaluatorStatus(),
           this.contextManager.get().getContextStatusCollection(),
           Optional.of(activityStatusProto));
-      LOG.info("heartbeat: " + heartbeatProto);
+      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
       this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
     }
   }
@@ -103,11 +100,10 @@ public class HeartBeatManager {
           this.evaluatorRuntime.get().getEvaluatorStatus(),
           contextStatusList,
           Optional.<ReefServiceProtos.ActivityStatusProto>empty());
-      LOG.info("heartbeat: " + heartbeatProto);
+      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
       this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
     }
   }
-
 
   /**
    * Called with a specific EvaluatorStatus that must be delivered to the driver
@@ -121,11 +117,10 @@ public class HeartBeatManager {
               .setTimestamp(System.currentTimeMillis())
               .setEvaluatorStatus(evaluatorStatusProto)
               .build();
-      LOG.info("heartbeat: " + heartbeatProto);
+      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
       this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
     }
   }
-
 
   private EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto getEvaluatorHeartbeatProto() {
     return this.getEvaluatorHeartbeatProto(
@@ -153,18 +148,17 @@ public class HeartBeatManager {
     return builder.build();
   }
 
-
   final class HeartbeatAlarmHandler implements EventHandler<Alarm> {
     @Override
     public void onNext(final Alarm alarm) {
       synchronized (HeartBeatManager.this) {
         if (HeartBeatManager.this.evaluatorRuntime.get().getState() == ReefServiceProtos.State.RUNNING) {
           final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = HeartBeatManager.this.getEvaluatorHeartbeatProto();
-          LOG.log(Level.FINE, "Triggering a heartbeat:\n" + evaluatorHeartbeatProto.toString());
+          LOG.log(Level.FINEST, "Triggering a heartbeat:\n" + evaluatorHeartbeatProto.toString());
           HeartBeatManager.this.evaluatorHeartbeatHandler.onNext(evaluatorHeartbeatProto);
           HeartBeatManager.this.clock.scheduleAlarm(HeartBeatManager.this.heartbeatPeriod, this);
         } else {
-          LOG.log(Level.FINE, "Not triggering a heartbeat, because state is:" + HeartBeatManager.this.evaluatorRuntime.get().getState());
+          LOG.log(Level.FINEST, "Not triggering a heartbeat, because state is:" + HeartBeatManager.this.evaluatorRuntime.get().getState());
         }
       }
     }

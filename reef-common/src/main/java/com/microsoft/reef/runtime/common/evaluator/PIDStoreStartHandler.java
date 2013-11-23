@@ -31,8 +31,8 @@ import java.util.logging.Logger;
  * This Handler writes the Process ID (PID) to a file with a name given in PID_FILE_NAME to the local working directory.
  */
 public class PIDStoreStartHandler implements EventHandler<StartTime> {
-  private static final Logger LOG = Logger.getLogger(PIDStoreStartHandler.class.getName());
   public static final String PID_FILE_NAME = "PID.txt";
+  private static final Logger LOG = Logger.getLogger(PIDStoreStartHandler.class.getName());
 
   @Inject
   public PIDStoreStartHandler() {
@@ -42,7 +42,7 @@ public class PIDStoreStartHandler implements EventHandler<StartTime> {
   public void onNext(final StartTime startTime) {
     final long pid = OSUtils.getPID();
     final File outfile = new File(PID_FILE_NAME);
-    LOG.info("String pid `" + pid + "` in file " + outfile.getAbsolutePath());
+    LOG.log(Level.FINEST, "Storing pid `" + pid + "` in file " + outfile.getAbsolutePath());
     try (final PrintWriter p = new PrintWriter((new FileOutputStream(PID_FILE_NAME)))) {
       p.write(String.valueOf(pid));
       p.write("\n");

@@ -81,7 +81,7 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   private Configuration getClockConfiguration() {
     final JavaConfigurationBuilder clockConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
 
-    LOG.log(Level.FINE, "Loading configfile: " + this.evaluatorConfigurationPath);
+    LOG.log(Level.FINEST, "Loading configfile: " + this.evaluatorConfigurationPath);
     final File evaluatorConfigFile = new File(this.evaluatorConfigurationPath);
     try {
 
