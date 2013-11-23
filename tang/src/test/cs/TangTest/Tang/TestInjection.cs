@@ -71,9 +71,11 @@ namespace Com.Microsoft.TangTest.Tang
             ClassHierarchyImpl classHierarchyImpl = new ClassHierarchyImpl(file);
 
             ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(classHierarchyImpl);
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder((ICsClassHierarchy)classHierarchyImpl);
+
             cb.BindNamedParameter(namedParameter, "2");
             IConfiguration conf = cb.Build();
+
             IInjector injector = tang.NewInjector(conf);
             var timer = (Com.Microsoft.Tang.Examples.Timer)injector.GetInstance(timerType);
 

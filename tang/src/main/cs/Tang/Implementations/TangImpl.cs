@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Com.Microsoft.Tang.Exceptions;
 using Com.Microsoft.Tang.formats;
 using Com.Microsoft.Tang.Interface;
+using Com.Microsoft.Tang.Protobuf;
 using Com.Microsoft.Tang.Util;
 
 namespace Com.Microsoft.Tang.Implementations
@@ -29,6 +30,17 @@ namespace Com.Microsoft.Tang.Implementations
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb1 = tang.NewConfigurationBuilder(assemblies);
             ConfigurationFile.AddConfiguration(cb1, configurationFileName);
+            IConfiguration conf = cb1.Build();
+
+            IInjector injector = tang.NewInjector(conf);
+            return injector;
+        }
+
+        public IInjector NewInjector(string[] assemblies, IDictionary<string, string> configurations)
+        {
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb1 = tang.NewConfigurationBuilder(assemblies);
+            ConfigurationFile.AddConfiguration(cb1, configurations);
             IConfiguration conf = cb1.Build();
 
             IInjector injector = tang.NewInjector(conf);
@@ -101,6 +113,11 @@ namespace Com.Microsoft.Tang.Implementations
                 throw new IllegalStateException(
                     "Caught unexpeceted bind exception!  Implementation bug.", e);
             }
+        }
+
+        public IConfigurationBuilder NewConfigurationBuilder(IClassHierarchy classHierarchy)
+        {
+            return new ConfigurationBuilderImpl(classHierarchy);
         }
 
         public ICsConfigurationBuilder NewConfigurationBuilder(ICsClassHierarchy classHierarchy)

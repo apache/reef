@@ -9,6 +9,7 @@ using Com.Microsoft.Tang.Examples;
 using Com.Microsoft.Tang.formats;
 using Com.Microsoft.Tang.Implementations;
 using Com.Microsoft.Tang.Interface;
+using Com.Microsoft.Tang.Protobuf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Com.Microsoft.TangTest.Tang
@@ -93,6 +94,23 @@ namespace Com.Microsoft.TangTest.Tang
             Assert.IsNotNull(activityRef);
             byte[] b = new byte[10];
             activityRef.Call(b);
+        }
+
+        [TestMethod]
+        public void TestGetConfgiFromProtoBufClassHierarchy()
+        {
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"com.microsoft.reef.activity.dll");
+            ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
+            IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
+            ITang tang = TangFactory.GetTang();
+            IConfigurationBuilder cb = tang.NewConfigurationBuilder(ch);
+            cb.Bind("com.microsoft.reef.activity.IActivity", "com.microsoft.reef.activity.HelloActivity");
+
+            IConfiguration conf = cb.Build();
+            ConfigurationFile.WriteConfigurationFile(conf, "activityConf2.txt");
         }
 
         [TestMethod]

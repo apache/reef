@@ -81,6 +81,11 @@ namespace Com.Microsoft.Tang.formats
         public static void AddConfiguration(IConfigurationBuilder conf, string fileName)
         {
             IDictionary<string, string> settings = ReadFromFile(fileName);
+            AddConfiguration(conf, settings);
+        }
+
+        public static void AddConfiguration(IConfigurationBuilder conf, IDictionary<string, string> settings)
+        {
             foreach (KeyValuePair<string, string> kv in settings)
             {
                 try
@@ -91,9 +96,9 @@ namespace Com.Microsoft.Tang.formats
                 {
                     throw new BindException("Failed to process configuration tuple: [" + kv.Key + "=" + kv.Value + "]", e);
                 }
-                catch(ClassHierarchyException e) 
+                catch (ClassHierarchyException e)
                 {
-                    throw new ClassHierarchyException("Failed to process configuration tuple: ["+ kv.Key + "=" + kv.Value + "]",e);
+                    throw new ClassHierarchyException("Failed to process configuration tuple: [" + kv.Key + "=" + kv.Value + "]", e);
                 }
             }
         }
