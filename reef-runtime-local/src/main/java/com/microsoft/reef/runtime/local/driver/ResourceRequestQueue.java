@@ -50,7 +50,6 @@ final class ResourceRequestQueue {
    * Satisfies one resource for the front-most request. If that satisfies the
    * request, it is removed from the queue.
    */
-  // TODO: Look into race conditions here
   final synchronized void satisfyOne() {
     final ResourceRequest req = this.requestQueue.element();
     req.satisfyOne();

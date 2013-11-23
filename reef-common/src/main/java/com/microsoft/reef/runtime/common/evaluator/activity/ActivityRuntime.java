@@ -101,7 +101,7 @@ public final class ActivityRuntime extends Thread {
   @Override
   public void run() {
     try {
-      LOG.info("call activity");
+      LOG.log(Level.FINEST, "call activity");
       if (this.currentStatus.isNotRunning()) {
         throw new RuntimeException("ActivityRuntime not initialized!");
       }
@@ -114,7 +114,7 @@ public final class ActivityRuntime extends Thread {
       }
 
       synchronized(this.heartBeatManager) {
-        LOG.info("activity call finished");
+        LOG.log(Level.FINEST, "activity call finished");
         this.currentStatus.setResult(result);
       }
 

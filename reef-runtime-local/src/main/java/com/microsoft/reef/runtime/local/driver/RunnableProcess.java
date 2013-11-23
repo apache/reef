@@ -70,7 +70,7 @@ public final class RunnableProcess implements Runnable {
 
     // Launch the process
     try {
-      LOG.log(Level.INFO, "Launching process \"{0}\"\nSTDERR can be found in {1}\nSTDOUT can be found in {2}",
+      LOG.log(Level.FINEST, "Launching process \"{0}\"\nSTDERR can be found in {1}\nSTDOUT can be found in {2}",
           new Object[]{this.id, errFile.getAbsolutePath(), outFile.getAbsolutePath()});
       this.process = new ProcessBuilder()
           .command(this.command)
@@ -87,7 +87,7 @@ public final class RunnableProcess implements Runnable {
     try {
       final int returnCode = process.waitFor();
       this.ended = true;
-      LOG.log(Level.INFO, "Process \"{0}\" returned {1}", new Object[]{this.id, returnCode});
+      LOG.log(Level.FINEST, "Process \"{0}\" returned {1}", new Object[]{this.id, returnCode});
     } catch (final InterruptedException ex) {
       LOG.log(Level.SEVERE, "Interrupted while waiting for the process \"{0}\" to complete. Exception: {2}",
           new Object[]{this.id, ex});

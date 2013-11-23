@@ -30,6 +30,7 @@ import com.microsoft.wake.EventHandler;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -80,7 +81,7 @@ public final class ResourceManager {
     }
 
 
-    LOG.info("ResourceManager instantiated");
+    LOG.log(Level.FINEST, "ResourceManager instantiated");
   }
 
   /**
@@ -104,7 +105,7 @@ public final class ResourceManager {
    */
   final void onNext(final DriverRuntimeProtocol.ResourceReleaseProto releaseRequest) {
     synchronized (this.theContainers) {
-      LOG.info("Release container " + releaseRequest.getIdentifier());
+      LOG.log(Level.FINEST, "Release container " + releaseRequest.getIdentifier());
       this.theContainers.release(releaseRequest.getIdentifier());
       this.checkQ();
     }
@@ -135,7 +136,7 @@ public final class ResourceManager {
       classPathList.addAll(this.globalLibraries);
       classPathList.addAll(localLibraries);
 
-      LOG.info("Launching container " + c);
+      LOG.log(Level.FINEST, "Launching container " + c);
       c.run(launchRequest.getEvaluatorConf(), files, classPathList);
     }
   }
@@ -160,7 +161,7 @@ public final class ResourceManager {
               .setResourceMemory(container.getMemory())
               .build();
 
-      LOG.info("Allocating container " + container);
+      LOG.log(Level.FINEST, "Allocating container " + container);
       this.allocationHandler.onNext(alloc);
 
       // update REEF
@@ -180,7 +181,7 @@ public final class ResourceManager {
         .addAllContainerAllocation(this.theContainers.getAllocatedContainerIDs());
     final DriverRuntimeProtocol.RuntimeStatusProto msg = b.build();
     final String logMessage = "Outstanding Container Requests: " + msg.getOutstandingContainerRequests() + ", AllocatedContainers: " + msg.getContainerAllocationCount();
-    LOG.info(logMessage);
+    LOG.log(Level.FINEST, logMessage);
     this.runtimeStatusHandlerEventHandler.onNext(msg);
   }
 

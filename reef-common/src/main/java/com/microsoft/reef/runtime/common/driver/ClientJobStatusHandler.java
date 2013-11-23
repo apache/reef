@@ -90,7 +90,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   @Override
   public void onNext(final byte[] message) {
-    LOG.log(Level.INFO, "Job message from {0}", this.jobID);
+    LOG.log(Level.FINEST,  "Job message from {0}", this.jobID);
     send(JobStatusProto.newBuilder()
         .setIdentifier(this.jobID.toString())
         .setState(ReefServiceProtos.State.RUNNING)
@@ -117,7 +117,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
    * @param status of the job
    */
   private void send(final JobStatusProto status) {
-    LOG.log(Level.INFO, "Sending job status: {0}", status);
+    LOG.log(Level.FINEST,  "Sending job status: {0}", status);
     this.jobStatusHandler.onNext(status);
   }
 
@@ -144,7 +144,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   public final class RuntimeStartHandler implements EventHandler<RuntimeStart> {
     @Override
     public void onNext(final RuntimeStart runtimeStart) {
-      LOG.log(Level.INFO, "Processing runtimeStart: {0}", runtimeStart);
+      LOG.log(Level.FINEST,  "Processing runtimeStart: {0}", runtimeStart);
       send(JobStatusProto.newBuilder()
           .setIdentifier(ClientJobStatusHandler.this.jobID.toString())
           .setState(ReefServiceProtos.State.INIT)

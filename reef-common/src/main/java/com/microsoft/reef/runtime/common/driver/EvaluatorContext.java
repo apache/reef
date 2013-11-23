@@ -25,6 +25,7 @@ import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.ConfigurationFile;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class EvaluatorContext implements ActiveContext {
@@ -48,7 +49,7 @@ public final class EvaluatorContext implements ActiveContext {
   @Override
   public void close() {
     if (this.closed) throw new RuntimeException("Active context already closed");
-    LOG.info("Submit close context: RunningEvaluator id[" + getEvaluatorId() + "] for context id[" + getId() + "]");
+    LOG.log(Level.FINEST, "Submit close context: RunningEvaluator id[" + getEvaluatorId() + "] for context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -63,22 +64,22 @@ public final class EvaluatorContext implements ActiveContext {
   @Override
   public void sendMessage(final byte[] message) {
     if (this.closed) throw new RuntimeException("Active context already closed");
-    LOG.info("Send message: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
+    LOG.log(Level.FINEST, "Send message: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
-             .setContextMessage(EvaluatorRuntimeProtocol.ContextMessageProto.newBuilder()
-                                  .setContextId(this.identifier)
-                                  .setMessage(ByteString.copyFrom(message))
-                                  .build())
-             .build();
+            .setContextMessage(EvaluatorRuntimeProtocol.ContextMessageProto.newBuilder()
+                .setContextId(this.identifier)
+                .setMessage(ByteString.copyFrom(message))
+                .build())
+            .build();
     this.evaluatorManager.handle(contextControlProto);
   }
 
   @Override
   public void submitActivity(Configuration activityConfiguration) {
     if (this.closed) throw new RuntimeException("Active context already closed");
-    LOG.info("Submit activity: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
+    LOG.log(Level.FINEST, "Submit activity: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -93,7 +94,7 @@ public final class EvaluatorContext implements ActiveContext {
   @Override
   public void submitContext(final Configuration contextConfiguration) {
     if (this.closed) throw new RuntimeException("Active context already closed");
-    LOG.info("Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
+    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -109,7 +110,7 @@ public final class EvaluatorContext implements ActiveContext {
   @Override
   public void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration) {
     if (this.closed) throw new RuntimeException("Active context already closed");
-    LOG.info("Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
+    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()

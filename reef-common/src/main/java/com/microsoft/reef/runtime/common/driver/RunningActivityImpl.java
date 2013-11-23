@@ -22,6 +22,7 @@ import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.ContextControlProto;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.StopActivityProto;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.SuspendActivityProto;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -38,7 +39,7 @@ final class RunningActivityImpl implements RunningActivity {
   private final String activityId;
 
   RunningActivityImpl(final EvaluatorManager evaluatorManager, final String activityId, final EvaluatorContext evaluatorContext) {
-    LOG.info("INIT: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
+    LOG.log(Level.FINEST, "INIT: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
     this.evaluatorManager = evaluatorManager;
     this.evaluatorContext = evaluatorContext;
@@ -58,54 +59,54 @@ final class RunningActivityImpl implements RunningActivity {
 
   @Override
   public final void onNext(final byte[] message) {
-    LOG.info("MESSAGE: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
+    LOG.log(Level.FINEST, "MESSAGE: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
     ContextControlProto contextControlProto = ContextControlProto.newBuilder()
-            .setActivityMessage(ByteString.copyFrom(message))
-            .build();
+        .setActivityMessage(ByteString.copyFrom(message))
+        .build();
 
     this.evaluatorManager.handle(contextControlProto);
   }
 
   @Override
   public void close() {
-    LOG.info("CLOSE: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
+    LOG.log(Level.FINEST, "CLOSE: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
     ContextControlProto contextControlProto = ContextControlProto.newBuilder()
-            .setStopActivity(StopActivityProto.newBuilder().build())
-            .build();
+        .setStopActivity(StopActivityProto.newBuilder().build())
+        .build();
     this.evaluatorManager.handle(contextControlProto);
   }
 
   @Override
   public void close(byte[] message) {
-    LOG.info("CLOSE: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
+    LOG.log(Level.FINEST, "CLOSE: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
 
     ContextControlProto contextControlProto = ContextControlProto.newBuilder()
-            .setStopActivity(StopActivityProto.newBuilder().build())
-            .setActivityMessage(ByteString.copyFrom(message))
-            .build();
+        .setStopActivity(StopActivityProto.newBuilder().build())
+        .setActivityMessage(ByteString.copyFrom(message))
+        .build();
     this.evaluatorManager.handle(contextControlProto);
   }
 
   @Override
   public void suspend(byte[] message) {
-    LOG.info("SUSPEND: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
+    LOG.log(Level.FINEST, "SUSPEND: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
 
     ContextControlProto contextControlProto = ContextControlProto.newBuilder()
-            .setSuspendActivity(SuspendActivityProto.newBuilder().build())
-            .setActivityMessage(ByteString.copyFrom(message))
-            .build();
+        .setSuspendActivity(SuspendActivityProto.newBuilder().build())
+        .setActivityMessage(ByteString.copyFrom(message))
+        .build();
     this.evaluatorManager.handle(contextControlProto);
   }
 
   @Override
   public void suspend() {
-    LOG.info("SUSPEND: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
+    LOG.log(Level.FINEST, "SUSPEND: ActivityRuntime id[" + activityId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
     ContextControlProto contextControlProto = ContextControlProto.newBuilder()
-            .setSuspendActivity(SuspendActivityProto.newBuilder().build())
-            .build();
+        .setSuspendActivity(SuspendActivityProto.newBuilder().build())
+        .build();
     this.evaluatorManager.handle(contextControlProto);
   }
 

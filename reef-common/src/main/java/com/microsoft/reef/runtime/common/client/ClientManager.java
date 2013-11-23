@@ -120,7 +120,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     final Runnable r = new Runnable() {
       @Override
       public void run() {
-        LOG.info("REEF client manager closing");
+        LOG.log(Level.FINEST, "REEF client manager closing");
         try {
           ClientManager.this.masterChannel.close();
         } catch (final Exception e) {
@@ -140,7 +140,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
         }
 
         ClientManager.this.jobSubmissionHandler.close();
-        LOG.info("REEF client manager closed");
+        LOG.log(Level.FINEST, "REEF client manager closed");
       }
     };
     final ExecutorService ex = Executors.newSingleThreadExecutor();
@@ -161,22 +161,22 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
 
       for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
-        LOG.log(Level.FINE, "Adding global file: {0}", globalFileName);
+        LOG.log(Level.FINEST,  "Adding global file: {0}", globalFileName);
         jbuilder.addGlobalFile(getFileResourceProto(globalFileName, FileType.PLAIN));
       }
 
       for (final String globalLibraryName : injector.getNamedInstance(DriverConfigurationOptions.GlobalLibraries.class)) {
-        LOG.log(Level.FINE, "Adding global library: {0}", globalLibraryName);
+        LOG.log(Level.FINEST,  "Adding global library: {0}", globalLibraryName);
         jbuilder.addGlobalFile(getFileResourceProto(globalLibraryName, FileType.LIB));
       }
 
       for (final String localFileName : injector.getNamedInstance(DriverConfigurationOptions.LocalFiles.class)) {
-        LOG.log(Level.FINE, "Adding local file: {0}", localFileName);
+        LOG.log(Level.FINEST,  "Adding local file: {0}", localFileName);
         jbuilder.addLocalFile(getFileResourceProto(localFileName, FileType.PLAIN));
       }
 
       for (final String localLibraryName : injector.getNamedInstance(DriverConfigurationOptions.LocalLibraries.class)) {
-        LOG.log(Level.FINE, "Adding local library: {0}", localLibraryName);
+        LOG.log(Level.FINEST,  "Adding local library: {0}", localLibraryName);
         jbuilder.addLocalFile(getFileResourceProto(localLibraryName, FileType.LIB));
       }
 
@@ -222,14 +222,14 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     try {
       if (status.getState() == ReefServiceProtos.State.INIT) {
         assert (!this.runningJobMap.containsKey(status.getIdentifier()));
-        LOG.log(Level.INFO, "Initializing running job {0}", status.getIdentifier());
+        LOG.log(Level.FINEST,  "Initializing running job {0}", status.getIdentifier());
         final Injector child = this.injector.createChildInjector();
         child.bindVolatileParameter(DriverRemoteIdentifier.class, message.getIdentifier().toString());
         child.bindVolatileInstance(JobStatusProto.class, status);
 
         final RunningJobImpl runningJob = child.getInstance(RunningJobImpl.class);
         this.runningJobMap.put(status.getIdentifier(), runningJob);
-        LOG.log(Level.INFO, "Launched running job {0}", status.getIdentifier());
+        LOG.log(Level.FINEST, "Launched running job {0}", status.getIdentifier());
       } else if (this.runningJobMap.containsKey(status.getIdentifier())) {
         this.runningJobMap.get(status.getIdentifier()).onNext(status);
         if (status.getState() != ReefServiceProtos.State.RUNNING) {
@@ -262,7 +262,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
    */
   private static File toJar(final File file) throws IOException {
     final File jarFile = File.createTempFile(file.getName(), ".jar", tempFolder);
-    LOG.log(Level.INFO, "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});
+    LOG.log(Level.FINEST,  "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});
     try (final JARFileMaker jarMaker = new JARFileMaker(jarFile)) {
       jarMaker.addChildren(file);
     }

@@ -219,7 +219,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   public final void close() {
     if (STATE.RUNNING == this.state) {
       try {
-        LOG.info("Dirty shutdown of running evaluator id[" + getId() + "]");
+        LOG.log(Level.WARNING, "Dirty shutdown of running evaluator id[" + getId() + "]");
 
         // Killing the evaluator means that it doesn't need to send a confirmation; it just dies.
         EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
@@ -247,7 +247,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
           }
         });
       } catch (IllegalStateException e) {
-        LOG.warning("Force resource release because the client closed the clock.");
+        LOG.log(Level.WARNING, "Force resource release because the client closed the clock.");
         EvaluatorManager.this.resourceReleaseHandler.onNext(DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
             .setIdentifier(EvaluatorManager.this.evaluatorID).build());
       } finally {
@@ -264,7 +264,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   final void handle(final EvaluatorException exception) {
     if (this.state.ordinal() >= STATE.DONE.ordinal()) return;
 
-    LOG.info("EvaluatorManager failing id[" + this.evaluatorID + "] due to " + exception.getLocalizedMessage());
+    LOG.log(Level.FINEST, "EvaluatorManager failing id[" + this.evaluatorID + "] due to " + exception.getLocalizedMessage());
 
     try {
       // TODO: Replace the nulls below.
@@ -290,11 +290,11 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
         this.evaluatorControlHandler = remoteManager.getHandler(evaluatorRID, EvaluatorRuntimeProtocol.EvaluatorControlProto.class);
         this.state = STATE.RUNNING;
-        LOG.info("Evaluator " + this.evaluatorID + " is running");
+        LOG.log(Level.FINEST, "Evaluator " + this.evaluatorID + " is running");
       }
     }
 
-    LOG.info("Evaluator heartbeat: " + evaluatorHeartbeatProto);
+    LOG.log(Level.FINEST, "Evaluator heartbeat: " + evaluatorHeartbeatProto);
 
     final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto = evaluatorHeartbeatProto.getEvaluatorStatus();
 
@@ -307,7 +307,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     }
 
     if (ReefServiceProtos.State.FAILED == evaluatorStatusProto.getState()) {
-      LOG.warning("Failed evaluator " + getId());
+      LOG.log(Level.WARNING, "Failed evaluator " + getId());
       this.state = STATE.FAILED;
       final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
       final EvaluatorException evaluatorException = evaluatorStatusProto.hasError() ?
@@ -330,7 +330,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
 
       close();
     } else if (ReefServiceProtos.State.DONE == evaluatorStatusProto.getState()) {
-      LOG.info("Evaluator " + getId() + " done.");
+      LOG.log(Level.FINEST, "Evaluator " + getId() + " done.");
       this.state = STATE.DONE;
 
       completedEvaluatorEventDispatcher.onNext(new CompletedEvaluator() {
@@ -363,7 +363,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param activityControlProto message contains activity control info.
    */
   final void handle(EvaluatorRuntimeProtocol.ContextControlProto activityControlProto) {
-    LOG.finest("activity control message from " + this.evaluatorID);
+    LOG.log(Level.FINEST, "activity control message from " + this.evaluatorID);
 
     final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
         EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
@@ -451,7 +451,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param activityStatusProto message contains the current activity status.
    */
   private final void handle(final ReefServiceProtos.ActivityStatusProto activityStatusProto) {
-    LOG.info("Received activity " + activityStatusProto.getActivityId() + " status " + activityStatusProto.getState());
+    LOG.log(Level.FINEST, "Received activity " + activityStatusProto.getActivityId() + " status " + activityStatusProto.getState());
 
     final String activityId = activityStatusProto.getActivityId();
     final String contextId = activityStatusProto.getContextId();
@@ -494,7 +494,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * Resource status information from the (actual) resource manager.
    */
   final void handle(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
-    LOG.info("Resource manager state update: " + resourceStatusProto.getState());
+    LOG.log(Level.FINEST, "Resource manager state update: " + resourceStatusProto.getState());
 
     if (resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
         resourceStatusProto.getState() == ReefServiceProtos.State.FAILED) {
