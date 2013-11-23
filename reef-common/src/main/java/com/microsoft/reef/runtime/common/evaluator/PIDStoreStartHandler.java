@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.evaluator;
 
-import com.microsoft.reef.utils.OSUtils;
+import com.microsoft.reef.util.OSUtils;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 

@@ -17,8 +17,7 @@ package com.microsoft.reef.examples.ds;
 
 import com.microsoft.reef.client.ClientConfiguration;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
-import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
-import com.microsoft.reef.utils.OSUtils;
+import com.microsoft.reef.util.OSUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;

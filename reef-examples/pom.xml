@@ -40,11 +40,6 @@
             <artifactId>reef-checkpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- End of REEF -->
         <dependency>
             <groupId>commons-cli</groupId>

@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.runtime.common.evaluator.PIDStoreStartHandler;
-import com.microsoft.reef.utils.OSUtils;
+import com.microsoft.reef.util.OSUtils;
 
 import java.io.BufferedReader;
 import java.io.File;

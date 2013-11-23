@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.utils;
 
-import com.microsoft.reef.utils.OSUtils;
+import com.microsoft.reef.util.OSUtils;
 
 import java.util.ArrayList;
 import java.util.List;

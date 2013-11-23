@@ -340,7 +340,6 @@
         <module>reef-runtime-local</module>
         <module>reef-runtime-yarn</module>
         <module>reef-tests</module>
-        <module>reef-utils</module>
     </modules>
 
     <profiles>

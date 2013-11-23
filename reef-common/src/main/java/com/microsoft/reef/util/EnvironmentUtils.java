@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.utils;
+package com.microsoft.reef.util;
 
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.OptionalParameter;
