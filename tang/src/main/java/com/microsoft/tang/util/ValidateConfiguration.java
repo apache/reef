@@ -94,7 +94,10 @@ public class ValidateConfiguration {
     }
     final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
     final ConfigurationBuilder cb = t.newConfigurationBuilder(ch);
-    
+
+    if(!inConfig.canRead()) {
+      throw new IOException("Cannot read input config file: " + inConfig);
+    }
     ConfigurationFile.addConfiguration(cb, inConfig);
     if(target != null) {
       Injector i = t.newInjector(cb.build());
