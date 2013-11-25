@@ -46,7 +46,7 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
    * @throws RemoteRuntimeException
    */
   public ProxyEventHandler (RemoteIdentifier myId, RemoteIdentifier remoteId, String remoteSinkName, EventHandler<RemoteEvent<T>> handler, RemoteSeqNumGenerator seqGen) {
-    LOG.log(Level.INFO, "ProxyEventHandler myId: {0} remoteId: {1} remoteSink: {2} handler: {3}", new Object[] {myId, remoteId, remoteSinkName, handler});
+    LOG.log(Level.FINE, "ProxyEventHandler myId: {0} remoteId: {1} remoteSink: {2} handler: {3}", new Object[] {myId, remoteId, remoteSinkName, handler});
     if (! (myId instanceof SocketRemoteIdentifier && remoteId instanceof SocketRemoteIdentifier) ) {
       throw new RemoteRuntimeException("Unsupported remote identifier type");
     }

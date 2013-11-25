@@ -82,7 +82,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
    */
   @Override
   public void onNext(T event) {
-    LOG.log(Level.INFO, "Invoked for event: {0}", event);
+    LOG.log(Level.FINEST, "Invoked for event: {0}", event);
     lock.readLock().lock();
     List<EventHandler<? extends T>> list;
     try {
@@ -91,7 +91,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
         throw new WakeRuntimeException("No event " + event.getClass() + " handler");
       }
       for (final EventHandler<? extends T> handler : list) {
-        LOG.log(Level.INFO, "Invoking {0}", handler);
+        LOG.log(Level.FINEST, "Invoking {0}", handler);
         ((EventHandler<T>) handler).onNext(event);
       }
     } finally {

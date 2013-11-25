@@ -127,7 +127,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
           SingleThreadStage.this.afterOnNext();
         } catch (InterruptedException e) {
           if (interrupted.get()) {
-            LOG.log(Level.INFO, name + " Closing Producer due to interruption");
+            LOG.log(Level.FINEST, name + " Closing Producer due to interruption");
             break;
           }
         } catch (Throwable t) {

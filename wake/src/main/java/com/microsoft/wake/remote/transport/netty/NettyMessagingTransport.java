@@ -144,7 +144,7 @@ public class NettyMessagingTransport implements Transport {
       throw new TransportRuntimeException("Cannot bind to " + this.serverPort);
     }
     
-    LOG.log(Level.INFO, "Starting netty transport socket address: {0}", this.localAddress);
+    LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
   }
 
   /**
@@ -154,7 +154,7 @@ public class NettyMessagingTransport implements Transport {
    */
   @Override
   public void close() throws Exception {
-    LOG.log(Level.INFO, "Closing netty transport socket address: {0}", this.localAddress);
+    LOG.log(Level.FINE, "Closing netty transport socket address: {0}", this.localAddress);
 
     clientChannelGroup.close().awaitUninterruptibly();
     serverChannelGroup.close().awaitUninterruptibly();
@@ -162,7 +162,7 @@ public class NettyMessagingTransport implements Transport {
     clientBootstrap.releaseExternalResources();
     serverBootstrap.releaseExternalResources();
 
-    LOG.log(Level.INFO, "Closing netty transport socket address: {0} done", this.localAddress);
+    LOG.log(Level.FINE, "Closing netty transport socket address: {0} done", this.localAddress);
   }
 
   /**
@@ -319,7 +319,7 @@ class NettyClientEventListener implements NettyEventListener {
   }
 
   public void registerErrorHandler(EventHandler<Exception> handler) {
-    LOG.log(Level.INFO, "set error handler {0}", handler);
+    LOG.log(Level.FINE, "set error handler {0}", handler);
     this.handler = handler;
   }
 
@@ -381,7 +381,7 @@ class NettyServerEventListener implements NettyEventListener {
   }
 
   public void registerErrorHandler(EventHandler<Exception> handler) {
-    LOG.log(Level.INFO, "set error handler {0}", handler);
+    LOG.log(Level.FINE, "set error handler {0}", handler);
     this.handler = handler;
   }
   
