@@ -113,7 +113,7 @@ public class Launcher {
    * @throws Exception
    */
   public static void main(final String[] args) {
-    LOG.info("Launcher started");
+    LOG.log(Level.FINEST, "Launcher started");
     Injector injector = null;
 
     try {
@@ -136,10 +136,10 @@ public class Launcher {
     } catch (final Exception e) {
       fail("Exception in closing the launcher", e);
     }
-    LOG.info("Launcher exiting");
-    logThreads("Threads running after Launcher.close(): ", Level.WARNING);
+    LOG.log(Level.FINEST, "Launcher exiting");
+    logThreads("Threads running after Launcher.close(): ", Level.FINEST);
     System.exit(0);
-    logThreads("Threads running after System.exit(): ", Level.SEVERE);
+    logThreads("Threads running after System.exit(): ", Level.FINEST);
   }
 
   // ------------------------------------------------------------------------------------------------------------------

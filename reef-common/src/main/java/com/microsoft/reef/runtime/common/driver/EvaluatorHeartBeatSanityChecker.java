@@ -35,7 +35,7 @@ final class EvaluatorHeartBeatSanityChecker {
   public final synchronized void check(final String id, final long timeStamp) {
     if (knownTimeStamps.containsKey(id)) {
       final long oldTimeStamp = this.knownTimeStamps.get(id);
-      LOG.info("TIMESTAMP CHECKER: id [ " + id + " ], old timestamp [ " + oldTimeStamp + " ], new timestamp [ " + timeStamp + " ]");
+      LOG.log(Level.FINEST, "TIMESTAMP CHECKER: id [ " + id + " ], old timestamp [ " + oldTimeStamp + " ], new timestamp [ " + timeStamp + " ]");
       if (oldTimeStamp > timeStamp) {
         final String msg = "Received an old heartbeat with timestamp `" + timeStamp +
             "` while earlier receiving one with timestamp `" + oldTimeStamp + "`";

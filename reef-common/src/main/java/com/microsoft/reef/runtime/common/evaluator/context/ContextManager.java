@@ -44,7 +44,6 @@ import java.util.logging.Logger;
 @Provided
 public final class ContextManager implements AutoCloseable {
   private static final Logger LOG = Logger.getLogger(ContextManager.class.getName());
-
   /**
    * The stack of context.
    */
@@ -75,11 +74,11 @@ public final class ContextManager implements AutoCloseable {
    */
   public void start() throws ContextClientCodeException {
     synchronized (this.contextStack) {
-      LOG.log(Level.FINE, "Instantiating root context.");
+      LOG.log(Level.FINEST, "Instantiating root context.");
       this.contextStack.push(this.launchContext.get().getRootContext());
 
       if (this.launchContext.get().getInitialActivityConfiguration().isPresent()) {
-        LOG.log(Level.FINE, "Launching the initial Activity");
+        LOG.log(Level.FINEST, "Launching the initial Activity");
         try {
           this.contextStack.peek().startActivity(this.launchContext.get().getInitialActivityConfiguration().get());
         } catch (final ActivityClientCodeException e) {
@@ -191,7 +190,7 @@ public final class ContextManager implements AutoCloseable {
       final ArrayList<ReefServiceProtos.ContextStatusProto> result = new ArrayList<>(this.contextStack.size());
       for (final ContextRuntime contextRuntime : this.contextStack) {
         final ReefServiceProtos.ContextStatusProto contextStatusProto = contextRuntime.getContextStatus();
-        LOG.info("Add context status: " + contextStatusProto);
+        LOG.log(Level.FINEST, "Add context status: " + contextStatusProto);
         result.add(contextStatusProto);
       }
       return result;
@@ -273,7 +272,6 @@ public final class ContextManager implements AutoCloseable {
       currentActiveContext.startActivity(activityConfiguration);
     }
   }
-
 
   /**
    * THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager

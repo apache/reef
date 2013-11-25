@@ -39,7 +39,7 @@ public final class RackDescriptorImpl implements RackDescriptor {
 	}
 	
 	public final String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("Rack " + this.name);
 		for (NodeDescriptorImpl node : nodes) {
 			sb.append("\n\t" + node);

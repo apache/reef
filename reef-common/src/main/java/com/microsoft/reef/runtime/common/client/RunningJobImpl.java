@@ -100,7 +100,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   public void onNext(final JobStatusProto value) {
 
     final ReefServiceProtos.State state = value.getState();
-    LOG.log(Level.INFO, "Received job status: {0} from {1}",
+    LOG.log(Level.FINEST,  "Received job status: {0} from {1}",
             new Object[] { state, value.getIdentifier() });
 
     if (value.hasMessage()) {

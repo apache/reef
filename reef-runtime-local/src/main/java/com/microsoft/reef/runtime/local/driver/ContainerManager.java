@@ -50,10 +50,14 @@ final class ContainerManager implements AutoCloseable {
 
   private final static Logger LOG = Logger.getLogger(ContainerManager.class.getName());
 
-  /** Map from containerID -> Container */
+  /**
+   * Map from containerID -> Container
+   */
   private final Map<String, Container> containers = new HashMap<>();
 
-  /** List of free, unallocated nodes by their Node ID */
+  /**
+   * List of free, unallocated nodes by their Node ID
+   */
   private final List<String> freeNodeList = new LinkedList<>();
 
   private final String errorHandlerRID;
@@ -71,13 +75,13 @@ final class ContainerManager implements AutoCloseable {
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
 
-    LOG.log(Level.INFO, "Initializing Container Manager with {0} containers", capacity);
+    LOG.log(Level.FINEST, "Initializing Container Manager with {0} containers", capacity);
 
     remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, new EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>>() {
       @Override
       public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
         final RuntimeError error = new RuntimeError(value.getMessage());
-        LOG.log(Level.WARNING, "RuntimeError: " + error.toString());
+        LOG.log(Level.SEVERE, "RuntimeError: " + error.toString());
         release(error.getIdentifier());
       }
     });
@@ -94,7 +98,7 @@ final class ContainerManager implements AutoCloseable {
       @Override
       public void onNext(final Time value) {
         synchronized (ContainerManager.this) {
-          LOG.info("RuntimeStop: close the container manager");
+          LOG.log(Level.FINEST, "RuntimeStop: close the container manager");
           ContainerManager.this.close();
         }
       }
@@ -163,7 +167,7 @@ final class ContainerManager implements AutoCloseable {
   public void close() {
     synchronized (this.containers) {
       if (this.containers.isEmpty()) {
-        LOG.info("Clean shutdown with no outstanding containers.");
+        LOG.log(Level.FINEST, "Clean shutdown with no outstanding containers.");
       } else {
         LOG.log(Level.WARNING, "Dirty shutdown with outstanding containers.");
         for (final Container c : this.containers.values()) {

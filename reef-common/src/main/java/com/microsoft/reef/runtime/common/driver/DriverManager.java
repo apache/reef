@@ -126,7 +126,7 @@ final class DriverManager implements EvaluatorRequestor {
           public void onNext(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> value) {
             handle(value);
           }
-    });
+        });
 
     // Runtime error channel for errors that occur on evaluators
     this.errorChannel = remoteManager.registerHandler(
@@ -136,14 +136,14 @@ final class DriverManager implements EvaluatorRequestor {
           public void onNext(RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
             handle(value.getMessage());
           }
-    });
+        });
 
-    LOG.info("DriverManager instantiated");
+    LOG.log(Level.FINEST, "DriverManager instantiated");
   }
 
   @Override
   public void submit(final EvaluatorRequest req) {
-    LOG.info("Got an EvaluatorRequest");
+    LOG.log(Level.FINEST, "Got an EvaluatorRequest");
     final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto.newBuilder();
     switch (req.getSize()) {
       case MEDIUM:
@@ -202,7 +202,7 @@ final class DriverManager implements EvaluatorRequestor {
   private final EvaluatorManager getNewEvaluatorManagerInstance(final String id, final NodeDescriptor desc) {
     // TODO: Make this to use the InjectorModule
     try {
-      LOG.log(Level.INFO, "Create Evaluator Manager: {0}", id);
+      LOG.log(Level.FINEST, "Create Evaluator Manager: {0}", id);
       final Injector child = this.injector.createChildInjector();
       child.bindVolatileParameter(EvaluatorManager.EvaluatorIdentifier.class, id);
       child.bindVolatileParameter(EvaluatorManager.EvaluatorDescriptor.class, desc);
@@ -221,17 +221,17 @@ final class DriverManager implements EvaluatorRequestor {
   private final void handle(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeat = evaluatorHeartbeatProtoRemoteMessage.getMessage();
     final String evaluatorId = heartbeat.getEvaluatorStatus().getEvaluatorId();
-    LOG.log(Level.INFO, "Processing heartbeat for evaluator `{0}`", evaluatorId);
+    LOG.log(Level.FINEST, "Processing heartbeat for evaluator `{0}`", evaluatorId);
 
     synchronized (this.evaluators) {
       // Make sure that the timestamp we got for this evaluator is newer than the last one we got.
       this.sanityChecker.check(evaluatorId, heartbeat.getTimestamp());
 
-      LOG.log(Level.INFO, "Heartbeat timestamp: {0}", heartbeat.getTimestamp());
+      LOG.log(Level.FINEST, "Heartbeat timestamp: {0}", heartbeat.getTimestamp());
       if (heartbeat.hasEvaluatorStatus()) {
         final ReefServiceProtos.EvaluatorStatusProto status = heartbeat.getEvaluatorStatus();
-        LOG.log(Level.FINE, "Evaluator {0} with state: {1}",
-            new Object[] { status.getEvaluatorId(), status.getState() });
+        LOG.log(Level.FINEST, "Evaluator {0} with state: {1}",
+            new Object[]{status.getEvaluatorId(), status.getState()});
       }
 
       if (this.evaluators.containsKey(evaluatorId)) {
@@ -265,7 +265,7 @@ final class DriverManager implements EvaluatorRequestor {
       } else {
         throw new RuntimeException(
             "Unknown resource status from evaluator " + resourceStatusProto.getIdentifier() +
-            " with state " + resourceStatusProto.getState());
+                " with state " + resourceStatusProto.getState());
       }
     }
   }
@@ -284,7 +284,7 @@ final class DriverManager implements EvaluatorRequestor {
           throw new RuntimeException("Unknown resource: " + resourceAllocationProto.getNodeId());
         }
 
-        LOG.log(Level.INFO, "Resource allocation: new evaluator id[{0}", resourceAllocationProto.getIdentifier());
+        LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}", resourceAllocationProto.getIdentifier());
         final EvaluatorManager evaluator = getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), nodeDescriptor);
         this.evaluators.put(resourceAllocationProto.getIdentifier(), evaluator);
       } catch (Exception e) {
@@ -301,7 +301,7 @@ final class DriverManager implements EvaluatorRequestor {
    */
   private final void handle(final DriverRuntimeProtocol.RuntimeStatusProto runtimeStatusProto) {
     final ReefServiceProtos.State runtimeState = runtimeStatusProto.getState();
-    LOG.info("Runtime status " + runtimeStatusProto);
+    LOG.log(Level.FINEST, "Runtime status " + runtimeStatusProto);
 
     switch (runtimeState) {
       case FAILED:
@@ -413,7 +413,7 @@ final class DriverManager implements EvaluatorRequestor {
   final class RuntimeStartHandler implements EventHandler<RuntimeStart> {
     @Override
     public void onNext(final RuntimeStart startTime) {
-      LOG.log(Level.INFO, "RuntimeStart: {0}", startTime);
+      LOG.log(Level.FINEST, "RuntimeStart: {0}", startTime);
       DriverManager.this.runtimeStatusProto = DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
           .setState(ReefServiceProtos.State.RUNNING)
           .setName("REEF")
@@ -429,7 +429,7 @@ final class DriverManager implements EvaluatorRequestor {
   final class RuntimeStopHandler implements EventHandler<RuntimeStop> {
     @Override
     public void onNext(final RuntimeStop runtimeStop) {
-      LOG.log(Level.INFO, "RuntimeStop: {0}", runtimeStop);
+      LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
       if (runtimeStop.getException() != null) {
         final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
         final Exception exception = runtimeStop.getException();
@@ -445,7 +445,7 @@ final class DriverManager implements EvaluatorRequestor {
       synchronized (DriverManager.this.evaluators) {
         // TODO: Log an unsafe shutdown
         for (final EvaluatorManager evaluatorManager : new ArrayList<>(DriverManager.this.evaluators.values())) {
-          LOG.log(Level.INFO, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
+          LOG.log(Level.WARNING, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
           evaluatorManager.close();
         }
       }
@@ -456,7 +456,7 @@ final class DriverManager implements EvaluatorRequestor {
         DriverManager.this.clientJobStatusHandler.close(runtimeStop.getException() != null ?
             Optional.<Throwable>of(runtimeStop.getException()) : Optional.<Throwable>empty());
         // TODO: Expose an event here that Runtime Local can subscribe to.
-        LOG.info("driver manager closed");
+        LOG.log(Level.FINEST, "driver manager closed");
       } catch (final Exception ex) {
         LOG.log(Level.SEVERE, "Error closing Driver Manager", ex);
       }
@@ -471,16 +471,16 @@ final class DriverManager implements EvaluatorRequestor {
           + "\n\t Runtime state {1}"
           + "\n\t Outstanding container requests {2}"
           + "\n\t Container allocation count {3}",
-          new Object[] { idleClock,
+          new Object[]{idleClock,
               runtimeStatusProto.getState(),
               runtimeStatusProto.getOutstandingContainerRequests(),
-              runtimeStatusProto.getContainerAllocationCount() });
+              runtimeStatusProto.getContainerAllocationCount()});
 
       synchronized (DriverManager.this.evaluators) {
         if (ReefServiceProtos.State.RUNNING == runtimeStatusProto.getState() &&
             0 == runtimeStatusProto.getOutstandingContainerRequests() &&
             0 == runtimeStatusProto.getContainerAllocationCount()) {
-          LOG.info("Idle runtime shutdown");
+          LOG.log(Level.FINEST, "Idle runtime shutdown");
           DriverManager.this.clockFuture.get().close();
         }
       }

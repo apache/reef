@@ -62,7 +62,7 @@ final class ProcessContainer implements Container {
    */
   @Override
   public final void run(final String evaluatorConfiguration, final Set<File> files, final List<String> classPath) {
-    LOG.log(Level.INFO, "Container {0} is launching an Evaluator in a process", nodeID);
+    LOG.log(Level.FINEST, "Container {0} is launching an Evaluator in a process", nodeID);
 
     final File evaluatorConfigurationFile = new File(this.folder, "evaluator.conf");
     try (PrintWriter clientOut = new PrintWriter(evaluatorConfigurationFile)) {
@@ -116,7 +116,7 @@ final class ProcessContainer implements Container {
   @Override
   public void close() {
     if (isRunning()) {
-      Logger.getLogger(ProcessContainer.class.getName()).log(Level.WARNING, "Force-closing a container that is still running: {0}", this);
+      LOG.log(Level.WARNING, "Force-closing a container that is still running: {0}", this);
       this.process.cancel();
     }
   }
@@ -135,7 +135,6 @@ final class ProcessContainer implements Container {
   private static void copy(final Iterable<File> files, final File folder) throws IOException {
     for (final File sourceFile : files) {
       final File destinationFile = new File(folder, sourceFile.getName());
-      LOG.log(Level.FINER, "Copying " + sourceFile + " to " + destinationFile);
       Files.copy(sourceFile.toPath(), destinationFile.toPath());
     }
   }

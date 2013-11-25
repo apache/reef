@@ -91,7 +91,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   @Override
   public final void onNext(final ClientRuntimeProtocol.JobSubmissionProto t) {
     try {
-      LOG.log(Level.FINE, "Starting Job {0}", t.getIdentifier());
+      LOG.log(Level.FINEST, "Starting Job {0}", t.getIdentifier());
       final File jobFolder = new File(new File(rootFolderName), "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
       final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
       driverFolder.mkdirs();

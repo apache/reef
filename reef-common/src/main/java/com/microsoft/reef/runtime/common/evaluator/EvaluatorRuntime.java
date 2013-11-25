@@ -75,20 +75,20 @@ final class EvaluatorRuntime {
 
   private void handle(final EvaluatorControlProto message) {
     synchronized (this.heartBeatManager) {
-      LOG.info("Evaluator control message");
+      LOG.log(Level.FINEST, "Evaluator control message");
 
       if (!message.getIdentifier().equals(this.evaluatorIdentifier.toString())) {
         this.handle(new RuntimeException(
             "Identifier mismatch: message for evaluator id[" + message.getIdentifier()
-            + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"));
+                + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"));
       } else if (ReefServiceProtos.State.RUNNING != this.state) {
         this.handle(new RuntimeException(
             "Evaluator sent a control message but its state is not "
-            + ReefServiceProtos.State.RUNNING + " but rather " + this.state));
+                + ReefServiceProtos.State.RUNNING + " but rather " + this.state));
       } else {
 
         if (message.hasContextControl()) {
-          LOG.info("Send activity control message to ContextManager");
+          LOG.log(Level.FINEST, "Send activity control message to ContextManager");
           try {
             this.contextManager.handleActivityControl(message.getContextControl());
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
@@ -127,7 +127,7 @@ final class EvaluatorRuntime {
 
   public EvaluatorStatusProto getEvaluatorStatus() {
     synchronized (this.heartBeatManager) {
-      LOG.log(Level.INFO, "Evaluator heartbeat: state = {0}", this.state);
+      LOG.log(Level.FINEST, "Evaluator heartbeat: state = {0}", this.state);
       final EvaluatorStatusProto.Builder evaluatorStatus =
           EvaluatorStatusProto.newBuilder()
               .setEvaluatorId(this.evaluatorIdentifier.toString())
@@ -146,7 +146,7 @@ final class EvaluatorRuntime {
     public final void onNext(final RuntimeStart runtimeStart) {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
         try {
-          LOG.info("runtime start");
+          LOG.log(Level.FINEST, "runtime start");
           assert (ReefServiceProtos.State.INIT == EvaluatorRuntime.this.state);
           EvaluatorRuntime.this.state = ReefServiceProtos.State.RUNNING;
           EvaluatorRuntime.this.contextManager.start();
@@ -163,7 +163,7 @@ final class EvaluatorRuntime {
     @Override
     public final void onNext(final RuntimeStop runtimeStop) {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
-        LOG.info("runtime stop");
+        LOG.log(Level.FINEST, "runtime stop");
         EvaluatorRuntime.this.contextManager.close();
 
         if (ReefServiceProtos.State.RUNNING == EvaluatorRuntime.this.state) {
@@ -175,7 +175,7 @@ final class EvaluatorRuntime {
         } catch (Exception e) {
           LOG.log(Level.SEVERE, "Exception during shutdown of evaluatorControlChannel.", e);
         }
-        LOG.info("EvaluatorRuntime shutdown complete");
+        LOG.log(Level.FINEST, "EvaluatorRuntime shutdown complete");
       }
     }
   }

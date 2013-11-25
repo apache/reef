@@ -26,6 +26,7 @@ import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Private
@@ -79,7 +80,7 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
           this.futureClock.get().close();
         }
       } else {
-        LOG.info("Unsupported signal: " + jobControlProto.getSignal());
+        LOG.log(Level.FINEST, "Unsupported signal: " + jobControlProto.getSignal());
       }
     } else if (jobControlProto.hasMessage()) {
       getClientMessageDispatcher().onNext(jobControlProto.getMessage().toByteArray());
