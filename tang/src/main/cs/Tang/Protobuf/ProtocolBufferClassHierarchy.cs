@@ -23,9 +23,9 @@ namespace Com.Microsoft.Tang.Protobuf
         {
             ClassHierarchyProto.Node node = Serialize(classHierarchy);
 
-            using (var file = File.Create(fileName)) 
-            { 
-                Serializer.Serialize<ClassHierarchyProto.Node>(file, node); 
+            using (var file = File.Create(fileName))
+            {
+                Serializer.Serialize<ClassHierarchyProto.Node>(file, node);
             }
         }
 
@@ -38,26 +38,26 @@ namespace Com.Microsoft.Tang.Protobuf
         {
             IList<ClassHierarchyProto.Node> children = new List<ClassHierarchyProto.Node>();
 
-            foreach (INode child in n.GetChildren()) 
+            foreach (INode child in n.GetChildren())
             {
                 children.Add(SerializeNode(child));
             }
 
 
-            if (n is IClassNode) 
+            if (n is IClassNode)
             {
-                IClassNode cn = (IClassNode) n;
-                IList<IConstructorDef>injectable = cn.GetInjectableConstructors();
+                IClassNode cn = (IClassNode)n;
+                IList<IConstructorDef> injectable = cn.GetInjectableConstructors();
                 IList<IConstructorDef> all = cn.GetAllConstructors();
                 IList<IConstructorDef> others = new List<IConstructorDef>(all);
 
-                foreach (var c  in injectable)
+                foreach (var c in injectable)
                 {
                     others.Remove(c);
                 }
 
                 IList<ClassHierarchyProto.ConstructorDef> injectableConstructors = new List<ClassHierarchyProto.ConstructorDef>();
-                foreach (IConstructorDef inj in injectable) 
+                foreach (IConstructorDef inj in injectable)
                 {
                     injectableConstructors.Add(SerializeConstructorDef(inj));
                 }
@@ -67,9 +67,9 @@ namespace Com.Microsoft.Tang.Protobuf
                 {
                     otherConstructors.Add(SerializeConstructorDef(other));
                 }
-                
+
                 List<string> implFullNames = new List<string>();
-                foreach (IClassNode impl in cn.GetKnownImplementations()) 
+                foreach (IClassNode impl in cn.GetKnownImplementations())
                 {
                     implFullNames.Add(impl.GetFullName());
                 }
@@ -78,26 +78,26 @@ namespace Com.Microsoft.Tang.Protobuf
                     cn.IsInjectionCandidate(), cn.IsExternalConstructor(), cn.IsUnit(),
                     injectableConstructors, otherConstructors, implFullNames, children);
 
-           
-            } 
-            else if (n is INamedParameterNode) 
+
+            }
+            else if (n is INamedParameterNode)
             {
-                INamedParameterNode np = (INamedParameterNode) n;
+                INamedParameterNode np = (INamedParameterNode)n;
                 return NewNamedParameterNode(np.GetName(), np.GetFullName(),
                     np.GetSimpleArgName(), np.GetFullArgName(), np.IsSet(), np.GetDocumentation(),
                     np.GetShortName(), np.GetDefaultInstanceAsStrings(), children);
-            } 
-            else if (n is IPackageNode) 
+            }
+            else if (n is IPackageNode)
             {
                 return NewPackageNode(n.GetName(), n.GetFullName(), children);
-            } 
-            else 
+            }
+            else
             {
                 throw new IllegalStateException("Encountered unknown type of Node: " + n);
             }
         }
 
-        private static ClassHierarchyProto.ConstructorDef SerializeConstructorDef(IConstructorDef def) 
+        private static ClassHierarchyProto.ConstructorDef SerializeConstructorDef(IConstructorDef def)
         {
             IList<ClassHierarchyProto.ConstructorArg> args = new List<ClassHierarchyProto.ConstructorArg>();
             foreach (IConstructorArg arg in def.GetArgs())
@@ -114,7 +114,7 @@ namespace Com.Microsoft.Tang.Protobuf
             constArg.full_arg_class_name = fullArgClassName;
             constArg.named_parameter_name = namedParameterName;
             constArg.is_injection_future = isFuture;
-            return constArg; 
+            return constArg;
         }
 
         private static ClassHierarchyProto.ConstructorDef newConstructorDef(
@@ -232,22 +232,22 @@ namespace Com.Microsoft.Tang.Protobuf
                 root = Serializer.Deserialize<ClassHierarchyProto.Node>(file);
             }
 
-           return new ProtocolBufferClassHierarchy(root);
+            return new ProtocolBufferClassHierarchy(root);
         }
 
-        public ProtocolBufferClassHierarchy(ClassHierarchyProto.Node root) 
+        public ProtocolBufferClassHierarchy(ClassHierarchyProto.Node root)
         {
             this.rootNode = new PackageNodeImpl();
-            if (root.package_node == null) 
+            if (root.package_node == null)
             {
                 throw new ArgumentException("Expected a package node.  Got: " + root);
             }
             // Register all the classes.
-            foreach (ClassHierarchyProto.Node child in root.children) 
+            foreach (ClassHierarchyProto.Node child in root.children)
             {
                 ParseSubHierarchy(rootNode, child);
             }
-    
+
             // Now, register the implementations
             foreach (ClassHierarchyProto.Node child in root.children)
             {
@@ -301,16 +301,16 @@ namespace Com.Microsoft.Tang.Protobuf
                 throw new IllegalStateException("Bad protocol buffer: got abstract node" + n);
             }
 
-            foreach (ClassHierarchyProto.Node child in n.children) 
+            foreach (ClassHierarchyProto.Node child in n.children)
             {
                 ParseSubHierarchy(parsed, child);
             }
         }
 
-        private static IConstructorDef ParseConstructorDef(ClassHierarchyProto.ConstructorDef def, bool isInjectable) 
+        private static IConstructorDef ParseConstructorDef(ClassHierarchyProto.ConstructorDef def, bool isInjectable)
         {
             IList<IConstructorArg> args = new List<IConstructorArg>();
-            foreach (ClassHierarchyProto.ConstructorArg arg in def.args) 
+            foreach (ClassHierarchyProto.ConstructorArg arg in def.args)
             {
                 args.Add(new ConstructorArgImpl(arg.full_arg_class_name, arg.named_parameter_name, arg.is_injection_future));
             }
@@ -401,12 +401,17 @@ namespace Com.Microsoft.Tang.Protobuf
 
         public bool IsImplementation(IClassNode inter, IClassNode impl)
         {
-            throw new NotImplementedException();
+            return impl.IsImplementationOf(inter);
         }
 
         public IClassHierarchy Merge(IClassHierarchy ch)
         {
-            throw new NotImplementedException();
+            if (this == ch)
+            {
+                return this;
+            }
+            throw new UnsupportedOperationException(
+                "Cannot merge ExternalClassHierarchies yet!");
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Com.Microsoft.Tang.formats;
 using Com.Microsoft.Tang.Implementations;
 using Com.Microsoft.Tang.Interface;
 using Com.Microsoft.Tang.Protobuf;
@@ -22,6 +23,7 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         public static void ClassSetup(TestContext context)
         {
             asm = Assembly.LoadFrom(file);
+            Assembly.LoadFrom(@"com.microsoft.reef.activity.dll");
         }
 
         [ClassCleanup]
@@ -84,30 +86,6 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
 
             Assert.AreEqual(activityClassNode.GetFullName(), activityClassNode2.GetFullName());
         }
-
-        //[TestMethod]
-        public void TestDeSerializeClassHierarchyForInjectActivity()
-        {
-            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
-            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
-
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"com.microsoft.reef.activity.dll");
-            ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
-            IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
-
-            ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder((ICsClassHierarchy)ch);
-            cb.BindImplementation(activityInterfaceType, activityType);
-
-            IConfiguration conf = cb.Build();
-            IInjector injector = tang.NewInjector(conf);
-            var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityInterfaceType);
-            Assert.IsNotNull(activityRef);
-
-            byte[] b = new byte[10];
-            activityRef.Call(b);
-        }
-
 
         [TestMethod]
         public void TestSerirializeInjectionPlanForTimer()
