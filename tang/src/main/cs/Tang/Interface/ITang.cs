@@ -11,6 +11,7 @@ namespace Com.Microsoft.Tang.Interface
         IInjector NewInjector();
         IInjector NewInjector(IConfiguration[] confs);
         IInjector NewInjector(IConfiguration confs);
+        IInjector NewInjector(string[] assemblies, string configurationFileName);
         IClassHierarchy GetClassHierarchy(string assembly);
         ICsClassHierarchy GetDefaultClassHierarchy();
         ICsClassHierarchy GetDefaultClassHierarchy(string[] assemblies, Type[] parameterParsers);

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Com.Microsoft.Tang.Exceptions;
+using Com.Microsoft.Tang.formats;
 using Com.Microsoft.Tang.Interface;
 using Com.Microsoft.Tang.Util;
 
@@ -21,6 +22,17 @@ namespace Com.Microsoft.Tang.Implementations
             {
                 throw new IllegalStateException("Unexpected error from empty configuration", e);
             }
+        }
+
+        public IInjector NewInjector(string[] assemblies, string configurationFileName)
+        {
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb1 = tang.NewConfigurationBuilder(assemblies);
+            ConfigurationFile.AddConfiguration(cb1, configurationFileName);
+            IConfiguration conf = cb1.Build();
+
+            IInjector injector = tang.NewInjector(conf);
+            return injector;
         }
 
         public IInjector NewInjector(IConfiguration[] confs)

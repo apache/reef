@@ -68,6 +68,7 @@
     <Compile Include="Exceptions\InjectionException.cs" />
     <Compile Include="Exceptions\NameResolutionException.cs" />
     <Compile Include="Exceptions\UnsupportedOperationException.cs" />
+    <Compile Include="formats\ConfigurationFile.cs" />
     <Compile Include="Implementations\AbstractNode.cs" />
     <Compile Include="Implementations\ClassHierarchyImpl.cs" />
     <Compile Include="Implementations\ClassNodeImpl.cs" />

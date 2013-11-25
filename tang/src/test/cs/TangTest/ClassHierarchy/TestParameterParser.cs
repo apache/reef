@@ -34,5 +34,59 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
             long o = (long)parser.Parse(typeof(long), "8675309");
 
         }
+
+        [TestMethod]
+        public void ParseStringTest()
+        {
+            var parser = new ParameterParser();
+            string o = (string)parser.Parse(typeof(string), "hello");
+
+        }
+
+        [TestMethod]
+        public void ParseDoubleTest()
+        {
+            var parser = new ParameterParser();
+            Double o = (Double)parser.Parse(typeof(double), "12.6");
+
+        }
+
+        [TestMethod]
+        public void ParseCharTest()
+        {
+            var parser = new ParameterParser();
+            Char o = (Char)parser.Parse(typeof(char), "c");
+
+        }
+
+        [TestMethod]
+        public void ParseByteTest()
+        {
+            var parser = new ParameterParser();
+            Byte o = (Byte)parser.Parse(typeof(byte), "8");
+
+        }
+
+        [TestMethod]
+        public void ParseShortTest()
+        {
+            var parser = new ParameterParser();
+            Int16 o = (Int16)parser.Parse(typeof(short), "8");
+        }
+
+        [TestMethod]
+        public void ParseFloatTest()
+        {
+            var parser = new ParameterParser();
+            Single o = (Single)parser.Parse(typeof(float), "8.567");
+        }
+
+        [TestMethod]
+        public void ParseByteArrayTest()
+        {
+            var parser = new ParameterParser();
+            byte[] o = (byte[])parser.Parse(typeof(byte[]), "hello");
+
+        }
     }
 }

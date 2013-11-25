@@ -72,6 +72,44 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         }
 
         [TestMethod]
+        public void TestDeSerializeClassHierarchyForActivity()
+        {
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"com.microsoft.reef.activity.dll");
+            IClassNode activityClassNode = (IClassNode)ns.GetNode("com.microsoft.reef.activity.HelloActivity");
+   
+            ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
+            IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
+
+            IClassNode activityClassNode2 = (IClassNode)ch.GetNode("com.microsoft.reef.activity.HelloActivity");
+
+            Assert.AreEqual(activityClassNode.GetFullName(), activityClassNode2.GetFullName());
+        }
+
+        //[TestMethod]
+        public void TestDeSerializeClassHierarchyForInjectActivity()
+        {
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"com.microsoft.reef.activity.dll");
+            ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
+            IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder((ICsClassHierarchy)ch);
+            cb.BindImplementation(activityInterfaceType, activityType);
+
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityInterfaceType);
+            Assert.IsNotNull(activityRef);
+
+            byte[] b = new byte[10];
+            activityRef.Call(b);
+        }
+
+
+        [TestMethod]
         public void TestSerirializeInjectionPlanForTimer()
         {
             Type timerType = typeof(Com.Microsoft.Tang.Examples.Timer);
