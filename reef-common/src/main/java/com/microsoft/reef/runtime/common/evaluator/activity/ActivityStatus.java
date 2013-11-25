@@ -94,13 +94,12 @@ public final class ActivityStatus {
       final Encoder<Throwable> codec = new ObjectSerializableCodec<>();
       final byte[] error = codec.encode(this.lastException.get());
       result.setResult(ByteString.copyFrom(error));
-    } else if (this.state == State.RUNNING) {
-      for (final ActivityMessage activityMessage : this.getMessages()) {
-        result.addActivityMessage(ReefServiceProtos.ActivityStatusProto.ActivityMessageProto.newBuilder()
-            .setSourceId(activityMessage.getMessageSourceID())
-            .setMessage(ByteString.copyFrom(activityMessage.get()))
-            .build());
-      }
+    }
+    for (final ActivityMessage activityMessage : this.getMessages()) {
+      result.addActivityMessage(ReefServiceProtos.ActivityStatusProto.ActivityMessageProto.newBuilder()
+          .setSourceId(activityMessage.getMessageSourceID())
+          .setMessage(ByteString.copyFrom(activityMessage.get()))
+          .build());
     }
 
     return result.build();
