@@ -90,7 +90,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
     myIdentifier = new SocketRemoteIdentifier((InetSocketAddress) transport.getLocalAddress());
     reSendStage = new RemoteSenderStage(codec, transport);
     StageManager.instance().register(this);
-    LOG.log(Level.INFO, "RemoteManager {0} instantiated id {1} counter {2}", new Object[]{this.name, myIdentifier, counter.incrementAndGet()});
+    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2}", new Object[]{this.name, myIdentifier, counter.incrementAndGet()});
   }
 
   @Inject
@@ -199,7 +199,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   @Override
   public void close() {
     if (closed.compareAndSet(false, true)) {
-      LOG.log(Level.INFO, "RemoteManager: {0} Closing remote manager id: {1}", new Object[]{this.name, myIdentifier});
+      LOG.log(Level.FINE, "RemoteManager: {0} Closing remote manager id: {1}", new Object[]{this.name, myIdentifier});
 
       final Runnable closeRunnable = new Runnable() {
         @Override
@@ -250,7 +250,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
 
       if (closeExecutor.isTerminated()) {
-        LOG.log(Level.INFO, "close executor did terminate properly.");
+        LOG.log(Level.FINE, "close executor did terminate properly.");
       } else {
         LOG.log(Level.SEVERE, "close executor did not terminate properly.");
       }

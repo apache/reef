@@ -45,7 +45,7 @@ public class NetUtils {
           throw new WakeRuntimeException("This machine apparently doesn't have any IP addresses (not even 127.0.0.1) on interfaces that are up.");
         }
         cached.set(sortedAddrs.pollFirst().getHostAddress());
-        LOG.log(Level.INFO, "Local address is {0}", cached.get());
+        LOG.log(Level.FINE, "Local address is {0}", cached.get());
       } catch (SocketException e) {
         throw new WakeRuntimeException("Unable to get local host address",
             e.getCause());

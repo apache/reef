@@ -68,7 +68,7 @@ public final class RuntimeClock implements Clock {
     this.runtimeStopHandler = runtimeStopHandler;
     this.idleHandler = idleHandler;
 
-    LOG.log(Level.INFO, "RuntimeClock instantiated.");
+    LOG.log(Level.FINE, "RuntimeClock instantiated.");
   }
 
   @Override
@@ -167,17 +167,17 @@ public final class RuntimeClock implements Clock {
   public final void run() {
 
     try {
-      LOG.log(Level.INFO, "Subscribe event handlers");
+      LOG.log(Level.FINE, "Subscribe event handlers");
       subscribe(StartTime.class, this.startHandler.get());
       subscribe(StopTime.class, this.stopHandler.get());
       subscribe(RuntimeStart.class, this.runtimeStartHandler.get());
       subscribe(RuntimeStop.class, this.runtimeStopHandler.get());
       subscribe(IdleClock.class, this.idleHandler.get());
 
-      LOG.log(Level.INFO, "Initiate runtime start");
+      LOG.log(Level.FINE, "Initiate runtime start");
       this.handlers.onNext(new RuntimeStart(this.timer.getCurrent()));
 
-      LOG.log(Level.INFO, "Initiate start time");
+      LOG.log(Level.FINE, "Initiate start time");
       final StartTime start = new StartTime(this.timer.getCurrent());
       this.handlers.onNext(start);
 
@@ -223,8 +223,8 @@ public final class RuntimeClock implements Clock {
       e.printStackTrace();
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent(), e));
     } finally {
-      logThreads(Level.INFO, "Threads running after exiting the clock main loop: ");
-      LOG.log(Level.INFO, "Runtime clock exit");
+      logThreads(Level.FINE, "Threads running after exiting the clock main loop: ");
+      LOG.log(Level.FINE, "Runtime clock exit");
     }
   }
 

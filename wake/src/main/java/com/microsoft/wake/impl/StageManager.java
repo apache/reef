@@ -41,15 +41,15 @@ public final class StageManager implements Stage {
   StageManager() {
 
     stages = Collections.synchronizedList(new ArrayList<Stage>());
-    LOG.log(Level.INFO, "StageManager adds a shutdown hook");
+    LOG.log(Level.FINE, "StageManager adds a shutdown hook");
     Runtime.getRuntime().addShutdownHook(new Thread(
       new Runnable() {
         @Override
         public void run() {
           try {
-            LOG.log(Level.INFO, "Shutdown hook : closing stages");
+            LOG.log(Level.FINEST, "Shutdown hook : closing stages");
             StageManager.instance().close();
-            LOG.log(Level.INFO, "Shutdown hook : closed stages");
+            LOG.log(Level.FINEST, "Shutdown hook : closed stages");
           } catch (Exception e) {
             LOG.log(Level.WARNING, "StageManager close failure " + e.getMessage());
           }
@@ -63,7 +63,7 @@ public final class StageManager implements Stage {
   }
   
   public void register(Stage stage) {
-    LOG.log(Level.INFO, "StageManager adds stage " + stage);
+    LOG.log(Level.FINEST, "StageManager adds stage " + stage);
 
     stages.add(stage);
   }
@@ -72,7 +72,7 @@ public final class StageManager implements Stage {
   public void close() throws Exception {
     if (closed.compareAndSet(false, true)) {
       for (Stage stage : stages) {
-        LOG.log(Level.INFO, "Closing {0}", stage);
+        LOG.log(Level.FINEST, "Closing {0}", stage);
         stage.close();
       }
     }
