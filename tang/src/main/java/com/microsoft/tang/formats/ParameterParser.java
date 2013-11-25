@@ -23,7 +23,8 @@ public class ParameterParser {
   public  <T, U extends T> void addParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec) throws BindException {
     Constructor<? extends ExternalConstructor<T>> c;
     try {
-      c = ec.getConstructor(String.class);
+      c = ec.getDeclaredConstructor(String.class);
+      c.setAccessible(true);
     } catch (NoSuchMethodException e) {
       throw new BindException("Constructor "
           + ReflectionUtilities.getFullName(ec) + "(String) does not exist!", e);

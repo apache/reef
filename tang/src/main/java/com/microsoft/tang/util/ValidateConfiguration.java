@@ -27,17 +27,19 @@ import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferInjectionPlan;
 import com.microsoft.tang.proto.ClassHierarchyProto;
 
-public class BuildInjectionPlan {
+public class ValidateConfiguration {
   @NamedParameter(short_name="class")
   public class Target implements Name<String> { }
   @NamedParameter(short_name="ch")
   public class ClassHierarchyIn implements Name<File> { }
-  @NamedParameter(short_name="conf")
+  @NamedParameter(short_name="in")
   public class ConfigurationIn implements Name<File> { }
-  @NamedParameter(short_name="ip")
-  public class InjectionPlanOut implements Name<File> { }
+  @NamedParameter(short_name="out")
+  public class ConfigurationOut implements Name<File> { }
+//  @NamedParameter(short_name="ip")
+//  public class InjectionPlanOut implements Name<File> { }
   
-  public class FileParser implements ExternalConstructor<File> {
+  public static class FileParser implements ExternalConstructor<File> {
     private final File f;
     @Inject
     FileParser(String name) {
@@ -51,22 +53,35 @@ public class BuildInjectionPlan {
   }
   private final String target;
   private final File ch;
-  private final File configFile;
-  private final File injectionPlan;
+  private final File inConfig;
+  private final File outConfig;
+//  private final File injectionPlan;
   
   @Inject
-  public BuildInjectionPlan(
+  public ValidateConfiguration(
+      @Parameter(ClassHierarchyIn.class) File ch,
+      @Parameter(ConfigurationIn.class) File inConfig,
+      @Parameter(ConfigurationOut.class) File outConfig)
+  {
+    this.target = null;
+    this.ch = ch;
+    this.inConfig = inConfig;
+    this.outConfig = outConfig;
+//    this.injectionPlan = injectionPlan;
+  }
+  @Inject
+  public ValidateConfiguration(
       @Parameter(Target.class) String injectedClass,
       @Parameter(ClassHierarchyIn.class) File ch,
-      @Parameter(ConfigurationIn.class) File configFile,
-      @Parameter(InjectionPlanOut.class) File injectionPlan)
+      @Parameter(ConfigurationIn.class) File inConfig,
+      @Parameter(ConfigurationOut.class) File outConfig)
   {
     this.target = injectedClass;
     this.ch = ch;
-    this.configFile = configFile;
-    this.injectionPlan = injectionPlan;
+    this.inConfig = inConfig;
+    this.outConfig = outConfig;
   }
-  public void buildPlan() throws IOException, BindException {
+  public void validatePlan() throws IOException, BindException, InjectionException {
     final Tang t = Tang.Factory.getTang();
 
     final InputStream chin = new FileInputStream(ch);
@@ -80,27 +95,36 @@ public class BuildInjectionPlan {
     final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
     final ConfigurationBuilder cb = t.newConfigurationBuilder(ch);
     
-    ConfigurationFile.addConfiguration(cb, configFile);
-    Injector i = t.newInjector(cb.build());
-    InjectionPlan<?> ip = i.getInjectionPlan(target);
-    
-    final OutputStream ipout = new FileOutputStream(injectionPlan);
-    try {
-      new ProtocolBufferInjectionPlan().serialize(ip).writeTo(ipout);
-    } finally {
-      ipout.close();
+    ConfigurationFile.addConfiguration(cb, inConfig);
+    if(target != null) {
+      Injector i = t.newInjector(cb.build());
+      InjectionPlan<?> ip = i.getInjectionPlan(target);
+      if(!ip.isInjectable()) {
+        throw new InjectionException(target + " is not injectable: " + ip.toCantInjectString());
+      }
     }
+    ConfigurationFile.writeConfigurationFile(cb.build(), outConfig);
+//    Injector i = t.newInjector(cb.build());
+//    InjectionPlan<?> ip = i.getInjectionPlan(target);
+//    
+//    final OutputStream ipout = new FileOutputStream(injectionPlan);
+//    try {
+//      new ProtocolBufferInjectionPlan().serialize(ip).writeTo(ipout);
+//    } finally {
+//      ipout.close();
+//    }
     
   }
   public static void main(String[] argv) throws IOException, BindException, InjectionException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    @SuppressWarnings("unchecked")
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder((Class<? extends ExternalConstructor<?>>[])new Class[] { FileParser.class } );
     CommandLine cl = new CommandLine(cb);
     cl.processCommandLine(argv,
         Target.class,
         ClassHierarchyIn.class,
         ConfigurationIn.class,
-        InjectionPlanOut.class);
-    BuildInjectionPlan bip = Tang.Factory.getTang().newInjector(cb.build()).getInstance(BuildInjectionPlan.class);
-    bip.buildPlan();
+        ConfigurationOut.class);
+    ValidateConfiguration bip = Tang.Factory.getTang().newInjector(cb.build()).getInstance(ValidateConfiguration.class);
+    bip.validatePlan();
   }
 }
