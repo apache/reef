@@ -63,7 +63,7 @@ public final class DriverLauncher {
   final class RunningJobHandler implements EventHandler<RunningJob> {
     @Override
     public void onNext(final RunningJob job) {
-      LOG.log(Level.INFO, "The Job {0} is running", job.getId());
+      LOG.log(Level.INFO, "The Job '{0}' is running.", job.getId());
       setStatusAndNotify(LauncherStatus.RUNNING);
     }
   }
@@ -86,7 +86,7 @@ public final class DriverLauncher {
   final class CompletedJobHandler implements EventHandler<CompletedJob> {
     @Override
     public void onNext(final CompletedJob job) {
-      LOG.log(Level.INFO, "Job Completed: {0}", job);
+      LOG.log(Level.INFO, "The Job '{0}' is done.", job);
       setStatusAndNotify(LauncherStatus.COMPLETED);
     }
   }
@@ -119,40 +119,21 @@ public final class DriverLauncher {
   }
 
   /**
-   * Launch the driver and wait for its completion indefinitely.
-   *
-   * @param driverConfig
-   * @return the state of the job after execution.
-   */
-  public LauncherStatus run(final Configuration driverConfig) {
-    return this.run(driverConfig, -1, 0);
-  }
-
-  /**
    * Run a job with a waiting timeout after which it will be killed, if it did not complete yet.
    *
-   * @param driverConfig  the configuration for the driver. See DriverConfiguration for details.
-   * @param jobTimeout    timeout on the job.
-   * @param statusTimeout interval at which log messages will be emitted by this method.
+   * @param driverConfig the configuration for the driver. See DriverConfiguration for details.
+   * @param timeOut      timeout on the job.
    * @return the state of the job after execution.
    */
-  public LauncherStatus run(final Configuration driverConfig, final long jobTimeout, final long statusTimeout) {
-    final long startTime = System.currentTimeMillis();
-    LOG.log(Level.INFO, "Submitting REEF Job");
+  public LauncherStatus run(final Configuration driverConfig, final long timeOut) {
+    final long endTime = System.currentTimeMillis() + timeOut;
     this.reef.submit(driverConfig);
     synchronized (this) {
       while (!this.status.isDone()) {
-        LOG.log(Level.INFO, "Waiting for REEF job to finish.");
         try {
-          this.wait(statusTimeout);
+          this.wait(endTime - System.currentTimeMillis());
         } catch (final InterruptedException ex) {
-          LOG.log(Level.FINER, "Waiting for REEF job interrupted.", ex);
         }
-        final long timeDelta = System.currentTimeMillis() - startTime;
-        if (jobTimeout >= 0 && timeDelta >= jobTimeout) {
-          break;
-        }
-        LOG.log(Level.INFO, "Waiting for REEF job timed out after {0} sec.", timeDelta / 1000);
       }
     }
 

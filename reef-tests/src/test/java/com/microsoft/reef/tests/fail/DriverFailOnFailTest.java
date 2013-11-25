@@ -62,7 +62,7 @@ public final class DriverFailOnFailTest {
 
     TestUtils.assertLauncherFailure(
         DriverLauncher.getLauncher(runtimeConfiguration).run(
-            driverConfig, this.testEnvironment.getTestTimeout(), 1000),
+            driverConfig, this.testEnvironment.getTestTimeout()),
         SimulatedDriverFailure.class);
   }
 }

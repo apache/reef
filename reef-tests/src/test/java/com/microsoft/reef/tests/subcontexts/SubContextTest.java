@@ -58,7 +58,7 @@ public final class SubContextTest {
 
     final LauncherStatus status = DriverLauncher
         .getLauncher(runtimeConfiguration)
-        .run(driverConfiguration, this.testEnvironment.getTestTimeout(), 1000);
+        .run(driverConfiguration, this.testEnvironment.getTestTimeout());
 
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
   }

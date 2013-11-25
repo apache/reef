@@ -50,6 +50,6 @@ public final class Client {
     cb.addConfiguration(driverConfig);
     cb.bindNamedParameter(Driver.FailActivityName.class, failActivityClass.getName());
 
-    return DriverLauncher.getLauncher(runtimeConfig).run(cb.build(), timeOut, timeOut / 5);
+    return DriverLauncher.getLauncher(runtimeConfig).run(cb.build(), timeOut);
   }
 }
