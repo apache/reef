@@ -113,6 +113,8 @@
     <Compile Include="Types\IPackageNode.cs" />
     <Compile Include="Types\ITraversable.cs" />
     <Compile Include="Types\INamedParameterNode.cs" />
+    <Compile Include="Util\AssemblyLoader.cs" />
+    <Compile Include="Util\ClassNameParser.cs" />
     <Compile Include="Util\MonotonicSet.cs" />
     <Compile Include="Util\MonotonicTreeMap.cs" />
     <Compile Include="Util\ReflectionUtilities.cs" />

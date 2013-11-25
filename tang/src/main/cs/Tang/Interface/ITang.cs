@@ -19,5 +19,6 @@ namespace Com.Microsoft.Tang.Interface
         ICsConfigurationBuilder NewConfigurationBuilder(string[] assemblies);
         ICsConfigurationBuilder NewConfigurationBuilder(IConfiguration[] confs);
         ICsConfigurationBuilder NewConfigurationBuilder(string[] assemblies, IConfiguration[] confs, Type[] parameterParsers);
+        ICsConfigurationBuilder NewConfigurationBuilder(ICsClassHierarchy classHierarchy);
     }
 }

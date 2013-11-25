@@ -22,6 +22,11 @@ namespace Com.Microsoft.Tang.Implementations
         public CsConfigurationBuilderImpl(CsConfigurationBuilderImpl impl) : base(impl)
         {
         }
+        public CsConfigurationBuilderImpl(ICsClassHierarchy classHierarchy)
+            : base(classHierarchy)
+        {
+        }
+        
 
         public CsConfigurationBuilderImpl(string[] assemblies)
             : base(assemblies)

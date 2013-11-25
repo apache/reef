@@ -15,7 +15,7 @@ namespace Com.Microsoft.Tang.Examples
     public interface TweetFactory
     {
         String GetTweet();
-    }
+    } 
 
     public class MockTweetFactory : TweetFactory 
     {

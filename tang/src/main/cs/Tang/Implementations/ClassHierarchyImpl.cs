@@ -14,32 +14,30 @@ namespace Com.Microsoft.Tang.Implementations
 {
     public class ClassHierarchyImpl : ICsClassHierarchy
     {
-        private INode rootNode = NodeFactory.CreateRootPackageNode();
+        private INode rootNode;
         private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
-        public Assembly assembly { get; private set; }
+        private IList<string> assemblies;
+        private AssemblyLoader loader = null;
 
         public ParameterParser parameterParser = new ParameterParser();
 
-        public ClassHierarchyImpl(String file)
+        public ClassHierarchyImpl(String file) : this(new string[] { file }, new Type[0])
         {
-            assembly = Assembly.LoadFrom(file);
-            foreach (var t in assembly.GetTypes())
-            {
-                RegisterType(t);
-            }
         }
 
-        //handle one assembly  without parameterParsers for now
+        public ClassHierarchyImpl(string[] assemblies) : this(assemblies, new Type[0])
+        {
+        }
+
         public ClassHierarchyImpl(string[] assemblies, Type[] parameterParsers) 
         {
-            if (assemblies.Length == 0)
+            this.assemblies = assemblies;
+            rootNode = NodeFactory.CreateRootPackageNode();
+            loader = new AssemblyLoader(assemblies);
+
+            foreach (var a in loader.Assemblies)
             {
-                assemblies = new string[] { @"Com.Microsoft.Tang.Examples.dll" };  // HACK for testing
-            }
-            foreach (var a in assemblies)
-            {
-                assembly = Assembly.LoadFrom(a);
-                foreach (var t in assembly.GetTypes())
+                foreach (var t in a.GetTypes())
                 {
                     RegisterType(t);
                 }
@@ -243,7 +241,7 @@ namespace Com.Microsoft.Tang.Implementations
 
         private INode GetAlreadyBoundNode(Type t)
         {
-            string[] outerClassNames = GetEnclosingClassShortNames(t);
+            string[] outerClassNames = ClassNameParser.GetEnclosingClassShortNames(t);
             string outerClassName = outerClassNames[0];
             INode current = rootNode.Get(outerClassName);
 
@@ -278,7 +276,7 @@ namespace Com.Microsoft.Tang.Implementations
         private INode GetParentNode(Type type)
         {
             INode current = rootNode;
-            string[] enclosingPath = GetEnclosingClassShortNames(type);
+            string[] enclosingPath = ClassNameParser.GetEnclosingClassShortNames(type);
             for (int i = 0; i < enclosingPath.Length - 1; i++)
             {
                 current = current.Get(enclosingPath[i]);
@@ -286,56 +284,7 @@ namespace Com.Microsoft.Tang.Implementations
             return current;
         }
 
-        //first name is with name space, rest of them are simple names only
-        private string[] GetEnclosingClassNames(Type t)
-        {
-            string[] path = t.FullName.Split('+');
-            return path;
-        }
-
-        private string[] GetEnclosingClassFullNames(Type t)
-        {
-            string[] path = t.FullName.Split('+');
-            for (int i = 1; i < path.Length; i++)
-            {
-                path[i] = path[i - 1] + "." + path[i];
-            }
-            return path;
-        }
-
-        public static string[] GetEnclosingClassShortNames(Type t)
-        {
-            return GetEnclosingClassShortNames(t.FullName);
-        }
-
-        public static string[] GetEnclosingClassShortNames(string fullName)
-        {
-            string[] path = fullName.Split('+');
-            string sysName = ParseSystemName(fullName);
-
-            if (path.Length > 1 || sysName == null)
-            {
-                string[] first = path[0].Split('.');
-                path[0] = first[first.Length - 1];
-            }
-            else
-            {
-                path[0] = sysName;
-            }
-
-            return path;
-        }
-
-        public static string ParseSystemName(string name)
-        {
-            string[] token = name.Split('[');
-            if (token.Length > 1) //system name System.IComparable`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]
-            {
-                string[] prefixes = token[0].Split('.');
-                return prefixes[prefixes.Length - 1];
-            }
-            return null;
-        }
+ 
 
         //private string[] GetEnclosingClassShortNames(Type t)
         //{
@@ -357,10 +306,11 @@ namespace Com.Microsoft.Tang.Implementations
             //get full name of t, parse it to check if there is any name before it like A+B
             //sample  t = Com.Microsoft.Tang.Examples.B+B1+B2
             //return type of Com.Microsoft.Tang.Examples.B+B1
-            string[] path = GetEnclosingClassFullNames(t);
+            string[] path = ClassNameParser.GetEnclosingClassFullNames(t);
             if (path.Length > 1)
             {
-                return Type.GetType(path[path.Length - 2]);
+                string p = path[path.Length - 2];
+                return GetType(p);
             }
             return null; // TODO
         }
@@ -373,23 +323,21 @@ namespace Com.Microsoft.Tang.Implementations
 
         public INode GetNode(string fullName)
         {
-            Type t = Type.GetType(fullName);
-            if (t == null)
-            {
-                t = this.assembly.GetType(fullName);
-            }
+            Type t = GetType(fullName);
 
             if (t == null)
             {
                 throw new NameResolutionException(fullName, fullName);
             }
+
             return this.GetNode(t);
         }
 
         public INode GetNode(Type type)
         {
+            this.RegisterType(type);
             INode current = rootNode;
-            string[] enclosingPath = GetEnclosingClassShortNames(type);
+            string[] enclosingPath = ClassNameParser.GetEnclosingClassShortNames(type);
             for (int i = 0; i < enclosingPath.Length; i++)
             {
                 current = current.Get(enclosingPath[i]);
@@ -409,20 +357,12 @@ namespace Com.Microsoft.Tang.Implementations
 
         public IClassHierarchy Merge(IClassHierarchy ch)
         {
-            return ch;  //TODO
-            //throw new NotImplementedException();
-        }
-
-
-        public Type ClassForName(string name)
-        {
-            Type t = null;
-            t = Type.GetType(name);
-            if (t == null)
+            if (this.assemblies.Count == 0)
             {
-                t = this.assembly.GetType(name);
+                return ch;  
             }
-            return t;
+
+            return ch;//TODO
         }
 
         public object Parse(INamedParameterNode np, string value)
@@ -515,6 +455,16 @@ namespace Com.Microsoft.Tang.Implementations
                     throw new IllegalStateException("Multiple defaults for non-set named parameter! " + name.GetFullName());
                 }
             }
+        }
+
+        public Type ClassForName(string name)
+        {
+            return this.GetType(name);
+        }
+
+        public Type GetType(string name)
+        {
+            return this.loader.GetType(name);
         }
     }
 }

@@ -16,12 +16,12 @@ namespace Com.Microsoft.Tang.Implementations
         private readonly Type iface; //entend from T
         private readonly object instance; 
 
-        public InjectionFuture()
-        {
-            injector = null;
-            iface = null;
-            instance = null;
-        }
+        //public InjectionFuture()
+        //{
+        //    injector = null;
+        //    iface = null;
+        //    instance = null;
+        //}
 
         public InjectionFuture(IInjector injector, Type iface) 
         {
@@ -37,20 +37,20 @@ namespace Com.Microsoft.Tang.Implementations
             this.instance = instance;
         }
 
-        public bool Cancel(bool mayInterruptIfRunning) 
-        {
-            return false;
-        }
+        //public bool Cancel(bool mayInterruptIfRunning) 
+        //{
+        //    return false;
+        //}
 
-        public bool IsCancelled()
-        {
-            return false;
-        }
+        //public bool IsCancelled()
+        //{
+        //    return false;
+        //}
 
-        public bool IsDone()
-        {
-            return true;
-        }
+        //public bool IsDone()
+        //{
+        //    return true;
+        //}
 
         public object Get() 
         {

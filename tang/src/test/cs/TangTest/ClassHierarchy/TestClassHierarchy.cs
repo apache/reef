@@ -22,19 +22,16 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            System.Console.WriteLine("ClassCleanup");
         }
 
         [TestInitialize()]
         public void TestSetup()
         {
-            System.Console.WriteLine("TestSetup");
         }
 
         [TestCleanup()]
         public void TestCleanup()
         {
-            System.Console.WriteLine("TestCleanup");
         }
 
         [TestMethod]
