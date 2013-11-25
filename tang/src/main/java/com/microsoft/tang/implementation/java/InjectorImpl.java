@@ -398,7 +398,6 @@ public class InjectorImpl implements Injector {
    * @throws NameResolutionException
    */
   public InjectionPlan<?> getInjectionPlan(final Node n) {
-    assertNotConcurrent();
     Map<Node, InjectionPlan<?>> memo = new HashMap<>();
     buildInjectionPlan(n, memo);
     return memo.get(n);
@@ -420,7 +419,6 @@ public class InjectorImpl implements Injector {
 
   @Override
   public boolean isInjectable(Class<?> clazz) {
-    assertNotConcurrent();
     try {
       return isInjectable(ReflectionUtilities.getFullName(clazz));
     } catch(NameResolutionException e) {
