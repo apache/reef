@@ -55,7 +55,7 @@ public class NameClientTest {
    *
    * @throws Exception
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testClose() throws Exception {
     IdentifierFactory factory = new StringIdentifierFactory();
     try (NameServer server = new NameServer(0, factory)) {
@@ -77,7 +77,7 @@ public class NameClientTest {
    *
    * @throws Exception
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testLookup() throws Exception {
     IdentifierFactory factory = new StringIdentifierFactory();
     try (NameServer server = new NameServer(0, factory)) {
