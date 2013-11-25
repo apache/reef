@@ -61,7 +61,7 @@ public final class ActivityFailureTest {
         .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
-        .run(driverConfig, this.testEnvironment.getTestTimeout(), 1000);
+        .run(driverConfig, this.testEnvironment.getTestTimeout());
 
     Assert.assertEquals(LauncherStatus.COMPLETED, status);
   }

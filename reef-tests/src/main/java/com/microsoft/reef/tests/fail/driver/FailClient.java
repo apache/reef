@@ -57,6 +57,6 @@ public final class FailClient {
     cb.addConfiguration(driverConfig);
     cb.bindNamedParameter(FailDriver.FailMsgClassName.class, failMsgClass.getName());
 
-    return DriverLauncher.getLauncher(runtimeConfig).run(cb.build(), timeOut, 1000);
+    return DriverLauncher.getLauncher(runtimeConfig).run(cb.build(), timeOut);
   }
 }

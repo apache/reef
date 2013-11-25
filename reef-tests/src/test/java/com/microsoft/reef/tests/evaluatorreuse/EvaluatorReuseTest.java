@@ -61,7 +61,7 @@ public class EvaluatorReuseTest {
             .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
-        .run(driverConfiguration, this.testEnvironment.getTestTimeout(), 1000);
+        .run(driverConfiguration, this.testEnvironment.getTestTimeout());
 
     Assert.assertTrue("EvaluatorReuse state = " + status, status.isSuccess());
   }

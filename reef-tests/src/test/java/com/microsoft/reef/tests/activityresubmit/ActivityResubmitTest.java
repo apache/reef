@@ -57,7 +57,7 @@ public class ActivityResubmitTest {
             .build();
 
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfiguration)
-        .run(driverConfiguration, this.testEnvironment.getTestTimeout(), 1000);
+        .run(driverConfiguration, this.testEnvironment.getTestTimeout());
 
     Assert.assertTrue("Job state after execution: " + state, state.isSuccess());
   }
