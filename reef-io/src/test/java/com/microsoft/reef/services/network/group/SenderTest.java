@@ -99,7 +99,7 @@ public class SenderTest {
   /**
    * Test method for {@link com.microsoft.reef.io.network.group.impl.operators.SenderHelperImpl#SenderHelperImpl(com.microsoft.reef.io.network.impl.NetworkService, com.microsoft.wake.remote.Codec)}.
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testSenderHelperImpl() {
     SenderHelper<GroupCommMessage> sender = new SenderHelperImpl<>(netServices.get(0), new GCMCodec());
     Assert.assertNotNull("new SenderHelperImp()", sender);
@@ -111,7 +111,7 @@ public class SenderTest {
    * @throws NetworkException
    * @throws InterruptedException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testSendIdentifierIdentifierTType() throws NetworkException, InterruptedException {
     StringCodec strCodec = new StringCodec();
     for (int i = 0; i < ids.size(); i++) {
@@ -143,7 +143,7 @@ public class SenderTest {
    * @throws NetworkException
    * @throws InterruptedException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testSendIdentifierIdentifierListOfTType() throws NetworkException, InterruptedException {
     StringCodec strCodec = new StringCodec();
     for (int i = 0; i < ids.size(); i++) {
@@ -182,7 +182,7 @@ public class SenderTest {
    * @throws NetworkException
    * @throws InterruptedException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testSendListOfList() throws NetworkException, InterruptedException {
     StringCodec strCodec = new StringCodec();
     ListCodec<String> lstCodec = new ListCodec<>(strCodec);
@@ -222,7 +222,7 @@ public class SenderTest {
    * @throws NetworkException
    * @throws InterruptedException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testSendIdentifierListOfQextendsIdentifierListOfTListOfIntegerType() throws NetworkException, InterruptedException {
     Random r = new Random(1331);
     final StringCodec strCodec = new StringCodec();
