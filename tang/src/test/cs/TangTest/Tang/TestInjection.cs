@@ -120,13 +120,14 @@ namespace Com.Microsoft.TangTest.Tang
         [TestMethod]
         public void TestActivity()
         {
-            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
 
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.ActivityInterface" });
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
-            var activityRef = (com.microsoft.reef.activity.HelloActivity)injector.GetInstance(activityType);
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityType);
             Assert.IsNotNull(activityRef);
 
             byte[] b = new byte[10];
@@ -137,7 +138,8 @@ namespace Com.Microsoft.TangTest.Tang
         public void TestMultipleAssemlies()
         {
             Type activityInterfaceType1 = typeof(com.microsoft.reef.activity.IActivity);
-            Type activityType1 = typeof(com.microsoft.reef.activity.HelloActivity);
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType1 = a.GetType("com.microsoft.reef.activity.HelloActivity");
 
             Type tweeterType = typeof(Com.Microsoft.Tang.Examples.Tweeter);
             Type namedParameter = asm.GetType(@"Com.Microsoft.Tang.Examples.Tweeter+PhoneNumber");
@@ -151,7 +153,7 @@ namespace Com.Microsoft.TangTest.Tang
 
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
-            var activityRef = (com.microsoft.reef.activity.HelloActivity)injector.GetInstance(activityInterfaceType1);
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType1);
             var tweeter = (Com.Microsoft.Tang.Examples.Tweeter)injector.GetInstance(tweeterType);
 
             Assert.IsNotNull(activityRef);
@@ -166,15 +168,18 @@ namespace Com.Microsoft.TangTest.Tang
         public void TestActivityWithBinding()
         {
             Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
-            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
 
             ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.ActivityInterface" });
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file2, file3 });
             cb.BindImplementation(activityInterfaceType, activityType);
+            Type namedParameter = a.GetType(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
+            cb.BindNamedParameter(namedParameter, "Hello Activity");
 
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
-            var activityRef = (com.microsoft.reef.activity.HelloActivity)injector.GetInstance(activityInterfaceType);
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
             Assert.IsNotNull(activityRef);
 
             byte[] b = new byte[10];

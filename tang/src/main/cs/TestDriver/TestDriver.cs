@@ -15,6 +15,8 @@ namespace Com.Microsoft.Tang.TestDriver
     public class TestDriver
     {
         static string file = @"Com.Microsoft.Tang.Examples";
+        static string file2 = @"com.microsoft.reef.activity";
+        static string file3 = @"com.microsoft.reef.activityInterface";
 
         public static void Main(string[] args)
         {
@@ -26,13 +28,9 @@ namespace Com.Microsoft.Tang.TestDriver
 
         public static void ActivityTest()
         {
-            var typeOfActivity = typeof(com.microsoft.reef.activity.IActivity);
-            var qualifiedNameOfIActivity = typeOfActivity.AssemblyQualifiedName;
-            //var asm = Assembly.LoadFrom(@"com.microsoft.reef.activity.dll");
             var o = (com.microsoft.reef.activity.IActivity)TangFactory.GetTang()
             .NewInjector(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.ActivityInterface" }, "activityConf1.txt")
             .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
-
         }
 
         public static void CreateClassHierarchy()
