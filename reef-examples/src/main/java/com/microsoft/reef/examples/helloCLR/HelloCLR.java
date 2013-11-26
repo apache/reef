@@ -68,7 +68,7 @@ public final class HelloCLR {
 
 
     final ConfigurationModule driverConf =
-        addAll(EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+        addAll(EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.LOCAL_LIBRARIES)
             .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloCLR")
             .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
             .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class),
