@@ -41,17 +41,16 @@ public interface FailedActivity extends Identifiable {
    *
    * @return the context the Activity ran on.
    */
-  public Optional<ActiveContext> getActiveContext();
+  Optional<ActiveContext> getActiveContext();
 
   /**
    * @return the cause of the failure, if one was caught on the evaluator side.
    */
-  public Optional<Throwable> getReason();
+  Optional<Throwable> getReason();
 
   /**
    * @return the Activity Identifier
    */
   @Override
-  public String getId();
-
+  String getId();
 }

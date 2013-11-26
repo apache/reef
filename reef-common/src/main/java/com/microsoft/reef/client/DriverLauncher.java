@@ -63,7 +63,7 @@ public final class DriverLauncher {
   final class RunningJobHandler implements EventHandler<RunningJob> {
     @Override
     public void onNext(final RunningJob job) {
-      LOG.log(Level.INFO, "The Job '{0}' is running.", job.getId());
+      LOG.log(Level.INFO, "The Job {0} is running.", job.getId());
       setStatusAndNotify(LauncherStatus.RUNNING);
     }
   }
@@ -86,7 +86,7 @@ public final class DriverLauncher {
   final class CompletedJobHandler implements EventHandler<CompletedJob> {
     @Override
     public void onNext(final CompletedJob job) {
-      LOG.log(Level.INFO, "The Job '{0}' is done.", job);
+      LOG.log(Level.INFO, "The Job {0} is done.", job);
       setStatusAndNotify(LauncherStatus.COMPLETED);
     }
   }
