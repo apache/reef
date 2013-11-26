@@ -25,6 +25,7 @@ public class RuntimeError extends FailedImpl {
 
   public RuntimeError(final RuntimeErrorProto error) {
     super(error.getIdentifier(), error.getMessage(), null,
-        error.hasException() ? CODEC.decode(error.getException().toByteArray()) : null);
+        error.hasException() ? CODEC.decode(error.getException().toByteArray()) : null,
+        error.hasException() ? error.getException().toByteArray() : null);
   }
 }

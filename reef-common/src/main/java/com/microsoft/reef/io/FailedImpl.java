@@ -30,28 +30,25 @@ public abstract class FailedImpl implements Failed {
 
   protected final Optional<Throwable> cause;
 
-  /**
-   * Serialized error message.
-   * TODO: populate that field later.
-   */
-  protected final Optional<byte[]> data = Optional.empty();
+  protected final Optional<byte[]> data;
 
   public FailedImpl(final String id, final String message) {
-    this(id, message, null, null);
+    this(id, message, null, null, null);
   }
 
   public FailedImpl(final String id, final String message, final String description) {
-    this(id, message, description, null);
+    this(id, message, description, null, null);
   }
 
-  public FailedImpl(final String id, final String message,
-                    final String description, final Throwable cause) {
+  public FailedImpl(final String id, final String message, final String description,
+                    final Throwable cause, final byte[] data) {
     assert (id != null);
     assert (message != null);
     this.id = id;
     this.message = message;
     this.description = Optional.ofNullable(description != null ? description : getStackTrace(cause));
     this.cause = Optional.ofNullable(cause);
+    this.data = Optional.ofNullable(data);
   }
 
   public FailedImpl(final String id, final Throwable cause) {
@@ -60,9 +57,10 @@ public abstract class FailedImpl implements Failed {
     this.cause = Optional.of(cause);
     this.message = cause.getMessage();
     this.description = Optional.of(getStackTrace(cause));
+    this.data = Optional.empty();
   }
 
-  private static String getStackTrace(final Throwable cause) {
+  protected static String getStackTrace(final Throwable cause) {
     if (cause == null) {
       return null;
     } else {
