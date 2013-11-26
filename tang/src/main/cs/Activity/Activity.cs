@@ -16,7 +16,7 @@ namespace com.microsoft.reef.activity
 
         public byte[] Call(byte[] memento)
         {
-            System.Console.WriteLine("Hello, REEF!");
+            System.Console.WriteLine("Hello, REEF CLR!");
             return null;
         }
     }
