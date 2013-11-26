@@ -247,7 +247,7 @@ public class JobClient {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.asError());
       stopAndNotify();
     }
   }

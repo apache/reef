@@ -19,7 +19,8 @@ import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.driver.context.ActiveContext;
-import com.microsoft.reef.io.naming.Identifiable;
+import com.microsoft.reef.io.Failed;
+import com.microsoft.reef.io.FailedImpl;
 import com.microsoft.reef.util.Optional;
 
 /**
@@ -28,7 +29,24 @@ import com.microsoft.reef.util.Optional;
 @DriverSide
 @Provided
 @Public
-public interface FailedActivity extends Identifiable {
+public class FailedActivity extends FailedImpl {
+
+  private final Optional<ActiveContext> context;
+
+  public FailedActivity(final String id, final Throwable cause) {
+    super(id, cause);
+    this.context = Optional.empty();
+  }
+
+  public FailedActivity(final String id, final Throwable cause, final Optional<ActiveContext> context) {
+    super(id, cause);
+    this.context = context;
+  }
+
+  public FailedActivity(final String id, final String message, final Optional<ActiveContext> context) {
+    super(id, message);
+    this.context = context;
+  }
 
   /**
    * Access the context the activity ran (and crashed) on, if it could be recovered.
@@ -41,17 +59,12 @@ public interface FailedActivity extends Identifiable {
    *
    * @return the context the Activity ran on.
    */
-  public Optional<ActiveContext> getActiveContext();
+  public Optional<ActiveContext> getActiveContext() {
+    return this.context;
+  }
 
-  /**
-   * @return the cause of the failure, if one was caught on the evaluator side.
-   */
-  public Optional<Throwable> getReason();
-
-  /**
-   * @return the Activity Identifier
-   */
   @Override
-  public String getId();
-
+  public String toString() {
+    return "FailedActivity{ID='" + this.getId() + "'}";
+  }
 }

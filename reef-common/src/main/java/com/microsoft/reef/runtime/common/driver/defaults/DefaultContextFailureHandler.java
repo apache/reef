@@ -33,6 +33,6 @@ public final class DefaultContextFailureHandler implements EventHandler<FailedCo
   public void onNext(final FailedContext failedContext) {
     throw new RuntimeException(
         "No handler bound for FailedContext:" + failedContext,
-        failedContext.getReason());
+        failedContext.getCause().orElse(null));
   }
 }

@@ -323,7 +323,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
       }
 
       final Optional<FailedActivity> failedActivityOptional = this.runningActivity != null ?
-          Optional.<FailedActivity>of(new FailedActivityImpl(Optional.<ActiveContext>empty(), evaluatorException, this.runningActivity.getId())) :
+          Optional.<FailedActivity>of(new FailedActivity(this.runningActivity.getId(), evaluatorException)) :
           Optional.<FailedActivity>empty();
 
       failedEvaluatorEventDispatcher.onNext(new FailedEvaluatorImpl(evaluatorException, failedContextList, failedActivityOptional, this.evaluatorID));
@@ -478,8 +478,8 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
        * The failed activity could have corrupted it, but I can't make this call.  */
       final EvaluatorContext evaluatorContext = this.activeContextMap.get(contextId);
       final FailedActivity activityException = activityStatusProto.hasResult() ?
-          new FailedActivityImpl(Optional.<ActiveContext>of(evaluatorContext), codec.decode(activityStatusProto.getResult().toByteArray()), activityId) :
-          new FailedActivityImpl(Optional.<ActiveContext>of(evaluatorContext), null, activityId);
+          new FailedActivity(activityId, codec.decode(activityStatusProto.getResult().toByteArray()), Optional.<ActiveContext>of(evaluatorContext)) :
+          new FailedActivity(activityId, "Failed Activity: " + activityState, Optional.<ActiveContext>of(evaluatorContext));
 
       activityExceptionEventDispatcher.onNext(activityException);
     } else if (activityStatusProto.getActivityMessageCount() > 0) {

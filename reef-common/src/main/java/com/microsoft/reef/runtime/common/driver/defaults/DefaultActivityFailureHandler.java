@@ -33,6 +33,6 @@ public final class DefaultActivityFailureHandler implements EventHandler<FailedA
   public void onNext(final FailedActivity failedActivity) {
     throw new RuntimeException(
         "No handler bound for FailedActivity: " + failedActivity,
-        failedActivity.getReason().orElse(null));
+        failedActivity.getCause().orElse(null));
   }
 }

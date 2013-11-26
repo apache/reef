@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.client;
+package com.microsoft.reef.io;
 
-import com.microsoft.reef.annotations.Provided;
-import com.microsoft.reef.annotations.audience.ClientSide;
-import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.io.FailedImpl;
+import com.microsoft.reef.io.naming.Identifiable;
+import com.microsoft.reef.util.Optional;
 
-/**
- * Represents a failed REEF job.
- */
-@Public
-@ClientSide
-@Provided
-public class FailedJob extends FailedImpl {
-  public FailedJob(final String id, final Throwable cause) {
-    super(id, cause);
-  }
+public interface Failed extends Identifiable {
+
+  String getMessage();
+
+  Optional<String> getDescription();
+
+  Optional<Throwable> getCause();
+
+  Optional<byte[]> getData();
+
+  Throwable asError();
 }
