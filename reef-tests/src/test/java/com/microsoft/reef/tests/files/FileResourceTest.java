@@ -138,7 +138,7 @@ public class FileResourceTest {
 
     final LauncherStatus status = DriverLauncher
         .getLauncher(this.testEnvironment.getRuntimeConfiguration())
-        .run(finalDriverConfiguration, testEnvironment.getTestTimeout(), 1000);
+        .run(finalDriverConfiguration, testEnvironment.getTestTimeout());
 
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
   }

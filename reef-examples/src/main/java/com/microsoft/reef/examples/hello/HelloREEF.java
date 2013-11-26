@@ -49,7 +49,7 @@ public final class HelloREEF {
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
         .build();
 
-    return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut, 1000);
+    return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
   }
 
   /**
