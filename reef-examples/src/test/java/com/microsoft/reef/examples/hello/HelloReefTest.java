@@ -43,6 +43,6 @@ public class HelloReefTest {
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
         .build();
     final LauncherStatus status = HelloREEF.runHelloReef(runtimeConfiguration, JOB_TIMEOUT);
-    Assert.assertTrue("HelloREEF failed: " + status, status.isSuccess());
+    Assert.assertTrue("HelloCLR failed: " + status, status.isSuccess());
   }
 }

@@ -264,7 +264,7 @@
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}</argument>
-                                <argument>com.microsoft.reef.examples.helloCLR.HelloREEF</argument>
+                                <argument>com.microsoft.reef.examples.helloCLR.HelloCLR</argument>
                                 <argument>activity.bin</argument>
                             </arguments>
                         </configuration>

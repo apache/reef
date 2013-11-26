@@ -68,7 +68,7 @@ public final class HelloDriver {
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      LOG.log(Level.INFO, "Submitting HelloREEF activity to AllocatedEvaluator: {0}", allocatedEvaluator);
+      LOG.log(Level.INFO, "Submitting HelloCLR activity to AllocatedEvaluator: {0}", allocatedEvaluator);
       try {
         final Configuration contextConfiguration = ContextConfiguration.CONF
             .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")

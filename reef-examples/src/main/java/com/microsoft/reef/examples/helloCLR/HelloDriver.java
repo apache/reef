@@ -75,7 +75,7 @@ public final class HelloDriver {
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      LOG.log(Level.INFO, "Submitting HelloREEF activity to AllocatedEvaluator: {0}", allocatedEvaluator);
+      LOG.log(Level.INFO, "Submitting HelloCLR activity to AllocatedEvaluator: {0}", allocatedEvaluator);
       try {
         final Configuration contextConfiguration = ContextConfiguration.CONF
             .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
@@ -96,7 +96,7 @@ public final class HelloDriver {
 
 
   private static ClassHierarchy loadClassHierarchy() {
-    try (final InputStream chin = new FileInputStream(HelloREEF.CLASS_HIERARCHY_FILENAME)) {
+    try (final InputStream chin = new FileInputStream(HelloCLR.CLASS_HIERARCHY_FILENAME)) {
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin); // A
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       return ch;

@@ -24,6 +24,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.tang.formats.OptionalParameter;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -32,29 +33,22 @@ import java.util.logging.Logger;
 /**
  * The Client for Hello REEF example.
  */
-public final class HelloREEF {
+public final class HelloCLR {
 
 
   public static final String CLASS_HIERARCHY_FILENAME = "activity.bin";
 
-  private static final Logger LOG = Logger.getLogger(HelloREEF.class.getName());
+  private static final Logger LOG = Logger.getLogger(HelloCLR.class.getName());
 
   /**
    * Number of milliseconds to wait for the job to complete.
    */
   private static final int JOB_TIMEOUT = 10000; // 10 sec.
 
-  public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut, final String[] args)
-      throws BindException, InjectionException {
 
-
-    ConfigurationModule driverConf =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class);
-
-    for (final String fileName : args) {
+  private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final String... fileNames) {
+    ConfigurationModule result = conf;
+    for (final String fileName : fileNames) {
       final File f = new File(fileName);
       if (!f.exists()) {
         LOG.log(Level.FINEST, "Ignoring, as it doesn't exist: " + fileName);
@@ -63,9 +57,23 @@ public final class HelloREEF {
       } else if (!f.canRead()) {
         LOG.log(Level.FINEST, "Ignoring, as it can't be read: " + fileName);
       } else {
-        driverConf = driverConf.set(DriverConfiguration.GLOBAL_FILES, fileName);
+        result = result.set(param, fileName);
       }
     }
+    return result;
+  }
+
+  public static LauncherStatus runHelloCLR(final Configuration runtimeConf, final int timeOut, final String[] args)
+      throws BindException, InjectionException {
+
+
+    final ConfigurationModule driverConf =
+        addAll(EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloCLR")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class),
+            DriverConfiguration.GLOBAL_FILES, args);
+
 
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf.build(), timeOut);
   }
@@ -83,7 +91,7 @@ public final class HelloREEF {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
         .build();
-    final LauncherStatus status = runHelloReef(runtimeConfiguration, JOB_TIMEOUT, args);
+    final LauncherStatus status = runHelloCLR(runtimeConfiguration, JOB_TIMEOUT, args);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
 }
