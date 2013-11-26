@@ -83,7 +83,7 @@ public final class HelloDriver {
 
         final ConfigurationBuilder activityConfigurationBuilder = Tang.Factory.getTang()
             .newConfigurationBuilder(loadClassHierarchy());
-        activityConfigurationBuilder.bind("com.microsoft.reef.driver.activity.ActivityConfigurationOptions.Identifier.class", "Hello_From_CLR");
+        activityConfigurationBuilder.bind("com.microsoft.reef.driver.activity.ActivityConfigurationOptions.Identifier", "Hello_From_CLR");
         activityConfigurationBuilder.bind("com.microsoft.reef.activity.IActivity", "com.microsoft.reef.activity.HelloActivity");
         allocatedEvaluator.submitContextAndActivity(contextConfiguration, activityConfigurationBuilder.build());
       } catch (final BindException ex) {
