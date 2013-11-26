@@ -99,9 +99,9 @@ public final class DriverMessaging {
   final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
     @Override
     public void onNext(final RuntimeError error) {
-      LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getException());
+      LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getCause());
       synchronized (DriverMessaging.this) {
-        DriverMessaging.this.status = LauncherStatus.FAILED(error.getException());
+        DriverMessaging.this.status = LauncherStatus.FAILED(error.getCause());
         DriverMessaging.this.notify();
       }
     }

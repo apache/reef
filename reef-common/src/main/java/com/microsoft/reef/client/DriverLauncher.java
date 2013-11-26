@@ -97,9 +97,8 @@ public final class DriverLauncher {
   final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
     @Override
     public void onNext(final RuntimeError error) {
-      final Throwable ex = error.getException();
-      LOG.log(Level.SEVERE, "Received a runtime error", ex);
-      setStatusAndNotify(LauncherStatus.FAILED(ex));
+      LOG.log(Level.SEVERE, "Received a runtime error", error.getCause());
+      setStatusAndNotify(LauncherStatus.FAILED(error.getCause()));
     }
   }
 

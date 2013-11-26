@@ -15,42 +15,16 @@
  */
 package com.microsoft.reef.util;
 
+import com.microsoft.reef.io.FailedImpl;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
-public class RuntimeError {
+public class RuntimeError extends FailedImpl {
 
-	private final RuntimeErrorProto error;
-	
-	public RuntimeError(final RuntimeErrorProto error) {
-		this.error = error;
-	}
-	
-	public final String toString() {
-		return this.error.getMessage();
-	}
-	
-	public final String getRuntimeName() {
-		return this.error.getName();
-	}
+  private static final ObjectSerializableCodec<Exception> CODEC = new ObjectSerializableCodec<>();
 
-  public final boolean hasIdentifier() {
-    return this.error.hasIdentifier();
+  public RuntimeError(final RuntimeErrorProto error) {
+    super(error.getIdentifier(), error.getMessage(), null,
+        error.hasException() ? CODEC.decode(error.getException().toByteArray()) : null);
   }
-
-  public final String getIdentifier() {
-    return this.error.getIdentifier();
-  }
-
-	public final boolean hasException() {
-		return this.error.hasException();
-	}
-
-	public final Exception getException() {
-		if (this.error.hasException()) {
-			final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-			return codec.decode(this.error.getException().toByteArray());
-		}
-		return null;
-	}
 }

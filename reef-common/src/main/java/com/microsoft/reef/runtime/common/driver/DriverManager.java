@@ -329,22 +329,17 @@ final class DriverManager implements EvaluatorRequestor {
   private final void handle(final ReefServiceProtos.RuntimeErrorProto runtimeErrorProto) {
 
     final RuntimeError error = new RuntimeError(runtimeErrorProto);
-    LOG.log(Level.WARNING, "Runtime error: " + error, error.getException());
+    LOG.log(Level.WARNING, "Runtime error: " + error, error.getCause());
 
-    if (error.hasIdentifier()) {
-      synchronized (this.evaluators) {
-        if (evaluators.containsKey(error.getIdentifier())) {
-          final EvaluatorException evaluatorException = error.hasException() ?
-              new EvaluatorException(error.getIdentifier(), error.getException()) :
-              new EvaluatorException(error.getIdentifier(), "Runtime error");
-          evaluators.get(error.getIdentifier()).handle(evaluatorException);
-        } else {
-          LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error, error.getException());
-        }
+    synchronized (this.evaluators) {
+      if (evaluators.containsKey(error.getId())) {
+        final EvaluatorException evaluatorException = error.getCause() != null ?
+            new EvaluatorException(error.getId(), error.getCause()) :
+            new EvaluatorException(error.getId(), "Runtime error");
+        evaluators.get(error.getId()).handle(evaluatorException);
+      } else {
+        LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error, error.getCause());
       }
-    } else {
-      // severe runtime error
-      fail(runtimeErrorProto);
     }
   }
 

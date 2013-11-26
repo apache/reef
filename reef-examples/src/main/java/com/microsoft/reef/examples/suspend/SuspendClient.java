@@ -117,7 +117,7 @@ public class SuspendClient {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.asError());
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getCause());
       synchronized (SuspendClient.this) {
         SuspendClient.this.notify();
       }
@@ -143,7 +143,7 @@ public class SuspendClient {
   final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
     @Override
     public void onNext(final RuntimeError error) {
-      LOG.log(Level.SEVERE, "ERROR: " + error, error.getException());
+      LOG.log(Level.SEVERE, "ERROR: " + error, error.getCause());
       synchronized (SuspendClient.class) {
         SuspendClient.this.notify();
       }

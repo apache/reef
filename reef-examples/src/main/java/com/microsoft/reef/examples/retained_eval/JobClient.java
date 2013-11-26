@@ -247,7 +247,7 @@ public class JobClient {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.asError());
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getCause());
       stopAndNotify();
     }
   }
@@ -269,7 +269,7 @@ public class JobClient {
   final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
     @Override
     public void onNext(final RuntimeError error) {
-      LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getException());
+      LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getCause());
       stopAndNotify();
     }
   }

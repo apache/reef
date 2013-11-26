@@ -39,7 +39,7 @@ public final class DefaultRuntimeErrorHandler implements EventHandler<RuntimeErr
 
   @Override
   public void onNext(final RuntimeError error) {
-    LOG.log(Level.SEVERE, "Runtime error: " + error, error.getException());
-    throw new RuntimeException("REEF runtime error: " + error, error.getException());
+    LOG.log(Level.SEVERE, "Runtime error: " + error, error.getCause());
+    throw new RuntimeException("REEF runtime error: " + error, error.asError());
   }
 }
