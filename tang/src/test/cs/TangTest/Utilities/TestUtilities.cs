@@ -25,7 +25,7 @@ namespace Com.Microsoft.TangTest.Utilities
         [TestMethod]
         public void TestGetEnclosingClassFullNameByType()
         {
-            var asm = Assembly.LoadFrom(@"Com.Microsoft.Tang.Examples.dll");
+            var asm = Assembly.Load(@"Com.Microsoft.Tang.Examples");
             Type seconds = asm.GetType(@"Com.Microsoft.Tang.Examples.Timer+Seconds");
             Type B2 = asm.GetType(@"Com.Microsoft.Tang.Examples.B+B1+B2");
             Type timer = typeof(Com.Microsoft.Tang.Examples.Timer);
@@ -46,7 +46,7 @@ namespace Com.Microsoft.TangTest.Utilities
         [TestMethod]
         public void TestGetEnclosingClassShortNameByType()
         {
-            var asm = Assembly.LoadFrom(@"Com.Microsoft.Tang.Examples.dll");
+            var asm = Assembly.Load(@"Com.Microsoft.Tang.Examples");
             Type seconds = asm.GetType(@"Com.Microsoft.Tang.Examples.Timer+Seconds");
             Type B2 = asm.GetType(@"Com.Microsoft.Tang.Examples.B+B1+B2");
             Type timer = typeof(Com.Microsoft.Tang.Examples.Timer);
