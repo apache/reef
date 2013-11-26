@@ -119,6 +119,28 @@ public final class DriverLauncher {
   }
 
   /**
+   * Run a job
+   *
+   * @param driverConfig the configuration for the driver. See DriverConfiguration for details.
+   * @return the state of the job after execution.
+   */
+  public LauncherStatus run(final Configuration driverConfig) {
+
+    this.reef.submit(driverConfig);
+    synchronized (this) {
+      while (!this.status.isDone()) {
+        try {
+          this.wait();
+        } catch (final InterruptedException ex) {
+        }
+      }
+    }
+    this.reef.close();
+    return this.status;
+  }
+
+
+  /**
    * Run a job with a waiting timeout after which it will be killed, if it did not complete yet.
    *
    * @param driverConfig the configuration for the driver. See DriverConfiguration for details.
@@ -131,7 +153,12 @@ public final class DriverLauncher {
     synchronized (this) {
       while (!this.status.isDone()) {
         try {
-          this.wait(endTime - System.currentTimeMillis());
+          final long waitTime = endTime - System.currentTimeMillis();
+          if (waitTime > 0) {
+            this.wait(waitTime);
+          } else {
+            break;
+          }
         } catch (final InterruptedException ex) {
         }
       }
