@@ -100,7 +100,7 @@ public class ReceiverTest {
   /**
    * Test method for {@link com.microsoft.reef.io.network.group.impl.operators.ReceiverHelperImpl#ReceiverHelperImpl(com.microsoft.reef.io.network.impl.NetworkService, com.microsoft.wake.remote.Codec, com.microsoft.reef.io.network.group.impl.GroupCommNetworkHandler)}.
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testReceiverHelperImpl() {
     ReceiverHelper<GroupCommMessage> receiver = new ReceiverHelperImpl<>(netServices.get(0), new GCMCodec(), gcnhs.get(0));
     Assert.assertNotNull("new ReceiverHelperImpl()", receiver);
@@ -112,7 +112,7 @@ public class ReceiverTest {
    * @throws InterruptedException
    * @throws NetworkException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testReceiveIdentifierIdentifierType() throws InterruptedException, NetworkException {
     StringCodec strCodec = new StringCodec();
     for (int i = 0; i < ids.size(); i++) {
@@ -154,7 +154,7 @@ public class ReceiverTest {
    * @throws NetworkException
    * @throws InterruptedException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testReceiveList() throws NetworkException, InterruptedException {
     StringCodec strCodec = new StringCodec();
     for (int i = 0; i < ids.size(); i++) {
@@ -191,7 +191,7 @@ public class ReceiverTest {
    * @throws NetworkException
    * @throws InterruptedException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testReceiveListOfList() throws NetworkException, InterruptedException {
     StringCodec strCodec = new StringCodec();
     ListCodec<String> lstCodec = new ListCodec<>(strCodec);
@@ -230,7 +230,7 @@ public class ReceiverTest {
    * @throws NetworkException
    * @throws InterruptedException
    */
-  @Test(timeout = 1000)
+  @Test
   public final void testReceiveListOfQextendsIdentifierIdentifierType() throws NetworkException, InterruptedException {
     StringCodec strCodec = new StringCodec();
 
