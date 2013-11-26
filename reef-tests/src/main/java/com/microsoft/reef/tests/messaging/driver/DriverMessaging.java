@@ -52,7 +52,7 @@ public final class DriverMessaging {
       final String msg = new String(message.get());
       synchronized (DriverMessaging.this) {
         if (!msg.equals(DriverMessaging.this.lastMessage)) {
-          LOG.log(Level.SEVERE, "Expected '{0}' but got '{1}",
+          LOG.log(Level.SEVERE, "Expected {0} but got {1}",
                   new Object[] { DriverMessaging.this.lastMessage, msg });
           DriverMessaging.this.status = LauncherStatus.FAILED;
           DriverMessaging.this.notify();
