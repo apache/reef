@@ -82,8 +82,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private <T> void addConfiguration(ClassHierarchy ns, ConfigurationBuilderImpl builder)
       throws BindException {
     namespace = namespace.merge(ns);
-    ((ClassHierarchyImpl) namespace).parameterParser
-        .mergeIn(((ClassHierarchyImpl) namespace).parameterParser);
+    if((namespace instanceof ClassHierarchyImpl || builder.namespace instanceof ClassHierarchyImpl)) {
+      if((namespace instanceof ClassHierarchyImpl && builder.namespace instanceof ClassHierarchyImpl)) {
+        ((ClassHierarchyImpl) namespace).parameterParser
+          .mergeIn(((ClassHierarchyImpl) builder.namespace).parameterParser);
+      } else {
+        throw new IllegalArgumentException("Attempt to merge Java and non-Java class hierarchy!  Not supported.");
+      }
+    }
 
     for (ClassNode<?> cn : builder.boundImpls.keySet()) {
       bind(cn.getFullName(), builder.boundImpls.get(cn).getFullName());

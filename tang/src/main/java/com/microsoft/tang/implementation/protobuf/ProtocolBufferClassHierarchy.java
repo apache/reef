@@ -22,7 +22,7 @@ import com.microsoft.tang.types.PackageNode;
 public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   private final PackageNode namespace;
-  private static final String regex = "[\\.\\$]";
+  private static final String regex = "[\\.\\$\\+]";
 
   // ############## Serialize implementation ############## 
 
@@ -282,7 +282,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     n++; // want this function to be zero indexed...
     for (int i = 0; i < str.length(); i++) {
       char c = str.charAt(i);
-      if (c == '.' || c == '$') {
+      if (c == '.' || c == '$' || c == '+') {
         n--;
       }
       if (n == 0) {
