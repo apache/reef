@@ -69,49 +69,49 @@ namespace Com.Microsoft.TangTest.Tang
             activityRef.Call(b);
         }
 
-        //[TestMethod]
-        //public void TestActivityConfigWithSeperateAssembly()
-        //{
-        //    Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
-        //    Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+        [TestMethod]
+        public void TestActivityConfigWithSeperateAssembly()
+        {
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
 
-        //    ITang tang = TangFactory.GetTang();
-        //    ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity.dll" });
-        //    cb.BindImplementation(activityInterfaceType, activityType);
-        //    IConfiguration conf = cb.Build();
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.activityInterface" });
+            cb.BindImplementation(activityInterfaceType, activityType);
+            IConfiguration conf = cb.Build();
 
-        //    ConfigurationFile.WriteConfigurationFile(conf, "activityConf1.txt");
-        //    IDictionary<string, string> p = ReadFromFile("activityConf1.txt");
+            ConfigurationFile.WriteConfigurationFile(conf, "activityConf1.txt");
+            IDictionary<string, string> p = ReadFromFile("activityConf1.txt");
 
-        //    IInjector injector = tang.NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt");
-        //    var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
+            IInjector injector = tang.NewInjector(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.activityInterface" }, "activityConf1.txt");
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
 
-        //    //combined line sample
-        //    var o = (com.microsoft.reef.activity.HelloActivity)TangFactory.GetTang()
-        //        .NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt")
-        //        .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
+            //combined line sample
+            var o = (com.microsoft.reef.activity.HelloActivity)TangFactory.GetTang()
+                .NewInjector(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.activityInterface" }, "activityConf1.txt")
+                .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
 
-        //    Assert.IsNotNull(activityRef);
-        //    byte[] b = new byte[10];
-        //    activityRef.Call(b);
-        //}
+            Assert.IsNotNull(activityRef);
+            byte[] b = new byte[10];
+            activityRef.Call(b);
+        }
 
-        //[TestMethod]
-        //public void TestGetConfgiFromProtoBufClassHierarchy()
-        //{
-        //    Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
-        //    Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+        [TestMethod]
+        public void TestGetConfgiFromProtoBufClassHierarchy()
+        {
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
 
-        //    IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"com.microsoft.reef.activity.dll");
-        //    ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] {@"com.microsoft.reef.activity", @"com.microsoft.reef.activityInterface"});
+            ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
 
-        //    IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
-        //    ITang tang = TangFactory.GetTang();
-        //    IConfigurationBuilder cb = tang.NewConfigurationBuilder(ch);
-        //    cb.Bind("com.microsoft.reef.activity.IActivity", "com.microsoft.reef.activity.HelloActivity");
-        //    IConfiguration conf = cb.Build();
-        //    ConfigurationFile.WriteConfigurationFile(conf, "activityConf2.txt");
-        //}
+            IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
+            ITang tang = TangFactory.GetTang();
+            IConfigurationBuilder cb = tang.NewConfigurationBuilder(ch);
+            cb.Bind("com.microsoft.reef.activity.IActivity", "com.microsoft.reef.activity.HelloActivity");
+            IConfiguration conf = cb.Build();
+            ConfigurationFile.WriteConfigurationFile(conf, "activityConf2.txt");
+        }
 
         [TestMethod]
         public void TestActivityConfig()
