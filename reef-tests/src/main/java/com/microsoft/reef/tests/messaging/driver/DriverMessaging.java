@@ -88,9 +88,9 @@ public final class DriverMessaging {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), job.getCause().orElse(null));
+      LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), job.getCause());
       synchronized (DriverMessaging.this) {
-        DriverMessaging.this.status = LauncherStatus.FAILED(job.getCause().orElse(null));
+        DriverMessaging.this.status = LauncherStatus.FAILED(job.getCause());
         DriverMessaging.this.notify();
       }
     }

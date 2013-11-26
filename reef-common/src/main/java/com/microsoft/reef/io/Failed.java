@@ -24,7 +24,7 @@ public interface Failed extends Identifiable {
 
   Optional<String> getDescription();
 
-  Optional<Throwable> getCause();
+  Throwable getCause();
 
   Optional<byte[]> getData();
 

@@ -74,7 +74,7 @@ public final class DriverLauncher {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      final Throwable ex = job.getCause().orElse(null);
+      final Throwable ex = job.getCause();
       LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), ex);
       setStatusAndNotify(LauncherStatus.FAILED(ex));
     }

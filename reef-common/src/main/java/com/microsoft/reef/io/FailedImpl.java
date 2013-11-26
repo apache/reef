@@ -88,8 +88,8 @@ public abstract class FailedImpl implements Failed {
   }
 
   @Override
-  public Optional<Throwable> getCause() {
-    return this.cause;
+  public Throwable getCause() {
+    return this.cause.orElse(null);
   }
 
   @Override
@@ -104,5 +104,10 @@ public abstract class FailedImpl implements Failed {
   @Override
   public Throwable asError() {
     return this.cause.isPresent() ? this.cause.get() : new RuntimeException(this.message);
+  }
+
+  @Override
+  public String toString() {
+    return this.getClass().getName() + " id=" + this.getId() + " :: " + this.getMessage();
   }
 }

@@ -34,6 +34,6 @@ public final class DefaultFailedJobHandler implements EventHandler<FailedJob> {
 
   @Override
   public void onNext(final FailedJob job) {
-    throw new RuntimeException("REEF job failed: " + job.getId(), job.getCause().orElse(null));
+    throw new RuntimeException("REEF job failed: " + job.getId(), job.getCause());
   }
 }
