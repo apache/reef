@@ -35,7 +35,10 @@ import java.util.logging.Logger;
  */
 public final class HelloCLR {
 
-
+  /**
+   * The name of the class hierarchy file.
+   */
+  // TODO: Make this a config option
   public static final String CLASS_HIERARCHY_FILENAME = "activity.bin";
 
   private static final Logger LOG = Logger.getLogger(HelloCLR.class.getName());
@@ -45,7 +48,15 @@ public final class HelloCLR {
    */
   private static final int JOB_TIMEOUT = 10000; // 10 sec.
 
-
+  /**
+   * Adds all given filenames to the given param of the conf. File names that can't be resolved or that point to folders
+   * or unreadable files will be ignored.
+   *
+   * @param conf
+   * @param param
+   * @param fileNames
+   * @return The ConfigurationModule with the file names added.
+   */
   private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final String... fileNames) {
     ConfigurationModule result = conf;
     for (final String fileName : fileNames) {
