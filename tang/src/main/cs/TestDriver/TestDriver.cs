@@ -14,13 +14,23 @@ namespace Com.Microsoft.Tang.TestDriver
 {
     public class TestDriver
     {
-        static string file = @"Com.Microsoft.Tang.Examples.dll";
+        static string file = @"Com.Microsoft.Tang.Examples";
+        static string file2 = @"com.microsoft.reef.activity";
+        static string file3 = @"com.microsoft.reef.activityInterface";
 
         public static void Main(string[] args)
         {
+            ActivityTest();
             FileTest();
             TypeTest();
             CreateClassHierarchy();
+        }
+
+        public static void ActivityTest()
+        {
+            var o = (com.microsoft.reef.activity.IActivity)TangFactory.GetTang()
+            .NewInjector(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.ActivityInterface" }, "activityConf1.txt")
+            .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
         }
 
         public static void CreateClassHierarchy()
@@ -110,7 +120,7 @@ namespace Com.Microsoft.Tang.TestDriver
         }
         public static void TypeTest()
         {
-            var asm = Assembly.LoadFrom(@"Com.Microsoft.Tang.Examples.dll");
+            var asm = Assembly.Load(@"Com.Microsoft.Tang.Examples");
             var types = asm.GetTypes();
 
             //Type type = Type.GetType(@"Com.Microsoft.Tang.Examples.Timer+Seconds");

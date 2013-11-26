@@ -17,13 +17,16 @@ namespace Com.Microsoft.TangTest.Tang
     [TestClass]
     public class TestConfiguration
     {
-        static string file = @"Com.Microsoft.Tang.Examples.dll";
+        static string file = @"Com.Microsoft.Tang.Examples";
+        static string file2 = @"com.microsoft.reef.activity";
+        static string file3 = @"com.microsoft.reef.activityInterface";
+
         static Assembly asm = null;
 
         [ClassInitialize]
         public static void ClassSetup(TestContext context)
         {
-            asm = Assembly.LoadFrom(file);
+            asm = Assembly.Load(file);
         }
 
         [ClassCleanup]
@@ -44,12 +47,16 @@ namespace Com.Microsoft.TangTest.Tang
         [TestMethod]
         public void TestActivityConfiguration()
         {
-            Type activityInterfaceType = typeof(Com.Microsoft.Tang.Examples.IActivity);
-            Type activityType = typeof(Com.Microsoft.Tang.Examples.HelloActivity);
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
+            //Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
 
             ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file2, file3 });
             cb.BindImplementation(activityInterfaceType, activityType);
+            Type namedParameter = a.GetType(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
+            cb.BindNamedParameter(namedParameter, "Hello Activity");
             IConfiguration conf = cb.Build();
 
             ConfigurationFile.WriteConfigurationFile(conf, "activityConf.txt");
@@ -57,12 +64,12 @@ namespace Com.Microsoft.TangTest.Tang
 
 
             ITang tang1 = TangFactory.GetTang();
-            ICsConfigurationBuilder cb1 = tang1.NewConfigurationBuilder(new string[] { file });
+            ICsConfigurationBuilder cb1 = tang1.NewConfigurationBuilder(new string[] {file2, file3 });
             ConfigurationFile.AddConfiguration(cb1, "activityConf.txt");
             IConfiguration conf1 = cb1.Build();
 
             IInjector injector = tang1.NewInjector(conf1);
-            var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityInterfaceType);
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
             Assert.IsNotNull(activityRef);
 
             byte[] b = new byte[10];
@@ -73,22 +80,23 @@ namespace Com.Microsoft.TangTest.Tang
         public void TestActivityConfigWithSeperateAssembly()
         {
             Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
-            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
 
             ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity.dll" });
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file2, file3 });
             cb.BindImplementation(activityInterfaceType, activityType);
             IConfiguration conf = cb.Build();
 
             ConfigurationFile.WriteConfigurationFile(conf, "activityConf1.txt");
             IDictionary<string, string> p = ReadFromFile("activityConf1.txt");
 
-            IInjector injector = tang.NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt");
+            IInjector injector = tang.NewInjector(new string[] { file2, file3 }, "activityConf1.txt");
             var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
 
             //combined line sample
-            var o = (com.microsoft.reef.activity.HelloActivity)TangFactory.GetTang()
-                .NewInjector(new string[] { @"com.microsoft.reef.activity.dll" }, "activityConf1.txt")
+            var o = (com.microsoft.reef.activity.IActivity)TangFactory.GetTang()
+                .NewInjector(new string[] {file2, file3 }, "activityConf1.txt")
                 .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
 
             Assert.IsNotNull(activityRef);
@@ -100,14 +108,15 @@ namespace Com.Microsoft.TangTest.Tang
         public void TestGetConfgiFromProtoBufClassHierarchy()
         {
             Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
-            Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"com.microsoft.reef.activity.dll");
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] {file2, file3});
             ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
+
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
             ITang tang = TangFactory.GetTang();
             IConfigurationBuilder cb = tang.NewConfigurationBuilder(ch);
             cb.Bind("com.microsoft.reef.activity.IActivity", "com.microsoft.reef.activity.HelloActivity");
+            cb.Bind(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier", "Hello Activity");
 
             IConfiguration conf = cb.Build();
             ConfigurationFile.WriteConfigurationFile(conf, "activityConf2.txt");
@@ -116,8 +125,9 @@ namespace Com.Microsoft.TangTest.Tang
         [TestMethod]
         public void TestActivityConfig()
         {
-            Type activityInterfaceType = typeof(Com.Microsoft.Tang.Examples.IActivity);
-            Type activityType = typeof(Com.Microsoft.Tang.Examples.HelloActivity);
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
 
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
@@ -127,8 +137,8 @@ namespace Com.Microsoft.TangTest.Tang
             ConfigurationFile.WriteConfigurationFile(conf, "activityConf.txt");
             IDictionary<string, string> p = ReadFromFile("activityConf.txt");
 
-            IInjector injector = tang.NewInjector(new string[] { file }, "activityConf.txt");
-            var activityRef = (Com.Microsoft.Tang.Examples.HelloActivity)injector.GetInstance(activityInterfaceType);
+            IInjector injector = tang.NewInjector(new string[] { file2, file3 }, "activityConf.txt");
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
 
             Assert.IsNotNull(activityRef);
             byte[] b = new byte[10];

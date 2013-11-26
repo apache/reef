@@ -16,14 +16,14 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
     [TestClass]
     public class TestSerilization
     {
-        public static string file = @"Com.Microsoft.Tang.Examples.dll";
+        public static string file = @"Com.Microsoft.Tang.Examples";
         static Assembly asm = null;
 
         [ClassInitialize]
         public static void ClassSetup(TestContext context)
         {
-            asm = Assembly.LoadFrom(file);
-            Assembly.LoadFrom(@"com.microsoft.reef.activity.dll");
+            asm = Assembly.Load(file);
+            Assembly.Load(@"com.microsoft.reef.activity");
         }
 
         [ClassCleanup]
@@ -44,7 +44,7 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [TestMethod]
         public void TestSerializeClassHierarchy()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"Com.Microsoft.Tang.Examples.dll");
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] {@"Com.Microsoft.Tang.Examples"});
             IClassNode timerClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer");
             ProtocolBufferClassHierarchy.Serialize("node.bin", ns);
         }
@@ -52,7 +52,7 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchy()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"Com.Microsoft.Tang.Examples.dll");
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] {@"Com.Microsoft.Tang.Examples"});
             IClassNode timerClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer");
             INode secondNode = (INode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
             IClassNode SimpleConstructorsClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.SimpleConstructors");
@@ -76,7 +76,11 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchyForActivity()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(@"com.microsoft.reef.activity.dll");
+            string[] s = new string[2];
+            s[0] = @"com.microsoft.reef.activity";
+            s[1] = @"com.microsoft.reef.activityInterface";
+
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(s);
             IClassNode activityClassNode = (IClassNode)ns.GetNode("com.microsoft.reef.activity.HelloActivity");
    
             ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);

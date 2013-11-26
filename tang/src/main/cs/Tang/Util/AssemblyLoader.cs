@@ -16,7 +16,7 @@ namespace Com.Microsoft.Tang.Util
             Assemblies = new List<Assembly>();
             foreach (var a in files)
             {
-                Assemblies.Add(Assembly.LoadFrom(a));
+                Assemblies.Add(Assembly.Load(a));
             }
         }
 

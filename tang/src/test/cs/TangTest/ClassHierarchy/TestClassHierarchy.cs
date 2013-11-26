@@ -11,11 +11,14 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
     public class TestClassHierarchy
     {
         public static IClassHierarchy ns;
+        static string file = @"Com.Microsoft.Tang.Examples";
+        static string file2 = @"com.microsoft.reef.activity";
+        static string file3 = @"com.microsoft.reef.activityInterface";
 
         [ClassInitialize]
         public static void ClassSetup(TestContext context)
         {
-            ns = TangFactory.GetTang().GetClassHierarchy(@"Com.Microsoft.Tang.Examples.dll");
+            ns = TangFactory.GetTang().GetClassHierarchy(new string[] {file, file2, file3});
             //ns = new ClassHierarchyImpl(@"Com.Microsoft.Tang.Examples.dll");
         }
 
@@ -98,6 +101,7 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         {
             IClassNode timerClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer");
             INode secondNode = ns.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
+            Assert.AreEqual(secondNode.GetFullName(), "Com.Microsoft.Tang.Examples.Timer+Seconds");
 
         }
 
@@ -105,27 +109,52 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         public void TestNamedParameterConstructors()
         {
             var node = ns.GetNode("Com.Microsoft.Tang.Examples.NamedParameterConstructors");
-
+            Assert.AreEqual(node.GetFullName(), "Com.Microsoft.Tang.Examples.NamedParameterConstructors");
         }
+
+        [TestMethod]
+        public void TestNamedParameterIdentifier()
+        {
+            var node = ns.GetNode("com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
+            Assert.AreEqual(node.GetFullName(), "com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
+        }
+
+
+        [TestMethod]
+        public void TestActivityNode()
+        {
+            var node = ns.GetNode("com.microsoft.reef.activity.HelloActivity");
+            Assert.AreEqual(node.GetFullName(), "com.microsoft.reef.activity.HelloActivity");
+        }
+
+        [TestMethod]
+        public void TestIActivityNode()
+        {
+            var node = ns.GetNode("com.microsoft.reef.activity.IActivity");
+            Assert.AreEqual(node.GetFullName(), "com.microsoft.reef.activity.IActivity");
+        }
+
 
         [TestMethod]
         public void TestDocumentedLocalNamedParameter() 
         {
-            ns.GetNode("Com.Microsoft.Tang.Examples.DocumentedLocalNamedParameter");
+            var node = ns.GetNode("Com.Microsoft.Tang.Examples.DocumentedLocalNamedParameter");
+            Assert.AreEqual(node.GetFullName(), "Com.Microsoft.Tang.Examples.DocumentedLocalNamedParameter");
         }
 
         [TestMethod]
         public void TestOKShortNames()
         {
-            ns.GetNode("Com.Microsoft.Tang.Examples.ShortNameFooA");
+            var node = ns.GetNode("Com.Microsoft.Tang.Examples.ShortNameFooA");
+            Assert.AreEqual(node.GetFullName(), "Com.Microsoft.Tang.Examples.ShortNameFooA");
         }
 
         //[TestMethod]
         //exception would throw when building the hierarchy
         public void testConflictingShortNames()
         {
-            ns.GetNode("Com.Microsoft.Tang.Examples.ShortNameFooA");
-            ns.GetNode("Com.Microsoft.Tang.Examples.ShortNameFooB");
+            var nodeA = ns.GetNode("Com.Microsoft.Tang.Examples.ShortNameFooA");
+            var nodeB = ns.GetNode("Com.Microsoft.Tang.Examples.ShortNameFooB");
         }
 
         [TestMethod]

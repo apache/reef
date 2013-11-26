@@ -65,9 +65,9 @@ namespace Com.Microsoft.Tang.Implementations
             //}
         }
 
-        public IClassHierarchy GetClassHierarchy(string assembly)
+        public IClassHierarchy GetClassHierarchy(string[] assemblies)
         {
-            return GetDefaultClassHierarchy(new string[] { assembly }, new Type[] { });
+            return GetDefaultClassHierarchy(assemblies, new Type[] { });
         }
 
         public ICsClassHierarchy GetDefaultClassHierarchy()
