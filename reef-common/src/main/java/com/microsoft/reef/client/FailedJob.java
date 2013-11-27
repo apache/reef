@@ -15,10 +15,10 @@
  */
 package com.microsoft.reef.client;
 
+import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.FailedImpl;
 
 /**
  * Represents a failed REEF job.
@@ -26,7 +26,7 @@ import com.microsoft.reef.FailedImpl;
 @Public
 @ClientSide
 @Provided
-public class FailedJob extends FailedImpl {
+public class FailedJob extends AbstractFailure {
   public FailedJob(final String id, final Throwable cause) {
     super(id, cause);
   }

@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
@@ -31,7 +32,6 @@ import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.RuntimeError;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.annotations.Parameter;
@@ -328,7 +328,7 @@ final class DriverManager implements EvaluatorRequestor {
    */
   private final void handle(final ReefServiceProtos.RuntimeErrorProto runtimeErrorProto) {
 
-    final RuntimeError error = new RuntimeError(runtimeErrorProto);
+    final FailedRuntime error = new FailedRuntime(runtimeErrorProto);
     LOG.log(Level.WARNING, "Runtime error: " + error, error.getCause());
 
     synchronized (this.evaluators) {

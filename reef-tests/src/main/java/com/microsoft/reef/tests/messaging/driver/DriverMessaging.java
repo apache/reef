@@ -17,7 +17,7 @@ package com.microsoft.reef.tests.messaging.driver;
 
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.RuntimeError;
+import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
@@ -96,9 +96,9 @@ public final class DriverMessaging {
     }
   }
 
-  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+  final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
-    public void onNext(final RuntimeError error) {
+    public void onNext(final FailedRuntime error) {
       LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getCause());
       synchronized (DriverMessaging.this) {
         DriverMessaging.this.status = LauncherStatus.FAILED(error.getCause());

@@ -15,10 +15,10 @@
  */
 package com.microsoft.reef.driver.context;
 
+import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.FailedImpl;
 import com.microsoft.reef.util.Optional;
 
 /**
@@ -29,7 +29,7 @@ import com.microsoft.reef.util.Optional;
 @Public
 @Provided
 @DriverSide
-public abstract class FailedContext extends FailedImpl implements ContextBase {
+public abstract class FailedContext extends AbstractFailure implements ContextBase {
 
   public FailedContext(final String id, final Throwable cause) {
     super(id, cause);

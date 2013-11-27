@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef;
+package com.microsoft.reef.common;
 
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.util.Optional;
 
-public interface Failed extends Identifiable {
+public interface Failure extends Identifiable {
 
   String getMessage();
 

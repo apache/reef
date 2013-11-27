@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef;
+package com.microsoft.reef.client;
 
+import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
-public class RuntimeError extends FailedImpl {
+public class FailedRuntime extends AbstractFailure {
 
   private static final ObjectSerializableCodec<Exception> CODEC = new ObjectSerializableCodec<>();
 
-  public RuntimeError(final RuntimeErrorProto error) {
+  public FailedRuntime(final RuntimeErrorProto error) {
     super(error.getIdentifier(), error.getMessage(), null,
         error.hasException() ? CODEC.decode(error.getException().toByteArray()) : null,
         error.hasException() ? error.getException().toByteArray() : null);

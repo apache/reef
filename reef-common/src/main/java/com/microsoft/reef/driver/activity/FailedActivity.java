@@ -15,11 +15,11 @@
  */
 package com.microsoft.reef.driver.activity;
 
+import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.driver.context.ActiveContext;
-import com.microsoft.reef.FailedImpl;
 import com.microsoft.reef.util.Optional;
 
 /**
@@ -28,7 +28,7 @@ import com.microsoft.reef.util.Optional;
 @DriverSide
 @Provided
 @Public
-public class FailedActivity extends FailedImpl {
+public class FailedActivity extends AbstractFailure {
 
   private final Optional<ActiveContext> context;
 
