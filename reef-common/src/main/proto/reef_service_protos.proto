@@ -1,6 +1,9 @@
 option java_package = "com.microsoft.reef.proto";
+
 option java_outer_classname = "ReefServiceProtos";
+
 option java_generic_services = true;
+
 option java_generate_equals_and_hash = true;
 
 enum State {
@@ -13,8 +16,8 @@ enum State {
 }
 
 enum FileType {
-    PLAIN   = 0;
-    LIB     = 1;
+    PLAIN = 0;
+    LIB = 1;
     ARCHIVE = 2;
 }
 
@@ -25,64 +28,69 @@ enum SIZE {
     XLARGE = 3;
 }
 
+enum ProcessType {
+    JVM = 0;
+    CLR = 1;
+}
+
 message FileResourceProto {
     required FileType type = 1;
-    required string name   = 2;
-    required string path   = 3;
+    required string name = 2;
+    required string path = 3;
 }
 
 message RuntimeErrorProto {
-    required string name       = 1; // e.g., local, yarn21
-    required string message    = 2;
-    optional bytes exception   = 3;
+    required string name = 1; // e.g., local, yarn21
+    required string message = 2;
+    optional bytes exception = 3;
 
     optional string identifier = 5; // e.g., evaluator id
 }
 
 message JobStatusProto {
     required string identifier = 1;
-    required State  state      = 2;
-    optional bytes message     = 3;
-    optional bytes exception   = 4;
+    required State state = 2;
+    optional bytes message = 3;
+    optional bytes exception = 4;
 }
 
 message ContextStatusProto {
     enum State {
         READY = 0;
-        DONE  = 1;
-        FAIL  = 2;
+        DONE = 1;
+        FAIL = 2;
     }
     required State context_state = 1;
 
-    required string context_id   = 2;
-    optional string parent_id    = 3;
+    required string context_id = 2;
+    optional string parent_id = 3;
 
     optional bytes error = 5; // when creating the context
 
     // Context messages
     message ContextMessageProto {
         required string source_id = 1;
-        required bytes message    = 2;
+        required bytes message = 2;
     }
     repeated ContextMessageProto context_message = 6;
 }
 
 message ActivityStatusProto {
     required string activity_id = 1;
-    required string context_id  = 2;
-    required State  state       = 3;
-    optional bytes  result      = 4; // e.g., return value from Activity.call()
+    required string context_id = 2;
+    required State state = 3;
+    optional bytes result = 4; // e.g., return value from Activity.call()
 
     // ActivityMessageSource messages
     message ActivityMessageProto {
-       required string source_id = 1;
-       required bytes  message   = 2;
+        required string source_id = 1;
+        required bytes message = 2;
     }
-    repeated ActivityMessageProto activity_message  = 5;
+    repeated ActivityMessageProto activity_message = 5;
 }
 
 message EvaluatorStatusProto {
     required string evaluator_id = 1;
-    required State state         = 2;
-    optional bytes error         = 3;
+    required State state = 2;
+    optional bytes error = 3;
 }

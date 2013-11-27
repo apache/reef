@@ -117,6 +117,19 @@ public final class ResourceManager {
    * @param launchRequest the launch request to be processed.
    */
   final void onNext(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+    switch (launchRequest.getType()) {
+      case JVM:
+        this.runJVMContainer(launchRequest);
+        break;
+      case CLR:
+        this.runCLRContainer(launchRequest);
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported container type: " + launchRequest.getType());
+    }
+  }
+
+  private final void runJVMContainer(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     synchronized (this.theContainers) {
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
       final Set<File> files = new HashSet<>(launchRequest.getFileCount() + this.globalFilesAndLibraries.size());
@@ -140,6 +153,13 @@ public final class ResourceManager {
       c.run(launchRequest.getEvaluatorConf(), files, classPathList);
     }
   }
+
+  private final void runCLRContainer(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+    synchronized (this.theContainers) {
+      throw new UnsupportedOperationException("Unable to launch CLR containers at this time");
+    }
+  }
+
 
   /**
    * Checks the allocation queue for new allocations and if there are any

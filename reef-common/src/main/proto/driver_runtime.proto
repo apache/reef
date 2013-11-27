@@ -63,9 +63,9 @@ message ResourceReleaseProto {
 }
 
 message ResourceLaunchProto {
-	required string identifier     = 1;
-	required string remote_id      = 2;
-	required string evaluator_conf = 3;
-
+	required string identifier      = 1;
+	required string remote_id       = 2;
+	required string evaluator_conf  = 3;
+    required ProcessType type       = 4;
 	repeated FileResourceProto file = 10;
 }

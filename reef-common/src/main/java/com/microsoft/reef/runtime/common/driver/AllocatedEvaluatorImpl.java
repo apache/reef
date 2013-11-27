@@ -169,6 +169,16 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
         rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder().setName(lib.getName()).setPath(lib.getPath().toString()).setType(ReefServiceProtos.FileType.LIB).build());
       }
 
+      { // Set the type
+        switch (this.evaluatorManager.getType()) {
+          case CLR:
+            rbuilder.setType(ReefServiceProtos.ProcessType.CLR);
+            break;
+          case JVM:
+            rbuilder.setType(ReefServiceProtos.ProcessType.JVM);
+        }
+      }
+
       this.evaluatorManager.handle(rbuilder.build());
     } catch (final BindException e) {
       throw new RuntimeException(e);
