@@ -20,13 +20,30 @@ import com.microsoft.reef.util.Optional;
 
 public interface Failure extends Identifiable {
 
+  /**
+   * @return One-line error message. Should never be null.
+   */
   String getMessage();
 
+  /**
+   * @return Optional long error description.
+   */
   Optional<String> getDescription();
 
+  /**
+   * @return Java Exception that caused the error, or null.
+   */
   Throwable getCause();
 
+  /**
+   * @return Optional serialized version of the error message.
+   */
   Optional<byte[]> getData();
 
+  /**
+   * Return the original Java Exception, or generate a new one if it does not exists.
+   * ALWAYS returns an exception.
+   * @return A java exception. Never null.
+   */
   Throwable asError();
 }

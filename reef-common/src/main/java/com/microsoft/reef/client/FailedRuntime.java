@@ -19,13 +19,54 @@ import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class FailedRuntime extends AbstractFailure {
 
+  /**
+   * Standard java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(AbstractFailure.class.getName());
+
+  /**
+   * Codec to decode serialized exception from a byte array. It is used in getThrowable().
+   */
   private static final ObjectSerializableCodec<Exception> CODEC = new ObjectSerializableCodec<>();
 
+  /**
+   * Create a new Failure object out of protobuf data.
+   * @param error Error message as a protocol buffers object.
+   */
   public FailedRuntime(final RuntimeErrorProto error) {
-    super(error.getIdentifier(), error.getMessage(), null,
-        error.hasException() ? CODEC.decode(error.getException().toByteArray()) : null,
-        error.hasException() ? error.getException().toByteArray() : null);
+    super(error.getIdentifier(), error.getMessage(), null, getThrowable(error), getData(error));
+  }
+
+  /**
+   * Retrieve Java exception from protobuf object, if possible. Otherwise, return null.
+   * This is a utility method used in the FailedRuntime constructor.
+   * @param error protobuf error message structure.
+   * @return Java exception or null if exception is missing or cannot be decoded.
+   */
+  private static Throwable getThrowable(final RuntimeErrorProto error) {
+    final byte[] data = getData(error);
+    if (data != null) {
+      try {
+        return CODEC.decode(data);
+      } catch (final Throwable ex) {
+        LOG.log(Level.FINE, "Could not decode exception {0}: {1}", new Object[] { error, ex });
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get binary data for the exception, if it exists. Otherwise, return null.
+   * This is a utility method used in the FailedRuntime constructor and getThrowable() method.
+   * @param error protobuf error message structure.
+   * @return byte array of the exception or null if exception is missing.
+   */
+  private static byte[] getData(final RuntimeErrorProto error) {
+    return error.hasException() ? error.getException().toByteArray() : null;
   }
 }
