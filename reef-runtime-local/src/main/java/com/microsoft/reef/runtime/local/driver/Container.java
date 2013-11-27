@@ -39,6 +39,16 @@ interface Container extends AutoCloseable {
   public void run(final String evaluatorConfiguration, final Set<File> files, final List<String> classPath);
 
   /**
+   * Run the given commandLine in the container.
+   *
+   * @param commandLine
+   */
+  public void run(final List<String> commandLine);
+
+  public void addFiles(final Iterable<File> files);
+
+
+  /**
    * @return true if the Container is currently executing, false otherwise.
    */
   public boolean isRunning();
@@ -59,6 +69,11 @@ interface Container extends AutoCloseable {
    * @return
    */
   public int getMemory();
+
+  /**
+   * @return the working directory of the Container.
+   */
+  public File getFolder();
 
   /**
    * Kills the Container.

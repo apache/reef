@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common;
 
-import com.microsoft.reef.runtime.common.utils.JavaLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;

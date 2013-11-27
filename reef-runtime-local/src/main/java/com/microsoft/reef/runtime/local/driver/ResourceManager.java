@@ -23,12 +23,18 @@ import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
+import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
+import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,6 +53,9 @@ public final class ResourceManager {
   private final ResourceRequestQueue requestQueue = new ResourceRequestQueue();
   private final ContainerManager theContainers;
   private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
+
+  private final RemoteManager remoteManager;
+
   /**
    * Libraries to be added to all evaluators.
    */
@@ -63,10 +72,11 @@ public final class ResourceManager {
                   @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
                   @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
                   @Parameter(LocalDriverConfiguration.GlobalLibraries.class) final Set<String> globalLibraries,
-                  @Parameter(LocalDriverConfiguration.GlobalFiles.class) final Set<String> globalFiles) {
+                  RemoteManager remoteManager, @Parameter(LocalDriverConfiguration.GlobalFiles.class) final Set<String> globalFiles) {
     this.theContainers = cm;
     this.allocationHandler = allocationHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusHandlerEventHandler;
+    this.remoteManager = remoteManager;
     this.globalLibraries = new ArrayList<>(globalLibraries);
     Collections.sort(this.globalLibraries);
     this.globalFiles = globalFiles;
@@ -117,19 +127,6 @@ public final class ResourceManager {
    * @param launchRequest the launch request to be processed.
    */
   final void onNext(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
-    switch (launchRequest.getType()) {
-      case JVM:
-        this.runJVMContainer(launchRequest);
-        break;
-      case CLR:
-        this.runCLRContainer(launchRequest);
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported container type: " + launchRequest.getType());
-    }
-  }
-
-  private final void runJVMContainer(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     synchronized (this.theContainers) {
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
       final Set<File> files = new HashSet<>(launchRequest.getFileCount() + this.globalFilesAndLibraries.size());
@@ -150,16 +147,43 @@ public final class ResourceManager {
       classPathList.addAll(localLibraries);
 
       LOG.log(Level.FINEST, "Launching container " + c);
-      c.run(launchRequest.getEvaluatorConf(), files, classPathList);
+
+      c.addFiles(files);
+
+      final File evaluatorConfigurationFile = new File(c.getFolder(), "evaluator.conf");
+      try (PrintWriter clientOut = new PrintWriter(evaluatorConfigurationFile)) {
+        clientOut.write(launchRequest.getEvaluatorConf().toCharArray());
+      } catch (final FileNotFoundException e) {
+        throw new RuntimeException("Unable to write evaluator configuration file.", e);
+      }
+
+      final List<String> command;
+
+      switch (launchRequest.getType()) {
+        case JVM:
+          command = new JavaLaunchCommandBuilder()
+              .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
+              .setLaunchID(c.getNodeID())
+              .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+              .setClassPath(StringUtils.join(classPathList, File.pathSeparatorChar))
+              .setMemory(512)
+              .build();
+          break;
+        case CLR:
+          command = new CLRLaunchCommandBuilder()
+              .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
+              .setLaunchID(c.getNodeID())
+              .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+              .setMemory(512)
+              .build();
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported container type: " + launchRequest.getType());
+      }
+
+      c.run(command);
     }
   }
-
-  private final void runCLRContainer(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
-    synchronized (this.theContainers) {
-      throw new UnsupportedOperationException("Unable to launch CLR containers at this time");
-    }
-  }
-
 
   /**
    * Checks the allocation queue for new allocations and if there are any

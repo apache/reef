@@ -17,7 +17,7 @@ package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.annotations.audience.ActivitySide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.Launcher;
+import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -71,27 +71,36 @@ final class ProcessContainer implements Container {
       throw new RuntimeException("Unable to write evaluator configuration file.", e);
     }
 
-    try {// Copy the files
+    this.addFiles(files);
+
+    final List<String> command = new JavaLaunchCommandBuilder()
+        .setErrorHandlerRID(this.errorHandlerRID)
+        .setLaunchID(this.nodeID)
+        .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+        .setClassPath(StringUtils.join(classPath, File.pathSeparatorChar))
+        .setMemory(this.getMemory())
+        .build();
+
+    this.run(command);
+  }
+
+  @Override
+  public void addFiles(final Iterable<File> files) {
+    try {
       copy(files, this.folder);
     } catch (IOException e) {
       throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
     }
+  }
 
-    final List<String> command = Launcher.getLaunchCommand(this.errorHandlerRID,
-        this.nodeID,
-        evaluatorConfigurationFile.getAbsolutePath(),
-        StringUtils.join(classPath, File.pathSeparatorChar),
-        getMemory(),
-        null,
-        null
-    );
 
-    this.process = new RunnableProcess(command, containedID, this.folder);
+  @Override
+  public void run(List<String> commandLine) {
+    this.process = new RunnableProcess(commandLine, containedID, this.folder);
     this.theThread = new Thread(process);
     this.theThread.start();
-
-
   }
+
 
   @Override
   public final boolean isRunning() {
@@ -101,6 +110,11 @@ final class ProcessContainer implements Container {
   @Override
   public final int getMemory() {
     return 512;
+  }
+
+  @Override
+  public File getFolder() {
+    return this.folder;
   }
 
   @Override
