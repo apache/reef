@@ -17,7 +17,7 @@ package com.microsoft.reef.tests.messaging.driver;
 
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.reef.RuntimeError;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;

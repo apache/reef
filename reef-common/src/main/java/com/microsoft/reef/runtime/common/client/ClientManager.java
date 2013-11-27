@@ -26,7 +26,7 @@ import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.reef.RuntimeError;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.util.JARFileMaker;
 import com.microsoft.tang.Configuration;

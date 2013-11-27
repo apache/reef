@@ -18,7 +18,7 @@ package com.microsoft.reef.client;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.io.FailedImpl;
+import com.microsoft.reef.FailedImpl;
 
 /**
  * Represents a failed REEF job.

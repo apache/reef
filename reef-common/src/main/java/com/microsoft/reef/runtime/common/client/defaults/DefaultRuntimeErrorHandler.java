@@ -17,7 +17,7 @@ package com.microsoft.reef.runtime.common.client.defaults;
 
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
-import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.reef.RuntimeError;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;

@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.client;
 
-import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.reef.RuntimeError;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalImpl;

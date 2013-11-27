@@ -18,7 +18,7 @@ package com.microsoft.reef.driver.context;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.io.FailedImpl;
+import com.microsoft.reef.FailedImpl;
 import com.microsoft.reef.util.Optional;
 
 /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.io;
+package com.microsoft.reef;
 
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.util.Optional;

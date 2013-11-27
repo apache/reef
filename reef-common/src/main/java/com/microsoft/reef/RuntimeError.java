@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.util;
+package com.microsoft.reef;
 
-import com.microsoft.reef.io.FailedImpl;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
