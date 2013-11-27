@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.client;
 
 import com.microsoft.reef.client.ClientConfigurationOptions;
 import com.microsoft.reef.client.DriverConfigurationOptions;
+import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.JobSubmissionProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -26,7 +27,6 @@ import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.util.JARFileMaker;
 import com.microsoft.tang.Configuration;
@@ -92,7 +92,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   @Inject
   ClientManager(final Injector injector,
                 final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class)
-                InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture,
+                InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture,
                 final RemoteManager remoteManager,
                 final JobSubmissionHandler jobSubmissionHandler) {
 
@@ -271,16 +271,16 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
   private final static class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<RuntimeErrorProto>> {
 
-    private final InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture;
+    private final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture;
 
-    RuntimeErrorProtoHandler(final InjectionFuture<EventHandler<RuntimeError>> runtimeErrorHandlerFuture) {
+    RuntimeErrorProtoHandler(final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture) {
       this.runtimeErrorHandlerFuture = runtimeErrorHandlerFuture;
     }
 
     @Override
     public void onNext(final RemoteMessage<RuntimeErrorProto> error) {
       LOG.log(Level.WARNING, "Runtime Error: {0}", error.getMessage().getMessage());
-      this.runtimeErrorHandlerFuture.get().onNext(new RuntimeError(error.getMessage()));
+      this.runtimeErrorHandlerFuture.get().onNext(new FailedRuntime(error.getMessage()));
     }
   }
 }

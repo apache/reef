@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.driver.context;
 
+import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
@@ -28,15 +29,14 @@ import com.microsoft.reef.util.Optional;
 @Public
 @Provided
 @DriverSide
-public interface FailedContext extends ContextBase {
+public abstract class FailedContext extends AbstractFailure implements ContextBase {
+
+  public FailedContext(final String id, final Throwable cause) {
+    super(id, cause);
+  }
 
   /**
    * @return the new top of the stack of context if there is one.
    */
-  public Optional<ActiveContext> getParentContext();
-
-  /**
-   * @return the reason for the context failure.
-   */
-  public Throwable getReason();
+  public abstract Optional<ActiveContext> getParentContext();
 }

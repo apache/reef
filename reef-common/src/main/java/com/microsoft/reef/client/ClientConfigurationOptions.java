@@ -19,7 +19,6 @@ import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.runtime.common.client.defaults.*;
-import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
@@ -54,6 +53,6 @@ public final class ClientConfigurationOptions {
 
   @NamedParameter(doc = "Client EventHandler triggered on REEF runtime error.",
                   default_classes = DefaultRuntimeErrorHandler.class)
-  public final static class RuntimeErrorHandler implements Name<EventHandler<RuntimeError>> {
+  public final static class RuntimeErrorHandler implements Name<EventHandler<FailedRuntime>> {
   }
 }

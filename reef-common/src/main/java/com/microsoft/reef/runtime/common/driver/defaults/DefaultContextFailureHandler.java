@@ -32,7 +32,6 @@ public final class DefaultContextFailureHandler implements EventHandler<FailedCo
   @Override
   public void onNext(final FailedContext failedContext) {
     throw new RuntimeException(
-        "No handler bound for FailedContext:" + failedContext,
-        failedContext.getReason());
+        "No handler bound for FailedContext:" + failedContext, failedContext.getCause());
   }
 }

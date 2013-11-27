@@ -130,17 +130,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
           new JobException(this.jobId, codec.decode(value.getException().toByteArray())) :
           new JobException(this.jobId, "Unknown failure cause");
 
-      this.failedJobEventHandler.onNext(new FailedJob() {
-        @Override
-        public JobException getJobException() {
-          return error;
-        }
-
-        @Override
-        public String getId() {
-          return RunningJobImpl.this.jobId;
-        }
-      });
+      this.failedJobEventHandler.onNext(new FailedJob(this.jobId, error));
     }
   }
 

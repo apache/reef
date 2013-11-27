@@ -17,12 +17,12 @@ package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
-import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.NetUtils;
@@ -80,9 +80,9 @@ final class ContainerManager implements AutoCloseable {
     remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, new EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>>() {
       @Override
       public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
-        final RuntimeError error = new RuntimeError(value.getMessage());
-        LOG.log(Level.SEVERE, "RuntimeError: " + error.toString());
-        release(error.getIdentifier());
+        final FailedRuntime error = new FailedRuntime(value.getMessage());
+        LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getCause());
+        release(error.getId());
       }
     });
     clock.registerEventHandler(RuntimeStart.class, new EventHandler<Time>() {

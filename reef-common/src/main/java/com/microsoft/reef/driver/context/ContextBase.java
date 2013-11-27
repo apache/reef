@@ -34,21 +34,20 @@ public interface ContextBase extends Identifiable {
    * @return the ID of this EvaluatorContext.
    */
   @Override
-  public String getId();
+  String getId();
 
   /**
    * @return the identifier of the Evaluator this EvaluatorContext is instantiated on.
    */
-  public String getEvaluatorId();
+  String getEvaluatorId();
 
   /**
    * @return the ID of the parent context, if there is any.
    */
-  public Optional<String> getParentId();
+  Optional<String> getParentId();
 
   /**
    * @return the descriptor of the Evaluator this Context is on.
    */
   public EvaluatorDescriptor getEvaluatorDescriptor();
-
 }

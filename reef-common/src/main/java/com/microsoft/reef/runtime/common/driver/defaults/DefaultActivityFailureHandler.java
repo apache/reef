@@ -32,7 +32,6 @@ public final class DefaultActivityFailureHandler implements EventHandler<FailedA
   @Override
   public void onNext(final FailedActivity failedActivity) {
     throw new RuntimeException(
-        "No handler bound for FailedActivity: " + failedActivity,
-        failedActivity.getReason().orElse(null));
+        "No handler bound for FailedActivity: " + failedActivity, failedActivity.getCause());
   }
 }

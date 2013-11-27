@@ -16,7 +16,7 @@
 package com.microsoft.reef.examples.suspend;
 
 import com.microsoft.reef.client.*;
-import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -117,7 +117,7 @@ public class SuspendClient {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getCause());
       synchronized (SuspendClient.this) {
         SuspendClient.this.notify();
       }
@@ -140,10 +140,10 @@ public class SuspendClient {
   /**
    * Receive notification that there was an exception thrown from the job driver.
    */
-  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+  final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
-    public void onNext(final RuntimeError error) {
-      LOG.log(Level.SEVERE, "ERROR: " + error, error.getException());
+    public void onNext(final FailedRuntime error) {
+      LOG.log(Level.SEVERE, "ERROR: " + error, error.getCause());
       synchronized (SuspendClient.class) {
         SuspendClient.this.notify();
       }
