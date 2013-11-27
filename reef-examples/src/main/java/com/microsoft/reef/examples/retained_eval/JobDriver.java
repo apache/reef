@@ -232,7 +232,7 @@ public final class JobDriver {
       synchronized (JobDriver.this) {
         JobDriver.this.contexts.remove(context.getId());
       }
-      JobDriver.this.jobMessageObserver.onError(context.getReason());
+      JobDriver.this.jobMessageObserver.onError(context.asError());
     }
   }
 

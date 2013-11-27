@@ -16,7 +16,7 @@
 package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.client.*;
-import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -247,7 +247,7 @@ public class JobClient {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getJobException());
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getCause());
       stopAndNotify();
     }
   }
@@ -266,10 +266,10 @@ public class JobClient {
   /**
    * Receive notification that there was an exception thrown from the job driver.
    */
-  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+  final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
-    public void onNext(final RuntimeError error) {
-      LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getException());
+    public void onNext(final FailedRuntime error) {
+      LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getCause());
       stopAndNotify();
     }
   }

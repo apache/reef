@@ -197,7 +197,7 @@ public final class FailDriver {
   final class FailedContextHandler implements EventHandler<FailedContext> {
     @Override
     public void onNext(final FailedContext context) {
-      LOG.log(Level.WARNING, "Context failed: " + context.getId(), context.getReason());
+      LOG.log(Level.WARNING, "Context failed: " + context.getId(), context.getCause());
       checkMsgOrder(context);
       // TODO: notify client?
 
@@ -265,7 +265,7 @@ public final class FailDriver {
   final class FailedActivityHandler implements EventHandler<FailedActivity> {
     @Override
     public void onNext(final FailedActivity act) {
-      LOG.log(Level.WARNING, "Activity failed: " + act.getId(), act.getReason().orElse(null));
+      LOG.log(Level.WARNING, "Activity failed: " + act.getId(), act.getCause());
       checkMsgOrder(act);
       if (act.getActiveContext().isPresent()) {
         act.getActiveContext().get().close();

@@ -173,22 +173,14 @@ public final class EvaluatorContext implements ActiveContext {
     };
   }
 
+  final FailedContext getFailedContext(
+      final Optional<ActiveContext> parentContext, final Exception reason) {
 
-  final FailedContext getFailedContext(final Optional<ActiveContext> parentContext, final Exception reason) {
-    return new FailedContext() {
+    return new FailedContext(EvaluatorContext.this.getId(), reason) {
+
       @Override
       public Optional<ActiveContext> getParentContext() {
         return parentContext;
-      }
-
-      @Override
-      public Throwable getReason() {
-        return reason;
-      }
-
-      @Override
-      public String getId() {
-        return EvaluatorContext.this.getId();
       }
 
       @Override

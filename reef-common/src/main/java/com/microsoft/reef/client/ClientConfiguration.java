@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.client;
 
-import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalImpl;
@@ -58,7 +57,7 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
    * actual Jobs may or may not still be running.
    * Default implementation logs an error and rethrows the exception in the client JVM.
    */
-  public static final OptionalImpl<EventHandler<RuntimeError>> ON_RUNTIME_ERROR = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<FailedRuntime>> ON_RUNTIME_ERROR = new OptionalImpl<>();
 
   /**
    * Error handler for events on Wake-spawned threads.

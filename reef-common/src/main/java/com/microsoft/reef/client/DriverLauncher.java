@@ -18,7 +18,6 @@ package com.microsoft.reef.client;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.util.RuntimeError;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
@@ -74,7 +73,7 @@ public final class DriverLauncher {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      final Throwable ex = job.getJobException();
+      final Throwable ex = job.getCause();
       LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), ex);
       setStatusAndNotify(LauncherStatus.FAILED(ex));
     }
@@ -94,12 +93,11 @@ public final class DriverLauncher {
   /**
    * Handler an error in the job driver.
    */
-  final class RuntimeErrorHandler implements EventHandler<RuntimeError> {
+  final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
-    public void onNext(final RuntimeError error) {
-      final Throwable ex = error.getException();
-      LOG.log(Level.SEVERE, "Received a runtime error", ex);
-      setStatusAndNotify(LauncherStatus.FAILED(ex));
+    public void onNext(final FailedRuntime error) {
+      LOG.log(Level.SEVERE, "Received a runtime error", error.getCause());
+      setStatusAndNotify(LauncherStatus.FAILED(error.getCause()));
     }
   }
 

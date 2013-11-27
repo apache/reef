@@ -75,8 +75,7 @@ public final class DriverFailOnFail {
     @Override
     public void onNext(final FailedActivity act) throws SimulatedDriverFailure {
       final SimulatedDriverFailure error = new SimulatedDriverFailure(
-          "Simulated Failure at DriverFailOnFail :: " + act.getClass().getName(),
-          act.getReason().get());
+          "Simulated Failure at DriverFailOnFail :: " + act.getClass().getName(), act.asError());
       LOG.log(Level.SEVERE, "Simulated Failure", error);
       throw error;
     }

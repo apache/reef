@@ -21,7 +21,7 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.util.RuntimeError;
+import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
 import com.microsoft.wake.EventHandler;
@@ -46,7 +46,7 @@ public final class ClientManagerTest {
   private EventHandler<CompletedJob> completedJobHandler;
   private EventHandler<FailedJob> failedJobHandler;
   private EventHandler<JobMessage> jobMessageHandler;
-  private EventHandler<RuntimeError> runtimeErrorHandler;
+  private EventHandler<FailedRuntime> runtimeErrorHandler;
 
   /**
    * Create some basic mockups
