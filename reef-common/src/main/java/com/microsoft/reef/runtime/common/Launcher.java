@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common;
 
-import com.microsoft.reef.runtime.common.utils.JavaUtils;
+import com.microsoft.reef.runtime.common.utils.JavaLaunchCommandBuilder;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -28,32 +28,31 @@ import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.wake.remote.RemoteConfiguration;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Launcher {
 
-  private final static String EVALUATOR_CONFIGURATION_ARG = "runtime_configuration";
+  public final static String EVALUATOR_CONFIGURATION_ARG = "runtime_configuration";
 
   @NamedParameter(doc = "The path to evaluator configuration.", short_name = EVALUATOR_CONFIGURATION_ARG)
   public final static class EvaluatorConfigurationFilePath implements Name<String> {
   }
 
-  private final static String ERROR_HANDLER_RID = "error_handler_rid";
+  public final static String ERROR_HANDLER_RID = "error_handler_rid";
 
   @NamedParameter(doc = "The error handler remote identifier.", short_name = ERROR_HANDLER_RID)
   public final static class ErrorHandlerRID implements Name<String> {
   }
 
-  private final static String LAUNCH_ID = "launch_id";
+  public final static String LAUNCH_ID = "launch_id";
 
   @NamedParameter(doc = "The launch identifier.", short_name = LAUNCH_ID)
   public final static class LaunchID implements Name<String> {
   }
 
-  private final static String[] LOGGING_PROPERTIES = {
+  public final static String[] LOGGING_PROPERTIES = {
       "java.util.logging.config.file",
       "java.util.logging.config.class"
   };
@@ -154,7 +153,7 @@ public class Launcher {
    * @param vargs     List of command line parameters to append to.
    * @param propNames Array of property names.
    */
-  private static void propagateProperties(final List<String> vargs, final String[] propNames) {
+  public static void propagateProperties(final List<String> vargs, final String[] propNames) {
     for (final String propName : propNames) {
       final String propValue = System.getProperty(propName);
       if (!(propValue == null || propValue.isEmpty())) {
@@ -164,36 +163,9 @@ public class Launcher {
   }
 
   /**
-   * Set the necessary command to execute on the allocated container.
-   *
-   * @deprecated use the full version below.
+   * @deprecated use a LaunchCommandBuilder instead.
    */
   @Deprecated
-  public static List<String> getLaunchCommand(final String errorHandlerRID,
-                                              final String launchID,
-                                              final String evaluatorConfigurationPath,
-                                              final int memory) {
-    return getLaunchCommand(errorHandlerRID, launchID, evaluatorConfigurationPath, null, memory, null, null);
-  }
-
-  /**
-   * Set the necessary command to execute on the allocated container.
-   *
-   * @deprecated use the full version below.
-   */
-  @Deprecated
-  public static List<String> getLaunchCommand(final String errorHandlerRID,
-                                              final String launchID,
-                                              final String evaluatorConfigurationPath,
-                                              final int memory,
-                                              final String stdout_path,
-                                              final String stderr_path) {
-    return getLaunchCommand(errorHandlerRID, launchID, evaluatorConfigurationPath, null, memory, stdout_path, stderr_path);
-  }
-
-  /**
-   * Set the necessary command to execute on the allocated container.
-   */
   public static List<String> getLaunchCommand(final String errorHandlerRID,
                                               final String launchID,
                                               final String evaluatorConfigurationPath,
@@ -201,46 +173,14 @@ public class Launcher {
                                               final int memory,
                                               final String stdout_path,
                                               final String stderr_path) {
-    return new ArrayList<String>() {{
-
-      add(JavaUtils.getJavaBinary());
-
-      add("-XX:PermSize=128m");
-      add("-XX:MaxPermSize=128m");
-      // Set Xmx based on am memory size
-      add("-Xmx" + memory + "m");
-
-      add("-classpath");
-      add(classPath != null ? classPath : JavaUtils.getClasspath());
-
-      // add("-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000");
-
-      propagateProperties(this, LOGGING_PROPERTIES);
-
-      add(Launcher.class.getName());
-
-      add("-" + ERROR_HANDLER_RID);
-      add(errorHandlerRID);
-      add("-" + LAUNCH_ID);
-      add(launchID);
-      add("-" + EVALUATOR_CONFIGURATION_ARG);
-      add(evaluatorConfigurationPath);
-
-      if (stdout_path != null && !stdout_path.isEmpty()) {
-        add("1>");
-        add(stdout_path);
-      }
-
-      if (stderr_path != null && !stderr_path.isEmpty()) {
-        add("2>");
-        add(stderr_path);
-      }
-
-      final StringBuilder args = new StringBuilder();
-      for (final String s : this) {
-        args.append(s).append(' ');
-      }
-      LOG.log(Level.FINEST, "Launch JVM: {0}", args);
-    }};
+    return new JavaLaunchCommandBuilder()
+        .setErrorHandlerRID(errorHandlerRID)
+        .setLaunchID(launchID)
+        .setConfigurationPath(evaluatorConfigurationPath)
+        .setClassPath(classPath)
+        .setMemory(memory)
+        .setStandardOut(stdout_path)
+        .setStandardErr(stderr_path)
+        .build();
   }
 }
