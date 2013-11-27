@@ -23,13 +23,16 @@ import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.util.Optional;
 
 /**
- * Represents a failed Activity.
+ * An error message that REEF Driver gets from a failed Activity.
  */
 @DriverSide
 @Provided
 @Public
-public class FailedActivity extends AbstractFailure {
+public final class FailedActivity extends AbstractFailure {
 
+  /**
+   * (Optional) Context of the failed Activity.
+   */
   private final Optional<ActiveContext> context;
 
   public FailedActivity(final String id, final Throwable cause) {
@@ -50,20 +53,16 @@ public class FailedActivity extends AbstractFailure {
   /**
    * Access the context the activity ran (and crashed) on, if it could be recovered.
    * <p/>
-   * An ActiveContext is given when the activity fails but the context remains alive. On context failure, the context
-   * also fails and is surfaced via the FailedContext event.
+   * An ActiveContext is given when the activity fails but the context remains alive.
+   * On context failure, the context also fails and is surfaced via the FailedContext event.
    * <p/>
-   * Note that receiving an ActiveContext here is no guarantee that the context (and evaluator) are in a consistent
-   * state. Application developers need to investigate the reason available via getReason() to make that call.
+   * Note that receiving an ActiveContext here is no guarantee that the context (and evaluator)
+   * are in a consistent state. Application developers need to investigate the reason available
+   * via getCause() to make that call.
    *
    * @return the context the Activity ran on.
    */
   public Optional<ActiveContext> getActiveContext() {
     return this.context;
-  }
-
-  @Override
-  public String toString() {
-    return "FailedActivity{ID='" + this.getId() + "'}";
   }
 }

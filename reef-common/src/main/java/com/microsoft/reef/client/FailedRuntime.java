@@ -22,7 +22,10 @@ import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FailedRuntime extends AbstractFailure {
+/**
+ * Error message that REEF Client gets when there is an error in REEF runtime.
+ */
+public final class FailedRuntime extends AbstractFailure {
 
   /**
    * Standard java logger.

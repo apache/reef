@@ -20,6 +20,9 @@ import com.microsoft.reef.util.Optional;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+/**
+ * Common data and functionality for all error messages in REEF.
+ */
 public abstract class AbstractFailure implements Failure {
 
   /**

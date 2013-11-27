@@ -18,6 +18,10 @@ package com.microsoft.reef.common;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.util.Optional;
 
+/**
+ * Common interface for all error messages in REEF.
+ * Most of its functionality is generic and implemented in the AbstractFailure class.
+ */
 public interface Failure extends Identifiable {
 
   /**

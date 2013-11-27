@@ -22,9 +22,10 @@ import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.util.Optional;
 
 /**
- * Represents a EvaluatorContext that failed. A typical case would be that its StartHandler threw an exception.
+ * Represents an EvaluatorContext that failed.
+ * A typical case would be that its StartHandler threw an exception.
  * <p/>
- * The underlying Evaluator is still accesible and a new context can be established.
+ * The underlying Evaluator is still accessible and a new context can be established.
  */
 @Public
 @Provided
