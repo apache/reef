@@ -48,42 +48,28 @@ public final class HelloCLR {
    */
   private static final int JOB_TIMEOUT = 10000; // 10 sec.
 
-  /**
-   * Adds all given filenames to the given param of the conf. File names that can't be resolved or that point to folders
-   * or unreadable files will be ignored.
-   *
-   * @param conf
-   * @param param
-   * @param fileNames
-   * @return The ConfigurationModule with the file names added.
-   */
-  private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final String... fileNames) {
+  private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final File folder) {
     ConfigurationModule result = conf;
-    for (final String fileName : fileNames) {
-      final File f = new File(fileName);
-      if (!f.exists()) {
-        LOG.log(Level.FINEST, "Ignoring, as it doesn't exist: " + fileName);
-      } else if (f.isDirectory()) {
-        LOG.log(Level.FINEST, "Ignoring, as it is a folder: " + fileName);
-      } else if (!f.canRead()) {
-        LOG.log(Level.FINEST, "Ignoring, as it can't be read: " + fileName);
-      } else {
-        result = result.set(param, fileName);
+    for (final File f : folder.listFiles()) {
+      if (f.canRead() && f.exists() && f.isFile()) {
+        result = result.set(param, f.getAbsolutePath());
       }
     }
     return result;
   }
 
-  public static LauncherStatus runHelloCLR(final Configuration runtimeConf, final int timeOut, final String[] args)
+  public static LauncherStatus runHelloCLR(final Configuration runtimeConf, final int timeOut, final File clrFolder)
       throws BindException, InjectionException {
 
 
-    final ConfigurationModule driverConf =
-        addAll(EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloCLR")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class),
-            DriverConfiguration.GLOBAL_FILES, args);
+    ConfigurationModule driverConf = DriverConfiguration.CONF
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloCLR")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class);
+
+    driverConf = EnvironmentUtils.addClasspath(driverConf, DriverConfiguration.GLOBAL_LIBRARIES);
+
+    driverConf = addAll(driverConf, DriverConfiguration.GLOBAL_FILES, clrFolder);
 
 
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf.build(), timeOut);
@@ -102,7 +88,9 @@ public final class HelloCLR {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
         .build();
-    final LauncherStatus status = runHelloCLR(runtimeConfiguration, JOB_TIMEOUT, args);
+
+    final File dotNetFolder = new File(args[0]).getAbsoluteFile();
+    final LauncherStatus status = runHelloCLR(runtimeConfiguration, JOB_TIMEOUT, dotNetFolder);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
 }
