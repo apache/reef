@@ -144,7 +144,7 @@ public class ActivitySubmitter implements EventHandler<Iterable<ActiveContext>> 
       if (runnEvalCnt != -1) {
         contextList.add(context);
         // TODO: Review after #143
-        final String hostAddr = context.getNodeDescriptor()
+        final String hostAddr = context.getEvaluatorDescriptor().getNodeDescriptor()
             .getInetSocketAddress().getHostName();
 //				String hostAddr = Utils.getLocalAddress();
         final int port = nsPorts.get(runnEvalCnt);
@@ -156,7 +156,7 @@ public class ActivitySubmitter implements EventHandler<Iterable<ActiveContext>> 
       } else {
         controlerContext = context;
         // TODO: Review after #143
-        final String hostAddr = context.getNodeDescriptor()
+        final String hostAddr = context.getEvaluatorDescriptor().getNodeDescriptor()
             .getInetSocketAddress().getHostName();
 //				String hostAddr = Utils.getLocalAddress();
         nameService.register(controllerId, new InetSocketAddress(

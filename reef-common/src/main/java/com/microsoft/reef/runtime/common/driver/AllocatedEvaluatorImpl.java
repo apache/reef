@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfigurationModule;
@@ -96,6 +97,11 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                                                  final Configuration serviceConfiguration,
                                                  final Configuration activityConfiguration) {
     launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(activityConfiguration));
+  }
+
+  @Override
+  public void setType(final EvaluatorType type) {
+    this.evaluatorManager.setType(type);
   }
 
   @Override

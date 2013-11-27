@@ -19,6 +19,7 @@ import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
@@ -76,6 +77,9 @@ public final class HelloDriver {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       LOG.log(Level.INFO, "Submitting HelloCLR activity to AllocatedEvaluator: {0}", allocatedEvaluator);
+
+      // Choose to run this evaluator on the CLR
+      allocatedEvaluator.setType(EvaluatorType.CLR);
       try {
         final Configuration contextConfiguration = ContextConfiguration.CONF
             .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")

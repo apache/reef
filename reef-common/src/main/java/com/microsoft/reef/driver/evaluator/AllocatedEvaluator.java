@@ -80,6 +80,14 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
                                                  final Configuration activityConfiguration);
 
   /**
+   * Set the type of Evaluator to be instantiated. Defaults to EvaluatorType.JVM.
+   *
+   * @param type
+   */
+  public void setType(final EvaluatorType type);
+
+
+  /**
    * @deprecated Use submitContext() instead.
    */
   @Deprecated

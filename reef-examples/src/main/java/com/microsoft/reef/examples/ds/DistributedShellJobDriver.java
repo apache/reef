@@ -126,7 +126,7 @@ public final class DistributedShellJobDriver {
 
       // Take the message returned by the activity and add it to the running result.
       final String result = CODEC.decode(act.get());
-      final NodeDescriptor node = act.getActiveContext().getNodeDescriptor();
+      final NodeDescriptor node = act.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor();
       results.add("Node " + node.getName() + ":\n" + result);
 
       LOG.log(Level.INFO, "Activity result: {0} on node {1}",

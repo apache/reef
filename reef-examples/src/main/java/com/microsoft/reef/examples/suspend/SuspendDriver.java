@@ -22,6 +22,7 @@ import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.io.checkpoint.fs.FSCheckPointServiceConfiguration;
@@ -173,8 +174,8 @@ public class SuspendDriver {
     @Override
     public final void onNext(final CompletedActivity act) {
 
-      final NodeDescriptor node = act.getActiveContext().getNodeDescriptor();
-      final String msg = "Activity completed " + act.getId() + " on node " + node;
+      final EvaluatorDescriptor e = act.getActiveContext().getEvaluatorDescriptor();
+      final String msg = "Activity completed " + act.getId() + " on node " + e;
       LOG.info(msg);
 
       SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode(msg));
