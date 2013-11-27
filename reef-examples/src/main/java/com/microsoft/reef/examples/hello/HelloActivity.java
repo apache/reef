@@ -22,7 +22,7 @@ import javax.inject.Inject;
 /**
  * A 'hello REEF' Activity.
  */
-final class HelloActivity implements Activity {
+public final class HelloActivity implements Activity {
 
   @Inject
   HelloActivity() {
