@@ -499,8 +499,8 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
           new FailedActivity(activityId, "Failed Activity: " + activityState, Optional.<ActiveContext>of(evaluatorContext));
 
       activityExceptionEventDispatcher.onNext(activityException);
-    }
-    if (activityStatusProto.getActivityMessageCount() > 0) {
+    } else if (activityStatusProto.getActivityMessageCount() > 0) {
+      assert (this.runningActivity != null);
       for (final ReefServiceProtos.ActivityStatusProto.ActivityMessageProto activityMessageProto : activityStatusProto.getActivityMessageList()) {
         activityMessageEventDispatcher.onNext(new ActivityMessageImpl(activityMessageProto.getMessage().toByteArray(), activityId, contextId, activityMessageProto.getSourceId()));
       }
