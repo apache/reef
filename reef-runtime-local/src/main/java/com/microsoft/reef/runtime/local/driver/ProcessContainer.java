@@ -17,16 +17,11 @@ package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.annotations.audience.ActivitySide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,33 +52,6 @@ final class ProcessContainer implements Container {
     this.folder = folder;
   }
 
-  /**
-   * @param evaluatorConfiguration the serialized Configuration of the REEF Evaluator runtime.
-   */
-  @Override
-  public final void run(final String evaluatorConfiguration, final Set<File> files, final List<String> classPath) {
-    LOG.log(Level.FINEST, "Container {0} is launching an Evaluator in a process", nodeID);
-
-    final File evaluatorConfigurationFile = new File(this.folder, "evaluator.conf");
-    try (PrintWriter clientOut = new PrintWriter(evaluatorConfigurationFile)) {
-      clientOut.write(evaluatorConfiguration.toCharArray());
-    } catch (final FileNotFoundException e) {
-      throw new RuntimeException("Unable to write evaluator configuration file.", e);
-    }
-
-    this.addFiles(files);
-
-    final List<String> command = new JavaLaunchCommandBuilder()
-        .setErrorHandlerRID(this.errorHandlerRID)
-        .setLaunchID(this.nodeID)
-        .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
-        .setClassPath(StringUtils.join(classPath, File.pathSeparatorChar))
-        .setMemory(this.getMemory())
-        .build();
-
-    this.run(command);
-  }
-
   @Override
   public void addFiles(final Iterable<File> files) {
     try {
@@ -92,7 +60,6 @@ final class ProcessContainer implements Container {
       throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
     }
   }
-
 
   @Override
   public void run(List<String> commandLine) {

@@ -3,7 +3,9 @@ package com.microsoft.reef.runtime.common.launch;
 
 import com.microsoft.reef.runtime.common.Launcher;
 import com.microsoft.reef.runtime.common.utils.JavaUtils;
+import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,4 +118,10 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     this.classPath = classPath;
     return this;
   }
+
+  public JavaLaunchCommandBuilder setClassPath(final List<String> classPathElements) {
+    this.classPath = StringUtils.join(classPathElements, File.pathSeparatorChar);
+    return this;
+  }
+
 }
