@@ -24,17 +24,17 @@ import com.microsoft.wake.EventHandler;
  */
 public final class RemoteConfiguration {
 
-  @NamedParameter(short_name = "rm-name", doc = "The name of the remote manager.")
+  @NamedParameter(short_name = "rm_name", doc = "The name of the remote manager.")
   public static final class ManagerName implements Name<String> {
     // Intentionally empty
   }
 
-  @NamedParameter(short_name = "rm-host", doc = "The host address to be used for messages.")
+  @NamedParameter(short_name = "rm_host", doc = "The host address to be used for messages.")
   public static final class HostAddress implements Name<String> {
     // Intentionally empty
   }
 
-  @NamedParameter(short_name = "rm-port", doc = "The port to be used for messages.")
+  @NamedParameter(short_name = "rm_port", doc = "The port to be used for messages.")
   public static final class Port implements Name<Integer> {
     // Intentionally empty
   }
@@ -49,7 +49,7 @@ public final class RemoteConfiguration {
     // Intentionally empty
   }
 
-  @NamedParameter(short_name = "rm-order",
+  @NamedParameter(short_name = "rm_order",
       doc = "Whether or not to use the message ordering guarantee", default_value = "true")
   public static final class OrderingGuarantee implements Name<Boolean> {
     // Intentionally empty
