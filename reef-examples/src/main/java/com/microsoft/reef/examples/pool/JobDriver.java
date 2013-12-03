@@ -52,9 +52,7 @@ public final class JobDriver {
   private final EvaluatorRequestor evaluatorRequestor;
 
   /** Number of Evaluators to request. */
-  private final int numEvaluators;
-
-  private int numEvaluatorsAllocated = 0;
+  private int numEvaluators;
 
   /**
    * Number of seconds to sleep in each Activity.
@@ -104,29 +102,23 @@ public final class JobDriver {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
       synchronized (JobDriver.this) {
-        LOG.log(Level.FINE, "Allocated Evaluator # {0} of {1}: {2}",
-            new Object[] { ++numEvaluatorsAllocated, numEvaluators, eval.getId() });
+        LOG.log(Level.FINE, "Allocated Evaluator {0} remaining: {1}",
+            new Object[] { eval.getId(), --numEvaluators });
         try {
-          eval.submitContextAndActivity(ContextConfiguration.CONF.set(
-              ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build(),
-              getActivityConfiguration(eval.getId() + "_activity_" + numActivities));
+          final JavaConfigurationBuilder contextConfigBuilder =
+              Tang.Factory.getTang().newConfigurationBuilder();
+          contextConfigBuilder.addConfiguration(ContextConfiguration.CONF
+              .set(ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build());
+          contextConfigBuilder.bindNamedParameter(Launch.Delay.class, delayStr);
+          final Configuration activityConfig = ActivityConfiguration.CONF
+              .set(ActivityConfiguration.IDENTIFIER, "activity_" + --numActivities)
+              .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
+              .build();
+          eval.submitContextAndActivity(contextConfigBuilder.build(), activityConfig);
         } catch (final BindException ex) {
-            LOG.log(Level.SEVERE, "Failed to submit a context to evaluator: " + eval.getId(), ex);
+            LOG.log(Level.SEVERE, "Failed to submit context to evaluator: " + eval.getId(), ex);
             throw new RuntimeException(ex);
         }
-      }
-    }
-  }
-
-  /**
-   * New Activity is running: decrement the counter of total activities to be launched.
-   */
-  final class RunningActivityHandler implements EventHandler<RunningActivity> {
-    @Override
-    public void onNext(final RunningActivity act) {
-      synchronized (JobDriver.this) {
-        LOG.log(Level.FINE, "Running Activity {0} of {1}",
-            new Object[] { act.getId(), --numActivities });
       }
     }
   }
@@ -139,11 +131,15 @@ public final class JobDriver {
     public void onNext(final CompletedActivity act) {
       final ActiveContext context = act.getActiveContext();
       synchronized (JobDriver.this) {
-        LOG.log(Level.INFO, "Completed activity: {0} of {1}",
+        LOG.log(Level.INFO, "Completed activity: {0} remaining: {1}",
             new Object[] { act.getId(), numActivities });
         if (numActivities > 0) {
           try {
-            context.submitActivity(getActivityConfiguration("activity_" + numActivities));
+            final Configuration activityConfig = ActivityConfiguration.CONF
+                .set(ActivityConfiguration.IDENTIFIER, "activity_" + --numActivities)
+                .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
+                .build();
+            context.submitActivity(activityConfig);
           } catch (final BindException ex) {
             LOG.log(Level.SEVERE, "Failed to submit activity to a context: "
                 + act.getActiveContext().getId(), ex);
@@ -154,20 +150,5 @@ public final class JobDriver {
         }
       }
     }
-  }
-
-  /**
-   * Get a new Activity configuration.
-   */
-  private Configuration getActivityConfiguration(final String id) throws BindException {
-    LOG.log(Level.FINE, "Submit Activity to Evaluator: {0}", id);
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.addConfiguration(
-        ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, id)
-            .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
-            .build());
-    cb.bindNamedParameter(Launch.Delay.class, this.delayStr);
-    return cb.build();
   }
 }

@@ -62,24 +62,21 @@ public final class Launch {
   /**
    * Command line parameter: number of Evaluators to request.
    */
-  @NamedParameter(doc = "Number of evaluators to request",
-      short_name = "evaluators", default_value = "1")
+  @NamedParameter(doc = "Number of evaluators to request", short_name = "evaluators")
   public static final class NumEvaluators implements Name<Integer> {
   }
 
   /**
    * Command line parameter: number of Activities to run.
    */
-  @NamedParameter(doc = "Number of activities to run",
-      short_name = "activities", default_value = "1")
+  @NamedParameter(doc = "Number of activities to run", short_name = "activities")
   public static final class NumActivities implements Name<Integer> {
   }
 
   /**
    * Command line parameter: number of experiments to run.
    */
-  @NamedParameter(doc = "Number of seconds to sleep in each activity",
-      short_name = "delay", default_value = "1")
+  @NamedParameter(doc = "Number of seconds to sleep in each activity", short_name = "delay")
   public static final class Delay implements Name<Integer> {
   }
 
@@ -169,7 +166,6 @@ public final class Launch {
               .set(DriverConfiguration.DRIVER_IDENTIFIER, "pool-" + System.currentTimeMillis())
               .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
-              .set(DriverConfiguration.ON_ACTIVITY_RUNNING, JobDriver.RunningActivityHandler.class)
               .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
               .build();
 
