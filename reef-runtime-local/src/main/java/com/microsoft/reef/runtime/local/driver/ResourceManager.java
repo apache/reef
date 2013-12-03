@@ -23,12 +23,18 @@ import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
+import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,11 +48,15 @@ import java.util.logging.Logger;
 public final class ResourceManager {
 
   private final static Logger LOG = Logger.getLogger(ResourceManager.class.getName());
+  private static final String EVALUATOR_CONFIGURATION_NAME = "evaluator.conf";
 
   private final EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler;
   private final ResourceRequestQueue requestQueue = new ResourceRequestQueue();
   private final ContainerManager theContainers;
   private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
+
+  private final RemoteManager remoteManager;
+
   /**
    * Libraries to be added to all evaluators.
    */
@@ -63,10 +73,12 @@ public final class ResourceManager {
                   @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
                   @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
                   @Parameter(LocalDriverConfiguration.GlobalLibraries.class) final Set<String> globalLibraries,
-                  @Parameter(LocalDriverConfiguration.GlobalFiles.class) final Set<String> globalFiles) {
+                  @Parameter(LocalDriverConfiguration.GlobalFiles.class) final Set<String> globalFiles,
+                  final RemoteManager remoteManager) {
     this.theContainers = cm;
     this.allocationHandler = allocationHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusHandlerEventHandler;
+    this.remoteManager = remoteManager;
     this.globalLibraries = new ArrayList<>(globalLibraries);
     Collections.sort(this.globalLibraries);
     this.globalFiles = globalFiles;
@@ -119,25 +131,40 @@ public final class ResourceManager {
   final void onNext(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     synchronized (this.theContainers) {
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
-      final Set<File> files = new HashSet<>(launchRequest.getFileCount() + this.globalFilesAndLibraries.size());
 
       // Add the global files and libraries.
-      files.addAll(this.globalFilesAndLibraries);
-      final List<String> localLibraries = new ArrayList<>();  // Libraries local to this evaluator
-      for (ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
-        if (frp.getType() == ReefServiceProtos.FileType.LIB) {
-          localLibraries.add(frp.getName());
-        }
-        files.add(new File(frp.getPath()));
-      }
-      Collections.sort(localLibraries);
+      c.addFiles(this.globalFilesAndLibraries);
+      c.addFiles(getLocalFiles(launchRequest));
 
-      final ArrayList<String> classPathList = new ArrayList<>(this.globalLibraries.size() + localLibraries.size());
-      classPathList.addAll(this.globalLibraries);
-      classPathList.addAll(localLibraries);
+      // Assemble the classpath.
+      final List<String> classPath = this.assembleClasspath(getLocalLibraries(launchRequest));
+
+      // Make the configuration file of the evaluator.
+      final File evaluatorConfigurationFile = write(launchRequest.getEvaluatorConf(), new File(c.getFolder(), EVALUATOR_CONFIGURATION_NAME));
+
+      // Assemble the command line
+      // TODO: this should be moved into the common part of the runtime
+      final LaunchCommandBuilder commandBuilder;
+      switch (launchRequest.getType()) {
+        case JVM:
+          commandBuilder = new JavaLaunchCommandBuilder().setClassPath(classPath);
+          break;
+        case CLR:
+          commandBuilder = new CLRLaunchCommandBuilder();
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported container type: " + launchRequest.getType());
+      }
+
+      final List<String> command = commandBuilder
+          .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
+          .setLaunchID(c.getNodeID())
+          .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+          .setMemory(512)
+          .build();
 
       LOG.log(Level.FINEST, "Launching container " + c);
-      c.run(launchRequest.getEvaluatorConf(), files, classPathList);
+      c.run(command);
     }
   }
 
@@ -183,6 +210,66 @@ public final class ResourceManager {
     final String logMessage = "Outstanding Container Requests: " + msg.getOutstandingContainerRequests() + ", AllocatedContainers: " + msg.getContainerAllocationCount();
     LOG.log(Level.FINEST, logMessage);
     this.runtimeStatusHandlerEventHandler.onNext(msg);
+  }
+
+  /**
+   * Utility that writes the given string to a file and throw a RuntimeException if it can't
+   *
+   * @param message
+   * @param destination
+   * @return the file given.
+   */
+  private static final File write(final String message, final File destination) {
+    try (final PrintWriter clientOut = new PrintWriter(destination)) {
+      clientOut.write(message.toCharArray());
+    } catch (final IOException e) {
+      throw new RuntimeException("Unable to write file.", e);
+    }
+    return destination;
+  }
+
+  /**
+   * Assembles the class path: sorts localLibraries and adds the globalLibraries
+   *
+   * @param localLibraries
+   * @return
+   */
+  private final List<String> assembleClasspath(final List<String> localLibraries) {
+    Collections.sort(localLibraries);
+    final ArrayList<String> classPathList = new ArrayList<>(this.globalLibraries.size() + localLibraries.size());
+    classPathList.addAll(localLibraries);
+    classPathList.addAll(this.globalLibraries);
+    return classPathList;
+  }
+
+  /**
+   * Extracts the libraries out of the launchRequest.
+   *
+   * @param launchRequest
+   * @return
+   */
+  private static final List<String> getLocalLibraries(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+    final List<String> localLibraries = new ArrayList<>();  // Libraries local to this evaluator
+    for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
+      if (frp.getType() == ReefServiceProtos.FileType.LIB) {
+        localLibraries.add(frp.getName());
+      }
+    }
+    return localLibraries;
+  }
+
+  /**
+   * Extracts the files out of the launchRequest.
+   *
+   * @param launchRequest
+   * @return
+   */
+  private static final List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+    final List<File> files = new ArrayList<>();  // Libraries local to this evaluator
+    for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
+      files.add(new File(frp.getPath()).getAbsoluteFile());
+    }
+    return files;
   }
 
   /**

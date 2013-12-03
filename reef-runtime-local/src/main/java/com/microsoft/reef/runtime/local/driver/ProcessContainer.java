@@ -17,16 +17,11 @@ package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.annotations.audience.ActivitySide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.Launcher;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,41 +52,22 @@ final class ProcessContainer implements Container {
     this.folder = folder;
   }
 
-  /**
-   * @param evaluatorConfiguration the serialized Configuration of the REEF Evaluator runtime.
-   */
   @Override
-  public final void run(final String evaluatorConfiguration, final Set<File> files, final List<String> classPath) {
-    LOG.log(Level.FINEST, "Container {0} is launching an Evaluator in a process", nodeID);
-
-    final File evaluatorConfigurationFile = new File(this.folder, "evaluator.conf");
-    try (PrintWriter clientOut = new PrintWriter(evaluatorConfigurationFile)) {
-      clientOut.write(evaluatorConfiguration.toCharArray());
-    } catch (final FileNotFoundException e) {
-      throw new RuntimeException("Unable to write evaluator configuration file.", e);
-    }
-
-    try {// Copy the files
+  public void addFiles(final Iterable<File> files) {
+    try {
       copy(files, this.folder);
     } catch (IOException e) {
       throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
     }
+  }
 
-    final List<String> command = Launcher.getLaunchCommand(this.errorHandlerRID,
-        this.nodeID,
-        evaluatorConfigurationFile.getAbsolutePath(),
-        StringUtils.join(classPath, File.pathSeparatorChar),
-        getMemory(),
-        null,
-        null
-    );
-
-    this.process = new RunnableProcess(command, containedID, this.folder);
+  @Override
+  public void run(List<String> commandLine) {
+    this.process = new RunnableProcess(commandLine, containedID, this.folder);
     this.theThread = new Thread(process);
     this.theThread.start();
-
-
   }
+
 
   @Override
   public final boolean isRunning() {
@@ -101,6 +77,11 @@ final class ProcessContainer implements Container {
   @Override
   public final int getMemory() {
     return 512;
+  }
+
+  @Override
+  public File getFolder() {
+    return this.folder;
   }
 
   @Override

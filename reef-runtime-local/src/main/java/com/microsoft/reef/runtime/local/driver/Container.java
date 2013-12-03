@@ -19,7 +19,6 @@ import com.microsoft.reef.annotations.audience.Private;
 
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a Container: A slice of a machine.
@@ -30,13 +29,18 @@ import java.util.Set;
 interface Container extends AutoCloseable {
 
   /**
-   * Run an Evaluator.
+   * Run the given commandLine in the container.
    *
-   * @param evaluatorConfiguration the configuration of the evaluator to be launched.
-   * @param files                  to be copied to the evaluator's working folder.
-   * @param classPath              the classpath, referencing names of files in files.
+   * @param commandLine
    */
-  public void run(final String evaluatorConfiguration, final Set<File> files, final List<String> classPath);
+  public void run(final List<String> commandLine);
+
+  /**
+   * Copies the files to the working directory of the container.
+   *
+   * @param files
+   */
+  public void addFiles(final Iterable<File> files);
 
   /**
    * @return true if the Container is currently executing, false otherwise.
@@ -59,6 +63,11 @@ interface Container extends AutoCloseable {
    * @return
    */
   public int getMemory();
+
+  /**
+   * @return the working directory of the Container.
+   */
+  public File getFolder();
 
   /**
    * Kills the Container.

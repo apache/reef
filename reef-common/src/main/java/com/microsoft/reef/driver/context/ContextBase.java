@@ -18,7 +18,7 @@ package com.microsoft.reef.driver.context;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.util.Optional;
 
@@ -47,7 +47,7 @@ public interface ContextBase extends Identifiable {
   Optional<String> getParentId();
 
   /**
-   * @return the node descriptor of the Evaluator this Context is active on.
+   * @return the descriptor of the Evaluator this Context is on.
    */
-  NodeDescriptor getNodeDescriptor();
+  public EvaluatorDescriptor getEvaluatorDescriptor();
 }

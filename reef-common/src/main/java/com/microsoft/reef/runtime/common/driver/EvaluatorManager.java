@@ -25,6 +25,7 @@ import com.microsoft.reef.driver.context.ContextMessage;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.io.naming.Identifiable;
@@ -34,6 +35,7 @@ import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.REEFErrorHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorDescriptorImpl;
 import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.ExceptionHandlingEventHandler;
@@ -111,6 +113,9 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   private final NodeDescriptor nodeDescriptor;
 
   private final Map<String, EvaluatorContext> activeContextMap = new HashMap<>();
+
+  // TODO: Wrap this in a set-once-with-default class
+  private EvaluatorType type = EvaluatorType.JVM;
 
   // Evaluator Handlers
 
@@ -213,6 +218,18 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   @Override
   public final String getId() {
     return this.evaluatorID;
+  }
+
+  public EvaluatorType getType() {
+    return type;
+  }
+
+  public void setType(EvaluatorType type) {
+    this.type = type;
+  }
+
+  public final com.microsoft.reef.driver.evaluator.EvaluatorDescriptor getEvaluatorDescriptor() {
+    return new EvaluatorDescriptorImpl(this.nodeDescriptor, this.getType());
   }
 
   @Override

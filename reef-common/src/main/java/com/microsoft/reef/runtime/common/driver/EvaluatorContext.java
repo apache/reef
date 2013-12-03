@@ -16,10 +16,10 @@
 package com.microsoft.reef.runtime.common.driver;
 
 import com.google.protobuf.ByteString;
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.FailedContext;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
@@ -134,8 +134,8 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public NodeDescriptor getNodeDescriptor() {
-    return this.evaluatorManager.getNodeDescriptor();
+  public EvaluatorDescriptor getEvaluatorDescriptor() {
+    return this.evaluatorManager.getEvaluatorDescriptor();
   }
 
   @Override
@@ -167,8 +167,8 @@ public final class EvaluatorContext implements ActiveContext {
       }
 
       @Override
-      public NodeDescriptor getNodeDescriptor() {
-        return EvaluatorContext.this.getNodeDescriptor();
+      public EvaluatorDescriptor getEvaluatorDescriptor() {
+        return EvaluatorContext.this.evaluatorManager.getEvaluatorDescriptor();
       }
     };
   }
@@ -194,8 +194,8 @@ public final class EvaluatorContext implements ActiveContext {
       }
 
       @Override
-      public NodeDescriptor getNodeDescriptor() {
-        return EvaluatorContext.this.getNodeDescriptor();
+      public EvaluatorDescriptor getEvaluatorDescriptor() {
+        return EvaluatorContext.this.evaluatorManager.getEvaluatorDescriptor();
       }
     };
   }

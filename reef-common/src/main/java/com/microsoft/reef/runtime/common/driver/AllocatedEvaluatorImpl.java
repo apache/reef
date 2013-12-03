@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfigurationModule;
@@ -99,6 +100,11 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   @Override
+  public void setType(final EvaluatorType type) {
+    this.evaluatorManager.setType(type);
+  }
+
+  @Override
   public void addFileResource(final File file) throws IOException {
     if (file.getName().toLowerCase().endsWith(".jar")) {
       this.libraries.add(file);
@@ -161,6 +167,16 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
       for (final File lib : this.libraries) {
         rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder().setName(lib.getName()).setPath(lib.getPath().toString()).setType(ReefServiceProtos.FileType.LIB).build());
+      }
+
+      { // Set the type
+        switch (this.evaluatorManager.getType()) {
+          case CLR:
+            rbuilder.setType(ReefServiceProtos.ProcessType.CLR);
+            break;
+          case JVM:
+            rbuilder.setType(ReefServiceProtos.ProcessType.JVM);
+        }
       }
 
       this.evaluatorManager.handle(rbuilder.build());
