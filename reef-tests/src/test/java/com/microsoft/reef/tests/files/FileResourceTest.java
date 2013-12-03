@@ -67,7 +67,7 @@ public class FileResourceTest {
 
     for (final File f : theFiles) {
       LOG.log(Level.INFO, "Adding a file to the DriverConfiguration: " + f.getAbsolutePath());
-      driverConfigurationModule = driverConfigurationModule.set(DriverConfiguration.GLOBAL_FILES, f.getAbsolutePath());
+      driverConfigurationModule = driverConfigurationModule.set(DriverConfiguration.LOCAL_FILES, f.getAbsolutePath());
     }
     return driverConfigurationModule.build();
   }
