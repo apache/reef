@@ -53,6 +53,7 @@ public class SleepActivity implements Activity {
    */
   @Override
   public byte[] call(final byte[] memento) {
+    LOG.log(Level.INFO, "Activity started: sleep for: {0} msec.", this.delay);
     final long ts = System.currentTimeMillis();
     for (long period = this.delay; period > 0; period -= System.currentTimeMillis() - ts) {
       try {

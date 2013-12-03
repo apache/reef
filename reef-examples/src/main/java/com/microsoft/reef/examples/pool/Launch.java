@@ -134,12 +134,12 @@ public final class Launch {
     final boolean isLocal = commandLineInjector.getNamedInstance(Local.class);
     final Configuration runtimeConfiguration;
     if (isLocal) {
-      LOG.log(Level.INFO, "Running on the local runtime");
+      LOG.log(Level.FINE, "Running on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
           .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
           .build();
     } else {
-      LOG.log(Level.INFO, "Running on YARN");
+      LOG.log(Level.FINE, "Running on YARN");
       runtimeConfiguration = YarnClientConfiguration.CONF
           .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
           .build();
@@ -148,19 +148,16 @@ public final class Launch {
   }
 
   /**
-   * Main method that starts the Retained Evaluators job.
+   * Main method that launches the REEF job.
    *
    * @param args command line parameters.
    */
   public static void main(final String[] args) {
     try {
-
       final Configuration commandLineConf = parseCommandLine(args);
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf);
-
-      LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
+      LOG.log(Level.FINEST, "Configuration:\n--\n{0}--",
           ConfigurationFile.toConfigurationString(runtimeConfig));
-
       final Configuration driverConfig =
           EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
               .set(DriverConfiguration.DRIVER_IDENTIFIER, "pool-" + System.currentTimeMillis())
@@ -168,10 +165,8 @@ public final class Launch {
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
               .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
               .build();
-
       DriverLauncher.getLauncher(runtimeConfig).run(
                       TANGUtils.merge(driverConfig, commandLineConf), 0);
-
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
     }

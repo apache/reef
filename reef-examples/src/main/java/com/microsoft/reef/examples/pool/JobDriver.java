@@ -102,7 +102,7 @@ public final class JobDriver {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
       synchronized (JobDriver.this) {
-        LOG.log(Level.FINE, "Allocated Evaluator {0} remaining: {1}",
+        LOG.log(Level.INFO, "Allocated Evaluator {0} remaining: {1}",
             new Object[] { eval.getId(), --numEvaluators });
         try {
           final JavaConfigurationBuilder contextConfigBuilder =
@@ -111,7 +111,7 @@ public final class JobDriver {
               .set(ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build());
           contextConfigBuilder.bindNamedParameter(Launch.Delay.class, delayStr);
           final Configuration activityConfig = ActivityConfiguration.CONF
-              .set(ActivityConfiguration.IDENTIFIER, "activity_" + --numActivities)
+              .set(ActivityConfiguration.IDENTIFIER, "start_activity_" + --numActivities)
               .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
               .build();
           eval.submitContextAndActivity(contextConfigBuilder.build(), activityConfig);
