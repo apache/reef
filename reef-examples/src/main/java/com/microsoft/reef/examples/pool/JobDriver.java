@@ -1,0 +1,173 @@
+/**
+ * Copyright (C) 2013 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.microsoft.reef.examples.pool;
+
+import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.context.*;
+import com.microsoft.reef.driver.evaluator.*;
+
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.JavaConfigurationBuilder;
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.annotations.Unit;
+import com.microsoft.tang.exceptions.BindException;
+
+import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.time.event.StartTime;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * Allocate N evaluators, submit M activities to them, and measure the time.
+ * Each activity does nothing but sleeps for D seconds.
+ */
+@Unit
+public final class JobDriver {
+
+  /**
+   * Standard Java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(JobDriver.class.getName());
+
+  /**
+   * Job driver uses EvaluatorRequestor
+   * to request Evaluators that will run the Activities.
+   */
+  private final EvaluatorRequestor evaluatorRequestor;
+
+  /** Number of Evaluators to request. */
+  private final int numEvaluators;
+
+  private int numEvaluatorsAllocated = 0;
+
+  /**
+   * Number of seconds to sleep in each Activity.
+   * (has to be a String to pass it into Activity config).
+   */
+  private final String delayStr;
+
+  /** Number of Activities to run. */
+  private int numActivities;
+
+  /**
+   * Job driver constructor.
+   * All parameters are injected from TANG automatically.
+   *
+   * @param evaluatorRequestor is used to request Evaluators.
+   */
+  @Inject
+  JobDriver(final EvaluatorRequestor evaluatorRequestor,
+            final @Parameter(Launch.NumEvaluators.class) Integer numEvaluators,
+            final @Parameter(Launch.NumActivities.class) Integer numActivities,
+            final @Parameter(Launch.Delay.class) Integer delay) {
+    this.evaluatorRequestor = evaluatorRequestor;
+    this.numEvaluators = numEvaluators;
+    this.numActivities = numActivities;
+    this.delayStr = "" + delay;
+  }
+
+  /**
+   * Job Driver is ready and the clock is set up: request the evaluators.
+   */
+  final class StartHandler implements EventHandler<StartTime> {
+    @Override
+    public void onNext(final StartTime startTime) {
+      LOG.log(Level.INFO, "Schedule on {0} nodes.", numEvaluators);
+      evaluatorRequestor.submit(
+          EvaluatorRequest.newBuilder()
+              .setSize(EvaluatorRequest.Size.SMALL)
+              .setNumber(numEvaluators).build());
+    }
+  }
+
+  /**
+   * Receive notification that an Evaluator had been allocated,
+   * and submitActivity a new Activity in that Evaluator.
+   */
+  final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
+    @Override
+    public void onNext(final AllocatedEvaluator eval) {
+      synchronized (JobDriver.this) {
+        LOG.log(Level.FINE, "Allocated Evaluator # {0} of {1}: {2}",
+            new Object[] { ++numEvaluatorsAllocated, numEvaluators, eval.getId() });
+        try {
+          eval.submitContextAndActivity(ContextConfiguration.CONF.set(
+              ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build(),
+              getActivityConfiguration(eval.getId() + "_activity_" + numActivities));
+        } catch (final BindException ex) {
+            LOG.log(Level.SEVERE, "Failed to submit a context to evaluator: " + eval.getId(), ex);
+            throw new RuntimeException(ex);
+        }
+      }
+    }
+  }
+
+  /**
+   * New Activity is running: decrement the counter of total activities to be launched.
+   */
+  final class RunningActivityHandler implements EventHandler<RunningActivity> {
+    @Override
+    public void onNext(final RunningActivity act) {
+      synchronized (JobDriver.this) {
+        LOG.log(Level.FINE, "Running Activity {0} of {1}",
+            new Object[] { act.getId(), --numActivities });
+      }
+    }
+  }
+
+  /**
+   * Receive notification that the Activity has completed successfully.
+   */
+  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+    @Override
+    public void onNext(final CompletedActivity act) {
+      final ActiveContext context = act.getActiveContext();
+      synchronized (JobDriver.this) {
+        LOG.log(Level.INFO, "Completed activity: {0} of {1}",
+            new Object[] { act.getId(), numActivities });
+        if (numActivities > 0) {
+          try {
+            context.submitActivity(getActivityConfiguration("activity_" + numActivities));
+          } catch (final BindException ex) {
+            LOG.log(Level.SEVERE, "Failed to submit activity to a context: "
+                + act.getActiveContext().getId(), ex);
+            throw new RuntimeException(ex);
+          }
+        } else {
+          context.close();
+        }
+      }
+    }
+  }
+
+  /**
+   * Get a new Activity configuration.
+   */
+  private Configuration getActivityConfiguration(final String id) throws BindException {
+    LOG.log(Level.FINE, "Submit Activity to Evaluator: {0}", id);
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.addConfiguration(
+        ActivityConfiguration.CONF
+            .set(ActivityConfiguration.IDENTIFIER, id)
+            .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
+            .build());
+    cb.bindNamedParameter(Launch.Delay.class, this.delayStr);
+    return cb.build();
+  }
+}
