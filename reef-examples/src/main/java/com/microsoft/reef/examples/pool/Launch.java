@@ -153,11 +153,15 @@ public final class Launch {
    * @param args command line parameters.
    */
   public static void main(final String[] args) {
+
     try {
+
       final Configuration commandLineConf = parseCommandLine(args);
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf);
+
       LOG.log(Level.FINEST, "Configuration:\n--\n{0}--",
           ConfigurationFile.toConfigurationString(runtimeConfig));
+
       final Configuration driverConfig =
           EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
               .set(DriverConfiguration.DRIVER_IDENTIFIER, "pool-" + System.currentTimeMillis())
@@ -165,8 +169,14 @@ public final class Launch {
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
               .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
               .build();
-      DriverLauncher.getLauncher(runtimeConfig).run(
-                      TANGUtils.merge(driverConfig, commandLineConf), 0);
+
+      final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
+      final long maxWait = injector.getNamedInstance(NumActivities.class)
+          * injector.getNamedInstance(Delay.class) * 2000;
+
+      DriverLauncher.getLauncher(runtimeConfig)
+          .run(TANGUtils.merge(driverConfig, commandLineConf), maxWait);
+
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
     }
