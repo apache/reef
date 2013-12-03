@@ -33,5 +33,9 @@ namespace Com.Microsoft.Tang.Interface
         bool IsInjectable(Type clazz);
 
         bool isParameterSet(Type name);
+
+        IInjector ForkInjector();
+
+        IInjector ForkInjector(IConfiguration[] configurations);
     }
 }

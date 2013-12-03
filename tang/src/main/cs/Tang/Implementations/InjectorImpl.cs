@@ -631,5 +631,84 @@ namespace Com.Microsoft.Tang.Implementations
         {
             return aspect;
         }
+
+        public IInjector ForkInjector()
+        {
+            try
+            {
+                return ForkInjector(new ConfigurationImpl[0]);
+            }
+            catch (BindException e)
+            {
+                throw new IllegalStateException(e.Message);
+            }
+        }
+
+        public IInjector ForkInjector(IConfiguration[] configurations)
+        {
+            InjectorImpl ret;
+            ret = Copy(this, configurations);
+            return ret;
+        }
+
+        private static InjectorImpl Copy(InjectorImpl old, IConfiguration[] configurations)  
+        {
+            InjectorImpl i;
+            try 
+            {
+                IConfigurationBuilder cb = old.configuration.newBuilder();
+                foreach (IConfiguration c in configurations) 
+                {
+                    cb.AddConfiguration(c);
+                }
+                i = new InjectorImpl(cb.Build());
+            } 
+            catch (BindException e) 
+            {
+                throw new IllegalStateException("Unexpected error copying configuration!", e);
+            }
+
+            foreach (IClassNode cn in old.instances.Keys) 
+            {
+                if (cn.GetFullName().Equals(ReflectionUtilities.GetFullName(typeof(IInjector)))
+                || cn.GetFullName().Equals(ReflectionUtilities.GetFullName(typeof(InjectorImpl)))) 
+                {
+                    // This would imply that we're treating injector as a singleton somewhere.  It should be copied fresh each time.
+                    throw new IllegalStateException("");
+                }
+                try 
+                {
+                    IClassNode new_cn = (IClassNode) i.classHierarchy.GetNode(cn.GetFullName());
+                    
+                    object o = null;
+                    old.instances.TryGetValue(cn, out o);
+                    if (o != null)
+                    {
+                        i.instances.Add(new_cn, o);
+                    }
+                } 
+                catch (BindException e) 
+                {
+                    throw new IllegalStateException("Could not resolve name "
+                        + cn.GetFullName() + " when copying injector", e);
+                }
+            }
+
+            foreach (INamedParameterNode np in old.namedParameterInstances.Keys) 
+            {
+                // if (!builder.namedParameters.containsKey(np)) {
+                Object o = null;
+                old.namedParameterInstances.TryGetValue(np, out o);
+                INamedParameterNode new_np = (INamedParameterNode) i.classHierarchy.GetNode(np.GetFullName());
+                i.namedParameterInstances.Add(new_np, o);
+            }
+
+            // Fork the aspect (if any)
+            if (old.aspect != null)
+            {
+                i.BindAspect(old.aspect.CreateChildAspect());
+            }
+            return i;
+        }
     }
 }

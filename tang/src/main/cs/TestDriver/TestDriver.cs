@@ -28,14 +28,10 @@ namespace Com.Microsoft.Tang.TestDriver
 
         public static void ActivityTest()
         {
-            var o = (com.microsoft.reef.activity.IActivity)TangFactory.GetTang()
+            var a = (com.microsoft.reef.activity.IActivity)TangFactory.GetTang()
             .NewInjector(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.ActivityInterface" }, "activityConf1.txt")
             .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
-
-            var b = new byte[4];
-
-            o.Call(b);
-
+            a.Call(null);
         }
 
         public static void CreateClassHierarchy()
