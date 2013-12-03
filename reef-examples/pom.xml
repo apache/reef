@@ -271,7 +271,7 @@
                                 <argument>com.microsoft.reef.examples.pool.Launch</argument>
                                 <argument>-evaluators</argument><argument>10</argument>
                                 <argument>-activities</argument><argument>100</argument>
-                                <argument>-delay</argument><argument>10</argument>
+                                <argument>-delay</argument><argument>1</argument>
                                 <argument>-local</argument><argument>true</argument>
                             </arguments>
                         </configuration>
