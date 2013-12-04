@@ -57,6 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CheckChild.cs" />
+    <Compile Include="ForksInjectorInConstructor.cs" />
     <Compile Include="DocumentedLocalNamedParameter.cs" />
     <Compile Include="NamedParameterConstructors.cs" />
     <Compile Include="ShortNameFooAB.cs" />
