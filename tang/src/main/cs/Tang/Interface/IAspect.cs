@@ -13,6 +13,6 @@ namespace Com.Microsoft.Tang.Interface
     {
         object Inject(IConstructorDef def, ConstructorInfo constructor, object[] args);
         void InjectionFutureInstantiated(InjectionFuture f, object t);
-        Aspect createChildAspect();
+        Aspect CreateChildAspect();
     }
 }

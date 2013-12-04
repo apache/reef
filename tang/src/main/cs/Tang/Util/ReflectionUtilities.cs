@@ -8,6 +8,11 @@ namespace Com.Microsoft.Tang.Util
 {
     public class ReflectionUtilities
     {
+        public static String GetFullName(Type name)
+        {
+            return GetRawClass(name).Name;
+        }
+
         public static Type GetRawClass(Type type)
         {
             return type;
