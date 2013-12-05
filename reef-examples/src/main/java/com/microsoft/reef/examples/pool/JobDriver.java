@@ -52,16 +52,22 @@ public final class JobDriver {
   private final EvaluatorRequestor evaluatorRequestor;
 
   /** Number of Evaluators to request. */
-  private int numEvaluators;
+  private final int numEvaluators;
+
+  /** Number of Activities to run. */
+  private final int numActivities;
+
+  /** Number of Evaluators started. */
+  private int numEvaluatorsStarted = 0;
+
+  /** Number of Activities launched. */
+  private int numActivitiesStarted = 0;
 
   /**
    * Number of seconds to sleep in each Activity.
    * (has to be a String to pass it into Activity config).
    */
   private final String delayStr;
-
-  /** Number of Activities to run. */
-  private int numActivities;
 
   /**
    * Job driver constructor.
@@ -102,22 +108,27 @@ public final class JobDriver {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
       synchronized (JobDriver.this) {
-        LOG.log(Level.INFO, "Allocated Evaluator {0} remaining: {1}",
-            new Object[] { eval.getId(), --numEvaluators });
-        try {
-          final JavaConfigurationBuilder contextConfigBuilder =
-              Tang.Factory.getTang().newConfigurationBuilder();
-          contextConfigBuilder.addConfiguration(ContextConfiguration.CONF
-              .set(ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build());
-          contextConfigBuilder.bindNamedParameter(Launch.Delay.class, delayStr);
-          final Configuration activityConfig = ActivityConfiguration.CONF
-              .set(ActivityConfiguration.IDENTIFIER, "start_activity_" + --numActivities)
-              .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
-              .build();
-          eval.submitContextAndActivity(contextConfigBuilder.build(), activityConfig);
-        } catch (final BindException ex) {
-            LOG.log(Level.SEVERE, "Failed to submit context to evaluator: " + eval.getId(), ex);
-            throw new RuntimeException(ex);
+        if (numActivitiesStarted < numActivities) {
+          ++numActivitiesStarted;
+          ++numEvaluatorsStarted;
+          LOG.log(Level.INFO, "Allocated Evaluator {0} # {1} of {2}",
+              new Object[] { eval.getId(), numEvaluatorsStarted, numEvaluators });
+          try {
+            final JavaConfigurationBuilder contextConfigBuilder =
+                Tang.Factory.getTang().newConfigurationBuilder();
+            contextConfigBuilder.addConfiguration(ContextConfiguration.CONF
+                .set(ContextConfiguration.IDENTIFIER, String.format("Context_%06d", numEvaluatorsStarted))
+                .build());
+            contextConfigBuilder.bindNamedParameter(Launch.Delay.class, delayStr);
+            final Configuration activityConfig = ActivityConfiguration.CONF
+                .set(ActivityConfiguration.IDENTIFIER, String.format("StartActivity_%08d", numActivitiesStarted))
+                .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
+                .build();
+            eval.submitContextAndActivity(contextConfigBuilder.build(), activityConfig);
+          } catch (final BindException ex) {
+              LOG.log(Level.SEVERE, "Failed to submit context to evaluator: " + eval.getId(), ex);
+              throw new RuntimeException(ex);
+          }
         }
       }
     }
@@ -131,22 +142,21 @@ public final class JobDriver {
     public void onNext(final CompletedActivity act) {
       final ActiveContext context = act.getActiveContext();
       synchronized (JobDriver.this) {
-        LOG.log(Level.INFO, "Completed activity: {0} remaining: {1}",
-            new Object[] { act.getId(), numActivities });
-        if (numActivities > 0) {
+        if (numActivitiesStarted < numActivities) {
+          ++numActivitiesStarted;
+          LOG.log(Level.INFO, "Completed activity: {0} # {1} of {2}",
+              new Object[] { act.getId(), numActivitiesStarted, numActivities });
           try {
             final Configuration activityConfig = ActivityConfiguration.CONF
-                .set(ActivityConfiguration.IDENTIFIER, "activity_" + --numActivities)
+                .set(ActivityConfiguration.IDENTIFIER, String.format("Activity_%08d", numActivitiesStarted))
                 .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
                 .build();
             context.submitActivity(activityConfig);
           } catch (final BindException ex) {
-            LOG.log(Level.SEVERE, "Failed to submit activity to a context: "
+            LOG.log(Level.SEVERE, "Failed to submit activity to context: "
                 + act.getActiveContext().getId(), ex);
             throw new RuntimeException(ex);
           }
-        } else {
-          context.close();
         }
       }
     }
