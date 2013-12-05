@@ -157,6 +157,8 @@ public final class JobDriver {
                 + act.getActiveContext().getId(), ex);
             throw new RuntimeException(ex);
           }
+        } else {
+          context.close();
         }
       }
     }
