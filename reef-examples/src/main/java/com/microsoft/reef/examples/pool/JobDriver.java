@@ -28,6 +28,7 @@ import com.microsoft.tang.exceptions.BindException;
 
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
+import com.microsoft.wake.time.event.StopTime;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -92,11 +93,21 @@ public final class JobDriver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, "TIME: Schedule on {0} Evaluators.", numEvaluators);
+      LOG.log(Level.INFO, "TIME: Start job on {0} Evaluators.", numEvaluators);
       evaluatorRequestor.submit(
           EvaluatorRequest.newBuilder()
               .setSize(EvaluatorRequest.Size.SMALL)
               .setNumber(numEvaluators).build());
+    }
+  }
+
+  /**
+   * Job Driver is is shutting down: write to the log.
+   */
+  final class StopHandler implements EventHandler<StopTime> {
+    @Override
+    public void onNext(final StopTime stopTime) {
+      LOG.log(Level.INFO, "TIME: Stop");
     }
   }
 

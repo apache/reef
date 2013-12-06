@@ -126,12 +126,9 @@ public final class Launch {
    * @throws BindException if configuration commandLineInjector fails.
    * @throws InjectionException if configuration commandLineInjector fails.
    */
-  private static Configuration getClientConfiguration(final Configuration commandLineConf)
+  private static Configuration getClientConfiguration(
+      final Configuration commandLineConf, final boolean isLocal)
       throws BindException, InjectionException {
-
-    // TODO: Remove the injector, have stuff injected.
-    final Injector commandLineInjector = Tang.Factory.getTang().newInjector(commandLineConf);
-    final boolean isLocal = commandLineInjector.getNamedInstance(Local.class);
     final Configuration runtimeConfiguration;
     if (isLocal) {
       LOG.log(Level.FINE, "Running on the local runtime");
@@ -157,25 +154,29 @@ public final class Launch {
     try {
 
       final Configuration commandLineConf = parseCommandLine(args);
-      final Configuration runtimeConfig = getClientConfiguration(commandLineConf);
+      final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
+      final boolean isLocal = injector.getNamedInstance(Local.class);
+      final long numEvaluators = injector.getNamedInstance(NumEvaluators.class);
+      final long numActivities = injector.getNamedInstance(NumActivities.class);
+      final int delay = injector.getNamedInstance(Delay.class);
+      final String jobId = String.format("pool.e_%d.a_%d.d_%d.%d",
+          numEvaluators, numActivities, delay, System.currentTimeMillis());
 
+      final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
       LOG.log(Level.FINEST, "Configuration:\n--\n{0}--",
           ConfigurationFile.toConfigurationString(runtimeConfig));
 
       final Configuration driverConfig =
           EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-              .set(DriverConfiguration.DRIVER_IDENTIFIER, "pool-" + System.currentTimeMillis())
+              .set(DriverConfiguration.DRIVER_IDENTIFIER, jobId)
               .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
+              .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
               .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
               .build();
 
-      final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
-      final long maxWait = injector.getNamedInstance(NumActivities.class)
-          * injector.getNamedInstance(Delay.class) * 2000;
-
       DriverLauncher.getLauncher(runtimeConfig)
-          .run(TANGUtils.merge(driverConfig, commandLineConf), maxWait);
+          .run(TANGUtils.merge(driverConfig, commandLineConf), numActivities * delay * 2000);
 
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
