@@ -143,7 +143,6 @@ public final class ResourceManager {
       final File evaluatorConfigurationFile = write(launchRequest.getEvaluatorConf(), new File(c.getFolder(), EVALUATOR_CONFIGURATION_NAME));
 
       // Assemble the command line
-      // TODO: this should be moved into the common part of the runtime
       final LaunchCommandBuilder commandBuilder;
       switch (launchRequest.getType()) {
         case JVM:
