@@ -334,7 +334,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       }
 
       final String classPath = "".equals(localClassPath.toString()) ?
-          this.globalClassPath : localClassPath.toString() + ":" + this.globalClassPath;
+          this.globalClassPath : localClassPath.toString() + File.pathSeparatorChar + this.globalClassPath;
 
       final List<String> commandList = Launcher.getLaunchCommand(resourceLaunchProto.getRemoteId(), resourceLaunchProto.getIdentifier(), evaluatorConfigurationFile.getName(),
           classPath, container.getResource().getMemory(), ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stdout", ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stderr");
