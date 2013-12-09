@@ -74,6 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tang\TestConfiguration.cs" />
     <Compile Include="Tang\TestInjection.cs" />
+    <Compile Include="Tang\TestTang.cs" />
     <Compile Include="Utilities\TestUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
