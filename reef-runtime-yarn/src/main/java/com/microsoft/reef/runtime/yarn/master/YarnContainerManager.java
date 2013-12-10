@@ -24,6 +24,9 @@ import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
+import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
@@ -33,6 +36,7 @@ import com.microsoft.wake.time.runtime.RuntimeClock;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 import com.microsoft.wake.time.runtime.event.RuntimeStop;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -275,21 +279,21 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private void handle(final ResourceLaunchProto resourceLaunchProto) {
     try {
-      LOG.info("Launch container " + resourceLaunchProto.getIdentifier());
+      LOG.log(Level.FINEST, "Launch container " + resourceLaunchProto.getIdentifier());
       if (!YarnContainerManager.this.allocatedContainers.containsKey(resourceLaunchProto.getIdentifier())) {
         LOG.log(Level.SEVERE, "Unknown allocated container identifier: " + YarnContainerManager.this.allocatedContainers.keySet());
         throw new RuntimeException("Unknown allocated container identifier: " + resourceLaunchProto.getIdentifier());
       }
       final Container container = YarnContainerManager.this.allocatedContainers.get(resourceLaunchProto.getIdentifier());
 
-      LOG.info("Setting up container launch container for containerid=" + container.getId());
+      LOG.log(Level.FINEST, "Setting up container launch container for containerid=" + container.getId());
       final FileSystem fs = FileSystem.get(this.yarnConf);
       final FileContext fileContext = FileContext.getFileContext(fs.getUri());
 
       final Path evaluatorSubmissionDirectory = new Path(this.jobSubmissionDirectory, container.getId().toString());
-      Map<String, LocalResource> localResources = new HashMap<>();
+      final Map<String, LocalResource> localResources = new HashMap<>();
 
-      // EVALUTOR CONFIGURATION
+      // EVALUATOR CONFIGURATION
       final File evaluatorConfigurationFile = File.createTempFile("evaluator_" + container.getId(), ".conf");
       FileUtils.writeStringToFile(evaluatorConfigurationFile, resourceLaunchProto.getEvaluatorConf());
       localResources.put(evaluatorConfigurationFile.getName(),
@@ -309,20 +313,20 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         switch (file.getType()) {
           case PLAIN:
             if (fs.exists(dst)) {
-              LOG.info("LOCAL FILE RESOURCE: reference " + dst);
+              LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: reference " + dst);
               localResources.put(file.getName(), YarnUtils.getLocalResource(fs, dst));
             } else {
-              LOG.info("LOCAL FILE RESOURCE: upload " + src + " to " + dst);
+              LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload " + src + " to " + dst);
               localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             }
             break;
           case LIB:
             localClassPath.append(File.pathSeparatorChar + file.getName());
             if (fs.exists(dst)) {
-              LOG.info("LOCAL LIB FILE RESOURCE: reference " + dst);
+              LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: reference " + dst);
               localResources.put(file.getName(), YarnUtils.getLocalResource(fs, dst));
             } else {
-              LOG.info("LOCAL LIB FILE RESOURCE: upload " + src + " to " + dst);
+              LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload " + src + " to " + dst);
               localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             }
 
@@ -334,17 +338,32 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       }
 
       final String classPath = "".equals(localClassPath.toString()) ?
-          this.globalClassPath : localClassPath.toString() + ":" + this.globalClassPath;
+          this.globalClassPath : localClassPath.toString() + File.pathSeparatorChar + this.globalClassPath;
 
-      final List<String> commandList = Launcher.getLaunchCommand(resourceLaunchProto.getRemoteId(), resourceLaunchProto.getIdentifier(), evaluatorConfigurationFile.getName(),
-          classPath, container.getResource().getMemory(), ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stdout", ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stderr");
 
-      final StringBuilder commandBuilder = new StringBuilder();
-      for (final String s : commandList) {
-        commandBuilder.append(s + " ");
+      final LaunchCommandBuilder commandBuilder;
+      switch (resourceLaunchProto.getType()) {
+        case JVM:
+          commandBuilder = new JavaLaunchCommandBuilder().setClassPath(classPath);
+          break;
+        case CLR:
+          commandBuilder = new CLRLaunchCommandBuilder();
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported container type: " + resourceLaunchProto.getType());
       }
-      final String command = commandBuilder.toString();
 
+      final List<String> commandList = commandBuilder
+          .setErrorHandlerRID(resourceLaunchProto.getRemoteId())
+          .setLaunchID(resourceLaunchProto.getIdentifier())
+          .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+          .setMemory(container.getResource().getMemory())
+          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stderr")
+          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stdout")
+          .build();
+
+
+      final String command = StringUtils.join(commandList, ' ');
       final ContainerLaunchContext ctx = YarnUtils.getContainerLaunchContext(command, localResources);
 
       nodeManager.startContainerAsync(container, ctx);
