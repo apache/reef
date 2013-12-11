@@ -123,8 +123,6 @@ public final class JobDriver {
           ++numActivitiesStarted;
           ++numEvaluatorsStarted;
           final String activityId = String.format("StartActivity_%08d", numActivitiesStarted);
-          LOG.log(Level.INFO, "Request Evaluator {0} # {1} of {2}",
-              new Object[] { eval.getId(), numEvaluatorsStarted, numEvaluators });
           LOG.log(Level.INFO, "TIME: Submit Activity: {0} # {1} of {2}",
               new Object[] { activityId, numActivitiesStarted, numActivities });
           try {
@@ -145,6 +143,16 @@ public final class JobDriver {
           }
         }
       }
+    }
+  }
+
+  /**
+   * Receive notification that the Activity is running.
+   */
+  final class RunningActivityHandler implements EventHandler<RunningActivity> {
+    @Override
+    public void onNext(final RunningActivity act) {
+      LOG.log(Level.INFO, "TIME: Running Activity: {0}", act.getId());
     }
   }
 
@@ -174,9 +182,20 @@ public final class JobDriver {
             throw new RuntimeException(ex);
           }
         } else {
+          LOG.log(Level.INFO, "TIME: Close Evaluator: {0}", context.getEvaluatorId());
           context.close();
         }
       }
+    }
+  }
+
+  /**
+   * Receive notification that the Activity is running.
+   */
+  final class CompletedEvaluatorHandler implements EventHandler<CompletedEvaluator> {
+    @Override
+    public void onNext(final CompletedEvaluator eval) {
+      LOG.log(Level.INFO, "TIME: Completed Evaluator: {0}", eval.getId());
     }
   }
 }

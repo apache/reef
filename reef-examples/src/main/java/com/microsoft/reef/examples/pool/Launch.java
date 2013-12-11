@@ -163,8 +163,8 @@ public final class Launch {
           numEvaluators, numActivities, delay, System.currentTimeMillis());
 
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
-      LOG.log(Level.FINEST, "Configuration:\n--\n{0}--",
-          ConfigurationFile.toConfigurationString(runtimeConfig));
+      LOG.log(Level.INFO, "TIME: Start {0} evaluators {1} activities; Configuration:\n--\n{2}--",
+          new Object[] { numEvaluators, numActivities, ConfigurationFile.toConfigurationString(runtimeConfig) });
 
       final Configuration driverConfig =
           EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
@@ -172,7 +172,9 @@ public final class Launch {
               .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
               .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
+              .set(DriverConfiguration.ON_ACTIVITY_RUNNING, JobDriver.RunningActivityHandler.class)
               .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
+              .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
               .build();
 
       DriverLauncher.getLauncher(runtimeConfig)
