@@ -88,7 +88,10 @@ public class ConfigurationModule {
   public final <T> ConfigurationModule set(Param<T> opt, Class<? extends T> val) {
     return set(opt, ReflectionUtilities.getFullName(val));
   }
-  public final <T> ConfigurationModule set(Param<T> opt, Number val) {
+  public final ConfigurationModule set(Param<Boolean> opt, boolean val) {
+    return set(opt, ""+val);
+  }
+  public final ConfigurationModule set(Param<? extends Number> opt, Number val) {
     return set(opt, ""+val);
   }
   public final <T> ConfigurationModule set(Param<T> opt, String val) {
@@ -101,16 +104,6 @@ public class ConfigurationModule {
     }
     return c;
   }
-  
-/*  public final InjectorModule buildVolatileInjector() throws ClassHierarchyException {
-    ConfigurationModule c = deepCopy();
-
-    return new InjectorModule(c);  // injector module will all bind volatiles over missing sets in c.
-    
-    // it basically just delegates to an unsafe version of build, gets an injector, and at build() bind volatiles into injector
-  } */
-
-  
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Configuration build() throws BindException {
     ConfigurationModule c = deepCopy();
