@@ -124,6 +124,7 @@ final class DriverManager implements EvaluatorRequestor {
         new EventHandler<RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto>>() {
           @Override
           public void onNext(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> value) {
+            // TODO: time that:
             handle(value);
           }
         });
@@ -235,6 +236,9 @@ final class DriverManager implements EvaluatorRequestor {
       }
 
       if (this.evaluators.containsKey(evaluatorId)) {
+
+        // TODO: pull the handle() call out of synchronization block:
+        // TODO: also, add the synchronization block in the handle() method:
         this.evaluators.get(evaluatorId).handle(evaluatorHeartbeatProtoRemoteMessage);
       } else {
         if (heartbeat.hasEvaluatorStatus()) {

@@ -111,6 +111,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.clock = clock;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.yarnConf = yarnConf;
+    // TODO: use Wake thread pool stage:
     this.resourceAllocationHandler = resourceAllocationHandler;
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusProtoEventHandler;
