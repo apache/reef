@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * Public interfaces and factories for Tang's core API.
+ * 
+ * Other packages that are of interest to typical Tang use-cases are
+ * com.microsoft.tang.annotations which contains Java annotations that encode
+ * Tang configuration metadata, and com.microsoft.tang.formats, which
+ * contains classes that import and export data from Tang in various formats.
  */
-package com.microsoft.tang.examples;
+package com.microsoft.tang;

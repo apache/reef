@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * Tang's implementation.  Ideally, applications should never need to be
+ * aware of anything in this package or its sub-packages.  As of this
+ * writing, some layering violations still exist, and portions of this
+ * package (such as the InjectionPlan APIs) are needed in rare
+ * circumstances. 
  */
-package com.microsoft.tang.examples;
+package com.microsoft.tang.implementation;
+

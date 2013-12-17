@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * Tang format classes encode and decode information that Tang gathers at
+ * runtime.  Such information comes in three forms: ClassHierarchy data
+ * that is derived directly from compiled application code, Configuration
+ * data that has been typechecked, and is derived from various user inputs,
+ * such as configuration files and command line arguments, and finally,
+ * InjectionPlans which encode the constructor invocations that Tang would
+ * make when instantiating a particular class.
  */
-package com.microsoft.tang.examples;
+package com.microsoft.tang.formats;
+

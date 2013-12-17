@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * Exceptions thrown by Tang, including runtime exceptions that reflect
+ * compile-time inconsistencies and other problems that can't be
+ * meaningfully handled by application code.  The non-runtime exceptions
+ * in this package are thrown when an incorrect configuration file, or
+ * other post-compilation problems are detected.
+ * 
  */
-package com.microsoft.tang.examples;
+package com.microsoft.tang.exceptions;
+

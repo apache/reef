@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * Private implementation classes that configure and inject code written
+ * in Java.  Tang supports cross-language object injections.  The classes
+ * in com.microsoft.tang.implementation are agnostic to the application
+ * language.  In contrast, the classes in this package provide convenience
+ * APIs that move type-checking to Java's generic type system, and are also
+ * responsible for actually injecting objects (since, by definition, Java
+ * JVMs inject Java objects).  
  */
-package com.microsoft.tang.examples;
+package com.microsoft.tang.implementation.java;
+

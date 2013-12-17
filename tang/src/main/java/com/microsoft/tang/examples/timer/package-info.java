@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ *  A more complicated version of the Timer example, including delegating
+ *  interfaces to default implementations. 
  */
-package com.microsoft.tang.examples;
+package com.microsoft.tang.examples.timer;

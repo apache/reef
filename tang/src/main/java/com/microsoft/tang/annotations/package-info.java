@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
- */
-package com.microsoft.tang.examples;
+   Annotations that application developers can use to register configuration
+   metadata with Tang.
+*/
+package com.microsoft.tang.annotations;

@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * The interfaces that define Tang's ClassHierarchy objects.  ClassHierarchies
+ * can be thought of as read-only caches of the reflection data that is
+ * produced when applications are compiled.
  */
-package com.microsoft.tang.examples;
+
+package com.microsoft.tang.types;
+

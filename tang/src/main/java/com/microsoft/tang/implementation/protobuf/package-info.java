@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * Implementation classes that translate between Tang's core API and protocol
+ * buffers.  This enables cross-language injection sessions.
  */
-package com.microsoft.tang.examples;
+
+package com.microsoft.tang.implementation.protobuf;
+

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Example code from the tutorial on Tang's home page.
+ * Miscellaneous utilities, including command line static analysis (Tint), data structures and reflection stuff.
  */
-package com.microsoft.tang.examples;
+
+package com.microsoft.tang.util;
+
