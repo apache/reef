@@ -231,24 +231,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void bindSingleton(ClassNode<?> n) throws BindException {
-  }
-
-  @Override
-  public void bindSingleton(String s) throws BindException {
-  }
-
-  @Override
-  public <T> void bindSingletonImplementation(ClassNode<T> c,
-      ClassNode<? extends T> d) throws BindException {
-  }
-
-  @Override
-  public void bindSingletonImplementation(String inter, String impl)
-      throws BindException {
-  }
-
-  @Override
   public <T> void bindConstructor(ClassNode<T> k,
       ClassNode<? extends ExternalConstructor<? extends T>> v) {
     boundConstructors.put(k, v);

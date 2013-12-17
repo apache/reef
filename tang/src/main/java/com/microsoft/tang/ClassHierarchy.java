@@ -35,7 +35,17 @@ public interface ClassHierarchy {
   public boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
 
   /**
-   * TODO: Document this. 
+   * Merge the contents of this ClassHierarchy and the provided one into a new
+   * class hierarchy.  This allows reflection information from multiple jars to
+   * be incorporated into a single ClassHierarchy object.  Typical applications
+   * do not call this method, and instead provide classpath (or C# assembly)
+   * information to Tang when they create ConfigurationBuilder and Configuration
+   * objects.  The Configuration API transparently invokes merge as necessary,
+   * allowing applications to combine configurations that were built against
+   * differing classpaths.
+   * 
+   * ClassHierarchies derived from applications written in different languages
+   * cannot be merged.
    */
   public ClassHierarchy merge(ClassHierarchy ch);
 

@@ -53,11 +53,6 @@ public interface ConfigurationBuilder {
 
   void bind(Node key, Node value) throws BindException;
 
-  @Deprecated
-  public void bindSingleton(String iface) throws BindException;
-  @Deprecated
-  public void bindSingleton(ClassNode<?> iface) throws BindException;
-
   public <T> void bindConstructor(ClassNode<T> k,
       ClassNode<? extends ExternalConstructor<? extends T>> v)
       throws BindException;
@@ -68,12 +63,6 @@ public interface ConfigurationBuilder {
       throws BindException;
 
   public Configuration build();
-  @Deprecated
-  public <T> void bindSingletonImplementation(ClassNode<T> c,
-      ClassNode<? extends T> d) throws BindException;
-  @Deprecated
-  public void bindSingletonImplementation(String inter, String impl)
-      throws BindException;
 
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
       throws BindException;

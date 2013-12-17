@@ -1,6 +1,5 @@
 package com.microsoft.tang;
 
-import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -9,52 +8,119 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 
 /**
- * TANG Configuration object.
+ * Immutable, type-checked configuration data. 
  * 
- * Tang Configuration objects are immutable and constructed via
- * ConfigurationBuilders.
+ * Tang Configuration objects are constructed via
+ * ConfigurationBuilders, and most applications interact with the
+ * Configuration API much more than the one described here.  See
+ * the ConfigurationBuilder documentation for a discussion of the 
+ * semantics of configuration options.  The documentation provided
+ * here is primarily for people that wish to extend Tang or implement
+ * formats that export data from Configuration objects to other systems.
  * 
- * @author sears
+ * Conceptually, a configuration contains a set of key
+ * value pairs.  Each pair either maps from an interface to an
+ * implementation (a class) or from a configuration option to a
+ * value (e.g., an integer or string).
+ * 
+ * Under the hood, Configuration objects carry much richer type
+ * information than this, and also refer to the ClassHierarchy
+ * object they were checked against.  Configurations can be 
+ * merged into each other by creating a new ConfigurationBuilder
+ * object, and passing in multiple configurations.  In such situations,
+ * Tang automatically merges the reflection data from the underlying
+ * ClassHierarchy objects, and re-validates the merged configuration
+ * data against the merged classpath.
+ * 
+ * Note that the left hand side of each configuration object (the
+ * "key" in the key value pair) is unique.  Although there are many
+ * APIs that take NamedParameterNode objects in this API, a given
+ * NamedParameterNode represents a unique type of binding, and is only
+ * applicable to one of the getters below.  These APIs use Java generic
+ * types to make it easier to map from NamedParameterNode to the appropriate
+ * getter. 
  */
 public interface Configuration {
 
+  /**
+   * Create a new ConfigurationBuilder object based on the same classpath
+   * as this Configuration, and populate it with the configuration options
+   * of this object.
+   * 
+   * This API is unstable and should be considered private.  Use the methods
+   * in com.microsoft.reef.Tang instead.
+   */
   public ConfigurationBuilder newBuilder();
-  
+  /**
+   * Return the value of the given named parameter as an unparsed string.
+   * 
+   * If nothing was explicitly bound, this method returns null (it does not
+   * return default values).
+   * 
+   * @param np A NamedParameter object from this Configuration's class hierarchy.  
+   * @return The validated string that this parameter is bound to, or null.
+   * @see getClassHierarchy()
+   */
   public String getNamedParameter(NamedParameterNode<?> np);
   
   /**
-   * 
-   * @param np
-   * @return A set of objects and strings.
+   * Obtain the set of class hierarchy nodes or strings that were bound to a given NamedParameterNode.
+   * If nothing was explicitly bound, the set will be empty (it will not reflect any default values).
+   * @param np A NamedParameterNode from this Configuration's class hierarchy.
+   * @return A set of ClassHierarchy Node objects or a set of strings, depending on whether the NamedParameterNode refers to an interface or configuration options, respectively.
+   * @see getClassHierarchy()
    */
   public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
   
-  /*
-   * @return the external constructor that cn has been explicitly bound to, or null.
+  /**
+   * @return the external constructor that cn has been explicitly bound to, or null.  Defaults are not returned.
    */
   public <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
-  /*
-   * @return the implementation that cn has been explicitly bound to, or null.
+  /**
+   * @return the implementation that cn has been explicitly bound to, or null.  Defaults are not returned.
    */
   public <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
   /**
-   * TODO Should this return a set of ConstructorDefs instead?
+   * Return the LegacyConstructor that has been bound to this Class.  Such constructors are defined in the class, but missing their @Inject annotation.
+   * 
+   * For now, only one legacy constructor can be bound per class.
+   * 
+   * TODO: Should this return Set<ConstructorDef<T>> instead?
    */
   public <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn);
-  
-  @Deprecated
-  public Collection<ClassNode<?>> getSingletons();
-
+  /**
+   * @return the set of all interfaces (or super-classes) that have been explicitly
+   * bound to an implementation sub-class.
+   */
   Set<ClassNode<?>> getBoundImplementations();
-
+  /**
+   * @return the set of all the interfaces that have had an external constructor bound to them.
+   */
   Set<ClassNode<?>> getBoundConstructors();
-
+  /**
+   * @return the set of all the named parameters that have been explicitly bound to something.
+   */
   Set<NamedParameterNode<?>> getNamedParameters();
-
+  /**
+   * @return the set of all interfaces that have a legacy constructor binding.
+   */
   Set<ClassNode<?>> getLegacyConstructors();
-
+  /**
+   * Configuration objects are associated with the ClassHierarchy objects that were used during validation.
+   *  
+   * @return the ClassHierarchy that backs this Configuration.
+   */
   public ClassHierarchy getClassHierarchy();
-
+  /**
+   * Get the set bindings from set-valued NamedParameters to the values they were bound to.  
+   * 
+   * TODO: This API seems wonky.  Why not return a Set<NamedParameterNode<Set<?>>> instead, and let the caller invoke getBoundSet() above?
+   * 
+   * @return a flattened set with one entry for each binding (the same NamedParameterNode may be a key for multiple bindings.
+   *
+   * @deprecated 
+   */
+  @Deprecated
   Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets();
 
 }

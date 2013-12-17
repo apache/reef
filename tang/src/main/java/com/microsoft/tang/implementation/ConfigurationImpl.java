@@ -66,11 +66,6 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public Collection<ClassNode<?>> getSingletons() {
-    return new MonotonicSet<>();
-  }
-
-  @Override
   public ConfigurationBuilder newBuilder() {
     return builder.build().builder;
   }

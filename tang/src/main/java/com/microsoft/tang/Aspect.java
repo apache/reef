@@ -5,9 +5,36 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.microsoft.tang.types.ConstructorDef;
 
+/**
+ * A simple interface that allows external code to interpose on Tang object
+ * injections.  This can be used to implement simplistic aspect oriented
+ * design patterns by interposing wrapper objects at injection time.  It
+ * can also be used for more mundane purposes, such as tracking the
+ * relationship between the objects that are instantiated at runtime.
+ * 
+ * The Wake project contains a full-featured implementation of this API that
+ * may serve as a useful example.
+ */
 public interface Aspect {
   /**
-   * Note, it is inject()'s responsibility to call ret.getInstance() if ret instanceof ExternalConstructor.
+   * Inject an object of type T.
+   * 
+   * Note that it is never OK to return an instance of ExternalConstructor. 
+   * Typical implementations check to see if they are about to return an
+   * instance of ExternalConstructor.  If so, they return ret.newInstance()
+   * instead.
+   * 
+   * @param def information about the constructor to be invoked.  This is
+   *    mostly useful because it contains references to any relevant named
+   *    parameters, and to the class to be injected.
+   * @param constructor The java constructor to be injected.  Tang automatically
+   *    chooses the appropriate constructor and ensures that we have permission
+   *    to invoke it.
+   * @param args The parameters to be passed into constructor.newInstance(), in the correct order.
+   * 
+   * @throws A number of exceptions which are passed-through from the wrapped call to newInstance().
+   * @return A new instance of T.  
+   * Note, it is inject()'s responsibility to call <tt>ret.getInstance() if ret instanceof ExternalConstructor</tt>.
    */
   <T> T inject(ConstructorDef<T> def, Constructor<T> constructor, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException;
   /**
