@@ -221,39 +221,33 @@ final class DriverManager implements EvaluatorRequestor {
    * @param evaluatorHeartbeatProtoRemoteMessage
    *
    */
-  private final void handle(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
+  private final void handle(
+      final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
+
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeat = evaluatorHeartbeatProtoRemoteMessage.getMessage();
-    final String evaluatorId = heartbeat.getEvaluatorStatus().getEvaluatorId();
-    LOG.log(Level.FINEST, "Processing heartbeat for evaluator `{0}`", evaluatorId);
+    final ReefServiceProtos.EvaluatorStatusProto status = heartbeat.getEvaluatorStatus();
+    final String evaluatorId = status.getEvaluatorId();
 
+    LOG.log(Level.FINEST, "Heartbeat from Evaluator {0} with state {1} timestamp {2}",
+        new Object[] { evaluatorId, status.getState(), heartbeat.getTimestamp() });
+
+    // Make sure that the timestamp we got for this evaluator is newer than the last one we got.
+    this.sanityChecker.check(evaluatorId, heartbeat.getTimestamp());
+
+    final EvaluatorManager eval;
     synchronized (this.evaluators) {
-      // Make sure that the timestamp we got for this evaluator is newer than the last one we got.
-      this.sanityChecker.check(evaluatorId, heartbeat.getTimestamp());
+      eval = this.evaluators.containsKey(evaluatorId) ? this.evaluators.get(evaluatorId) : null;
+    }
 
-      LOG.log(Level.FINEST, "Heartbeat timestamp: {0}", heartbeat.getTimestamp());
+    if (eval != null) {
+      eval.handle(evaluatorHeartbeatProtoRemoteMessage);
+    } else {
+      String msg = "Contact from unknown evaluator identifier " + evaluatorId;
       if (heartbeat.hasEvaluatorStatus()) {
-        final ReefServiceProtos.EvaluatorStatusProto status = heartbeat.getEvaluatorStatus();
-        LOG.log(Level.FINEST, "Evaluator {0} with state: {1}",
-            new Object[]{status.getEvaluatorId(), status.getState()});
+        msg += " with state " + status.getState();
       }
-
-      if (this.evaluators.containsKey(evaluatorId)) {
-
-        // TODO: pull the handle() call out of synchronization block:
-        // TODO: also, add the synchronization block in the handle() method:
-        this.evaluators.get(evaluatorId).handle(evaluatorHeartbeatProtoRemoteMessage);
-      } else {
-        if (heartbeat.hasEvaluatorStatus()) {
-          final ReefServiceProtos.EvaluatorStatusProto status = heartbeat.getEvaluatorStatus();
-          final String msg = "Contact from unknown evaluator identifier " + evaluatorId + " with state " + status.getState();
-          LOG.log(Level.SEVERE, msg);
-          throw new RuntimeException(msg);
-        } else {
-          final String msg = "Contact from unknown evaluator identifier " + evaluatorId;
-          LOG.log(Level.SEVERE, msg);
-          throw new RuntimeException(msg);
-        }
-      }
+      LOG.log(Level.SEVERE, msg);
+      throw new RuntimeException(msg);
     }
   }
 
