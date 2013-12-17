@@ -360,9 +360,12 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           .build();
 
       final String command = StringUtils.join(commandList, ' ');
-      final ContainerLaunchContext ctx = YarnUtils.getContainerLaunchContext(command, localResources);
+      LOG.log(Level.FINEST, "Launch command: `{0}` with resources: `{1}`",
+              new Object[] { command, localResources });
 
+      final ContainerLaunchContext ctx = YarnUtils.getContainerLaunchContext(command, localResources);
       nodeManager.startContainerAsync(container, ctx);
+
     } catch (final Throwable e) {
       LOG.log(Level.WARNING, "Error handling resource launch message: " + resourceLaunchProto, e);
       throw new RuntimeException(e);
