@@ -19,12 +19,30 @@ public interface LaunchCommandBuilder {
 
   public LaunchCommandBuilder setMemory(final int megaBytes);
 
-  public LaunchCommandBuilder setConfigurationPath(final String evaluatorConfigurationPath);
+  /**
+   * Set the name of the configuration file for the Launcher. This file is assumed to exist in the working directory of
+   * the process launched with this command line.
+   *
+   * @param configurationFileName
+   * @return this
+   */
+  public LaunchCommandBuilder setConfigurationFileName(final String configurationFileName);
 
+  /**
+   * Names a file to which stdout will be redirected.
+   *
+   * @param standardOut
+   * @return this
+   */
   public LaunchCommandBuilder setStandardOut(final String standardOut);
 
-  public LaunchCommandBuilder setStandardErr(final String standardOut);
-
+  /**
+   * Names a file to which stderr will be redirected.
+   *
+   * @param standardErr
+   * @return this
+   */
+  public LaunchCommandBuilder setStandardErr(final String standardErr);
 
 
 }

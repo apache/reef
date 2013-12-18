@@ -353,7 +353,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final List<String> commandList = commandBuilder
           .setErrorHandlerRID(resourceLaunchProto.getRemoteId())
           .setLaunchID(resourceLaunchProto.getIdentifier())
-          .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+          .setConfigurationFileName(evaluatorConfigurationFile.getName())
           .setMemory(container.getResource().getMemory())
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stderr")
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stdout")

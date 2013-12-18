@@ -176,7 +176,7 @@ public class Launcher {
     return new JavaLaunchCommandBuilder()
         .setErrorHandlerRID(errorHandlerRID)
         .setLaunchID(launchID)
-        .setConfigurationPath(evaluatorConfigurationPath)
+        .setConfigurationFileName(evaluatorConfigurationPath)
         .setClassPath(classPath)
         .setMemory(memory)
         .setStandardOut(stdout_path)
