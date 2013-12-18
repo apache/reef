@@ -19,7 +19,6 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.*;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.Launcher;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
@@ -356,7 +355,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final List<String> commandList = commandBuilder
           .setErrorHandlerRID(resourceLaunchProto.getRemoteId())
           .setLaunchID(resourceLaunchProto.getIdentifier())
-          .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+          .setConfigurationFileName(evaluatorConfigurationFile.getName())
           .setMemory(container.getResource().getMemory())
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stderr")
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/evaluator.stdout")

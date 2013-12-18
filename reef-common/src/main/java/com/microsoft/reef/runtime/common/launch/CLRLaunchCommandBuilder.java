@@ -50,8 +50,8 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   @Override
-  public CLRLaunchCommandBuilder setConfigurationPath(final String evaluatorConfigurationPath) {
-    this.evaluatorConfigurationPath = evaluatorConfigurationPath;
+  public CLRLaunchCommandBuilder setConfigurationFileName(final String configurationFileName) {
+    this.evaluatorConfigurationPath = configurationFileName;
     return this;
   }
 
@@ -62,8 +62,8 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   @Override
-  public CLRLaunchCommandBuilder setStandardErr(final String standardError) {
-    this.stderr_path = standardError;
+  public CLRLaunchCommandBuilder setStandardErr(final String standardErr) {
+    this.stderr_path = standardErr;
     return this;
   }
 }
