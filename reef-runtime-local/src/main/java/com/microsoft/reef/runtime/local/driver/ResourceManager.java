@@ -158,7 +158,7 @@ public final class ResourceManager {
       final List<String> command = commandBuilder
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(c.getNodeID())
-          .setConfigurationPath(evaluatorConfigurationFile.getAbsolutePath())
+          .setConfigurationFileName(evaluatorConfigurationFile.getName())
           .setMemory(512)
           .build();
 

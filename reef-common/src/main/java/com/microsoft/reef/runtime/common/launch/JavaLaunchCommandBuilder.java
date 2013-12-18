@@ -86,8 +86,8 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   @Override
-  public JavaLaunchCommandBuilder setConfigurationPath(final String evaluatorConfigurationPath) {
-    this.evaluatorConfigurationPath = evaluatorConfigurationPath;
+  public JavaLaunchCommandBuilder setConfigurationFileName(final String configurationFileName) {
+    this.evaluatorConfigurationPath = configurationFileName;
     return this;
   }
 
