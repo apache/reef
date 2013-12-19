@@ -124,10 +124,10 @@ final class DriverManager implements EvaluatorRequestor {
         new EventHandler<RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto>>() {
           @Override
           public void onNext(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> value) {
-            final String id = value.getIdentifier().toString();
-            LOG.log(Level.FINEST, "TIME: Begin Heartbeat: {0}", id);
+            final String evalId = value.getMessage().getEvaluatorStatus().getEvaluatorId();
+            LOG.log(Level.FINEST, "TIME: Begin Heartbeat {0}", evalId);
             handle(value);
-            LOG.log(Level.FINEST, "TIME: End Heartbeat: {0}", id);
+            LOG.log(Level.FINEST, "TIME: End Heartbeat {0}", evalId);
           }
         });
 

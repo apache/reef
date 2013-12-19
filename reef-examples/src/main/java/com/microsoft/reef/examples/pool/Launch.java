@@ -163,17 +163,22 @@ public final class Launch {
 
       final Configuration commandLineConf = parseCommandLine(args);
       final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
+
       final boolean isLocal = injector.getNamedInstance(Local.class);
       final int numEvaluators = injector.getNamedInstance(NumEvaluators.class);
       final int numActivities = injector.getNamedInstance(NumActivities.class);
       final int delay = injector.getNamedInstance(Delay.class);
       final int jobNum = injector.getNamedInstance(JobId.class);
+
       final String jobId = String.format("pool.e_%d.a_%d.d_%d.%d",
           numEvaluators, numActivities, delay, jobNum < 0 ? System.currentTimeMillis() : jobNum);
 
+      // Timeout: delay + 6 extra seconds per Activity per Evaluator + 2 minutes to allocate each Evaluator:
+      final int timeout = numActivities * (delay + 6) * 1000 / numEvaluators + numEvaluators * 120000;
+
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
-      LOG.log(Level.INFO, "TIME: Start {0} evaluators {1} activities; Configuration:\n--\n{2}--",
-          new Object[] { numEvaluators, numActivities, ConfigurationFile.toConfigurationString(runtimeConfig) });
+      LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{3}--",
+          new Object[] { jobId, timeout / 1000, ConfigurationFile.toConfigurationString(runtimeConfig) });
 
       final Configuration driverConfig =
           EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
@@ -186,11 +191,10 @@ public final class Launch {
               .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
               .build();
 
-      // Timeout: delay + 6 extra seconds per Activity per Evaluator + 2 minutes to allocate each Evaluator:
-      final int timeout = numActivities * (delay + 6) * 1000 / numEvaluators + numEvaluators * 120000;
-      LOG.log(Level.FINE, "Starting job {0} with timeout {1} sec.", new Object[] { jobId, timeout / 1000 });
       DriverLauncher.getLauncher(runtimeConfig)
           .run(TANGUtils.merge(driverConfig, commandLineConf), timeout);
+
+      LOG.log(Level.INFO, "TIME: Stop Client {0}", jobId);
 
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
