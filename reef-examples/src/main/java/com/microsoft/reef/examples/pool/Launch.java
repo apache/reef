@@ -177,7 +177,7 @@ public final class Launch {
       final int timeout = numActivities * (delay + 6) * 1000 / numEvaluators + numEvaluators * 120000;
 
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
-      LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{3}--",
+      LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{2}--",
           new Object[] { jobId, timeout / 1000, ConfigurationFile.toConfigurationString(runtimeConfig) });
 
       final Configuration driverConfig =
