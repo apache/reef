@@ -29,9 +29,7 @@ import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
-import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.impl.ThreadPoolStage;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.runtime.RuntimeClock;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
@@ -85,7 +83,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private final NMClientAsync nodeManager;
 
-  private final EStage<ResourceAllocationProto> resourceAllocationHandler;
+  private final EventHandler<ResourceAllocationProto> resourceAllocationHandler;
 
   private final EventHandler<ResourceStatusProto> resourceStatusHandler;
 
@@ -112,7 +110,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.clock = clock;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.yarnConf = yarnConf;
-    this.resourceAllocationHandler = new ThreadPoolStage<>(resourceAllocationHandler, 8);
+    this.resourceAllocationHandler = resourceAllocationHandler;
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusProtoEventHandler;
     this.nodeDescriptorProtoEventHandler = nodeDescriptorProtoEventHandler;
@@ -490,7 +488,6 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     }
   }
 
-
   final class RuntimeStopHandler implements EventHandler<RuntimeStop> {
 
     @Override
@@ -514,12 +511,6 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           LOG.log(Level.WARNING, "Error closing YARN Node Manager", e);
         }
       }
-
-      // try {
-      //   resourceAllocationHandler.close();
-      // } catch (final Exception e) {
-      //   LOG.log(Level.WARNING, "Error closing Resource Allocation Handler", e);
-      // }
     }
   }
 
