@@ -85,8 +85,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private final NMClientAsync nodeManager;
 
-  // private final EStage<ResourceAllocationProto> resourceAllocationHandler;
-  private final EventHandler<ResourceAllocationProto> resourceAllocationHandler;
+  private final EStage<ResourceAllocationProto> resourceAllocationHandler;
 
   private final EventHandler<ResourceStatusProto> resourceStatusHandler;
 
@@ -113,7 +112,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.clock = clock;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.yarnConf = yarnConf;
-    this.resourceAllocationHandler = resourceAllocationHandler; // new ThreadPoolStage<>(resourceAllocationHandler, 8);
+    this.resourceAllocationHandler = new ThreadPoolStage<>(resourceAllocationHandler, 8);
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusProtoEventHandler;
     this.nodeDescriptorProtoEventHandler = nodeDescriptorProtoEventHandler;

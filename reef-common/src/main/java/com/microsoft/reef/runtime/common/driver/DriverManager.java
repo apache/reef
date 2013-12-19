@@ -237,11 +237,12 @@ final class DriverManager implements EvaluatorRequestor {
     final EvaluatorManager eval;
     synchronized (this.evaluators) {
       eval = this.evaluators.containsKey(evaluatorId) ? this.evaluators.get(evaluatorId) : null;
+      if (eval != null) {
+        eval.handle(evaluatorHeartbeatProtoRemoteMessage);
+      }
     }
 
-    if (eval != null) {
-      eval.handle(evaluatorHeartbeatProtoRemoteMessage);
-    } else {
+    if (eval == null) {
       String msg = "Contact from unknown evaluator identifier " + evaluatorId;
       if (heartbeat.hasEvaluatorStatus()) {
         msg += " with state " + status.getState();

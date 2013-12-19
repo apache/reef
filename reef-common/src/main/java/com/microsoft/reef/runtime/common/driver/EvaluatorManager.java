@@ -294,8 +294,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
-  final synchronized void handle(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
-
+  final void handle(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
 
     if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
