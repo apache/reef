@@ -118,6 +118,7 @@ public final class JobDriver {
   final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
+      LOG.log(Level.INFO, "TIME: Allocated Evaluator {0}", eval.getId());
       synchronized (JobDriver.this) {
         if (numActivitiesStarted < numActivities) {
           ++numActivitiesStarted;
@@ -141,6 +142,9 @@ public final class JobDriver {
               LOG.log(Level.SEVERE, "Failed to submit Context to Evaluator: " + eval.getId(), ex);
               throw new RuntimeException(ex);
           }
+        } else {
+          LOG.log(Level.INFO, "TIME: Close Evaluator {0}", eval.getId());
+          eval.close();
         }
       }
     }
@@ -163,7 +167,8 @@ public final class JobDriver {
     @Override
     public void onNext(final CompletedActivity act) {
       final ActiveContext context = act.getActiveContext();
-      LOG.log(Level.INFO, "TIME: Completed Activity {0}", act.getId());
+      LOG.log(Level.INFO, "TIME: Completed Activity {0} on Evaluator {1}",
+              new Object[] { act.getId(), context.getEvaluatorId() });
       synchronized (JobDriver.this) {
         if (numActivitiesStarted < numActivities) {
           ++numActivitiesStarted;
