@@ -94,9 +94,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     KILLED      // unclean shutdown
   }
 
-
   private STATE state = STATE.ALLOCATED;
-
 
   private final Clock clock;
 
@@ -154,25 +152,27 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   private boolean resource_released = false;
 
   @Inject
-  EvaluatorManager(final Clock clock, final RemoteManager remoteManager,
-                   final DriverManager driverManager,
-                   final ResourceReleaseHandler resourceReleaseHandler,
-                   final ResourceLaunchHandler resourceLaunchHandler,
-                   final REEFErrorHandler errorHandler,
-                   @Parameter(EvaluatorIdentifier.class) final String evaluatorID,
-                   @Parameter(EvaluatorDescriptor.class) final NodeDescriptor nodeDescriptor,
-                   @Parameter(DriverConfigurationOptions.ActiveContextHandlers.class) final Set<EventHandler<ActiveContext>> activeContextEventHandlers,
-                   @Parameter(DriverConfigurationOptions.ClosedContextHandlers.class) final Set<EventHandler<ClosedContext>> closedContextEventHandlers,
-                   @Parameter(DriverConfigurationOptions.FailedContextHandlers.class) final Set<EventHandler<FailedContext>> failedContextEventHandlers,
-                   @Parameter(DriverConfigurationOptions.ContextMessageHandlers.class) final Set<EventHandler<ContextMessage>> contextMessageHandlers,
-                   @Parameter(DriverConfigurationOptions.RunningActivityHandlers.class) final Set<EventHandler<RunningActivity>> runningActivityEventHandlers,
-                   @Parameter(DriverConfigurationOptions.CompletedActivityHandlers.class) final Set<EventHandler<CompletedActivity>> completedActivityEventHandlers,
-                   @Parameter(DriverConfigurationOptions.SuspendedActivityHandlers.class) final Set<EventHandler<SuspendedActivity>> suspendedActivityEventHandlers,
-                   @Parameter(DriverConfigurationOptions.ActivityMessageHandlers.class) final Set<EventHandler<ActivityMessage>> activityMessageEventHandlers,
-                   @Parameter(DriverConfigurationOptions.FailedActivityHandlers.class) final Set<EventHandler<FailedActivity>> activityExceptionEventHandlers,
-                   @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) final Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
-                   @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) final Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
-                   @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) final Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers) {
+  EvaluatorManager(
+      final Clock clock,
+      final RemoteManager remoteManager,
+      final DriverManager driverManager,
+      final ResourceReleaseHandler resourceReleaseHandler,
+      final ResourceLaunchHandler resourceLaunchHandler,
+      final REEFErrorHandler errorHandler,
+      final @Parameter(EvaluatorIdentifier.class) String evaluatorID,
+      final @Parameter(EvaluatorDescriptor.class) NodeDescriptor nodeDescriptor,
+      final @Parameter(DriverConfigurationOptions.ActiveContextHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
+      final @Parameter(DriverConfigurationOptions.ClosedContextHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
+      final @Parameter(DriverConfigurationOptions.FailedContextHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
+      final @Parameter(DriverConfigurationOptions.ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
+      final @Parameter(DriverConfigurationOptions.RunningActivityHandlers.class) Set<EventHandler<RunningActivity>> runningActivityEventHandlers,
+      final @Parameter(DriverConfigurationOptions.CompletedActivityHandlers.class) Set<EventHandler<CompletedActivity>> completedActivityEventHandlers,
+      final @Parameter(DriverConfigurationOptions.SuspendedActivityHandlers.class) Set<EventHandler<SuspendedActivity>> suspendedActivityEventHandlers,
+      final @Parameter(DriverConfigurationOptions.ActivityMessageHandlers.class) Set<EventHandler<ActivityMessage>> activityMessageEventHandlers,
+      final @Parameter(DriverConfigurationOptions.FailedActivityHandlers.class) Set<EventHandler<FailedActivity>> activityExceptionEventHandlers,
+      final @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
+      final @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
+      final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers) {
 
     this.clock = clock;
     this.remoteManager = remoteManager;
@@ -196,10 +196,9 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     this.failedEvaluatorEventDispatcher = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(failedEvaluatorHandlers), errorHandler);
     this.completedEvaluatorEventDispatcher = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(completedEvaluatorHandlers), errorHandler);
 
-    EventHandler<AllocatedEvaluator> allocatedEvaluatorEventDispatcher = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(allocatedEvaluatorEventHandlers), errorHandler);
+    final EventHandler<AllocatedEvaluator> allocatedEvaluatorEventDispatcher = new ExceptionHandlingEventHandler<>(new BroadCastEventHandler<>(allocatedEvaluatorEventHandlers), errorHandler);
     allocatedEvaluatorEventDispatcher.onNext(new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier()));
   }
-
 
   /**
    * @return NodeDescriptor for the node executing this evaluator
@@ -224,7 +223,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     return type;
   }
 
-  public void setType(EvaluatorType type) {
+  public void setType(final EvaluatorType type) {
     this.type = type;
   }
 
@@ -235,11 +234,10 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   @Override
   public final void close() {
     if (STATE.RUNNING == this.state) {
+      LOG.log(Level.WARNING, "Dirty shutdown of running evaluator id[{0}]", getId());
       try {
-        LOG.log(Level.WARNING, "Dirty shutdown of running evaluator id[" + getId() + "]");
-
         // Killing the evaluator means that it doesn't need to send a confirmation; it just dies.
-        EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
+        final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
             EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
                 .setTimestamp(System.currentTimeMillis())
                 .setIdentifier(getId().toString())
@@ -258,15 +256,17 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
          * give the EvaluatorRuntime (and Launcher) time to cleanly exit. */
         this.clock.scheduleAlarm(100, new EventHandler<Alarm>() {
           @Override
-          public void onNext(Alarm alarm) {
-            EvaluatorManager.this.resourceReleaseHandler.onNext(DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-                .setIdentifier(EvaluatorManager.this.evaluatorID).build());
+          public void onNext(final Alarm alarm) {
+            EvaluatorManager.this.resourceReleaseHandler.onNext(
+                DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+                  .setIdentifier(EvaluatorManager.this.evaluatorID).build());
           }
         });
-      } catch (IllegalStateException e) {
-        LOG.log(Level.WARNING, "Force resource release because the client closed the clock.");
-        EvaluatorManager.this.resourceReleaseHandler.onNext(DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-            .setIdentifier(EvaluatorManager.this.evaluatorID).build());
+      } catch (final IllegalStateException e) {
+        LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
+        EvaluatorManager.this.resourceReleaseHandler.onNext(
+            DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+              .setIdentifier(EvaluatorManager.this.evaluatorID).build());
       } finally {
         EvaluatorManager.this.driverManager.release(EvaluatorManager.this);
       }
@@ -281,12 +281,14 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   final void handle(final EvaluatorException exception) {
     if (this.state.ordinal() >= STATE.DONE.ordinal()) return;
 
-    LOG.log(Level.FINEST, "EvaluatorManager failing id[" + this.evaluatorID + "] due to " + exception.getLocalizedMessage());
+    LOG.log(Level.FINEST, "EvaluatorManager failing id[{0}]: {1}",
+            new Object[] { this.evaluatorID, exception.getMessage() });
 
     try {
       // TODO: Replace the nulls below.
-      failedEvaluatorEventDispatcher.onNext(new FailedEvaluatorImpl(exception, null, Optional.ofNullable((FailedActivity) null), this.evaluatorID));
-    } catch (Exception e) {
+      failedEvaluatorEventDispatcher.onNext(new FailedEvaluatorImpl(
+          exception, null, Optional.ofNullable((FailedActivity) null), this.evaluatorID));
+    } catch (final Exception e) {
       LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);
     } finally {
       this.state = STATE.FAILED;
@@ -307,11 +309,11 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
         this.evaluatorControlHandler = remoteManager.getHandler(evaluatorRID, EvaluatorRuntimeProtocol.EvaluatorControlProto.class);
         this.state = STATE.RUNNING;
-        LOG.log(Level.FINEST, "Evaluator " + this.evaluatorID + " is running");
+        LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorID);
       }
     }
 
-    LOG.log(Level.FINEST, "Evaluator heartbeat: " + evaluatorHeartbeatProto);
+    LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
 
     final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto = evaluatorHeartbeatProto.getEvaluatorStatus();
 
@@ -324,14 +326,14 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     }
 
     if (ReefServiceProtos.State.FAILED == evaluatorStatusProto.getState()) {
-      LOG.log(Level.WARNING, "Failed evaluator " + getId());
+
       this.state = STATE.FAILED;
       final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
       final EvaluatorException evaluatorException = evaluatorStatusProto.hasError() ?
           new EvaluatorException(this.evaluatorID, codec.decode(evaluatorStatusProto.getError().toByteArray()), this.runningActivity) :
           new EvaluatorException(this.evaluatorID, "unknown cause");
 
-      evaluatorException.printStackTrace();
+      LOG.log(Level.WARNING, "Failed evaluator: " + getId(), evaluatorException);
 
       final List<FailedContext> failedContextList = new ArrayList<>();
       for (final ReefServiceProtos.ContextStatusProto contextStatusProto : evaluatorHeartbeatProto.getContextStatusList()) {
@@ -343,11 +345,12 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
           Optional.<FailedActivity>of(new FailedActivity(this.runningActivity.getId(), evaluatorException)) :
           Optional.<FailedActivity>empty();
 
-      failedEvaluatorEventDispatcher.onNext(new FailedEvaluatorImpl(evaluatorException, failedContextList, failedActivityOptional, this.evaluatorID));
+      failedEvaluatorEventDispatcher.onNext(new FailedEvaluatorImpl(
+          evaluatorException, failedContextList, failedActivityOptional, this.evaluatorID));
 
       close();
     } else if (ReefServiceProtos.State.DONE == evaluatorStatusProto.getState()) {
-      LOG.log(Level.FINEST, "Evaluator " + getId() + " done.");
+      LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
       this.state = STATE.DONE;
 
       completedEvaluatorEventDispatcher.onNext(new CompletedEvaluator() {
@@ -380,7 +383,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param activityControlProto message contains activity control info.
    */
   final void handle(EvaluatorRuntimeProtocol.ContextControlProto activityControlProto) {
-    LOG.log(Level.FINEST, "activity control message from " + this.evaluatorID);
+    LOG.log(Level.FINEST, "Activity control message from {0}", this.evaluatorID);
 
     final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
         EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
@@ -396,7 +399,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param evaluatorControlProto message contains evaluator control information.
    */
-  final void handle(EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto) {
+  final void handle(final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto) {
     if (STATE.RUNNING == this.state) {
       this.evaluatorControlHandler.onNext(evaluatorControlProto);
     } else {
@@ -410,7 +413,8 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param contextStatusProto indicating the current status of the context
    */
-  private final void handle(final ReefServiceProtos.ContextStatusProto contextStatusProto, final boolean notifyClientOnNewActiveContext) {
+  private final void handle(final ReefServiceProtos.ContextStatusProto contextStatusProto,
+                            final boolean notifyClientOnNewActiveContext) {
 
     final String contextID = contextStatusProto.getContextId();
     final Optional<String> parentID = contextStatusProto.hasParentId() ?
@@ -443,6 +447,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorContext context = this.activeContextMap.remove(contextID);
       final EvaluatorContext parentContext = context.getParentId().isPresent() ?
           this.activeContextMap.get(context.getParentId().get()) : null;
+
       if (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState()) {
         final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
         final Exception reason = codec.decode(contextStatusProto.getError().toByteArray());
@@ -468,7 +473,8 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param activityStatusProto message contains the current activity status.
    */
   private final void handle(final ReefServiceProtos.ActivityStatusProto activityStatusProto) {
-    LOG.log(Level.FINEST, "Received activity " + activityStatusProto.getActivityId() + " status " + activityStatusProto.getState());
+    LOG.log(Level.FINEST, "Received activity {0} status {1}",
+        new Object[] { activityStatusProto.getActivityId(), activityStatusProto.getState() });
 
     final String activityId = activityStatusProto.getActivityId();
     final String contextId = activityStatusProto.getContextId();
@@ -511,7 +517,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * Resource status information from the (actual) resource manager.
    */
   final void handle(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
-    LOG.log(Level.FINEST, "Resource manager state update: " + resourceStatusProto.getState());
+    LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusProto.getState());
 
     if (resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
         resourceStatusProto.getState() == ReefServiceProtos.State.FAILED) {
@@ -532,5 +538,4 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
       }
     }
   }
-
 }

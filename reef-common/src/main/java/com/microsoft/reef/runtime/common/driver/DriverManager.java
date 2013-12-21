@@ -281,7 +281,7 @@ final class DriverManager implements EvaluatorRequestor {
           throw new RuntimeException("Unknown resource: " + resourceAllocationProto.getNodeId());
         }
 
-        LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}", resourceAllocationProto.getIdentifier());
+        LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
         final EvaluatorManager evaluator = getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), nodeDescriptor);
         this.evaluators.put(resourceAllocationProto.getIdentifier(), evaluator);
       } catch (Exception e) {
