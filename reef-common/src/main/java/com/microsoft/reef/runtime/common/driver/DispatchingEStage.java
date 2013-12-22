@@ -29,10 +29,18 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Delayed event router that dispatches messages to the proper event handler by type.
+ * This class is used in EvaluatorManager to isolate user threads from REEF.
+ */
 @Private
 @DriverSide
 public final class DispatchingEStage implements AutoCloseable {
 
+  /**
+   * Delayed EventHandler.onNext() call.
+   * Contains a message object and EventHandler to process it.
+   */
   private class DelayedOnNext {
 
     public final EventHandler<Object> handler;
@@ -44,10 +52,20 @@ public final class DispatchingEStage implements AutoCloseable {
     }
   }
 
+  /**
+   * A map of event handlers, populated in the register() method.
+   */
   private final Map<Class<?>, EventHandler<?>> handlers =
       Collections.synchronizedMap(new MonotonicHashMap<Class<?>, EventHandler<?>>());
 
+  /**
+   * Exception handler, one for all event handlers.
+   */
   private final REEFErrorHandler errorHandler;
+
+  /**
+   * Thread pool to process delayed event handler invocations.
+   */
   private final EStage<DelayedOnNext> stage;
 
   public DispatchingEStage(final REEFErrorHandler errorHandler, final int numThreads) {
@@ -61,16 +79,34 @@ public final class DispatchingEStage implements AutoCloseable {
         }, numThreads);
   }
 
+  /**
+   * Register a new event handler.
+   * @param type Message type to process with this handler.
+   * @param handlers A set of handlers that process that type of message.
+   * @param <T> Message type.
+   * @param <U> Type of message that event handler supports. Must be a subclass of T.
+   */
   public <T, U extends T> void register(final Class<T> type, final Set<EventHandler<U>> handlers) {
     this.handlers.put(type, new ExceptionHandlingEventHandler<U>(
         new BroadCastEventHandler<U>(handlers), this.errorHandler));
   }
 
+  /**
+   * Dispatch a new message by type.
+   * @param type Type of event handler - must match the register() call.
+   * @param message A message to process. Must be a subclass of T.
+   * @param <T> Message type that event handler supports.
+   * @param <U> input message type. Must be a subclass of T.
+   */
   public <T, U extends T> void onNext(final Class<T> type, final U message) {
     final EventHandler<T> handler = (EventHandler<T>)this.handlers.get(type);
     this.stage.onNext(new DelayedOnNext(handler, message));
   }
 
+  /**
+   * Close the internal thread pool.
+   * @throws Exception forwarded from EStage.close() call.
+   */
   @Override
   public void close() throws Exception {
     this.stage.close();
