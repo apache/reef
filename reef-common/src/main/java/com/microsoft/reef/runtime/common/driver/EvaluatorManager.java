@@ -215,7 +215,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
             EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
                 .setTimestamp(System.currentTimeMillis())
-                .setIdentifier(getId().toString())
+                .setIdentifier(getId())
                 .setKillEvaluator(EvaluatorRuntimeProtocol.KillEvaluatorProto.newBuilder().build())
                 .build();
         handle(evaluatorControlProto);
@@ -317,7 +317,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
       }
 
       final Optional<FailedActivity> failedActivityOptional = this.runningActivity != null ?
-          Optional.<FailedActivity>of(new FailedActivity(this.runningActivity.getId(), evaluatorException)) :
+          Optional.of(new FailedActivity(this.runningActivity.getId(), evaluatorException)) :
           Optional.<FailedActivity>empty();
 
       dispatcher.onNext(FailedEvaluator.class, new FailedEvaluatorImpl(
@@ -363,7 +363,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
         EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
             .setTimestamp(System.currentTimeMillis())
-            .setIdentifier(getId().toString())
+            .setIdentifier(getId())
             .setContextControl(activityControlProto).build();
     handle(evaluatorControlProto);
   }
@@ -388,8 +388,8 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param contextStatusProto indicating the current status of the context
    */
-  private final void handle(final ReefServiceProtos.ContextStatusProto contextStatusProto,
-                            final boolean notifyClientOnNewActiveContext) {
+  private void handle(final ReefServiceProtos.ContextStatusProto contextStatusProto,
+                      final boolean notifyClientOnNewActiveContext) {
 
     final String contextID = contextStatusProto.getContextId();
     final Optional<String> parentID = contextStatusProto.hasParentId() ?
@@ -449,7 +449,8 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param activityStatusProto message contains the current activity status.
    */
-  private final void handle(final ReefServiceProtos.ActivityStatusProto activityStatusProto) {
+  private void handle(final ReefServiceProtos.ActivityStatusProto activityStatusProto) {
+
     LOG.log(Level.FINEST, "Received activity {0} status {1}",
         new Object[] { activityStatusProto.getActivityId(), activityStatusProto.getState() });
 
