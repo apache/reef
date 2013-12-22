@@ -87,8 +87,8 @@ public final class DispatchingEStage implements AutoCloseable {
    * @param <U> Type of message that event handler supports. Must be a subclass of T.
    */
   public <T, U extends T> void register(final Class<T> type, final Set<EventHandler<U>> handlers) {
-    this.handlers.put(type, new ExceptionHandlingEventHandler<U>(
-        new BroadCastEventHandler<U>(handlers), this.errorHandler));
+    this.handlers.put(type, new ExceptionHandlingEventHandler<>(
+        new BroadCastEventHandler<>(handlers), this.errorHandler));
   }
 
   /**
