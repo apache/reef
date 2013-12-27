@@ -131,9 +131,13 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   @Override
   public final void onContainersAllocated(final List<Container> containers) {
+    final String id = Thread.currentThread().getName() + ':' + System.currentTimeMillis();
+    LOG.log(Level.FINE, "TIME: Allocated Containers {0} {1} requested {2}",
+        new Object[] { id, containers.size(), this.requestedContainerCount });
     for (Container container : containers) {
       handleNewContainer(container);
     }
+    LOG.log(Level.FINE, "TIME: Processed Containers {0}", id);
   }
 
   @Override
