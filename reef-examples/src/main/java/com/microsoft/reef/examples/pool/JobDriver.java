@@ -122,20 +122,21 @@ public final class JobDriver {
       LOG.log(Level.INFO, "TIME: Allocated Evaluator {0}", eval.getId());
 
       final boolean runActivity;
-      final String contextId;
-      final String activityId;
+      final int nEval;
+      final int nActivity;
       synchronized (JobDriver.this) {
         runActivity = numActivitiesStarted < numActivities;
         if (runActivity) {
-          contextId = String.format("Context_%06d", ++numEvaluatorsStarted);
-          activityId = String.format("StartActivity_%08d", ++numActivitiesStarted);
-        } else {
-          activityId = null;
-          contextId = null;
+          ++numEvaluatorsStarted;
+          ++numActivitiesStarted;
         }
+        nEval = numEvaluatorsStarted;
+        nActivity = numActivitiesStarted;
       }
 
       if (runActivity) {
+        final String contextId = String.format("Context_%06d", nEval);
+        final String activityId = String.format("StartActivity_%08d", nActivity);
         LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
                 new Object[] { activityId, eval.getId() });
         try {
@@ -183,17 +184,17 @@ public final class JobDriver {
               new Object[] { act.getId(), context.getEvaluatorId() });
 
       final boolean runActivity;
-      final String activityId;
+      final int nActivity;
       synchronized (JobDriver.this) {
         runActivity = numActivitiesStarted < numActivities;
         if (runActivity) {
-          activityId = String.format("Activity_%08d", ++numActivitiesStarted);
-        } else {
-          activityId = null;
+          ++numActivitiesStarted;
         }
+        nActivity = numActivitiesStarted;
       }
 
       if (runActivity) {
+        final String activityId = String.format("Activity_%08d", nActivity);
         LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
                 new Object[] { activityId, context.getEvaluatorId() });
         try {

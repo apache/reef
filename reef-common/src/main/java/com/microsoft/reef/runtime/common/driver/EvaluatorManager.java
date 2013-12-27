@@ -154,7 +154,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorID = evaluatorID;
     this.nodeDescriptor = nodeDescriptor;
 
-    this.dispatcher = new DispatchingEStage(errorHandler, 8); // 8 threads
+    this.dispatcher = new DispatchingEStage(errorHandler, 16); // 16 threads
 
     this.dispatcher.register(ActiveContext.class, activeContextEventHandlers);
     this.dispatcher.register(ClosedContext.class, closedContextEventHandlers);
