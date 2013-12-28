@@ -199,7 +199,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
     final boolean hasContainer;
     synchronized (this.allocatedContainers) {
-      hasContainer = this.allocatedContainers.containsKey(containerId);
+      hasContainer = this.allocatedContainers.containsKey(containerId.toString());
     }
 
     if (hasContainer) {
@@ -228,7 +228,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   // HELPER METHODS
 
-  private final void handle(final NodeReport nodeReport) {
+  private void handle(final NodeReport nodeReport) {
     LOG.log(Level.FINE, "Send node descriptor: {0}", nodeReport);
     this.nodeDescriptorProtoEventHandler.onNext(NodeDescriptorProto.newBuilder()
         .setIdentifier(nodeReport.getNodeId().toString())
@@ -239,7 +239,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         .build());
   }
 
-  private final void handleContainerError(final ContainerId containerId, final Throwable throwable) {
+  private void handleContainerError(final ContainerId containerId, final Throwable throwable) {
 
     final ResourceStatusProto.Builder resourceStatusBuilder =
         ResourceStatusProto.newBuilder().setIdentifier(containerId.toString());
@@ -256,7 +256,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
    *
    * @param container newly allocated
    */
-  private final void handleNewContainer(final Container container) {
+  private void handleNewContainer(final Container container) {
 
     LOG.log(Level.FINE, "New allocated container: id[ {0} ]", container.getId());
     synchronized (this.allocatedContainers) {
@@ -280,7 +280,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
    *
    * @param value containing the container status
    */
-  private final void handle(final ContainerStatus value) {
+  private void handle(final ContainerStatus value) {
 
     final boolean hasContainer;
     synchronized (this.allocatedContainers) {
@@ -419,9 +419,9 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     }
   }
 
-  private final void setResources(final FileSystem fs,
-                                  final Map<String, LocalResource> resources,
-                                  final RemoteIterator<FileStatus> files) throws IOException {
+  private void setResources(final FileSystem fs,
+                            final Map<String, LocalResource> resources,
+                            final RemoteIterator<FileStatus> files) throws IOException {
     while (files.hasNext()) {
       final FileStatus fstatus = files.next();
       if (fstatus.isFile()) {
@@ -434,7 +434,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     }
   }
 
-  private final void handle(final ResourceRequestProto resourceRequestProto) {
+  private void handle(final ResourceRequestProto resourceRequestProto) {
 
     final ResourceRequest request = Records.newRecord(ResourceRequest.class);
 
@@ -449,22 +449,30 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
     org.apache.hadoop.yarn.api.records.Resource capability =
         Records.newRecord(org.apache.hadoop.yarn.api.records.Resource.class);
-    int memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(), 512, registration.getMaximumResourceCapability().getMemory());
+
+    final int memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(),
+        512, registration.getMaximumResourceCapability().getMemory());
+
     LOG.log(Level.FINE, "Request memory: {0} MB", memory);
     capability.setMemory(memory);
     request.setCapability(capability);
 
-    final boolean relax_locality = resourceRequestProto.hasRelaxLocality() ? resourceRequestProto.getRelaxLocality() : true;
+    final boolean relax_locality =
+        !resourceRequestProto.hasRelaxLocality() || resourceRequestProto.getRelaxLocality();
+
     for (int i = 0; i < resourceRequestProto.getResourceCount(); i++) {
-      this.resourceManager.addContainerRequest(new AMRMClient.ContainerRequest(capability, nodes, racks, pri, relax_locality));
+      this.resourceManager.addContainerRequest(
+          new AMRMClient.ContainerRequest(capability, nodes, racks, pri, relax_locality));
     }
+
     this.requestedContainerCount += resourceRequestProto.getResourceCount();
   }
 
   /**
    * Update the driver with my current status
    */
-  private final void updateRuntimeStatus() {
+  private void updateRuntimeStatus() {
+
     final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder =
         DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
             .setName(RUNTIME_NAME)
@@ -480,7 +488,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.runtimeStatusHandlerEventHandler.onNext(builder.build());
   }
 
-  private final void onRuntimeError(final Throwable throwable) {
+  private void onRuntimeError(final Throwable throwable) {
     // SHUTDOWN YARN
     try {
       resourceAllocationHandler.close();
@@ -600,7 +608,6 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   }
 
   final class ResourceRequestHandlerImpl implements ResourceRequestHandler {
-
     @Override
     public void onNext(final ResourceRequestProto resourceRequestProto) {
       handle(resourceRequestProto);
