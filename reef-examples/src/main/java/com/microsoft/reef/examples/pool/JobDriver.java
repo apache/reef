@@ -135,10 +135,14 @@ public final class JobDriver {
       }
 
       if (runActivity) {
+
         final String contextId = String.format("Context_%06d", nEval);
         final String activityId = String.format("StartActivity_%08d", nActivity);
+
+        LOG.log(Level.INFO, "TIME: Submit Context {0}", contextId);
         LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
                 new Object[] { activityId, eval.getId() });
+
         try {
           final JavaConfigurationBuilder contextConfigBuilder =
               Tang.Factory.getTang().newConfigurationBuilder();
@@ -159,6 +163,16 @@ public final class JobDriver {
         LOG.log(Level.INFO, "TIME: Close Evaluator {0}", eval.getId());
         eval.close();
       }
+    }
+  }
+
+  /**
+   * Receive notification that the Context is active.
+   */
+  final class ActiveContextHandler implements EventHandler<ActiveContext> {
+    @Override
+    public void onNext(final ActiveContext context) {
+      LOG.log(Level.INFO, "TIME: Active Context {0}", context.getId());
     }
   }
 

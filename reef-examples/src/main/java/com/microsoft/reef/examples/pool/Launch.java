@@ -186,6 +186,7 @@ public final class Launch {
               .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
               .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
+              .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
               .set(DriverConfiguration.ON_ACTIVITY_RUNNING, JobDriver.RunningActivityHandler.class)
               .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
