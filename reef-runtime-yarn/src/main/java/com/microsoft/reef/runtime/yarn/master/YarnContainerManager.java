@@ -300,7 +300,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
     final boolean hasContainer;
     synchronized (this.allocatedContainers) {
-      hasContainer = this.allocatedContainers.containsKey(value.getContainerId());
+      hasContainer = this.allocatedContainers.containsKey(value.getContainerId().toString());
     }
 
     if (hasContainer) {
