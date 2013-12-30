@@ -81,6 +81,10 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private final YarnClient yarnClient;
 
+  private final FileSystem fileSystem;
+
+  private final Map<String, LocalResource> globalResources = new HashMap<>();
+
   private final AMRMClientAsync resourceManager;
 
   private final NMClientAsync nodeManager;
@@ -109,7 +113,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorProto> nodeDescriptorProtoEventHandler,
       final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusProto> runtimeStatusProtoEventHandler,
       final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationHandler,
-      final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler) {
+      final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler)
+  throws IOException {
 
     this.globalClassPath = globalClassPath;
     this.clock = clock;
@@ -122,6 +127,17 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
     this.yarnClient = YarnClient.createYarnClient();
     this.yarnClient.init(this.yarnConf);
+
+    this.fileSystem = FileSystem.get(this.yarnConf);
+
+    // GLOBAL FILE RESOURCES
+    final Path globalFilePath =
+        new Path(this.jobSubmissionDirectory, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
+
+    if (this.fileSystem.exists(globalFilePath)) {
+      final FileContext fileContext = FileContext.getFileContext(this.fileSystem.getUri());
+      setResources(this.fileSystem, this.globalResources, fileContext.listStatus(globalFilePath));
+    }
 
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
@@ -331,61 +347,49 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       }
 
       LOG.log(Level.FINEST, "Setting up container launch container for id={0}", container.getId());
-      final FileSystem fs = FileSystem.get(this.yarnConf);
-      final FileContext fileContext = FileContext.getFileContext(fs.getUri());
 
       final Path evaluatorSubmissionDirectory = new Path(this.jobSubmissionDirectory, container.getId().toString());
-      final Map<String, LocalResource> localResources = new HashMap<>();
+      final Map<String, LocalResource> localResources = new HashMap<>(this.globalResources);
 
       // EVALUATOR CONFIGURATION
-
       final File evaluatorConfigurationFile = File.createTempFile("evaluator_" + container.getId(), ".conf");
       LOG.log(Level.FINEST, "TIME: Config ResourceLaunchProto {0} {1}",
               new Object[] { containerId, evaluatorConfigurationFile });
 
       FileUtils.writeStringToFile(evaluatorConfigurationFile, resourceLaunchProto.getEvaluatorConf());
       localResources.put(evaluatorConfigurationFile.getName(),
-          YarnUtils.getLocalResource(fs, new Path(evaluatorConfigurationFile.toURI()),
+          YarnUtils.getLocalResource(this.fileSystem, new Path(evaluatorConfigurationFile.toURI()),
               new Path(evaluatorSubmissionDirectory, evaluatorConfigurationFile.getName())));
 
-      // GLOBAL FILE RESOURCES
-      final Path globalFilePath =
-          new Path(this.jobSubmissionDirectory, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
-      LOG.log(Level.FINEST, "TIME: Global ResourceLaunchProto {0} {1}",
-              new Object[] { containerId, globalFilePath });
-
-      if (fs.exists(globalFilePath)) {
-        setResources(fs, localResources, fileContext.listStatus(globalFilePath));
-      }
-
       // LOCAL FILE RESOURCES
+      LOG.log(Level.FINEST, "TIME: Local ResourceLaunchProto {0}", containerId);
       final StringBuilder localClassPath = new StringBuilder();
       for (final ReefServiceProtos.FileResourceProto file : resourceLaunchProto.getFileList()) {
         final Path src = new Path(file.getPath());
         final Path dst = new Path(this.jobSubmissionDirectory, file.getName());
         switch (file.getType()) {
           case PLAIN:
-            if (fs.exists(dst)) {
+            if (this.fileSystem.exists(dst)) {
               LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: reference {0}", dst);
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, dst));
             } else {
               LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload {0} to {1}", new Object[] { src, dst });
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             }
             break;
           case LIB:
             localClassPath.append(File.pathSeparatorChar + file.getName());
-            if (fs.exists(dst)) {
+            if (this.fileSystem.exists(dst)) {
               LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: reference {0}", dst);
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, dst));
             } else {
               LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload {0} to {1}", new Object[] { src, dst });
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             }
 
             break;
           case ARCHIVE:
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
+            localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             break;
         }
       }
