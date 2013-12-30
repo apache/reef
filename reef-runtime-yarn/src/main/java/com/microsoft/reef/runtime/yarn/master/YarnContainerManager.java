@@ -415,8 +415,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           .build();
 
       final String command = StringUtils.join(commandList, ' ');
-      LOG.log(Level.FINEST, "Launch command: `{0}` with resources: `{1}`",
-              new Object[] { command, localResources });
+      LOG.log(Level.FINEST, "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
+          new Object[] { containerId, command, localResources });
 
       final ContainerLaunchContext ctx = YarnUtils.getContainerLaunchContext(command, localResources);
       nodeManager.startContainerAsync(container, ctx);
