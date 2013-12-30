@@ -318,7 +318,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     try {
 
       final String containerId = resourceLaunchProto.getIdentifier();
-      LOG.log(Level.FINEST, "Launch container {0}", containerId);
+      LOG.log(Level.FINEST, "TIME: YCM Start {0}", containerId);
 
       final Container container;
       synchronized (this.allocatedContainers) {
@@ -338,14 +338,21 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final Map<String, LocalResource> localResources = new HashMap<>();
 
       // EVALUATOR CONFIGURATION
+
       final File evaluatorConfigurationFile = File.createTempFile("evaluator_" + container.getId(), ".conf");
+      LOG.log(Level.FINEST, "TIME: YCM Config {0} {1}",
+              new Object[] { containerId, evaluatorConfigurationFile });
+
       FileUtils.writeStringToFile(evaluatorConfigurationFile, resourceLaunchProto.getEvaluatorConf());
       localResources.put(evaluatorConfigurationFile.getName(),
           YarnUtils.getLocalResource(fs, new Path(evaluatorConfigurationFile.toURI()),
               new Path(evaluatorSubmissionDirectory, evaluatorConfigurationFile.getName())));
 
       // GLOBAL FILE RESOURCES
-      final Path globalFilePath = new Path(this.jobSubmissionDirectory, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
+      final Path globalFilePath =
+          new Path(this.jobSubmissionDirectory, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
+      LOG.log(Level.FINEST, "TIME: YCM Global {0} {1}", new Object[] { containerId, globalFilePath });
+
       if (fs.exists(globalFilePath)) {
         setResources(fs, localResources, fileContext.listStatus(globalFilePath));
       }
@@ -412,6 +419,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
       final ContainerLaunchContext ctx = YarnUtils.getContainerLaunchContext(command, localResources);
       nodeManager.startContainerAsync(container, ctx);
+
+      LOG.log(Level.FINEST, "TIME: YCM End {0}", containerId);
 
     } catch (final Throwable e) {
       LOG.log(Level.WARNING, "Error handling resource launch message: " + resourceLaunchProto, e);
