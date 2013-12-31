@@ -49,7 +49,7 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
   public final static class YarnConfigurationFile implements Name<String> {}
 
   // DUTY CYCLE
-  @NamedParameter(doc="How often we talk to YARN.", default_value="500")
+  @NamedParameter(doc="How often we talk to YARN.", default_value="1000")
   public final static class YarnHeartbeatPeriod implements Name<Integer> {}
 
   // GLOBAL DIRECTORY CLASS PATH
