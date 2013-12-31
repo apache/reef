@@ -8,10 +8,17 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
 /**
- * A builder for TANG configurations.
+ * Convenience methods that extend the ConfigurationBuilder but assume that
+ * the underlying ClassHierarchy delegates to the default Java classloader. 
+ *
+ * In addition to being less verbose, this interface expresses many of Tang's
+ * type checks in Java's generic type system.  This improves IDE
+ * auto-completion.  It also allows the errors to be caught at compile time
+ * instead of later on in the build process, or at runtime.
  * 
- * @author sears
- * 
+ * @see ConfigurationModule which pushes additional type checks to class load
+ *    time.  This allows Tint, Tang's static analysis tool, to detect a wide
+ *    range of runtime configuration errors at build time.   
  */
 public interface JavaConfigurationBuilder extends ConfigurationBuilder {
 

@@ -4,7 +4,11 @@ import java.net.URL;
 
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.implementation.TangImpl;
-
+/**
+ * The root factory interface for Tang.  This interface allows callers to
+ * instantiate Tang's core API, and is responsible for memoization and other
+ * runtime optimizations. 
+ */
 public interface Tang {
 
   /**
@@ -25,26 +29,46 @@ public interface Tang {
    * Returns an Injector based on an empty Configuration.
    */
   public Injector newInjector();
-  
+  /**
+   * Return a new ConfigurationBuilder that is backed by the provided
+   * ClassHierarchy object.
+   * @param ch Any valid Tang ClassHierarchy, including ones derived from non-Java application binaries.
+   * @return an instance of ConfigurationBuilder.  In Tang's default implementation this returns an instance or JavaConfigurationBuilder if ch is backed by a Java classloader.
+   */
   public ConfigurationBuilder newConfigurationBuilder(ClassHierarchy ch);
 
   /**
-   * Create a new ConfigurationBuilder
+   * Create a new ConfigurationBuilder that is backed by the default
+   * classloader and the provided jars.  Following standard Java's semantics,
+   * when looking up a class, Tang will consult the default classloader first,
+   * then the first classpath entry / jar passed to this method, then the
+   * second, and so on. 
    * 
-   * @return a new ConfigurationBuilder
+   * @return a new JavaConfigurationBuilder
    */
   public JavaConfigurationBuilder newConfigurationBuilder(URL... jars);
 
   /**
-   * Create a new ConfigurationBuilder
+   * Merge a set of configurations into a new JavaConfiurationBuilder.  If
+   * the configurations conflict, this method will throw a bind exception.
+   * 
+   * The underlying ClassHierarchies and parameter parsers of the
+   * configurations will be checked for consistency.  The returned
+   * configuration builder will be backed by a ClassHierachy that incorporates
+   * the classpath and parsers from all of the provided Configurations.
    * 
    * @return a new ConfigurationBuilder
+   * @throws BindException if any of the configurations contain duplicated or
+   *    conflicting bindings, or if the backing ClassHierarchy objects conflict
+   *    in some way.
    */
   public JavaConfigurationBuilder newConfigurationBuilder(Configuration... confs)
       throws BindException;
  
   /**
-   * Create a new ConfigurationBuilder
+   * Create an empty JavaConfigurationBuilder that is capable of parsing
+   * application-specific configuration values.  The returned
+   * JavaConfigurationBuilder will be backed by the default classloader.   
    * 
    * @return a new ConfigurationBuilder
    */
@@ -52,30 +76,51 @@ public interface Tang {
       throws BindException;
 
   /**
-   * Create a new ConfigurationBuilder
+   * Create a new JavaConfiguration builder that has additional jars,
+   * incorporates existing configuration data and / or can parse
+   * application-specific types.
    * 
-   * @return a new ConfigurationBuilder
+   * @see The documentation for the other newConfigurationBuilder methods in
+   *      this class for detailed information about each of the parameters to
+   *      this method.
    */
   public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
       Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers) throws BindException;
 
   /**
-   * Create a new ConfigurationBuilder
-   * 
-   * @return a new ConfigurationBuilder
-   * 
+   * Create a new empty ConfigurationBuilder that is backed by the default
+   * classloader.
    */
   public JavaConfigurationBuilder newConfigurationBuilder();
 
   /**
-   * Access to a ConfigurationBuilderImpl implementation
+   * A factory that returns the default implementation of the Tang interface.
    */
   public final class Factory {
+    /**
+     * Return an instance of the default implementation of Tang.
+     * @return
+     */
     public static Tang getTang() {
       return new TangImpl();
     }
   }
+  /**
+   * @return an instance of JavaClassHierarchy that is backed by the default
+   *   Java classloader.  ClassHierarchy objects are immutable, so multiple
+   *   invocations of this method may return the same instance.
+   */
   public JavaClassHierarchy getDefaultClassHierarchy();
+  /**
+   * @return a custom instance of JavaClassHierarchy.  ClassHierarchy objects
+   *   are immutable, so multiple invocations of this method may return the
+   *   same instance.
+   *   
+   * @TODO Is the class hierarchy returned here backed by the default
+   *   classloader or not?  If not, then callers will need to merge it with
+   *   getDefaultClassHierarchy().  If so, we should add a new method like
+   *   getNonDefaultClassHiearchy() that takes the same options as this one.
+   */
   public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars, Class<? extends ExternalConstructor<?>>[] parsers);
 
 
