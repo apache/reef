@@ -1,6 +1,18 @@
 Wake
 ====
-Event driven framework based on ideas from SEDA, Click, Akka and Rx.
+Wake is an event-driven framework based on ideas from SEDA, Click, Akka and Rx.
+
+Background - thread pools, context switching overheads, teardown / setup compleixity / performance / debugging
+
+Core API
+
+Helper libraries
+
+Stage implementations
+
+Profiling
+
+Debugging
 
 THIRD PARTY SOFTWARE 
 --------------------
