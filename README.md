@@ -28,13 +28,38 @@ Wake is designed to work with [Tang](https://github.com/Microsoft-CISL/Tang/), a
 Core API
 --------
 
+Wake provides two APIs for event handler implementations.  The first is the *EventHandler* interface:
+```java
+public interface EventHandler<T> {
+  void onNext(T value);
+}
+```
+Callers of onNext() should assume that it is asynchronous, and that it always succeeds.  Any errors should be reported by throwing a runtime exception (which should not be caught, and will instead take down the process), or by invoking an event handler that indicates an error has occurred.
+
+The latter approach is formalized in Wake's simplified version of the Rx *Observer* interface:
+```java
+public interface Observer<T> {
+  void onNext(final T value);
+  void onError(final Exception error);
+  void onCompleted();
+}
+```
+The `Observer` interface is designed for stateful event handlers that need to be explicitly torn down at exit.  Such event handlers may maintain open nextwork sockets, write to disk, buffer output, and so on.  As with `onNext()`, neither `onError()` or `onCompleted()` throw exceptions; instead, callers should assume that they are asynchronously invoked.
+
+`EventHandler` and `Observer` implementations should be threadsafe, and handle concurrent invocations of `onNext()`.  However, it is illegal to call `onCompleted()` or `onError()` in race with any calls to `onNext()`, and the call to `onCompleted()` or `onError()` must be the last call made to the object.  Therefore, implementations of `onCompleted()` an `onError()` can assume they have a lock on `this`, and that `this` has not been torn down and is still in a valid state.
+
+In practice, these invariants are extremely easy to maintain.  In most cases, application logic simply limits calls to `onCompleted()` and `onError()` to other implementations of `onError()` and `onCompleted()`, and relies upon Wake (and any intervening application logic) to obey the concurrency control protocol described here.
+
+TODO: Explain Stage API.
+
 Helper libraries
+----------------
 
 Stage implementations
+---------------------
 
 Profiling
-
-Debugging
+---------
 
 THIRD PARTY SOFTWARE 
 --------------------
