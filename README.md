@@ -14,7 +14,7 @@ Early event driven systems such as SEDA executed each event handler in a dedicat
 
 This is in contrast to event-driven systems such as the Click modular router that were designed to maximize throughput for predictable, low latency event-handlers.  When possible, Click agressively chains event handlers together, reducing the cost of an event dispatch to that of a function call, and allowing the compiler to perform optimizations such as inlining and constant propagation across event handlers.
 
-Wake allows developers to trade off between these two extremes by explicitly partitioning their event handlers into stages.
+Wake allows developers to trade off between these two extremes by explicitly partitioning their event handlers into stages.  Within a stage, event handlers engage in *thread-sharing* by simply calling each other directly.  When an event crosses a stage boundary, it is typically placed in a queue of similar events.  The queue is then drained by the threads managed by the recieving stage.
 
 Although event handling systems improve upon threaded performance in theory, they are notoriously difficult to reason about.  We kept this in mind while designing Wake, and have gone to great pains to ensure that its APIs are simple and easy to implement without sacrificing our performance goals.
 
