@@ -18,17 +18,17 @@ Wake allows developers to trade off between these two extremes by explicitly par
 
 Although event handling systems improve upon threaded performance in theory, they are notoriously difficult to reason about.  We kept this in mind while designing Wake, and have gone to great pains to ensure that its APIs are simple and easy to implement without sacrificing our performance goals.
 
-Other event driven systems provide support for so-called "push based" and "pull based" event handlers.  Push-based event systems have event sources invoke event handlers that are exposed by destinations, while pull-based APIs have the destination code invoke iterators to obtain the next available event.  Wake is completely push based.  This eliminates the need for push and pull based variants of event handling logic, and also allowed us to unify all error handling in Wake into a single API.
+Other event driven systems provide support for so-called "push based" and "pull based" event handlers.  In push-based systems, event sources invoke event handlers that are exposed by the events' destinations, while pull-based APIs have the destination code invoke iterators to obtain the next available event from the source.  Wake is completely push based.  This eliminates the need for push and pull based variants of event handling logic, and also allowed us to unify all error handling in Wake into a single API.  It is always possible to convert between push and pull based APIs by inserting a queue and a thread boundary between the push and pull based code.  Wake supports libraries and applications that use this trick, since operating systems and legacy code sometimes expose pull-based APIs.
 
-Systems such as Rx allow event handlers to be dynamically registered and torn down at runtime, allowing applications to evolve over time.  This leads to complicated setup and teardown protocols, where event handlers need to reason about the state of upstream and downstream handlers, both during setup and teardown, but also when routing messages at runtime.  It also encourages design patterns such as dynamic event dispatching that break standard compiler other programming language optimizations.  In contrast, Wake applications consist of immutable graphs of event handlers that are built up from sink to source.  This ensures that, once an event handler has been instantiated, all downstream handlers are ready to receive messages.
+Systems such as Rx allow event handlers to be dynamically registered and torn down at runtime, allowing applications to evolve over time.  This leads to complicated setup and teardown protocols, where event handlers need to reason about the state of upstream and downstream handlers, both during setup and teardown, but also when routing messages at runtime.  It also encourages design patterns such as dynamic event dispatching that break standard compiler optimizations.  In contrast, Wake applications consist of immutable graphs of event handlers that are built up from sink to source.  This ensures that, once an event handler has been instantiated, all downstream handlers are ready to receive messages.
 
-Wake is designed to work with [Tang](https://github.com/Microsoft-CISL/Tang/), a dependency injection and configuation management system that focuses on static checking and debuggability.  This makes it extremely easy to wire up complicated graphs of event handling logic.  In addition to making easy to build up event-driven applications, Tang provides a range of configuration procesing and static analysis utilities.  It also provides some simple aspect-style programming primitives that allowed us to implement latency and throughput profilers for Wake.
+Wake is designed to work with [Tang](https://github.com/Microsoft-CISL/Tang/), a dependency injection system that focuses on configuration and debuggability.  This makes it extremely easy to wire up complicated graphs of event handling logic.  In addition to making it easy to build up event-driven applications, Tang provides a range of static analysis tools and provides a simple aspect-style programming facility that supports Wake's latency and throughput profilers.
 
 
 Core API
 --------
 
-Wake provides two APIs for event handler implementations.  The first is the *EventHandler* interface:
+Wake provides two APIs for event handler implementations.  The first is the [EventHandler](wake/src/main/java/com/microsoft/wake/EventHandler.java) interface:
 ```java
 public interface EventHandler<T> {
   void onNext(T value);
@@ -36,7 +36,7 @@ public interface EventHandler<T> {
 ```
 Callers of onNext() should assume that it is asynchronous, and that it always succeeds.  Any errors should be reported by throwing a runtime exception (which should not be caught, and will instead take down the process), or by invoking an event handler that indicates an error has occurred.
 
-The latter approach is formalized in Wake's simplified version of the Rx *Observer* interface:
+The latter approach is formalized in Wake's simplified version of the Rx [Observer](wake/src/main/java/com/microsoft/wake/rx/Observer.java) interface:
 ```java
 public interface Observer<T> {
   void onNext(final T value);
