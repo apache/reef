@@ -46,9 +46,9 @@ public interface Observer<T> {
 ```
 The `Observer` interface is designed for stateful event handlers that need to be explicitly torn down at exit.  Such event handlers may maintain open nextwork sockets, write to disk, buffer output, and so on.  As with `onNext()`, neither `onError()` or `onCompleted()` throw exceptions; instead, callers should assume that they are asynchronously invoked.
 
-`EventHandler` and `Observer` implementations should be threadsafe, and handle concurrent invocations of `onNext()`.  However, it is illegal to call `onCompleted()` or `onError()` in race with any calls to `onNext()`, and the call to `onCompleted()` or `onError()` must be the last call made to the object.  Therefore, implementations of `onCompleted()` an `onError()` can assume they have a lock on `this`, and that `this` has not been torn down and is still in a valid state.
+`EventHandler` and `Observer` implementations should be threadsafe, and handle concurrent invocations of `onNext()`.  However, it is illegal to call `onCompleted()` or `onError()` in race with any calls to `onNext()`, and the call to `onCompleted()` or `onError()` must be the last call made to the object.  Therefore, implementations of `onCompleted()` and `onError()` can assume they have a lock on `this`, and that `this` has not been torn down and is still in a valid state.
 
-In practice, these invariants are extremely easy to maintain.  In most cases, application logic simply limits calls to `onCompleted()` and `onError()` to other implementations of `onError()` and `onCompleted()`, and relies upon Wake (and any intervening application logic) to obey the concurrency control protocol described here.
+In practice, these invariants are extremely easy to maintain.  In most cases, application logic simply limits calls to `onCompleted()` and `onError()` to other implementations of `onError()` and `onCompleted()`, and relies upon Wake (and any intervening application logic) to obey the same protocol.
 
 TODO: Explain Stage API.
 
