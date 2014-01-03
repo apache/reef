@@ -28,6 +28,8 @@ Wake is designed to work with [Tang](https://github.com/Microsoft-CISL/Tang/), a
 Core API
 --------
 
+### Event Handlers
+
 Wake provides two APIs for event handler implementations.  The first is the [EventHandler](wake/src/main/java/com/microsoft/wake/EventHandler.java) interface:
 ```java
 public interface EventHandler<T> {
@@ -50,10 +52,42 @@ The `Observer` interface is designed for stateful event handlers that need to be
 
 In practice, these invariants are extremely easy to maintain.  In most cases, application logic simply limits calls to `onCompleted()` and `onError()` to other implementations of `onError()` and `onCompleted()`, and relies upon Wake (and any intervening application logic) to obey the same protocol.
 
-TODO: Explain Stage API.
+### Stages
+
+Wake Stages are responsible for resource management.  The base [Stage](wake/src/main/java/com/microsoft/wake/Stage.java) interface is fairly simple:
+
+```java
+public interface Stage extends AutoCloseable { }
+```
+
+The only method it contains is `close()` from auto-closable.  This reflects the fact that Wake stages can either contain `EventHandler`s, as [EStage](wake/src/main/java/com/microsoft/wake/EStage.java) implementations do:
+```java
+public interface EStage<T> extends EventHandler<T>, Stage { }
+```
+or they can contain `Observable`s, as [RxStage](wake/src/main/java/com/microsoft/wake/rx/RxStage.java) implementations do:
+```java
+public interface RxStage<T> extends Observer<T>, Stage { }
+```
+In both cases, the stage simply exposes the same API as the event handling logic that it exposes.  This allows code that produces events to treat downstream stages and raw EventHandlers / Observers interchangebly.   Recall that Wake implements thread sharing by allowing EventHandlers and Observers to directly invoke each other.  Since Stages implement the same interface as raw EventHandlers and Observers, this pushes the placement of thread boundaries and other scheduling tradeoffs to the code that is instantiating the application.  In turn, this greatly simplifies testing and improves the reusability of code written on top of Wake.
+
+#### `close()` vs. `onCompleted()`
+
+It may seem strange that Wake RxStage exposes two close methods: `close()` and `onCompleted()`.  Since `onCompleted()` is part of the Observer API, it may be implemented in an asynchronous fashion.  This makes it difficult for applications to cleanly shut down, since, even after `onCompleted()` has returned, resources may still be held by the downstream code.
+
+In contrast, `close()` is synchronous, and is not allowed to return until all resources have been released.  The upshot is that shutdown sequences in Wake work as follows:  Once the upstream event sources are done calling `onNext()` (and all calls to `onNext()` have returned), `onCompleted()` or `onError()` is called exactly once per stage.  After the `onCompleted()` or `onError()` call to a given stage has returned, `close()` must be called.  Once `close()` returns, all resources have been released, and the JVM may safely exit, or the code that is invoking Wake may proceed under the assumption that no resources or memory have been leaked.  Note that, depending on the implementation of the downstream Stage, there may be a delay between the return of calls such as `onNext()` or `onCompleted()` and their execution.  Therefore, it is possible that the stage will continue to schedule `onNext()` calls after `close()` has been invoked.  It is illegal for stages to drop events on shutdown, so the stage will execute the requests in its queue before it releases resources and returns from `close()`.
+
+`Observer` implementations do not expose a `close()` method, and generally do not invoke `close()`.  Instead, when `onCompleted()` is invoked, it should arrange for `onCompleted()` to be called on any `Observer` instances that `this` directly invokes, free any resources it is holding, and then return.  Since the downstream `onCompleted()` calls are potentially asynchronous, it cannot assume that downstream cleanup completes before it returns.
+
+In a thread pool `Stage`, the final `close()` call will block until there are no more outstanding events queued in the stage.  Once `close()` has been called (and returns) on each stage, no events are left in any queues, and no `Observer` or `EventHandler` objects are holding resources or scheduled on any cores, so shutdown is compelete.
 
 Helper libraries
 ----------------
+
+Wake includes a number of standard library packages:
+
+ - Time allows events to be scheduled in the future, and notifies the application when it starts and when it is being torn down.
+ - Remote provides networking primitives, including hooks into netty (a high-performance event-based networking library for Java).
+ - 
 
 Stage implementations
 ---------------------
