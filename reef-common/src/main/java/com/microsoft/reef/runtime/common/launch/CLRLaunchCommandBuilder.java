@@ -14,8 +14,8 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(CLRLaunchCommandBuilder.class.getName());
   private static final String LAUNCHER_PATH = "Launcher.exe";
 
-  private String stderr_path = null;
-  private String stdout_path = null;
+  private String standardErrPath = null;
+  private String standardOutPath = null;
   private String errorHandlerRID = null;
   private String launchID = null;
   private int megaBytes = 0;
@@ -27,6 +27,12 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
     result.add(LAUNCHER_PATH);
     result.add(errorHandlerRID);
     result.add(evaluatorConfigurationPath);
+    if ((null != this.standardOutPath) && (!standardOutPath.isEmpty())) {
+      result.add(">" + this.standardOutPath);
+    }
+    if ((null != this.standardErrPath) && (!standardErrPath.isEmpty())) {
+      result.add("2>" + this.standardErrPath);
+    }
     LOG.log(Level.INFO, "Launch Exe: {0}", StringUtils.join(result, ' '));
     return result;
   }
@@ -57,13 +63,13 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
 
   @Override
   public CLRLaunchCommandBuilder setStandardOut(final String standardOut) {
-    this.stdout_path = standardOut;
+    this.standardOutPath = standardOut;
     return this;
   }
 
   @Override
   public CLRLaunchCommandBuilder setStandardErr(final String standardErr) {
-    this.stderr_path = standardErr;
+    this.standardErrPath = standardErr;
     return this;
   }
 }
