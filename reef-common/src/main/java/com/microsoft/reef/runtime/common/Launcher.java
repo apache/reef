@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.runtime.common;
 
-import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -141,11 +140,6 @@ public class Launcher {
     logThreads("Threads running after System.exit(): ", Level.FINEST);
   }
 
-  // ------------------------------------------------------------------------------------------------------------------
-  // The below only deals with assembling the command line for a Launcher.
-  // TODO: This needs to cleaned up into a ConfigurationModule, possibly dressed up with a builder for the command line
-  // stuff
-
   /**
    * Pass values of the properties specified in the propNames array as <code>-D...</code>
    * command line parameters. Currently used only to pass logging configuration to child JVMs processes.
@@ -160,27 +154,5 @@ public class Launcher {
         vargs.add(String.format("-D%s=%s", propName, propValue));
       }
     }
-  }
-
-  /**
-   * @deprecated use a LaunchCommandBuilder instead.
-   */
-  @Deprecated
-  public static List<String> getLaunchCommand(final String errorHandlerRID,
-                                              final String launchID,
-                                              final String evaluatorConfigurationPath,
-                                              final String classPath,
-                                              final int memory,
-                                              final String stdout_path,
-                                              final String stderr_path) {
-    return new JavaLaunchCommandBuilder()
-        .setErrorHandlerRID(errorHandlerRID)
-        .setLaunchID(launchID)
-        .setConfigurationFileName(evaluatorConfigurationPath)
-        .setClassPath(classPath)
-        .setMemory(memory)
-        .setStandardOut(stdout_path)
-        .setStandardErr(stderr_path)
-        .build();
   }
 }
