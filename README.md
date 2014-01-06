@@ -85,9 +85,10 @@ Helper libraries
 
 Wake includes a number of standard library packages:
 
- - Time allows events to be scheduled in the future, and notifies the application when it starts and when it is being torn down.
- - Remote provides networking primitives, including hooks into netty (a high-performance event-based networking library for Java).
- - 
+ - ```com.microsoft.wake.time``` allows events to be scheduled in the future, and notifies the application when it starts and when it is being torn down.
+ - ```com.microsoft.wake.remote``` provides networking primitives, including hooks into netty (a high-performance event-based networking library for Java).
+ - ```com.microsoft.wake.metrics``` provides implementations of standard latency and throughput instrumentation.
+ - ```com.microsoft.wake.profiler``` provides a graphical profiler that automatically instruments Tang-based Wake applications.
 
 Stage implementations
 ---------------------
