@@ -37,9 +37,9 @@ public interface EventHandler<T> {
   void onNext(T value);
 }
 ```
-Callers of onNext() should assume that it is asynchronous, and that it always succeeds.  Any errors should be reported by throwing a runtime exception (which should not be caught, and will instead take down the process), or by invoking an event handler that indicates an error has occurred.
+Callers of `onNext()` should assume that it is asynchronous, and that it always succeeds.  Unrecoverable errors should be reported by throwing a runtime exception (which should not be caught, and will instead take down the process).  Recoverable errors are reported by invoking an event handler that contains the appropriate error handling logic.
 
-The latter approach is formalized in Wake's simplified version of the Rx [Observer](wake/src/main/java/com/microsoft/wake/rx/Observer.java) interface:
+The latter approach can be implemented by registering separate event handlers for each type of error.  However, for convenience, it is formalized in Wake's simplified version of the Rx [Observer](wake/src/main/java/com/microsoft/wake/rx/Observer.java) interface:
 ```java
 public interface Observer<T> {
   void onNext(final T value);
@@ -47,11 +47,11 @@ public interface Observer<T> {
   void onCompleted();
 }
 ```
-The `Observer` interface is designed for stateful event handlers that need to be explicitly torn down at exit.  Such event handlers may maintain open nextwork sockets, write to disk, buffer output, and so on.  As with `onNext()`, neither `onError()` or `onCompleted()` throw exceptions; instead, callers should assume that they are asynchronously invoked.
+The `Observer` is designed for stateful event handlers that need to be explicitly torn down at exit, or when errors occor.  Such event handlers may maintain open network sockets, write to disk, buffer output, and so on.  As with `onNext()`, neither `onError()` nor `onCompleted()` throw exceptions.  Instead, callers should assume that they are asynchronously invoked.
 
-`EventHandler` and `Observer` implementations should be threadsafe, and handle concurrent invocations of `onNext()`.  However, it is illegal to call `onCompleted()` or `onError()` in race with any calls to `onNext()`, and the call to `onCompleted()` or `onError()` must be the last call made to the object.  Therefore, implementations of `onCompleted()` and `onError()` can assume they have a lock on `this`, and that `this` has not been torn down and is still in a valid state.
+`EventHandler` and `Observer` implementations should be threadsafe and handle concurrent invocations of `onNext()`.  However, it is illegal to call `onCompleted()` or `onError()` in race with any calls to `onNext()`, and the call to `onCompleted()` or `onError()` must be the last call made to the object.  Therefore, implementations of `onCompleted()` and `onError()` can assume they have a lock on `this`, and that `this` has not been torn down and is still in a valid state.
 
-In practice, these invariants are extremely easy to maintain.  In most cases, application logic simply limits calls to `onCompleted()` and `onError()` to other implementations of `onError()` and `onCompleted()`, and relies upon Wake (and any intervening application logic) to obey the same protocol.
+We chose these invariants because they are simple and easy to enforce.  In most cases, application logic simply limits calls to `onCompleted()` and `onError()` to other implementations of `onError()` and `onCompleted()`, and relies upon Wake (and any intervening application logic) to obey the same protocol.
 
 ### Stages
 
@@ -69,11 +69,11 @@ or they can contain `Observable`s, as [RxStage](wake/src/main/java/com/microsoft
 ```java
 public interface RxStage<T> extends Observer<T>, Stage { }
 ```
-In both cases, the stage simply exposes the same API as the event handling logic that it exposes.  This allows code that produces events to treat downstream stages and raw EventHandlers / Observers interchangebly.   Recall that Wake implements thread sharing by allowing EventHandlers and Observers to directly invoke each other.  Since Stages implement the same interface as raw EventHandlers and Observers, this pushes the placement of thread boundaries and other scheduling tradeoffs to the code that is instantiating the application.  In turn, this greatly simplifies testing and improves the reusability of code written on top of Wake.
+In both cases, the stage simply exposes the same API as the event handler that it manages.  This allows code that produces events to treat downstream stages and raw `EventHandlers` / `Observers` interchangebly.   Recall that Wake implements thread sharing by allowing EventHandlers and Observers to directly invoke each other.  Since Stages implement the same interface as raw EventHandlers and Observers, this pushes the placement of thread boundaries and other scheduling tradeoffs to the code that is instantiating the application.  In turn, this simplifies testing and improves the reusability of code written on top of Wake.
 
 #### `close()` vs. `onCompleted()`
 
-It may seem strange that Wake RxStage exposes two close methods: `close()` and `onCompleted()`.  Since `onCompleted()` is part of the Observer API, it may be implemented in an asynchronous fashion.  This makes it difficult for applications to cleanly shut down, since, even after `onCompleted()` has returned, resources may still be held by the downstream code.
+It may seem strange that Wake RxStage exposes two shutdown methods: `close()` and `onCompleted()`.  Since `onCompleted()` is part of the Observer API, it may be implemented in an asynchronous fashion.  This makes it difficult for applications to cleanly shut down, since, even after `onCompleted()` has returned, resources may still be held by the downstream code.
 
 In contrast, `close()` is synchronous, and is not allowed to return until all resources have been released.  The upshot is that shutdown sequences in Wake work as follows:  Once the upstream event sources are done calling `onNext()` (and all calls to `onNext()` have returned), `onCompleted()` or `onError()` is called exactly once per stage.  After the `onCompleted()` or `onError()` call to a given stage has returned, `close()` must be called.  Once `close()` returns, all resources have been released, and the JVM may safely exit, or the code that is invoking Wake may proceed under the assumption that no resources or memory have been leaked.  Note that, depending on the implementation of the downstream Stage, there may be a delay between the return of calls such as `onNext()` or `onCompleted()` and their execution.  Therefore, it is possible that the stage will continue to schedule `onNext()` calls after `close()` has been invoked.  It is illegal for stages to drop events on shutdown, so the stage will execute the requests in its queue before it releases resources and returns from `close()`.
 
