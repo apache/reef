@@ -15,7 +15,9 @@
  */
 package com.microsoft.reef.io.network.impl;
 
-import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
+import com.microsoft.reef.activity.Activity;
+import com.microsoft.reef.io.Tuple;
+import com.microsoft.reef.driver.activity.ActivityConfiguration;
 import com.microsoft.reef.io.naming.Naming;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.ConnectionFactory;
@@ -30,16 +32,21 @@ import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.Stage;
 import com.microsoft.wake.impl.LoggingEventHandler;
+import com.microsoft.wake.impl.SingleThreadStage;
 import com.microsoft.wake.remote.Codec;
 import com.microsoft.wake.remote.impl.TransportEvent;
 import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
 
 import javax.inject.Inject;
+
+import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Network service for Activity
@@ -58,15 +65,16 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   @Inject
   public NetworkService(
-      final @Parameter(ActivityConfigurationOptions.Identifier.class) String myId,
-      final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
-      final @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
-      final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
-      final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
-      final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
-      final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
-      final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
-      final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
+      //@Parameter(ActivityConfiguration.Identifier.class) String myId,
+      @Parameter(NetworkServiceParameters.ActivityId.class) String myId,
+      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
+      @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
+      @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
+      @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
+      @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
+      @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
+      @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
+      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
 
     this.myId = factory.getNewInstance(myId);
     this.factory = factory;
@@ -74,6 +82,35 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     this.transport = tpFactory.create(nsPort, new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
     this.nameClient = new NameClient(nameServerAddr, nameServerPort, factory, new NameCache(30000));
+    if(nsPort==0){
+      nsPort = transport.getListeningPort();
+      final CountDownLatch registered = new CountDownLatch(1);
+      SingleThreadStage<Tuple<Identifier, InetSocketAddress>> stage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
+
+        @Override
+        public void onNext(Tuple<Identifier, InetSocketAddress> tuple) {
+          
+          try {
+            nameClient.register(tuple.getKey(), tuple.getValue());
+            registered.countDown();
+            LOG.fine("Finished nameservice registration");
+            System.out.println("Finished nameservice registration");
+          } catch (Exception e) {
+            throw new RuntimeException("Unable to register with name service", e);
+          }
+        }
+      }, 5);
+      
+      final Tuple<Identifier,InetSocketAddress> tuple = new Tuple<>(getMyId(), (InetSocketAddress)transport.getLocalAddress());
+      stage.onNext(tuple);
+      try {
+        LOG.log(Level.FINE, "Waiting for nameservice registration");
+        System.out.println("Waiting for nameservice registration");
+        registered.await();
+      } catch (InterruptedException e) {
+        throw new RuntimeException("Interrupted while waiting for name service registration", e);
+      }
+    }
     this.idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
   }
 
@@ -123,6 +160,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     Connection<T> existing = idToConnMap.putIfAbsent(destId, conn);
     return (existing == null) ? conn : existing;
   }
+
 }
 
 class MessageHandler<T> implements EventHandler<TransportEvent> {
@@ -141,4 +179,5 @@ class MessageHandler<T> implements EventHandler<TransportEvent> {
     NSMessage<T> obj = codec.decode(data);
     handler.onNext(obj);
   }
+
 }
