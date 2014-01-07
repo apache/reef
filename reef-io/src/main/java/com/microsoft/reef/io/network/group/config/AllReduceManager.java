@@ -15,13 +15,7 @@
  */
 package com.microsoft.reef.io.network.group.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.microsoft.reef.activity.Activity;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.Message;
@@ -50,38 +44,45 @@ import com.microsoft.wake.impl.LoggingEventHandler;
 import com.microsoft.wake.impl.SingleThreadStage;
 import com.microsoft.wake.remote.Codec;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * 
+ *
  */
 public class AllReduceManager<T> {
-  
+
   /**
    * TANG instance
    */
   private static final Tang tang = Tang.Factory.getTang();
-  
-  private Configuration allRedBaseConf; 
+
+  private Configuration allRedBaseConf;
 
 
-
-  
-  /** Common configs */
+  /**
+   * Common configs
+   */
   private Class<? extends Codec<?>> dataCodecClass;
   private Class<? extends ReduceFunction<?>> redFuncClass;
-  
-  /** {@link NetworkService} related configs */
+
+  /**
+   * {@link NetworkService} related configs
+   */
   private final String nameServiceAddr;
   private final int nameServicePort;
   private Map<ComparableIdentifier, Integer> id2port;
   private final NetworkService<GroupCommMessage> ns;
   private final StringIdentifierFactory idFac = new StringIdentifierFactory();
   private final ComparableIdentifier driverId = (ComparableIdentifier) idFac.getNewInstance("driver");
-  
-  
+
+
   private Map<ComparableIdentifier, Integer> actIdMap;
   private final ComparableIdentifier[] activities;
   private final int numActivities;
-  private int runningActivities; 
+  private int runningActivities;
 
   /**
    * @param dataCodec
@@ -89,20 +90,20 @@ public class AllReduceManager<T> {
    * @param nameServiceAddr
    * @param nameServicePort
    * @param id2port
-   * @throws BindException 
+   * @throws BindException
    */
   public AllReduceManager(Class<? extends Codec<T>> dataCodec, Class<? extends ReduceFunction<T>> redFunc,
-      String nameServiceAddr, int nameServicePort,
-      Map<ComparableIdentifier, Integer> id2port) throws BindException {
+                          String nameServiceAddr, int nameServicePort,
+                          Map<ComparableIdentifier, Integer> id2port) throws BindException {
     dataCodecClass = dataCodec;
     redFuncClass = redFunc;
     this.nameServiceAddr = nameServiceAddr;
     this.nameServicePort = nameServicePort;
     this.id2port = id2port;
     actIdMap = new HashMap<ComparableIdentifier, Integer>();
-    int i=1;
-    activities = new ComparableIdentifier[id2port.size()+1];
-    for(ComparableIdentifier id : id2port.keySet()){
+    int i = 1;
+    activities = new ComparableIdentifier[id2port.size() + 1];
+    for (ComparableIdentifier id : id2port.keySet()) {
       activities[i] = id;
       actIdMap.put(id, i++);
     }
@@ -124,22 +125,22 @@ public class AllReduceManager<T> {
     jcb.bindNamedParameter(NameServerParameters.NameServerPort.class,
         Integer.toString(nameServicePort));
     allRedBaseConf = jcb.build();
-    
+
     ns = new NetworkService<>(driverId.toString(),
         idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
         new MessagingTransportFactory(), new LoggingEventHandler<Message<GroupCommMessage>>(),
         new LoggingEventHandler<Exception>());
   }
-  
+
   /**
    * @param activity
    * @return
    */
   public synchronized double estimateVarInc(ComparableIdentifier activity) {
-    double actVarDrop = 1.0/numActivities;
+    double actVarDrop = 1.0 / numActivities;
     int childrenLost = getChildren(activity) + 1;
-    double curVarDrop = 1.0/(runningActivities-childrenLost);
-    return (curVarDrop/actVarDrop) - 1;
+    double curVarDrop = 1.0 / (runningActivities - childrenLost);
+    return (curVarDrop / actVarDrop) - 1;
   }
 
   /**
@@ -149,25 +150,23 @@ public class AllReduceManager<T> {
   private synchronized int getChildren(ComparableIdentifier activity) {
     int idx = actIdMap.get(activity);
     int leftChildren, rightChildren;
-    if(leftChild(idx)>numActivities){
+    if (leftChild(idx) > numActivities) {
       return 0;
-    }
-    else{
+    } else {
       leftChildren = getChildren(activities[leftChild(idx)]) + 1;
-      if(rightChild(idx)>numActivities){
+      if (rightChild(idx) > numActivities) {
         return leftChildren;
-      }
-      else{
+      } else {
         rightChildren = getChildren(activities[rightChild(idx)]) + 1;
       }
     }
     return leftChildren + rightChildren;
   }
 
-  
+
   /**
    * @param failedActId
-   * @throws NetworkException 
+   * @throws NetworkException
    */
   public synchronized void remove(ComparableIdentifier failedActId) {
     System.out.println("All Reduce Manager removing " + failedActId);
@@ -192,14 +191,14 @@ public class AllReduceManager<T> {
     senderStage.onNext(srcDeadMsg);
     --runningActivities;
   }
-  
+
   /**
    * @return
    */
   public List<ComparableIdentifier> getReceivers() {
     List<ComparableIdentifier> retVal = new ArrayList<>();
-    int end = (numActivities==1) ? 1 : parent(numActivities);
-    for(int i=1;i<=end;i++)
+    int end = (numActivities == 1) ? 1 : parent(numActivities);
+    for (int i = 1; i <= end; i++)
       retVal.add(activities[i]);
     return retVal;
   }
@@ -209,47 +208,47 @@ public class AllReduceManager<T> {
    */
   public List<ComparableIdentifier> getSenders() {
     List<ComparableIdentifier> retVal = new ArrayList<>();
-    int start = (numActivities==1) ? 1 : parent(numActivities);
-    for(int i=start + 1;i<=numActivities;i++)
+    int start = (numActivities == 1) ? 1 : parent(numActivities);
+    for (int i = start + 1; i <= numActivities; i++)
       retVal.add(activities[i]);
     return retVal;
   }
-  
-  private int parent(int i){
+
+  private int parent(int i) {
     return i >> 1;
   }
-  
-  private int leftChild(int i){
+
+  private int leftChild(int i) {
     return i << 1;
   }
-  
-  private int rightChild(int i){
+
+  private int rightChild(int i) {
     return (i << 1) + 1;
   }
 
   /**
    * @param actId
    * @return
-   * @throws BindException 
+   * @throws BindException
    */
   public Configuration getConfig(ComparableIdentifier actId) throws BindException {
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(allRedBaseConf);
     jcb.bindNamedParameter(AllReduceConfig.SelfId.class, actId.toString());
     List<ComparableIdentifier> ids = new ArrayList<>();
     int idx = actIdMap.get(actId);
-    if(idx!=1){
+    if (idx != 1) {
       ComparableIdentifier par = activities[parent(idx)];
       ids.add(par);
       jcb.bindNamedParameter(AllReduceConfig.ParentId.class, par.toString());
     }
 
     int lcId = leftChild(idx);
-    if(lcId<=numActivities){
+    if (lcId <= numActivities) {
       ComparableIdentifier lc = activities[lcId];
       ids.add(lc);
       jcb.bindSetEntry(AllReduceConfig.ChildIds.class, lc.toString());
       int rcId = rightChild(idx);
-      if(rcId <= numActivities){
+      if (rcId <= numActivities) {
         ComparableIdentifier rc = activities[rcId];
         ids.add(rc);
         jcb.bindSetEntry(AllReduceConfig.ChildIds.class, rc.toString());
@@ -259,7 +258,7 @@ public class AllReduceManager<T> {
     jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, actId, ids, id2port.get(actId)));
     return jcb.build();
   }
-  
+
   /**
    * Create {@link Configuration} for {@link GroupCommNetworkHandler}
    * using base conf + list of identifiers
@@ -296,7 +295,7 @@ public class AllReduceManager<T> {
     JavaConfigurationBuilder jcb = tang
         .newConfigurationBuilder();
 
-    jcb.bindNamedParameter(ActivityConfiguration.Identifier.class, self.toString());
+    jcb.bindNamedParameter(ActivityConfigurationOptions.Identifier.class, self.toString());
     jcb.bindNamedParameter(
         NetworkServiceParameters.NetworkServicePort.class,
         Integer.toString(nsPort));
@@ -304,10 +303,6 @@ public class AllReduceManager<T> {
     jcb.addConfiguration(createHandlerConf(ids));
     return jcb.build();
   }
-
-
-
-
 
 
 }

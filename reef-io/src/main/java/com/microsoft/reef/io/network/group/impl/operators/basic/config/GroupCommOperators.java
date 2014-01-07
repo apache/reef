@@ -16,6 +16,7 @@
 package com.microsoft.reef.io.network.group.impl.operators.basic.config;
 
 import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.reef.io.network.group.impl.ExceptionHandler;
 import com.microsoft.reef.io.network.group.impl.GCMCodec;
 import com.microsoft.reef.io.network.group.impl.GroupCommNetworkHandler;
@@ -61,7 +62,7 @@ public class GroupCommOperators {
         .bindImplementation(GroupCommNetworkHandler.class, GroupCommNetworkHandler.class)
         .bindNamedParameter(NameServerParameters.NameServerAddr.class, NAME_SERVICE_ADDRESS)
         .bindNamedParameter(NameServerParameters.NameServerPort.class, NAME_SERVICE_PORT)
-        .bindNamedParameter(ActivityConfiguration.Identifier.class, SELF)
+        .bindNamedParameter(ActivityConfigurationOptions.Identifier.class, SELF)
         .bindNamedParameter(GroupCommNetworkHandler.IDs.class, ID_LIST_STRING)
         .bindNamedParameter(NetworkServiceParameters.NetworkServicePort.class, NETWORK_SERVICE_PORT)
         .build();
