@@ -18,14 +18,15 @@ package com.microsoft.reef.runtime.yarn.client;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.Launcher;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.master.YarnMasterConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
 import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationFile;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -174,28 +175,30 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // SET MEMORY RESOURCE
       final int amMemory = YarnUtils.getMemorySize(jobSubmissionProto.hasDriverSize() ? jobSubmissionProto.getDriverSize() : ReefServiceProtos.SIZE.SMALL,
           MIN_REEF_MASTER_MEMORY, applicationResponse.getMaximumResourceCapability().getMemory());
-      Resource capability = Records.newRecord(Resource.class);
+      final Resource capability = Records.newRecord(Resource.class);
       capability.setMemory(amMemory);
       applicationSubmissionContext.setResource(capability);
 
       final String classPath = "".equals(localClassPath.toString()) ?
-          globalClassPath.toString() : localClassPath.toString() + ":" + globalClassPath.toString();
+          globalClassPath.toString() : localClassPath.toString() + File.pathSeparatorChar + globalClassPath.toString();
 
       // SET EXEC COMMAND
-      final List<String> launchCommandList = Launcher.getLaunchCommand(jobSubmissionProto.getRemoteId(), jobSubmissionProto.getIdentifier(), masterConfigurationFile.getName(),
-          classPath, amMemory, ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stdout", ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stderr");
-
-      final StringBuilder launchCommandBuilder = new StringBuilder();
-      for (final String s : launchCommandList) {
-        launchCommandBuilder.append(s + " ");
-      }
-      final String launchCommand = launchCommandBuilder.toString();
+      final List<String> launchCommandList = new JavaLaunchCommandBuilder()
+          .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
+          .setLaunchID(jobSubmissionProto.getIdentifier())
+          .setConfigurationFileName(masterConfigurationFile.getName())
+          .setClassPath(classPath)
+          .setMemory(amMemory)
+          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stdout")
+          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stderr")
+          .build();
+      final String launchCommand = StringUtils.join(launchCommandList, ' ');
       LOG.info("LAUNCH COMMAND: " + launchCommand);
 
-      ContainerLaunchContext containerContext = YarnUtils.getContainerLaunchContext(launchCommand, localResources);
+      final ContainerLaunchContext containerContext = YarnUtils.getContainerLaunchContext(launchCommand, localResources);
       applicationSubmissionContext.setAMContainerSpec(containerContext);
 
-      Priority pri = Records.newRecord(Priority.class);
+      final Priority pri = Records.newRecord(Priority.class);
       pri.setPriority(jobSubmissionProto.hasPriority() ? jobSubmissionProto.getPriority() : 0);
       applicationSubmissionContext.setPriority(pri);
 

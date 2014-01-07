@@ -18,8 +18,8 @@ package com.microsoft.reef.runtime.local.client;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
-import com.microsoft.reef.runtime.common.Launcher;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.local.driver.LocalDriverConfiguration;
 import com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.local.driver.RunnableProcess;
@@ -118,14 +118,13 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final File runtimeConfigurationFile = new File(driverFolder, DRIVER_CONFIGURATION_FILE_NAME);
       ConfigurationFile.writeConfigurationFile(driverConfiguration, runtimeConfigurationFile);
 
-      final List<String> command = Launcher.getLaunchCommand(t.getRemoteId(),
-          t.getIdentifier(),
-          DRIVER_CONFIGURATION_FILE_NAME,
-          driverFiles.getClassPath(),
-          DRIVER_MEMORY,
-          null,
-          null
-      );
+      final List<String> command = new JavaLaunchCommandBuilder()
+          .setErrorHandlerRID(t.getRemoteId())
+          .setLaunchID(t.getIdentifier())
+          .setConfigurationFileName(DRIVER_CONFIGURATION_FILE_NAME)
+          .setClassPath(driverFiles.getClassPath())
+          .setMemory(DRIVER_MEMORY)
+          .build();
 
       final RunnableProcess process = new RunnableProcess(command, "driver", driverFolder);
       this.executor.submit(process);
