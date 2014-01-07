@@ -154,6 +154,7 @@ public final class DriverLauncher {
           final long waitTime = endTime - System.currentTimeMillis();
           if (waitTime > 0) {
             this.wait(waitTime);
+              LOG.log(Level.FINE, "Waited for " + waitTime + " milliSeconds");
           } else {
             break;
           }
