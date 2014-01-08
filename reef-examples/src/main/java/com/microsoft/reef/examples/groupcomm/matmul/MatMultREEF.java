@@ -44,7 +44,7 @@ public final class MatMultREEF {
           .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, MatMultDriver.CompletedActivityHandler.class)
           .set(DriverConfiguration.ON_CONTEXT_ACTIVE, MatMultDriver.ActiveContextHandler.class)
           .build();
-      return DriverLauncher.getLauncher(runtimeConfiguration).run(driverConfiguration, 1000000);
+      return DriverLauncher.getLauncher(runtimeConfiguration).run(driverConfiguration, 100000);
     } catch (final BindException | InjectionException ex) {
       LOG.log(Level.SEVERE, "Fatal Exception during job", ex);
       return LauncherStatus.FAILED(ex);
