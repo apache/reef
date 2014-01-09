@@ -27,10 +27,10 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
 
   public final static String GLOBAL_FILE_DIRECTORY = "global";
 
-	public YarnMasterConfiguration() {
-		super(YarnContainerManager.ResourceLaunchHandlerImpl.class,
-			  YarnContainerManager.ResourceReleaseHandlerImpl.class,
-			  YarnContainerManager.ResourceRequestHandlerImpl.class);
+  public YarnMasterConfiguration() {
+    super(YarnContainerManager.ResourceLaunchHandlerImpl.class,
+        YarnContainerManager.ResourceReleaseHandlerImpl.class,
+        YarnContainerManager.ResourceRequestHandlerImpl.class);
     try {
       this.builder.bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class);
       this.builder.bindSetEntry(Clock.RuntimeStartHandler.class, YarnContainerManager.RuntimeStartHander.class);
@@ -38,50 +38,50 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
     } catch (BindException e) {
       throw new RuntimeException(e);
     }
-	}
+  }
 
-	// JOB SUBMISSION DIRECTORY
-	@NamedParameter(doc="The job submission directory.")
-	public final static class JobSubmissionDirectory implements Name<String> {}
-	
-	// YarnConfiguration File
-	@NamedParameter(doc="The YARN configuration file name.")
-	public final static class YarnConfigurationFile implements Name<String> {}
+  // JOB SUBMISSION DIRECTORY
+  @NamedParameter(doc="The job submission directory.")
+  public final static class JobSubmissionDirectory implements Name<String> {}
 
-	// DUTY CYCLE
-	@NamedParameter(doc="How often we talk to YARN.", default_value="1000")
-	public final static class YarnHeartbeatPeriod implements Name<Integer> {}
+  // YarnConfiguration File
+  @NamedParameter(doc="The YARN configuration file name.")
+  public final static class YarnConfigurationFile implements Name<String> {}
+
+  // DUTY CYCLE
+  @NamedParameter(doc="How often we talk to YARN.", default_value="1000")
+  public final static class YarnHeartbeatPeriod implements Name<Integer> {}
 
   // GLOBAL DIRECTORY CLASS PATH
   @NamedParameter(doc="The global file class path.", default_value="")
   public final static class GlobalFileClassPath implements Name<String> {}
 
-	public final YarnMasterConfiguration setJobSubmissionDirectory(final String path) {
-		try {
-			this.builder.bindNamedParameter(JobSubmissionDirectory.class, path);
-			return this;
-		} catch (BindException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public final YarnMasterConfiguration setYarnConfigurationFile(final String file) {
-		try {
-			this.builder.bindNamedParameter(YarnConfigurationFile.class, file);
-			return this;
-		} catch (BindException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  public final YarnMasterConfiguration setJobSubmissionDirectory(final String path) {
+    try {
+      this.builder.bindNamedParameter(JobSubmissionDirectory.class, path);
+      return this;
+    } catch (BindException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-	public final YarnMasterConfiguration setYarnHeartbeatPeriod(final Long period) {
-		try{
-			this.builder.bindNamedParameter(YarnHeartbeatPeriod.class, Long.toString(period));
-			return this;
-		} catch (BindException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  public final YarnMasterConfiguration setYarnConfigurationFile(final String file) {
+    try {
+      this.builder.bindNamedParameter(YarnConfigurationFile.class, file);
+      return this;
+    } catch (BindException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public final YarnMasterConfiguration setYarnHeartbeatPeriod(final Long period) {
+    try{
+      this.builder.bindNamedParameter(YarnHeartbeatPeriod.class, Long.toString(period));
+      return this;
+    } catch (BindException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   public final YarnMasterConfiguration setGlobalFileClassPath(final String classpath) {
     try {
@@ -91,5 +91,4 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
       throw new RuntimeException(e);
     }
   }
-
 }
