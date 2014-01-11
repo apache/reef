@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  */
 public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(CLRLaunchCommandBuilder.class.getName());
-  private static final String LAUNCHER_PATH = "Launcher.exe";
+  private static final String LAUNCHER_PATH = "Launcher.exe";   //"Evaluator.exe";
 
   private String standardErrPath = null;
   private String standardOutPath = null;
