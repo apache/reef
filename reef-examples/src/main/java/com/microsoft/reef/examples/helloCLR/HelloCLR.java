@@ -70,8 +70,8 @@ public final class HelloCLR {
 
     driverConf = EnvironmentUtils.addClasspath(driverConf, DriverConfiguration.GLOBAL_LIBRARIES);
 
-      final File DllsForCLRConfigurationFile = new File(clrFolder, "DllsForCLR.conf");
-      try (PrintWriter clientOut = new PrintWriter(DllsForCLRConfigurationFile)) {
+      final File dllsForCLRConfigurationFile = new File(clrFolder, "DllsForCLR.conf");
+      try (PrintWriter clientOut = new PrintWriter(dllsForCLRConfigurationFile)) {
           clientOut.write("com.microsoft.reef.activity.dll,com.microsoft.reef.ActivityInterface.dll");
       } catch (final FileNotFoundException e) {
           throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
