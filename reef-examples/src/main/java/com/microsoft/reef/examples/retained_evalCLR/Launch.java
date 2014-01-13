@@ -65,7 +65,7 @@ public final class Launch {
     /**
      * Command line parameter: a command to run. e.g. "echo Hello REEF"
      */
-    @NamedParameter(doc = "The shell command", short_name = "cmd", default_value = "*INTERACTIVE*")
+    @NamedParameter(doc = "The shell command", short_name = "cmdCLR", default_value = "*INTERACTIVE*")
     public static final class Command implements Name<String> {
     }
 
@@ -73,7 +73,7 @@ public final class Launch {
      * Command line parameter: number of experiments to run.
      */
     @NamedParameter(doc = "Number of times to run the command",
-            short_name = "num_runs", default_value = "1")
+            short_name = "num_runsCLR", default_value = "1")
     public static final class NumRuns implements Name<Integer> {
     }
 
@@ -81,7 +81,7 @@ public final class Launch {
      * Command line parameter = true to run locally, or false to run on YARN.
      */
     @NamedParameter(doc = "Whether or not to run on the local runtime",
-            short_name = "local", default_value = "true")
+            short_name = "localCLR", default_value = "true")
     public static final class Local implements Name<Boolean> {
     }
 
