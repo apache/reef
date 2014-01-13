@@ -21,6 +21,7 @@ import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 
+import com.microsoft.reef.examples.retained_eval.*;
 import com.microsoft.tang.*;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
@@ -227,7 +228,7 @@ public final class JobDriver {
         cb.addConfiguration(
                 ActivityConfiguration.CONF
                         .set(ActivityConfiguration.IDENTIFIER, activityId)
-                        .set(ActivityConfiguration.ACTIVITY, ShellActivity.class)
+                        .set(ActivityConfiguration.ACTIVITY, com.microsoft.reef.examples.retained_eval.ShellActivity.class)
                         .build());
         cb.bindNamedParameter(Launch.Command.class, command);
         return cb.build();
