@@ -209,10 +209,7 @@ public final class JobDriver {
 
         cb.bind("com.microsoft.reef.activity.IActivity", "Microsoft.Reef.Activity.ShellActivity");
         cb.bind("com.microsoft.reef.driver.activity.ActivityConfigurationOptions.Identifier", activityId);
-        LOG.log(Level.INFO, "++++++++cb:"+cb.toString());
         cb.bind("Microsoft.Reef.Activity.ShellActivity+Command", command);
-        LOG.log(Level.INFO, "--------cb:"+cb.toString());
-
         return cb.build();
     }
 
