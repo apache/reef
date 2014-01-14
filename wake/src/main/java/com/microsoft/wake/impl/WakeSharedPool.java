@@ -1,4 +1,4 @@
-package com.microsoft.wake.taskpools.impl;
+package com.microsoft.wake.impl;
 
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -15,7 +15,6 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.Stage;
 import com.microsoft.wake.WakeParameters;
-import com.microsoft.wake.impl.StageManager;
 
 
 // This implementation uses the fork join framework to reduce the cost of spawning

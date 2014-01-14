@@ -29,9 +29,9 @@ import org.junit.rules.TestName;
 
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.impl.ForkPoolStage;
 import com.microsoft.wake.impl.MultiEventHandler;
-import com.microsoft.wake.taskpools.impl.ForkPoolStage;
-import com.microsoft.wake.taskpools.impl.WakeSharedPool;
+import com.microsoft.wake.impl.WakeSharedPool;
 
 
 public class ForkPoolStageTest {

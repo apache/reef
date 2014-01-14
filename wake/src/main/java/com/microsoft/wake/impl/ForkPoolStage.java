@@ -1,4 +1,4 @@
-package com.microsoft.wake.taskpools.impl;
+package com.microsoft.wake.impl;
 
 import java.util.concurrent.ForkJoinTask;
 import java.util.logging.Logger;
@@ -9,7 +9,6 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.AbstractEStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.StageConfiguration;
-import com.microsoft.wake.impl.StageManager;
 
 /**
  * This Wake event handling stage uses a {@link ForkJoinPool}
