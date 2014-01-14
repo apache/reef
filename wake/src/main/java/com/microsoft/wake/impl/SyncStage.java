@@ -15,12 +15,15 @@
  */
 package com.microsoft.wake.impl;
 
-import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.inject.Inject;
 
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.AbstractEStage;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.StageConfiguration.ErrorHandler;
 import com.microsoft.wake.StageConfiguration.StageHandler;
 import com.microsoft.wake.StageConfiguration.StageName;
 
@@ -31,7 +34,10 @@ import com.microsoft.wake.StageConfiguration.StageName;
  */
 public final class SyncStage<T> extends AbstractEStage<T> {
 
+  private static final Logger LOG = Logger.getLogger(SyncStage.class.getName());
+
   private final EventHandler<T> handler;
+  private final EventHandler<Throwable> errorHandler;
 
   /**
    * Constructs a synchronous stage
@@ -40,7 +46,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
    */
   @Inject
   public SyncStage(final @Parameter(StageHandler.class) EventHandler<T> handler) {
-    this(handler.getClass().getName(), handler);
+    this(handler.getClass().getName(), handler, null);
   }
   
   /**
@@ -52,22 +58,45 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   @Inject
   public SyncStage(final @Parameter(StageName.class) String name, 
       final @Parameter(StageHandler.class) EventHandler<T> handler) {
-    super(name);
-    this.handler = handler;
-    StageManager.instance().register(this);
+    this(name, handler, null);
   }
 
+  /**
+   * Constructs a synchronous stage
+   * 
+   * @name name the stage name
+   * @param handler the event handler
+   * @param errorHandler the error handler
+   */
+  @Inject
+  public SyncStage(final @Parameter(StageName.class) String name, 
+      final @Parameter(StageHandler.class) EventHandler<T> handler,
+      final @Parameter(ErrorHandler.class) EventHandler<Throwable> errorHandler) {
+    super(name);
+    this.handler = handler;
+    this.errorHandler = errorHandler;
+    StageManager.instance().register(this);
+  }
 	
   /**
    * Invokes the handler for the event
    * 
-   * @param value an event
+   * @param value the event
    */
   @Override
-  public void onNext(T value) {
+  public void onNext(final T value) {
     beforeOnNext();
-	handler.onNext(value);
-	afterOnNext();
+    try {
+    	handler.onNext(value);
+    } catch (Throwable t) {
+    	if (errorHandler != null) {
+    		errorHandler.onNext(t);
+    	} else {
+    	  LOG.log(Level.SEVERE, name + " Exception from event handler", t);
+    	  throw t;
+    	}
+    }
+    afterOnNext();
   }
 
   /**
