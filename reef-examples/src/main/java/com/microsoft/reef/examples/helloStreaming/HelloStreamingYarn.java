@@ -29,6 +29,8 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.OptionalParameter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,6 +71,13 @@ public final class HelloStreamingYarn {
                 .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class);
 
         driverConf = EnvironmentUtils.addClasspath(driverConf, DriverConfiguration.GLOBAL_LIBRARIES);
+
+        final File dllsForCLRConfigurationFile = new File(clrFolder, "DllsForCLR.conf");
+        try (PrintWriter clientOut = new PrintWriter(dllsForCLRConfigurationFile)) {
+            clientOut.write("com.microsoft.reef.activity.dll,com.microsoft.reef.ActivityInterface.dll");
+        } catch (final FileNotFoundException e) {
+            throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
+        }
 
         driverConf = addAll(driverConf, DriverConfiguration.GLOBAL_FILES, clrFolder);
 
