@@ -12,7 +12,8 @@ import java.util.logging.Logger;
  */
 public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(CLRLaunchCommandBuilder.class.getName());
-  private static final String LAUNCHER_PATH = "Launcher.exe";
+  private static final String EVALUATOR_PATH = "Evaluator.exe";
+
 
   private String standardErrPath = null;
   private String standardOutPath = null;
@@ -24,7 +25,7 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   public List<String> build() {
     final List<String> result = new LinkedList<>();
-    result.add(LAUNCHER_PATH);
+    result.add(EVALUATOR_PATH);
     result.add(errorHandlerRID);
     result.add(evaluatorConfigurationPath);
     if ((null != this.standardOutPath) && (!standardOutPath.isEmpty())) {
