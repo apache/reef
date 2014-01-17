@@ -41,7 +41,7 @@ set LOCAL_JAR=%REEF_HOME%\reef-runtime-local\target\reef-runtime-local-%REEF_VER
 :: set LOCAL_RUNTIME_TMP="-Dcom.microsoft.reef.runtime.local.folder=%REEF_HOME%\reef-examples\REEF_RUNTIME_LOCAL\"
 set LOGGING_CONFIG=-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
 
-set CLASSPATH=%YARN_CONF_DIR%;%YARN_HOME%\share\hadoop\common\lib\*;%YARN_HOME%\share\hadoop\common\*;%YARN_HOME%\contrib\capacity-scheduler\*.jar;%YARN_HOME%\share\hadoop\hdfs;%YARN_HOME%\share\hadoop\hdfs\lib\*;%YARN_HOME%\share\hadoop\hdfs\*;%YARN_HOME%\share\hadoop\yarn\lib\*;%YARN_HOME%\share\hadoop\yarn\*;%YARN_HOME%\share\hadoop\mapreduce\lib\*;%YARN_HOME%\share\hadoop\mapreduce\*;%CLASSPATH%
+set CLASSPATH=%YARN_CONF_DIR%;%YARN_HOME%\share\hadoop\common\lib\*;%YARN_HOME%\share\hadoop\common\*;%YARN_HOME%\contrib\capacity-scheduler\*.jar;%YARN_HOME%\share\hadoop\hdfs;%YARN_HOME%\share\hadoop\hdfs\lib\*;%YARN_HOME%\share\hadoop\hdfs\*;%YARN_HOME%\share\hadoop\yarn\lib\*;%YARN_HOME%\share\hadoop\yarn\*;%YARN_HOME%\share\hadoop\mapreduce\lib\*;%YARN_HOME%\share\hadoop\mapreduce\*;%YARN_HOME%\etc\hadoop\;%CLASSPATH%
 
 set CMD=java -cp %REEF_JAR%;%LOCAL_JAR%;%SELF_JAR%;%CLASSPATH% %LOCAL_RUNTIME_TMP% %LOGGING_CONFIG% %*
 echo %CMD%
