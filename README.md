@@ -1,6 +1,9 @@
 REEF
 ===== 
 
+REEF is the Retainable Evaluator Execution Framework. It makes it easier to write applications on top of resource managers (e.g. YARN). It is released under the Apache 2.0 license. To get started, there is a [https://github.com/Microsoft-CISL/REEF/wiki/How-to-download-and-compile-REEF|Tutorial].
+
+
 THIRD PARTY SOFTWARE.
 ---------------------
 This software is built using Maven.  Maven allows you to obtain software libraries from other sources as part of the build process.  Those libraries are offered and distributed by third parties under their own license terms.  Microsoft is not developing, distributing or licensing those libraries to you, but instead, as a convenience, enables you touse this software to obtain those libraries directly from the creators or providers.  By using the software, you acknowledge and agree that you are nbtaining the libraries directly from the third parties and under separate license terms, and that it is your responsibility to locate, understand and comply with any such license terms.  Microsoft grants you no license rights for third-party software or libraries that are obtained using this software.
