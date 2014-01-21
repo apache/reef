@@ -464,6 +464,9 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     org.apache.hadoop.yarn.api.records.Resource capability =
         Records.newRecord(org.apache.hadoop.yarn.api.records.Resource.class);
 
+    LOG.log(Level.INFO, "Submit request under registration: " + registration);
+    LOG.log(Level.INFO, "Map resource capability: " + registration.getMaximumResourceCapability());
+
     final int memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(),
         512, registration.getMaximumResourceCapability().getMemory());
 
@@ -545,6 +548,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     @Override
     public void onNext(final RuntimeStart runtimeStart) {
       try {
+        LOG.log(Level.INFO, "Runtime start event");
         yarnClient.start();
         for (final NodeReport nodeReport : yarnClient.getNodeReports(NodeState.RUNNING)) {
           handle(nodeReport);
@@ -556,6 +560,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         nodeManager.init(yarnConf);
         nodeManager.start();
         registration = resourceManager.registerApplicationMaster("", 0, "");
+        LOG.log(Level.INFO, "YARN registration: " + registration.toString());
       } catch (final YarnException | IOException e) {
         LOG.log(Level.WARNING, "Error starting YARN Node Manager", e);
         onRuntimeError(e);
