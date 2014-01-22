@@ -96,6 +96,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   @Override
   public void onNext(final byte[] message) {
     LOG.log(Level.FINEST, "Job message from {0}", this.jobID);
+    this.sendInit();
     this.send(JobStatusProto.newBuilder()
         .setIdentifier(this.jobID.toString())
         .setState(ReefServiceProtos.State.RUNNING)
@@ -141,7 +142,6 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   public final class JobMessageHandler implements EventHandler<byte[]> {
     @Override
     public void onNext(final byte[] message) {
-      ClientJobStatusHandler.this.sendInit();
       ClientJobStatusHandler.this.onNext(message);
     }
   }
