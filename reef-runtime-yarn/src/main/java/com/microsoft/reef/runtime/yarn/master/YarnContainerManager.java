@@ -16,6 +16,7 @@
 package com.microsoft.reef.runtime.yarn.master;
 
 import com.google.protobuf.ByteString;
+import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.*;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -312,7 +313,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       switch (value.getState()) {
         case COMPLETE:
           LOG.info("container complete");
-          status.setState(ReefServiceProtos.State.DONE);
+          // TODO: should we consider KILLED state? FYI: exit code = 143
+          status.setState(value.getExitStatus() > 0 ? ReefServiceProtos.State.FAILED : ReefServiceProtos.State.DONE);
           status.setExitCode(value.getExitStatus());
           break;
         default:
