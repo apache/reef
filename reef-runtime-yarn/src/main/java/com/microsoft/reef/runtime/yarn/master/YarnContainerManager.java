@@ -280,7 +280,9 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       this.allocatedContainers.put(container.getId().toString(), container);
     }
 
-    --this.requestedContainerCount;
+    if (this.requestedContainerCount > 0) {
+      --this.requestedContainerCount;
+    }
 
     final ResourceAllocationProto allocation =
         ResourceAllocationProto.newBuilder()
@@ -484,7 +486,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           new AMRMClient.ContainerRequest(capability, nodes, racks, pri, relax_locality));
     }
 
-    this.requestedContainerCount += resourceRequestProto.getResourceCount();
+    // Container request counts overwrite in YARN... they are not additive.
+    this.requestedContainerCount = resourceRequestProto.getResourceCount();
   }
 
   /**
