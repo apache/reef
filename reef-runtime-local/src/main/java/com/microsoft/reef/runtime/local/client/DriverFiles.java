@@ -42,19 +42,39 @@ final class DriverFiles {
   }
 
   private void addLocalLib(final File f) throws IOException {
+    checkFile(f);
     this.localLibs.add(f);
   }
 
   private void addLocalFile(final File f) throws IOException {
+    checkFile(f);
     this.localFiles.add(f);
   }
 
   private void addGlobalFile(final File f) throws IOException {
+    checkFile(f);
     this.globalFiles.add(f);
   }
 
   private void addGlobalLib(final File f) throws IOException {
+    checkFile(f);
     this.globalLibs.add(f);
+  }
+
+  private void checkFile(final File f) throws IOException {
+    if (this.globalLibs.containsFileWithName(f.getName())) {
+      throw new IOException("Unable to add file as it is already part of the global libraries: " + f);
+    }
+    if (this.globalFiles.containsFileWithName(f.getName())) {
+      throw new IOException("Unable to add file as it is already part of the global files: " + f);
+    }
+    if (this.localLibs.containsFileWithName(f.getName())) {
+      throw new IOException("Unable to add file as it is already part of the local libraries: " + f);
+    }
+    if (this.localFiles.containsFileWithName(f.getName())) {
+      throw new IOException("Unable to add file as it is already part of the local files: " + f);
+    }
+
   }
 
   /**
