@@ -530,6 +530,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         if (runningActivity != null) {
           sb.append("ActivityRuntime " + runningActivity.getId() + " did not complete before this evaluator died. ");
         }
+        this.isResourceReleased = true; // RM is telling me its DONE/FAILED, so I'm assuming it has already released the resources
         handle(new EvaluatorException(this.evaluatorID, sb.toString(), runningActivity));
         this.state = STATE.KILLED;
       }
