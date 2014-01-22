@@ -20,6 +20,7 @@ import com.microsoft.tang.formats.OptionalParameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
@@ -71,7 +72,11 @@ final class FileSet {
   final void copyTo(final File destinationFolder) throws IOException {
     for (final File f : this.theFiles) {
       final File destinationFile = new File(destinationFolder, f.getName());
-      Files.copy(f.toPath(), destinationFile.toPath());
+        try {
+            Files.copy(f.toPath(), destinationFile.toPath());
+        } catch (FileAlreadyExistsException ex) {
+            LOG.log(Level.FINER, "Ignoring, since file already exist" + f.toString());
+        }
     }
   }
 
