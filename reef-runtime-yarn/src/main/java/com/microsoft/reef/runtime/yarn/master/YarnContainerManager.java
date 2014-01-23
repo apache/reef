@@ -278,10 +278,11 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     LOG.log(Level.FINE, "New allocated container: id[ {0} ]", container.getId());
     synchronized (this.allocatedContainers) {
       this.allocatedContainers.put(container.getId().toString(), container);
-    }
-
-    if (this.requestedContainerCount > 0) {
-      --this.requestedContainerCount;
+      if (this.requestedContainerCount > 0) {
+        --this.requestedContainerCount;
+      } else {
+        LOG.log(Level.WARNING, "requestedContainerCount cannot go below 0");
+      }
     }
 
     final ResourceAllocationProto allocation =
@@ -486,27 +487,26 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           new AMRMClient.ContainerRequest(capability, nodes, racks, pri, relax_locality));
     }
 
-    // Container request counts overwrite in YARN... they are not additive.
-    this.requestedContainerCount = resourceRequestProto.getResourceCount();
+    synchronized (this.allocatedContainers) {
+      // Container request counts overwrite in YARN... they are not additive.
+      this.requestedContainerCount = resourceRequestProto.getResourceCount();
+    }
   }
 
   /**
    * Update the driver with my current status
    */
   private void updateRuntimeStatus() {
-
-    final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder =
-        DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
-            .setName(RUNTIME_NAME)
-            .setState(ReefServiceProtos.State.RUNNING)
-            .setOutstandingContainerRequests(this.requestedContainerCount);
-
+    final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder;
     synchronized (this.allocatedContainers) {
+      builder = DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
+          .setName(RUNTIME_NAME)
+          .setState(ReefServiceProtos.State.RUNNING)
+          .setOutstandingContainerRequests(this.requestedContainerCount);
       for (final Container allocated : this.allocatedContainers.values()) {
         builder.addContainerAllocation(allocated.getId().toString());
       }
     }
-
     this.runtimeStatusHandlerEventHandler.onNext(builder.build());
   }
 
