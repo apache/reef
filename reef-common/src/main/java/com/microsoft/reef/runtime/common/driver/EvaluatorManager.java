@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.runtime.common.driver;
 
-import com.google.common.collect.Lists;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.driver.activity.*;
@@ -275,12 +274,18 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param exception on the EvaluatorRuntime
    */
   final void handle(final EvaluatorException exception) {
+
     if (this.state.ordinal() >= STATE.DONE.ordinal()) return;
+
     LOG.log(Level.WARNING, "Failed evaluator: " + getId(), exception);
 
     try {
+
       final List<FailedContext> failedContextList = new ArrayList<>();
-      for (final EvaluatorContext context : Lists.reverse(this.activeContextList)) {
+      final List<EvaluatorContext> activeContexts = new ArrayList<>(this.activeContextList);
+      Collections.reverse(activeContexts);
+
+      for (final EvaluatorContext context : activeContexts) {
         final Optional<ActiveContext> parentContext = context.getParentId().isPresent() ?
             Optional.<ActiveContext>of(getEvaluatorContext(context.getParentId().get())) :
             Optional.<ActiveContext>empty();
@@ -291,8 +296,9 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
           Optional.of(new FailedActivity(this.runningActivity.getId(), exception)) :
           Optional.<FailedActivity>empty();
 
-      this.dispatcher.onNext(FailedEvaluator.class,
-                             new FailedEvaluatorImpl(exception, failedContextList, failedActivityOptional, this.evaluatorID));
+      this.dispatcher.onNext(FailedEvaluator.class, new FailedEvaluatorImpl(
+          exception, failedContextList, failedActivityOptional, this.evaluatorID));
+
     } catch (final Exception e) {
       LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);
     } finally {
@@ -337,7 +343,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
           new EvaluatorException(this.evaluatorID, codec.decode(evaluatorStatusProto.getError().toByteArray()), this.runningActivity) :
           new EvaluatorException(this.evaluatorID, "unknown cause");
       LOG.log(Level.WARNING, "Failed evaluator: " + getId(), evaluatorException);
-      handle(evaluatorException);
+      this.handle(evaluatorException);
     } else if (ReefServiceProtos.State.DONE == evaluatorStatusProto.getState()) {
       LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
       this.state = STATE.DONE;

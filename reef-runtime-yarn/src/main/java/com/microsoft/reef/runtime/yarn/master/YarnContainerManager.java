@@ -16,7 +16,6 @@
 package com.microsoft.reef.runtime.yarn.master;
 
 import com.google.protobuf.ByteString;
-import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.*;
 import com.microsoft.reef.proto.ReefServiceProtos;
