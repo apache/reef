@@ -219,6 +219,8 @@ public final class JobDriver {
           LOG.log(Level.SEVERE, "Failed to submit Context to Context: " + context.getId(), ex);
           throw new RuntimeException(ex);
         }
+      } else {
+        context.close();
       }
     }
   }
