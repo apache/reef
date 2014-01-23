@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.common.synchronization;
+package com.microsoft.reef.util;
 
-import com.microsoft.reef.annotations.audience.Private;
+import java.io.*;
 
-@Private
-class Signal { 
-  private boolean done;
+/**
+ * File utilities
+ */
+public final class FileUtils {
 
-  public synchronized void signal() {
-    done = true;
-    this.notify();
-  }
-
-  public synchronized void waitFor() throws InterruptedException {
-    while (!done) {
-      this.wait();
+  /**
+   * Writes the given String to the given File.
+   *
+   * @param file
+   * @param string
+   * @throws IOException
+   */
+  public static void writeStringToFile(final File file, final String string) throws IOException {
+    try (final OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+      out.write(string.getBytes());
     }
   }
 }

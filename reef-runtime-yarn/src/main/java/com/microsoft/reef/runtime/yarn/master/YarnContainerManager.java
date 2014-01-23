@@ -27,14 +27,16 @@ import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
+import com.microsoft.reef.util.FileUtils;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
+import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.impl.ThreadPoolStage;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.runtime.RuntimeClock;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 import com.microsoft.wake.time.runtime.event.RuntimeStop;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.service.Service;
@@ -79,11 +81,15 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private final YarnClient yarnClient;
 
+  private final FileSystem fileSystem;
+
+  private final Map<String, LocalResource> globalResources = new HashMap<>();
+
   private final AMRMClientAsync resourceManager;
 
   private final NMClientAsync nodeManager;
 
-  private final EventHandler<ResourceAllocationProto> resourceAllocationHandler;
+  private final EStage<ResourceAllocationProto> resourceAllocationHandler;
 
   private final EventHandler<ResourceStatusProto> resourceStatusHandler;
 
@@ -98,19 +104,23 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private int requestedContainerCount = 0;
 
   @Inject
-  YarnContainerManager(final RuntimeClock clock, final YarnConfiguration yarnConf,
-                       @Parameter(YarnMasterConfiguration.GlobalFileClassPath.class) final String globalClassPath,
-                       @Parameter(YarnMasterConfiguration.YarnHeartbeatPeriod.class) final int yarnRMHeartbeatPeriod,
-                       @Parameter(YarnMasterConfiguration.JobSubmissionDirectory.class) String jobSubmissionDirectory,
-                       @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final EventHandler<NodeDescriptorProto> nodeDescriptorProtoEventHandler,
-                       @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<RuntimeStatusProto> runtimeStatusProtoEventHandler,
-                       @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationHandler,
-                       @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler) {
+  YarnContainerManager(
+      final RuntimeClock clock,
+      final YarnConfiguration yarnConf,
+      final @Parameter(YarnMasterConfiguration.GlobalFileClassPath.class) String globalClassPath,
+      final @Parameter(YarnMasterConfiguration.YarnHeartbeatPeriod.class) int yarnRMHeartbeatPeriod,
+      final @Parameter(YarnMasterConfiguration.JobSubmissionDirectory.class) String jobSubmissionDirectory,
+      final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorProto> nodeDescriptorProtoEventHandler,
+      final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusProto> runtimeStatusProtoEventHandler,
+      final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationHandler,
+      final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler)
+  throws IOException {
+
     this.globalClassPath = globalClassPath;
     this.clock = clock;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.yarnConf = yarnConf;
-    this.resourceAllocationHandler = resourceAllocationHandler;
+    this.resourceAllocationHandler = new ThreadPoolStage<>(resourceAllocationHandler, 8);
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusProtoEventHandler;
     this.nodeDescriptorProtoEventHandler = nodeDescriptorProtoEventHandler;
@@ -118,22 +128,43 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.yarnClient = YarnClient.createYarnClient();
     this.yarnClient.init(this.yarnConf);
 
+    this.fileSystem = FileSystem.get(this.yarnConf);
+
+    // GLOBAL FILE RESOURCES
+    final Path globalFilePath =
+        new Path(this.jobSubmissionDirectory, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
+
+    if (this.fileSystem.exists(globalFilePath)) {
+      final FileContext fileContext = FileContext.getFileContext(this.fileSystem.getUri());
+      setResources(this.fileSystem, this.globalResources, fileContext.listStatus(globalFilePath));
+    }
+
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
   }
 
   @Override
   public final void onContainersCompleted(final List<ContainerStatus> containerStatuses) {
-    for (ContainerStatus containerStatus : containerStatuses) {
+    for (final ContainerStatus containerStatus : containerStatuses) {
       handle(containerStatus);
     }
   }
 
   @Override
   public final void onContainersAllocated(final List<Container> containers) {
-    for (Container container : containers) {
+
+    // ID is used for logging only
+    final String id = String.format("%s:%d",
+        Thread.currentThread().getName().replace(' ', '_'), System.currentTimeMillis());
+
+    LOG.log(Level.FINE, "TIME: Allocated Containers {0} {1} of {2}",
+        new Object[] { id, containers.size(), this.requestedContainerCount });
+
+    for (final Container container : containers) {
       handleNewContainer(container);
     }
+
+    LOG.log(Level.FINE, "TIME: Processed Containers {0}", id);
   }
 
   @Override
@@ -145,7 +176,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   @Override
   public void onNodesUpdated(final List<NodeReport> nodeReports) {
-    for (NodeReport nodeReport : nodeReports) {
+    for (final NodeReport nodeReport : nodeReports) {
       handle(nodeReport);
     }
   }
@@ -156,51 +187,64 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   }
 
   @Override
-  public final void onError(Throwable throwable) {
+  public final void onError(final Throwable throwable) {
     onRuntimeError(throwable);
   }
 
   @Override
-  public final void onContainerStarted(ContainerId containerId, Map<String, ByteBuffer> stringByteBufferMap) {
-    Container container = allocatedContainers.get(containerId.toString());
+  public final void onContainerStarted(final ContainerId containerId,
+                                       final Map<String, ByteBuffer> stringByteBufferMap) {
+    final Container container;
+    synchronized (this.allocatedContainers) {
+      container = this.allocatedContainers.get(containerId.toString());
+    }
+
     if (container != null) {
       nodeManager.getContainerStatusAsync(containerId, container.getNodeId());
     }
   }
 
   @Override
-  public final void onContainerStatusReceived(ContainerId containerId, ContainerStatus containerStatus) {
+  public final void onContainerStatusReceived(
+      final ContainerId containerId, final ContainerStatus containerStatus) {
     handle(containerStatus);
   }
 
   @Override
-  public final void onContainerStopped(ContainerId containerId) {
-    if (this.allocatedContainers.containsKey(containerId)) {
-      final ResourceStatusProto.Builder resourceStatusBuilder = ResourceStatusProto.newBuilder().setIdentifier(containerId.toString());
+  public final void onContainerStopped(final ContainerId containerId) {
+
+    final boolean hasContainer;
+    synchronized (this.allocatedContainers) {
+      hasContainer = this.allocatedContainers.containsKey(containerId.toString());
+    }
+
+    if (hasContainer) {
+      final ResourceStatusProto.Builder resourceStatusBuilder =
+          ResourceStatusProto.newBuilder().setIdentifier(containerId.toString());
       resourceStatusBuilder.setState(ReefServiceProtos.State.DONE);
       this.resourceStatusHandler.onNext(resourceStatusBuilder.build());
     }
   }
 
   @Override
-  public final void onStartContainerError(ContainerId containerId, Throwable throwable) {
+  public final void onStartContainerError(final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
   @Override
-  public final void onGetContainerStatusError(ContainerId containerId, Throwable throwable) {
+  public final void onGetContainerStatusError(final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
   @Override
-  public final void onStopContainerError(ContainerId containerId, Throwable throwable) {
+  public final void onStopContainerError(final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   // HELPER METHODS
 
-  private final void handle(final NodeReport nodeReport) {
+  private void handle(final NodeReport nodeReport) {
     LOG.log(Level.FINE, "Send node descriptor: {0}", nodeReport);
     this.nodeDescriptorProtoEventHandler.onNext(NodeDescriptorProto.newBuilder()
         .setIdentifier(nodeReport.getNodeId().toString())
@@ -211,8 +255,10 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         .build());
   }
 
-  private final void handleContainerError(ContainerId containerId, Throwable throwable) {
-    final ResourceStatusProto.Builder resourceStatusBuilder = ResourceStatusProto.newBuilder().setIdentifier(containerId.toString());
+  private void handleContainerError(final ContainerId containerId, final Throwable throwable) {
+
+    final ResourceStatusProto.Builder resourceStatusBuilder =
+        ResourceStatusProto.newBuilder().setIdentifier(containerId.toString());
 
     resourceStatusBuilder.setState(ReefServiceProtos.State.FAILED);
     resourceStatusBuilder.setExitCode(1);
@@ -226,11 +272,14 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
    *
    * @param container newly allocated
    */
-  private final void handleNewContainer(final Container container) {
-    LOG.log(Level.FINE, "New allocated container: id[ {0} ]", container.getId());
-    this.allocatedContainers.put(container.getId().toString(), container);
+  private void handleNewContainer(final Container container) {
 
-    this.requestedContainerCount--;
+    LOG.log(Level.FINE, "New allocated container: id[ {0} ]", container.getId());
+    synchronized (this.allocatedContainers) {
+      this.allocatedContainers.put(container.getId().toString(), container);
+    }
+
+    --this.requestedContainerCount;
 
     final ResourceAllocationProto allocation =
         ResourceAllocationProto.newBuilder()
@@ -247,11 +296,18 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
    *
    * @param value containing the container status
    */
-  private final void handle(final ContainerStatus value) {
-    if (this.allocatedContainers.containsKey(value.getContainerId())) {
+  private void handle(final ContainerStatus value) {
+
+    final boolean hasContainer;
+    synchronized (this.allocatedContainers) {
+      hasContainer = this.allocatedContainers.containsKey(value.getContainerId().toString());
+    }
+
+    if (hasContainer) {
       LOG.log(Level.FINE, "Received container status: {0}", value.getContainerId());
 
-      final ResourceStatusProto.Builder status = ResourceStatusProto.newBuilder().setIdentifier(value.getContainerId().toString());
+      final ResourceStatusProto.Builder status =
+          ResourceStatusProto.newBuilder().setIdentifier(value.getContainerId().toString());
 
       switch (value.getState()) {
         case COMPLETE:
@@ -274,61 +330,66 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   }
 
   private void handle(final ResourceLaunchProto resourceLaunchProto) {
+
     try {
-      LOG.log(Level.FINEST, "Launch container {0}", resourceLaunchProto.getIdentifier());
-      if (!YarnContainerManager.this.allocatedContainers.containsKey(resourceLaunchProto.getIdentifier())) {
-        LOG.log(Level.SEVERE, "Unknown allocated container identifier: {0}", YarnContainerManager.this.allocatedContainers.keySet());
-        throw new RuntimeException("Unknown allocated container identifier: " + resourceLaunchProto.getIdentifier());
+
+      final String containerId = resourceLaunchProto.getIdentifier();
+      LOG.log(Level.FINEST, "TIME: Start ResourceLaunchProto {0}", containerId);
+
+      final Container container;
+      synchronized (this.allocatedContainers) {
+        container = this.allocatedContainers.get(containerId);
+        if (container == null) {
+          LOG.log(Level.SEVERE, "Unknown allocated container identifier: {0} of {1}",
+                  new Object[] { containerId, this.allocatedContainers.keySet() });
+          throw new RuntimeException("Unknown allocated container identifier: " + containerId);
+        }
       }
-      final Container container = YarnContainerManager.this.allocatedContainers.get(resourceLaunchProto.getIdentifier());
 
       LOG.log(Level.FINEST, "Setting up container launch container for id={0}", container.getId());
-      final FileSystem fs = FileSystem.get(this.yarnConf);
-      final FileContext fileContext = FileContext.getFileContext(fs.getUri());
 
       final Path evaluatorSubmissionDirectory = new Path(this.jobSubmissionDirectory, container.getId().toString());
-      final Map<String, LocalResource> localResources = new HashMap<>();
+      final Map<String, LocalResource> localResources = new HashMap<>(this.globalResources);
 
       // EVALUATOR CONFIGURATION
       final File evaluatorConfigurationFile = File.createTempFile("evaluator_" + container.getId(), ".conf");
+      LOG.log(Level.FINEST, "TIME: Config ResourceLaunchProto {0} {1}",
+              new Object[] { containerId, evaluatorConfigurationFile });
+
       FileUtils.writeStringToFile(evaluatorConfigurationFile, resourceLaunchProto.getEvaluatorConf());
       localResources.put(evaluatorConfigurationFile.getName(),
-          YarnUtils.getLocalResource(fs, new Path(evaluatorConfigurationFile.toURI()), new Path(evaluatorSubmissionDirectory, evaluatorConfigurationFile.getName())));
-
-      // GLOBAL FILE RESOURCES
-      final Path globalFilePath = new Path(this.jobSubmissionDirectory, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
-      if (fs.exists(globalFilePath)) {
-        setResources(fs, localResources, fileContext.listStatus(globalFilePath));
-      }
+          YarnUtils.getLocalResource(this.fileSystem, new Path(evaluatorConfigurationFile.toURI()),
+              new Path(evaluatorSubmissionDirectory, evaluatorConfigurationFile.getName())));
 
       // LOCAL FILE RESOURCES
+      LOG.log(Level.FINEST, "TIME: Local ResourceLaunchProto {0}", containerId);
       final StringBuilder localClassPath = new StringBuilder();
-      for (ReefServiceProtos.FileResourceProto file : resourceLaunchProto.getFileList()) {
+      for (final ReefServiceProtos.FileResourceProto file : resourceLaunchProto.getFileList()) {
         final Path src = new Path(file.getPath());
         final Path dst = new Path(this.jobSubmissionDirectory, file.getName());
         switch (file.getType()) {
           case PLAIN:
-            if (fs.exists(dst)) {
+            if (this.fileSystem.exists(dst)) {
               LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: reference {0}", dst);
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, dst));
             } else {
               LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload {0} to {1}", new Object[] { src, dst });
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             }
             break;
           case LIB:
             localClassPath.append(File.pathSeparatorChar + file.getName());
-            if (fs.exists(dst)) {
+            if (this.fileSystem.exists(dst)) {
               LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: reference {0}", dst);
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, dst));
             } else {
               LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload {0} to {1}", new Object[] { src, dst });
-              localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
+              localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             }
 
             break;
           case ARCHIVE:
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
+            localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             break;
         }
       }
@@ -358,11 +419,13 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           .build();
 
       final String command = StringUtils.join(commandList, ' ');
-      LOG.log(Level.FINEST, "Launch command: `{0}` with resources: `{1}`",
-              new Object[] { command, localResources });
+      LOG.log(Level.FINEST, "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
+          new Object[] { containerId, command, localResources });
 
       final ContainerLaunchContext ctx = YarnUtils.getContainerLaunchContext(command, localResources);
       nodeManager.startContainerAsync(container, ctx);
+
+      LOG.log(Level.FINEST, "TIME: End ResourceLaunchProto {0}", containerId);
 
     } catch (final Throwable e) {
       LOG.log(Level.WARNING, "Error handling resource launch message: " + resourceLaunchProto, e);
@@ -370,7 +433,9 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     }
   }
 
-  private final void setResources(final FileSystem fs, final Map<String, LocalResource> resources, final RemoteIterator<FileStatus> files) throws IOException {
+  private void setResources(final FileSystem fs,
+                            final Map<String, LocalResource> resources,
+                            final RemoteIterator<FileStatus> files) throws IOException {
     while (files.hasNext()) {
       final FileStatus fstatus = files.next();
       if (fstatus.isFile()) {
@@ -383,8 +448,9 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     }
   }
 
-  private final void handle(ResourceRequestProto resourceRequestProto) {
-    ResourceRequest request = Records.newRecord(ResourceRequest.class);
+  private void handle(final ResourceRequestProto resourceRequestProto) {
+
+    final ResourceRequest request = Records.newRecord(ResourceRequest.class);
 
     final String[] nodes = resourceRequestProto.getNodeNameCount() == 0 ? null :
         resourceRequestProto.getNodeNameList().toArray(new String[resourceRequestProto.getNodeNameCount()]);
@@ -392,50 +458,60 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         resourceRequestProto.getRackNameList().toArray(new String[resourceRequestProto.getRackNameCount()]);
 
     // set the priority for the request
-    Priority pri = Records.newRecord(Priority.class);
+    final Priority pri = Records.newRecord(Priority.class);
     pri.setPriority(resourceRequestProto.hasPriority() ? resourceRequestProto.getPriority() : 1);
 
     org.apache.hadoop.yarn.api.records.Resource capability =
         Records.newRecord(org.apache.hadoop.yarn.api.records.Resource.class);
-    int memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(), 512, registration.getMaximumResourceCapability().getMemory());
+
+    final int memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(),
+        512, registration.getMaximumResourceCapability().getMemory());
+
     LOG.log(Level.FINE, "Request memory: {0} MB", memory);
     capability.setMemory(memory);
     request.setCapability(capability);
 
-    final boolean relax_locality = resourceRequestProto.hasRelaxLocality() ? resourceRequestProto.getRelaxLocality() : true;
+    final boolean relax_locality =
+        !resourceRequestProto.hasRelaxLocality() || resourceRequestProto.getRelaxLocality();
+
     for (int i = 0; i < resourceRequestProto.getResourceCount(); i++) {
-      this.resourceManager.addContainerRequest(new AMRMClient.ContainerRequest(capability, nodes, racks, pri, relax_locality));
+      this.resourceManager.addContainerRequest(
+          new AMRMClient.ContainerRequest(capability, nodes, racks, pri, relax_locality));
     }
+
     this.requestedContainerCount += resourceRequestProto.getResourceCount();
   }
 
   /**
    * Update the driver with my current status
    */
-  private final void updateRuntimeStatus() {
+  private void updateRuntimeStatus() {
+
     final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder =
         DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
             .setName(RUNTIME_NAME)
             .setState(ReefServiceProtos.State.RUNNING)
             .setOutstandingContainerRequests(this.requestedContainerCount);
 
-    for (Container allocated : this.allocatedContainers.values()) {
-      builder.addContainerAllocation(allocated.getId().toString());
+    synchronized (this.allocatedContainers) {
+      for (final Container allocated : this.allocatedContainers.values()) {
+        builder.addContainerAllocation(allocated.getId().toString());
+      }
     }
 
     this.runtimeStatusHandlerEventHandler.onNext(builder.build());
   }
 
-  private final void onRuntimeError(final Throwable throwable) {
+  private void onRuntimeError(final Throwable throwable) {
     // SHUTDOWN YARN
     try {
+      resourceAllocationHandler.close();
       resourceManager.unregisterApplicationMaster(FinalApplicationStatus.FAILED, throwable.getMessage(), null);
-    } catch (final YarnException | IOException e) {
+    } catch (final Exception e) {
       LOG.log(Level.WARNING, "Error shutting down YARN application", e);
     } finally {
       resourceManager.stop();
     }
-
 
     final RuntimeStatusProto.Builder runtimeStatusBuilder = RuntimeStatusProto.newBuilder()
         .setState(ReefServiceProtos.State.FAILED)
@@ -457,6 +533,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           .build())
           .build();
     }
+
     this.runtimeStatusHandlerEventHandler.onNext(runtimeStatusBuilder.build());
   }
 
@@ -466,12 +543,10 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   final class RuntimeStartHander implements EventHandler<RuntimeStart> {
 
     @Override
-    public void onNext(RuntimeStart runtimeStart) {
+    public void onNext(final RuntimeStart runtimeStart) {
       try {
         yarnClient.start();
-        List<NodeReport> nodeReports = yarnClient.getNodeReports(
-            NodeState.RUNNING);
-        for (final NodeReport nodeReport : nodeReports) {
+        for (final NodeReport nodeReport : yarnClient.getNodeReports(NodeState.RUNNING)) {
           handle(nodeReport);
         }
 
@@ -482,24 +557,23 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         nodeManager.start();
         registration = resourceManager.registerApplicationMaster("", 0, "");
       } catch (final YarnException | IOException e) {
-        LOG.log(Level.WARNING, "Error closing YARN Node Manager", e);
+        LOG.log(Level.WARNING, "Error starting YARN Node Manager", e);
         onRuntimeError(e);
       }
     }
   }
 
   final class RuntimeStopHandler implements EventHandler<RuntimeStop> {
-
     @Override
-    public void onNext(RuntimeStop runtimeStop) {
-
+    public void onNext(final RuntimeStop runtimeStop) {
+      LOG.log(Level.FINE, "Stop Runtime: RM status {0}", resourceManager.getServiceState());
       if (resourceManager.getServiceState() == Service.STATE.STARTED) {
-
         // invariant: if RM is still running then we declare success.
         try {
+          resourceAllocationHandler.close();
           resourceManager.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED, null, null);
           resourceManager.close();
-        } catch (final YarnException | IOException e) {
+        } catch (final Exception e) {
           LOG.log(Level.WARNING, "Error shutting down YARN application", e);
         }
       }
@@ -518,9 +592,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   // EVENT RELAY CLASSES
 
   final class ResourceLaunchHandlerImpl implements ResourceLaunchHandler {
-
     @Override
-    public void onNext(ResourceLaunchProto resourceLaunchProto) {
+    public void onNext(final ResourceLaunchProto resourceLaunchProto) {
       handle(resourceLaunchProto);
     }
   }
@@ -528,23 +601,29 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   final class ResourceReleaseHandlerImpl implements ResourceReleaseHandler {
 
     @Override
-    public void onNext(ResourceReleaseProto resourceReleaseProto) {
-      LOG.log(Level.FINE, "Release container: {0}", resourceReleaseProto.getIdentifier());
-      if (!YarnContainerManager.this.allocatedContainers.containsKey(resourceReleaseProto.getIdentifier())) {
-        LOG.log(Level.SEVERE, "Unknown allocated container identifier: {0}", YarnContainerManager.this.allocatedContainers.keySet());
-        throw new RuntimeException("Unknown allocated container identifier: " + resourceReleaseProto.getIdentifier());
+    public void onNext(final ResourceReleaseProto resourceReleaseProto) {
+
+      final String containerId = resourceReleaseProto.getIdentifier();
+      LOG.log(Level.FINE, "Release container: {0}", containerId);
+
+      final Container container;
+      synchronized (allocatedContainers) {
+        container = allocatedContainers.remove(containerId);
+        if (container == null) {
+          LOG.log(Level.SEVERE, "Unknown allocated container identifier: {0} of {1}",
+                  new Object[] { containerId, allocatedContainers.keySet() });
+          throw new RuntimeException("Unknown allocated container identifier: " + containerId);
+        }
       }
 
-      final Container container = YarnContainerManager.this.allocatedContainers.remove(resourceReleaseProto.getIdentifier());
-      YarnContainerManager.this.resourceManager.releaseAssignedContainer(container.getId());
+      resourceManager.releaseAssignedContainer(container.getId());
       updateRuntimeStatus();
     }
   }
 
   final class ResourceRequestHandlerImpl implements ResourceRequestHandler {
-
     @Override
-    public void onNext(ResourceRequestProto resourceRequestProto) {
+    public void onNext(final ResourceRequestProto resourceRequestProto) {
       handle(resourceRequestProto);
       updateRuntimeStatus();
     }
