@@ -53,7 +53,7 @@ public final class DriverRuntimeConfiguration extends ConfigurationModuleBuilder
 
           // Bind to the Clock
       .bindSetEntry(Clock.RuntimeStartHandler.class, DriverManager.RuntimeStartHandler.class)
-      .bindSetEntry(Clock.RuntimeStartHandler.class, ClientJobStatusHandler.RuntimeStartHandler.class)
+      .bindSetEntry(Clock.StartHandler.class, ClientJobStatusHandler.StartHandler.class)
       .bindSetEntry(Clock.RuntimeStopHandler.class, DriverManager.RuntimeStopHandler.class)
       .bindSetEntry(Clock.IdleHandler.class, DriverManager.IdleHandler.class)
 

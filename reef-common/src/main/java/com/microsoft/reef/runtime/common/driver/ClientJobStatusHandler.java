@@ -28,8 +28,8 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
+import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.runtime.RuntimeClock;
-import com.microsoft.wake.time.runtime.event.RuntimeStart;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -44,6 +44,8 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   private final static Logger LOG = Logger.getLogger(ClientJobStatusHandler.class.getName());
 
+  private final static ObjectSerializableCodec<Throwable> CODEC = new ObjectSerializableCodec<>();
+
   private final RuntimeClock clock;
 
   private final String jobID;
@@ -52,12 +54,15 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   private final AutoCloseable jobControlChannel;
 
+  private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
+
   @Inject
   public ClientJobStatusHandler(
       final RemoteManager remoteManager, final RuntimeClock clock,
       final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<JobControlProto> jobControlHandler,
       final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobID,
       final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID) {
+
     this.clock = clock;
     this.jobID = jobID;
 
@@ -66,32 +71,33 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
     this.jobControlChannel = remoteManager.registerHandler(clientRID, JobControlProto.class, jobControlHandler);
   }
 
-  void close(final Optional<Throwable> exception) {
+  public void close(final Optional<Throwable> exception) {
     try {
       if (exception.isPresent()) {
-        onError(exception.get());
+        this.onError(exception.get());
       } else {
         // Note: Wake will throw an exception if the client has closed the channel; simply ignoring this fact is fine.
-        send(JobStatusProto.newBuilder()
+        this.send(JobStatusProto.newBuilder()
             .setIdentifier(ClientJobStatusHandler.this.jobID.toString())
             .setState(ReefServiceProtos.State.DONE)
             .build());
       }
     } catch (final Throwable t) {
-      LOG.warning(t.toString());
+      LOG.log(Level.WARNING, "Error closing ClientJobStatusHandler", t);
     }
 
     try {
-      ClientJobStatusHandler.this.jobControlChannel.close();
-    } catch (Exception e) {
-      LOG.warning(e.toString());
+      this.jobControlChannel.close();
+    } catch (final Exception e) {
+      LOG.log(Level.WARNING, "Error closing jobControlChannel", e);
     }
   }
 
   @Override
   public void onNext(final byte[] message) {
-    LOG.log(Level.FINEST,  "Job message from {0}", this.jobID);
-    send(JobStatusProto.newBuilder()
+    LOG.log(Level.FINEST, "Job message from {0}", this.jobID);
+    this.sendInit();
+    this.send(JobStatusProto.newBuilder()
         .setIdentifier(this.jobID.toString())
         .setState(ReefServiceProtos.State.RUNNING)
         .setMessage(ByteString.copyFrom(message))
@@ -101,11 +107,10 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   @Override
   public void onError(final Throwable exception) {
     LOG.log(Level.SEVERE, "Job exception", exception);
-    final ObjectSerializableCodec<Throwable> codec = new ObjectSerializableCodec<>();
-    send(JobStatusProto.newBuilder()
+    this.send(JobStatusProto.newBuilder()
         .setIdentifier(this.jobID.toString())
         .setState(ReefServiceProtos.State.FAILED)
-        .setException(ByteString.copyFrom(codec.encode(exception)))
+        .setException(ByteString.copyFrom(CODEC.encode(exception)))
         .build());
     this.clock.close();
   }
@@ -117,8 +122,18 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
    * @param status of the job
    */
   private void send(final JobStatusProto status) {
-    LOG.log(Level.FINEST,  "Sending job status: {0}", status);
+    LOG.log(Level.FINEST, "Sending job status: {0}", status);
     this.jobStatusHandler.onNext(status);
+  }
+
+  private synchronized void sendInit() {
+    if (state == ReefServiceProtos.State.INIT) {
+      this.send(JobStatusProto.newBuilder()
+          .setIdentifier(this.jobID.toString())
+          .setState(ReefServiceProtos.State.INIT)
+          .build());
+      this.state = ReefServiceProtos.State.RUNNING;
+    }
   }
 
   /**
@@ -127,7 +142,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   public final class JobMessageHandler implements EventHandler<byte[]> {
     @Override
     public void onNext(final byte[] message) {
-      onNext(message);
+      ClientJobStatusHandler.this.onNext(message);
     }
   }
 
@@ -137,18 +152,15 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   public final class JobExceptionHandler implements EventHandler<Exception> {
     @Override
     public void onNext(final Exception exception) {
-      onError(exception);
+      ClientJobStatusHandler.this.onError(exception);
     }
   }
 
-  public final class RuntimeStartHandler implements EventHandler<RuntimeStart> {
+  public final class StartHandler implements EventHandler<StartTime> {
     @Override
-    public void onNext(final RuntimeStart runtimeStart) {
-      LOG.log(Level.FINEST,  "Processing runtimeStart: {0}", runtimeStart);
-      send(JobStatusProto.newBuilder()
-          .setIdentifier(ClientJobStatusHandler.this.jobID.toString())
-          .setState(ReefServiceProtos.State.INIT)
-          .build());
+    public void onNext(final StartTime time) {
+      LOG.log(Level.FINEST, "StartTime: {0}", time);
+      ClientJobStatusHandler.this.sendInit();
     }
   }
 }
