@@ -16,7 +16,6 @@
 package com.microsoft.reef.runtime.yarn.util;
 
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -73,10 +72,6 @@ public final class YarnUtils {
       classPathBuilder.append(c.trim());
     }
     classPathBuilder.append(File.pathSeparatorChar).append("./log4j.properties");
-
-    if (YarnClientConfiguration.REEF_CLASSPATH != null) {
-      classPathBuilder.append(File.pathSeparatorChar).append(YarnClientConfiguration.REEF_CLASSPATH);
-    }
 
     // add the runtime classpath needed for tests to work
     if (yarnConfiguration.getBoolean(YarnConfiguration.IS_MINI_YARN_CLUSTER, false)) {
