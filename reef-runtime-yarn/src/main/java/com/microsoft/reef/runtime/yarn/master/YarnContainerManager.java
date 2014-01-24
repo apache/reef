@@ -277,9 +277,12 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     LOG.log(Level.FINE, "New allocated container: id[ {0} ]", container.getId());
     synchronized (this.allocatedContainers) {
       this.allocatedContainers.put(container.getId().toString(), container);
+      if (this.requestedContainerCount > 0) {
+        --this.requestedContainerCount;
+      } else {
+        LOG.log(Level.WARNING, "requestedContainerCount cannot go below 0");
+      }
     }
-
-    --this.requestedContainerCount;
 
     final ResourceAllocationProto allocation =
         ResourceAllocationProto.newBuilder()
@@ -312,7 +315,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       switch (value.getState()) {
         case COMPLETE:
           LOG.info("container complete");
-          status.setState(ReefServiceProtos.State.DONE);
+          // TODO: should we consider KILLED state? FYI: exit code = 143
+          status.setState(value.getExitStatus() > 0 ? ReefServiceProtos.State.FAILED : ReefServiceProtos.State.DONE);
           status.setExitCode(value.getExitStatus());
           break;
         default:
@@ -464,6 +468,9 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     org.apache.hadoop.yarn.api.records.Resource capability =
         Records.newRecord(org.apache.hadoop.yarn.api.records.Resource.class);
 
+    LOG.log(Level.FINE, "Submit request under registration: {0} capability: {1}",
+            new Object[] { registration, registration.getMaximumResourceCapability() });
+
     final int memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(),
         512, registration.getMaximumResourceCapability().getMemory());
 
@@ -479,26 +486,26 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
           new AMRMClient.ContainerRequest(capability, nodes, racks, pri, relax_locality));
     }
 
-    this.requestedContainerCount += resourceRequestProto.getResourceCount();
+    synchronized (this.allocatedContainers) {
+      // Container request counts overwrite in YARN... they are not additive.
+      this.requestedContainerCount = resourceRequestProto.getResourceCount();
+    }
   }
 
   /**
    * Update the driver with my current status
    */
   private void updateRuntimeStatus() {
-
-    final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder =
-        DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
-            .setName(RUNTIME_NAME)
-            .setState(ReefServiceProtos.State.RUNNING)
-            .setOutstandingContainerRequests(this.requestedContainerCount);
-
+    final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder;
     synchronized (this.allocatedContainers) {
+      builder = DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
+          .setName(RUNTIME_NAME)
+          .setState(ReefServiceProtos.State.RUNNING)
+          .setOutstandingContainerRequests(this.requestedContainerCount);
       for (final Container allocated : this.allocatedContainers.values()) {
         builder.addContainerAllocation(allocated.getId().toString());
       }
     }
-
     this.runtimeStatusHandlerEventHandler.onNext(builder.build());
   }
 
@@ -545,6 +552,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     @Override
     public void onNext(final RuntimeStart runtimeStart) {
       try {
+        LOG.log(Level.INFO, "Runtime start event");
         yarnClient.start();
         for (final NodeReport nodeReport : yarnClient.getNodeReports(NodeState.RUNNING)) {
           handle(nodeReport);
@@ -556,6 +564,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         nodeManager.init(yarnConf);
         nodeManager.start();
         registration = resourceManager.registerApplicationMaster("", 0, "");
+        LOG.log(Level.INFO, "YARN registration: {0}", registration);
       } catch (final YarnException | IOException e) {
         LOG.log(Level.WARNING, "Error starting YARN Node Manager", e);
         onRuntimeError(e);

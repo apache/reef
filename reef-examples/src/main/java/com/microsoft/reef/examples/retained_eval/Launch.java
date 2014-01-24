@@ -16,10 +16,8 @@
 package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.client.ClientConfiguration;
-import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
-import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -141,9 +139,7 @@ public final class Launch {
           .build();
     } else {
       LOG.log(Level.INFO, "Running on YARN");
-      runtimeConfiguration = YarnClientConfiguration.CONF
-          .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
-          .build();
+      runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
 
     return Tang.Factory.getTang()

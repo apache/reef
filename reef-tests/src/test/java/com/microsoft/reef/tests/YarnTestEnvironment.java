@@ -15,11 +15,9 @@
  */
 package com.microsoft.reef.tests;
 
-import com.microsoft.reef.client.REEF;
-import com.microsoft.reef.util.EnvironmentUtils;
+import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 
 import java.util.logging.Logger;
 
@@ -42,9 +40,7 @@ public final class YarnTestEnvironment implements TestEnvironment {
   public synchronized final Configuration getRuntimeConfiguration() {
     assert (this.ready);
     try {
-      return YarnClientConfiguration.CONF
-          .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
-          .build();
+      return YarnClientConfiguration.CONF.build();
     } catch (final BindException ex) {
       throw new RuntimeException(ex);
     }

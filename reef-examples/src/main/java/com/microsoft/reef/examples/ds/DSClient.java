@@ -16,10 +16,8 @@
 package com.microsoft.reef.examples.ds;
 
 import com.microsoft.reef.client.ClientConfiguration;
-import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
-import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -65,6 +63,7 @@ public final class DSClient {
   }
 
   static final String EMPTY_FILES = "EMPTY_FILES";
+
   /**
    * Command line parameter - additional files to submitActivity to the Evaluators.
    */
@@ -120,9 +119,7 @@ public final class DSClient {
           .build();
     } else {
       LOG.log(Level.INFO, "Running DS on YARN");
-      runtimeConfiguration = YarnClientConfiguration.CONF
-          .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
-          .build();
+      runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
 
     final Configuration clientConfiguration = ClientConfiguration.CONF
@@ -154,8 +151,8 @@ public final class DSClient {
    *
    * @param aConfig TANG configuration.
    * @return Concatenated output from all distributed shells.
-   * @throws BindException        configuration error
-   * @throws InjectionException   configuration error
+   * @throws BindException      configuration error
+   * @throws InjectionException configuration error
    */
   public static String runDistributedShell(final Configuration aConfig)
       throws BindException, InjectionException {
