@@ -29,7 +29,6 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
-import com.microsoft.tang.formats.RequiredParameter;
 import com.microsoft.wake.remote.RemoteConfiguration;
 
 /**
@@ -39,11 +38,8 @@ import com.microsoft.wake.remote.RemoteConfiguration;
 @ClientSide
 public class YarnClientConfiguration extends ConfigurationModuleBuilder {
   // TODO: This has only one user and should be moved there.
-  public final static String REEF_CLASSPATH = System.getenv("REEF_CLASSPATH");
+  private final static String REEF_CLASSPATH = System.getenv("REEF_CLASSPATH");
 
-  @NamedParameter(doc = "The REEF jar file.", short_name = "reef_jar")
-  public final static class ReefJarFile implements Name<String> {
-  }
 
   @NamedParameter(doc = "The job priority.", default_value = "0", short_name = "yarn_priority")
   public final static class JobPriority implements Name<Integer> {
@@ -53,7 +49,6 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
   public final static class JobQueue implements Name<String> {
   }
 
-  public static final RequiredParameter<String> REEF_JAR_FILE = new RequiredParameter<>();
   public static final OptionalParameter<String> YARN_QUEUE_NAME = new OptionalParameter<>();
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
 
@@ -66,7 +61,6 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
           // Bind YARN
       .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
           // Bind the parameters given by the user
-      .bindNamedParameter(ReefJarFile.class, REEF_JAR_FILE)
       .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
       .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors

@@ -16,10 +16,8 @@
 package com.microsoft.reef.examples.suspend;
 
 import com.microsoft.reef.client.ClientConfiguration;
-import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
-import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -87,7 +85,6 @@ public final class Launch {
       throws IOException, BindException {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final CommandLine cl = new CommandLine(confBuilder);
-    cl.registerShortNameOfClass(YarnClientConfiguration.ReefJarFile.class);
     cl.registerShortNameOfClass(Local.class);
     cl.registerShortNameOfClass(NumCycles.class);
     cl.registerShortNameOfClass(Delay.class);
@@ -138,9 +135,7 @@ public final class Launch {
           .build();
     } else {
       LOG.log(Level.INFO, "Running on YARN");
-      runtimeConfiguration = YarnClientConfiguration.CONF
-          .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
-          .build();
+      runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
 
     return Tang.Factory.getTang()
