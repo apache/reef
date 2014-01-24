@@ -156,10 +156,7 @@ public final class JobDriver {
           if (isPiggyback) {
 
             final String activityId = String.format("StartActivity_%08d", nActivity);
-            final Configuration activityConfig = ActivityConfiguration.CONF
-                .set(ActivityConfiguration.IDENTIFIER, activityId)
-                .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
-                .build();
+            final Configuration activityConfig = getActivityConfiguration(activityId);
 
             LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
                 new Object[] { activityId, eval.getId() });
@@ -178,6 +175,25 @@ public final class JobDriver {
         LOG.log(Level.INFO, "TIME: Close Evaluator {0}", eval.getId());
         eval.close();
       }
+    }
+  }
+
+  /**
+   * Build a new Activity configuration for a given activity ID.
+   *
+   * @param activityId Unique string ID of the activity
+   * @return Immutable activity configuration object, ready to be submitted to REEF.
+   * @throws RuntimeException that wraps BindException if unable to build the configuration.
+   */
+  private Configuration getActivityConfiguration(final String activityId) {
+    try {
+      return ActivityConfiguration.CONF
+          .set(ActivityConfiguration.IDENTIFIER, activityId)
+          .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
+          .build();
+    } catch (final BindException ex) {
+      LOG.log(Level.SEVERE, "Failed to create  Activity Configuration: " + activityId, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -204,21 +220,10 @@ public final class JobDriver {
       }
 
       if (runActivity) {
-        try {
-
-          final String activityId = String.format("StartActivity_%08d", nActivity);
-          LOG.log(Level.INFO, "TIME: Submit Activity {0} to Context {1}",
-              new Object[] { activityId, context.getId() });
-
-          context.submitActivity(ActivityConfiguration.CONF
-              .set(ActivityConfiguration.IDENTIFIER, activityId)
-              .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
-              .build());
-
-        } catch (final BindException ex) {
-          LOG.log(Level.SEVERE, "Failed to submit Context to Context: " + context.getId(), ex);
-          throw new RuntimeException(ex);
-        }
+        final String activityId = String.format("StartActivity_%08d", nActivity);
+        LOG.log(Level.INFO, "TIME: Submit Activity {0} to Context {1}",
+            new Object[] { activityId, context.getId() });
+        context.submitActivity(getActivityConfiguration(activityId));
       } else {
         context.close();
       }
@@ -260,16 +265,7 @@ public final class JobDriver {
         final String activityId = String.format("Activity_%08d", nActivity);
         LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
                 new Object[] { activityId, context.getEvaluatorId() });
-        try {
-          final Configuration activityConfig = ActivityConfiguration.CONF
-              .set(ActivityConfiguration.IDENTIFIER, activityId)
-              .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
-              .build();
-          context.submitActivity(activityConfig);
-        } catch (final BindException ex) {
-          LOG.log(Level.SEVERE, "Failed to submit Activity to Context: " + context.getId(), ex);
-          throw new RuntimeException(ex);
-        }
+        context.submitActivity(getActivityConfiguration(activityId));
       } else {
         LOG.log(Level.INFO, "TIME: Close Evaluator {0}", context.getEvaluatorId());
         context.close();
