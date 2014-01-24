@@ -16,9 +16,7 @@
 package com.microsoft.reef.examples.hello;
 
 import com.microsoft.reef.client.LauncherStatus;
-import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
-import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -48,9 +46,7 @@ public final class HelloReefYarn {
    */
   public static void main(final String[] args) throws BindException, InjectionException, IOException {
 
-    final Configuration runtimeConfiguration = YarnClientConfiguration.CONF
-        .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
-        .build();
+    final Configuration runtimeConfiguration = YarnClientConfiguration.CONF.build();
 
     final LauncherStatus status = HelloREEF.runHelloReef(runtimeConfiguration, JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
