@@ -24,7 +24,6 @@ import com.microsoft.reef.runtime.yarn.master.YarnMasterConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
 import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationFile;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -56,13 +55,10 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final static int MIN_REEF_MASTER_MEMORY = 512;
   private final YarnConfiguration yarnConfiguration;
   private final YarnClient yarnClient;
-  private final Path reefJarFile;
 
   @Inject
-  YarnJobSubmissionHandler(final YarnConfiguration yarnConfiguration,
-                           @Parameter(YarnClientConfiguration.ReefJarFile.class) final String reefJarFile) {
+  YarnJobSubmissionHandler(final YarnConfiguration yarnConfiguration) {
     this.yarnConfiguration = yarnConfiguration;
-    this.reefJarFile = new Path(reefJarFile);
 
 
     this.yarnClient = YarnClient.createYarnClient();
@@ -110,10 +106,6 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           YarnUtils.getLocalResource(fs, new Path(yarnConfigurationFile.toURI()), new Path(global_dir, yarnConfigurationFile.getName())));
 
       final StringBuilder globalClassPath = YarnUtils.getClassPathBuilder(this.yarnConfiguration);
-
-      localResources.put(this.reefJarFile.getName(),
-          YarnUtils.getLocalResource(fs, this.reefJarFile, new Path(global_dir, this.reefJarFile.getName())));
-      globalClassPath.append(File.pathSeparatorChar + this.reefJarFile.getName());
 
       for (ReefServiceProtos.FileResourceProto file : jobSubmissionProto.getGlobalFileList()) {
         final Path src = new Path(file.getPath());
