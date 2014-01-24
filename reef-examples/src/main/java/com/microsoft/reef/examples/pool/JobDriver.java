@@ -140,7 +140,8 @@ public final class JobDriver {
       if (runActivity) {
 
         final String contextId = String.format("Context_%06d", nEval);
-        LOG.log(Level.INFO, "TIME: Submit Context {0}", contextId);
+        LOG.log(Level.INFO, "TIME: Submit Context {0} to Evaluator {1}",
+                new Object[] { contextId, eval.getId() });
 
         try {
 
