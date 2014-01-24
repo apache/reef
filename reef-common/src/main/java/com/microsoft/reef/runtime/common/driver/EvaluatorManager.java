@@ -108,7 +108,9 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final NodeDescriptor nodeDescriptor;
 
-  private final Map<String, EvaluatorContext> activeContextMap = new HashMap<>();
+  private final List<EvaluatorContext> activeContextList = new ArrayList<>();
+
+  private final HashSet<String> activeContextIDs = new HashSet<>();
 
   private final DispatchingEStage dispatcher;
 
@@ -248,21 +250,55 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
+  private final EvaluatorContext getEvaluatorContext(final String id) {
+    for (final EvaluatorContext context : this.activeContextList) {
+      if (context.getId().equals(id)) return context;
+    }
+    throw new RuntimeException("Unknown evaluator context " + id);
+  }
+
+  private final void addEvaluatorContext(final EvaluatorContext context) {
+    this.activeContextList.add(context);
+    this.activeContextIDs.add(context.getId());
+  }
+
+  private final void removeEvaluatorContext(final EvaluatorContext context) {
+    this.activeContextList.remove(context);
+    this.activeContextIDs.remove(context.getId());
+  }
+
+
   /**
    * EvaluatorException will trigger is FailedEvaluator and state transition to FAILED
    *
    * @param exception on the EvaluatorRuntime
    */
   final void handle(final EvaluatorException exception) {
+
     if (this.state.ordinal() >= STATE.DONE.ordinal()) return;
 
-    LOG.log(Level.FINEST, "EvaluatorManager failing id[{0}]: {1}",
-            new Object[] { this.evaluatorID, exception.getMessage() });
+    LOG.log(Level.WARNING, "Failed evaluator: " + getId(), exception);
 
     try {
-      // TODO: Replace the nulls below.
+
+      final List<FailedContext> failedContextList = new ArrayList<>();
+      final List<EvaluatorContext> activeContexts = new ArrayList<>(this.activeContextList);
+      Collections.reverse(activeContexts);
+
+      for (final EvaluatorContext context : activeContexts) {
+        final Optional<ActiveContext> parentContext = context.getParentId().isPresent() ?
+            Optional.<ActiveContext>of(getEvaluatorContext(context.getParentId().get())) :
+            Optional.<ActiveContext>empty();
+        failedContextList.add(context.getFailedContext(parentContext, exception));
+      }
+
+      final Optional<FailedActivity> failedActivityOptional = this.runningActivity != null ?
+          Optional.of(new FailedActivity(this.runningActivity.getId(), exception)) :
+          Optional.<FailedActivity>empty();
+
       this.dispatcher.onNext(FailedEvaluator.class, new FailedEvaluatorImpl(
-          exception, null, Optional.ofNullable((FailedActivity) null), this.evaluatorID));
+          exception, failedContextList, failedActivityOptional, this.evaluatorID));
+
     } catch (final Exception e) {
       LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);
     } finally {
@@ -301,29 +337,13 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     }
 
     if (ReefServiceProtos.State.FAILED == evaluatorStatusProto.getState()) {
-
       this.state = STATE.FAILED;
       final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
       final EvaluatorException evaluatorException = evaluatorStatusProto.hasError() ?
           new EvaluatorException(this.evaluatorID, codec.decode(evaluatorStatusProto.getError().toByteArray()), this.runningActivity) :
           new EvaluatorException(this.evaluatorID, "unknown cause");
-
       LOG.log(Level.WARNING, "Failed evaluator: " + getId(), evaluatorException);
-
-      final List<FailedContext> failedContextList = new ArrayList<>();
-      for (final ReefServiceProtos.ContextStatusProto contextStatusProto : evaluatorHeartbeatProto.getContextStatusList()) {
-        final EvaluatorContext evaluatorContext = this.activeContextMap.get(contextStatusProto.getContextId());
-        failedContextList.add(evaluatorContext.getFailedContext(Optional.<ActiveContext>empty(), evaluatorException));
-      }
-
-      final Optional<FailedActivity> failedActivityOptional = this.runningActivity != null ?
-          Optional.of(new FailedActivity(this.runningActivity.getId(), evaluatorException)) :
-          Optional.<FailedActivity>empty();
-
-      dispatcher.onNext(FailedEvaluator.class, new FailedEvaluatorImpl(
-          evaluatorException, failedContextList, failedActivityOptional, this.evaluatorID));
-
-      close();
+      this.handle(evaluatorException);
     } else if (ReefServiceProtos.State.DONE == evaluatorStatusProto.getState()) {
       LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
       this.state = STATE.DONE;
@@ -396,9 +416,9 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         Optional.of(contextStatusProto.getParentId()) : Optional.<String>empty();
 
     if (ReefServiceProtos.ContextStatusProto.State.READY == contextStatusProto.getContextState()) {
-      if (!this.activeContextMap.containsKey(contextID)) {
+      if (!this.activeContextIDs.contains(contextID)) {
         final EvaluatorContext context = new EvaluatorContext(this, contextID, parentID);
-        this.activeContextMap.put(contextID, context);
+        addEvaluatorContext(context);
         if (notifyClientOnNewActiveContext) {
           this.dispatcher.onNext(ActiveContext.class, context);
         }
@@ -411,18 +431,19 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
             new ContextMessageImpl(theMessage, contextID, sourceID));
       }
     } else {
-      if (!this.activeContextMap.containsKey(contextID)) {
+      if (!this.activeContextIDs.contains(contextID)) {
         if (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState()) {
           // It failed right away
-          this.activeContextMap.put(contextID, new EvaluatorContext(this, contextID, parentID));
+          addEvaluatorContext(new EvaluatorContext(this, contextID, parentID));
         } else {
           throw new RuntimeException("unknown context signaling state " + contextStatusProto.getContextState());
         }
       }
 
-      final EvaluatorContext context = this.activeContextMap.remove(contextID);
+      final EvaluatorContext context = getEvaluatorContext(contextID);
       final EvaluatorContext parentContext = context.getParentId().isPresent() ?
-          this.activeContextMap.get(context.getParentId().get()) : null;
+          getEvaluatorContext(context.getParentId().get()) : null;
+      removeEvaluatorContext(context);
 
       if (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState()) {
         final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
@@ -459,17 +480,17 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     final ReefServiceProtos.State activityState = activityStatusProto.getState();
 
     if (ReefServiceProtos.State.INIT == activityState) {
-      final EvaluatorContext evaluatorContext = this.activeContextMap.get(contextId);
+      final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
       this.runningActivity = new RunningActivityImpl(this, activityId, evaluatorContext);
       this.dispatcher.onNext(RunningActivity.class, this.runningActivity);
     } else if (ReefServiceProtos.State.SUSPEND == activityState) {
-      final EvaluatorContext evaluatorContext = this.activeContextMap.get(contextId);
+      final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
       this.runningActivity = null;
       final byte[] message = activityStatusProto.hasResult() ? activityStatusProto.getResult().toByteArray() : null;
       this.dispatcher.onNext(SuspendedActivity.class,
           new SuspendedActivityImpl(evaluatorContext, message, activityId));
     } else if (ReefServiceProtos.State.DONE == activityState) {
-      final EvaluatorContext evaluatorContext = this.activeContextMap.get(contextId);
+      final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
       this.runningActivity = null;
       final byte[] message = activityStatusProto.hasResult() ? activityStatusProto.getResult().toByteArray() : null;
       this.dispatcher.onNext(CompletedActivity.class,
@@ -479,7 +500,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
       final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
       /* Assuming nothing went wrong with the context:
        * The failed activity could have corrupted it, but I can't make this call.  */
-      final EvaluatorContext evaluatorContext = this.activeContextMap.get(contextId);
+      final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
       final FailedActivity activityException = activityStatusProto.hasResult() ?
           new FailedActivity(activityId, codec.decode(activityStatusProto.getResult().toByteArray()), Optional.<ActiveContext>of(evaluatorContext)) :
           new FailedActivity(activityId, "Failed Activity: " + activityState, Optional.<ActiveContext>of(evaluatorContext));
@@ -515,6 +536,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         if (runningActivity != null) {
           sb.append("ActivityRuntime " + runningActivity.getId() + " did not complete before this evaluator died. ");
         }
+        this.isResourceReleased = true; // RM is telling me its DONE/FAILED, so I'm assuming it has already released the resources
         handle(new EvaluatorException(this.evaluatorID, sb.toString(), runningActivity));
         this.state = STATE.KILLED;
       }
