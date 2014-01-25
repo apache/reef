@@ -15,9 +15,7 @@
  */
 package com.microsoft.reef.io.network.impl;
 
-import com.microsoft.reef.activity.Activity;
 import com.microsoft.reef.io.Tuple;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
 import com.microsoft.reef.io.naming.Naming;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.ConnectionFactory;
@@ -39,7 +37,6 @@ import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
 
 import javax.inject.Inject;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,7 +58,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
   private final Transport transport;
   private final NameClient nameClient;
 
-  private ConcurrentMap<Identifier, Connection<T>> idToConnMap;
+  private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
 
   @Inject
   public NetworkService(
@@ -82,14 +79,14 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     this.transport = tpFactory.create(nsPort, new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
     this.nameClient = new NameClient(nameServerAddr, nameServerPort, factory, new NameCache(30000));
-    if(nsPort==0){
+    if (nsPort == 0) {
       nsPort = transport.getListeningPort();
       final CountDownLatch registered = new CountDownLatch(1);
       SingleThreadStage<Tuple<Identifier, InetSocketAddress>> stage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
 
         @Override
         public void onNext(Tuple<Identifier, InetSocketAddress> tuple) {
-          
+
           try {
             nameClient.register(tuple.getKey(), tuple.getValue());
             registered.countDown();
@@ -100,8 +97,8 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
           }
         }
       }, 5);
-      
-      final Tuple<Identifier,InetSocketAddress> tuple = new Tuple<>(getMyId(), (InetSocketAddress)transport.getLocalAddress());
+
+      final Tuple<Identifier, InetSocketAddress> tuple = new Tuple<>(getMyId(), (InetSocketAddress) transport.getLocalAddress());
       stage.onNext(tuple);
       try {
         LOG.log(Level.FINE, "Waiting for nameservice registration");
@@ -111,7 +108,6 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
         throw new RuntimeException("Interrupted while waiting for name service registration", e);
       }
     }
-    this.idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
   }
 
   public Identifier getMyId() {
@@ -126,7 +122,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     return codec;
   }
 
-  public Naming getNameClinet() {
+  public Naming getNameClient() {
     return nameClient;
   }
 
@@ -134,7 +130,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     return factory;
   }
 
-  void remove(Identifier id) {
+  void remove(final Identifier id) {
     idToConnMap.remove(id);
   }
 
@@ -146,19 +142,20 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
   }
 
   @Override
-  public Connection<T> newConnection(Identifier destId) {
-    Connection<T> conn;
-    if ((conn = idToConnMap.get(destId)) != null)
+  public Connection<T> newConnection(final Identifier destId) {
+    final Connection<T> conn = idToConnMap.get(destId);
+    if (conn != null) {
       return conn;
+    } else {
+      final Connection<T> newConnection = new NSConnection<T>(myId, destId, new LinkListener<T>() {
+        @Override
+        public void messageReceived(Object message) {
+        }
+      }, this);
 
-    conn = new NSConnection<T>(myId, destId, new LinkListener<T>() {
-      @Override
-      public void messageReceived(Object message) {
-      }
-    }, this);
-
-    Connection<T> existing = idToConnMap.putIfAbsent(destId, conn);
-    return (existing == null) ? conn : existing;
+      final Connection<T> existing = idToConnMap.putIfAbsent(destId, newConnection);
+      return (existing == null) ? newConnection : existing;
+    }
   }
 
 }
@@ -168,15 +165,15 @@ class MessageHandler<T> implements EventHandler<TransportEvent> {
   private final EventHandler<Message<T>> handler;
   private final NSMessageCodec<T> codec;
 
-  public MessageHandler(EventHandler<Message<T>> handler, Codec<T> codec, IdentifierFactory factory) {
+  public MessageHandler(final EventHandler<Message<T>> handler, final Codec<T> codec, final IdentifierFactory factory) {
     this.handler = handler;
     this.codec = new NSMessageCodec<T>(codec, factory);
   }
 
   @Override
-  public void onNext(TransportEvent value) {
-    byte[] data = value.getData();
-    NSMessage<T> obj = codec.decode(data);
+  public void onNext(final TransportEvent value) {
+    final byte[] data = value.getData();
+    final NSMessage<T> obj = codec.decode(data);
     handler.onNext(obj);
   }
 

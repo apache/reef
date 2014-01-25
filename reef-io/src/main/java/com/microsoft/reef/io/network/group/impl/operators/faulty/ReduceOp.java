@@ -15,15 +15,6 @@
  */
 package com.microsoft.reef.io.network.group.impl.operators.faulty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.group.operators.Reduce.ReduceFunction;
@@ -32,247 +23,202 @@ import com.microsoft.reef.io.network.impl.NetworkServiceParameters;
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage;
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
 import com.microsoft.reef.io.network.util.Utils;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
 
+import javax.inject.Inject;
+import java.util.*;
+
 /**
- * 
+ *
  */
 public class ReduceOp {
-  public static class Sender<V>{
+  public static class Sender<V> {
     private final Identifier self;
-    private Identifier parent;
-    private Set<Identifier> children;
+    private final Identifier parent;
+    private final Set<Identifier> children = new HashSet<>();
     private final Codec<V> codec;
     private final ReduceFunction<V> redFunc;
     private final ReduceHandler handler;
     private final NetworkService<GroupCommMessage> netService;
     private final ExceptionHandler excHandler;
-    private final boolean approxGrad;
-    private final Map<Identifier, V> prevGradients;
-    
+    private final boolean reusePreviousValues;
+    private final Map<Identifier, V> previousValues;
+
     @Inject
-    public Sender(NetworkService<GroupCommMessage> netService,
-        ReduceHandler handler,
-        @Parameter(BroadReduceConfig.ReduceConfig.DataCodec.class) Codec<V> codec,
-        @Parameter(BroadReduceConfig.ReduceConfig.ReduceFunction.class) ReduceFunction<V> redFunc,
-        @Parameter(BroadReduceConfig.ReduceConfig.Sender.SelfId.class) String selfId,
-        @Parameter(BroadReduceConfig.ReduceConfig.Sender.ParentId.class) String parentId,
-        @Parameter(BroadReduceConfig.ReduceConfig.Sender.ChildIds.class) Set<String> childIds,
-        @Parameter(BroadReduceConfig.ReduceConfig.Sender.ApproximateGradient.class) boolean approxGrad,
-        @Parameter(BroadReduceConfig.IdFactory.class) IdentifierFactory idFac,
-        @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> excHandler){
+    public Sender(final NetworkService<GroupCommMessage> netService,
+                  final ReduceHandler handler,
+                  final @Parameter(BroadReduceConfig.ReduceConfig.DataCodec.class) Codec<V> codec,
+                  final @Parameter(BroadReduceConfig.ReduceConfig.ReduceFunction.class) ReduceFunction<V> redFunc,
+                  final @Parameter(BroadReduceConfig.ReduceConfig.Sender.SelfId.class) String selfId,
+                  final @Parameter(BroadReduceConfig.ReduceConfig.Sender.ParentId.class) String parentId,
+                  final @Parameter(BroadReduceConfig.ReduceConfig.Sender.ChildIds.class) Set<String> childIds,
+                  final @Parameter(BroadReduceConfig.ReduceConfig.Sender.ApproximateGradient.class) boolean reusePreviousValues,
+                  final @Parameter(BroadReduceConfig.IdFactory.class) IdentifierFactory idFac,
+                  final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> excHandler) {
       this.netService = netService;
       this.handler = handler;
       this.codec = codec;
       this.redFunc = redFunc;
       this.parent = (parentId.equals(BroadReduceConfig.defaultValue)) ? null : idFac.getNewInstance(parentId);
-      this.approxGrad = approxGrad;
-      if(this.approxGrad)
-        prevGradients = new HashMap<>();
-      else
-        prevGradients = null;
-          
+      this.reusePreviousValues = reusePreviousValues;
+      if (this.reusePreviousValues) {
+        previousValues = new HashMap<>();
+      } else {
+        previousValues = null;
+      }
       this.self = (selfId.equals(BroadReduceConfig.defaultValue) ? null : idFac.getNewInstance(selfId));
       this.excHandler = (ExceptionHandler) excHandler;
 
-      children = new HashSet<>();
-      System.out.println("Approximate Gradient: " + approxGrad);
+      System.out.println("Approximate Gradient: " + reusePreviousValues);
       System.out.println("Received childIds:");
-      for(String childId : childIds){
+      for (final String childId : childIds) {
         System.out.println(childId);
-        if (childId.equals(AllReduceConfig.defaultValue)) {
-          System.out.println("Breaking");
-          children = null;
-          break;
-        }
-        children.add(idFac.getNewInstance(childId));
-      }
-    }
-    
-    public void sync(){
-      //TODO: Currently does not care about parents
-      //Assumes that all ctr msgs are about children
-      //There is currently only one case where ctrl
-      //msgs are sent about parents thats when the
-      //task is complete or control activity finishes
-      //It works now because we do not depend on sync
-      //functionality for that
-      Map<Identifier, Integer> isIdAlive = new HashMap<>();
-      handler.sync(isIdAlive);
-      for(Identifier id : isIdAlive.keySet()){
-        int status = isIdAlive.get(id);
-        if(status<0){
-          assert(children!=null);
-          System.out.println("RedSender: Removing " + id + " from children of " + self);
-          children.remove(id);
-        }
-        else if(status>0){
-          if(children==null)
-            children = new HashSet<>();
-            System.out.println("RedSender: Adding " + id + " to children of " + self);
-          children.add(id);
-        }
-        else{
-          //No change. Need not worry
+        if (!childId.equals(AllReduceConfig.defaultValue)) {
+          this.children.add(idFac.getNewInstance(childId));
         }
       }
-      if(children!=null && children.isEmpty())
-        children = null;
     }
-    
+
+    public void sync() {
+      final Map<Identifier, Integer> isIdAlive = new HashMap<>();
+      this.handler.sync(isIdAlive);
+      SyncHelper.update(this.children, isIdAlive, this.self);
+    }
+
     /**
      * @param myData
-     * @throws InterruptedException 
-     * @throws NetworkException 
+     * @throws InterruptedException
+     * @throws NetworkException
      */
-    public void send(V myData) throws NetworkFault, NetworkException, InterruptedException {
+    public void send(final V myData) throws NetworkFault, NetworkException, InterruptedException {
       System.out.println("I am Reduce sender" + self.toString());
-
-      V redVal = myData;
-      if(children!=null){
-        //I am an intermendiate node
-        //Wait for children to send
-        List<V> vals = new ArrayList<>();
-        vals.add(myData);
-
-        for(Identifier child : children){
-          System.out.println("Waiting for child: " + child);
-          V cVal = handler.get(child,codec);
-          System.out.println("Received: " + cVal);
-          if(cVal!=null){
-            vals.add(cVal);
-            if(approxGrad){
-              prevGradients.put(child,cVal);
-            }
-          }
-          else{
-            if(approxGrad){
-              V prevGrad = prevGradients.get(child);
-              if(prevGrad!=null)
-                vals.add(prevGrad);
-            }
-          }
+      final List<V> vals = new ArrayList<>(this.children.size() + 1);
+      vals.add(myData);
+      for (final Identifier child : children) {
+        System.out.println("Waiting for child: " + child);
+        final Optional<V> valueFromChild = getValueForChild(child);
+        if (valueFromChild.isPresent()) {
+          vals.add(valueFromChild.get());
         }
-        
-        //Reduce the received values
-        redVal = redFunc.apply(vals);
-        System.out.println("Local Reduced value: " + redVal);
-        
-        assert(parent!=null);
-        
-        System.out.println("Sending " + redVal + " to parent: " + parent);
-        send(redVal,parent);
       }
-      else{
-        
-        assert(parent!=null);
-        //I am a leaf node.
-        //Send and wait for
-        //reduced val from parent
-        System.out.println("I am leaf. Sending "+ myData +" to my parent: " + parent);
-        send(myData, parent);
-      }
+
+      //Reduce the received values
+      final V reducedValue = redFunc.apply(vals);
+      System.out.println("Sending " + reducedValue + " to parent: " + parent);
+      assert (parent != null);
+      this.send(reducedValue, parent);
     }
-    
-    public void send(V redVal, Identifier child) throws NetworkException {
-      if(excHandler.hasExceptions())
+
+    /**
+     * Fetches the value from the given child.
+     * If a value is received it is returned and stored as the last gradient if we do approximate gradients.
+     * <p/>
+     * If no value is received and we do approximate gradients, the last known gradient is returned instead (if any).
+     * <p/>
+     * If no value is received and we do not approximate gradients, no value is returned.
+     *
+     * @param childIdentifier
+     * @return
+     * @throws NetworkException
+     * @throws InterruptedException
+     */
+    private Optional<V> getValueForChild(final Identifier childIdentifier) throws NetworkException, InterruptedException {
+      System.out.println("Waiting for child: " + childIdentifier);
+      final V valueFromChild = handler.get(childIdentifier, codec);
+      System.out.println("Received: " + valueFromChild);
+
+      final Optional<V> returnValue;
+      if (valueFromChild != null) {
+        // Use this gradient and update the last gradient seen.
+        returnValue = Optional.of(valueFromChild);
+        if (this.reusePreviousValues) {
+          previousValues.put(childIdentifier, valueFromChild);
+        }
+      } else {
+        // Use the last gradient seen or nothing.
+        if (this.reusePreviousValues && this.previousValues.containsKey(childIdentifier)) {
+          returnValue = Optional.of(previousValues.get(childIdentifier));
+        } else {
+          returnValue = Optional.empty();
+        }
+      }
+      return returnValue;
+    }
+
+    /**
+     * Sends the given value to the given destination
+     *
+     * @param value
+     * @param destination
+     * @throws NetworkException
+     */
+    private void send(final V value, final Identifier destination) throws NetworkException {
+      if (excHandler.hasExceptions())
         throw new NetworkException("Unable to send msgs");
-      Connection<GroupCommMessage> link = netService.newConnection(child);
+      final Connection<GroupCommMessage> link = netService.newConnection(destination);
       link.open();
-      link.write(Utils.bldGCM(Type.Reduce, self, child, codec.encode(redVal)));
+      link.write(Utils.bldGCM(Type.Reduce, self, destination, codec.encode(value)));
     }
   }
-  
-  public static class Receiver<V>{
+
+  public static class Receiver<V> {
     private final Identifier self;
-    private Set<Identifier> children;
+    private final Set<Identifier> children = new HashSet<>();
     private final Codec<V> codec;
     private final ReduceFunction<V> redFunc;
     private final ReduceHandler handler;
-    
+
     @Inject
-    public Receiver(NetworkService<GroupCommMessage> netService,
-        ReduceHandler handler,
-        @Parameter(BroadReduceConfig.ReduceConfig.DataCodec.class) Codec<V> codec,
-        @Parameter(BroadReduceConfig.ReduceConfig.ReduceFunction.class) ReduceFunction<V> redFunc,
-        @Parameter(BroadReduceConfig.ReduceConfig.Receiver.SelfId.class) String selfId,
-        @Parameter(BroadReduceConfig.ReduceConfig.Receiver.ParentId.class) String parentId,
-        @Parameter(BroadReduceConfig.ReduceConfig.Receiver.ChildIds.class) Set<String> childIds,
-        @Parameter(BroadReduceConfig.IdFactory.class) IdentifierFactory idFac){
+    public Receiver(final NetworkService<GroupCommMessage> netService,
+                    final ReduceHandler handler,
+                    final @Parameter(BroadReduceConfig.ReduceConfig.DataCodec.class) Codec<V> codec,
+                    @Parameter(BroadReduceConfig.ReduceConfig.ReduceFunction.class) ReduceFunction<V> redFunc,
+                    @Parameter(BroadReduceConfig.ReduceConfig.Receiver.SelfId.class) String selfId,
+                    @Parameter(BroadReduceConfig.ReduceConfig.Receiver.ParentId.class) String parentId,
+                    @Parameter(BroadReduceConfig.ReduceConfig.Receiver.ChildIds.class) Set<String> childIds,
+                    @Parameter(BroadReduceConfig.IdFactory.class) IdentifierFactory idFac) {
       this.handler = handler;
       this.codec = codec;
       this.redFunc = redFunc;
       this.self = (selfId.equals(BroadReduceConfig.defaultValue) ? null : idFac.getNewInstance(selfId));
 
-      children = new HashSet<>();
-      System.out.println("Received childIds:");
-      for(String childId : childIds){
-        System.out.println(childId);
-        if (childId.equals(AllReduceConfig.defaultValue)) {
-          System.out.println("Breaking");
-          children = null;
-          break;
-        }
-        children.add(idFac.getNewInstance(childId));
-      }
-    }
-    
-    public void sync(){
-      //TODO: Currently does not care about parents
-      //Assumes that all ctr msgs are about children
-      //There is currently only one case where ctrl
-      //msgs are sent about parents thats when the
-      //task is complete or control activity finishes
-      //It works now because we do not depend on sync
-      //functionality for that
-      Map<Identifier, Integer> isIdAlive = new HashMap<>();
-      handler.sync(isIdAlive);
-      for(Identifier id : isIdAlive.keySet()){
-        int status = isIdAlive.get(id);
-        if(status<0){
-          assert(children!=null);
-          System.out.println("RedReceiver: Removing " + id + " from children of " + self);
-          children.remove(id);
-        }
-        else if(status>0){
-          if(children==null)
-            children = new HashSet<>();
-            System.out.println("RedReceiver: Adding " + id + " to children of " + self);
-          children.add(id);
-        }
-        else{
-          //No change. Need not worry
+      System.out.println("Received childIds: " + childIds);
+      for (final String childId : childIds) {
+        if (!childId.equals(AllReduceConfig.defaultValue)) {
+          children.add(idFac.getNewInstance(childId));
         }
       }
-      if(children!=null && children.isEmpty())
-        children = null;
     }
-    
-    public V reduce() throws NetworkException, InterruptedException{
+
+    public void sync() {
+      final Map<Identifier, Integer> isIdAlive = new HashMap<>();
+      this.handler.sync(isIdAlive);
+      SyncHelper.update(this.children, isIdAlive, this.self);
+    }
+
+    public V reduce() throws NetworkException, InterruptedException {
       //I am root.
       System.out.println("I am root " + self);
-      V redVal = null;
-      if(children!=null){
-        //Wait for children to send
-        List<V> vals = new ArrayList<>();
+      //Wait for children to send
+      final List<V> vals = new ArrayList<>(this.children.size());
 
-        for(Identifier child : children){
-          System.out.println("Waiting for child: " + child);
-          V cVal = handler.get(child,codec);
-          System.out.println("Received: " + cVal);
-          if(cVal!=null){
-            vals.add(cVal);
-          }
+      for (final Identifier childIdentifier : this.children) {
+        System.out.println("Waiting for child: " + childIdentifier);
+        final V cVal = handler.get(childIdentifier, codec);
+        System.out.println("Received: " + cVal);
+        if (cVal != null) {
+          vals.add(cVal);
         }
-        
-        //Reduce the received values
-        redVal = redFunc.apply(vals);
-        System.out.println("Local Reduced value: " + redVal);
       }
+
+      //Reduce the received values
+      final V redVal = redFunc.apply(vals);
+      System.out.println("Local Reduced value: " + redVal);
       return redVal;
     }
 

@@ -17,53 +17,48 @@ package com.microsoft.reef.io.serialization;
 
 import javax.inject.Inject;
 import java.io.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * A {@link Codec} for {@link Serializable} objects.
- *
+ * <p/>
  * It uses java serialization, use with caution.
  *
  * @param <T> The type of objects Serialized
  */
 public class SerializableCodec<T extends Serializable> implements Codec<T> {
 
-    private static final Logger LOG = Logger.getLogger(SerializableCodec.class.getName());
+  private static final Logger LOG = Logger.getLogger(SerializableCodec.class.getName());
 
-    /**
-     * Default constructor for TANG use.
-     */
-    @Inject
-    public SerializableCodec() {
+  /**
+   * Default constructor for TANG use.
+   */
+  @Inject
+  public SerializableCodec() {
+  }
+
+  @Override
+  public byte[] encode(T obj) {
+    try (final ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+      try (final ObjectOutputStream out = new ObjectOutputStream(bout)) {
+        out.writeObject(obj);
+      }
+      return bout.toByteArray();
+    } catch (final IOException ex) {
+      throw new RuntimeException("Unable to encode: " + obj, ex);
+    }
+  }
+
+  @Override
+  public T decode(final byte[] buf) {
+    try {
+      try (final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(buf))) {
+        final T result = (T) oin.readObject();
+        return result;
+      }
+    } catch (final IOException | ClassNotFoundException ex) {
+      throw new RuntimeException("Unable to decode.", ex);
     }
 
-    @Override
-    public byte[] encode(T obj) {
-        final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        try {
-            try (final ObjectOutputStream out = new ObjectOutputStream(bout)) {
-                out.writeObject(obj);
-            }
-        } catch (IOException ex) {
-            LOG.log(Level.WARNING, "codec", ex);
-        }
-
-        return bout.toByteArray();
-    }
-
-    @Override
-    public T decode(final byte[] buf) {
-        try {
-            try (final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(buf))) {
-                final T result = (T) oin.readObject();
-                return result;
-            }
-        } catch (final IOException | ClassNotFoundException ex) {
-            LOG.log(Level.WARNING, "codec", ex);
-            return null;
-        }
-
-    }
+  }
 }
