@@ -43,7 +43,6 @@ public class NettyLink<T> implements Link<T> {
   private final Channel channel;
   private final Encoder<? super T> encoder;
   private final LinkListener<? super T> listener;
-  private final ChannelBuffer intBuffer = ChannelBuffers.buffer(ChannelBuffers.LITTLE_ENDIAN, INT_SIZE);
 
   /**
    * Constructs a link
