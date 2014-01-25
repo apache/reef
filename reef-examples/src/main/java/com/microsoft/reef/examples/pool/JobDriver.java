@@ -222,8 +222,8 @@ public final class JobDriver {
 
       if (runActivity) {
         final String activityId = String.format("StartActivity_%08d", nActivity);
-        LOG.log(Level.INFO, "TIME: Submit Activity {0} to Context {1}",
-            new Object[] { activityId, context.getId() });
+        LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
+            new Object[] { activityId, context.getEvaluatorId() });
         context.submitActivity(getActivityConfiguration(activityId));
       } else {
         context.close();
