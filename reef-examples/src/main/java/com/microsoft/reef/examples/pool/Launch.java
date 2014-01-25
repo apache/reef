@@ -80,6 +80,14 @@ public final class Launch {
   }
 
   /**
+   * Command line parameter = true to submit activity and context in one request.
+   */
+  @NamedParameter(doc = "Submit activity and context together",
+      short_name = "piggyback", default_value = "true")
+  public static final class Piggyback implements Name<Boolean> {
+  }
+
+  /**
    * Command line parameter = true to run locally, or false to run on YARN.
    */
   @NamedParameter(doc = "Whether or not to run on the local runtime",
@@ -107,6 +115,7 @@ public final class Launch {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final CommandLine cl = new CommandLine(confBuilder);
     cl.registerShortNameOfClass(Local.class);
+    cl.registerShortNameOfClass(Piggyback.class);
     cl.registerShortNameOfClass(NumEvaluators.class);
     cl.registerShortNameOfClass(NumActivities.class);
     cl.registerShortNameOfClass(Delay.class);
@@ -119,6 +128,7 @@ public final class Launch {
       throws InjectionException, BindException {
     final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindNamedParameter(Piggyback.class, String.valueOf(injector.getNamedInstance(Piggyback.class)));
     cb.bindNamedParameter(NumEvaluators.class, String.valueOf(injector.getNamedInstance(NumEvaluators.class)));
     cb.bindNamedParameter(NumActivities.class, String.valueOf(injector.getNamedInstance(NumActivities.class)));
     cb.bindNamedParameter(Delay.class, String.valueOf(injector.getNamedInstance(Delay.class)));
