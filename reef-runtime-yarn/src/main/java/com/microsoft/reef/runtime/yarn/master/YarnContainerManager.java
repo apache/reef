@@ -454,6 +454,10 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private void handle(final ResourceRequestProto resourceRequestProto) {
 
+    if (resourceRequestProto.hasMemorySize()) {
+      LOG.log(Level.WARNING, "The YARN runtime currently doesn't support explocit memory sizes.");
+    }
+
     final ResourceRequest request = Records.newRecord(ResourceRequest.class);
 
     final String[] nodes = resourceRequestProto.getNodeNameCount() == 0 ? null :
