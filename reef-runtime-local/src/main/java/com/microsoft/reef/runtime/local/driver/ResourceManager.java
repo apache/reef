@@ -163,7 +163,7 @@ public final class ResourceManager {
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(c.getNodeID())
           .setConfigurationFileName(evaluatorConfigurationFile.getName())
-          .setMemory(512)
+          .setMemory(c.getMemory())
           .build();
 
       LOG.log(Level.FINEST, "Launching container " + c);
