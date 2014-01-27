@@ -48,7 +48,7 @@ message RuntimeStatusProto {
 
 message ResourceRequestProto {
 	optional SIZE resource_size   = 1;
-    optional int32 memory_size    = 2;
+    optional int32 memory_size = 2; // Memory size of the evaluator in MB
     optional int32 priority       = 3;
 
     required int32 resource_count = 5;
