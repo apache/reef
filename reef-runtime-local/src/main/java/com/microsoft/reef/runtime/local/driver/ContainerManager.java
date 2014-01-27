@@ -126,13 +126,13 @@ final class ContainerManager implements AutoCloseable {
     return this.freeNodeList.size() > 0;
   }
 
-  final Container allocateOne() {
+  final Container allocateOne(final int megaBytes) {
     synchronized (this.containers) {
       final String nodeId = this.freeNodeList.remove(0);
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
       final File processFolder = new File(this.rootFolder, processID);
       processFolder.mkdirs();
-      final ProcessContainer container = new ProcessContainer(this.errorHandlerRID, nodeId, processID, processFolder);
+      final ProcessContainer container = new ProcessContainer(this.errorHandlerRID, nodeId, processID, processFolder, megaBytes);
       this.containers.put(container.getContainerID(), container);
       return container;
     }

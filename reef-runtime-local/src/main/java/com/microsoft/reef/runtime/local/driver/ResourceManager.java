@@ -27,6 +27,7 @@ import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
+import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
@@ -54,6 +55,7 @@ public final class ResourceManager {
   private final ResourceRequestQueue requestQueue = new ResourceRequestQueue();
   private final ContainerManager theContainers;
   private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
+  private final int defaultMemorySize;
 
   private final RemoteManager remoteManager;
 
@@ -70,15 +72,17 @@ public final class ResourceManager {
 
   @Inject
   ResourceManager(final ContainerManager cm,
-                  @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
-                  @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
-                  @Parameter(LocalDriverConfiguration.GlobalLibraries.class) final Set<String> globalLibraries,
-                  @Parameter(LocalDriverConfiguration.GlobalFiles.class) final Set<String> globalFiles,
+                  final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
+                  final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
+                  final @Parameter(LocalDriverConfiguration.GlobalLibraries.class) Set<String> globalLibraries,
+                  final @Parameter(LocalDriverConfiguration.GlobalFiles.class) Set<String> globalFiles,
+                  final @Parameter(LocalRuntimeConfiguration.DefaultMemorySize.class) int defaultMemorySize,
                   final RemoteManager remoteManager) {
     this.theContainers = cm;
     this.allocationHandler = allocationHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusHandlerEventHandler;
     this.remoteManager = remoteManager;
+    this.defaultMemorySize = defaultMemorySize;
     this.globalLibraries = new ArrayList<>(globalLibraries);
     Collections.sort(this.globalLibraries);
     this.globalFiles = globalFiles;
@@ -173,11 +177,17 @@ public final class ResourceManager {
    */
   private void checkQ() {
     if (this.theContainers.hasContainerAvailable() && this.requestQueue.hasOutStandingRequests()) {
-      // Allocate a Container
-      final Container container = this.theContainers.allocateOne();
+      // Record the satisfaction of one request and get its details.
+      final DriverRuntimeProtocol.ResourceRequestProto requestProto = this.requestQueue.satisfyOne();
 
-      // Record the satisfaction of one request
-      this.requestQueue.satisfyOne();
+      // Allocate a Container
+      final Container container;
+      if (requestProto.hasMemorySize()) {
+        container = this.theContainers.allocateOne(requestProto.getMemorySize());
+      } else {
+        container = this.theContainers.allocateOne(this.defaultMemorySize);
+      }
+
 
       // Tell the receivers about it
       final DriverRuntimeProtocol.ResourceAllocationProto alloc =
