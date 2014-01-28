@@ -157,7 +157,7 @@ public final class JobDriver {
     }
 
     /**
-     * Handles AllocatedEvaluator: Submit an empty context and the HelloActivity
+     * Handles AllocatedEvaluator: Submit an empty context
      */
     final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
         @Override
@@ -227,7 +227,7 @@ public final class JobDriver {
                         .set(ActivityConfiguration.IDENTIFIER, activityId)
                         .set(ActivityConfiguration.ACTIVITY, com.microsoft.reef.examples.retained_eval.ShellActivity.class)
                         .build());
-        cb.bindNamedParameter(Launch.Command.class, command);
+        cb.bindNamedParameter(com.microsoft.reef.examples.retained_eval.Launch.Command.class, command);
         return cb.build();
     }
 
@@ -241,7 +241,7 @@ public final class JobDriver {
             final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
             return ch;
         } catch (final IOException e) {
-            final String message = "Unable to load class hierarchy" + SHELL_ACTIVITY_CLASS_HIERARCHY_FILENAME;
+            final String message = "Unable to load class hierarchy " + binFile;
             LOG.log(Level.SEVERE, message, e);
             throw new RuntimeException(message, e);
         }
@@ -383,7 +383,7 @@ public final class JobDriver {
             }
             catch(final Exception e)
             {
-                LOG.log(Level.WARNING, "use default result");
+                LOG.log(Level.WARNING, "failed to decode activity outcome");
             }
             synchronized (JobDriver.this) {
                 JobDriver.this.results.add(act.getId() + " :: " + result);
@@ -456,7 +456,7 @@ public final class JobDriver {
      */
     private synchronized void requestEvaluators() {
         assert (this.state == State.INIT);
-        final int numNodes = this.catalog.getNodes().size();
+        final int numNodes = totalEvaluators;
         if (numNodes > 0) {
             LOG.log(Level.INFO, "Schedule on {0} nodes.", numNodes);
             this.evaluatorRequestor.submit(

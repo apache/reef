@@ -16,7 +16,6 @@
 package com.microsoft.reef.examples.retained_evalCLR;
 
 import com.microsoft.reef.client.*;
-import com.microsoft.reef.examples.helloCLR.HelloDriver;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
@@ -34,9 +33,8 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.OptionalParameter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,7 +63,7 @@ public final class Launch {
     /**
      * Command line parameter: a command to run. e.g. "echo Hello REEF"
      */
-    @NamedParameter(doc = "The shell command", short_name = "cmdCLR", default_value = "*INTERACTIVE*")
+    @NamedParameter(doc = "The shell command", short_name = "cmd", default_value = "*INTERACTIVE*")
     public static final class Command implements Name<String> {
     }
 
@@ -73,7 +71,7 @@ public final class Launch {
      * Command line parameter: number of experiments to run.
      */
     @NamedParameter(doc = "Number of times to run the command",
-            short_name = "num_runsCLR", default_value = "1")
+            short_name = "num_runs", default_value = "1")
     public static final class NumRuns implements Name<Integer> {
     }
 
@@ -81,7 +79,7 @@ public final class Launch {
      * Command line parameter = true to run locally, or false to run on YARN.
      */
     @NamedParameter(doc = "Whether or not to run on the local runtime",
-            short_name = "localCLR", default_value = "true")
+            short_name = "local", default_value = "true")
     public static final class Local implements Name<Boolean> {
     }
 
@@ -177,9 +175,9 @@ public final class Launch {
     public static void main(final String[] args) {
         try {
             final File dotNetFolder = new File(args[0]).getAbsoluteFile();
+            String[] removedArgs  = Arrays.copyOfRange(args, 1, args.length);
 
-            // for now always empty input from comment line
-            final Configuration config = getClientConfiguration(new String[0]);
+            final Configuration config = getClientConfiguration(removedArgs);
             LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
                     ConfigurationFile.toConfigurationString(config));
             final Injector injector = Tang.Factory.getTang().newInjector(config);
