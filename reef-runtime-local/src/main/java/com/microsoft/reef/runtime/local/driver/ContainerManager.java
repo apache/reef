@@ -117,7 +117,7 @@ final class ContainerManager implements AutoCloseable {
           .setRackName("/default-rack")
           .setHostName(NetUtils.getLocalAddress())
           .setPort(i)
-          .setMemorySize(512)
+          .setMemorySize(512) // TODO: Find the actual system memory on this machine.
           .build());
     }
   }
