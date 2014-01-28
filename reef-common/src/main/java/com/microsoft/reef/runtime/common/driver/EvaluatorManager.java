@@ -529,8 +529,8 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         final StringBuilder sb = new StringBuilder();
         sb.append("The resource manager informed me that Evaluator " + this.evaluatorID +
             " is in state " + resourceStatusProto.getState() + " but I think I'm in state " + this.state);
-        if (resourceStatusProto.getDiagnostics() != null && "".equals(resourceStatusProto.getDiagnostics())) {
-          sb.append("Cause: " + resourceStatusProto.getDiagnostics());
+        if (resourceStatusProto.hasDiagnostics()) {
+          sb.append("\nDiagnostics: " + resourceStatusProto.getDiagnostics());
         }
 
         if (runningActivity != null) {
