@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.retained_evalCLR;
+package com.microsoft.reef.examples.DBCModel;
 
 import com.microsoft.reef.driver.activity.*;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
@@ -21,7 +21,6 @@ import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 
-import com.microsoft.reef.examples.retained_eval.*;
 import com.microsoft.tang.*;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
@@ -47,7 +46,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Retained Evaluator example job driver. Execute shell command on all evaluators,
+ * DBC Model  Evaluator example job driver. Execute shell command on all evaluators,
  * capture stdout, and return concatenated results back to the client.
  */
 @Unit
@@ -61,14 +60,13 @@ public final class JobDriver {
      * Duration of one clock interval.
      */
     private static final int CHECK_UP_INTERVAL = 1000; // 1 sec.
-    private static final String JVM_CONTEXT_SUFFIX= "_JVMContext";
-    private static final String CLR_CONTEXT_SUFFIX= "_CLRContext";
+    private static int RUN_ITERATION = 25;
 
-    public static  int totalEvaluators = 2;
+    public static  int totalEvaluators = 1;
     private int nCLREvaluator = 1;                  // guarded by this
     private int nJVMEvaluator = totalEvaluators - nCLREvaluator;  // guarded by this
 
-    public static final String SHELL_ACTIVITY_CLASS_HIERARCHY_FILENAME = "ShellActivity.bin";
+    public static final String DBC_ACTIVITY_CLASS_HIERARCHY_FILENAME = "DBCActivity.bin";
 
     /**
      * String codec is used to encode the results
@@ -138,6 +136,8 @@ public final class JobDriver {
      */
     private int expectCount = 0;
 
+    private int iterationNum = 0;
+
     /**
      * Job driver constructor.
      * All parameters are injected from TANG automatically.
@@ -179,8 +179,7 @@ public final class JobDriver {
     private void submitEvaluator(final AllocatedEvaluator eval, EvaluatorType type) {
         synchronized (JobDriver.this) {
 
-            String contextIdSuffix = type.equals(EvaluatorType.JVM) ? JVM_CONTEXT_SUFFIX : CLR_CONTEXT_SUFFIX;
-            String contextId =  eval.getId() + contextIdSuffix;
+            String contextId =  eval.getId();
 
             eval.setType(type);
 
@@ -196,38 +195,22 @@ public final class JobDriver {
         }
     }
 
-    /**
-     * Makes an activity configuration for the CLR ShellActivity.
-     *
-     * @param activityId
-     * @return an activity configuration for the CLR Activity.
-     * @throws BindException
-     */
-    private static final Configuration getCLRActivityConfiguration(final String activityId, final String command) throws BindException {
+
+    private static final Configuration getCLRActivityConfiguration(final String activityId, final String activityKey) throws BindException {
         final ConfigurationBuilder cb = Tang.Factory.getTang()
-                .newConfigurationBuilder(loadShellActivityClassHierarchy(SHELL_ACTIVITY_CLASS_HIERARCHY_FILENAME));
+                .newConfigurationBuilder(loadShellActivityClassHierarchy(DBC_ACTIVITY_CLASS_HIERARCHY_FILENAME));
 
-        cb.bind("com.microsoft.reef.activity.IActivity", "Microsoft.Reef.Activity.ShellActivity");
-        cb.bind("com.microsoft.reef.driver.activity.ActivityConfigurationOptions.Identifier", activityId);
-        cb.bind("Microsoft.Reef.Activity.ShellActivity+Command", command);
-        return cb.build();
-    }
-
-    /**
-     * Makes an activity configuration for the JVM ShellActivity..
-     *
-     * @param activityId
-     * @return an activity configuration for the CLR Activity.
-     * @throws BindException
-     */
-    private static final Configuration getJVMActivityConfiguration(final String activityId, final String command) throws BindException {
-        final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-        cb.addConfiguration(
-                ActivityConfiguration.CONF
-                        .set(ActivityConfiguration.IDENTIFIER, activityId)
-                        .set(ActivityConfiguration.ACTIVITY, com.microsoft.reef.examples.retained_eval.ShellActivity.class)
-                        .build());
-        cb.bindNamedParameter(com.microsoft.reef.examples.retained_eval.Launch.Command.class, command);
+        cb.bind("com.microsoft.reef.activity.IActivity", "Microsoft.Reef.Activity.DBCActivity");
+        cb.bind("Microsoft.Reef.Activity.Configurations.ActivityConfigurationOptions.Identifier", activityId);
+        cb.bind("Microsoft.Reef.Activity.Configurations.ActivityConfigurationOptions.UseCache", "true");
+        if(! (activityKey.equals("s") || activityKey.equals("S")) )
+        {
+            cb.bind("Microsoft.Reef.Activity.DBCActivity+Key", activityKey);
+        }
+        else
+        {
+            cb.bind("Microsoft.Reef.Activity.DBCActivity+Key", "");
+        }
         return cb.build();
     }
 
@@ -276,17 +259,17 @@ public final class JobDriver {
     /**
      * Submit command to all available evaluators.
      *
-     * @param command shell command to execute.
+     * @param key shell command to execute.
      */
-    private void submit(final String command) {
-        LOG.log(Level.INFO, "Submit command {0} to {1} evaluators. state: {2}",
-                new Object[]{command, this.contexts.size(), this.state});
+    private void submit(final String key) {
+        LOG.log(Level.INFO, "Submit key {0} to {1} evaluators. state: {2}",
+                new Object[]{key, this.contexts.size(), this.state});
         assert (this.state == State.READY);
         this.expectCount = this.contexts.size();
         this.state = State.WAIT_ACTIVITIES;
         this.cmd = null;
         for (final ActiveContext context : this.contexts.values()) {
-            this.submit(context, command);
+            this.submit(context, key);
         }
     }
 
@@ -294,19 +277,13 @@ public final class JobDriver {
      * Submit an Activity that execute the command to a single Evaluator.
      * This method is called from <code>submitActivity(cmd)</code>.
      */
-    private void submit(final ActiveContext context, final String command) {
+    private void submit(final ActiveContext context, final String key) {
         try {
-            LOG.log(Level.INFO, "Sending command {0} to context: {1}", new Object[]{command, context});
             Configuration activityConfiguration;
             String activityId = context.getId() + "_activity";
-            if (context.getId().endsWith(JVM_CONTEXT_SUFFIX))
-            {
-                activityConfiguration = getJVMActivityConfiguration(activityId, command);
-            }
-            else
-            {
-                activityConfiguration = getCLRActivityConfiguration(activityId, command);
-            }
+
+            activityConfiguration = getCLRActivityConfiguration(activityId, key);
+
             context.submitActivity(activityConfiguration);
         } catch (final BindException ex) {
             LOG.log(Level.SEVERE, "Bad Activity configuration for context: " + context.getId(), ex);
@@ -369,21 +346,14 @@ public final class JobDriver {
         public void onNext(final CompletedActivity act) {
             LOG.log(Level.INFO, "Completed activity: {0}", act.getId());
             // Take the message returned by the activity and add it to the running result.
-            String result = "default result";
+            String result="default";
             try
             {
-                if(act.getId().contains(CLR_CONTEXT_SUFFIX))
-                {
-                     result = new String(act.get());
-                }
-                else
-                {
-                    result = JVM_CODEC.decode(act.get());
-                }
+                result = new String(act.get());
             }
             catch(final Exception e)
             {
-                LOG.log(Level.WARNING, "failed to decode activity outcome");
+                LOG.log(Level.SEVERE, "failed to decode result");
             }
             synchronized (JobDriver.this) {
                 JobDriver.this.results.add(act.getId() + " :: " + result);
@@ -392,9 +362,19 @@ public final class JobDriver {
                 if (--JobDriver.this.expectCount <= 0) {
                     JobDriver.this.returnResults();
                     JobDriver.this.state = State.READY;
-                    if (JobDriver.this.cmd != null) {
-                        JobDriver.this.submit(JobDriver.this.cmd);
+                    if (iterationNum < RUN_ITERATION)
+                    {
+                        JobDriver.this.submit(ActivityKeys.Entries[iterationNum]);
+                        iterationNum++;
                     }
+                    else
+                    {
+                        for(ActiveContext context: JobDriver.this.contexts.values())
+                        {
+                             context.close();
+                        }
+                    }
+
                 }
             }
         }
@@ -456,12 +436,12 @@ public final class JobDriver {
      */
     private synchronized void requestEvaluators() {
         assert (this.state == State.INIT);
-        final int numNodes = totalEvaluators;
+        final int numNodes = 1;
         if (numNodes > 0) {
             LOG.log(Level.INFO, "Schedule on {0} nodes.", numNodes);
             this.evaluatorRequestor.submit(
                     EvaluatorRequest.newBuilder()
-                            .setSize(EvaluatorRequest.Size.SMALL)
+                            .setSize(EvaluatorRequest.Size.LARGE)
                             .setNumber(numNodes).build());
             this.state = State.WAIT_EVALUATORS;
             this.expectCount = numNodes;
@@ -494,4 +474,3 @@ public final class JobDriver {
         }
     }
 }
-
