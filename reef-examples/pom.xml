@@ -65,6 +65,16 @@
                     <outputFile>
                         ${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar
                     </outputFile>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>yarn-default.xml</exclude>
+                                <exclude>yarn-version-info.properties</exclude>
+                                <exclude>core-default.xml</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
             </plugin>
         </plugins>
