@@ -144,9 +144,7 @@ public final class Launch {
                     .build();
         } else {
             LOG.log(Level.INFO, "Running on YARN");
-            runtimeConfiguration = YarnClientConfiguration.CONF
-                    .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
-                    .build();
+            runtimeConfiguration = YarnClientConfiguration.CONF.build();
         }
 
         return Tang.Factory.getTang()
