@@ -17,7 +17,6 @@ package com.microsoft.reef.examples.pool;
 
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
-import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
@@ -81,6 +80,14 @@ public final class Launch {
   }
 
   /**
+   * Command line parameter = true to submit activity and context in one request.
+   */
+  @NamedParameter(doc = "Submit activity and context together",
+      short_name = "piggyback", default_value = "true")
+  public static final class Piggyback implements Name<Boolean> {
+  }
+
+  /**
    * Command line parameter = true to run locally, or false to run on YARN.
    */
   @NamedParameter(doc = "Whether or not to run on the local runtime",
@@ -108,6 +115,7 @@ public final class Launch {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final CommandLine cl = new CommandLine(confBuilder);
     cl.registerShortNameOfClass(Local.class);
+    cl.registerShortNameOfClass(Piggyback.class);
     cl.registerShortNameOfClass(NumEvaluators.class);
     cl.registerShortNameOfClass(NumActivities.class);
     cl.registerShortNameOfClass(Delay.class);
@@ -120,6 +128,7 @@ public final class Launch {
       throws InjectionException, BindException {
     final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindNamedParameter(Piggyback.class, String.valueOf(injector.getNamedInstance(Piggyback.class)));
     cb.bindNamedParameter(NumEvaluators.class, String.valueOf(injector.getNamedInstance(NumEvaluators.class)));
     cb.bindNamedParameter(NumActivities.class, String.valueOf(injector.getNamedInstance(NumActivities.class)));
     cb.bindNamedParameter(Delay.class, String.valueOf(injector.getNamedInstance(Delay.class)));
@@ -131,7 +140,7 @@ public final class Launch {
    *
    * @param commandLineConf Parsed command line arguments, as passed into main().
    * @return (immutable) TANG Configuration object.
-   * @throws BindException if configuration commandLineInjector fails.
+   * @throws BindException      if configuration commandLineInjector fails.
    * @throws InjectionException if configuration commandLineInjector fails.
    */
   private static Configuration getClientConfiguration(
@@ -145,9 +154,7 @@ public final class Launch {
           .build();
     } else {
       LOG.log(Level.FINE, "Running on YARN");
-      runtimeConfiguration = YarnClientConfiguration.CONF
-          .set(YarnClientConfiguration.REEF_JAR_FILE, EnvironmentUtils.getClassLocationFile(REEF.class))
-          .build();
+      runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
     return TANGUtils.merge(runtimeConfiguration, cloneCommandLineConfiguration(commandLineConf));
   }
@@ -178,7 +185,7 @@ public final class Launch {
 
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
       LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{2}--",
-          new Object[] { jobId, timeout / 1000, ConfigurationFile.toConfigurationString(runtimeConfig) });
+          new Object[]{jobId, timeout / 1000, ConfigurationFile.toConfigurationString(runtimeConfig)});
 
       final Configuration driverConfig =
           EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
