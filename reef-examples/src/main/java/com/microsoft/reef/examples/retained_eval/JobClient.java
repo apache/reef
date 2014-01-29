@@ -221,8 +221,8 @@ public class JobClient {
         totalTime += jobTime;
         ++numRuns;
 
-        LOG.log(Level.INFO, "Task {0} completed in {1} msec.:\n{2}",
-                new Object[] { numRuns, jobTime, result });
+        LOG.log(Level.INFO, "TIME: Task {0} completed in {1} msec.:\n{2}",
+                new Object[] { "" + numRuns, "" + jobTime, result });
 
         System.out.println(result);
 
