@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.retained_evalCLR;
+package com.microsoft.reef.examples.DBCModel;
 
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
@@ -39,7 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Retained Evaluators example - main class.
+ * DBC Model Evaluators example - main class.
  */
 public final class Launch {
 
@@ -53,7 +53,7 @@ public final class Launch {
     /**
      * Number of REEF worker threads in local mode.
      */
-    private static final int NUM_LOCAL_THREADS = JobDriver.totalEvaluators;
+    private static final int NUM_LOCAL_THREADS = 1;
 
     /**
      * Standard Java logger
@@ -166,7 +166,7 @@ public final class Launch {
 
 
     /**
-     * Main method that starts the Retained Evaluators job.
+     * Main method that starts the DBC Model  Evaluators job.
      *
      * @param args command line parameters.
      */
