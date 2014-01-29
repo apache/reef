@@ -19,6 +19,8 @@ import com.microsoft.reef.client.*;
 import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.JavaConfigurationBuilder;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
@@ -115,7 +117,8 @@ public class JobClient {
   @Inject
   JobClient(final REEF reef,
             @Parameter(Launch.Command.class) final String command,
-            @Parameter(Launch.NumRuns.class) final Integer numRuns) throws BindException {
+            @Parameter(Launch.NumRuns.class) final Integer numRuns,
+            @Parameter(Launch.NumEval.class) final Integer numEvaluators) throws BindException {
 
     this.reef = reef;
     this.command = command;
@@ -128,7 +131,8 @@ public class JobClient {
     this.prompt = this.isInteractive ?
         new BufferedReader(new InputStreamReader(System.in)) : null;
 
-    this.driverConfiguration =
+    final JavaConfigurationBuilder configBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    configBuilder.addConfiguration(
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "eval-" + System.currentTimeMillis())
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
@@ -140,7 +144,9 @@ public class JobClient {
           .set(DriverConfiguration.ON_CLIENT_MESSAGE, JobDriver.ClientMessageHandler.class)
           .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
           .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
-        .build();
+        .build());
+    configBuilder.bindNamedParameter(Launch.NumEval.class, "" + numEvaluators);
+    this.driverConfiguration = configBuilder.build();
   }
 
   /**
