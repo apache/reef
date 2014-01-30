@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 final class FileSet {
   private static final Logger LOG = Logger.getLogger(FileSet.class.getName());
   private final Set<File> theFiles = new HashSet<>();
+  private final Set<String> fileNames = new HashSet<>();
 
   /**
    * Add a file to the FileSet.
@@ -45,21 +46,26 @@ final class FileSet {
    */
   final void add(final File file) throws IOException {
     if (file.isFile()) {
+      if (this.fileNames.contains(file.getName())) {
+        throw new IOException("A file with this name has already been added: " + file.getName());
+      }
+      this.fileNames.add(file.getName());
       this.theFiles.add(file);
     } else {
       LOG.log(Level.WARNING, "Ignoring, because it is not a proper file: " + file);
     }
   }
 
+  final boolean containsFileWithName(final String name) {
+    return this.fileNames.contains(name);
+  }
+
+
   /**
    * @return an iterable over the filenames, sans the folder. e.g. "/tmp/foo.txt" is returned as "foo.txt"
    */
   final Set<String> fileNames() {
-    final Set<String> result = new HashSet<>(this.theFiles.size());
-    for (final File f : this.theFiles) {
-      result.add(f.getName());
-    }
-    return result;
+    return this.fileNames;
   }
 
   /**
