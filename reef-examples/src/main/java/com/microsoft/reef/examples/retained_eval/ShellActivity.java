@@ -16,6 +16,7 @@
 package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.activity.Activity;
+import com.microsoft.reef.util.OSUtils;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
@@ -57,8 +58,9 @@ public class ShellActivity implements Activity {
     final StringBuilder sb = new StringBuilder();
     try {
       // Execute the command
+      String cmd = OSUtils.isWindows()  ? "cmd.exe /c " + this.command : this.command;
       LOG.log(Level.INFO, "Call: {0} with: {1}", new Object[] {this.command, memento});
-      final Process proc = Runtime.getRuntime().exec(this.command);
+      final Process proc = Runtime.getRuntime().exec(cmd);
       try (final BufferedReader input =
             new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
         String line;
