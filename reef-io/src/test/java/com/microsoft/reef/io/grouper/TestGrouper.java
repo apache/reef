@@ -54,12 +54,12 @@ public class TestGrouper {
  
   // shared configs
   final static int bucketCount = 1000;
-  final static int eventsCount_combining = 40 * 1000000;
-  final static int eventsCount_noncombining = 5 * 1000000;
-  final static int workerCount = 24;
+  final static int eventsCount_combining = 60000; //6 * 1000000;
+  final static int eventsCount_noncombining = 50000; //5 * 1000000;
+  final static int workerCount = 1;
   final static int eventsPerWorker_combining = eventsCount_combining / workerCount;
   final static int eventsPerWorker_noncombining = eventsCount_noncombining / workerCount;
-  final static int outputWorkerCount = 8;
+  final static int outputWorkerCount = 2;
 
   /**
    * Test for groupers with Tuple<Integer,Integer> combining
@@ -82,20 +82,19 @@ public class TestGrouper {
 //    Observer<Tuple<Integer, Integer>> grouper_in;
 //    Observer<Object> grouper_out;
 
-    public void test(
-        int numWorkers, int eventsPerWorker) throws Exception {
+    public void test(int eventsPerWorker) throws Exception {
       logger.log(Level.INFO, "Test " + TestIntegerSumGrouper.class.getName() + " on " + grouper.getClass().getName());
 
-      Thread[] workers = new Thread[numWorkers];
-      for (int i = 0; i < numWorkers; i++)
-        workers[i] = new WorkerThread(eventsPerWorker);
+      Thread[] workers = new Thread[workerCount];
+      for (int i = 0; i < workerCount; i++)
+        workers[i] = new WorkerThread(eventsPerWorker, Integer.toString(i));
 
       long start, stopIn, stopOut;
       start = System.currentTimeMillis();
       {
-        for (int i = 0; i < numWorkers; i++)
+        for (int i = 0; i < workerCount; i++)
           workers[i].start();
-        for (int i = 0; i < numWorkers; i++)
+        for (int i = 0; i < workerCount; i++)
           workers[i].join();
 
         logger.log(Level.INFO, "Input side done");
@@ -168,7 +167,8 @@ public class TestGrouper {
         }
       }
 
-      public WorkerThread(int eventsPerWorker) {
+      public WorkerThread(int eventsPerWorker, String id) {
+        super("worker-"+id);
         this.eventsPerWorker = eventsPerWorker;
       }
 
@@ -184,7 +184,6 @@ public class TestGrouper {
 
   @Test
   public void testShuffle() throws Exception {
-    final int numWorkers = 4;
 
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
 
@@ -202,7 +201,6 @@ public class TestGrouper {
     cb.bindImplementation(TestIntegerSumGrouper.class, TestIntegerSumGrouper.class);
    
     // output checker
-    cb.bindNamedParameter(OutputChecker.NumWorkers.class, Integer.toString(numWorkers));
     cb.bindNamedParameter(OutputChecker.CheckKeyCount.class, Boolean.toString(true));
     cb.bindNamedParameter(OutputChecker.NoCombiningExpected.class, Boolean.toString(false));
     cb.bindNamedParameter(OutputChecker.EventsPerWorker.class, Integer.toString(eventsPerWorker_combining));
@@ -216,12 +214,11 @@ public class TestGrouper {
     OutputChecker checker = i.getInstance(OutputChecker.class);
     checker.setTest(t);
     
-    t.test(numWorkers, eventsPerWorker_combining);
+    t.test(eventsPerWorker_combining);
   }
 
   @Test
   public void testSnowshovel() throws Exception {
-    final int numWorkers = 4;
 
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
 
@@ -237,7 +234,6 @@ public class TestGrouper {
     cb.bindImplementation(TestIntegerSumGrouper.class, TestIntegerSumGrouper.class);
 
     // output checker
-    cb.bindNamedParameter(OutputChecker.NumWorkers.class, Integer.toString(numWorkers));
     cb.bindNamedParameter(OutputChecker.CheckKeyCount.class, Boolean.toString(false));
     cb.bindNamedParameter(OutputChecker.NoCombiningExpected.class, Boolean.toString(false));
     cb.bindNamedParameter(OutputChecker.EventsPerWorker.class, Integer.toString(eventsPerWorker_combining));
@@ -251,13 +247,12 @@ public class TestGrouper {
     OutputChecker checker = i.getInstance(OutputChecker.class);
     checker.setTest(t);
     
-    t.test(numWorkers, eventsPerWorker_combining);
+    t.test(eventsPerWorker_combining);
   }
   
   
   @Test
   public void testSnowshovelAppending() throws Exception {
-    final int numWorkers = 4;
 
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
 
@@ -273,7 +268,6 @@ public class TestGrouper {
     cb.bindImplementation(TestIntegerSumGrouper.class, TestIntegerSumGrouper.class);
 
     // output checker
-    cb.bindNamedParameter(ListOutputChecker.NumWorkers.class, Integer.toString(numWorkers));
     cb.bindNamedParameter(ListOutputChecker.CheckKeyCount.class, Boolean.toString(false));
     cb.bindNamedParameter(ListOutputChecker.NoCombiningExpected.class, Boolean.toString(false));
     cb.bindNamedParameter(ListOutputChecker.EventsPerWorker.class, Integer.toString(eventsPerWorker_combining));
@@ -287,13 +281,12 @@ public class TestGrouper {
     ListOutputChecker checker = i.getInstance(ListOutputChecker.class);
     checker.setTest(t);
     
-    t.test(numWorkers, eventsPerWorker_combining);
+    t.test(eventsPerWorker_combining);
   }
   
   
   @Test
   public void testNonCombiningSnowshovel() throws Exception {
-    final int numWorkers = 4;
 
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
 
@@ -309,7 +302,6 @@ public class TestGrouper {
     cb.bindImplementation(TestIntegerSumGrouper.class, TestIntegerSumGrouper.class);
 
     // output checker
-    cb.bindNamedParameter(OutputChecker.NumWorkers.class, Integer.toString(numWorkers));
     cb.bindNamedParameter(OutputChecker.CheckKeyCount.class, Boolean.toString(false));
     cb.bindNamedParameter(OutputChecker.NoCombiningExpected.class, Boolean.toString(true));
     cb.bindNamedParameter(OutputChecker.EventsPerWorker.class, Integer.toString(eventsPerWorker_noncombining));
@@ -323,12 +315,11 @@ public class TestGrouper {
     OutputChecker checker = i.getInstance(OutputChecker.class);
     checker.setTest(t);
     
-    t.test(numWorkers, eventsPerWorker_noncombining);
+    t.test(eventsPerWorker_noncombining);
   }
 
   @Test
   public void testNonCombiningSync() throws Exception {
-    final int numWorkers = 4;
 
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
 
@@ -344,7 +335,6 @@ public class TestGrouper {
     cb.bindImplementation(TestIntegerSumGrouper.class, TestIntegerSumGrouper.class);
 
     // output checker
-    cb.bindNamedParameter(OutputChecker.NumWorkers.class, Integer.toString(numWorkers));
     cb.bindNamedParameter(OutputChecker.CheckKeyCount.class, Boolean.toString(false));
     cb.bindNamedParameter(OutputChecker.NoCombiningExpected.class, Boolean.toString(true));
     cb.bindNamedParameter(OutputChecker.EventsPerWorker.class, Integer.toString(eventsPerWorker_noncombining));
@@ -358,7 +348,7 @@ public class TestGrouper {
     OutputChecker checker = i.getInstance(OutputChecker.class);
     checker.setTest(t);
     
-    t.test(numWorkers, eventsPerWorker_noncombining);
+    t.test(eventsPerWorker_noncombining);
   }
 
   public static class IntCombiner implements Grouper.Combiner<Tuple<Integer,Integer>, Integer, Integer> {
@@ -440,14 +430,11 @@ public class TestGrouper {
 
     private AtomicInteger sum = new AtomicInteger(0);
     private AtomicInteger aggregatedEventCount = new AtomicInteger(0);
-    private final int numWorkers;
     private TestIntegerSumGrouper test;
     private final boolean checkKeyCount;
     private final boolean noCombiningExpected;
     private final int eventsPerWorker;
     
-    @NamedParameter
-    public static class NumWorkers implements Name<Integer>{}
     @NamedParameter
     public static class CheckKeyCount implements Name<Boolean>{}
     @NamedParameter
@@ -456,11 +443,10 @@ public class TestGrouper {
     public static class EventsPerWorker implements Name<Integer>{}
     
     @Inject
-    public OutputChecker(@Parameter(NumWorkers.class) int numWorkers,
+    public OutputChecker(
                          @Parameter(EventsPerWorker.class) int eventsPerWorker, 
                          @Parameter(CheckKeyCount.class) boolean checkKeyCount,
                          @Parameter(NoCombiningExpected.class) boolean noCombiningExpected) {
-      this.numWorkers = numWorkers;
       this.checkKeyCount = checkKeyCount;
       this.noCombiningExpected = noCombiningExpected;
       this.eventsPerWorker = eventsPerWorker;
@@ -468,18 +454,18 @@ public class TestGrouper {
 
     @Override
     public void onCompleted() {
-      assertEquals(eventsPerWorker * numWorkers, sum.get());
+      assertEquals(eventsPerWorker * workerCount, sum.get());
 
       if (checkKeyCount) {
       // for blocking, all buckets should have been seen once if
       // astronomically low probability of missing one
-        if (Math.pow(((double) bucketCount - 1) / bucketCount, eventsPerWorker*numWorkers) <= Double.MIN_VALUE) {
+        if (Math.pow(((double) bucketCount - 1) / bucketCount, eventsPerWorker*workerCount) <= Double.MIN_VALUE) {
           assertEquals(aggregatedEventCount.get(), bucketCount);
         }
       }
       
       if (noCombiningExpected) {
-        assertEquals(eventsPerWorker * numWorkers, aggregatedEventCount.get());
+        assertEquals(eventsPerWorker * workerCount, aggregatedEventCount.get());
       }
       
       // clean up
@@ -506,14 +492,11 @@ public class TestGrouper {
 
     private AtomicInteger sum = new AtomicInteger(0);
     private AtomicInteger aggregatedEventCount = new AtomicInteger(0);
-    private final int numWorkers;
     private TestIntegerSumGrouper test;
     private final boolean checkKeyCount;
     private final boolean noCombiningExpected;
     private final int eventsPerWorker;
     
-    @NamedParameter
-    public static class NumWorkers implements Name<Integer>{}
     @NamedParameter
     public static class CheckKeyCount implements Name<Boolean>{}
     @NamedParameter
@@ -522,11 +505,10 @@ public class TestGrouper {
     public static class EventsPerWorker implements Name<Integer>{}
     
     @Inject
-    public ListOutputChecker(@Parameter(NumWorkers.class) int numWorkers,
+    public ListOutputChecker(
                          @Parameter(EventsPerWorker.class) int eventsPerWorker, 
                          @Parameter(CheckKeyCount.class) boolean checkKeyCount,
                          @Parameter(NoCombiningExpected.class) boolean noCombiningExpected) {
-      this.numWorkers = numWorkers;
       this.checkKeyCount = checkKeyCount;
       this.noCombiningExpected = noCombiningExpected;
       this.eventsPerWorker = eventsPerWorker;
@@ -534,18 +516,18 @@ public class TestGrouper {
 
     @Override
     public void onCompleted() {
-      assertEquals(eventsPerWorker * numWorkers, sum.get());
+      assertEquals(eventsPerWorker * workerCount, sum.get());
 
       if (checkKeyCount) {
       // for blocking, all buckets should have been seen once if
       // astronomically low probability of missing one
-        if (Math.pow(((double) bucketCount - 1) / bucketCount, eventsPerWorker*numWorkers) <= Double.MIN_VALUE) {
+        if (Math.pow(((double) bucketCount - 1) / bucketCount, eventsPerWorker*workerCount) <= Double.MIN_VALUE) {
           assertEquals(aggregatedEventCount.get(), bucketCount);
         }
       }
       
       if (noCombiningExpected) {
-        assertEquals(eventsPerWorker * numWorkers, aggregatedEventCount.get());
+        assertEquals(eventsPerWorker * workerCount, aggregatedEventCount.get());
       }
       
       // clean up

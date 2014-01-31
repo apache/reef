@@ -22,21 +22,25 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.StageConfiguration;
+import com.microsoft.wake.rx.AbstractRxStage;
 import com.microsoft.wake.rx.Observer;
+
 import org.apache.commons.lang.NotImplementedException;
 
 import javax.inject.Inject;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //TODO: document Comparable requirement on K for the skip list implementation
-public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Grouper<InType> {
+public class CombiningSnowshovelGrouper<InType, OutType, K, V> extends AbstractRxStage<InType> implements Grouper<InType> {
   private Logger LOG = Logger.getLogger(CombiningSnowshovelGrouper.class.getName());
   
   private ConcurrentSkipListMap<K, V> register;
-  private boolean inputDone;
+  private volatile boolean inputDone;
   private Combiner<OutType,K, V> c;
   private Partitioner<K> p;
   private Extractor<InType, K, V> ext;
@@ -46,27 +50,32 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
   private final EStage<Object> outputDriver;
   private final EventHandler<Integer> doneHandler;
   
+  private final AtomicInteger sleeping;
+  
   @Inject
   public CombiningSnowshovelGrouper(Combiner<OutType, K, V> c, Partitioner<K> p, Extractor<InType, K, V> ext,
       @Parameter(StageConfiguration.StageObserver.class) Observer<Tuple<Integer, OutType>> o, 
       @Parameter(StageConfiguration.NumberOfThreads.class) int outputThreads,
       @Parameter(StageConfiguration.StageName.class) String stageName,
       @Parameter(ContinuousStage.PeriodNS.class) long outputPeriod_ns) {
+    super(stageName);
     this.c = c;
     this.p = p;
     this.ext = ext;
     this.o = o;
     // calling this.new on a @Unit's inner class without its own state is currently the same as Tang injecting it
-    this.outputDriver = new ContinuousStage<Object>(this.new OutputImpl(), outputThreads, stageName, outputPeriod_ns);
+    this.outputDriver = new ContinuousStage<Object>(this.new OutputImpl(), outputThreads, stageName+"-output", outputPeriod_ns);
     this.doneHandler = ((ContinuousStage<Object>)outputDriver).getDoneHandler();
     register = new ConcurrentSkipListMap<>();
     inputDone = false;
     this.inputObserver = this.new InputImpl();
+    
+    this.sleeping = new AtomicInteger();
 
     // there is no dependence from input finish to output start
     // The alternative placement of this event is in the first call to onNext,
     // but Output onNext already provides blocking
-    //outputReady.onNext(new GrouperEvent());
+    outputDriver.onNext(new GrouperEvent());
   }
 
   @Inject
@@ -110,7 +119,6 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
 
       // try combining atomically until succeed
       boolean succ = false;
-      boolean mayHaveFilled = true; // conservative flag that says whether we might have made the map go from empty to not empty
       oldVal = register.get(key);
       do {
         if (oldVal == null) {
@@ -126,14 +134,13 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
             oldVal = register.get(key);
           else {
             if (LOG.isLoggable(Level.FINER)) LOG.finer("input key:"+key+" val:"+val+" -> newVal:"+newVal);
-            mayHaveFilled = false;
             break;
           }
         }
       } while (true);
 
       // TODO: make less conservative
-      if (mayHaveFilled) {
+      if (sleeping.get() > 0) {
         synchronized (register) {
           register.notify();
         }
@@ -144,7 +151,7 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
       }*/
 
       // notify at least the first time that consuming is possible
-      outputDriver.onNext(new GrouperEvent());
+      //outputDriver.onNext(new GrouperEvent());
       
     }   
   }
@@ -180,10 +187,9 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
         // quick check for empty
         if (register.isEmpty()) {
           // if it may be empty now then wait until filled
-          boolean cachedInputDone = false;
+          sleeping.incrementAndGet();
           synchronized (register) {
             // if observed empty and done then finished outputting
-            cachedInputDone = inputDone;
 
             while (register.isEmpty() && !inputDone) {
               try {
@@ -196,7 +202,8 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
               }
             }
           }
-          if (cachedInputDone) {
+          sleeping.decrementAndGet();
+          if (inputDone) {
             doneHandler.onNext(threadId);
             return;
           }
@@ -206,6 +213,7 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
         Tuple<K, V> cursor = (e_cursor == null) ? null : new Tuple<>(e_cursor.getKey(), e_cursor.getValue());
         while (cursor != null) {
           if (cursor.getValue() != null) {
+            afterOnNext();
             o.onNext(new Tuple<>(p.partition(cursor.getKey()), c.generate(cursor.getKey(), cursor.getValue())));
             flushedSomething = true;
           }
@@ -240,6 +248,7 @@ public class CombiningSnowshovelGrouper<InType, OutType, K, V> implements Groupe
   }
   @Override
   public void onNext(InType arg0) {
+    beforeOnNext();
     inputObserver.onNext(arg0);
   }
 }
