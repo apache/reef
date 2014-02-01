@@ -68,15 +68,15 @@ class NSConnection<T> implements Connection<T> {
   @Override
   public void open() throws NetworkException {
     try {
-      logger.log(Level.FINE, "looking up " + destId);
+      logger.log(Level.FINE, "looking up {0}", destId);
       // naming lookup
       InetSocketAddress addr = service.getNameClinet().lookup(destId);
       if (addr == null) 
         throw new NamingException("Cannot resolve " + destId);
-      logger.log(Level.FINE, "Resolved " + destId + " to " + addr);
+      logger.log(Level.FINE, "Resolved {0} to {1}", new Object[]{destId, addr});
       // connect to a remote address
       link = service.getTransport().open(addr, codec, listener);
-      logger.log(Level.FINE, "Transport returned a link " + link);
+      logger.log(Level.FINE, "Transport returned a link {0}", link);
     } catch (Exception e) {
       throw new NetworkException(e.getCause());
     }
