@@ -45,6 +45,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -112,12 +113,12 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
         final Path dst = new Path(global_dir, file.getName());
         switch (file.getType()) {
           case PLAIN:
-            LOG.info("GLOBAL FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "GLOBAL FILE RESOURCE: upload " + src + " to " + dst);
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case LIB:
             globalClassPath.append(File.pathSeparatorChar + file.getName());
-            LOG.info("GLOBAL LIB FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "GLOBAL LIB FILE RESOURCE: upload " + src + " to " + dst);
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case ARCHIVE:
@@ -133,12 +134,12 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
         final Path dst = new Path(job_dir, file.getName());
         switch (file.getType()) {
           case PLAIN:
-            LOG.info("LOCAL FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload " + src + " to " + dst);
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case LIB:
             localClassPath.append(File.pathSeparatorChar + file.getName());
-            LOG.info("LOCAL LIB FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload " + src + " to " + dst);
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case ARCHIVE:
