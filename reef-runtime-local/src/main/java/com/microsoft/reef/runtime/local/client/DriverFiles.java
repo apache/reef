@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents the files added to a driver.
@@ -33,6 +35,7 @@ import java.util.List;
  * This class is constructed via the from() method that instantiates it based on a JobSubmissionProto
  */
 final class DriverFiles {
+  private static final Logger LOG = Logger.getLogger(DriverFiles.class.getName());
   private final FileSet localFiles = new FileSet();
   private final FileSet localLibs = new FileSet();
   private final FileSet globalFiles = new FileSet();
@@ -63,16 +66,16 @@ final class DriverFiles {
 
   private void checkFile(final File f) throws IOException {
     if (this.globalLibs.containsFileWithName(f.getName())) {
-      throw new IOException("Unable to add file as it is already part of the global libraries: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the global libraries: " + f);
     }
     if (this.globalFiles.containsFileWithName(f.getName())) {
-      throw new IOException("Unable to add file as it is already part of the global files: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the global files: " + f);
     }
     if (this.localLibs.containsFileWithName(f.getName())) {
-      throw new IOException("Unable to add file as it is already part of the local libraries: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the local libraries: " + f);
     }
     if (this.localFiles.containsFileWithName(f.getName())) {
-      throw new IOException("Unable to add file as it is already part of the local files: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the local files: " + f);
     }
 
   }

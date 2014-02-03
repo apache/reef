@@ -47,12 +47,13 @@ final class FileSet {
   final void add(final File file) throws IOException {
     if (file.isFile()) {
       if (this.fileNames.contains(file.getName())) {
-        throw new IOException("A file with this name has already been added: " + file.getName());
+        LOG.log(Level.FINEST, "A file with this name has already been added: " + file.getName());
+      } else {
+        this.fileNames.add(file.getName());
+        this.theFiles.add(file);
       }
-      this.fileNames.add(file.getName());
-      this.theFiles.add(file);
     } else {
-      LOG.log(Level.WARNING, "Ignoring, because it is not a proper file: " + file);
+      LOG.log(Level.FINEST, "Ignoring, because it is not a proper file: " + file);
     }
   }
 
