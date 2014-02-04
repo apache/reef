@@ -71,6 +71,14 @@ public final class Launch {
   }
 
   /**
+   * Command line parameter: number of evaluators to allocate.
+   */
+  @NamedParameter(doc = "Number of evaluators to request",
+      short_name = "num_eval", default_value = "1")
+  public static final class NumEval implements Name<Integer> {
+  }
+
+  /**
    * Command line parameter = true to run locally, or false to run on YARN.
    */
   @NamedParameter(doc = "Whether or not to run on the local runtime",
@@ -93,6 +101,7 @@ public final class Launch {
     cl.registerShortNameOfClass(Local.class);
     cl.registerShortNameOfClass(Command.class);
     cl.registerShortNameOfClass(NumRuns.class);
+    cl.registerShortNameOfClass(NumEval.class);
     cl.processCommandLine(args);
     return confBuilder.build();
   }
@@ -103,6 +112,7 @@ public final class Launch {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindNamedParameter(Command.class, injector.getNamedInstance(Command.class));
     cb.bindNamedParameter(NumRuns.class, String.valueOf(injector.getNamedInstance(NumRuns.class)));
+    cb.bindNamedParameter(NumEval.class, String.valueOf(injector.getNamedInstance(NumEval.class)));
     return cb.build();
   }
 

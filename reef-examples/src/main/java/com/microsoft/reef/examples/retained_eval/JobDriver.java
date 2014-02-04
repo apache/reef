@@ -23,6 +23,7 @@ import com.microsoft.reef.driver.evaluator.*;
 
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 
@@ -88,11 +89,6 @@ public final class JobDriver {
   private String cmd;
 
   /**
-   * Wake clock is used to schedule periodical job check-ups.
-   */
-  private final Clock clock;
-
-  /**
    * Job observer on the client.
    * We use it to send results from the driver back to the client.
    */
@@ -105,10 +101,9 @@ public final class JobDriver {
   private final EvaluatorRequestor evaluatorRequestor;
 
   /**
-   * Static catalog of REEF resources.
-   * We use it to schedule Activity on every available node.
+   * Number of Evalutors to request (default is 1).
    */
-  private final ResourceCatalog catalog;
+  private final int numEvaluators;
 
   /**
    * Shell execution results from each Evaluator.
@@ -129,18 +124,16 @@ public final class JobDriver {
    * Job driver constructor.
    * All parameters are injected from TANG automatically.
    *
-   * @param clock Wake clock to schedule and check up running jobs.
    * @param jobMessageObserver is used to send messages back to the client.
    * @param evaluatorRequestor is used to request Evaluators.
    */
   @Inject
-  JobDriver(final Clock clock,
-            final JobMessageObserver jobMessageObserver,
-            final EvaluatorRequestor evaluatorRequestor) {
-    this.clock = clock;
+  JobDriver(final JobMessageObserver jobMessageObserver,
+            final EvaluatorRequestor evaluatorRequestor,
+            final @Parameter(Launch.NumEval.class) Integer numEvaluators) {
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.catalog = evaluatorRequestor.getResourceCatalog();
+    this.numEvaluators = numEvaluators;
   }
 
   /**
@@ -329,7 +322,7 @@ public final class JobDriver {
       context.submitActivity(cb.build());
     } catch (final BindException ex) {
       LOG.log(Level.SEVERE, "Bad Activity configuration for context: " + context.getId(), ex);
-      this.clock.close();
+      context.close();
       throw new RuntimeException(ex);
     }
   }
@@ -347,37 +340,17 @@ public final class JobDriver {
   }
 
   /**
-   * Request evaluators on each node.
-   * If nodes are not available yet, schedule another request in CHECK_UP_INTERVAL.
-   * TODO: Ask for specific nodes. (This is not working in YARN... need to check again at some point.)
-   *
-   * @throws RuntimeException if any of the requests fails.
+   * Request the evaluators.
    */
   private synchronized void requestEvaluators() {
     assert (this.state == State.INIT);
-    final int numNodes = this.catalog.getNodes().size();
-    if (numNodes > 0) {
-      LOG.log(Level.INFO, "Schedule on {0} nodes.", numNodes);
-      this.evaluatorRequestor.submit(
-          EvaluatorRequest.newBuilder()
-              .setSize(EvaluatorRequest.Size.SMALL)
-              .setNumber(numNodes).build());
-      this.state = State.WAIT_EVALUATORS;
-      this.expectCount = numNodes;
-    } else {
-      // No nodes available yet - wait and ask again.
-      this.clock.scheduleAlarm(CHECK_UP_INTERVAL, new EventHandler<Alarm>() {
-          @Override
-          public void onNext(final Alarm time) {
-            synchronized (JobDriver.this) {
-              LOG.log(Level.INFO, "{0} Alarm: {1}", new Object[] { JobDriver.this.state, time });
-              if (JobDriver.this.state == State.INIT) {
-                JobDriver.this.requestEvaluators();
-              }
-            }
-          }
-        });
-    }
+    LOG.log(Level.INFO, "Schedule on {0} Evaluators.", this.numEvaluators);
+    this.evaluatorRequestor.submit(
+      EvaluatorRequest.newBuilder()
+          .setSize(EvaluatorRequest.Size.SMALL)
+          .setNumber(this.numEvaluators).build());
+    this.state = State.WAIT_EVALUATORS;
+    this.expectCount = this.numEvaluators;
   }
 
   /**
