@@ -82,7 +82,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ApplicationSubmissionContext applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
       final ApplicationId applicationId = applicationSubmissionContext.getApplicationId();
 
-      LOG.info("YARN Application ID: " + applicationId);
+      LOG.log(Level.FINEST, "YARN Application ID: " + applicationId);
 
       // set the application name
       final String jobName = "reef-job-" + jobSubmissionProto.getIdentifier();
@@ -102,7 +102,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       this.yarnConfiguration.writeXml(yarnConfigurationFOS);
       yarnConfigurationFOS.close();
 
-      LOG.info("Upload tmp yarn configuration file " + yarnConfigurationFile.toURI());
+      LOG.log(Level.FINEST, "Upload tmp yarn configuration file " + yarnConfigurationFile.toURI());
       localResources.put(yarnConfigurationFile.getName(),
           YarnUtils.getLocalResource(fs, new Path(yarnConfigurationFile.toURI()), new Path(global_dir, yarnConfigurationFile.getName())));
 
@@ -186,7 +186,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stderr")
           .build();
       final String launchCommand = StringUtils.join(launchCommandList, ' ');
-      LOG.info("LAUNCH COMMAND: " + launchCommand);
+      LOG.log(Level.FINEST, "LAUNCH COMMAND: " + launchCommand);
 
       final ContainerLaunchContext containerContext = YarnUtils.getContainerLaunchContext(launchCommand, localResources);
       applicationSubmissionContext.setAMContainerSpec(containerContext);
@@ -198,7 +198,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // Set the queue to which this application is to be submitted in the RM
       applicationSubmissionContext.setQueue(jobSubmissionProto.hasQueue() ? jobSubmissionProto.getQueue() : "default");
 
-      LOG.info("Submit REEF Application to YARN");
+      LOG.log(Level.INFO, "Submiting REEF Application to YARN. ID: " + applicationId);
       this.yarnClient.submitApplication(applicationSubmissionContext);
       // monitorApplication(applicationId);
     } catch (YarnException | IOException | URISyntaxException e) {
