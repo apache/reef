@@ -47,20 +47,19 @@ final class FileSet {
   final void add(final File file) throws IOException {
     if (file.isFile()) {
       if (this.fileNames.contains(file.getName())) {
-        LOG.log(Level.FINEST, "A file with this name has already been added: " + file.getName());
+        LOG.log(Level.FINEST, "A file with this name has already been added: {0}", file.getName());
       } else {
         this.fileNames.add(file.getName());
         this.theFiles.add(file);
       }
     } else {
-      LOG.log(Level.FINEST, "Ignoring, because it is not a proper file: " + file);
+      LOG.log(Level.FINEST, "Ignoring, because it is not a proper file: {0}", file);
     }
   }
 
   final boolean containsFileWithName(final String name) {
     return this.fileNames.contains(name);
   }
-
 
   /**
    * @return an iterable over the filenames, sans the folder. e.g. "/tmp/foo.txt" is returned as "foo.txt"
@@ -96,5 +95,4 @@ final class FileSet {
     }
     return result;
   }
-
 }

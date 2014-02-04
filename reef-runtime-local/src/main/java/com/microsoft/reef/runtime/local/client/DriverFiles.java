@@ -35,7 +35,9 @@ import java.util.logging.Logger;
  * This class is constructed via the from() method that instantiates it based on a JobSubmissionProto
  */
 final class DriverFiles {
+
   private static final Logger LOG = Logger.getLogger(DriverFiles.class.getName());
+
   private final FileSet localFiles = new FileSet();
   private final FileSet localLibs = new FileSet();
   private final FileSet globalFiles = new FileSet();
@@ -66,18 +68,17 @@ final class DriverFiles {
 
   private void checkFile(final File f) throws IOException {
     if (this.globalLibs.containsFileWithName(f.getName())) {
-      LOG.log(Level.FINEST, "Adding a file that is already part of the global libraries: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the global libraries: {0}", f);
     }
     if (this.globalFiles.containsFileWithName(f.getName())) {
-      LOG.log(Level.FINEST, "Adding a file that is already part of the global files: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the global files: {0}", f);
     }
     if (this.localLibs.containsFileWithName(f.getName())) {
-      LOG.log(Level.FINEST, "Adding a file that is already part of the local libraries: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the local libraries: {0}", f);
     }
     if (this.localFiles.containsFileWithName(f.getName())) {
-      LOG.log(Level.FINEST, "Adding a file that is already part of the local files: " + f);
+      LOG.log(Level.FINEST, "Adding a file that is already part of the local files: {0}", f);
     }
-
   }
 
   /**
@@ -142,7 +143,9 @@ final class DriverFiles {
    * @return
    * @throws IOException
    */
-  public static DriverFiles fromJobSubmission(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) throws IOException {
+  public static DriverFiles fromJobSubmission(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) throws IOException {
+
     final DriverFiles driverFiles = new DriverFiles();
 
     for (final ReefServiceProtos.FileResourceProto frp : jobSubmissionProto.getGlobalFileList()) {
@@ -154,6 +157,7 @@ final class DriverFiles {
       }
 
     }
+
     for (final ReefServiceProtos.FileResourceProto frp : jobSubmissionProto.getLocalFileList()) {
       final File f = new File(frp.getPath());
       if (frp.getType() == ReefServiceProtos.FileType.LIB) {
@@ -164,6 +168,4 @@ final class DriverFiles {
     }
     return driverFiles;
   }
-
-
 }
