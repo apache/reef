@@ -48,9 +48,13 @@ final class ResourceRequest {
 
   /**
    * @return true if the request is satisfied with this additional unit of
-   *         resource, false otherwise.
+   * resource, false otherwise.
    */
   final boolean isSatisfied() {
     return this.satisfied == req.getResourceCount();
+  }
+
+  final DriverRuntimeProtocol.ResourceRequestProto getRequestProto() {
+    return this.req;
   }
 }

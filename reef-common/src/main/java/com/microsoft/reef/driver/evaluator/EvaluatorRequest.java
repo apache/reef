@@ -44,14 +44,19 @@ public final class EvaluatorRequest {
   }
 
   private final Size size;
+  private final int megaBytes;
   private final int number;
   private final List<Capability> capabilities;
   private final ResourceCatalog.Descriptor descriptor;
 
-  EvaluatorRequest(final Size size, final int number, final List<Capability> capabilities,
+  EvaluatorRequest(final Size size,
+                   final int number,
+                   final int megaBytes,
+                   final List<Capability> capabilities,
                    final ResourceCatalog.Descriptor descriptor) {
     this.size = size;
     this.number = number;
+    this.megaBytes = megaBytes;
     this.capabilities = capabilities;
     this.descriptor = descriptor;
   }
@@ -88,10 +93,17 @@ public final class EvaluatorRequest {
    * {@link EvaluatorRequest}.
    *
    * @return the {@link NodeDescriptor} used as the template for this
-   *         {@link EvaluatorRequest}.
+   * {@link EvaluatorRequest}.
    */
   public final ResourceCatalog.Descriptor getDescriptor() {
     return this.descriptor;
+  }
+
+  /**
+   * @return the minimum size of Evaluator requested.
+   */
+  public int getMegaBytes() {
+    return megaBytes;
   }
 
   /**
@@ -103,7 +115,7 @@ public final class EvaluatorRequest {
 
   /**
    * @return a new EvaluatorRequest Builder with settings initialized
-   *         from an existing request.
+   * from an existing request.
    */
   public static Builder newBuilder(final EvaluatorRequest request) {
     return new Builder(request);
@@ -118,6 +130,7 @@ public final class EvaluatorRequest {
     private int n = 1;
     private final List<Capability> capabilities = new ArrayList<>();
     private ResourceCatalog.Descriptor descriptor = null;
+    private int megaBytes = -1;
 
     private Builder() {
     }
@@ -143,6 +156,15 @@ public final class EvaluatorRequest {
     }
 
     /**
+     * @param megaBytes
+     * @return
+     */
+    public Builder setMemory(final int megaBytes) {
+      this.megaBytes = megaBytes;
+      return this;
+    }
+
+    /**
      * Set the number of Evaluators requested.
      *
      * @param n
@@ -158,7 +180,7 @@ public final class EvaluatorRequest {
      */
     @Override
     public EvaluatorRequest build() {
-      return new EvaluatorRequest(this.evaluatorSize, this.n, this.capabilities, this.descriptor);
+      return new EvaluatorRequest(this.evaluatorSize, this.n, this.megaBytes, this.capabilities, this.descriptor);
     }
 
     /**

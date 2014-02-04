@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.proto.DriverRuntimeProtocol;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -50,12 +51,13 @@ final class ResourceRequestQueue {
    * Satisfies one resource for the front-most request. If that satisfies the
    * request, it is removed from the queue.
    */
-  final synchronized void satisfyOne() {
+  final synchronized DriverRuntimeProtocol.ResourceRequestProto satisfyOne() {
     final ResourceRequest req = this.requestQueue.element();
     req.satisfyOne();
     if (req.isSatisfied()) {
       this.requestQueue.poll();
     }
+    return req.getRequestProto();
   }
 
   final synchronized int getNumberOfOutstandingRequests() {
