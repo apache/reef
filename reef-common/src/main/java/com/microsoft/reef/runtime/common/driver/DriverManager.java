@@ -163,6 +163,11 @@ final class DriverManager implements EvaluatorRequestor {
     }
     request.setResourceCount(req.getNumber());
 
+    // Copy the requested memory size over.
+    if (req.getMegaBytes() > 0) {
+      request.setMemorySize(req.getMegaBytes());
+    }
+
     final ResourceCatalog.Descriptor descriptor = req.getDescriptor();
     if (descriptor != null) {
       if (descriptor instanceof RackDescriptor) {
@@ -219,7 +224,6 @@ final class DriverManager implements EvaluatorRequestor {
    * Receives and routes heartbeats from Evaluators.
    *
    * @param evaluatorHeartbeatProtoRemoteMessage
-   *
    */
   private final void handle(
       final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
@@ -229,7 +233,7 @@ final class DriverManager implements EvaluatorRequestor {
     final String evaluatorId = status.getEvaluatorId();
 
     LOG.log(Level.FINEST, "Heartbeat from Evaluator {0} with state {1} timestamp {2}",
-        new Object[] { evaluatorId, status.getState(), heartbeat.getTimestamp() });
+        new Object[]{evaluatorId, status.getState(), heartbeat.getTimestamp()});
 
     // Make sure that the timestamp we got for this evaluator is newer than the last one we got.
     this.sanityChecker.check(evaluatorId, heartbeat.getTimestamp());
