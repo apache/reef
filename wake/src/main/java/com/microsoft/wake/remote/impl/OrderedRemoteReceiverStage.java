@@ -130,6 +130,8 @@ class OrderedPushEventHandler implements EventHandler<TransportEvent> {
 
     if (LOG.isLoggable(Level.FINER)) 
       LOG.log(Level.FINER, "{0} {1}", new Object[]{value, re});
+
+      LOG.log(Level.FINER, "Value length is {0}", value.getData().length);
     
     SocketAddress addr = re.remoteAddress();
     OrderedEventStream stream = streamMap.get(re.remoteAddress());
@@ -169,6 +171,7 @@ class OrderedPullEventHandler implements EventHandler<OrderedEventStream> {
 }
 
 class OrderedEventStream {
+    private static final Logger LOG = Logger.getLogger(OrderedEventStream.class.getName());
   private final BlockingQueue<RemoteEvent<byte[]>> queue; // a queue of remote events
   private long nextSeq; // the number of the next event to consume
  
@@ -184,12 +187,20 @@ class OrderedEventStream {
   synchronized RemoteEvent<byte[]> consume() {
     RemoteEvent<byte[]> event = queue.peek();
     if (event != null) {
+
       if (event.getSeq() == nextSeq) {
         event = queue.poll();
         ++nextSeq;
         return event;
       }
+      else {
+          LOG.log(Level.FINER, "Event sequence is {0} does not match expected {1}", new Object[] {event.getSeq(), nextSeq});
+      }
     }
+    else {
+        LOG.log(Level.FINER, "Event is null");
+    }
+
     return null;
   }  
 }
