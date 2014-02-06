@@ -25,10 +25,10 @@ import java.util.List;
  * An interface of a helper for Receivers of asymmetric operators
  * <p/>
  * Accounts for functionality that should be available on a Receiver
- * --receiving one element from an task
- * --receiving a list of elements from an task
+ * --receiving one element from a task
+ * --receiving a list of elements from a task
  * --receiving a list of elements from a list of activities
- * --receiving a list of lists of elements from an task
+ * --receiving a list of lists of elements from a task
  *
  * @param <T>
  * @author shravan

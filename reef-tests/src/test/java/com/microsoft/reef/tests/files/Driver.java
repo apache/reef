@@ -110,7 +110,7 @@ final class Driver {
             .set(ContextConfiguration.IDENTIFIER, "TestContext")
             .build();
 
-        // Filling out an TaskConfiguration
+        // Filling out a TaskConfiguration
         final Configuration taskConfiguration = TaskConfiguration.CONF
             .set(TaskConfiguration.IDENTIFIER, "TestTask")
             .set(TaskConfiguration.TASK, TestTask.class)

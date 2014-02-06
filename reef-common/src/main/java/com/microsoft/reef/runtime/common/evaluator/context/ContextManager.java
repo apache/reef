@@ -253,7 +253,7 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * Launch an Task.
+   * Launch a Task.
    *
    * @param startTaskProto
    * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException

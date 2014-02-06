@@ -24,69 +24,70 @@ import java.util.List;
 
 /**
  * An interface of a helper for Senders of asymmetric operators
- * 
+ *
  * Accounts for functionality that should be available on a Sender
- * --sending one element to an task
- * --sending a list of elements to an task
+ * --sending one element to a task
+ * --sending a list of elements to a task
  * --sending a list of elements to a list of activities
- * --sending a list of lists of elements to an task
- * 
+ * --sending a list of lists of elements to a task
+ *
  * Please note that these operations are non-blocking
  * @author shravan
  *
  * @param <T>
  */
 public interface SenderHelper<T> {
-	/** 
-	 * Asynchronously send a message to an task
-	 * Use when one element per message has to be sent
-	 * @param from
-	 * @param to
-	 * @param element
-	 * @param msgType
-	 * @throws NetworkException
-	 */
-	public void send(Identifier from, Identifier to, T element,
-			GroupCommMessage.Type msgType) throws NetworkException;
 
-	/**
-	 * Asynchronously send a message to an task
-	 * Use when a list of elements has to be sent in one message
-	 * @param from
-	 * @param to
-	 * @param elements
-	 * @param msgType
-	 * @throws NetworkException
-	 */
-	public void send(Identifier from, Identifier to, List<T> elements,
-			GroupCommMessage.Type msgType) throws NetworkException;
+  /**
+   * Asynchronously send a message to a task
+   * Use when one element per message has to be sent
+   * @param from
+   * @param to
+   * @param element
+   * @param msgType
+   * @throws NetworkException
+   */
+  void send(Identifier from, Identifier to, T element,
+      GroupCommMessage.Type msgType) throws NetworkException;
 
-	/** 
-	 * Asynchronously send elements to activities with counts determining 
-	 * how elements are distributed
-	 * @param from
-	 * @param to
-	 * @param elements
-	 * @param counts
-	 * @param msgType
-	 * @throws NetworkException
-	 */
-	public void send(Identifier from, List<? extends Identifier> to, List<T> elements,
-			List<Integer> counts, GroupCommMessage.Type msgType)
-			throws NetworkException;
+  /**
+   * Asynchronously send a message to a task
+   * Use when a list of elements has to be sent in one message
+   * @param from
+   * @param to
+   * @param elements
+   * @param msgType
+   * @throws NetworkException
+   */
+  void send(Identifier from, Identifier to, List<T> elements,
+      GroupCommMessage.Type msgType) throws NetworkException;
 
-	/**
-	 * This is not used in the basic implementation but will be useful
-	 * when considering aggregation trees
-	 * 
-	 * Asynchronously send a List of list of elements to an task
-	 * Use when a list of lists is to be sent.
-	 * @param from
-	 * @param to
-	 * @param elements
-	 * @param msgType
-	 * @throws NetworkException
-	 */
-	public void sendListOfList(Identifier from, Identifier to, List<List<T>> elements,
-			Type msgType) throws NetworkException;
+  /**
+   * Asynchronously send elements to activities with counts determining
+   * how elements are distributed
+   * @param from
+   * @param to
+   * @param elements
+   * @param counts
+   * @param msgType
+   * @throws NetworkException
+   */
+  void send(Identifier from, List<? extends Identifier> to, List<T> elements,
+      List<Integer> counts, GroupCommMessage.Type msgType)
+      throws NetworkException;
+
+  /**
+   * This is not used in the basic implementation but will be useful
+   * when considering aggregation trees
+   *
+   * Asynchronously send a List of list of elements to a task
+   * Use when a list of lists is to be sent.
+   * @param from
+   * @param to
+   * @param elements
+   * @param msgType
+   * @throws NetworkException
+   */
+  void sendListOfList(Identifier from, Identifier to, List<List<T>> elements,
+      Type msgType) throws NetworkException;
 }

@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The runtime environment for an Task.
+ * The runtime environment for a Task.
  */
 @Private
 @EvaluatorSide

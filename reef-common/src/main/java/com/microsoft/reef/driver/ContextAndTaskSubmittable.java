@@ -28,7 +28,7 @@ import com.microsoft.tang.Configuration;
 @Public
 public interface ContextAndTaskSubmittable {
   /**
-   * Submit a Context and an Task.
+   * Submit a Context and a Task.
    * <p/>
    * The semantics of this call are the same as first submitting the context and then, on the fired ActiveContext event
    * to submit the Task. The performance of this will be better, though as it potentially saves some roundtrips on
@@ -42,7 +42,7 @@ public interface ContextAndTaskSubmittable {
   public void submitContextAndTask(final Configuration contextConfiguration, final Configuration taskConfiguration);
 
   /**
-   * Subkit a Context with Services and an Task.
+   * Subkit a Context with Services and a Task.
    * <p/>
    * The semantics of this call are the same as first submitting the context and services and then, on the fired
    * ActiveContext event to submit the Task. The performance of this will be better, though as it potentially saves
