@@ -16,7 +16,7 @@
 /**
  * Provides MPI style Group Communication operators for collective communication 
  * between activities. These should be primarily used for any form of 
- * activity to activity messaging along with the point to point communication 
+ * task to task messaging along with the point to point communication
  * provided by {@link com.microsoft.reef.io.network.impl.NetworkService}
  * 
  * The interfaces for the operators are in com.microsoft.reef.io.network.group.operators

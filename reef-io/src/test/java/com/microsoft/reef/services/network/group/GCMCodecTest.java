@@ -39,7 +39,7 @@ public class GCMCodecTest {
    */
   @Test(timeout = 1000)
   public final void testGCMCodec() throws InjectionException, BindException {
-    GCMCodec codec = Tang.Factory.getTang().newInjector().getInstance(GCMCodec.class);
+    final GCMCodec codec = Tang.Factory.getTang().newInjector().getInstance(GCMCodec.class);
     Assert.assertNotNull("tang.getInstance(GCMCodec.class)", codec);
   }
 
@@ -48,12 +48,12 @@ public class GCMCodecTest {
    */
   @Test(timeout = 1000)
   public final void testDecode() {
-    GroupCommMessage expected = TestUtils.bldGCM(Type.Scatter,
-        new StringIdentifierFactory().getNewInstance("Activity1"),
-        new StringIdentifierFactory().getNewInstance("Activity2"), "Hello".getBytes());
-    byte[] msgBytes = expected.toByteArray();
-    GCMCodec codec = new GCMCodec();
-    GroupCommMessage decoded = codec.decode(msgBytes);
+    final GroupCommMessage expected = TestUtils.bldGCM(Type.Scatter,
+        new StringIdentifierFactory().getNewInstance("Task1"),
+        new StringIdentifierFactory().getNewInstance("Task2"), "Hello".getBytes());
+    final byte[] msgBytes = expected.toByteArray();
+    final GCMCodec codec = new GCMCodec();
+    final GroupCommMessage decoded = codec.decode(msgBytes);
     Assert.assertEquals("GCMCodec.decode():", expected, decoded);
   }
 
@@ -62,12 +62,12 @@ public class GCMCodecTest {
    */
   @Test(timeout = 1000)
   public final void testEncode() {
-    GroupCommMessage msg = TestUtils.bldGCM(Type.Scatter,
-        new StringIdentifierFactory().getNewInstance("Activity1"),
-        new StringIdentifierFactory().getNewInstance("Activity2"), "Hello".getBytes());
-    byte[] expected = msg.toByteArray();
-    GCMCodec codec = new GCMCodec();
-    byte[] encoded = codec.encode(msg);
+    final GroupCommMessage msg = TestUtils.bldGCM(Type.Scatter,
+        new StringIdentifierFactory().getNewInstance("Task1"),
+        new StringIdentifierFactory().getNewInstance("Task2"), "Hello".getBytes());
+    final byte[] expected = msg.toByteArray();
+    final GCMCodec codec = new GCMCodec();
+    final byte[] encoded = codec.encode(msg);
     Assert.assertArrayEquals("GCMCodec.encode():", expected, encoded);
   }
 

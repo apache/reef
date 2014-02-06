@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.io.network.group.impl.operators.basic.config;
 
-import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.io.network.group.impl.ExceptionHandler;
 import com.microsoft.reef.io.network.group.impl.GCMCodec;
 import com.microsoft.reef.io.network.group.impl.GroupCommNetworkHandler;
@@ -61,22 +61,22 @@ public class GroupCommOperators {
         .bindImplementation(GroupCommNetworkHandler.class, GroupCommNetworkHandler.class)
         .bindNamedParameter(NameServerParameters.NameServerAddr.class, NAME_SERVICE_ADDRESS)
         .bindNamedParameter(NameServerParameters.NameServerPort.class, NAME_SERVICE_PORT)
-        .bindNamedParameter(ActivityConfigurationOptions.Identifier.class, SELF)
+        .bindNamedParameter(TaskConfigurationOptions.Identifier.class, SELF)
         .bindNamedParameter(GroupCommNetworkHandler.IDs.class, ID_LIST_STRING)
         .bindNamedParameter(NetworkServiceParameters.NetworkServicePort.class, NETWORK_SERVICE_PORT)
         .build();
   }
 
   /**
-   * Create {@link NetworkService} {@link Configuration} for each activity
-   * using base conf + per activity parameters
+   * Create {@link NetworkService} {@link Configuration} for each task
+   * using base conf + per task parameters
    *
    * @param nameServiceAddr
    * @param nameServicePort
    * @param self
    * @param ids
    * @param nsPort
-   * @return per activity {@link NetworkService} {@link Configuration} for the specified activity
+   * @return per task {@link NetworkService} {@link Configuration} for the specified task
    * @throws BindException
    */
   private static Configuration createNetworkServiceConf(
@@ -93,13 +93,13 @@ public class GroupCommOperators {
   }
 
   /**
-   * Return per activity Configurations as a map given the operator descriptions
+   * Return per task Configurations as a map given the operator descriptions
    *
    * @param opDesc
    * @param nameServiceAddr
    * @param nameServicePort
    * @param networkServicePorts
-   * @return per activity Configurations as a map given the operator descriptions
+   * @return per task Configurations as a map given the operator descriptions
    * @throws BindException
    */
   public static Map<ComparableIdentifier, Configuration> getConfigurations(
@@ -108,26 +108,26 @@ public class GroupCommOperators {
       Map<ComparableIdentifier, Integer> networkServicePorts)
       throws BindException {
     Map<ComparableIdentifier, List<ComparableIdentifier>> sources = new HashMap<>();
-    Set<ComparableIdentifier> activities = new HashSet<>();
+    Set<ComparableIdentifier> tasks = new HashSet<>();
 
     OperatorConfigs opConfigs = new OperatorConfigs();
     for (GroupOperatorDescription groupOperatorDescription : opDesc) {
       switch (groupOperatorDescription.operatorType) {
         case SCATTER:
         case BROADCAST:
-          handleRootSenderOp(activities, opConfigs, groupOperatorDescription);
+          handleRootSenderOp(tasks, opConfigs, groupOperatorDescription);
           break;
 
 
         case GATHER:
         case REDUCE:
-          handleRootReceiverOp(activities, opConfigs, groupOperatorDescription);
+          handleRootReceiverOp(tasks, opConfigs, groupOperatorDescription);
           break;
 
         case ALL_GATHER:
         case ALL_REDUCE:
         case REDUCE_SCATTER:
-          handleSymmetricOp(activities, opConfigs, groupOperatorDescription);
+          handleSymmetricOp(tasks, opConfigs, groupOperatorDescription);
           break;
 
         default:
@@ -135,27 +135,27 @@ public class GroupCommOperators {
       }
     }
 
-    //For each activity store all other participating activity ids
-    for (ComparableIdentifier activityId : activities) {
-      List<ComparableIdentifier> srcsPerAct = new ArrayList<>();
-      srcsPerAct.addAll(activities);
-      srcsPerAct.remove(activityId);
-      sources.put(activityId, srcsPerAct);
+    //For each task store all other participating task ids
+    for (final ComparableIdentifier taskId : tasks) {
+      List<ComparableIdentifier> srcsPerTask = new ArrayList<>();
+      srcsPerTask.addAll(tasks);
+      srcsPerTask.remove(taskId);
+      sources.put(taskId, srcsPerTask);
     }
 
-    //For each activity merge the individual group operator config
+    //For each task merge the individual group operator config
     //with the network service config to create the full config
     Map<ComparableIdentifier, Configuration> result = new HashMap<>();
     for (Map.Entry<ComparableIdentifier, Integer> entry : networkServicePorts
         .entrySet()) {
-      ComparableIdentifier activityId = entry.getKey();
+      ComparableIdentifier taskId = entry.getKey();
       int nsPort = entry.getValue();
       Configuration nsConf = createNetworkServiceConf(nameServiceAddr,
-          nameServicePort, activityId, sources.get(activityId),
+          nameServicePort, taskId, sources.get(taskId),
           nsPort);
       JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(nsConf);
-      opConfigs.addConfigurations(activityId, jcb);
-      result.put(activityId, jcb.build());
+      opConfigs.addConfigurations(taskId, jcb);
+      result.put(taskId, jcb.build());
 
     }
     return result;
@@ -163,26 +163,26 @@ public class GroupCommOperators {
 
   /**
    * Handle creating configuration for a symmetric operation
-   * Adds the operator configs for each activity into {@link OperatorConfigs}
+   * Adds the operator configs for each task into {@link OperatorConfigs}
    * <p/>
    * For current implementation the underlying semantics are still asymmetric. So pick
-   * a random activity as root and others as leaves
+   * a random task as root and others as leaves
    *
-   * @param activities
+   * @param tasks
    * @param opConfigs
    * @param opDesc
    * @throws BindException
    */
   private static void handleSymmetricOp(
-      Set<ComparableIdentifier> activities,
+      Set<ComparableIdentifier> tasks,
       OperatorConfigs opConfigs,
       GroupOperatorDescription opDesc)
       throws BindException {
     SymmetricOpDescription symOp = (SymmetricOpDescription) opDesc;
-    ComparableIdentifier dummyRoot = symOp.activityIDs.get(0);
-    activities.add(dummyRoot);
-    List<ComparableIdentifier> others = symOp.activityIDs.subList(1, symOp.activityIDs.size());
-    activities.addAll(others);
+    ComparableIdentifier dummyRoot = symOp.taskIds.get(0);
+    tasks.add(dummyRoot);
+    List<ComparableIdentifier> others = symOp.taskIds.subList(1, symOp.taskIds.size());
+    tasks.addAll(others);
 
     Configuration recvConf = getRootConf(opDesc, dummyRoot, others);
     opConfigs.put(dummyRoot, recvConf);
@@ -195,22 +195,22 @@ public class GroupCommOperators {
 
   /**
    * Handle creating configuration for an operation whose root is a receiver
-   * Adds the operator configs for each activity into {@link OperatorConfigs}
+   * Adds the operator configs for each task into {@link OperatorConfigs}
    *
-   * @param activities
+   * @param tasks
    * @param opConfigs
    * @param opDesc
    * @throws BindException
    */
   private static void handleRootReceiverOp(
-      Set<ComparableIdentifier> activities,
+      Set<ComparableIdentifier> tasks,
       OperatorConfigs opConfigs,
       GroupOperatorDescription opDesc)
       throws BindException {
     RootReceiverOp rootReceiverOp = (RootReceiverOp) opDesc;
     ComparableIdentifier receiverID = rootReceiverOp.receiver;
-    activities.add(receiverID);
-    activities.addAll(rootReceiverOp.senders);
+    tasks.add(receiverID);
+    tasks.addAll(rootReceiverOp.senders);
 
     Configuration recvConf = getRootConf(opDesc, receiverID, rootReceiverOp.senders);
     opConfigs.put(receiverID, recvConf);
@@ -223,22 +223,22 @@ public class GroupCommOperators {
 
   /**
    * Handle creating configuration for an operation whose root is a sender
-   * Adds the operator configs for each activity into {@link OperatorConfigs}
+   * Adds the operator configs for each task into {@link OperatorConfigs}
    *
-   * @param activities
+   * @param tasks
    * @param opConfigs
    * @param opDesc
    * @throws BindException
    */
   private static void handleRootSenderOp(
-      Set<ComparableIdentifier> activities,
+      Set<ComparableIdentifier> tasks,
       OperatorConfigs opConfigs,
       GroupOperatorDescription opDesc)
       throws BindException {
     RootSenderOp rootSenderOp = (RootSenderOp) opDesc;
     ComparableIdentifier senderID = rootSenderOp.sender;
-    activities.add(senderID);
-    activities.addAll(rootSenderOp.receivers);
+    tasks.add(senderID);
+    tasks.addAll(rootSenderOp.receivers);
 
     Configuration senderConf = getRootConf(rootSenderOp, senderID, rootSenderOp.receivers);
     opConfigs.put(senderID, senderConf);

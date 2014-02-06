@@ -18,7 +18,7 @@ package com.microsoft.reef.driver.evaluator;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.activity.FailedActivity;
+import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.io.naming.Identifiable;
@@ -45,8 +45,8 @@ public interface FailedEvaluator extends Identifiable {
   public List<FailedContext> getFailedContextList();
 
   /**
-   * @return the failed activity, if there was one running at the time of the evaluator failure.
+   * @return the failed task, if there was one running at the time of the evaluator failure.
    */
-  public Optional<FailedActivity> getFailedActivity();
+  public Optional<FailedTask> getFailedTask();
 
 }

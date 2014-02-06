@@ -15,9 +15,9 @@
  */
 package com.microsoft.reef.tests.fail.driver;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
-import com.microsoft.reef.driver.activity.ActivityMessage;
-import com.microsoft.reef.driver.activity.RunningActivity;
+import com.microsoft.reef.driver.task.TaskConfiguration;
+import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
@@ -45,7 +45,7 @@ public final class FailDriverDelayedMsg {
 
   private final transient EvaluatorRequestor requestor;
   private final transient Clock clock;
-  private transient RunningActivity activity = null;
+  private transient RunningTask task = null;
 
   @Inject
   public FailDriverDelayedMsg(final EvaluatorRequestor requestor, final Clock clock) {
@@ -74,43 +74,43 @@ public final class FailDriverDelayedMsg {
     public void onNext(final ActiveContext context) {
       LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(ActiveContext): {0}", context);
       try {
-        context.submitActivity(ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, "Activity_" + context.getId())
-            .set(ActivityConfiguration.ACTIVITY, NoopActivity.class)
-            .set(ActivityConfiguration.ON_MESSAGE, NoopActivity.DriverMessageHandler.class)
-            .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
-            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
-            .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
-            .set(ActivityConfiguration.ON_SEND_MESSAGE, NoopActivity.class)
+        context.submitTask(TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, "Task_" + context.getId())
+            .set(TaskConfiguration.TASK, NoopTask.class)
+            .set(TaskConfiguration.ON_MESSAGE, NoopTask.DriverMessageHandler.class)
+            .set(TaskConfiguration.ON_SUSPEND, NoopTask.TaskSuspendHandler.class)
+            .set(TaskConfiguration.ON_TASK_STOP, NoopTask.TaskStopHandler.class)
+            .set(TaskConfiguration.ON_CLOSE, NoopTask.TaskCloseHandler.class)
+            .set(TaskConfiguration.ON_SEND_MESSAGE, NoopTask.class)
             .build());
       } catch (final BindException ex) {
-        LOG.log(Level.WARNING, "Activity configuration error", ex);
+        LOG.log(Level.WARNING, "Task configuration error", ex);
         throw new RuntimeException(ex);
       }
     }
   }
 
-  public final class RunningActivityHandler implements EventHandler<RunningActivity> {
+  public final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
-    public void onNext(final RunningActivity act) {
-      FailDriverDelayedMsg.this.activity = act;
-      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(ActivityRuntime): {0}", act);
+    public void onNext(final RunningTask task) {
+      FailDriverDelayedMsg.this.task = task;
+      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(TaskRuntime): {0}", task);
       FailDriverDelayedMsg.this.clock.scheduleAlarm(2000, new EventHandler<Alarm>() {
         @Override
         public void onNext(final Alarm time) {
           LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(Alarm): {0}", time);
-          act.onNext(HELLO_STR);
+          task.onNext(HELLO_STR);
         }
       });
     }
   }
 
-  public final class ActivityMessageHandler implements EventHandler<ActivityMessage> {
+  public final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
-    public void onNext(final ActivityMessage msg) {
-      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(ActivityMessage): {0}", msg);
+    public void onNext(final TaskMessage msg) {
+      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(TaskMessage): {0}", msg);
       assert (Arrays.equals(HELLO_STR, msg.get()));
-      FailDriverDelayedMsg.this.activity.close();
+      FailDriverDelayedMsg.this.task.close();
     }
   }
 

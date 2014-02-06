@@ -42,7 +42,7 @@ public interface Scatter {
   @DefaultImplementation(ScatterOp.Sender.class)
 	public static interface Sender<T> {
 		/**
-		 * Distributes evenly across activity ids sorted lexicographically
+		 * Distributes evenly across task ids sorted lexicographically
 		 * 
 		 * @param elements
 		 * @throws NetworkException
@@ -52,7 +52,7 @@ public interface Scatter {
 				InterruptedException;
 
 		/**
-		 * Distributes as per counts across activity ids sorted
+		 * Distributes as per counts across task ids sorted
 		 * lexicographically
 		 * 
 		 * @param elements
@@ -64,7 +64,7 @@ public interface Scatter {
 				throws NetworkException, InterruptedException;
 
 		/**
-		 * Distributes evenly across activity ids sorted using order
+		 * Distributes evenly across task ids sorted using order
 		 * 
 		 * @param elements
 		 * @param order
@@ -75,7 +75,7 @@ public interface Scatter {
 				throws NetworkException, InterruptedException;
 
 		/**
-		 * Distributes as per counts across activity ids sorted using order
+		 * Distributes as per counts across task ids sorted using order
 		 * 
 		 * @param elements
 		 * @param counts

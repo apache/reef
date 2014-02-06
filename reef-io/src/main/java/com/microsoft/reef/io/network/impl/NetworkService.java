@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.io.network.impl;
 
-import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.io.naming.Naming;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.ConnectionFactory;
@@ -42,7 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Network service for Activity
+ * Network service for Task
  */
 public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
@@ -58,7 +58,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   @Inject
   public NetworkService(
-      final @Parameter(ActivityConfigurationOptions.Identifier.class) String myId,
+      final @Parameter(TaskConfigurationOptions.Identifier.class) String myId,
       final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
       final @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
       final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,

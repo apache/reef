@@ -67,7 +67,7 @@ public class ReceiverTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     for (int i = 0; i < numActivities; i++) {
-      Identifier id = idFac.getNewInstance("Activity" + i);
+      Identifier id = idFac.getNewInstance("Task" + i);
 
       ids.add((ComparableIdentifier) id);
     }

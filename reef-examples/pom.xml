@@ -244,7 +244,7 @@
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
                                 <argument>com.microsoft.reef.examples.retained_evalCLR.Launch</argument>
-                                <argument>dotnetShellActivity</argument>
+                                <argument>dotnetShellTask</argument>
                                 <!-- <argument>-cmd</argument>
                                 <argument>date</argument>
                                 <argument>-num_runs</argument>

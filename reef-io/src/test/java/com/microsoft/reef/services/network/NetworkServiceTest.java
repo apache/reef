@@ -70,22 +70,22 @@ public class NetworkServiceTest {
 
     System.out.println("=== Test network service receiver start");
     // network service
-    final String name2 = "activity2";
+    final String name2 = "task2";
     NetworkService<String> ns2 = new NetworkService<String>(
         name2, factory, 0, nameServerAddr, nameServerPort,
         new StringCodec(), new MessagingTransportFactory(), 
         new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
     final int port2 = ns2.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
+    server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
     
     System.out.println("=== Test network service sender start");
-    final String name1 = "activity1";
+    final String name1 = "task1";
     NetworkService<String> ns1 = new NetworkService<String>(
         name1, factory, 0, nameServerAddr, nameServerPort,
         new StringCodec(), new MessagingTransportFactory(), 
         new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
     final int port1 = ns1.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+    server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
     Identifier destId = factory.getNewInstance(name2);
     Connection<String> conn = ns1.newConnection(destId);
@@ -131,22 +131,22 @@ public class NetworkServiceTest {
 
       System.out.println("=== Test network service receiver start");
       // network service
-      final String name2 = "activity2";
+      final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
           name2, factory, 0, nameServerAddr, nameServerPort,
           new StringCodec(), new MessagingTransportFactory(), 
           new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
       final int port2 = ns2.getTransport().getListeningPort(); 
-      server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
 
       System.out.println("=== Test network service sender start");
-      final String name1 = "activity1";
+      final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
           name1, factory, 0, nameServerAddr, nameServerPort,
           new StringCodec(), new MessagingTransportFactory(), 
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       Connection<String> conn = ns1.newConnection(destId);
@@ -212,7 +212,7 @@ public class NetworkServiceTest {
 
           System.out.println("=== Test network service receiver start");
           // network service
-          final String name2 = "activity2-"+tt;
+          final String name2 = "task2-"+tt;
           NetworkService<String> ns2 = new NetworkService<String>(
               name2, factory, 0, nameServerAddr, nameServerPort,
               new StringCodec(), new MessagingTransportFactory(), 
@@ -221,7 +221,7 @@ public class NetworkServiceTest {
           server.register(factory.getNewInstance(name2), new InetSocketAddress(nameServerAddr, port2));
 
           System.out.println("=== Test network service sender start");
-          final String name1 = "activity1-"+tt;
+          final String name1 = "task1-"+tt;
           NetworkService<String> ns1 = new NetworkService<String>(
               name1, factory, 0, nameServerAddr, nameServerPort,
               new StringCodec(), new MessagingTransportFactory(), 
@@ -298,22 +298,22 @@ public class NetworkServiceTest {
 
       System.out.println("=== Test network service receiver start");
       // network service
-      final String name2 = "activity2";
+      final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
           name2, factory, 0, nameServerAddr, nameServerPort,
           new StringCodec(), new MessagingTransportFactory(), 
           new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler());
       final int port2 = ns2.getTransport().getListeningPort(); 
-      server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
 
       System.out.println("=== Test network service sender start");
-      final String name1 = "activity1";
+      final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
           name1, factory, 0, nameServerAddr, nameServerPort,
           new StringCodec(), new MessagingTransportFactory(), 
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       final Connection<String> conn = ns1.newConnection(destId);
@@ -391,22 +391,22 @@ public class NetworkServiceTest {
 
       System.out.println("=== Test network service receiver start");
       // network service
-      final String name2 = "activity2";
+      final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
           name2, factory, 0, nameServerAddr, nameServerPort,
           new StringCodec(), new MessagingTransportFactory(), 
           new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
       final int port2 = ns2.getTransport().getListeningPort(); 
-      server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
 
       System.out.println("=== Test network service sender start");
-      final String name1 = "activity1";
+      final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
           name1, factory, 0, nameServerAddr, nameServerPort,
           new StringCodec(), new MessagingTransportFactory(), 
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       Connection<String> conn = ns1.newConnection(destId);

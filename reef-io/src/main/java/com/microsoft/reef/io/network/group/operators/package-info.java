@@ -38,7 +38,7 @@
  * gets the 1st entry & so on is based on the rank.
  * 
  * In our case we do not have any ranks associated with activities. Instead,
- * by default we use the lexicographic order of the activity ids. These can
+ * by default we use the lexicographic order of the task ids. These can
  * also be over-ridden in the send/receive/apply function calls
  */
 package com.microsoft.reef.io.network.group.operators;

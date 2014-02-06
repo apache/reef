@@ -16,6 +16,6 @@
 
 /**
  * Allocate N evaluators, submit M activities to them, and measure the time.
- * Each activity does nothing but sleeps for D seconds.
+ * Each task does nothing but sleeps for D seconds.
  */
 package com.microsoft.reef.examples.pool;

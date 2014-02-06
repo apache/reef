@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.local.driver;
 
-import com.microsoft.reef.annotations.audience.ActivitySide;
+import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.annotations.audience.Private;
 
 import java.io.File;
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * A Container that runs an Evaluator in a Process
  */
 @Private
-@ActivitySide
+@TaskSide
 final class ProcessContainer implements Container {
   private static final Logger LOG = Logger.getLogger(ProcessContainer.class.getName());
   private final String errorHandlerRID;

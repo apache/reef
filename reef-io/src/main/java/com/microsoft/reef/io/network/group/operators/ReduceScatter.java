@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * MPI Reduce Scatter operator
  * 
- * Each activity has a list of elements. Assume that each activity reduces
+ * Each task has a list of elements. Assume that each task reduces
  * each element in the list to form a list of reduced elements at a dummy root. 
  * The dummy root then keeps the portion of the list assigned to it and
  * scatters the remaining among the other activities 
@@ -39,7 +39,7 @@ import java.util.List;
 public interface ReduceScatter<T> {
   /**
    * Apply this operation on elements where counts specify the distribution of
-   * elements to each activity. Ordering is assumed to be default
+   * elements to each task. Ordering is assumed to be default
    * 
    * Here counts is of the same size as the entire group not just children
    * 
@@ -56,7 +56,7 @@ public interface ReduceScatter<T> {
 
   /**
    * Apply this operation on elements where counts specify the distribution of
-   * elements to each activity. Ordering is specified using order
+   * elements to each task. Ordering is specified using order
    * 
    * Here counts is of the same size as the entire group not just children
    * 

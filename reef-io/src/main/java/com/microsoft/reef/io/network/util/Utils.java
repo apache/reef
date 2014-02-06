@@ -136,28 +136,4 @@ public class Utils {
     }
     return sortedAddrs.pollFirst().getHostAddress();
   }
-//	public static String getLocalAddress(){
-//	  try {
-//      return InetAddress.getLocalHost().getHostAddress();
-//    } catch (UnknownHostException e) {
-//      throw new NamingRuntimeException("Unable to get local host address", e.getCause());
-//    }
-//	}
-
-	/*public static Configuration NetworkServiceConfiguration(String activityID, String nameServerAddr, int nameServerPort, int netSerPort) throws BindException{
-		JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();
-		
-		jcb.bindNamedParameter(NetworkService.ActivityId.class, activityID);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceIdentifierFactory.class, StringIdentifierFactory.class);
-		jcb.bindNamedParameter(NameServer.NameServerAddr.class, nameServerAddr);
-		jcb.bindNamedParameter(NameServer.NameServerPort.class, Integer.toString(nameServerPort));
-		jcb.bindNamedParameter(NetworkService.NetworkServicePort.class, Integer.toString(netSerPort));
-		jcb.bindNamedParameter(NetworkService.NetworkServiceCodec.class, GCMCodec.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceTransportFactory.class, MessagingTransportFactory.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceHandler.class, GroupCommNetworkHandler.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceExceptionHandler.class, ExceptionHandler.class);
-		
-		return jcb.build();
-	}*/
-
 }

@@ -66,7 +66,7 @@ public class SenderTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     for (int i = 0; i < numActivities; i++) {
-      Identifier id = idFac.getNewInstance("Activity" + i);
+      Identifier id = idFac.getNewInstance("Task" + i);
       ids.add((ComparableIdentifier) id);
       queues.add(new LinkedBlockingQueue<GroupCommMessage>(5));
     }

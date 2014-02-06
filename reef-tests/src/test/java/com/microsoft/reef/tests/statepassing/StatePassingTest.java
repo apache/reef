@@ -53,7 +53,7 @@ public final class StatePassingTest {
           .set(DriverConfiguration.ON_DRIVER_STARTED, StatePassingStartHandler.class)
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, StatePassingDriver.AllocatedEvaluatorHandler.class)
           .set(DriverConfiguration.ON_CONTEXT_ACTIVE, StatePassingDriver.ActiveContextHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, StatePassingDriver.CompletedActivityHandler.class)
+          .set(DriverConfiguration.ON_TASK_COMPLETED, StatePassingDriver.CompletedTaskHandler.class)
         .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)

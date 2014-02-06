@@ -68,8 +68,8 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   @Override
-  public final void submit(final Configuration contextConfiguration, final Configuration activityConfiguration) {
-    this.submitContextAndActivity(contextConfiguration, activityConfiguration);
+  public final void submit(final Configuration contextConfiguration, final Configuration taskConfiguration) {
+    this.submitContextAndTask(contextConfiguration, taskConfiguration);
   }
 
   @Override
@@ -88,15 +88,15 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   @Override
-  public void submitContextAndActivity(final Configuration contextConfiguration, final Configuration activityConfiguration) {
-    launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(activityConfiguration));
+  public void submitContextAndTask(final Configuration contextConfiguration, final Configuration taskConfiguration) {
+    launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
   }
 
   @Override
-  public void submitContextAndServiceAndActivity(final Configuration contextConfiguration,
-                                                 final Configuration serviceConfiguration,
-                                                 final Configuration activityConfiguration) {
-    launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(activityConfiguration));
+  public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
+                                             final Configuration serviceConfiguration,
+                                             final Configuration taskConfiguration) {
+    launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(taskConfiguration));
   }
 
   @Override
@@ -125,7 +125,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   private final void launch(final Configuration contextConfiguration,
                             final Optional<Configuration> serviceConfiguration,
-                            final Optional<Configuration> activityConfiguration) {
+                            final Optional<Configuration> taskConfiguration) {
     try {
       final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfigurationModule.CONF
           .set(EvaluatorConfigurationModule.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
@@ -146,27 +146,36 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
             .set(EvaluatorConfigurationModule.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
       }
 
-      // Add the (optional) activity configuration
+      // Add the (optional) task configuration
       final Configuration evaluatorConfiguration;
-      if (activityConfiguration.isPresent()) {
-        final String encodedActivityConfigurationString = TANGUtils.toStringEncoded(activityConfiguration.get());
+      if (taskConfiguration.isPresent()) {
+        final String encodedTaskConfigurationString = TANGUtils.toStringEncoded(taskConfiguration.get());
         evaluatorConfiguration = contextConfigurationModule
-            .set(EvaluatorConfigurationModule.ACTIVITY_CONFIGURATION, encodedActivityConfigurationString).build();
+            .set(EvaluatorConfigurationModule.TASK_CONFIGURATION, encodedTaskConfigurationString).build();
       } else {
         evaluatorConfiguration = contextConfigurationModule.build();
       }
 
-      final DriverRuntimeProtocol.ResourceLaunchProto.Builder rbuilder = DriverRuntimeProtocol.ResourceLaunchProto.newBuilder()
-          .setIdentifier(this.evaluatorManager.getId())
-          .setRemoteId(this.remoteID)
-          .setEvaluatorConf(ConfigurationFile.toConfigurationString(evaluatorConfiguration));
+      final DriverRuntimeProtocol.ResourceLaunchProto.Builder rbuilder =
+          DriverRuntimeProtocol.ResourceLaunchProto.newBuilder()
+              .setIdentifier(this.evaluatorManager.getId())
+              .setRemoteId(this.remoteID)
+              .setEvaluatorConf(ConfigurationFile.toConfigurationString(evaluatorConfiguration));
 
       for (final File file : this.files) {
-        rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder().setName(file.getName()).setPath(file.getPath()).setType(ReefServiceProtos.FileType.PLAIN).build());
+        rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
+            .setName(file.getName())
+            .setPath(file.getPath())
+            .setType(ReefServiceProtos.FileType.PLAIN)
+            .build());
       }
 
       for (final File lib : this.libraries) {
-        rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder().setName(lib.getName()).setPath(lib.getPath().toString()).setType(ReefServiceProtos.FileType.LIB).build());
+        rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
+            .setName(lib.getName())
+            .setPath(lib.getPath().toString())
+            .setType(ReefServiceProtos.FileType.LIB)
+            .build());
       }
 
       { // Set the type

@@ -15,12 +15,12 @@
  */
 package com.microsoft.reef.driver.context;
 
-import com.microsoft.reef.activity.events.ActivityStart;
-import com.microsoft.reef.activity.events.ActivityStop;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
+import com.microsoft.reef.task.events.TaskStart;
+import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
 import com.microsoft.reef.evaluator.context.ContextMessageHandler;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
@@ -52,14 +52,14 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<ContextStop>> ON_CONTEXT_STOP = new OptionalImpl<>();
 
   /**
-   * Event handlers to be informed right before an Activity enters its call() method.
+   * Event handlers to be informed right before a Task enters its call() method.
    */
-  public static final OptionalImpl<EventHandler<ActivityStart>> ON_ACTIVITY_STARTED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<TaskStart>> ON_TASK_STARTED = new OptionalImpl<>();
 
   /**
-   * Event handlers to be informed right after an Activity exits its call() method.
+   * Event handlers to be informed right after a Task exits its call() method.
    */
-  public static final OptionalImpl<EventHandler<ActivityStop>> ON_ACTIVITY_STOP = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<TaskStop>> ON_TASK_STOP = new OptionalImpl<>();
 
   /**
    * Source of messages to be called whenever the evaluator is about to make a heartbeat.
@@ -81,7 +81,7 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(ContextConfigurationOptions.StopHandlers.class, ON_CONTEXT_STOP)
       .bindSetEntry(ContextConfigurationOptions.ContextMessageSources.class, ON_SEND_MESSAGE)
       .bindSetEntry(ContextConfigurationOptions.ContextMessageHandlers.class, ON_MESSAGE)
-      .bindSetEntry(ActivityConfigurationOptions.StartHandlers.class, ON_ACTIVITY_STARTED)
-      .bindSetEntry(ActivityConfigurationOptions.StopHandlers.class, ON_ACTIVITY_STOP)
+      .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, ON_TASK_STARTED)
+      .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
       .build();
 }

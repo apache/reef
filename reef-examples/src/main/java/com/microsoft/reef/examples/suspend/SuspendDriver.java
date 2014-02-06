@@ -15,8 +15,7 @@
  */
 package com.microsoft.reef.examples.suspend;
 
-import com.microsoft.reef.driver.activity.*;
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
@@ -49,7 +48,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Suspend/resume example job driver. Execute a simple activity in all evaluators,
+ * Suspend/resume example job driver. Execute a simple task in all evaluators,
  * and handle suspend/resume events properly.
  */
 @Unit
@@ -65,7 +64,7 @@ public class SuspendDriver {
   private static final ObjectSerializableCodec<String> CODEC_STR = new ObjectSerializableCodec<>();
 
   /**
-   * Integer codec is used to decode the results driver gets from the activities.
+   * Integer codec is used to decode the results driver gets from the tasks.
    */
   private static final ObjectSerializableCodec<Integer> CODEC_INT = new ObjectSerializableCodec<>();
 
@@ -81,31 +80,31 @@ public class SuspendDriver {
   private final JobMessageObserver jobMessageObserver;
 
   /**
-   * Job driver uses EvaluatorRequestor to request Evaluators that will run the Activities.
+   * Job driver uses EvaluatorRequestor to request Evaluators that will run the Tasks.
    */
   private final EvaluatorRequestor evaluatorRequestor;
 
   /**
    * Static catalog of REEF resources.
-   * We use it to schedule Activity on every available node.
+   * We use it to schedule Task on every available node.
    */
   private final ResourceCatalog catalog;
 
   /**
-   * TANG Configuration of the Activity.
+   * TANG Configuration of the Task.
    */
   private final Configuration contextConfig;
 
   /**
-   * Map from activity ID (a string) to the ActivityRuntime instance (that can be suspended).
+   * Map from task ID (a string) to the TaskRuntime instance (that can be suspended).
    */
-  private final Map<String, RunningActivity> runningActivities =
-      Collections.synchronizedMap(new HashMap<String, RunningActivity>());
+  private final Map<String, RunningTask> runningTasks =
+      Collections.synchronizedMap(new HashMap<String, RunningTask>());
 
   /**
-   * Map from activity ID (a string) to the SuspendedActivity instance (that can be resumed).
+   * Map from task ID (a string) to the SuspendedTask instance (that can be resumed).
    */
-  private final Map<String, SuspendedActivity> suspendedActivities = new HashMap<>();
+  private final Map<String, SuspendedTask> suspendedTasks = new HashMap<>();
 
   private final int evaluatorTimeOut = 1000; //ms
   private final int numberOfEvaluatorsRequested = 2;
@@ -118,8 +117,8 @@ public class SuspendDriver {
    *
    * @param clock              Wake clock to schedule and check up running jobs.
    * @param evaluatorRequestor is used to request Evaluators.
-   * @param numCycles          number of cycles to run in the activity.
-   * @param delay              delay in seconds between cycles in the activity.
+   * @param numCycles          number of cycles to run in the task.
+   * @param delay              delay in seconds between cycles in the task.
    */
   @Inject
   SuspendDriver(final Clock clock,
@@ -156,71 +155,71 @@ public class SuspendDriver {
   }
 
   /**
-   * Receive notification that the Activity is ready to run.
+   * Receive notification that the Task is ready to run.
    */
-  final class RunningActivityHandler implements EventHandler<RunningActivity> {
+  final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
-    public final void onNext(final RunningActivity act) {
-      LOG.log(Level.INFO, "Running activity: {0}", act.getId());
-      SuspendDriver.this.runningActivities.put(act.getId(), act);
-      SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode("start activity: " + act.getId()));
+    public final void onNext(final RunningTask task) {
+      LOG.log(Level.INFO, "Running task: {0}", task.getId());
+      SuspendDriver.this.runningTasks.put(task.getId(), task);
+      SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode("start task: " + task.getId()));
     }
   }
 
   /**
-   * Receive notification that the Activity has completed successfully.
+   * Receive notification that the Task has completed successfully.
    */
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public final void onNext(final CompletedActivity act) {
+    public final void onNext(final CompletedTask task) {
 
-      final EvaluatorDescriptor e = act.getActiveContext().getEvaluatorDescriptor();
-      final String msg = "Activity completed " + act.getId() + " on node " + e;
+      final EvaluatorDescriptor e = task.getActiveContext().getEvaluatorDescriptor();
+      final String msg = "Task completed " + task.getId() + " on node " + e;
       LOG.info(msg);
 
       SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode(msg));
-      SuspendDriver.this.runningActivities.remove(act.getId());
-      act.getActiveContext().close();
+      SuspendDriver.this.runningTasks.remove(task.getId());
+      task.getActiveContext().close();
 
-      final boolean noActivities;
-      synchronized (SuspendDriver.this.suspendedActivities) {
-        LOG.log(Level.INFO, "Activities running: {0} suspended: {1}", new Object[]{
-            SuspendDriver.this.runningActivities.size(),
-            SuspendDriver.this.suspendedActivities.size()});
-        noActivities = SuspendDriver.this.runningActivities.isEmpty() &&
-            SuspendDriver.this.suspendedActivities.isEmpty();
+      final boolean noTasks;
+      synchronized (SuspendDriver.this.suspendedTasks) {
+        LOG.log(Level.INFO, "Tasks running: {0} suspended: {1}", new Object[]{
+            SuspendDriver.this.runningTasks.size(),
+            SuspendDriver.this.suspendedTasks.size()});
+        noTasks = SuspendDriver.this.runningTasks.isEmpty() &&
+            SuspendDriver.this.suspendedTasks.isEmpty();
       }
 
-      if (noActivities) {
-        LOG.info("All activities completed; shutting down.");
+      if (noTasks) {
+        LOG.info("All tasks completed; shutting down.");
       }
     }
   }
 
   /**
-   * Receive notification that the Activity has been suspended.
+   * Receive notification that the Task has been suspended.
    */
-  final class SuspendedActivityHandler implements EventHandler<SuspendedActivity> {
+  final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
-    public final void onNext(final SuspendedActivity act) {
-      final String msg = "Activity suspended: " + act.getId();
+    public final void onNext(final SuspendedTask task) {
+      final String msg = "Task suspended: " + task.getId();
       LOG.info(msg);
-      synchronized (SuspendDriver.this.suspendedActivities) {
-        SuspendDriver.this.suspendedActivities.put(act.getId(), act);
-        SuspendDriver.this.runningActivities.remove(act.getId());
+      synchronized (SuspendDriver.this.suspendedTasks) {
+        SuspendDriver.this.suspendedTasks.put(task.getId(), task);
+        SuspendDriver.this.runningTasks.remove(task.getId());
       }
       SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode(msg));
     }
   }
 
   /**
-   * Receive message from the Activity.
+   * Receive message from the Task.
    */
-  final class ActivityMessageHandler implements EventHandler<ActivityMessage> {
+  final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
-    public void onNext(final ActivityMessage message) {
+    public void onNext(final TaskMessage message) {
       final int result = CODEC_INT.decode(message.get());
-      final String msg = "Activity message " + message.getId() + ": " + result;
+      final String msg = "Task message " + message.getId() + ": " + result;
       LOG.info(msg);
       SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode(msg));
     }
@@ -228,7 +227,7 @@ public class SuspendDriver {
 
   /**
    * Receive notification that an Evaluator had been allocated,
-   * and submitActivity a new Activity in that Evaluator.
+   * and submitTask a new Task in that Evaluator.
    */
   final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
@@ -248,20 +247,20 @@ public class SuspendDriver {
 
   /**
    * Receive notification that a new Context is available.
-   * Submit a new Activity to that Context.
+   * Submit a new Task to that Context.
    */
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public synchronized void onNext(final ActiveContext context) {
       LOG.log(Level.INFO, "Active Context: {0}", context.getId());
       try {
-        context.submitActivity(ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, context.getId() + "_activity")
-            .set(ActivityConfiguration.ACTIVITY, SuspendTestActivity.class)
-            .set(ActivityConfiguration.ON_SUSPEND, SuspendTestActivity.SuspendHandler.class)
+        context.submitTask(TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, context.getId() + "_task")
+            .set(TaskConfiguration.TASK, SuspendTestTask.class)
+            .set(TaskConfiguration.ON_SUSPEND, SuspendTestTask.SuspendHandler.class)
             .build());
       } catch (final BindException ex) {
-        LOG.log(Level.SEVERE, "Bad Activity configuration for context: " + context.getId(), ex);
+        LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
         throw new RuntimeException(ex);
       }
     }
@@ -284,39 +283,39 @@ public class SuspendDriver {
       } else {
 
         final String command = split[0].toLowerCase().intern();
-        final String activityId = split[1];
+        final String taskId = split[1];
 
         switch (command) {
 
           case "suspend": {
-            final RunningActivity activity = SuspendDriver.this.runningActivities.get(activityId);
-            if (activity != null) {
-              activity.suspend();
+            final RunningTask task = SuspendDriver.this.runningTasks.get(taskId);
+            if (task != null) {
+              task.suspend();
             } else {
               SuspendDriver.this.jobMessageObserver.onError(
-                  new IllegalArgumentException("Suspend: Activity not found: " + activityId));
+                  new IllegalArgumentException("Suspend: Task not found: " + taskId));
             }
             break;
           }
 
           case "resume": {
-            final SuspendedActivity suspendedActivity;
-            synchronized (SuspendDriver.this.suspendedActivities) {
-              suspendedActivity = SuspendDriver.this.suspendedActivities.remove(activityId);
+            final SuspendedTask suspendedTask;
+            synchronized (SuspendDriver.this.suspendedTasks) {
+              suspendedTask = SuspendDriver.this.suspendedTasks.remove(taskId);
             }
-            if (suspendedActivity != null) {
+            if (suspendedTask != null) {
               try {
-                suspendedActivity.getActiveContext().submitActivity(ActivityConfiguration.CONF
-                    .set(ActivityConfiguration.IDENTIFIER, activityId)
-                    .set(ActivityConfiguration.MEMENTO,
-                        DatatypeConverter.printBase64Binary(suspendedActivity.get()))
+                suspendedTask.getActiveContext().submitTask(TaskConfiguration.CONF
+                    .set(TaskConfiguration.IDENTIFIER, taskId)
+                    .set(TaskConfiguration.MEMENTO,
+                        DatatypeConverter.printBase64Binary(suspendedTask.get()))
                     .build());
               } catch (final BindException e) {
                 throw new RuntimeException(e);
               }
             } else {
               SuspendDriver.this.jobMessageObserver.onError(
-                  new IllegalArgumentException("Resume: Activity not found: " + activityId));
+                  new IllegalArgumentException("Resume: Task not found: " + taskId));
             }
             break;
           }

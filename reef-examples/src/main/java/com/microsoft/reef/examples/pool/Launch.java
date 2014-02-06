@@ -69,20 +69,20 @@ public final class Launch {
    * Command line parameter: number of Activities to run.
    */
   @NamedParameter(doc = "Number of activities to run", short_name = "activities")
-  public static final class NumActivities implements Name<Integer> {
+  public static final class NumTasks implements Name<Integer> {
   }
 
   /**
    * Command line parameter: number of experiments to run.
    */
-  @NamedParameter(doc = "Number of seconds to sleep in each activity", short_name = "delay")
+  @NamedParameter(doc = "Number of seconds to sleep in each task", short_name = "delay")
   public static final class Delay implements Name<Integer> {
   }
 
   /**
-   * Command line parameter = true to submit activity and context in one request.
+   * Command line parameter = true to submit task and context in one request.
    */
-  @NamedParameter(doc = "Submit activity and context together",
+  @NamedParameter(doc = "Submit task and context together",
       short_name = "piggyback", default_value = "true")
   public static final class Piggyback implements Name<Boolean> {
   }
@@ -117,7 +117,7 @@ public final class Launch {
     cl.registerShortNameOfClass(Local.class);
     cl.registerShortNameOfClass(Piggyback.class);
     cl.registerShortNameOfClass(NumEvaluators.class);
-    cl.registerShortNameOfClass(NumActivities.class);
+    cl.registerShortNameOfClass(NumTasks.class);
     cl.registerShortNameOfClass(Delay.class);
     cl.registerShortNameOfClass(JobId.class);
     cl.processCommandLine(args);
@@ -130,7 +130,7 @@ public final class Launch {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindNamedParameter(Piggyback.class, String.valueOf(injector.getNamedInstance(Piggyback.class)));
     cb.bindNamedParameter(NumEvaluators.class, String.valueOf(injector.getNamedInstance(NumEvaluators.class)));
-    cb.bindNamedParameter(NumActivities.class, String.valueOf(injector.getNamedInstance(NumActivities.class)));
+    cb.bindNamedParameter(NumTasks.class, String.valueOf(injector.getNamedInstance(NumTasks.class)));
     cb.bindNamedParameter(Delay.class, String.valueOf(injector.getNamedInstance(Delay.class)));
     return cb.build();
   }
@@ -173,14 +173,14 @@ public final class Launch {
 
       final boolean isLocal = injector.getNamedInstance(Local.class);
       final int numEvaluators = injector.getNamedInstance(NumEvaluators.class);
-      final int numActivities = injector.getNamedInstance(NumActivities.class);
+      final int numActivities = injector.getNamedInstance(NumTasks.class);
       final int delay = injector.getNamedInstance(Delay.class);
       final int jobNum = injector.getNamedInstance(JobId.class);
 
       final String jobId = String.format("pool.e_%d.a_%d.d_%d.%d",
           numEvaluators, numActivities, delay, jobNum < 0 ? System.currentTimeMillis() : jobNum);
 
-      // Timeout: delay + 6 extra seconds per Activity per Evaluator + 2 minutes to allocate each Evaluator:
+      // Timeout: delay + 6 extra seconds per Task per Evaluator + 2 minutes to allocate each Evaluator:
       final int timeout = numActivities * (delay + 6) * 1000 / numEvaluators + numEvaluators * 120000;
 
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
@@ -194,8 +194,8 @@ public final class Launch {
               .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
               .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
-              .set(DriverConfiguration.ON_ACTIVITY_RUNNING, JobDriver.RunningActivityHandler.class)
-              .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
+              .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
+              .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
               .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
               .build();
 

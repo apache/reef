@@ -16,7 +16,7 @@
 package com.microsoft.reef.exception;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
-import com.microsoft.reef.driver.activity.RunningActivity;
+import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.io.naming.Identifiable;
 
 import java.util.concurrent.ExecutionException;
@@ -28,53 +28,53 @@ import java.util.concurrent.ExecutionException;
 @DriverSide
 public class EvaluatorException extends ExecutionException implements Identifiable {
 
-    private static final long serialVersionUID = 1L;
-    private final transient String evaluatorID;
-    private final transient RunningActivity runningActivity;
+  private static final long serialVersionUID = 1L;
+  private final transient String evaluatorId;
+  private final transient RunningTask runningTask;
 
-    public EvaluatorException(final String evaluatorID) {
-        super();
-        this.evaluatorID = evaluatorID;
-        this.runningActivity = null;
-    }
+  public EvaluatorException(final String evaluatorId) {
+    super();
+    this.evaluatorId = evaluatorId;
+    this.runningTask = null;
+  }
 
-    public EvaluatorException(final String evaluatorID, final String message, final Throwable cause) {
-        super(message, cause);
-        this.evaluatorID = evaluatorID;
-        this.runningActivity = null;
-    }
+  public EvaluatorException(final String evaluatorId, final String message, final Throwable cause) {
+    super(message, cause);
+    this.evaluatorId = evaluatorId;
+    this.runningTask = null;
+  }
 
-    public EvaluatorException(final String evaluatorID, final String message) {
-    	this(evaluatorID, message, (RunningActivity) null);
-    }
-    
-    public EvaluatorException(final String evaluatorID, final String message, final RunningActivity runningActivity) {
-        super(message);
-        this.evaluatorID = evaluatorID;
-        this.runningActivity = runningActivity;
-    }
+  public EvaluatorException(final String evaluatorId, final String message) {
+    this(evaluatorId, message, (RunningTask) null);
+  }
 
-    public EvaluatorException(final String evaluatorID, final Throwable cause) {
-    	this(evaluatorID, cause, null);
-    }
-    
-    public EvaluatorException(final String evaluatorID, final Throwable cause, final RunningActivity runningActivity) {
-        super(cause);
-        this.evaluatorID = evaluatorID;
-        this.runningActivity = runningActivity;
-    }
+  public EvaluatorException(final String evaluatorId, final String message, final RunningTask runningTask) {
+    super(message);
+    this.evaluatorId = evaluatorId;
+    this.runningTask = runningTask;
+  }
 
-    /**
-     * Access the affected Evaluator.
-     *
-     * @return the affected Evaluator.
-     */
-	@Override
-	public String getId() {
-        return this.evaluatorID;
-	}
-	
-	public final RunningActivity getRunningActivity() {
-		return this.runningActivity;
-	}
+  public EvaluatorException(final String evaluatorId, final Throwable cause) {
+    this(evaluatorId, cause, null);
+  }
+
+  public EvaluatorException(final String evaluatorId, final Throwable cause, final RunningTask runningTask) {
+    super(cause);
+    this.evaluatorId = evaluatorId;
+    this.runningTask = runningTask;
+  }
+
+  /**
+   * Access the affected Evaluator.
+   *
+   * @return the affected Evaluator.
+   */
+  @Override
+  public String getId() {
+    return this.evaluatorId;
+  }
+
+  public final RunningTask getRunningTask() {
+    return this.runningTask;
+  }
 }

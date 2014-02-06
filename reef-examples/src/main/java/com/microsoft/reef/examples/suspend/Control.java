@@ -39,8 +39,8 @@ import java.util.logging.Logger;
 
 public final class Control {
 
-  @NamedParameter(doc = "Activity id", short_name = "activity")
-  public static final class ActivityId implements Name<String> {
+  @NamedParameter(doc = "Task id", short_name = "task")
+  public static final class TaskId implements Name<String> {
   }
 
   @NamedParameter(doc = "Command: 'suspend' or 'resume'", short_name = "cmd")
@@ -50,21 +50,21 @@ public final class Control {
   private static final Logger LOG = Logger.getLogger(Control.class.getName());
 
   private final transient String command;
-  private final transient String activityId;
+  private final transient String taskId;
   private final transient int port;
 
   @Inject
   public Control(@Parameter(SuspendClientControl.Port.class) final int port,
-                 @Parameter(ActivityId.class) final String activityId,
+                 @Parameter(TaskId.class) final String taskId,
                  @Parameter(Command.class) final String command) {
     this.command = command.trim().toLowerCase();
-    this.activityId = activityId;
+    this.taskId = taskId;
     this.port = port;
   }
 
   public void run() throws Exception {
-    LOG.log(Level.INFO, "command: {0} activity: {1} port: {2}",
-        new Object[]{this.command, this.activityId, this.port});
+    LOG.log(Level.INFO, "command: {0} task: {1} port: {2}",
+        new Object[]{this.command, this.taskId, this.port});
     final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
     try (final RemoteManager rm = new DefaultRemoteManagerImplementation("localhost", 0, codec, new EventHandler<Throwable>() {
       @Override
@@ -75,13 +75,13 @@ public final class Control {
       final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       final RemoteIdentifier remoteId = factory.getNewInstance("socket://localhost:" + port);
       final EventHandler<String> proxyConnection = rm.getHandler(remoteId, String.class);
-      proxyConnection.onNext(command + " " + activityId);
+      proxyConnection.onNext(command + " " + taskId);
     }
   }
 
   private static Configuration getConfig(final String[] args) throws IOException, BindException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    new CommandLine(cb).processCommandLine(args, SuspendClientControl.Port.class, ActivityId.class, Command.class);
+    new CommandLine(cb).processCommandLine(args, SuspendClientControl.Port.class, TaskId.class, Command.class);
     return cb.build();
   }
 

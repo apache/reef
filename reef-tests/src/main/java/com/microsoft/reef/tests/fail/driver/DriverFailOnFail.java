@@ -15,12 +15,12 @@
  */
 package com.microsoft.reef.tests.fail.driver;
 
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.tests.exceptions.SimulatedDriverFailure;
-import com.microsoft.reef.tests.fail.activity.FailActivityCall;
+import com.microsoft.reef.tests.fail.task.FailTaskCall;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
@@ -51,18 +51,18 @@ public final class DriverFailOnFail {
 
       try {
 
-        LOG.log(Level.INFO, "Submit activity: Fail2");
+        LOG.log(Level.INFO, "Submit task: Fail2");
 
         final Configuration contextConfig = ContextConfiguration.CONF
                 .set(ContextConfiguration.IDENTIFIER, "Fail2")
                 .build();
 
-        final Configuration activityConfig = ActivityConfiguration.CONF
-                .set(ActivityConfiguration.IDENTIFIER, "Fail2")
-                .set(ActivityConfiguration.ACTIVITY, FailActivityCall.class)
+        final Configuration taskConfig = TaskConfiguration.CONF
+                .set(TaskConfiguration.IDENTIFIER, "Fail2")
+                .set(TaskConfiguration.TASK, FailTaskCall.class)
                 .build();
 
-        eval.submitContextAndActivity(contextConfig, activityConfig);
+        eval.submitContextAndTask(contextConfig, taskConfig);
 
       } catch (final BindException ex) {
         LOG.log(Level.WARNING, "Configuration error", ex);
@@ -71,11 +71,11 @@ public final class DriverFailOnFail {
     }
   }
 
-  public final class FailedActivityHandler implements EventHandler<FailedActivity> {
+  public final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
-    public void onNext(final FailedActivity act) throws SimulatedDriverFailure {
+    public void onNext(final FailedTask task) throws SimulatedDriverFailure {
       final SimulatedDriverFailure error = new SimulatedDriverFailure(
-          "Simulated Failure at DriverFailOnFail :: " + act.getClass().getName(), act.asError());
+          "Simulated Failure at DriverFailOnFail :: " + task.getClass().getName(), task.asError());
       LOG.log(Level.SEVERE, "Simulated Failure", error);
       throw error;
     }

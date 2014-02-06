@@ -22,7 +22,7 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
-import com.microsoft.reef.runtime.common.evaluator.activity.ActivityClientCodeException;
+import com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
@@ -77,19 +77,19 @@ public final class ContextManager implements AutoCloseable {
       LOG.log(Level.FINEST, "Instantiating root context.");
       this.contextStack.push(this.launchContext.get().getRootContext());
 
-      if (this.launchContext.get().getInitialActivityConfiguration().isPresent()) {
-        LOG.log(Level.FINEST, "Launching the initial Activity");
+      if (this.launchContext.get().getInitialTaskConfiguration().isPresent()) {
+        LOG.log(Level.FINEST, "Launching the initial Task");
         try {
-          this.contextStack.peek().startActivity(this.launchContext.get().getInitialActivityConfiguration().get());
-        } catch (final ActivityClientCodeException e) {
-          this.handleActivityException(e);
+          this.contextStack.peek().startTask(this.launchContext.get().getInitialTaskConfiguration().get());
+        } catch (final TaskClientCodeException e) {
+          this.handleTaskException(e);
         }
       }
     }
   }
 
   /**
-   * Shuts down. This forecefully kills the Activity if there is one and then shuts down all Contexts on the stack,
+   * Shuts down. This forecefully kills the Task if there is one and then shuts down all Contexts on the stack,
    * starting at the top.
    */
   @Override
@@ -110,41 +110,41 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * Processes the given ActivityControlProto to launch / close / suspend Activities and Contexts.
+   * Processes the given TaskControlProto to launch / close / suspend Tasks and Contexts.
    * <p/>
    * This also triggers the HeartBeatManager to send a heartbeat with the result of this operation.
    *
    * @param controlMessage the message to process
    */
-  public void handleActivityControl(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
+  public void handleTaskControl(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
 
     synchronized (this.heartBeatManager) {
       try {
-        final byte[] message = controlMessage.hasActivityMessage() ? controlMessage.getActivityMessage().toByteArray() : null;
+        final byte[] message = controlMessage.hasTaskMessage() ? controlMessage.getTaskMessage().toByteArray() : null;
         if (controlMessage.hasAddContext() && controlMessage.hasRemoveContext()) {
           throw new IllegalArgumentException("Received a message with both add and remove context. This is unsupported.");
         }
 
         if (controlMessage.hasAddContext()) {
           this.addContext(controlMessage.getAddContext());
-          if (controlMessage.hasStartActivity()) {
-            // We support submitContextAndActivity()
-            this.startActivity(controlMessage.getStartActivity());
+          if (controlMessage.hasStartTask()) {
+            // We support submitContextAndTask()
+            this.startTask(controlMessage.getStartTask());
           } else {
-            // We need to trigger a heartbeat here. In other cases, the heartbeat will be triggered by the ActivityRuntime
+            // We need to trigger a heartbeat here. In other cases, the heartbeat will be triggered by the TaskRuntime
             // Therefore this call can not go into addContext
             this.heartBeatManager.onNext();
           }
         } else if (controlMessage.hasRemoveContext()) {
           this.removeContext(controlMessage.getRemoveContext().getContextId());
-        } else if (controlMessage.hasStartActivity()) {
-          this.startActivity(controlMessage.getStartActivity());
-        } else if (controlMessage.hasStopActivity()) {
-          this.contextStack.peek().closeActivity(message);
-        } else if (controlMessage.hasSuspendActivity()) {
-          this.contextStack.peek().suspendActivity(message);
-        } else if (controlMessage.hasActivityMessage()) {
-          this.contextStack.peek().deliverActivityMessage(message);
+        } else if (controlMessage.hasStartTask()) {
+          this.startTask(controlMessage.getStartTask());
+        } else if (controlMessage.hasStopTask()) {
+          this.contextStack.peek().closeTask(message);
+        } else if (controlMessage.hasSuspendTask()) {
+          this.contextStack.peek().suspendTask(message);
+        } else if (controlMessage.hasTaskMessage()) {
+          this.contextStack.peek().deliverTaskMessage(message);
         } else if (controlMessage.hasContextMessage()) {
           final EvaluatorRuntimeProtocol.ContextMessageProto contextMessageProto = controlMessage.getContextMessage();
           boolean deliveredMessage = false;
@@ -159,10 +159,10 @@ public final class ContextManager implements AutoCloseable {
             throw new IllegalStateException("Sent message to unknown context " + contextMessageProto.getContextId());
           }
         } else {
-          throw new RuntimeException("Unknown activity control message: " + controlMessage.toString());
+          throw new RuntimeException("Unknown task control message: " + controlMessage.toString());
         }
-      } catch (final ActivityClientCodeException e) {
-        this.handleActivityException(e);
+      } catch (final TaskClientCodeException e) {
+        this.handleTaskException(e);
       } catch (final ContextClientCodeException e) {
         this.handleContextException(e);
       }
@@ -171,14 +171,14 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * @return the ActivityStatusProto of the currently running activity, if there is any
+   * @return the TaskStatusProto of the currently running task, if there is any
    */
-  public Optional<ReefServiceProtos.ActivityStatusProto> getActivityStatus() {
+  public Optional<ReefServiceProtos.TaskStatusProto> getTaskStatus() {
     synchronized (this.contextStack) {
       if (this.contextStack.isEmpty()) {
-        throw new RuntimeException("Asked for an Activity status while there isn't even a context running.");
+        throw new RuntimeException("Asked for an Task status while there isn't even a context running.");
       }
-      return this.contextStack.peek().getActivityStatus();
+      return this.contextStack.peek().getTaskStatus();
     }
   }
 
@@ -253,23 +253,23 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * Launch an Activity.
+   * Launch an Task.
    *
-   * @param startActivityProto
-   * @throws ActivityClientCodeException
+   * @param startTaskProto
+   * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException
    */
-  private void startActivity(final EvaluatorRuntimeProtocol.StartActivityProto startActivityProto) throws ActivityClientCodeException {
+  private void startTask(final EvaluatorRuntimeProtocol.StartTaskProto startTaskProto) throws TaskClientCodeException {
     synchronized (this.contextStack) {
       final ContextRuntime currentActiveContext = this.contextStack.peek();
 
-      final String expectedContextId = startActivityProto.getContextId();
+      final String expectedContextId = startTaskProto.getContextId();
       if (!expectedContextId.equals(currentActiveContext.getIdentifier())) {
-        throw new IllegalStateException("Activity expected context `" + expectedContextId +
+        throw new IllegalStateException("Task expected context `" + expectedContextId +
             "` but the active context has ID `" + currentActiveContext.getIdentifier() + "`");
       }
 
-      final Configuration activityConfiguration = TANGUtils.fromString(startActivityProto.getConfiguration());
-      currentActiveContext.startActivity(activityConfiguration);
+      final Configuration taskConfig = TANGUtils.fromString(startTaskProto.getConfiguration());
+      currentActiveContext.startTask(taskConfig);
     }
   }
 
@@ -278,17 +278,17 @@ public final class ContextManager implements AutoCloseable {
    *
    * @param e
    */
-  private void handleActivityException(final ActivityClientCodeException e) {
-    LOG.log(Level.SEVERE, "ActivityClientCodeException", e);
+  private void handleTaskException(final TaskClientCodeException e) {
+    LOG.log(Level.SEVERE, "TaskClientCodeException", e);
     final ByteString exception = ByteString.copyFrom(new ObjectSerializableCodec<Throwable>().encode(e.getCause()));
-    final ReefServiceProtos.ActivityStatusProto activityStatus = ReefServiceProtos.ActivityStatusProto.newBuilder()
-        .setContextId(e.getContextID())
-        .setActivityId(e.getActivityID())
+    final ReefServiceProtos.TaskStatusProto taskStatus = ReefServiceProtos.TaskStatusProto.newBuilder()
+        .setContextId(e.getContextId())
+        .setTaskId(e.getTaskId())
         .setResult(exception)
         .setState(ReefServiceProtos.State.FAILED)
         .build();
-    LOG.log(Level.SEVERE, "Sending heartbeat: " + activityStatus.toString());
-    this.heartBeatManager.onNext(activityStatus);
+    LOG.log(Level.SEVERE, "Sending heartbeat: " + taskStatus.toString());
+    this.heartBeatManager.onNext(taskStatus);
   }
 
   /**

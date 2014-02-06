@@ -26,10 +26,10 @@ import java.util.List;
  * An interface of a helper for Senders of asymmetric operators
  * 
  * Accounts for functionality that should be available on a Sender
- * --sending one element to an activity
- * --sending a list of elements to an activity
+ * --sending one element to an task
+ * --sending a list of elements to an task
  * --sending a list of elements to a list of activities
- * --sending a list of lists of elements to an activity
+ * --sending a list of lists of elements to an task
  * 
  * Please note that these operations are non-blocking
  * @author shravan
@@ -38,7 +38,7 @@ import java.util.List;
  */
 public interface SenderHelper<T> {
 	/** 
-	 * Asynchronously send a message to an activity
+	 * Asynchronously send a message to an task
 	 * Use when one element per message has to be sent
 	 * @param from
 	 * @param to
@@ -50,7 +50,7 @@ public interface SenderHelper<T> {
 			GroupCommMessage.Type msgType) throws NetworkException;
 
 	/**
-	 * Asynchronously send a message to an activity
+	 * Asynchronously send a message to an task
 	 * Use when a list of elements has to be sent in one message
 	 * @param from
 	 * @param to
@@ -79,7 +79,7 @@ public interface SenderHelper<T> {
 	 * This is not used in the basic implementation but will be useful
 	 * when considering aggregation trees
 	 * 
-	 * Asynchronously send a List of list of elements to an activity
+	 * Asynchronously send a List of list of elements to an task
 	 * Use when a list of lists is to be sent.
 	 * @param from
 	 * @param to

@@ -55,7 +55,7 @@ public final class DistributedShell {
   private final List<String> resources;
 
   /**
-   * Result of the Distributed Shell Activity execution on ALL nodes.
+   * Result of the Distributed Shell Task execution on ALL nodes.
    */
   private String dsResult;
 
@@ -85,7 +85,7 @@ public final class DistributedShell {
 
     ConfigurationModule driverConf = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, jobid)
-        .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, DistributedShellJobDriver.CompletedActivityHandler.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, DistributedShellJobDriver.CompletedTaskHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DistributedShellJobDriver.AllocatedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_DRIVER_STARTED, DistributedShellJobDriver.StartHandler.class)
         .set(DriverConfiguration.ON_DRIVER_STOP, DistributedShellJobDriver.StopHandler.class);

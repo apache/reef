@@ -25,7 +25,7 @@ import com.microsoft.tang.annotations.DefaultImplementation;
  * The main entry point into the REEF runtime.
  * <p/>
  * Every REEF runtime provides an implementation of this interface. That
- * instance is used to submitActivity the Driver class for execution to REEF. As with
+ * instance is used to submitTask the Driver class for execution to REEF. As with
  * all submissions in REEF, this is done in the form of a TANG Configuration
  * object.
  */

@@ -18,7 +18,7 @@ package com.microsoft.reef.driver.context;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.ActivitySubmittable;
+import com.microsoft.reef.driver.TaskSubmittable;
 import com.microsoft.reef.driver.ContextSubmittable;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.tang.Configuration;
@@ -43,13 +43,13 @@ import com.microsoft.tang.Configuration;
 @Public
 @DriverSide
 @Provided
-public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase, ActivitySubmittable, ContextSubmittable {
+public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase, TaskSubmittable, ContextSubmittable {
 
   @Override
   public void close();
 
   @Override
-  public void submitActivity(final Configuration activityConf);
+  public void submitTask(final Configuration taskConf);
 
   @Override
   public void submitContext(final Configuration contextConfiguration);
