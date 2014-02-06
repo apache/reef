@@ -20,7 +20,7 @@ import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.io.naming.Identifiable;
 
 /**
- * Represents an Task stop. Fired right after Task.call() returned.
+ * Represents a Task stop. Fired right after Task.call() returned.
  */
 @EvaluatorSide
 @Public

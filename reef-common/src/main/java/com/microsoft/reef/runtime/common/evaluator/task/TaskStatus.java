@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Represents the various states an Task could be in.
+ * Represents the various states a Task could be in.
  */
 public final class TaskStatus {
   private static final Logger LOG = Logger.getLogger(TaskStatus.class.getName());

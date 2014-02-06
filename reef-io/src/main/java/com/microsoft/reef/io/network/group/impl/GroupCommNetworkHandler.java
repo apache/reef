@@ -41,10 +41,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  * {@link Message}s  of type {@link GroupCommMessage}
  * <p/>
  * Uses a {@link Handler} per operators to receive from each registered task
- * Essentially a {@link GroupCommMessage} sent from an task using an operator will
+ * Essentially a {@link GroupCommMessage} sent from a task using an operator will
  * end up with the {@link Handler} for that operator. These messages are queued in
  * a {@link BlockingQueue} and receive calls made by a receiving operator for a message
- * from an task will block until the message from that task arrives in the queue
+ * from a task will block until the message from that task arrives in the queue
  * <p/>
  * The queue capacity determines how many messages from the same task can be enqueued
  *

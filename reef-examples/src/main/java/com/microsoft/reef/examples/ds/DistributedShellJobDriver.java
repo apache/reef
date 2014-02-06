@@ -145,7 +145,7 @@ public final class DistributedShellJobDriver {
     public void onNext(final AllocatedEvaluator eval) {
       try {
         LOG.log(Level.INFO, "Allocated Evaluator: {0}", eval.getId());
-        // Submit an Task that executes the shell command in this Evaluator
+        // Submit a Task that executes the shell command in this Evaluator
 
         final JavaConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
             .newConfigurationBuilder();

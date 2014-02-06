@@ -303,7 +303,7 @@ public final class JobDriver {
   }
 
   /**
-   * Submit an Task that execute the command to a single Evaluator.
+   * Submit a Task that execute the command to a single Evaluator.
    * This method is called from <code>submitTask(cmd)</code>.
    */
   private void submit(final ActiveContext context, final String command) {

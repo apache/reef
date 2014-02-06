@@ -93,7 +93,7 @@ final class Driver {
   }
 
   /**
-   * Copy files to the Evaluator and submit an Task that checks that they made it.
+   * Copy files to the Evaluator and submit a Task that checks that they made it.
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 

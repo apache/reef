@@ -29,7 +29,7 @@ import com.microsoft.tang.Configuration;
 public interface TaskSubmittable {
 
   /**
-   * Submits an Task (encoded in the Configuration) for execution.
+   * Submits a Task (encoded in the Configuration) for execution.
    *
    * @param taskConf the Configuration. See TaskConfiguration for details
    */

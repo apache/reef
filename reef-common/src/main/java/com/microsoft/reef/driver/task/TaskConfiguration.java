@@ -73,7 +73,7 @@ public class TaskConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<TaskStop>> ON_TASK_STOP = new OptionalImpl<>();
 
   /**
-   * ConfigurationModule to fill out for an Task configuration.
+   * ConfigurationModule to fill out for a Task configuration.
    */
   public static final ConfigurationModule CONF = new TaskConfiguration()
       .bindNamedParameter(TaskConfigurationOptions.Identifier.class, IDENTIFIER)

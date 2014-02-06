@@ -144,7 +144,7 @@ public final class HelloDriver {
   }
 
   /**
-   * Makes an task configuration for the CLR Task.
+   * Makes a task configuration for the CLR Task.
    *
    * @param taskId
    * @return task configuration for the CLR Task.

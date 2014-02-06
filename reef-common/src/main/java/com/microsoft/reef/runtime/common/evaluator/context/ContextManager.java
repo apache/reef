@@ -176,7 +176,7 @@ public final class ContextManager implements AutoCloseable {
   public Optional<ReefServiceProtos.TaskStatusProto> getTaskStatus() {
     synchronized (this.contextStack) {
       if (this.contextStack.isEmpty()) {
-        throw new RuntimeException("Asked for an Task status while there isn't even a context running.");
+        throw new RuntimeException("Asked for a Task status while there isn't even a context running.");
       }
       return this.contextStack.peek().getTaskStatus();
     }

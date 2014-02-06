@@ -22,7 +22,7 @@ import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.io.Message;
 
 /**
- * A message sent from an Task to a Driver.
+ * A message sent from a Task to a Driver.
  */
 @EvaluatorSide
 @Public

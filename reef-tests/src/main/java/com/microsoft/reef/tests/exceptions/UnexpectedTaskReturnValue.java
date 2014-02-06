@@ -16,7 +16,7 @@
 package com.microsoft.reef.tests.exceptions;
 
 /**
- * Thrown by the Driver in a test if an Task returned an unexpected value.
+ * Thrown by the Driver in a test if a Task returned an unexpected value.
  */
 public final class UnexpectedTaskReturnValue extends RuntimeException {
   private final String expected;

@@ -159,7 +159,7 @@ public final class TaskRuntime extends Thread {
   public final void close(final byte[] message) {
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
-        LOG.log(Level.WARNING, "Trying to close an task that is in state: '{0}'. Ignoring.",
+        LOG.log(Level.WARNING, "Trying to close a task that is in state: '{0}'. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
@@ -181,7 +181,7 @@ public final class TaskRuntime extends Thread {
   public final void suspend(final byte[] message) {
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
-        LOG.log(Level.WARNING, "Trying to suspend an task that is in state: '{0}'. Ignoring.",
+        LOG.log(Level.WARNING, "Trying to suspend a task that is in state: '{0}'. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
@@ -203,7 +203,7 @@ public final class TaskRuntime extends Thread {
   public final void deliver(final byte[] message) {
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
-        LOG.log(Level.WARNING, "Trying to send a message to an task that is in state: '{0}'. Ignoring.",
+        LOG.log(Level.WARNING, "Trying to send a message to a task that is in state: '{0}'. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {

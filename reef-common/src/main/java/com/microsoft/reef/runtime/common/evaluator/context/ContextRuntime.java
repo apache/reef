@@ -122,7 +122,7 @@ public final class ContextRuntime {
    * @param serviceConfiguration the new context's service Configuration.
    * @return a child context.
    * @throws ContextClientCodeException If the context can't be instantiate due to user code / configuration issues
-   * @throws IllegalStateException      If this method is called when there is either an task or child context already
+   * @throws IllegalStateException      If this method is called when there is either a task or child context already
    *                                    present.
    */
   ContextRuntime spawnChildContext(final Configuration contextConfiguration, final Configuration serviceConfiguration)
@@ -130,7 +130,7 @@ public final class ContextRuntime {
 
     synchronized (this.contextLifeCycle) {
       if (this.task.isPresent()) {
-        throw new IllegalStateException("Attempting to spawn a child context when an Task with id '" +
+        throw new IllegalStateException("Attempting to spawn a child context when a Task with id '" +
             this.task.get().getId() + "' is running.");
       }
       if (this.childContext.isPresent()) {
@@ -159,14 +159,14 @@ public final class ContextRuntime {
    * @param contextConfiguration the new context's context (local) Configuration.
    * @return a child context.
    * @throws ContextClientCodeException If the context can't be instantiate due to user code / configuration issues.
-   * @throws IllegalStateException      If this method is called when there is either an task or child context already
+   * @throws IllegalStateException      If this method is called when there is either a task or child context already
    *                                    present.
    */
   ContextRuntime spawnChildContext(final Configuration contextConfiguration) throws ContextClientCodeException {
 
     synchronized (this.contextLifeCycle) {
       if (this.task.isPresent()) {
-        throw new IllegalStateException("Attempting to to spawn a child context while an Task with id '" +
+        throw new IllegalStateException("Attempting to to spawn a child context while a Task with id '" +
             this.task.get().getId() + "' is running.");
       }
       if (this.childContext.isPresent()) {
@@ -180,11 +180,11 @@ public final class ContextRuntime {
   }
 
   /**
-   * Launches an Task on this context.
+   * Launches a Task on this context.
    *
    * @param taskConfig the configuration to be used for the task.
    * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException If the Task cannot be instantiated due to user code / configuration issues.
-   * @throws IllegalStateException       If this method is called when there is either an task or child context already
+   * @throws IllegalStateException       If this method is called when there is either a task or child context already
    *                                     present.
    */
   void startTask(final Configuration taskConfig) throws TaskClientCodeException {
@@ -195,11 +195,11 @@ public final class ContextRuntime {
       }
 
       if (this.task.isPresent()) {
-        throw new IllegalStateException("Attempting to start an Task when an Task with id '" +
+        throw new IllegalStateException("Attempting to start a Task when a Task with id '" +
             this.task.get().getId() + "' is running.");
       }
       if (this.childContext.isPresent()) {
-        throw new IllegalStateException("Attempting to start an Task on a context that is not the topmost active context");
+        throw new IllegalStateException("Attempting to start a Task on a context that is not the topmost active context");
       }
       try {
         final Injector taskInjector = this.contextInjector.forkInjector(taskConfig);
@@ -224,13 +224,13 @@ public final class ContextRuntime {
 
   /**
    * Close this context. If there is a child context, this recursively closes it before closing this context. If
-   * there is an Task currently running, that will be closed.
+   * there is a Task currently running, that will be closed.
    */
   final void close() {
     synchronized (this.contextLifeCycle) {
       this.contextState = ReefServiceProtos.ContextStatusProto.State.DONE;
       if (this.task.isPresent()) {
-        LOG.log(Level.WARNING, "Shutting down an task because the underlying context is being closed.");
+        LOG.log(Level.WARNING, "Shutting down a task because the underlying context is being closed.");
         this.task.get().close(null);
       }
       if (this.childContext.isPresent()) {

@@ -20,7 +20,7 @@ import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.util.Optional;
 
 /**
- * Message source for control flow messages from an task to the Driver.
+ * Message source for control flow messages from a task to the Driver.
  * <p/>
  * The getMessage() method in an Implementation of this interface will be called by the Evaluator runtime whenever it is
  * about to communicate with the Driver anyway. Hence, this can be used for occasional status updates etc.
