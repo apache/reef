@@ -16,7 +16,7 @@
 package com.microsoft.reef.annotations.audience;
 
 /**
- * Annotates interfaces meant to be used by Activities.
+ * Annotates interfaces meant to be used by Tasks.
  */
 public @interface TaskSide {
     // Intentionally empty

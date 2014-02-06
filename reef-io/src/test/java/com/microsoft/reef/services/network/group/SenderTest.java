@@ -51,27 +51,27 @@ import java.util.concurrent.TimeUnit;
  */
 public class SenderTest {
   private static final StringIdentifierFactory idFac = new StringIdentifierFactory();
-  private static final int numActivities = 5;
-  private static final List<ComparableIdentifier> ids = new ArrayList<>(numActivities);
+  private static final int numTasks = 5;
+  private static final List<ComparableIdentifier> ids = new ArrayList<>(numTasks);
   private static final String nameServiceAddr = NetUtils.getLocalAddress();
   private static final NameServer nameService = new NameServer(0, idFac);
   private static final int nameServicePort = nameService.getPort();
-  private static final List<Integer> nsPorts = new ArrayList<>(numActivities);
-  private static final List<BlockingQueue<GroupCommMessage>> queues = new ArrayList<>(numActivities);
-  private static List<NetworkService<GroupCommMessage>> netServices = new ArrayList<>(numActivities);
+  private static final List<Integer> nsPorts = new ArrayList<>(numTasks);
+  private static final List<BlockingQueue<GroupCommMessage>> queues = new ArrayList<>(numTasks);
+  private static List<NetworkService<GroupCommMessage>> netServices = new ArrayList<>(numTasks);
 
   /**
    * @throws java.lang.Exception
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    for (int i = 0; i < numActivities; i++) {
+    for (int i = 0; i < numTasks; i++) {
       Identifier id = idFac.getNewInstance("Task" + i);
       ids.add((ComparableIdentifier) id);
       queues.add(new LinkedBlockingQueue<GroupCommMessage>(5));
     }
 
-    for (int i = 0; i < numActivities; i++) {
+    for (int i = 0; i < numTasks; i++) {
       Identifier id = ids.get(i);
       BlockingQueue<GroupCommMessage> queue = queues.get(i);
       EventHandler<Message<GroupCommMessage>> recvHandler = new RcvHandler(id, queue);
@@ -231,7 +231,7 @@ public class SenderTest {
       NetworkService<GroupCommMessage> fromNetService = netServices.get(i);
       SenderHelper<String> sender = new SenderHelperImpl<>(fromNetService,
           strCodec);
-      List<Identifier> tos = new ArrayList<>(numActivities - 1);
+      List<Identifier> tos = new ArrayList<>(numTasks - 1);
       int[] indexArr = {1, 3, 2, 4, 0};
       for (int j : indexArr) {
         tos.add(ids.get(j));

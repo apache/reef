@@ -38,15 +38,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Task Submitter Is Responsible for submitting activities to running
- * evaluators
+ * TaskSubmitter is responsible for submitting tasks to running evaluators.
  * <p/>
  * This is an event handler for events containing an iterable of running
  * evaluators. onNext, it creates the necessary structures to create the group
- * communication operator configurations and first submits the compute
- * activities.
+ * communication operator configurations and first submits the compute tasks.
  * <p/>
- * When all the compute activities start, the driver will signal start of
+ * When all the compute tasks start, the driver will signal start of
  * controller through submitControlTask
  *
  * @author shravan
@@ -59,7 +57,7 @@ public class TaskSubmitter implements EventHandler<Iterable<ActiveContext>> {
   private final Logger logger = Logger.getLogger(TaskSubmitter.class.getName());
 
   /**
-   * The number of compute activities
+   * The number of compute tasks
    */
   private final int numberOfComputeTasks;
 
@@ -148,11 +146,11 @@ public class TaskSubmitter implements EventHandler<Iterable<ActiveContext>> {
             .getInetSocketAddress().getHostName();
 //				String hostAddr = Utils.getLocalAddress();
         final int port = nsPorts.get(runnEvalCnt);
-        final ComparableIdentifier compActId = computeTaskIds.get(runnEvalCnt);
-        logger.log(Level.INFO, "Registering " + compActId + " with " + hostAddr + ":" + port);
-        nameService.register(compActId, new InetSocketAddress(hostAddr,
+        final ComparableIdentifier compTaskId = computeTaskIds.get(runnEvalCnt);
+        logger.log(Level.INFO, "Registering " + compTaskId + " with " + hostAddr + ":" + port);
+        nameService.register(compTaskId, new InetSocketAddress(hostAddr,
             port));
-        id2port.put(compActId, port);
+        id2port.put(compTaskId, port);
       } else {
         controlerContext = context;
         // TODO: Review after #143
@@ -208,17 +206,16 @@ public class TaskSubmitter implements EventHandler<Iterable<ActiveContext>> {
    * {@link Configuration} needed for Group Communication Operators on that
    * task
    *
-   * @param compActId
+   * @param compTaskId
    * @return
    */
-  private Configuration getComputeTaskConfig(
-      ComparableIdentifier compActId) {
+  private Configuration getComputeTaskConfig(final ComparableIdentifier compTaskId) {
     try {
-//		  System.out.println(ConfigurationFile.toConfigurationString(operators.getConfig(compActId)));
+      // System.out.println(ConfigurationFile.toConfigurationString(operators.getConfig(compTaskId)));
       final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
-      b.addConfiguration(operators.getConfig(compActId));
+      b.addConfiguration(operators.getConfig(compTaskId));
       b.addConfiguration(TaskConfiguration.CONF
-          .set(TaskConfiguration.IDENTIFIER, compActId.toString())
+          .set(TaskConfiguration.IDENTIFIER, compTaskId.toString())
           .set(TaskConfiguration.TASK, ComputeTask.class)
           .build());
       return b.build();

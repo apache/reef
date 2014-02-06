@@ -28,7 +28,7 @@ import java.util.List;
  * Accounts for functionality that should be available on a Sender
  * --sending one element to a task
  * --sending a list of elements to a task
- * --sending a list of elements to a list of activities
+ * --sending a list of elements to a list of tasks
  * --sending a list of lists of elements to a task
  *
  * Please note that these operations are non-blocking
@@ -63,7 +63,7 @@ public interface SenderHelper<T> {
       GroupCommMessage.Type msgType) throws NetworkException;
 
   /**
-   * Asynchronously send elements to activities with counts determining
+   * Asynchronously send elements to tasks with counts determining
    * how elements are distributed
    * @param from
    * @param to

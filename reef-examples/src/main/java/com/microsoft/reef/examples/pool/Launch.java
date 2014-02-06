@@ -66,9 +66,9 @@ public final class Launch {
   }
 
   /**
-   * Command line parameter: number of Activities to run.
+   * Command line parameter: number of Tasks to run.
    */
-  @NamedParameter(doc = "Number of activities to run", short_name = "activities")
+  @NamedParameter(doc = "Number of tasks to run", short_name = "tasks")
   public static final class NumTasks implements Name<Integer> {
   }
 
@@ -173,15 +173,15 @@ public final class Launch {
 
       final boolean isLocal = injector.getNamedInstance(Local.class);
       final int numEvaluators = injector.getNamedInstance(NumEvaluators.class);
-      final int numActivities = injector.getNamedInstance(NumTasks.class);
+      final int numTasks = injector.getNamedInstance(NumTasks.class);
       final int delay = injector.getNamedInstance(Delay.class);
       final int jobNum = injector.getNamedInstance(JobId.class);
 
       final String jobId = String.format("pool.e_%d.a_%d.d_%d.%d",
-          numEvaluators, numActivities, delay, jobNum < 0 ? System.currentTimeMillis() : jobNum);
+          numEvaluators, numTasks, delay, jobNum < 0 ? System.currentTimeMillis() : jobNum);
 
       // Timeout: delay + 6 extra seconds per Task per Evaluator + 2 minutes to allocate each Evaluator:
-      final int timeout = numActivities * (delay + 6) * 1000 / numEvaluators + numEvaluators * 120000;
+      final int timeout = numTasks * (delay + 6) * 1000 / numEvaluators + numEvaluators * 120000;
 
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
       LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{2}--",

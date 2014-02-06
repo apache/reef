@@ -34,7 +34,7 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * A set of services to instantiate. All classes given here will be instantiated in the context, and their references
-   * will be made available to child context and activities.
+   * will be made available to child context and tasks.
    */
   public static final OptionalParameter<Object> SERVICES = new OptionalParameter<>();
 

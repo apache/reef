@@ -25,14 +25,14 @@ import java.util.List;
 
 /**
  * MPI Reduce Scatter operator
- * 
+ *
  * Each task has a list of elements. Assume that each task reduces
- * each element in the list to form a list of reduced elements at a dummy root. 
+ * each element in the list to form a list of reduced elements at a dummy root.
  * The dummy root then keeps the portion of the list assigned to it and
- * scatters the remaining among the other activities 
- * 
+ * scatters the remaining among the other tasks
+ *
  * @author shravan
- * 
+ *
  * @param <T>
  */
 @DefaultImplementation(ReduceScatterOp.class)
@@ -40,9 +40,9 @@ public interface ReduceScatter<T> {
   /**
    * Apply this operation on elements where counts specify the distribution of
    * elements to each task. Ordering is assumed to be default
-   * 
+   *
    * Here counts is of the same size as the entire group not just children
-   * 
+   *
    * @param elements
    * @param counts
    * @return List of values that result from applying reduce function on
@@ -57,9 +57,9 @@ public interface ReduceScatter<T> {
   /**
    * Apply this operation on elements where counts specify the distribution of
    * elements to each task. Ordering is specified using order
-   * 
+   *
    * Here counts is of the same size as the entire group not just children
-   * 
+   *
    * @param elements
    * @param counts
    * @return List of values that result from applying reduce function on
@@ -74,7 +74,7 @@ public interface ReduceScatter<T> {
 
   /**
    * get {@link ReduceFunction} configured
-   * 
+   *
    * @return {@link ReduceFunction}
    */
   public Reduce.ReduceFunction<T> getReduceFunction();

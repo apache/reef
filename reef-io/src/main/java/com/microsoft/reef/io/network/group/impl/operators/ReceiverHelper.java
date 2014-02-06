@@ -27,7 +27,7 @@ import java.util.List;
  * Accounts for functionality that should be available on a Receiver
  * --receiving one element from a task
  * --receiving a list of elements from a task
- * --receiving a list of elements from a list of activities
+ * --receiving a list of elements from a list of tasks
  * --receiving a list of lists of elements from a task
  *
  * @param <T>
@@ -61,10 +61,10 @@ public interface ReceiverHelper<T> {
                              GroupCommMessage.Type msgType) throws InterruptedException;
 
   /**
-   * Blocks till one message each is received from the specified activities
+   * Blocks till one message each is received from the specified tasks
    * The return values will be ordered as per the default ordering
    * Use when one value is to be received from each task belonging to
-   * a list of activities
+   * a list of tasks
    *
    * @param from
    * @param to

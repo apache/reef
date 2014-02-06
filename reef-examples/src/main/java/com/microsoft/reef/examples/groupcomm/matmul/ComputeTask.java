@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * ComputeTask Receives the partial matrix(row partitioned) it is
  * responsible for. Also receives one column vector per iteration and computes
  * the partial product of this vector with its assigned partial matrix The
- * partial product across all the compute activities are concatenated by doing a
+ * partial product across all the compute tasks are concatenated by doing a
  * Reduce with Concat as the Reduce Function
  * 
  * @author shravan

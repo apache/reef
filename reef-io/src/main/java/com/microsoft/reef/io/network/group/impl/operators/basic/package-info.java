@@ -21,7 +21,7 @@
  * for the same implementations in the config package
  * 
  * The implementation here are basic in the sense that
- * they treat the activities to form a single level tree
+ * they treat the tasks to form a single level tree
  * containing the sender or receiver at the root and all
  * other receivers or senders respectively to form leaves
  * of the tree.
