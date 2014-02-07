@@ -126,7 +126,7 @@ public class AllReduceManager<T> {
         Integer.toString(nameServicePort));
     allRedBaseConf = jcb.build();
 
-    ns = new NetworkService<>(driverId.toString(),
+    ns = new NetworkService<>(
         idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
         new MessagingTransportFactory(), new LoggingEventHandler<Message<GroupCommMessage>>(),
         new LoggingEventHandler<Exception>());

@@ -51,7 +51,6 @@ public class GroupCommOperators {
   public static final class NetworkServiceConfig extends ConfigurationModuleBuilder {
     public static final RequiredParameter<String> NAME_SERVICE_ADDRESS = new RequiredParameter<>();
     public static final RequiredParameter<Integer> NAME_SERVICE_PORT = new RequiredParameter<>();
-    public static final RequiredParameter<String> SELF = new RequiredParameter<>();
     public static final RequiredParameter<String> ID_LIST_STRING = new RequiredParameter<>();
     public static final RequiredParameter<Integer> NETWORK_SERVICE_PORT = new RequiredParameter<>();
     public static final ConfigurationModule CONF = new NetworkServiceConfig()
@@ -62,7 +61,6 @@ public class GroupCommOperators {
         .bindImplementation(GroupCommNetworkHandler.class, GroupCommNetworkHandler.class)
         .bindNamedParameter(NameServerParameters.NameServerAddr.class, NAME_SERVICE_ADDRESS)
         .bindNamedParameter(NameServerParameters.NameServerPort.class, NAME_SERVICE_PORT)
-        .bindNamedParameter(ActivityConfigurationOptions.Identifier.class, SELF)
         .bindNamedParameter(GroupCommNetworkHandler.IDs.class, ID_LIST_STRING)
         .bindNamedParameter(NetworkServiceParameters.NetworkServicePort.class, NETWORK_SERVICE_PORT)
         .build();
@@ -74,20 +72,18 @@ public class GroupCommOperators {
    *
    * @param nameServiceAddr
    * @param nameServicePort
-   * @param self
    * @param ids
    * @param nsPort
    * @return per activity {@link NetworkService} {@link Configuration} for the specified activity
    * @throws BindException
    */
   private static Configuration createNetworkServiceConf(
-      String nameServiceAddr, int nameServicePort, Identifier self,
+      String nameServiceAddr, int nameServicePort,
       List<ComparableIdentifier> ids, int nsPort) throws BindException {
     return
         NetworkServiceConfig.CONF
             .set(NetworkServiceConfig.NAME_SERVICE_ADDRESS, nameServiceAddr)
             .set(NetworkServiceConfig.NAME_SERVICE_PORT, nameServicePort)
-            .set(NetworkServiceConfig.SELF, self.toString())
             .set(NetworkServiceConfig.ID_LIST_STRING, Utils.listToString(ids))
             .set(NetworkServiceConfig.NETWORK_SERVICE_PORT, nsPort)
             .build();
@@ -152,7 +148,7 @@ public class GroupCommOperators {
       ComparableIdentifier activityId = entry.getKey();
       int nsPort = entry.getValue();
       Configuration nsConf = createNetworkServiceConf(nameServiceAddr,
-          nameServicePort, activityId, sources.get(activityId),
+          nameServicePort, sources.get(activityId),
           nsPort);
       JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(nsConf);
       opConfigs.addConfigurations(activityId, jcb);

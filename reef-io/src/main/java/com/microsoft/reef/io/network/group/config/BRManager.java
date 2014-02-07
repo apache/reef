@@ -16,17 +16,13 @@
 package com.microsoft.reef.io.network.group.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.microsoft.reef.activity.Activity;
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.Message;
@@ -113,7 +109,7 @@ public class BRManager {
         Integer.toString(nameServicePort));
     reduceBaseConf = jcb.build();
     
-    ns = new NetworkService<>(driverId.toString(),
+    ns = new NetworkService<>(
         idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
         new MessagingTransportFactory(), new EventHandler<Message<GroupCommMessage>>() {
 
@@ -149,7 +145,7 @@ public class BRManager {
           }
         },
         new LoggingEventHandler<Exception>());
-    
+    ns.registerId(driverId);
     senderStage = new ThreadPoolStage<>("SrcCtrlMsgSender", new EventHandler<GroupCommMessage>() {
 
       @Override
@@ -202,7 +198,7 @@ public class BRManager {
   
   public Configuration getControllerContextConf(ComparableIdentifier id) throws BindException{
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(reduceBaseConf);
-    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, id, tree.neighbors(id), 0));
+    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, tree.neighbors(id), 0));
     return jcb.build();
   }
   
@@ -226,7 +222,7 @@ public class BRManager {
   
   public Configuration getComputeContextConf(ComparableIdentifier actId) throws BindException{
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(reduceBaseConf);
-    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, actId, tree.neighbors(actId), 0));
+    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, tree.neighbors(actId), 0));
     return jcb.build();
   }
   
@@ -279,13 +275,11 @@ public class BRManager {
    * @throws BindException
    */
   private Configuration createNetworkServiceConf(
-      String nameServiceAddr, int nameServicePort, Identifier self,
+      String nameServiceAddr, int nameServicePort,
       List<ComparableIdentifier> ids, int nsPort) throws BindException {
     JavaConfigurationBuilder jcb = tang
         .newConfigurationBuilder();
 
-//    jcb.bindNamedParameter(ActivityConfiguration.Identifier.class, self.toString());
-    jcb.bindNamedParameter(NetworkServiceParameters.ActivityId.class, self.toString());
     jcb.bindNamedParameter(
         NetworkServiceParameters.NetworkServicePort.class,
         Integer.toString(nsPort));
