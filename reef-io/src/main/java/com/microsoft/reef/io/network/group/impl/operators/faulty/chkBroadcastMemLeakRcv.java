@@ -64,7 +64,7 @@ public class chkBroadcastMemLeakRcv {
     final Set<String> sndIds = Collections.singleton(senderId.toString());
     final Set<String> rcvChildren = Collections.singleton(BroadReduceConfig.defaultValue);
     final BroadcastHandler rcvHandler = new BroadcastHandler(sndIds, idFac);
-    final NetworkService<GroupCommMessage> recvService = new NetworkService<>(receiverId.toString(), idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(), new MessagingTransportFactory(), rcvHandler, excHandler);
+    final NetworkService<GroupCommMessage> recvService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(), new MessagingTransportFactory(), rcvHandler, excHandler);
     final BroadcastOp.Receiver<byte[]> brdCstReceiver = new BroadcastOp.Receiver<>(recvService, rcvHandler, baCodec, receiverId.toString(), senderId.toString(), rcvChildren, idFac);
     final int iterations = 100;
     for(int i=0;i<iterations;i++){

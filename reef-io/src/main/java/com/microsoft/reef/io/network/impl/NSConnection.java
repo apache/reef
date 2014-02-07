@@ -102,11 +102,6 @@ class NSConnection<T> implements Connection<T> {
   @Override
   public void close() throws NetworkException {
     service.remove(destId);
-    try {
-      link.close();
-    } catch (Exception e) {
-      throw new NetworkException("Unable to close the link.", e);
-    }
   }
 
 }

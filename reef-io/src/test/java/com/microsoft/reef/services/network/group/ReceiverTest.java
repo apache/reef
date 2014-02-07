@@ -77,9 +77,10 @@ public class ReceiverTest {
       GroupCommNetworkHandler gcnh = new GroupCommNetworkHandler(Utils.listToString(ids), idFac, 5);
       gcnhs.add(gcnh);
       EventHandler<Exception> exHandler = new RcvExcHandler(id, gcnh);
-      NetworkService<GroupCommMessage> netService = new NetworkService<>(id.toString(),
+      NetworkService<GroupCommMessage> netService = new NetworkService<>(
           idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
           new MessagingTransportFactory(), gcnh, exHandler);
+      netService.registerId(id);
       netServices.add(netService);
       int port = netService.getTransport().getListeningPort();
       nameService.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), port));
@@ -124,6 +125,7 @@ public class ReceiverTest {
         GroupCommNetworkHandler gcnh = gcnhs.get(j);
         ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           String expected = "Hello" + i + j + type;
           byte[] expBytes = expected.getBytes();
           GroupCommMessage gcm = TestUtils.bldGCM(type, from, to,
@@ -166,6 +168,7 @@ public class ReceiverTest {
         GroupCommNetworkHandler gcnh = gcnhs.get(j);
         ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           List<String> expected = new ArrayList<>();
           byte[][] expBytes = new byte[5][];
           for (int k = 0; k < 5; k++) {
@@ -204,6 +207,7 @@ public class ReceiverTest {
         GroupCommNetworkHandler gcnh = gcnhs.get(j);
         ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           List<List<String>> expected = new ArrayList<>();
           byte[][] expBytes = new byte[5][];
           for (int l = 0; l < 5; l++) {
@@ -247,6 +251,7 @@ public class ReceiverTest {
       GroupCommNetworkHandler gcnh = gcnhs.get(j);
       ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
       for (Type type : Type.values()) {
+        if(TestUtils.controlMessage(type)) continue;
         List<String> expected = new ArrayList<>(froms.size());
         for (int k = 0; k < froms.size(); k++) {
           String msg = "Hello" + j + type + k;

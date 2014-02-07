@@ -64,7 +64,7 @@ public class chkBroadcastMemLeakSnd {
     EventHandler<Exception> excHandler = new ExceptionHandler();
     final Set<String> rcvIds = Collections.singleton(receiverId.toString());
     final BroadcastHandler sndHandler = new BroadcastHandler(rcvIds, idFac);
-    final NetworkService<GroupCommMessage> senderService = new NetworkService<>(senderId.toString(), idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(), new MessagingTransportFactory(), sndHandler, excHandler);
+    final NetworkService<GroupCommMessage> senderService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(), new MessagingTransportFactory(), sndHandler, excHandler);
     final BroadcastOp.Sender<byte[]> brdCstSender = new BroadcastOp.Sender<>(senderService, sndHandler, baCodec, senderId.toString(), null, rcvIds, idFac);
     
     final int iterations = 100;

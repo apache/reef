@@ -15,6 +15,14 @@
  */
 package com.microsoft.reef.io.network.impl;
 
+import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import com.microsoft.reef.io.Tuple;
 import com.microsoft.reef.io.naming.Naming;
 import com.microsoft.reef.io.network.Connection;
@@ -25,6 +33,7 @@ import com.microsoft.reef.io.network.naming.NameCache;
 import com.microsoft.reef.io.network.naming.NameClient;
 import com.microsoft.reef.io.network.naming.NameServerParameters;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
@@ -36,14 +45,6 @@ import com.microsoft.wake.remote.impl.TransportEvent;
 import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
 
-import javax.inject.Inject;
-import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 /**
  * Network service for Activity
@@ -52,18 +53,19 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
 
-  private final Identifier myId;
+  private Identifier myId;
   private final IdentifierFactory factory;
   private final Codec<T> codec;
   private final Transport transport;
   private final NameClient nameClient;
 
   private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
+  
+  private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
+  private final EStage<Identifier> nameServiceUnregisteringStage;
 
   @Inject
   public NetworkService(
-      //@Parameter(ActivityConfiguration.Identifier.class) String myId,
-      @Parameter(NetworkServiceParameters.ActivityId.class) String myId,
       @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
       @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
@@ -72,42 +74,54 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
       @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
       @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
       @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
-
-    this.myId = factory.getNewInstance(myId);
+    
     this.factory = factory;
     this.codec = codec;
     this.transport = tpFactory.create(nsPort, new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
     this.nameClient = new NameClient(nameServerAddr, nameServerPort, factory, new NameCache(30000));
-    if (nsPort == 0) {
-      nsPort = transport.getListeningPort();
-      final CountDownLatch registered = new CountDownLatch(1);
-      SingleThreadStage<Tuple<Identifier, InetSocketAddress>> stage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
+    nsPort = transport.getListeningPort();
+    nameServiceRegisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
 
-        @Override
-        public void onNext(Tuple<Identifier, InetSocketAddress> tuple) {
+      @Override
+      public void onNext(Tuple<Identifier, InetSocketAddress> tuple) {
 
-          try {
-            nameClient.register(tuple.getKey(), tuple.getValue());
-            registered.countDown();
-            LOG.fine("Finished nameservice registration");
-            System.out.println("Finished nameservice registration");
-          } catch (Exception e) {
-            throw new RuntimeException("Unable to register with name service", e);
-          }
+        try {
+          nameClient.register(tuple.getKey(), tuple.getValue());
+          LOG.fine("Finished registering " + tuple.getKey() + " with nameservice");
+          System.out.println("Finished registering " + tuple.getKey() + " with nameservice");
+        } catch (Exception e) {
+          throw new RuntimeException("Unable to register " + tuple.getKey() + "with name service", e);
         }
-      }, 5);
-
-      final Tuple<Identifier, InetSocketAddress> tuple = new Tuple<>(getMyId(), (InetSocketAddress) transport.getLocalAddress());
-      stage.onNext(tuple);
-      try {
-        LOG.log(Level.FINE, "Waiting for nameservice registration");
-        System.out.println("Waiting for nameservice registration");
-        registered.await();
-      } catch (InterruptedException e) {
-        throw new RuntimeException("Interrupted while waiting for name service registration", e);
       }
-    }
+    }, 5);
+    nameServiceUnregisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Identifier>() {
+
+      @Override
+      public void onNext(Identifier id) {
+
+        try {
+          nameClient.unregister(id);
+          LOG.fine("Finished unregistering " + id + " from nameservice");
+          System.out.println("Finished unregistering " + id + " from nameservice");
+        } catch (Exception e) {
+          throw new RuntimeException("Unable to unregister " + id + " with name service", e);
+        }
+      }
+    }, 5);
+  }
+
+  public void registerId(Identifier id) {
+    this.myId = id;
+    final Tuple<Identifier, InetSocketAddress> tuple = new Tuple<>(id, (InetSocketAddress) transport.getLocalAddress());
+    System.out.println("Binding " + tuple.getKey() + " to NetworkService@(" + tuple.getValue() + ")");
+    nameServiceRegisteringStage.onNext(tuple);
+  }
+  
+  public void unregisterId(Identifier id) {
+    this.myId = null;
+    System.out.println("Unbinding " + id + " from NetworkService@(" + transport.getLocalAddress() + ")");
+    nameServiceUnregisteringStage.onNext(id);
   }
 
   public Identifier getMyId() {
@@ -143,6 +157,8 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   @Override
   public Connection<T> newConnection(final Identifier destId) {
+    if(myId==null)
+      throw new RuntimeException("Trying to establish a connection from a Network Service that is not bound to any activity");
     final Connection<T> conn = idToConnMap.get(destId);
     if (conn != null) {
       return conn;

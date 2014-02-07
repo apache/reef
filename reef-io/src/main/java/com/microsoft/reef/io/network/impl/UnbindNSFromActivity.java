@@ -13,34 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.io.network.group.impl.operators.faulty;
+package com.microsoft.reef.io.network.impl;
 
 import javax.inject.Inject;
 
-import com.microsoft.reef.evaluator.context.events.ContextStop;
-import com.microsoft.reef.io.network.impl.NetworkService;
+import com.microsoft.reef.activity.events.ActivityStop;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.IdentifierFactory;
 
 /**
  * 
  */
-public class NSClose implements EventHandler<ContextStop> {
+public class UnbindNSFromActivity implements EventHandler<ActivityStop>{
   private final NetworkService<?> ns;
+  private final IdentifierFactory idFac;
   
+  /**
+   * 
+   */
   @Inject
-  public NSClose(NetworkService<?> ns) {
+  public UnbindNSFromActivity(NetworkService<?> ns, IdentifierFactory idFac) {
     this.ns = ns;
+    this.idFac = idFac;
   }
 
   @Override
-  public void onNext(ContextStop arg0) {
-    try {
-      System.out.println("Closing Network Service");
-      ns.close();
-    } catch (Exception e) {
-      System.out.println("Exception while closing");
-      e.printStackTrace();
-    }
+  public void onNext(ActivityStop activity) {
+    ns.unregisterId(idFac.getNewInstance(activity.getId()));
   }
 
 }
