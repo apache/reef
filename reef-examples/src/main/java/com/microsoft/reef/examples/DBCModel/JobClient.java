@@ -148,7 +148,7 @@ public class JobClient {
     private void addCLRFiles( final File folder) throws BindException{
         final File DllsForCLRConfigurationFile = new File(folder, "DllsForCLR.conf");
         try (PrintWriter clientOut = new PrintWriter(DllsForCLRConfigurationFile)) {
-            clientOut.write("Microsoft.Reef.Activity.DBCActivity.dll,com.microsoft.reef.ActivityInterface.dll");
+            clientOut.write("Microsoft.Reef.Activity.DBCActivity.dll,com.microsoft.reef.ActivityInterface.dll, Microsoft.Reef.Services.DBCServices.dll, Microsoft.Reef.Services.IServices.dll");
         } catch (final FileNotFoundException e) {
             throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
         }

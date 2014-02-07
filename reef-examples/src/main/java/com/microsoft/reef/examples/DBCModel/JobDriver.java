@@ -64,9 +64,9 @@ public final class JobDriver {
 
     public static  int totalEvaluators = 1;
     private int nCLREvaluator = 1;                  // guarded by this
-    private int nJVMEvaluator = totalEvaluators - nCLREvaluator;  // guarded by this
 
     public static final String DBC_ACTIVITY_CLASS_HIERARCHY_FILENAME = "DBCActivity.bin";
+    public static final String DBC_SERVICE_CLASS_HIERARCHY_FILENAME = "DBCServices.bin";
 
     /**
      * String codec is used to encode the results
@@ -163,11 +163,7 @@ public final class JobDriver {
         @Override
         public void onNext(final AllocatedEvaluator allocatedEvaluator) {
             synchronized (JobDriver.this) {
-                if (JobDriver.this.nJVMEvaluator > 0) {
-                    LOG.log(Level.INFO, "===== adding JVM evaluator =====");
-                    JobDriver.this.submitEvaluator(allocatedEvaluator, EvaluatorType.JVM);
-                    JobDriver.this.nJVMEvaluator -= 1;
-                } else if (JobDriver.this.nCLREvaluator > 0) {
+                if (JobDriver.this.nCLREvaluator > 0) {
                     LOG.log(Level.INFO, "===== adding CLR evaluator =====");
                     JobDriver.this.submitEvaluator(allocatedEvaluator, EvaluatorType.CLR);
                     JobDriver.this.nCLREvaluator -= 1;
@@ -187,7 +183,16 @@ public final class JobDriver {
                     new Object[] { eval.getId(), JobDriver.this.expectCount, JobDriver.this.contexts.size() });
             assert (JobDriver.this.state == State.WAIT_EVALUATORS);
             try {
-                eval.submitContext(ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, contextId).build());
+
+                final Configuration contextConfiguration = ContextConfiguration.CONF
+                        .set(ContextConfiguration.IDENTIFIER, contextId)
+                        .build();
+
+                ConfigurationBuilder serviceConfigurationBuilder = Tang.Factory.getTang()
+                        .newConfigurationBuilder(loadCLRClassHierarchyBinFile(DBC_SERVICE_CLASS_HIERARCHY_FILENAME));
+                serviceConfigurationBuilder.bind("Microsoft.Reef.Services.ServicesConfigurationOptions.Services","Microsoft.Reef.Services.CacheManager:Microsoft.Reef.Services.DBCServices");
+                serviceConfigurationBuilder.bind("Microsoft.Reef.Services.IService","Microsoft.Reef.Services.CacheManager");
+                eval.submitContextAndService(contextConfiguration, serviceConfigurationBuilder.build());
             } catch (final BindException ex) {
                 LOG.log(Level.SEVERE, "Failed to submit context " + contextId, ex);
                 throw new RuntimeException(ex);
@@ -198,11 +203,9 @@ public final class JobDriver {
 
     private static final Configuration getCLRActivityConfiguration(final String activityId, final String activityKey) throws BindException {
         final ConfigurationBuilder cb = Tang.Factory.getTang()
-                .newConfigurationBuilder(loadShellActivityClassHierarchy(DBC_ACTIVITY_CLASS_HIERARCHY_FILENAME));
+                .newConfigurationBuilder(loadCLRClassHierarchyBinFile(DBC_ACTIVITY_CLASS_HIERARCHY_FILENAME));
 
         cb.bind("com.microsoft.reef.activity.IActivity", "Microsoft.Reef.Activity.DBCActivity");
-        cb.bind("Microsoft.Reef.Activity.Configurations.ActivityConfigurationOptions.Identifier", activityId);
-        cb.bind("Microsoft.Reef.Activity.Configurations.ActivityConfigurationOptions.UseCache", "true");
         if(! (activityKey.equals("s") || activityKey.equals("S")) )
         {
             cb.bind("Microsoft.Reef.Activity.DBCActivity+Key", activityKey);
@@ -211,6 +214,8 @@ public final class JobDriver {
         {
             cb.bind("Microsoft.Reef.Activity.DBCActivity+Key", "");
         }
+        cb.bind("Microsoft.Reef.Activity.Configurations.ActivityConfigurationOptions.Identifier", activityId);
+
         return cb.build();
     }
 
@@ -218,7 +223,7 @@ public final class JobDriver {
      * Loads the class hierarchy.
      * @return
      */
-    private static ClassHierarchy loadShellActivityClassHierarchy(String binFile) {
+    private static ClassHierarchy loadCLRClassHierarchyBinFile(String binFile) {
         try (final InputStream chin = new FileInputStream(binFile)) {
             final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
             final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
