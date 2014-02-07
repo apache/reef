@@ -59,7 +59,7 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [TestMethod]
         public void TestSerializeClassHierarchy()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] {@"Com.Microsoft.Tang.Examples"});
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { @"Com.Microsoft.Tang.Examples" });
             IClassNode timerClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer");
             ProtocolBufferClassHierarchy.Serialize("node.bin", ns);
         }
@@ -67,11 +67,11 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchy()
         {
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] {@"Com.Microsoft.Tang.Examples"});
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { @"Com.Microsoft.Tang.Examples" });
             IClassNode timerClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer");
             INode secondNode = (INode)ns.GetNode("Com.Microsoft.Tang.Examples.Timer+Seconds");
             IClassNode SimpleConstructorsClassNode = (IClassNode)ns.GetNode("Com.Microsoft.Tang.Examples.SimpleConstructors");
-            
+
             ProtocolBufferClassHierarchy.Serialize("node.bin", ns);
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("node.bin");
 
@@ -97,7 +97,7 @@ namespace Com.Microsoft.TangTest.ClassHierarchy
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(s);
             IClassNode activityClassNode = (IClassNode)ns.GetNode("com.microsoft.reef.activity.HelloActivity");
-   
+
             ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
 

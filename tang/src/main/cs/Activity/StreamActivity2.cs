@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright (C) 2012 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Com.Microsoft.Tang.Annotations;
+//using Microsoft.DataPipeline.ComputeService.StreamInsightTask;
 
 namespace com.microsoft.reef.activity
 {
-   public interface IActivity
+    public class StreamActivity2 : IActivity
     {
-       byte[] Call(byte[] memento);
+        [Inject]
+        public StreamActivity2()
+        {
+        }
+
+        public byte[] Call(byte[] memento)
+        {
+            System.Console.WriteLine("Hello, Streaming 2!!");
+
+            SISecondNode();
+
+            return null;
+        }
+
+        public static void SISecondNode()
+        {
+            //var a = new SISecondNodeXAM();
+            //a.Process(2222, 1111);
+        }
     }
 }
