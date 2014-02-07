@@ -58,10 +58,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity.cs" />
-    <Compile Include="ActivityConfigurationOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamActivity1.cs" />
+    <Compile Include="StreamActivity2.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\..\..\..\..\TFS\DP-Main2\Incubation\Source\Streaming\StreamInsightTask\StreamInsightTask.csproj">
+      <Project>{7104e904-25f5-4f86-908c-04367b5d4e59}</Project>
+      <Name>StreamInsightTask</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ActivityInterface\ActivityInterface.csproj">
       <Project>{641b57a5-53ac-4b0b-bc00-537825a188d6}</Project>
       <Name>ActivityInterface</Name>

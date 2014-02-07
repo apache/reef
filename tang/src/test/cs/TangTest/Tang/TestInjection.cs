@@ -145,8 +145,40 @@ namespace Com.Microsoft.TangTest.Tang
             var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityType);
             Assert.IsNotNull(activityRef);
 
-            byte[] b = new byte[10];
-            activityRef.Call(b);
+            //byte[] b = new byte[10];
+            //activityRef.Call(b);
+        }
+
+        [TestMethod]
+        public void TestStreamActivity1()
+        {
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType = a.GetType("com.microsoft.reef.activity.StreamActivity1");
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.ActivityInterface" });
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityType);
+            Assert.IsNotNull(activityRef);
+
+            //activityRef.Call(null);
+        }
+
+        [TestMethod]
+        public void TestStreamActivity2()
+        {
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            Type activityType = a.GetType("com.microsoft.reef.activity.StreamActivity2");
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { @"com.microsoft.reef.activity", @"com.microsoft.reef.ActivityInterface" });
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityType);
+            Assert.IsNotNull(activityRef);
+
+            //activityRef.Call(null);
         }
 
         [TestMethod]
@@ -175,7 +207,7 @@ namespace Com.Microsoft.TangTest.Tang
             Assert.IsNotNull(tweeter);
 
             byte[] b = new byte[10];
-            activityRef.Call(b);
+            //activityRef.Call(b);
             tweeter.sendMessage();
         }
 
@@ -184,12 +216,13 @@ namespace Com.Microsoft.TangTest.Tang
         {
             Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
             var a = Assembly.Load(@"com.microsoft.reef.activity");
+            var a1 = Assembly.Load(@"com.microsoft.reef.activityInterface");
             Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
 
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file2, file3 });
             cb.BindImplementation(activityInterfaceType, activityType);
-            Type namedParameter = a.GetType(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
+            Type namedParameter = a1.GetType(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
             cb.BindNamedParameter(namedParameter, "Hello Activity");
 
             IConfiguration conf = cb.Build();
@@ -198,7 +231,33 @@ namespace Com.Microsoft.TangTest.Tang
             Assert.IsNotNull(activityRef);
 
             byte[] b = new byte[10];
-            activityRef.Call(b);
+            //activityRef.Call(b);
+        }
+
+        [TestMethod]
+        public void TestHelloStreamingActivityWithBinding()
+        {
+            Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
+            var a = Assembly.Load(@"com.microsoft.reef.activity");
+            var a1 = Assembly.Load(@"com.microsoft.reef.activityInterface");
+
+            ITang tang = TangFactory.GetTang();
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file2, file3 });
+
+            Type activityType = a.GetType("com.microsoft.reef.activity.StreamActivity1");
+            cb.BindImplementation(activityInterfaceType, activityType);
+            Type namedParameterId = a1.GetType(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
+            cb.BindNamedParameter(namedParameterId, "Hello Stereaming");
+            Type namedParameterIp = a.GetType(@"com.microsoft.reef.activity.StreamActivity1+IpAddress");
+            cb.BindNamedParameter(namedParameterIp, "127.0.0.0");
+
+            IConfiguration conf = cb.Build();
+            IInjector injector = tang.NewInjector(conf);
+            var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
+            Assert.IsNotNull(activityRef);
+
+            byte[] b = new byte[10];
+            //activityRef.Call(b);
         }
 
         [TestMethod]

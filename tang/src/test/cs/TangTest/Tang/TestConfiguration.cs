@@ -64,13 +64,14 @@ namespace Com.Microsoft.TangTest.Tang
         {
             Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
             var a = Assembly.Load(@"com.microsoft.reef.activity");
+            var a1 = Assembly.Load(@"com.microsoft.reef.activityInterface");
             Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
             //Type activityType = typeof(com.microsoft.reef.activity.HelloActivity);
 
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file2, file3 });
             cb.BindImplementation(activityInterfaceType, activityType);
-            Type namedParameter = a.GetType(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
+            Type namedParameter = a1.GetType(@"com.microsoft.reef.driver.activity.ActivityConfigurationOptions+Identifier");
             cb.BindNamedParameter(namedParameter, "Hello Activity");
             IConfiguration conf = cb.Build();
 
@@ -79,7 +80,7 @@ namespace Com.Microsoft.TangTest.Tang
 
 
             ITang tang1 = TangFactory.GetTang();
-            ICsConfigurationBuilder cb1 = tang1.NewConfigurationBuilder(new string[] {file2, file3 });
+            ICsConfigurationBuilder cb1 = tang1.NewConfigurationBuilder(new string[] { file2, file3 });
             ConfigurationFile.AddConfiguration(cb1, "activityConf.txt");
             IConfiguration conf1 = cb1.Build();
 
@@ -87,8 +88,8 @@ namespace Com.Microsoft.TangTest.Tang
             var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
             Assert.IsNotNull(activityRef);
 
-            byte[] b = new byte[10];
-            activityRef.Call(b);
+            //byte[] b = new byte[10];
+            //activityRef.Call(b);
         }
 
         [TestMethod]
@@ -111,12 +112,12 @@ namespace Com.Microsoft.TangTest.Tang
 
             //combined line sample
             var o = (com.microsoft.reef.activity.IActivity)TangFactory.GetTang()
-                .NewInjector(new string[] {file2, file3 }, "activityConf1.txt")
+                .NewInjector(new string[] { file2, file3 }, "activityConf1.txt")
                 .GetInstance(typeof(com.microsoft.reef.activity.IActivity));
 
             Assert.IsNotNull(activityRef);
-            byte[] b = new byte[10];
-            activityRef.Call(b);
+            //byte[] b = new byte[10];
+            //activityRef.Call(b);
         }
 
         [TestMethod]
@@ -124,7 +125,7 @@ namespace Com.Microsoft.TangTest.Tang
         {
             Type activityInterfaceType = typeof(com.microsoft.reef.activity.IActivity);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] {file2, file3});
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { file2, file3 });
             ProtocolBufferClassHierarchy.Serialize("activity.bin", ns);
 
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("activity.bin");
@@ -156,8 +157,8 @@ namespace Com.Microsoft.TangTest.Tang
             var activityRef = (com.microsoft.reef.activity.IActivity)injector.GetInstance(activityInterfaceType);
 
             Assert.IsNotNull(activityRef);
-            byte[] b = new byte[10];
-            activityRef.Call(b);
+            //byte[] b = new byte[10];
+            //activityRef.Call(b);
         }
 
         [TestMethod]
