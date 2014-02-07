@@ -15,7 +15,11 @@
  */
 package com.microsoft.reef.io.network.util;
 
+import com.google.protobuf.ByteString;
 import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
+import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage;
+import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupMessageBody;
+import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
 import com.microsoft.wake.ComparableIdentifier;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
@@ -136,28 +140,19 @@ public class Utils {
     }
     return sortedAddrs.pollFirst().getHostAddress();
   }
-//	public static String getLocalAddress(){
-//	  try {
-//      return InetAddress.getLocalHost().getHostAddress();
-//    } catch (UnknownHostException e) {
-//      throw new NamingRuntimeException("Unable to get local host address", e.getCause());
-//    }
-//	}
 
-	/*public static Configuration NetworkServiceConfiguration(String activityID, String nameServerAddr, int nameServerPort, int netSerPort) throws BindException{
-		JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();
-		
-		jcb.bindNamedParameter(NetworkService.ActivityId.class, activityID);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceIdentifierFactory.class, StringIdentifierFactory.class);
-		jcb.bindNamedParameter(NameServer.NameServerAddr.class, nameServerAddr);
-		jcb.bindNamedParameter(NameServer.NameServerPort.class, Integer.toString(nameServerPort));
-		jcb.bindNamedParameter(NetworkService.NetworkServicePort.class, Integer.toString(netSerPort));
-		jcb.bindNamedParameter(NetworkService.NetworkServiceCodec.class, GCMCodec.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceTransportFactory.class, MessagingTransportFactory.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceHandler.class, GroupCommNetworkHandler.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceExceptionHandler.class, ExceptionHandler.class);
-		
-		return jcb.build();
-	}*/
-
+  public static GroupCommMessage bldGCM(Type msgType, Identifier from, Identifier to, byte[]... elements) {
+    GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
+    GCMBuilder.setType(msgType);
+    GCMBuilder.setSrcid(from.toString());
+    GCMBuilder.setDestid(to.toString());
+    GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
+    for (byte[] element : elements) {
+      bodyBuilder.setData(ByteString.copyFrom(element));
+      GCMBuilder.addMsgs(bodyBuilder.build());
+    }
+    GroupCommMessage msg = GCMBuilder.build();
+    return msg;
+  }
+  
 }

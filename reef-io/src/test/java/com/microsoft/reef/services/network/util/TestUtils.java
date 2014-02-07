@@ -38,4 +38,21 @@ public class TestUtils {
     GroupCommMessage msg = GCMBuilder.build();
     return msg;
   }
+  
+  /**
+   * @param type
+   * @return
+   */
+  public static boolean controlMessage(GroupCommMessage.Type type) {
+    switch(type){
+    case SourceAdd:
+      return true;
+    
+    case SourceDead:
+      return true;
+      
+    default:
+        return false;
+    }
+  }
 }

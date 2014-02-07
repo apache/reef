@@ -38,10 +38,10 @@ public class NSMessage<T> implements Message<T> {
    * @param destId a destination identifier
    * @param data   data of type T
    */
-  public NSMessage(Identifier srcId, Identifier destId, T data) {
+  public NSMessage(final Identifier srcId, final Identifier destId, final T data) {
     this.srcId = srcId;
     this.destId = destId;
-    this.data = new ArrayList<T>();
+    this.data = new ArrayList<T>(1);
     this.data.add(data);
   }
 
@@ -52,7 +52,7 @@ public class NSMessage<T> implements Message<T> {
    * @param destId a destination identifier
    * @param data   a list of data of type T
    */
-  public NSMessage(Identifier srcId, Identifier destId, List<T> data) {
+  public NSMessage(final Identifier srcId, final Identifier destId, final List<T> data) {
     this.srcId = srcId;
     this.destId = destId;
     this.data = data;
