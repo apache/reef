@@ -146,7 +146,7 @@ namespace Com.Microsoft.TangTest.Tang
             Type activityType = a.GetType("com.microsoft.reef.activity.HelloActivity");
 
             ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file });
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { file, file2, file3 });
             cb.BindImplementation(activityInterfaceType, activityType);
             IConfiguration conf = cb.Build();
 

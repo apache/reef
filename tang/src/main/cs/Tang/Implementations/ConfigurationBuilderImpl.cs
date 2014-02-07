@@ -142,8 +142,8 @@ namespace Com.Microsoft.Tang.Implementations
 
         public IConfiguration Build()
         {
-//            return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
-            return new ConfigurationImpl(this);
+            return new ConfigurationImpl(new ConfigurationBuilderImpl(this));
+//            return new ConfigurationImpl(this);
         }
 
         public void Bind(string key, string value)
