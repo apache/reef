@@ -18,6 +18,7 @@ package com.microsoft.reef.io.network.impl;
 import javax.inject.Inject;
 
 import com.microsoft.reef.activity.events.ActivityStop;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.IdentifierFactory;
 
@@ -32,7 +33,9 @@ public class UnbindNSFromActivity implements EventHandler<ActivityStop>{
    * 
    */
   @Inject
-  public UnbindNSFromActivity(NetworkService<?> ns, IdentifierFactory idFac) {
+  public UnbindNSFromActivity(
+		  NetworkService<?> ns, 
+		  @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory idFac) {
     this.ns = ns;
     this.idFac = idFac;
   }
