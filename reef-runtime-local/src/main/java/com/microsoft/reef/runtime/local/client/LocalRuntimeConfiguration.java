@@ -58,6 +58,11 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static class RootFolder implements Name<String> {
   }
 
+  @NamedParameter(doc = "The size of the default container returned in MB", default_value = "512")
+  public static class DefaultMemorySize implements Name<Integer> {
+  }
+
+
   /**
    * The number of threads or processes available to the runtime. This is the upper limit on the number of
    * Evaluators that the local runtime will hand out concurrently. This simulates the size of a physical cluster in

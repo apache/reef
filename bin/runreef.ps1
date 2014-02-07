@@ -1,4 +1,4 @@
-﻿<#
+﻿﻿<#
  .SYNOPSIS
  Runs a given main class from a given JAR file on a YARN cluster.
  .DESCRIPTION

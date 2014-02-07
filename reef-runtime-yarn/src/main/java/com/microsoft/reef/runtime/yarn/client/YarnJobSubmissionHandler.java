@@ -45,8 +45,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 @Private
 final class YarnJobSubmissionHandler implements JobSubmissionHandler {
@@ -59,8 +59,6 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   @Inject
   YarnJobSubmissionHandler(final YarnConfiguration yarnConfiguration) {
     this.yarnConfiguration = yarnConfiguration;
-
-
     this.yarnClient = YarnClient.createYarnClient();
     this.yarnClient.init(this.yarnConfiguration);
     this.yarnClient.start();
@@ -81,7 +79,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ApplicationSubmissionContext applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
       final ApplicationId applicationId = applicationSubmissionContext.getApplicationId();
 
-      LOG.info("YARN Application ID: " + applicationId);
+      LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
 
       // set the application name
       final String jobName = "reef-job-" + jobSubmissionProto.getIdentifier();
@@ -101,7 +99,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       this.yarnConfiguration.writeXml(yarnConfigurationFOS);
       yarnConfigurationFOS.close();
 
-      LOG.info("Upload tmp yarn configuration file " + yarnConfigurationFile.toURI());
+      LOG.log(Level.FINEST, "Upload tmp yarn configuration file {0}", yarnConfigurationFile.toURI());
       localResources.put(yarnConfigurationFile.getName(),
           YarnUtils.getLocalResource(fs, new Path(yarnConfigurationFile.toURI()), new Path(global_dir, yarnConfigurationFile.getName())));
 
@@ -112,12 +110,14 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
         final Path dst = new Path(global_dir, file.getName());
         switch (file.getType()) {
           case PLAIN:
-            LOG.info("GLOBAL FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "GLOBAL FILE RESOURCE: upload {0} to {1}",
+                    new Object[] { src, dst });
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case LIB:
             globalClassPath.append(File.pathSeparatorChar + file.getName());
-            LOG.info("GLOBAL LIB FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "GLOBAL LIB FILE RESOURCE: upload {0} to {1}",
+                    new Object[] { src, dst });
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case ARCHIVE:
@@ -133,12 +133,14 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
         final Path dst = new Path(job_dir, file.getName());
         switch (file.getType()) {
           case PLAIN:
-            LOG.info("LOCAL FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload {0} to {1}",
+                    new Object[] { src, dst });
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case LIB:
             localClassPath.append(File.pathSeparatorChar + file.getName());
-            LOG.info("LOCAL LIB FILE RESOURCE: upload " + src + " to " + dst);
+            LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload {0} to {1}",
+                    new Object[] { src, dst });
             localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
             break;
           case ARCHIVE:
@@ -185,7 +187,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stderr")
           .build();
       final String launchCommand = StringUtils.join(launchCommandList, ' ');
-      LOG.info("LAUNCH COMMAND: " + launchCommand);
+      LOG.log(Level.FINEST, "LAUNCH COMMAND: {0}", launchCommand);
 
       final ContainerLaunchContext containerContext = YarnUtils.getContainerLaunchContext(launchCommand, localResources);
       applicationSubmissionContext.setAMContainerSpec(containerContext);
@@ -197,7 +199,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // Set the queue to which this application is to be submitted in the RM
       applicationSubmissionContext.setQueue(jobSubmissionProto.hasQueue() ? jobSubmissionProto.getQueue() : "default");
 
-      LOG.info("Submit REEF Application to YARN");
+      LOG.log(Level.INFO, "Submiting REEF Application to YARN. ID: {0}", applicationId);
       this.yarnClient.submitApplication(applicationSubmissionContext);
       // monitorApplication(applicationId);
     } catch (YarnException | IOException | URISyntaxException e) {
@@ -220,18 +222,31 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // Get application report for the appId we are interested in
       ApplicationReport report = yarnClient.getApplicationReport(appId);
 
-      LOG.info("Got application report from ASM for"
-          + ", appId=" + appId.getId()
-          + ", clientToAMToken=" + report.getClientToAMToken()
-          + ", appDiagnostics=" + report.getDiagnostics()
-          + ", appMasterHost=" + report.getHost()
-          + ", appQueue=" + report.getQueue()
-          + ", appMasterRpcPort=" + report.getRpcPort()
-          + ", appStartTime=" + report.getStartTime()
-          + ", yarnAppState=" + report.getYarnApplicationState().toString()
-          + ", distributedFinalState=" + report.getFinalApplicationStatus().toString()
-          + ", appTrackingUrl=" + report.getTrackingUrl()
-          + ", appUser=" + report.getUser());
+      LOG.log(Level.INFO,
+          "Got application report from ASM for"
+          + ", appId={0}"
+          + ", clientToAMToken={1}"
+          + ", appDiagnostics={2}"
+          + ", appMasterHost={3}"
+          + ", appQueue={4}"
+          + ", appMasterRpcPort={5}"
+          + ", appStartTime={6}"
+          + ", yarnAppState={7}"
+          + ", distributedFinalState={8}"
+          + ", appTrackingUrl={9}"
+          + ", appUser={10}",
+          new Object[] {
+              appId.getId(),
+              report.getClientToAMToken(),
+              report.getDiagnostics(),
+              report.getHost(),
+              report.getQueue(),
+              report.getRpcPort(),
+              report.getStartTime(),
+              report.getYarnApplicationState(),
+              report.getFinalApplicationStatus(),
+              report.getTrackingUrl(),
+              report.getUser() });
 
       YarnApplicationState state = report.getYarnApplicationState();
       FinalApplicationStatus dsStatus = report.getFinalApplicationStatus();
@@ -240,20 +255,18 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           LOG.info("Application has completed successfully. Breaking monitoring loop");
           return true;
         } else {
-          LOG.info("Application did finished unsuccessfully."
-              + " YarnState=" + state.toString() + ", DSFinalStatus=" + dsStatus.toString()
-              + ". Breaking monitoring loop");
+          LOG.log(Level.INFO, "Application did finished unsuccessfully."
+              + " YarnState={0}, DSFinalStatus={1}"
+              + ". Breaking monitoring loop", new Object[] { state, dsStatus });
           return false;
         }
       } else if (YarnApplicationState.KILLED == state
           || YarnApplicationState.FAILED == state) {
-        LOG.info("Application did not finish."
-            + " YarnState=" + state.toString() + ", DSFinalStatus=" + dsStatus.toString()
-            + ". Breaking monitoring loop");
+        LOG.log(Level.INFO, "Application did not finish."
+            + " YarnState={0}, DSFinalStatus={1}"
+            + ". Breaking monitoring loop", new Object[] { state, dsStatus });
         return false;
       }
-
     }
-
   }
 }
