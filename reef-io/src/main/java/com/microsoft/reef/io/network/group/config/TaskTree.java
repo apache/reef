@@ -19,37 +19,34 @@ import java.util.List;
 
 import com.microsoft.wake.ComparableIdentifier;
 
-/**
- * 
- */
-public interface ActivityTree {
-  public static enum Status{
+public interface TaskTree {
+
+  public static enum Status {
     UNSCHEDULED, SCHEDULED, COMPLETED, ANY;
-    //ANY is to be used for search only. Its not an actual state
+    // ANY is to be used for search only. Its not an actual state
   }
-  
+
   void add(ComparableIdentifier id);
-  
+
   ComparableIdentifier parent(ComparableIdentifier id);
-  
+
   ComparableIdentifier left(ComparableIdentifier id);
-  
+
   ComparableIdentifier right(ComparableIdentifier id);
-  
+
   List<ComparableIdentifier> neighbors(ComparableIdentifier id);
-  
+
   List<ComparableIdentifier> children(ComparableIdentifier id);
 
-  int childrenSupported(ComparableIdentifier actId);
+  int childrenSupported(ComparableIdentifier taskId);
 
-  void remove(ComparableIdentifier failedActId);
+  void remove(ComparableIdentifier failedTaskId);
 
-  List<ComparableIdentifier> scheduledChildren(ComparableIdentifier actId);
+  List<ComparableIdentifier> scheduledChildren(ComparableIdentifier taskId);
 
-  List<ComparableIdentifier> scheduledNeighbors(ComparableIdentifier actId);
-  
-  void setStatus(ComparableIdentifier actId, Status status);
-  
-  Status getStatus(ComparableIdentifier actId);
-  
+  List<ComparableIdentifier> scheduledNeighbors(ComparableIdentifier taskId);
+
+  void setStatus(ComparableIdentifier taskId, Status status);
+
+  Status getStatus(ComparableIdentifier taskId);
 }

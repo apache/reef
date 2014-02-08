@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.Message;
-import com.microsoft.reef.io.network.group.config.ActivityTree.Status;
+import com.microsoft.reef.io.network.group.config.TaskTree.Status;
 import com.microsoft.reef.io.network.group.impl.GCMCodec;
 import com.microsoft.reef.io.network.group.impl.GroupCommNetworkHandler;
 import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadRedHandler;
@@ -56,33 +56,33 @@ import com.microsoft.wake.impl.ThreadPoolStage;
 import com.microsoft.wake.remote.Codec;
 
 /**
- * 
+ *
  */
 public class BRManager {
   /**
    * TANG instance
    */
   private static final Tang tang = Tang.Factory.getTang();
-  
-  private Configuration reduceBaseConf; 
+
+  private Configuration reduceBaseConf;
 
   /** Common configs */
   private Class<? extends Codec<?>> brDataCodecClass;
   private Class<? extends Codec<?>> redDataCodecClass;
   private Class<? extends ReduceFunction<?>> redFuncClass;
-  
+
   /** {@link NetworkService} related configs */
   private final String nameServiceAddr;
   private final int nameServicePort;
   private final NetworkService<GroupCommMessage> ns;
   private final StringIdentifierFactory idFac = new StringIdentifierFactory();
   private final ComparableIdentifier driverId = (ComparableIdentifier) idFac.getNewInstance("driver");
-  private final ConcurrentHashMap<Identifier, BlockingQueue<GroupCommMessage>> srcAdds = new ConcurrentHashMap<>(); 
-  
+  private final ConcurrentHashMap<Identifier, BlockingQueue<GroupCommMessage>> srcAdds = new ConcurrentHashMap<>();
+
   private final ThreadPoolStage<GroupCommMessage> senderStage;
-  
-  private ActivityTree tree = null;
-  
+
+  private TaskTree tree = null;
+
   public BRManager(Class<? extends Codec<?>> brDataCodec, Class<? extends Codec<?>> redDataCodec, Class<? extends ReduceFunction<?>> redFunc,
       String nameServiceAddr, int nameServicePort) throws BindException{
     brDataCodecClass = brDataCodec;
@@ -90,7 +90,7 @@ public class BRManager {
     redFuncClass = redFunc;
     this.nameServiceAddr = nameServiceAddr;
     this.nameServicePort = nameServicePort;
-    
+
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();
     jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.DataCodec.class, brDataCodecClass);
     jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.DataCodec.class, redDataCodecClass);
@@ -108,7 +108,7 @@ public class BRManager {
     jcb.bindNamedParameter(NameServerParameters.NameServerPort.class,
         Integer.toString(nameServicePort));
     reduceBaseConf = jcb.build();
-    
+
     ns = new NetworkService<>(
         idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
         new MessagingTransportFactory(), new EventHandler<Message<GroupCommMessage>>() {
@@ -126,7 +126,7 @@ public class BRManager {
                   Set<Integer> srcs = sc.decode(body.getData().toByteArray());
                   System.out.println("Received req to send srcAdd for " + srcs);
                   for (Integer src : srcs) {
-                    Identifier srcId = idFac.getNewInstance("ComputeGradientActivity" + src);
+                    Identifier srcId = idFac.getNewInstance("ComputeGradientTask" + src);
                     BRManager.this.srcAdds.putIfAbsent(srcId, new LinkedBlockingQueue<GroupCommMessage>(1));
                     BlockingQueue<GroupCommMessage> msgQue = BRManager.this.srcAdds.get(srcId);
                     try {
@@ -151,10 +151,10 @@ public class BRManager {
       @Override
       public void onNext(GroupCommMessage srcCtrlMsg) {
         Identifier id = idFac.getNewInstance(srcCtrlMsg.getDestid());
-        
+
         if(tree.getStatus((ComparableIdentifier) id)!=Status.SCHEDULED)
           return;
-        
+
         Connection<GroupCommMessage> link = ns.newConnection(id);
         try {
           link.open();
@@ -162,88 +162,88 @@ public class BRManager {
           link.write(srcCtrlMsg);
         } catch (NetworkException e) {
           e.printStackTrace();
-          throw new RuntimeException("Unable to send ctrl activity msg to parent " + id, e);
+          throw new RuntimeException("Unable to send ctrl task msg to parent " + id, e);
         }
       }
     }, 5);
   }
-  
-  public void close() throws Exception{
+
+  public void close() throws Exception {
     senderStage.close();
     ns.close();
   }
-  
-  public int childrenSupported(ComparableIdentifier actId){
-    return tree.childrenSupported(actId);
+
+  public int childrenSupported(final ComparableIdentifier taskId) {
+    return tree.childrenSupported(taskId);
   }
 
   /**
-   * @param actId
+   * @param taskId
    */
-  public synchronized void add(ComparableIdentifier actId) {
+  public synchronized void add(final ComparableIdentifier taskId) {
     if(tree==null){
       //Controller
       System.out.println("Adding controller");
-      tree = new ActivityTreeImpl();
-      tree.add(actId);
+      tree = new TaskTreeImpl();
+      tree.add(taskId);
     }
     else{
-      System.out.println("Adding Compute activity. First updating tree");
-      //Compute Activity
+      System.out.println("Adding Compute task. First updating tree");
+      //Compute Task
       //Update tree
-      tree.add(actId);
+      tree.add(taskId);
       //Will Send Control msg to parent when scheduled
     }
   }
-  
-  public Configuration getControllerContextConf(ComparableIdentifier id) throws BindException{
+
+  public Configuration getControllerContextConf(final ComparableIdentifier id) throws BindException {
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(reduceBaseConf);
     jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, tree.neighbors(id), 0));
     return jcb.build();
   }
-  
+
   /**
-   * @param controllerId
+   * @param taskId
    * @return
-   * @throws BindException 
+   * @throws BindException
    */
-  public Configuration getControllerActConf(ComparableIdentifier actId) throws BindException {
+  public Configuration getControllerActConf(final ComparableIdentifier taskId) throws BindException {
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();//reduceBaseConf);
-    jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Receiver.SelfId.class, actId.toString());
-    jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Sender.SelfId.class, actId.toString());
-    List<ComparableIdentifier> children = tree.scheduledChildren(actId);
+    jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Receiver.SelfId.class, taskId.toString());
+    jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Sender.SelfId.class, taskId.toString());
+    List<ComparableIdentifier> children = tree.scheduledChildren(taskId);
     for (ComparableIdentifier child : children) {
       jcb.bindSetEntry(BroadReduceConfig.ReduceConfig.Receiver.ChildIds.class, child.toString());
       jcb.bindSetEntry(BroadReduceConfig.BroadcastConfig.Sender.ChildIds.class, child.toString());
     }
-    //jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, actId, tree.scheduledNeighbors(actId), 0));
+    //jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, taskId, tree.scheduledNeighbors(taskId), 0));
     return jcb.build();
   }
-  
-  public Configuration getComputeContextConf(ComparableIdentifier actId) throws BindException{
+
+  public Configuration getComputeContextConf(final ComparableIdentifier taskId) throws BindException {
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(reduceBaseConf);
-    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, tree.neighbors(actId), 0));
+    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, tree.neighbors(taskId), 0));
     return jcb.build();
   }
-  
-  public Configuration getComputeActConf(ComparableIdentifier actId) throws BindException{
+
+  public Configuration getComputeActConf(final ComparableIdentifier taskId) throws BindException {
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();//reduceBaseConf);
-    jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Sender.SelfId.class, actId.toString());
-    jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Receiver.SelfId.class, actId.toString());
-    ComparableIdentifier parent = tree.parent(actId);
+    jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Sender.SelfId.class, taskId.toString());
+    jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Receiver.SelfId.class, taskId.toString());
+    ComparableIdentifier parent = tree.parent(taskId);
     if(parent!=null && Status.SCHEDULED==tree.getStatus(parent)){
-      jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Sender.ParentId.class, tree.parent(actId).toString());
-      jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Receiver.ParentId.class, tree.parent(actId).toString());
+      jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Sender.ParentId.class, tree.parent(taskId).toString());
+      jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Receiver.ParentId.class, tree.parent(taskId).toString());
     }
-    List<ComparableIdentifier> children = tree.scheduledChildren(actId);
+    List<ComparableIdentifier> children = tree.scheduledChildren(taskId);
     for (ComparableIdentifier child : children) {
       jcb.bindSetEntry(BroadReduceConfig.ReduceConfig.Sender.ChildIds.class, child.toString());
       jcb.bindSetEntry(BroadReduceConfig.BroadcastConfig.Receiver.ChildIds.class, child.toString());
     }
-//    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, actId, tree.scheduledNeighbors(actId), 0));
+//    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, taskId, tree.scheduledNeighbors(taskId), 0));
     return jcb.build();
   }
-  
+
   /**
    * Create {@link Configuration} for {@link GroupCommNetworkHandler}
    * using base conf + list of identifiers
@@ -263,15 +263,14 @@ public class BRManager {
   }
 
   /**
-   * Create {@link NetworkService} {@link Configuration} for each activity
-   * using base conf + per activity parameters
+   * Create {@link NetworkService} {@link Configuration} for each task
+   * using base conf + per task parameters
    *
    * @param nameServiceAddr
    * @param nameServicePort
-   * @param self
    * @param ids
    * @param nsPort
-   * @return per activity {@link NetworkService} {@link Configuration} for the specified activity
+   * @return per task {@link NetworkService} {@link Configuration} for the specified task
    * @throws BindException
    */
   private Configuration createNetworkServiceConf(
@@ -289,45 +288,45 @@ public class BRManager {
   }
 
   /**
-   * @param actId
+   * @param failedTaskId
    */
-  public void remove(ComparableIdentifier failedActId) {
+  public void remove(final ComparableIdentifier failedTaskId) {
     //Remove the node from the tree
-    tree.remove(failedActId);
+    tree.remove(failedTaskId);
     //Send src dead msg when unscheduled
   }
 
   /**
-   * @param actId
+   * @param taskId
    */
-  public synchronized void schedule(ComparableIdentifier actId, boolean reschedule) {
+  public synchronized void schedule(final ComparableIdentifier taskId, final boolean reschedule) {
 
-    if(Status.SCHEDULED==tree.getStatus(actId))
+    if(Status.SCHEDULED==tree.getStatus(taskId))
       return;
-    tree.setStatus(actId, Status.SCHEDULED);
+    tree.setStatus(taskId, Status.SCHEDULED);
     //This will not work when failure
     //is in an intermediate node
-    List<ComparableIdentifier> schNeighs = tree.scheduledNeighbors(actId);
+    List<ComparableIdentifier> schNeighs = tree.scheduledNeighbors(taskId);
     if(!schNeighs.isEmpty()){
       for (ComparableIdentifier neighbor : schNeighs) {
-        System.out.println("Adding " + actId + " as neighbor of " + neighbor);
-        sendSrcAddMsg(actId, neighbor, reschedule);
+        System.out.println("Adding " + taskId + " as neighbor of " + neighbor);
+        sendSrcAddMsg(taskId, neighbor, reschedule);
       }
     }
     else{
       //TODO: I seem some friction between elasticity and fault tolerance
       //here. Because of elasticity I have the if checks here and
       //the logic is restricted to just the parent instead of the
-      //neighbor. With a generic topology scheduling the activities
+      //neighbor. With a generic topology scheduling the tasks
       //needs to co-ordinated with how faults are handled. We need
       //to generalize this carefully
-      final ComparableIdentifier parent = tree.parent(actId);
-      if(tree.parent(actId)!=null){
-        //Only for compute activities
+      final ComparableIdentifier parent = tree.parent(taskId);
+      if(tree.parent(taskId)!=null){
+        //Only for compute tasks
         System.out.println("Parent " + parent + " was alive while submitting.");
         System.out.println("While scheduling found that parent is not scheduled.");
         System.out.println("Sending Src Dead msg");
-        sendSrcDeadMsg(parent, actId);
+        sendSrcDeadMsg(parent, taskId);
       }
     }
   }
@@ -346,15 +345,14 @@ public class BRManager {
   }
 
   /**
-   * @param runAct
+   * @param runTaskId
    * @return
    */
-  public List<ComparableIdentifier> activitesToSchedule(
-      ComparableIdentifier runAct) {
-    List<ComparableIdentifier> children = tree.children(runAct);
+  public List<ComparableIdentifier> tasksToSchedule(final ComparableIdentifier runTaskId) {
+    List<ComparableIdentifier> children = tree.children(runTaskId);
     //This is needed if we want to consider
     //removing an arbitrary node in the middle
-    /*List<ComparableIdentifier> schedChildren = tree.scheduledChildren(runAct);
+    /*List<ComparableIdentifier> schedChildren = tree.scheduledChildren(runTaskId);
     for (ComparableIdentifier schedChild : schedChildren) {
       children.remove(schedChild);
     }*/
@@ -367,16 +365,16 @@ public class BRManager {
     return children;
   }
 
-  
+
   /**
-   * @param actId
+   * @param failedTaskId
    */
-  public synchronized void unschedule(ComparableIdentifier failedActId) {
-    System.out.println("BRManager unscheduling " + failedActId);
-    tree.setStatus(failedActId, Status.UNSCHEDULED);
+  public synchronized void unschedule(final ComparableIdentifier failedTaskId) {
+    System.out.println("BRManager unscheduling " + failedTaskId);
+    tree.setStatus(failedTaskId, Status.UNSCHEDULED);
     //Send a Source Dead message
-    ComparableIdentifier from = failedActId;
-    for(ComparableIdentifier to : tree.scheduledNeighbors(failedActId)){
+    ComparableIdentifier from = failedTaskId;
+    for(ComparableIdentifier to : tree.scheduledNeighbors(failedTaskId)){
       sendSrcDeadMsg(from, to);
     }
   }
@@ -387,11 +385,11 @@ public class BRManager {
   }
 
   /**
-   * @param actId
+   * @param failedTaskId
    * @return
    */
-  public boolean canReschedule(ComparableIdentifier failedActId) {
-    final ComparableIdentifier parent = tree.parent(failedActId);
+  public boolean canReschedule(final ComparableIdentifier failedTaskId) {
+    final ComparableIdentifier parent = tree.parent(failedTaskId);
     if(parent!=null && Status.SCHEDULED==tree.getStatus(parent))
       return true;
     return false;

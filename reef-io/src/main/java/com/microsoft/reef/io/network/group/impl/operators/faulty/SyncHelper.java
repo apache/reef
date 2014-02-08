@@ -15,7 +15,7 @@ public class SyncHelper {
     //Assumes that all ctr msgs are about children
     //There is currently only one case where ctrl
     //msgs are sent about parents thats when the
-    //task is complete or control activity finishes
+    //task is complete or control task finishes
     //It works now because we do not depend on sync
     //functionality for that
     for (final Identifier childIdentifier : childStatus.keySet()) {
