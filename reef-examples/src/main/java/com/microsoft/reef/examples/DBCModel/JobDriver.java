@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.examples.DBCModel;
 
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.*;
@@ -46,11 +46,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DBC Model  Evaluator example job driver. Execute shell command on all evaluators,
+ * DBC Model Evaluator example job driver. Execute shell command on all evaluators,
  * capture stdout, and return concatenated results back to the client.
  */
 @Unit
 public final class JobDriver {
+
     /**
      * Standard Java logger.
      */
@@ -65,7 +66,7 @@ public final class JobDriver {
     public static  int totalEvaluators = 1;
     private int nCLREvaluator = 1;                  // guarded by this
 
-    public static final String DBC_ACTIVITY_CLASS_HIERARCHY_FILENAME = "DBCActivity.bin";
+    public static final String DBC_TASK_CLASS_HIERARCHY_FILENAME = "DBCTask.bin";
     public static final String DBC_SERVICE_CLASS_HIERARCHY_FILENAME = "DBCServices.bin";
 
     /**
@@ -79,12 +80,12 @@ public final class JobDriver {
      * <dl>
      * <du><code>INIT</code></du><dd>initial state, ready to request the evaluators.</dd>
      * <du><code>WAIT_EVALUATORS</code></du><dd>Wait for requested evaluators to initialize.</dd>
-     * <du><code>READY</code></du><dd>Ready to submitActivity a new activity.</dd>
-     * <du><code>WAIT_ACTIVITIES</code></du><dd>Wait for activities to complete.</dd>
+     * <du><code>READY</code></du><dd>Ready to submitTask a new task.</dd>
+     * <du><code>WAIT_TASKS</code></du><dd>Wait for tasks to complete.</dd>
      * </dl>
      */
     private enum State {
-        INIT, WAIT_EVALUATORS, READY, WAIT_ACTIVITIES
+        INIT, WAIT_EVALUATORS, READY, WAIT_TASKS
     }
 
     /**
@@ -111,13 +112,13 @@ public final class JobDriver {
 
     /**
      * Job driver uses EvaluatorRequestor
-     * to request Evaluators that will run the Activities.
+     * to request Evaluators that will run the Tasks.
      */
     private final EvaluatorRequestor evaluatorRequestor;
 
     /**
      * Static catalog of REEF resources.
-     * We use it to schedule Activity on every available node.
+     * We use it to schedule Task on every available node.
      */
     private final ResourceCatalog catalog;
 
@@ -132,7 +133,7 @@ public final class JobDriver {
     private final Map<String, ActiveContext> contexts = new HashMap<>();
 
     /**
-     * Number of evaluators/activities to complete.
+     * Number of evaluators/tasks to complete.
      */
     private int expectCount = 0;
 
@@ -201,20 +202,22 @@ public final class JobDriver {
     }
 
 
-    private static final Configuration getCLRActivityConfiguration(final String activityId, final String activityKey) throws BindException {
-        final ConfigurationBuilder cb = Tang.Factory.getTang()
-                .newConfigurationBuilder(loadCLRClassHierarchyBinFile(DBC_ACTIVITY_CLASS_HIERARCHY_FILENAME));
+    private static final Configuration getCLRTaskConfiguration(
+        final String taskId, final String taskKey) throws BindException {
 
-        cb.bind("com.microsoft.reef.activity.IActivity", "Microsoft.Reef.Activity.DBCActivity");
-        if(! (activityKey.equals("s") || activityKey.equals("S")) )
+        final ConfigurationBuilder cb = Tang.Factory.getTang()
+                .newConfigurationBuilder(loadCLRClassHierarchyBinFile(DBC_TASK_CLASS_HIERARCHY_FILENAME));
+
+        cb.bind("com.microsoft.reef.task.ITask", "Microsoft.Reef.Task.DBCTask");
+        if(! (taskKey.equals("s") || taskKey.equals("S")) )
         {
-            cb.bind("Microsoft.Reef.Activity.DBCActivity+Key", activityKey);
+            cb.bind("Microsoft.Reef.Task.DBCTask+Key", taskKey);
         }
         else
         {
-            cb.bind("Microsoft.Reef.Activity.DBCActivity+Key", "");
+            cb.bind("Microsoft.Reef.Task.DBCTask+Key", "");
         }
-        cb.bind("Microsoft.Reef.Activity.Configurations.ActivityConfigurationOptions.Identifier", activityId);
+        cb.bind("Microsoft.Reef.Task.Configurations.TaskConfigurationOptions.Identifier", taskId);
 
         return cb.build();
     }
@@ -237,7 +240,7 @@ public final class JobDriver {
 
     /**
      * Receive notification that a new Context is available.
-     * Submit a new Distributed Shell Activity to that Context.
+     * Submit a new Distributed Shell Task to that Context.
      */
     final class ActiveContextHandler implements EventHandler<ActiveContext> {
         @Override
@@ -271,7 +274,7 @@ public final class JobDriver {
                 new Object[]{key, this.contexts.size(), this.state});
         assert (this.state == State.READY);
         this.expectCount = this.contexts.size();
-        this.state = State.WAIT_ACTIVITIES;
+        this.state = State.WAIT_TASKS;
         this.cmd = null;
         for (final ActiveContext context : this.contexts.values()) {
             this.submit(context, key);
@@ -279,19 +282,19 @@ public final class JobDriver {
     }
 
     /**
-     * Submit an Activity that execute the command to a single Evaluator.
-     * This method is called from <code>submitActivity(cmd)</code>.
+     * Submit a Task that execute the command to a single Evaluator.
+     * This method is called from <code>submitTask(cmd)</code>.
      */
     private void submit(final ActiveContext context, final String key) {
         try {
-            Configuration activityConfiguration;
-            String activityId = context.getId() + "_activity";
+            Configuration taskConfiguration;
+            String taskId = context.getId() + "_task";
 
-            activityConfiguration = getCLRActivityConfiguration(activityId, key);
+            taskConfiguration = getCLRTaskConfiguration(taskId, key);
 
-            context.submitActivity(activityConfiguration);
+            context.submitTask(taskConfiguration);
         } catch (final BindException ex) {
-            LOG.log(Level.SEVERE, "Bad Activity configuration for context: " + context.getId(), ex);
+            LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
             this.clock.close();
             throw new RuntimeException(ex);
         }
@@ -344,32 +347,32 @@ public final class JobDriver {
     }
 
     /**
-     * Receive notification that the Activity has completed successfully.
+     * Receive notification that the Task has completed successfully.
      */
-    final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+    final class CompletedTaskHandler implements EventHandler<CompletedTask> {
         @Override
-        public void onNext(final CompletedActivity act) {
-            LOG.log(Level.INFO, "Completed activity: {0}", act.getId());
-            // Take the message returned by the activity and add it to the running result.
+        public void onNext(final CompletedTask task) {
+            LOG.log(Level.INFO, "Completed task: {0}", task.getId());
+            // Take the message returned by the task and add it to the running result.
             String result="default";
             try
             {
-                result = new String(act.get());
+                result = new String(task.get());
             }
             catch(final Exception e)
             {
                 LOG.log(Level.SEVERE, "failed to decode result");
             }
             synchronized (JobDriver.this) {
-                JobDriver.this.results.add(act.getId() + " :: " + result);
-                LOG.log(Level.INFO, "Activity {0} result {1}: {2} state: {3}", new Object[] {
-                        act.getId(), JobDriver.this.results.size(), result, JobDriver.this.state });
+                JobDriver.this.results.add(task.getId() + " :: " + result);
+                LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[] {
+                        task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state });
                 if (--JobDriver.this.expectCount <= 0) {
                     JobDriver.this.returnResults();
                     JobDriver.this.state = State.READY;
                     if (iterationNum < RUN_ITERATION)
                     {
-                        JobDriver.this.submit(ActivityKeys.Entries[iterationNum]);
+                        JobDriver.this.submit(TaskKeys.Entries[iterationNum]);
                         iterationNum++;
                     }
                     else

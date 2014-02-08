@@ -34,7 +34,6 @@ import org.junit.rules.TestName;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,6 +46,7 @@ import junit.framework.Assert;
  * Network service test
  */
 public class NetworkServiceTest {
+
   @Rule public TestName name = new TestName();
 
   /**
@@ -56,40 +56,38 @@ public class NetworkServiceTest {
   @Test
   public void testMessagingNetworkService() throws Exception {
     System.out.println(name.getMethodName());
-    
+
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
     NameServer server = new NameServer(0, factory);
     int nameServerPort = server.getPort();
-    
-    
 
     final int numMessages = 10;
     final Monitor monitor = new Monitor();
 
     System.out.println("=== Test network service receiver start");
     // network service
-    final String name2 = "activity2";
+    final String name2 = "task2";
     NetworkService<String> ns2 = new NetworkService<String>(
         factory, 0, nameServerAddr, nameServerPort,
-        new StringCodec(), new MessagingTransportFactory(), 
+        new StringCodec(), new MessagingTransportFactory(),
         new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
     ns2.registerId(factory.getNewInstance(name2));
     final int port2 = ns2.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
-    
+    server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
+
     System.out.println("=== Test network service sender start");
-    final String name1 = "activity1";
-    NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameServerAddr, nameServerPort,
-        new StringCodec(), new MessagingTransportFactory(), 
+    final String name1 = "task1";
+    final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameServerAddr, nameServerPort,
+        new StringCodec(), new MessagingTransportFactory(),
         new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
     ns1.registerId(factory.getNewInstance(name1));
     final int port1 = ns1.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+    server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
-    Identifier destId = factory.getNewInstance(name2);
-    Connection<String> conn = ns1.newConnection(destId);
+    final Identifier destId = factory.getNewInstance(name2);
+    final Connection<String> conn = ns1.newConnection(destId);
     try {
       conn.open();
       for (int count=0; count<numMessages; ++count) {
@@ -101,10 +99,10 @@ public class NetworkServiceTest {
       e.printStackTrace();
     }
     conn.close();
-    
+
     ns1.close();
     ns2.close();
-    
+
     server.close();
   }
 
@@ -115,45 +113,43 @@ public class NetworkServiceTest {
   @Test
   public void testMessagingNetworkServiceRate() throws Exception {
     System.out.println(name.getMethodName());
-    
+
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
     NameServer server = new NameServer(0, factory);
     int nameServerPort = server.getPort();
-    
-    
 
     final int[] messageSizes = {1,16,32,64,512,64*1024,1024*1024};
-    
+
     for (int size : messageSizes) {
       final int numMessages = 300000 / (Math.max(1, size/512));
       final Monitor monitor = new Monitor();
 
       System.out.println("=== Test network service receiver start");
       // network service
-      final String name2 = "activity2";
+      final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
           factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(), 
+          new StringCodec(), new MessagingTransportFactory(),
           new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
       ns2.registerId(factory.getNewInstance(name2));
-      final int port2 = ns2.getTransport().getListeningPort(); 
-      server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
+      final int port2 = ns2.getTransport().getListeningPort();
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
 
       System.out.println("=== Test network service sender start");
-      final String name1 = "activity1";
+      final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
           factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(), 
+          new StringCodec(), new MessagingTransportFactory(),
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
       ns1.registerId(factory.getNewInstance(name1));
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       Connection<String> conn = ns1.newConnection(destId);
-      
+
       // build the message
       StringBuilder msb = new StringBuilder();
       for (int i=0; i<size; i++) {
@@ -182,7 +178,7 @@ public class NetworkServiceTest {
 
     server.close();
   }
-  
+
   /**
    * NetworkService messaging rate benchmark
    * @throws Exception
@@ -190,20 +186,20 @@ public class NetworkServiceTest {
   @Test
   public void testMessagingNetworkServiceRateDisjoint() throws Exception {
     System.out.println(name.getMethodName());
-    
+
     final IdentifierFactory factory = new StringIdentifierFactory();
     final String nameServerAddr = NetUtils.getLocalAddress();
 
     final NameServer server = new NameServer(0, factory);
     final int nameServerPort = server.getPort();
-   
+
     BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
-    
+
     int numThreads = 4;
     final int size = 2000;
     final int numMessages = 300000 / (Math.max(1, size/512));
     final int totalNumMessages = numMessages*numThreads;
-    
+
     ExecutorService e = Executors.newCachedThreadPool();
     for (int t=0; t<numThreads; t++) {
       final int tt = t;
@@ -215,20 +211,20 @@ public class NetworkServiceTest {
 
           System.out.println("=== Test network service receiver start");
           // network service
-          final String name2 = "activity2-"+tt;
+          final String name2 = "task2-"+tt;
           NetworkService<String> ns2 = new NetworkService<String>(
               factory, 0, nameServerAddr, nameServerPort,
-              new StringCodec(), new MessagingTransportFactory(), 
+              new StringCodec(), new MessagingTransportFactory(),
               new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
           ns2.registerId(factory.getNewInstance(name2));
-          final int port2 = ns2.getTransport().getListeningPort(); 
+          final int port2 = ns2.getTransport().getListeningPort();
           server.register(factory.getNewInstance(name2), new InetSocketAddress(nameServerAddr, port2));
 
           System.out.println("=== Test network service sender start");
-          final String name1 = "activity1-"+tt;
+          final String name1 = "task1-"+tt;
           NetworkService<String> ns1 = new NetworkService<String>(
               factory, 0, nameServerAddr, nameServerPort,
-              new StringCodec(), new MessagingTransportFactory(), 
+              new StringCodec(), new MessagingTransportFactory(),
               new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
           ns1.registerId(factory.getNewInstance(name1));
           final int port1 = ns1.getTransport().getListeningPort();
@@ -244,7 +240,7 @@ public class NetworkServiceTest {
           }
           String message = msb.toString();
 
-          
+
           try {
             for (int i=0; i<numMessages; i++) {
               conn.open();
@@ -260,12 +256,12 @@ public class NetworkServiceTest {
           ns2.close();
           } catch (Exception e) {
             e.printStackTrace();
-            
+
           }
         }
       });
-      
     }
+
     // start and time
     long start = System.currentTimeMillis();
     Object ignore = new Object();
@@ -277,24 +273,21 @@ public class NetworkServiceTest {
     double runtime = ((double)end - start) / 1000;
     System.out.println("size: " + size + "; messages/s: "+ totalNumMessages / runtime + " bandwidth(bytes/s): "+((double)totalNumMessages*2*size)/runtime);// x2 for unicode chars
 
-
     server.close();
   }
 
   @Test
   public void testMultithreadedSharedConnMessagingNetworkServiceRate() throws Exception {
     System.out.println(name.getMethodName());
-    
+
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
     NameServer server = new NameServer(0, factory);
     int nameServerPort = server.getPort();
-    
-    
 
     final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
-    
+
     for (int size : messageSizes) {
       final int numMessages = 300000 / (Math.max(1, size/512));
       int numThreads = 2;
@@ -303,29 +296,29 @@ public class NetworkServiceTest {
 
       System.out.println("=== Test network service receiver start");
       // network service
-      final String name2 = "activity2";
+      final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
           factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(), 
+          new StringCodec(), new MessagingTransportFactory(),
           new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler());
       ns2.registerId(factory.getNewInstance(name2));
-      final int port2 = ns2.getTransport().getListeningPort(); 
-      server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
+      final int port2 = ns2.getTransport().getListeningPort();
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
 
       System.out.println("=== Test network service sender start");
-      final String name1 = "activity1";
+      final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
           factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(), 
+          new StringCodec(), new MessagingTransportFactory(),
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
       ns1.registerId(factory.getNewInstance(name1));
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       final Connection<String> conn = ns1.newConnection(destId);
       conn.open();
-      
+
       // build the message
       StringBuilder msb = new StringBuilder();
       for (int i=0; i<size; i++) {
@@ -334,8 +327,7 @@ public class NetworkServiceTest {
       final String message = msb.toString();
 
       ExecutorService e = Executors.newCachedThreadPool();
-     
-      
+
       long start = System.currentTimeMillis();
       for (int i=0; i<numThreads; i++) {
         e.submit(new Runnable() {
@@ -348,11 +340,11 @@ public class NetworkServiceTest {
               }
             } catch (NetworkException e) {
               e.printStackTrace();
-            }         
+            }
           }
         });
       }
-          
+
 
       e.shutdown();
       e.awaitTermination(30, TimeUnit.SECONDS);
@@ -360,7 +352,7 @@ public class NetworkServiceTest {
 
       long end = System.currentTimeMillis();
       double runtime = ((double)end - start) / 1000;
-    
+
       System.out.println("size: " + size + "; messages/s: "+ totalNumMessages / runtime + " bandwidth(bytes/s): "+((double)totalNumMessages*2*size)/runtime);// x2 for unicode chars
       conn.close();
 
@@ -370,9 +362,7 @@ public class NetworkServiceTest {
 
     server.close();
   }
- 
- 
-  
+
   /**
    * NetworkService messaging rate benchmark
    * @throws Exception
@@ -380,46 +370,44 @@ public class NetworkServiceTest {
   @Test
   public void testMessagingNetworkServiceBatchingRate() throws Exception {
     System.out.println(name.getMethodName());
-    
+
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
     NameServer server = new NameServer(0, factory);
     int nameServerPort = server.getPort();
-    
-    
 
     final int batchSize = 1024*1024;
     final int[] messageSizes = {32,64,512};
-    
+
     for (int size : messageSizes) {
       final int numMessages = 300 / (Math.max(1, size/512));
       final Monitor monitor = new Monitor();
 
       System.out.println("=== Test network service receiver start");
       // network service
-      final String name2 = "activity2";
+      final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
           factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(), 
+          new StringCodec(), new MessagingTransportFactory(),
           new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
       ns2.registerId(factory.getNewInstance(name2));
-      final int port2 = ns2.getTransport().getListeningPort(); 
-      server.register(factory.getNewInstance("activity2"), new InetSocketAddress(nameServerAddr, port2));
+      final int port2 = ns2.getTransport().getListeningPort();
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
 
       System.out.println("=== Test network service sender start");
-      final String name1 = "activity1";
+      final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
           factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(), 
+          new StringCodec(), new MessagingTransportFactory(),
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
       ns1.registerId(factory.getNewInstance(name1));
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("activity1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       Connection<String> conn = ns1.newConnection(destId);
-      
+
       // build the message
       StringBuilder msb = new StringBuilder();
       for (int i=0; i<size; i++) {
@@ -453,8 +441,7 @@ public class NetworkServiceTest {
 
     server.close();
   }
-  
-  
+
   /**
    * Test message handler
    * @param <T> type
@@ -465,17 +452,17 @@ public class NetworkServiceTest {
     private final int expected;
     private final Monitor monitor;
     private AtomicInteger count = new AtomicInteger(0);
-    
+
     MessageHandler(String name, Monitor monitor, int expected) {
       this.name = name;
       this.monitor = monitor;
       this.expected = expected;
     }
-    
+
     @Override
     public void onNext(Message<T> value) {
       count.incrementAndGet();
-      
+
       //System.out.print(name + " received " + value.getData() + " from " + value.getSrcId() + " to " + value.getDestId());
       for (T obj : value.getData()) {
        // System.out.print(" data: " + obj);
@@ -486,17 +473,14 @@ public class NetworkServiceTest {
       }
     }
   }
-  
+
   /**
    * Test exception handler
    */
   class ExceptionHandler implements EventHandler<Exception> {
-
     @Override
     public void onNext(Exception error) {
       System.err.println(error);
     }
-    
   }
-
 }

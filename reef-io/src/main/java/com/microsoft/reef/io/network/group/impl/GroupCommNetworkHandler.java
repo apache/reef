@@ -40,13 +40,13 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Handler to be registered with {@link NetworkService} to cater to
  * {@link Message}s  of type {@link GroupCommMessage}
  * <p/>
- * Uses a {@link Handler} per operators to receive from each registered activity
- * Essentially a {@link GroupCommMessage} sent from an activity using an operator will
+ * Uses a {@link Handler} per operators to receive from each registered task
+ * Essentially a {@link GroupCommMessage} sent from a task using an operator will
  * end up with the {@link Handler} for that operator. These messages are queued in
  * a {@link BlockingQueue} and receive calls made by a receiving operator for a message
- * from an activity will block until the message from that activity arrives in the queue
+ * from a task will block until the message from that task arrives in the queue
  * <p/>
- * The queue capacity determines how many messages from the same activity can be enqueued
+ * The queue capacity determines how many messages from the same task can be enqueued
  *
  * @author shravan
  */
@@ -66,7 +66,7 @@ public class GroupCommNetworkHandler implements EventHandler<Message<GroupCommMe
     IdentifierFactory idFactory;
 
     /**
-     * Queue capacity - num messages held from the same activity and operator
+     * Queue capacity - num messages held from the same task and operator
      */
     int capacity;
 

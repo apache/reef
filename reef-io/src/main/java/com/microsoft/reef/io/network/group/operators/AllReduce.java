@@ -24,7 +24,7 @@ import com.microsoft.wake.Identifier;
 import java.util.List;
 
 /**
- * MPI All Reduce Operator. Each activity applies this operator on an element of
+ * MPI All Reduce Operator. Each task applies this operator on an element of
  * type T. The result will be an element which is result of applying a reduce
  * function on the list of all elements on which this operator has been applied
  * 

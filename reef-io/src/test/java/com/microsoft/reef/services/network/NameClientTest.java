@@ -62,7 +62,7 @@ public class NameClientTest {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory,
           new NameCache(10000))) {
-        Identifier id = factory.getNewInstance("Activity1");
+        Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
         client.unregister(id);
         Thread.sleep(100);
@@ -84,7 +84,7 @@ public class NameClientTest {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory,
           new NameCache(150))) {
-        Identifier id = factory.getNewInstance("Activity1");
+        Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
         client.lookup(id);// caches the entry
         client.unregister(id);

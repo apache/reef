@@ -32,8 +32,8 @@ import java.util.List;
  * 
  */
 public class SymmetricOpDescription extends GroupOperatorDescription {
-  /** The activities participating in this group. */
-  public final List<ComparableIdentifier> activityIDs;
+  /** Tasks participating in this group. */
+  public final List<ComparableIdentifier> taskIds;
 
   /** The reduce function to be used for operations that do reduction */
   public final Class<? extends ReduceFunction<?>> redFuncClass;
@@ -43,15 +43,15 @@ public class SymmetricOpDescription extends GroupOperatorDescription {
    * 
    * @param operatorType
    * @param dataCodecClass
-   * @param activityIDs
+   * @param taskIds
    * @param redFuncClass
    */
   public SymmetricOpDescription(OP_TYPE operatorType,
       Class<? extends Codec<?>> dataCodecClass,
-      List<ComparableIdentifier> activityIDs,
+      List<ComparableIdentifier> taskIds,
       Class<? extends ReduceFunction<?>> redFuncClass) {
     super(operatorType, dataCodecClass);
-    this.activityIDs = activityIDs;
+    this.taskIds = taskIds;
     this.redFuncClass = redFuncClass;
   }
   
@@ -61,7 +61,7 @@ public class SymmetricOpDescription extends GroupOperatorDescription {
     private OP_TYPE operatorType;
     private Class<? extends Codec<?>> dataCodecClass;
     private Class<? extends ReduceFunction<?>> redFuncClass;
-    private List<ComparableIdentifier> actvities;
+    private List<ComparableIdentifier> tasks;
     
     /**
      * Override the operator type which is typically automatically set
@@ -88,11 +88,11 @@ public class SymmetricOpDescription extends GroupOperatorDescription {
     /**
      * Set the list of ids of senders
      * 
-     * @param senders
+     * @param tasks
      * @return
      */
-    public Builder setActivities(List<ComparableIdentifier> activities) {
-      this.actvities = activities;
+    public Builder setTasks(List<ComparableIdentifier> tasks) {
+      this.tasks = tasks;
       return this;
     }
 
@@ -115,7 +115,7 @@ public class SymmetricOpDescription extends GroupOperatorDescription {
      */
     @Override
     public SymmetricOpDescription build() {
-      return new SymmetricOpDescription(operatorType, dataCodecClass, actvities, redFuncClass);
+      return new SymmetricOpDescription(operatorType, dataCodecClass, tasks, redFuncClass);
     }
     
   }

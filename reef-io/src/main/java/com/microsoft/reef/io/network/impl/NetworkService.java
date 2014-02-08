@@ -47,7 +47,7 @@ import com.microsoft.wake.remote.transport.Transport;
 
 
 /**
- * Network service for Activity
+ * Network service for Task
  */
 public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
@@ -66,14 +66,14 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   @Inject
   public NetworkService(
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
+      final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
-      @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
-      @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
-      @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
-      @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
-      @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
-      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
+      final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
+      final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
+      final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
+      final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
+      final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
+      final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
     
     this.factory = factory;
     this.codec = codec;
@@ -81,11 +81,10 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
     this.nameClient = new NameClient(nameServerAddr, nameServerPort, factory, new NameCache(30000));
     nsPort = transport.getListeningPort();
-    nameServiceRegisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
 
+    nameServiceRegisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
       @Override
       public void onNext(Tuple<Identifier, InetSocketAddress> tuple) {
-
         try {
           nameClient.register(tuple.getKey(), tuple.getValue());
           LOG.fine("Finished registering " + tuple.getKey() + " with nameservice");
@@ -95,11 +94,10 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
         }
       }
     }, 5);
-    nameServiceUnregisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Identifier>() {
 
+    nameServiceUnregisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Identifier>() {
       @Override
       public void onNext(Identifier id) {
-
         try {
           nameClient.unregister(id);
           LOG.fine("Finished unregistering " + id + " from nameservice");
@@ -158,7 +156,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
   @Override
   public Connection<T> newConnection(final Identifier destId) {
     if(myId==null)
-      throw new RuntimeException("Trying to establish a connection from a Network Service that is not bound to any activity");
+      throw new RuntimeException("Trying to establish a connection from a Network Service that is not bound to any task");
     final Connection<T> conn = idToConnMap.get(destId);
     if (conn != null) {
       return conn;

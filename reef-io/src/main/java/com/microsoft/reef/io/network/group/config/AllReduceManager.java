@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.io.network.group.config;
 
-import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.Message;
@@ -79,10 +79,10 @@ public class AllReduceManager<T> {
   private final ComparableIdentifier driverId = (ComparableIdentifier) idFac.getNewInstance("driver");
 
 
-  private Map<ComparableIdentifier, Integer> actIdMap;
-  private final ComparableIdentifier[] activities;
-  private final int numActivities;
-  private int runningActivities;
+  private Map<ComparableIdentifier, Integer> taskIdMap;
+  private final ComparableIdentifier[] tasks;
+  private final int numTasks;
+  private int runningTasks;
 
   /**
    * @param dataCodec
@@ -100,15 +100,15 @@ public class AllReduceManager<T> {
     this.nameServiceAddr = nameServiceAddr;
     this.nameServicePort = nameServicePort;
     this.id2port = id2port;
-    actIdMap = new HashMap<ComparableIdentifier, Integer>();
+    taskIdMap = new HashMap<ComparableIdentifier, Integer>();
     int i = 1;
-    activities = new ComparableIdentifier[id2port.size() + 1];
+    tasks = new ComparableIdentifier[id2port.size() + 1];
     for (ComparableIdentifier id : id2port.keySet()) {
-      activities[i] = id;
-      actIdMap.put(id, i++);
+      tasks[i] = id;
+      taskIdMap.put(id, i++);
     }
-    numActivities = activities.length - 1;
-    runningActivities = numActivities;
+    numTasks = tasks.length - 1;
+    runningTasks = numTasks;
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();
     jcb.bindNamedParameter(AllReduceConfig.DataCodec.class, dataCodecClass);
     jcb.bindNamedParameter(AllReduceConfig.ReduceFunction.class, redFuncClass);
@@ -133,31 +133,31 @@ public class AllReduceManager<T> {
   }
 
   /**
-   * @param activity
+   * @param taskId
    * @return
    */
-  public synchronized double estimateVarInc(ComparableIdentifier activity) {
-    double actVarDrop = 1.0 / numActivities;
-    int childrenLost = getChildren(activity) + 1;
-    double curVarDrop = 1.0 / (runningActivities - childrenLost);
+  public synchronized double estimateVarInc(final ComparableIdentifier taskId) {
+    double actVarDrop = 1.0 / numTasks;
+    int childrenLost = getChildren(taskId) + 1;
+    double curVarDrop = 1.0 / (runningTasks - childrenLost);
     return (curVarDrop / actVarDrop) - 1;
   }
 
   /**
-   * @param activity
+   * @param taskId
    * @return
    */
-  private synchronized int getChildren(ComparableIdentifier activity) {
-    int idx = actIdMap.get(activity);
+  private synchronized int getChildren(final ComparableIdentifier taskId) {
+    int idx = taskIdMap.get(taskId);
     int leftChildren, rightChildren;
-    if (leftChild(idx) > numActivities) {
+    if (leftChild(idx) > numTasks) {
       return 0;
     } else {
-      leftChildren = getChildren(activities[leftChild(idx)]) + 1;
-      if (rightChild(idx) > numActivities) {
+      leftChildren = getChildren(tasks[leftChild(idx)]) + 1;
+      if (rightChild(idx) > numTasks) {
         return leftChildren;
       } else {
-        rightChildren = getChildren(activities[rightChild(idx)]) + 1;
+        rightChildren = getChildren(tasks[rightChild(idx)]) + 1;
       }
     }
     return leftChildren + rightChildren;
@@ -165,14 +165,16 @@ public class AllReduceManager<T> {
 
 
   /**
-   * @param failedActId
+   * @param failedTaskId
    * @throws NetworkException
    */
-  public synchronized void remove(ComparableIdentifier failedActId) {
-    System.out.println("All Reduce Manager removing " + failedActId);
-    ComparableIdentifier from = failedActId;
-    final ComparableIdentifier to = activities[parent(actIdMap.get(failedActId))];
-    SingleThreadStage<GroupCommMessage> senderStage = new SingleThreadStage<>("SrcDeadMsgSender", new EventHandler<GroupCommMessage>() {
+  public synchronized void remove(final ComparableIdentifier failedTaskId) {
+
+    System.out.println("All Reduce Manager removing " + failedTaskId);
+    final ComparableIdentifier from = failedTaskId;
+    final ComparableIdentifier to = tasks[parent(taskIdMap.get(failedTaskId))];
+
+    final SingleThreadStage<GroupCommMessage> senderStage = new SingleThreadStage<>("SrcDeadMsgSender", new EventHandler<GroupCommMessage>() {
 
       @Override
       public void onNext(GroupCommMessage srcDeadMsg) {
@@ -183,13 +185,14 @@ public class AllReduceManager<T> {
           link.write(srcDeadMsg);
         } catch (NetworkException e) {
           e.printStackTrace();
-          throw new RuntimeException("Unable to send failed activity msg to parent of " + to, e);
+          throw new RuntimeException("Unable to send failed task msg to parent of " + to, e);
         }
       }
     }, 5);
-    GroupCommMessage srcDeadMsg = Utils.bldGCM(Type.SourceDead, from, to, new byte[0]);
+
+    final GroupCommMessage srcDeadMsg = Utils.bldGCM(Type.SourceDead, from, to, new byte[0]);
     senderStage.onNext(srcDeadMsg);
-    --runningActivities;
+    --runningTasks;
   }
 
   /**
@@ -197,9 +200,9 @@ public class AllReduceManager<T> {
    */
   public List<ComparableIdentifier> getReceivers() {
     List<ComparableIdentifier> retVal = new ArrayList<>();
-    int end = (numActivities == 1) ? 1 : parent(numActivities);
+    int end = (numTasks == 1) ? 1 : parent(numTasks);
     for (int i = 1; i <= end; i++)
-      retVal.add(activities[i]);
+      retVal.add(tasks[i]);
     return retVal;
   }
 
@@ -208,9 +211,9 @@ public class AllReduceManager<T> {
    */
   public List<ComparableIdentifier> getSenders() {
     List<ComparableIdentifier> retVal = new ArrayList<>();
-    int start = (numActivities == 1) ? 1 : parent(numActivities);
-    for (int i = start + 1; i <= numActivities; i++)
-      retVal.add(activities[i]);
+    int start = (numTasks == 1) ? 1 : parent(numTasks);
+    for (int i = start + 1; i <= numTasks; i++)
+      retVal.add(tasks[i]);
     return retVal;
   }
 
@@ -227,35 +230,35 @@ public class AllReduceManager<T> {
   }
 
   /**
-   * @param actId
+   * @param taskId
    * @return
    * @throws BindException
    */
-  public Configuration getConfig(ComparableIdentifier actId) throws BindException {
+  public Configuration getConfig(final ComparableIdentifier taskId) throws BindException {
     JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(allRedBaseConf);
-    jcb.bindNamedParameter(AllReduceConfig.SelfId.class, actId.toString());
+    jcb.bindNamedParameter(AllReduceConfig.SelfId.class, taskId.toString());
     List<ComparableIdentifier> ids = new ArrayList<>();
-    int idx = actIdMap.get(actId);
+    int idx = taskIdMap.get(taskId);
     if (idx != 1) {
-      ComparableIdentifier par = activities[parent(idx)];
+      ComparableIdentifier par = tasks[parent(idx)];
       ids.add(par);
       jcb.bindNamedParameter(AllReduceConfig.ParentId.class, par.toString());
     }
 
     int lcId = leftChild(idx);
-    if (lcId <= numActivities) {
-      ComparableIdentifier lc = activities[lcId];
+    if (lcId <= numTasks) {
+      ComparableIdentifier lc = tasks[lcId];
       ids.add(lc);
       jcb.bindSetEntry(AllReduceConfig.ChildIds.class, lc.toString());
       int rcId = rightChild(idx);
-      if (rcId <= numActivities) {
-        ComparableIdentifier rc = activities[rcId];
+      if (rcId <= numTasks) {
+        ComparableIdentifier rc = tasks[rcId];
         ids.add(rc);
         jcb.bindSetEntry(AllReduceConfig.ChildIds.class, rc.toString());
       }
     }
 
-    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, actId, ids, id2port.get(actId)));
+    jcb.addConfiguration(createNetworkServiceConf(nameServiceAddr, nameServicePort, taskId, ids, id2port.get(taskId)));
     return jcb.build();
   }
 
@@ -278,15 +281,15 @@ public class AllReduceManager<T> {
   }
 
   /**
-   * Create {@link NetworkService} {@link Configuration} for each activity
-   * using base conf + per activity parameters
+   * Create {@link NetworkService} {@link Configuration} for each task
+   * using base conf + per task parameters
    *
    * @param nameServiceAddr
    * @param nameServicePort
    * @param self
    * @param ids
    * @param nsPort
-   * @return per activity {@link NetworkService} {@link Configuration} for the specified activity
+   * @return per task {@link NetworkService} {@link Configuration} for the specified task
    * @throws BindException
    */
   private Configuration createNetworkServiceConf(
@@ -295,7 +298,7 @@ public class AllReduceManager<T> {
     JavaConfigurationBuilder jcb = tang
         .newConfigurationBuilder();
 
-    jcb.bindNamedParameter(ActivityConfigurationOptions.Identifier.class, self.toString());
+    jcb.bindNamedParameter(TaskConfigurationOptions.Identifier.class, self.toString());
     jcb.bindNamedParameter(
         NetworkServiceParameters.NetworkServicePort.class,
         Integer.toString(nsPort));
@@ -303,6 +306,4 @@ public class AllReduceManager<T> {
     jcb.addConfiguration(createHandlerConf(ids));
     return jcb.build();
   }
-
-
 }

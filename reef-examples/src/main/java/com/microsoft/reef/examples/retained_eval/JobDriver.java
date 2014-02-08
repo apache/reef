@@ -15,8 +15,7 @@
  */
 package com.microsoft.reef.examples.retained_eval;
 
-import com.microsoft.reef.driver.activity.*;
-import com.microsoft.reef.driver.catalog.ResourceCatalog;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
@@ -29,8 +28,6 @@ import com.microsoft.tang.exceptions.BindException;
 
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-import com.microsoft.wake.time.Clock;
-import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 
@@ -69,12 +66,12 @@ public final class JobDriver {
    * <dl>
    * <du><code>INIT</code></du><dd>initial state, ready to request the evaluators.</dd>
    * <du><code>WAIT_EVALUATORS</code></du><dd>Wait for requested evaluators to initialize.</dd>
-   * <du><code>READY</code></du><dd>Ready to submitActivity a new activity.</dd>
-   * <du><code>WAIT_ACTIVITIES</code></du><dd>Wait for activities to complete.</dd>
+   * <du><code>READY</code></du><dd>Ready to submitTask a new task.</dd>
+   * <du><code>WAIT_TASKS</code></du><dd>Wait for tasks to complete.</dd>
    * </dl>
    */
   private enum State {
-    INIT, WAIT_EVALUATORS, READY, WAIT_ACTIVITIES
+    INIT, WAIT_EVALUATORS, READY, WAIT_TASKS
   }
 
   /**
@@ -96,7 +93,7 @@ public final class JobDriver {
 
   /**
    * Job driver uses EvaluatorRequestor
-   * to request Evaluators that will run the Activities.
+   * to request Evaluators that will run the Tasks.
    */
   private final EvaluatorRequestor evaluatorRequestor;
 
@@ -116,7 +113,7 @@ public final class JobDriver {
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
   /**
-   * Number of evaluators/activities to complete.
+   * Number of evaluators/tasks to complete.
    */
   private int expectCount = 0;
 
@@ -138,7 +135,7 @@ public final class JobDriver {
 
   /**
    * Receive notification that an Evaluator had been allocated,
-   * and submitActivity a new Activity in that Evaluator.
+   * and submitTask a new Task in that Evaluator.
    */
   final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
@@ -177,7 +174,7 @@ public final class JobDriver {
 
   /**
    * Receive notification that a new Context is available.
-   * Submit a new Distributed Shell Activity to that Context.
+   * Submit a new Distributed Shell Task to that Context.
    */
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
@@ -230,18 +227,18 @@ public final class JobDriver {
   }
 
   /**
-   * Receive notification that the Activity has completed successfully.
+   * Receive notification that the Task has completed successfully.
    */
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public void onNext(final CompletedActivity act) {
-      LOG.log(Level.INFO, "Completed activity: {0}", act.getId());
-      // Take the message returned by the activity and add it to the running result.
-      final String result = CODEC.decode(act.get());
+    public void onNext(final CompletedTask task) {
+      LOG.log(Level.INFO, "Completed task: {0}", task.getId());
+      // Take the message returned by the task and add it to the running result.
+      final String result = CODEC.decode(task.get());
       synchronized (JobDriver.this) {
-        JobDriver.this.results.add(act.getId() + " :: " + result);
-        LOG.log(Level.INFO, "Activity {0} result {1}: {2} state: {3}", new Object[] {
-          act.getId(), JobDriver.this.results.size(), result, JobDriver.this.state });
+        JobDriver.this.results.add(task.getId() + " :: " + result);
+        LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[] {
+          task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state });
         if (--JobDriver.this.expectCount <= 0) {
           JobDriver.this.returnResults();
           JobDriver.this.state = State.READY;
@@ -298,7 +295,7 @@ public final class JobDriver {
         new Object[]{command, this.contexts.size(), this.state});
     assert (this.state == State.READY);
     this.expectCount = this.contexts.size();
-    this.state = State.WAIT_ACTIVITIES;
+    this.state = State.WAIT_TASKS;
     this.cmd = null;
     for (final ActiveContext context : this.contexts.values()) {
       this.submit(context, command);
@@ -306,22 +303,22 @@ public final class JobDriver {
   }
 
   /**
-   * Submit an Activity that execute the command to a single Evaluator.
-   * This method is called from <code>submitActivity(cmd)</code>.
+   * Submit a Task that execute the command to a single Evaluator.
+   * This method is called from <code>submitTask(cmd)</code>.
    */
   private void submit(final ActiveContext context, final String command) {
     try {
       LOG.log(Level.INFO, "Send command {0} to context: {1}", new Object[]{command, context});
       final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
       cb.addConfiguration(
-          ActivityConfiguration.CONF
-              .set(ActivityConfiguration.IDENTIFIER, context.getId() + "_activity")
-              .set(ActivityConfiguration.ACTIVITY, ShellActivity.class)
+          TaskConfiguration.CONF
+              .set(TaskConfiguration.IDENTIFIER, context.getId() + "_task")
+              .set(TaskConfiguration.TASK, ShellTask.class)
               .build());
       cb.bindNamedParameter(Launch.Command.class, command);
-      context.submitActivity(cb.build());
+      context.submitTask(cb.build());
     } catch (final BindException ex) {
-      LOG.log(Level.SEVERE, "Bad Activity configuration for context: " + context.getId(), ex);
+      LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
       context.close();
       throw new RuntimeException(ex);
     }

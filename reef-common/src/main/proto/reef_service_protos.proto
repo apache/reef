@@ -75,18 +75,18 @@ message ContextStatusProto {
     repeated ContextMessageProto context_message = 6;
 }
 
-message ActivityStatusProto {
-    required string activity_id = 1;
+message TaskStatusProto {
+    required string task_id = 1;
     required string context_id = 2;
     required State state = 3;
-    optional bytes result = 4; // e.g., return value from Activity.call()
+    optional bytes result = 4; // e.g., return value from Task.call()
 
-    // ActivityMessageSource messages
-    message ActivityMessageProto {
+    // TaskMessageSource messages
+    message TaskMessageProto {
         required string source_id = 1;
         required bytes message = 2;
     }
-    repeated ActivityMessageProto activity_message = 5;
+    repeated TaskMessageProto task_message = 5;
 }
 
 message EvaluatorStatusProto {

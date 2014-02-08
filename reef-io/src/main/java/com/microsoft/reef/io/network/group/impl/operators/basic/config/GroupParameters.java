@@ -48,12 +48,12 @@ public class GroupParameters {
 		}
 
 		public static class SenderParams {
-			@NamedParameter(doc = "Activity ID of the sender")
+			@NamedParameter(doc = "Task ID of the sender")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the sender", default_value=defaultValue)
+			@NamedParameter(doc = "Task ID of the parent of the sender", default_value=defaultValue)
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -64,12 +64,12 @@ public class GroupParameters {
 			}
 		}
 		public static class ReceiverParams{
-			@NamedParameter(doc = "Activity ID of the receiver")
+			@NamedParameter(doc = "Task ID of the receiver")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the receiver")
+			@NamedParameter(doc = "Task ID of the parent of the receiver")
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -88,12 +88,12 @@ public class GroupParameters {
 		}
 
 		public static class SenderParams {
-			@NamedParameter(doc = "Activity ID of the sender")
+			@NamedParameter(doc = "Task ID of the sender")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the sender")
+			@NamedParameter(doc = "Task ID of the parent of the sender")
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -104,12 +104,12 @@ public class GroupParameters {
 			}
 		}
 		public static class ReceiverParams{
-			@NamedParameter(doc = "Activity ID of the receiver")
+			@NamedParameter(doc = "Task ID of the receiver")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the receiver", default_value=defaultValue)
+			@NamedParameter(doc = "Task ID of the parent of the receiver", default_value=defaultValue)
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -128,12 +128,12 @@ public class GroupParameters {
 		}
 		
 		public static class SenderParams {
-			@NamedParameter(doc = "Activity ID of the sender")
+			@NamedParameter(doc = "Task ID of the sender")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the sender", default_value=defaultValue)
+			@NamedParameter(doc = "Task ID of the parent of the sender", default_value=defaultValue)
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -154,12 +154,12 @@ public class GroupParameters {
 			}*/
 		}
 		public static class ReceiverParams{
-			@NamedParameter(doc = "Activity ID of the receiver")
+			@NamedParameter(doc = "Task ID of the receiver")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the receiver")
+			@NamedParameter(doc = "Task ID of the parent of the receiver")
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -194,12 +194,12 @@ public class GroupParameters {
 		}
 
 		public static class SenderParams {
-			@NamedParameter(doc = "Activity ID of the sender")
+			@NamedParameter(doc = "Task ID of the sender")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the sender")
+			@NamedParameter(doc = "Task ID of the parent of the sender")
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -210,12 +210,12 @@ public class GroupParameters {
 			}
 		}
 		public static class ReceiverParams{
-			@NamedParameter(doc = "Activity ID of the receiver")
+			@NamedParameter(doc = "Task ID of the receiver")
 			public static class SelfId implements Name<String> {
 				//intentionally blank
 			}
 			
-			@NamedParameter(doc = "Activity ID of the parent of the receiver", default_value=defaultValue)
+			@NamedParameter(doc = "Task ID of the parent of the receiver", default_value=defaultValue)
 			public static class ParentId implements Name<String> {
 				//intentionally blank
 			}
@@ -233,12 +233,12 @@ public class GroupParameters {
 			//intentionally blank
 		}
 		
-		@NamedParameter(doc = "Activity ID of the operator")
+		@NamedParameter(doc = "Task ID of the operator")
 		public static class SelfId implements Name<String> {
 			//intentionally blank
 		}
 		
-		@NamedParameter(doc = "Activity ID of the parent of the operator", default_value=defaultValue)
+		@NamedParameter(doc = "Task ID of the parent of the operator", default_value=defaultValue)
 		public static class ParentId implements Name<String> {
 			//intentionally blank
 		}
@@ -260,12 +260,12 @@ public class GroupParameters {
 			//intentionally blank
 		}
 		
-		@NamedParameter(doc = "Activity ID of the operator")
+		@NamedParameter(doc = "Task ID of the operator")
 		public static class SelfId implements Name<String> {
 			//intentionally blank
 		}
 		
-		@NamedParameter(doc = "Activity ID of the parent of the operator", default_value=defaultValue)
+		@NamedParameter(doc = "Task ID of the parent of the operator", default_value=defaultValue)
 		public static class ParentId implements Name<String> {
 			//intentionally blank
 		}
@@ -287,12 +287,12 @@ public class GroupParameters {
 			//intentionally blank
 		}
 		
-		@NamedParameter(doc = "Activity ID of the operator")
+		@NamedParameter(doc = "Task ID of the operator")
 		public static class SelfId implements Name<String> {
 			//intentionally blank
 		}
 		
-		@NamedParameter(doc = "Activity ID of the parent of the operator", default_value=defaultValue)
+		@NamedParameter(doc = "Task ID of the parent of the operator", default_value=defaultValue)
 		public static class ParentId implements Name<String> {
 			//intentionally blank
 		}

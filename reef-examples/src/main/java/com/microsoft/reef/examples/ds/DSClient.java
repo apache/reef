@@ -65,9 +65,9 @@ public final class DSClient {
   static final String EMPTY_FILES = "EMPTY_FILES";
 
   /**
-   * Command line parameter - additional files to submitActivity to the Evaluators.
+   * Command line parameter - additional files to submitTask to the Evaluators.
    */
-  @NamedParameter(doc = "Additional files to submitActivity to the evaluators.",
+  @NamedParameter(doc = "Additional files to submitTask to the evaluators.",
       short_name = "files", default_value = EMPTY_FILES)
   public static final class Files implements Name<String> {
   }

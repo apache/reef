@@ -46,11 +46,11 @@ public final class FailClient {
         .set(DriverConfiguration.ON_CONTEXT_MESSAGE, FailDriver.ContextMessageHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_CLOSED, FailDriver.ClosedContextHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_FAILED, FailDriver.FailedContextHandler.class)
-        .set(DriverConfiguration.ON_ACTIVITY_RUNNING, FailDriver.RunningActivityHandler.class)
-        .set(DriverConfiguration.ON_ACTIVITY_SUSPENDED, FailDriver.SuspendedActivityHandler.class)
-        .set(DriverConfiguration.ON_ACTIVITY_MESSAGE, FailDriver.ActivityMessageHandler.class)
-        .set(DriverConfiguration.ON_ACTIVITY_FAILED, FailDriver.FailedActivityHandler.class)
-        .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, FailDriver.CompletedActivityHandler.class)
+        .set(DriverConfiguration.ON_TASK_RUNNING, FailDriver.RunningTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_SUSPENDED, FailDriver.SuspendedTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_MESSAGE, FailDriver.TaskMessageHandler.class)
+        .set(DriverConfiguration.ON_TASK_FAILED, FailDriver.FailedTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, FailDriver.CompletedTaskHandler.class)
         .build();
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();

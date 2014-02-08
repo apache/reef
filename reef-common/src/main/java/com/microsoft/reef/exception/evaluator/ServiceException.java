@@ -23,10 +23,10 @@ package com.microsoft.reef.exception.evaluator;
  * <li>When possible, throw a subclass of ServiceException, with the following exceptions (no pun intended)</li>
  * <li>Iterator and other standard Java interfaces neglect to declare throws
  *     clauses. Use ServiceRuntimeException when implementing such interfaces.</li>
- * <li>If there is no good way for Activity code to recover from the exception, throw
+ * <li>If there is no good way for Task code to recover from the exception, throw
  *     (and document) a subclass of ServiceRuntimeException</li>
  * <li>Applications with generic, catch-all error handling should catch ServiceRuntimeException and ServiceException.</li>
- * <li>Applications with specific error handling logic (eg: ignoring/coping with a failed remote activity) should catch
+ * <li>Applications with specific error handling logic (eg: ignoring/coping with a failed remote task) should catch
  *     the subclass of ServiceRuntimeException / ServiceException thrown by the library they are using.</li>
  * </ul>
  *

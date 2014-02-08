@@ -56,8 +56,8 @@ public class SuspendClient {
   /**
    * @param reef      reference to the REEF framework.
    * @param port      port to listen to for suspend/resume commands.
-   * @param numCycles number of cycles to run in the activity.
-   * @param delay     delay in seconds between cycles in the activity.
+   * @param numCycles number of cycles to run in the task.
+   * @param delay     delay in seconds between cycles in the task.
    */
   @Inject
   SuspendClient(final REEF reef,
@@ -72,10 +72,10 @@ public class SuspendClient {
     cb.addConfiguration(
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "suspend-" + System.currentTimeMillis())
-          .set(DriverConfiguration.ON_ACTIVITY_RUNNING, SuspendDriver.RunningActivityHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, SuspendDriver.CompletedActivityHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_SUSPENDED, SuspendDriver.SuspendedActivityHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_MESSAGE, SuspendDriver.ActivityMessageHandler.class)
+          .set(DriverConfiguration.ON_TASK_RUNNING, SuspendDriver.RunningTaskHandler.class)
+          .set(DriverConfiguration.ON_TASK_COMPLETED, SuspendDriver.CompletedTaskHandler.class)
+          .set(DriverConfiguration.ON_TASK_SUSPENDED, SuspendDriver.SuspendedTaskHandler.class)
+          .set(DriverConfiguration.ON_TASK_MESSAGE, SuspendDriver.TaskMessageHandler.class)
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SuspendDriver.AllocatedEvaluatorHandler.class)
           .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SuspendDriver.ActiveContextHandler.class)
           .set(DriverConfiguration.ON_CLIENT_MESSAGE, SuspendDriver.ClientMessageHandler.class)

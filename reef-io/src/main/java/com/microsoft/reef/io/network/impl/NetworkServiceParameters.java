@@ -26,8 +26,8 @@ import com.microsoft.wake.remote.Codec;
 public class NetworkServiceParameters {
   
   @NamedParameter
-  public static class ActivityId implements Name<String> {
-    
+  public static class TaskId implements Name<String> {
+
   }
 
   @NamedParameter(doc = "identifier factory for the service", short_name = "factory", default_class = StringIdentifierFactory.class)

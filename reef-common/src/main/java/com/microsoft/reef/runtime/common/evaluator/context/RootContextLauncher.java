@@ -26,7 +26,7 @@ import com.microsoft.tang.exceptions.BindException;
 import javax.inject.Inject;
 
 /**
- * Helper class that encapsulates the root context configuration: With or without services and an initial activity.
+ * Helper class that encapsulates the root context configuration: With or without services and an initial task.
  */
 final class RootContextLauncher {
 
@@ -38,17 +38,17 @@ final class RootContextLauncher {
 
   private final Optional<Configuration> rootServiceConfiguration;
 
-  private final Optional<Configuration> initialActivityConfiguration;
+  private final Optional<Configuration> initialTaskConfiguration;
 
   @Inject
   RootContextLauncher(final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
                       final @Parameter(EvaluatorConfigurationModule.RootServiceConfiguration.class) String rootServiceConfiguration,
-                      final @Parameter(EvaluatorConfigurationModule.ActivityConfiguration.class) String initialActivityConfiguration,
+                      final @Parameter(EvaluatorConfigurationModule.TaskConfiguration.class) String initialTaskConfiguration,
                       final Injector injector) {
     this.injector = injector;
     this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
     this.rootServiceConfiguration = Optional.of(TANGUtils.fromStringEncoded(rootServiceConfiguration));
-    this.initialActivityConfiguration = Optional.of(TANGUtils.fromStringEncoded(initialActivityConfiguration));
+    this.initialTaskConfiguration = Optional.of(TANGUtils.fromStringEncoded(initialTaskConfiguration));
   }
 
   @Inject
@@ -58,17 +58,17 @@ final class RootContextLauncher {
     this.injector = injector;
     this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
     this.rootServiceConfiguration = Optional.of(TANGUtils.fromStringEncoded(rootServiceConfiguration));
-    this.initialActivityConfiguration = Optional.empty();
+    this.initialTaskConfiguration = Optional.empty();
   }
 
   @Inject
   RootContextLauncher(final Injector injector,
                       final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
-                      final @Parameter(EvaluatorConfigurationModule.ActivityConfiguration.class) String initialActivityConfiguration) {
+                      final @Parameter(EvaluatorConfigurationModule.TaskConfiguration.class) String initialTaskConfiguration) {
     this.injector = injector;
     this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
     this.rootServiceConfiguration = Optional.empty();
-    this.initialActivityConfiguration = Optional.of(TANGUtils.fromStringEncoded(initialActivityConfiguration));
+    this.initialTaskConfiguration = Optional.of(TANGUtils.fromStringEncoded(initialTaskConfiguration));
   }
 
   @Inject
@@ -77,7 +77,7 @@ final class RootContextLauncher {
     this.injector = injector;
     this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
     this.rootServiceConfiguration = Optional.empty();
-    this.initialActivityConfiguration = Optional.empty();
+    this.initialTaskConfiguration = Optional.empty();
   }
 
   /**
@@ -90,14 +90,14 @@ final class RootContextLauncher {
     return this.rootContext;
   }
 
-  final Optional<Configuration> getInitialActivityConfiguration() {
-    return this.initialActivityConfiguration;
+  final Optional<Configuration> getInitialTaskConfiguration() {
+    return this.initialTaskConfiguration;
   }
 
   /**
    * Instantiates the root context.
    * <p/>
-   * This also launches the initial activity if there is any.
+   * This also launches the initial task if there is any.
    *
    * @param injector
    * @param rootContextConfiguration
@@ -124,6 +124,4 @@ final class RootContextLauncher {
     }
     return result;
   }
-
-
 }

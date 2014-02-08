@@ -25,17 +25,17 @@ import java.util.List;
  * An interface of a helper for Receivers of asymmetric operators
  * <p/>
  * Accounts for functionality that should be available on a Receiver
- * --receiving one element from an activity
- * --receiving a list of elements from an activity
- * --receiving a list of elements from a list of activities
- * --receiving a list of lists of elements from an activity
+ * --receiving one element from a task
+ * --receiving a list of elements from a task
+ * --receiving a list of elements from a list of tasks
+ * --receiving a list of lists of elements from a task
  *
  * @param <T>
  * @author shravan
  */
 public interface ReceiverHelper<T> {
   /**
-   * Blocks till one message is received from the specified activity
+   * Blocks till one message is received from the specified task
    * Use when only one element is sent per message
    *
    * @param from
@@ -48,7 +48,7 @@ public interface ReceiverHelper<T> {
                    GroupCommMessage.Type msgType) throws InterruptedException;
 
   /**
-   * Blocks till one message is received from the specified activity
+   * Blocks till one message is received from the specified task
    * Use when a list of elements are sent in a message
    *
    * @param from
@@ -61,15 +61,15 @@ public interface ReceiverHelper<T> {
                              GroupCommMessage.Type msgType) throws InterruptedException;
 
   /**
-   * Blocks till one message each is received from the specified activities
+   * Blocks till one message each is received from the specified tasks
    * The return values will be ordered as per the default ordering
-   * Use when one value is to be received from each activity belonging to
-   * a list of activities
+   * Use when one value is to be received from each task belonging to
+   * a list of tasks
    *
    * @param from
    * @param to
    * @param msgType
-   * @return list of elements containing one element from each activity
+   * @return list of elements containing one element from each task
    * @throws InterruptedException
    */
   public List<T> receive(List<? extends Identifier> from, Identifier to,

@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.tests.fail.driver;
 
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
@@ -58,7 +58,7 @@ public final class FailDriver {
 
 
   /**
-   * Send message to the Activity MSG_DELAY milliseconds after start.
+   * Send message to the Task MSG_DELAY milliseconds after start.
    */
   private static final int MSG_DELAY = 1000;
 
@@ -90,15 +90,15 @@ public final class FailDriver {
       new ExpectedMessage(ActiveContext.class, REQUIRED),
       new ExpectedMessage(ContextMessage.class, OPTIONAL),
       new ExpectedMessage(FailedContext.class, OPTIONAL),
-      new ExpectedMessage(RunningActivity.class, REQUIRED),
+      new ExpectedMessage(RunningTask.class, REQUIRED),
       new ExpectedMessage(Alarm.class, REQUIRED),
-      new ExpectedMessage(ActivityMessage.class, REQUIRED),
+      new ExpectedMessage(TaskMessage.class, REQUIRED),
       new ExpectedMessage(Alarm.class, REQUIRED),
-      new ExpectedMessage(SuspendedActivity.class, REQUIRED),
-      new ExpectedMessage(RunningActivity.class, REQUIRED),
+      new ExpectedMessage(SuspendedTask.class, REQUIRED),
+      new ExpectedMessage(RunningTask.class, REQUIRED),
       new ExpectedMessage(Alarm.class, REQUIRED),
-      new ExpectedMessage(FailedActivity.class, OPTIONAL),
-      new ExpectedMessage(CompletedActivity.class, REQUIRED),
+      new ExpectedMessage(FailedTask.class, OPTIONAL),
+      new ExpectedMessage(CompletedTask.class, REQUIRED),
       new ExpectedMessage(ClosedContext.class, OPTIONAL),
       new ExpectedMessage(CompletedEvaluator.class, REQUIRED),
       new ExpectedMessage(StopTime.class, REQUIRED)
@@ -108,7 +108,7 @@ public final class FailDriver {
   private final transient EvaluatorRequestor requestor;
   private final transient Clock clock;
 
-  private transient RunningActivity activity = null;
+  private transient RunningTask task = null;
   private transient int expectIdx = 0;
 
   private enum DriverState {INIT, SEND_MSG, SUSPEND, RESUME, CLOSE, FAILED}
@@ -162,17 +162,17 @@ public final class FailDriver {
     public void onNext(final ActiveContext context) {
       checkMsgOrder(context);
       try {
-        context.submitActivity(ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, "FailActivity_" + context.getId())
-            .set(ActivityConfiguration.ACTIVITY, NoopActivity.class)
-            .set(ActivityConfiguration.ON_MESSAGE, NoopActivity.DriverMessageHandler.class)
-            .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
-            .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
-            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
-            .set(ActivityConfiguration.ON_SEND_MESSAGE, NoopActivity.class)
+        context.submitTask(TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, "FailTask_" + context.getId())
+            .set(TaskConfiguration.TASK, NoopTask.class)
+            .set(TaskConfiguration.ON_MESSAGE, NoopTask.DriverMessageHandler.class)
+            .set(TaskConfiguration.ON_SUSPEND, NoopTask.TaskSuspendHandler.class)
+            .set(TaskConfiguration.ON_CLOSE, NoopTask.TaskCloseHandler.class)
+            .set(TaskConfiguration.ON_TASK_STOP, NoopTask.TaskStopHandler.class)
+            .set(TaskConfiguration.ON_SEND_MESSAGE, NoopTask.class)
             .build());
       } catch (final BindException ex) {
-        LOG.log(Level.WARNING, "Activity configuration error", ex);
+        LOG.log(Level.WARNING, "Task configuration error", ex);
         throw new RuntimeException(ex);
       }
     }
@@ -207,11 +207,11 @@ public final class FailDriver {
     }
   }
 
-  final class RunningActivityHandler implements EventHandler<RunningActivity> {
+  final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
-    public void onNext(final RunningActivity act) {
-      checkMsgOrder(act);
-      activity = act;
+    public void onNext(final RunningTask task) {
+      checkMsgOrder(task);
+      FailDriver.this.task = task;
       switch (state) {
         case INIT:
           state = DriverState.SEND_MSG;
@@ -220,40 +220,40 @@ public final class FailDriver {
           state = DriverState.CLOSE;
           break;
         default:
-          LOG.log(Level.WARNING, "Unexpected state at ActivityRuntime: {0}", state);
+          LOG.log(Level.WARNING, "Unexpected state at TaskRuntime: {0}", state);
           throw new DriverSideFailure("Unexpected state: " + state);
       }
-      // After a delay, send message or suspend the activity:
+      // After a delay, send message or suspend the task:
       clock.scheduleAlarm(MSG_DELAY, new AlarmHandler());
     }
   }
 
-  final class SuspendedActivityHandler implements EventHandler<SuspendedActivity> {
+  final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
-    public void onNext(final SuspendedActivity act) {
-      checkMsgOrder(act);
+    public void onNext(final SuspendedTask task) {
+      checkMsgOrder(task);
       state = DriverState.RESUME;
       try {
-        act.getActiveContext().submitActivity(ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, act.getId() + "_RESUMED")
-            .set(ActivityConfiguration.ACTIVITY, NoopActivity.class)
-            .set(ActivityConfiguration.ON_MESSAGE, NoopActivity.DriverMessageHandler.class)
-            .set(ActivityConfiguration.ON_SUSPEND, NoopActivity.ActivitySuspendHandler.class)
-            .set(ActivityConfiguration.ON_CLOSE, NoopActivity.ActivityCloseHandler.class)
-            .set(ActivityConfiguration.ON_ACTIVITY_STOP, NoopActivity.ActivityStopHandler.class)
-            .set(ActivityConfiguration.ON_SEND_MESSAGE, NoopActivity.class)
-            .set(ActivityConfiguration.MEMENTO, DatatypeConverter.printBase64Binary(HELLO_STR))
+        task.getActiveContext().submitTask(TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, task.getId() + "_RESUMED")
+            .set(TaskConfiguration.TASK, NoopTask.class)
+            .set(TaskConfiguration.ON_MESSAGE, NoopTask.DriverMessageHandler.class)
+            .set(TaskConfiguration.ON_SUSPEND, NoopTask.TaskSuspendHandler.class)
+            .set(TaskConfiguration.ON_CLOSE, NoopTask.TaskCloseHandler.class)
+            .set(TaskConfiguration.ON_TASK_STOP, NoopTask.TaskStopHandler.class)
+            .set(TaskConfiguration.ON_SEND_MESSAGE, NoopTask.class)
+            .set(TaskConfiguration.MEMENTO, DatatypeConverter.printBase64Binary(HELLO_STR))
             .build());
       } catch (final BindException ex) {
-        LOG.log(Level.SEVERE, "Activity configuration error", ex);
-        throw new DriverSideFailure("Activity configuration error", ex);
+        LOG.log(Level.SEVERE, "Task configuration error", ex);
+        throw new DriverSideFailure("Task configuration error", ex);
       }
     }
   }
 
-  final class ActivityMessageHandler implements EventHandler<ActivityMessage> {
+  final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
-    public void onNext(final ActivityMessage msg) {
+    public void onNext(final TaskMessage msg) {
       checkMsgOrder(msg);
       assert (Arrays.equals(HELLO_STR, msg.get()));
       assert (state == DriverState.SEND_MSG);
@@ -262,22 +262,22 @@ public final class FailDriver {
     }
   }
 
-  final class FailedActivityHandler implements EventHandler<FailedActivity> {
+  final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
-    public void onNext(final FailedActivity act) {
-      LOG.log(Level.WARNING, "Activity failed: " + act.getId(), act.getCause());
-      checkMsgOrder(act);
-      if (act.getActiveContext().isPresent()) {
-        act.getActiveContext().get().close();
+    public void onNext(final FailedTask task) {
+      LOG.log(Level.WARNING, "Task failed: " + task.getId(), task.getCause());
+      checkMsgOrder(task);
+      if (task.getActiveContext().isPresent()) {
+        task.getActiveContext().get().close();
       }
     }
   }
 
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public void onNext(final CompletedActivity act) {
-      checkMsgOrder(act);
-      act.getActiveContext().close();
+    public void onNext(final CompletedTask task) {
+      checkMsgOrder(task);
+      task.getActiveContext().close();
     }
   }
 
@@ -296,13 +296,13 @@ public final class FailDriver {
       FailDriver.this.checkMsgOrder(time);
       switch (FailDriver.this.state) {
         case SEND_MSG:
-          FailDriver.this.activity.onNext(HELLO_STR);
+          FailDriver.this.task.onNext(HELLO_STR);
           break;
         case SUSPEND:
-          FailDriver.this.activity.suspend();
+          FailDriver.this.task.suspend();
           break;
         case CLOSE:
-          FailDriver.this.activity.close();
+          FailDriver.this.task.close();
           break;
         default:
           LOG.log(Level.WARNING, "Unexpected state at AlarmHandler: {0}", FailDriver.this.state);

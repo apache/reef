@@ -15,13 +15,13 @@
  */
 package com.microsoft.reef.examples.helloStreaming;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
-import com.microsoft.reef.examples.hello.HelloActivity;
+import com.microsoft.reef.examples.hello.HelloTask;
 import com.microsoft.reef.examples.helloCLR.HelloCLR;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -51,8 +51,8 @@ public final class HelloDriver {
 
   private final EvaluatorRequestor requestor;
 
-  private int nJVMActivities = 0;  // guarded by this
-  private int nCLRActivities = 2;  // guarded by this
+  private int nJVMTasks = 0;  // guarded by this
+  private int nCLRTasks = 2;  // guarded by this
 
   /**
    * Job driver constructor - instantiated via TANG.
@@ -72,38 +72,38 @@ public final class HelloDriver {
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: ", startTime);
       HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(nCLRActivities + nJVMActivities)
+          .setNumber(nCLRTasks + nJVMTasks)
           .setSize(EvaluatorRequest.Size.SMALL)
           .build());
     }
   }
 
   /**
-   * Handles AllocatedEvaluator: Submit an empty context and the HelloActivity
+   * Handles AllocatedEvaluator: Submit an empty context and the HelloTask
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       synchronized (HelloDriver.this) {
-        if (HelloDriver.this.nJVMActivities > 0) {
+        if (HelloDriver.this.nJVMTasks > 0) {
           HelloDriver.this.onNextJVM(allocatedEvaluator);
-          HelloDriver.this.nJVMActivities -= 1;
-        } else if (HelloDriver.this.nCLRActivities > 0) {
-            if ( nCLRActivities == 2) {
+          HelloDriver.this.nJVMTasks -= 1;
+        } else if (HelloDriver.this.nCLRTasks > 0) {
+            if ( nCLRTasks == 2) {
                 //HelloDriver.this.onNextCLR(allocatedEvaluator);
                 HelloDriver.this.secondSiNode(allocatedEvaluator);
-            } else if (nCLRActivities == 1) {
+            } else if (nCLRTasks == 1) {
                 HelloDriver.this.firstSiNode(allocatedEvaluator);
             }
 
-          HelloDriver.this.nCLRActivities -= 1;
+          HelloDriver.this.nCLRTasks -= 1;
         }
       }
     }
   }
 
   /**
-   * Uses the AllocatedEvaluator to launch a CLR activity.
+   * Uses the AllocatedEvaluator to launch a CLR task.
    *
    * @param allocatedEvaluator
    */
@@ -114,11 +114,11 @@ public final class HelloDriver {
           .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
           .build();
 
-      final Configuration activityConfiguration = getCLRActivityConfiguration("Hello_From_CLR", "com.microsoft.reef.activity.HelloActivity");
+      final Configuration taskConfiguration = getCLRTaskConfiguration("Hello_From_CLR", "com.microsoft.reef.task.HelloTask");
 
-      allocatedEvaluator.submitContextAndActivity(contextConfiguration, activityConfiguration);
+      allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
     } catch (final BindException ex) {
-      final String message = "Unable to setup Activity or Context configuration.";
+      final String message = "Unable to setup Task or Context configuration.";
       LOG.log(Level.SEVERE, message, ex);
       throw new RuntimeException(message, ex);
     }
@@ -131,12 +131,12 @@ public final class HelloDriver {
                     .set(ContextConfiguration.IDENTIFIER, "HelloStreaming1Context")
                     .build();
 
-            final Configuration activityConfiguration = getCLRActivityConfiguration("Hello_From_Streaming1", "com.microsoft.reef.activity.StreamActivity1");
-  //          final Configuration activityConfiguration = getCLRActivityConfiguration1("Hello_From_Streaming1");
+            final Configuration taskConfiguration = getCLRTaskConfiguration("Hello_From_Streaming1", "com.microsoft.reef.task.StreamTask1");
+            // final Configuration taskConfiguration = getCLRTaskConfiguration1("Hello_From_Streaming1");
 
-            allocatedEvaluator.submitContextAndActivity(contextConfiguration, activityConfiguration);
+            allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
         } catch (final BindException ex) {
-            final String message = "Unable to setup Activity or Context configuration.";
+            final String message = "Unable to setup Task or Context configuration.";
             LOG.log(Level.SEVERE, message, ex);
             throw new RuntimeException(message, ex);
         }
@@ -149,12 +149,12 @@ public final class HelloDriver {
                     .set(ContextConfiguration.IDENTIFIER, "HelloStreaming2Context")
                     .build();
 
-//            final Configuration activityConfiguration = getCLRActivityConfiguration2("Hello_From_Streaming2");
-            final Configuration activityConfiguration = getCLRActivityConfiguration("Hello_From_Streaming2", "com.microsoft.reef.activity.StreamActivity2");
+            // final Configuration taskConfiguration = getCLRTaskConfiguration2("Hello_From_Streaming2");
+            final Configuration taskConfiguration = getCLRTaskConfiguration("Hello_From_Streaming2", "com.microsoft.reef.task.StreamTask2");
 
-            allocatedEvaluator.submitContextAndActivity(contextConfiguration, activityConfiguration);
+            allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
         } catch (final BindException ex) {
-            final String message = "Unable to setup Activity or Context configuration.";
+            final String message = "Unable to setup Task or Context configuration.";
             LOG.log(Level.SEVERE, message, ex);
             throw new RuntimeException(message, ex);
         }
@@ -162,7 +162,7 @@ public final class HelloDriver {
 
   /**
    *
-   * Uses the AllocatedEvaluator to launch a JVM activity.
+   * Uses the AllocatedEvaluator to launch a JVM task.
    *
    * @param allocatedEvaluator
    */
@@ -173,32 +173,35 @@ public final class HelloDriver {
           .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
           .build();
 
-      final Configuration activityConfiguration = ActivityConfiguration.CONF
-          .set(ActivityConfiguration.IDENTIFIER, "HelloREEFActivity")
-          .set(ActivityConfiguration.ACTIVITY, HelloActivity.class)
+      final Configuration taskConfiguration = TaskConfiguration.CONF
+          .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
+          .set(TaskConfiguration.TASK, HelloTask.class)
           .build();
 
-      allocatedEvaluator.submitContextAndActivity(contextConfiguration, activityConfiguration);
+      allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
     } catch (final BindException ex) {
-      final String message = "Unable to setup Activity or Context configuration.";
+      final String message = "Unable to setup Task or Context configuration.";
       LOG.log(Level.SEVERE, message, ex);
       throw new RuntimeException(message, ex);
     }
   }
 
   /**
-   * Makes an activity configuration for the CLR Activity.
+   * Makes a task configuration for the CLR Task.
    *
-   * @param activityID
-   * @return an activity configuration for the CLR Activity.
+   * @param taskId
+   * @return task configuration for the CLR Task.
    * @throws BindException
    */
-  private static final Configuration getCLRActivityConfiguration(final String activityID, final String activityImplementationClassName) throws BindException {
-    final ConfigurationBuilder activityConfigurationBuilder = Tang.Factory.getTang()
+  private static final Configuration getCLRTaskConfiguration(
+      final String taskId, final String taskImplementationClassName) throws BindException {
+
+    final ConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
         .newConfigurationBuilder(loadClassHierarchy());
-    activityConfigurationBuilder.bind("com.microsoft.reef.driver.activity.ActivityConfigurationOptions.Identifier", activityID);
-    activityConfigurationBuilder.bind("com.microsoft.reef.activity.IActivity", activityImplementationClassName);
-    return activityConfigurationBuilder.build();
+
+    taskConfigurationBuilder.bind("com.microsoft.reef.driver.task.TaskConfigurationOptions.Identifier", taskId);
+    taskConfigurationBuilder.bind("com.microsoft.reef.task.ITask", taskImplementationClassName);
+    return taskConfigurationBuilder.build();
   }
 
   /**

@@ -56,7 +56,7 @@ public final class DriverFailOnFailTest {
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "Fail2")
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverFailOnFail.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_FAILED, DriverFailOnFail.FailedActivityHandler.class)
+          .set(DriverConfiguration.ON_TASK_FAILED, DriverFailOnFail.FailedTaskHandler.class)
           .set(DriverConfiguration.ON_DRIVER_STARTED, DriverFailOnFail.StartHandler.class)
         .build();
 

@@ -16,7 +16,7 @@
 package com.microsoft.reef.tests.exceptions;
 
 /**
- * Thrown when a test fails on the activity side.
+ * Thrown when a test fails on the task side.
  */
 public class SimulatedDriverFailure extends RuntimeException {
 

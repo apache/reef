@@ -17,7 +17,7 @@ package com.microsoft.reef.client;
 
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextMessage;
@@ -74,24 +74,24 @@ public final class DriverConfigurationOptions {
   public final static class AllocatedEvaluatorHandlers implements Name<Set<EventHandler<AllocatedEvaluator>>> {
   }
 
-  @NamedParameter(doc = "Running activity handler.", default_classes = DefaultActivityRunningHandler.class)
-  public final static class RunningActivityHandlers implements Name<Set<EventHandler<RunningActivity>>> {
+  @NamedParameter(doc = "Running task handler.", default_classes = DefaultTaskRunningHandler.class)
+  public final static class RunningTaskHandlers implements Name<Set<EventHandler<RunningTask>>> {
   }
 
-  @NamedParameter(doc = "Activity exception handler.", default_classes = DefaultActivityFailureHandler.class)
-  public final static class FailedActivityHandlers implements Name<Set<EventHandler<FailedActivity>>> {
+  @NamedParameter(doc = "Task exception handler.", default_classes = DefaultTaskFailureHandler.class)
+  public final static class FailedTaskHandlers implements Name<Set<EventHandler<FailedTask>>> {
   }
 
-  @NamedParameter(doc = "Activity message handler.", default_classes = DefaultActivityMessageHandler.class)
-  public final static class ActivityMessageHandlers implements Name<Set<EventHandler<ActivityMessage>>> {
+  @NamedParameter(doc = "Task message handler.", default_classes = DefaultTaskMessageHandler.class)
+  public final static class TaskMessageHandlers implements Name<Set<EventHandler<TaskMessage>>> {
   }
 
-  @NamedParameter(doc = "Completed activity handler.", default_classes = DefaultActivityCompletionHandler.class)
-  public final static class CompletedActivityHandlers implements Name<Set<EventHandler<CompletedActivity>>> {
+  @NamedParameter(doc = "Completed task handler.", default_classes = DefaultTaskCompletionHandler.class)
+  public final static class CompletedTaskHandlers implements Name<Set<EventHandler<CompletedTask>>> {
   }
 
-  @NamedParameter(doc = "Suspended activity handler.", default_classes = DefaultActivitySuspensionHandler.class)
-  public final static class SuspendedActivityHandlers implements Name<Set<EventHandler<SuspendedActivity>>> {
+  @NamedParameter(doc = "Suspended task handler.", default_classes = DefaultTaskSuspensionHandler.class)
+  public final static class SuspendedTaskHandlers implements Name<Set<EventHandler<SuspendedTask>>> {
   }
 
   @NamedParameter(doc = "Job message handler.", default_classes = DefaultClientMessageHandler.class)

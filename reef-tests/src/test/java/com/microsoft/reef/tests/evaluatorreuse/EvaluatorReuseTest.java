@@ -55,7 +55,7 @@ public class EvaluatorReuseTest {
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
             .set(DriverConfiguration.DRIVER_IDENTIFIER, "EvaluatorReuse")
             .set(DriverConfiguration.ON_DRIVER_STARTED, DriverStartHandler.class)
-            .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, Driver.CompletedActivityHandler.class)
+            .set(DriverConfiguration.ON_TASK_COMPLETED, Driver.CompletedTaskHandler.class)
             .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.AllocatedEvaluatorHandler.class)
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, Driver.ActiveContextHandler.class)
             .build();

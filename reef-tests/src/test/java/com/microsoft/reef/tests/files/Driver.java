@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.tests.files;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
@@ -38,7 +38,9 @@ import java.util.logging.Logger;
 
 @Unit
 final class Driver {
+
   private static final Logger LOG = Logger.getLogger(Driver.class.getName());
+
   private final Set<String> fileNamesToExpect;
   private final Clock clock;
   private final EvaluatorRequestor requestor;
@@ -68,7 +70,8 @@ final class Driver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, "StartTime: " + startTime + " Number of files in the set: " + Driver.this.fileNamesToExpect.size());
+      LOG.log(Level.INFO, "StartTime: {0} Number of files in the set: {1}",
+              new Object[] { startTime, Driver.this.fileNamesToExpect.size() });
 
       // Check whether the files made it
       for (final String fileName : Driver.this.fileNamesToExpect) {
@@ -86,12 +89,11 @@ final class Driver {
       // Ask for a single evaluator.
       Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
-
     }
   }
 
   /**
-   * Copy files to the Evaluator and submit an Activity that checks that they made it.
+   * Copy files to the Evaluator and submit a Task that checks that they made it.
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 
@@ -108,25 +110,28 @@ final class Driver {
             .set(ContextConfiguration.IDENTIFIER, "TestContext")
             .build();
 
-        // Filling out an ActivityConfiguration
-        final Configuration activityConfiguration = ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, "TestActivity")
-            .set(ActivityConfiguration.ACTIVITY, TestActivity.class)
+        // Filling out a TaskConfiguration
+        final Configuration taskConfiguration = TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, "TestTask")
+            .set(TaskConfiguration.TASK, TestTask.class)
             .build();
 
         // Adding the job-specific Configuration
-        ConfigurationModule testActivityConfigurationModule = TestActivityConfiguration.CONF;
+        ConfigurationModule testTaskConfigurationModule = TestTaskConfiguration.CONF;
         for (final String fileName : Driver.this.fileNamesToExpect) {
-          testActivityConfigurationModule = testActivityConfigurationModule.set(TestActivityConfiguration.EXPECTED_FILE_NAME, fileName);
+          testTaskConfigurationModule =
+              testTaskConfigurationModule.set(TestTaskConfiguration.EXPECTED_FILE_NAME, fileName);
         }
 
-        // Submit the context and the activity config.
-        final Configuration finalActivityConfiguration = FileResourceTest.merge(activityConfiguration, testActivityConfigurationModule.build());
-        allocatedEvaluator.submitContextAndActivity(contextConfiguration, finalActivityConfiguration);
+        // Submit the context and the task config.
+        final Configuration finalTaskConfiguration =
+            FileResourceTest.merge(taskConfiguration, testTaskConfigurationModule.build());
+
+        allocatedEvaluator.submitContextAndTask(contextConfiguration, finalTaskConfiguration);
 
       } catch (final Exception e) {
         // This fails the test.
-        throw new DriverSideFailure("Unable to submit context and activity", e);
+        throw new DriverSideFailure("Unable to submit context and task", e);
       }
     }
   }

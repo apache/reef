@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.examples.retained_evalCLR;
 
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.*;
@@ -68,7 +68,7 @@ public final class JobDriver {
     private int nCLREvaluator = 1;                  // guarded by this
     private int nJVMEvaluator = totalEvaluators - nCLREvaluator;  // guarded by this
 
-    public static final String SHELL_ACTIVITY_CLASS_HIERARCHY_FILENAME = "ShellActivity.bin";
+    public static final String SHELL_TASK_CLASS_HIERARCHY_FILENAME = "ShellTask.bin";
 
     /**
      * String codec is used to encode the results
@@ -81,12 +81,12 @@ public final class JobDriver {
      * <dl>
      * <du><code>INIT</code></du><dd>initial state, ready to request the evaluators.</dd>
      * <du><code>WAIT_EVALUATORS</code></du><dd>Wait for requested evaluators to initialize.</dd>
-     * <du><code>READY</code></du><dd>Ready to submitActivity a new activity.</dd>
-     * <du><code>WAIT_ACTIVITIES</code></du><dd>Wait for activities to complete.</dd>
+     * <du><code>READY</code></du><dd>Ready to submitTask a new task.</dd>
+     * <du><code>WAIT_TASKS</code></du><dd>Wait for tasks to complete.</dd>
      * </dl>
      */
     private enum State {
-        INIT, WAIT_EVALUATORS, READY, WAIT_ACTIVITIES
+        INIT, WAIT_EVALUATORS, READY, WAIT_TASKS
     }
 
     /**
@@ -113,13 +113,13 @@ public final class JobDriver {
 
     /**
      * Job driver uses EvaluatorRequestor
-     * to request Evaluators that will run the Activities.
+     * to request Evaluators that will run the Tasks.
      */
     private final EvaluatorRequestor evaluatorRequestor;
 
     /**
      * Static catalog of REEF resources.
-     * We use it to schedule Activity on every available node.
+     * We use it to schedule Task on every available node.
      */
     private final ResourceCatalog catalog;
 
@@ -134,7 +134,7 @@ public final class JobDriver {
     private final Map<String, ActiveContext> contexts = new HashMap<>();
 
     /**
-     * Number of evaluators/activities to complete.
+     * Number of evaluators/tasks to complete.
      */
     private int expectCount = 0;
 
@@ -197,35 +197,39 @@ public final class JobDriver {
     }
 
     /**
-     * Makes an activity configuration for the CLR ShellActivity.
+     * Makes a task configuration for the CLR ShellTask.
      *
-     * @param activityId
-     * @return an activity configuration for the CLR Activity.
+     * @param taskId
+     * @return task configuration for the CLR Task.
      * @throws BindException
      */
-    private static final Configuration getCLRActivityConfiguration(final String activityId, final String command) throws BindException {
-        final ConfigurationBuilder cb = Tang.Factory.getTang()
-                .newConfigurationBuilder(loadShellActivityClassHierarchy(SHELL_ACTIVITY_CLASS_HIERARCHY_FILENAME));
+    private static final Configuration getCLRTaskConfiguration(
+        final String taskId, final String command) throws BindException {
 
-        cb.bind("com.microsoft.reef.activity.IActivity", "Microsoft.Reef.Activity.ShellActivity");
-        cb.bind("com.microsoft.reef.driver.activity.ActivityConfigurationOptions.Identifier", activityId);
-        cb.bind("Microsoft.Reef.Activity.ShellActivity+Command", command);
+        final ConfigurationBuilder cb = Tang.Factory.getTang()
+                .newConfigurationBuilder(loadShellTaskClassHierarchy(SHELL_TASK_CLASS_HIERARCHY_FILENAME));
+
+        cb.bind("com.microsoft.reef.task.ITask", "Microsoft.Reef.Task.ShellTask");
+        cb.bind("com.microsoft.reef.driver.task.TaskConfigurationOptions.Identifier", taskId);
+        cb.bind("Microsoft.Reef.Task.ShellTask+Command", command);
         return cb.build();
     }
 
     /**
-     * Makes an activity configuration for the JVM ShellActivity..
+     * Makes a task configuration for the JVM ShellTask..
      *
-     * @param activityId
-     * @return an activity configuration for the CLR Activity.
+     * @param taskId
+     * @return task configuration for the JVM Task.
      * @throws BindException
      */
-    private static final Configuration getJVMActivityConfiguration(final String activityId, final String command) throws BindException {
+    private static final Configuration getJVMTaskConfiguration(
+        final String taskId, final String command) throws BindException {
+
         final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
         cb.addConfiguration(
-                ActivityConfiguration.CONF
-                        .set(ActivityConfiguration.IDENTIFIER, activityId)
-                        .set(ActivityConfiguration.ACTIVITY, com.microsoft.reef.examples.retained_eval.ShellActivity.class)
+                TaskConfiguration.CONF
+                        .set(TaskConfiguration.IDENTIFIER, taskId)
+                        .set(TaskConfiguration.TASK, ShellTask.class)
                         .build());
         cb.bindNamedParameter(com.microsoft.reef.examples.retained_eval.Launch.Command.class, command);
         return cb.build();
@@ -235,7 +239,7 @@ public final class JobDriver {
      * Loads the class hierarchy.
      * @return
      */
-    private static ClassHierarchy loadShellActivityClassHierarchy(String binFile) {
+    private static ClassHierarchy loadShellTaskClassHierarchy(String binFile) {
         try (final InputStream chin = new FileInputStream(binFile)) {
             final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
             final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
@@ -249,7 +253,7 @@ public final class JobDriver {
 
     /**
      * Receive notification that a new Context is available.
-     * Submit a new Distributed Shell Activity to that Context.
+     * Submit a new Distributed Shell Task to that Context.
      */
     final class ActiveContextHandler implements EventHandler<ActiveContext> {
         @Override
@@ -283,7 +287,7 @@ public final class JobDriver {
                 new Object[]{command, this.contexts.size(), this.state});
         assert (this.state == State.READY);
         this.expectCount = this.contexts.size();
-        this.state = State.WAIT_ACTIVITIES;
+        this.state = State.WAIT_TASKS;
         this.cmd = null;
         for (final ActiveContext context : this.contexts.values()) {
             this.submit(context, command);
@@ -291,25 +295,25 @@ public final class JobDriver {
     }
 
     /**
-     * Submit an Activity that execute the command to a single Evaluator.
-     * This method is called from <code>submitActivity(cmd)</code>.
+     * Submit a Task that execute the command to a single Evaluator.
+     * This method is called from <code>submitTask(cmd)</code>.
      */
     private void submit(final ActiveContext context, final String command) {
         try {
             LOG.log(Level.INFO, "Sending command {0} to context: {1}", new Object[]{command, context});
-            Configuration activityConfiguration;
-            String activityId = context.getId() + "_activity";
+            String taskId = context.getId() + "_task";
+            final Configuration taskConfiguration;
             if (context.getId().endsWith(JVM_CONTEXT_SUFFIX))
             {
-                activityConfiguration = getJVMActivityConfiguration(activityId, command);
+                taskConfiguration = getJVMTaskConfiguration(taskId, command);
             }
             else
             {
-                activityConfiguration = getCLRActivityConfiguration(activityId, command);
+                taskConfiguration = getCLRTaskConfiguration(taskId, command);
             }
-            context.submitActivity(activityConfiguration);
+            context.submitTask(taskConfiguration);
         } catch (final BindException ex) {
-            LOG.log(Level.SEVERE, "Bad Activity configuration for context: " + context.getId(), ex);
+            LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
             this.clock.close();
             throw new RuntimeException(ex);
         }
@@ -362,33 +366,33 @@ public final class JobDriver {
     }
 
     /**
-     * Receive notification that the Activity has completed successfully.
+     * Receive notification that the Task has completed successfully.
      */
-    final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+    final class CompletedTaskHandler implements EventHandler<CompletedTask> {
         @Override
-        public void onNext(final CompletedActivity act) {
-            LOG.log(Level.INFO, "Completed activity: {0}", act.getId());
-            // Take the message returned by the activity and add it to the running result.
+        public void onNext(final CompletedTask task) {
+            LOG.log(Level.INFO, "Completed task: {0}", task.getId());
+            // Take the message returned by the task and add it to the running result.
             String result = "default result";
             try
             {
-                if(act.getId().contains(CLR_CONTEXT_SUFFIX))
+                if(task.getId().contains(CLR_CONTEXT_SUFFIX))
                 {
-                     result = new String(act.get());
+                     result = new String(task.get());
                 }
                 else
                 {
-                    result = JVM_CODEC.decode(act.get());
+                    result = JVM_CODEC.decode(task.get());
                 }
             }
             catch(final Exception e)
             {
-                LOG.log(Level.WARNING, "failed to decode activity outcome");
+                LOG.log(Level.WARNING, "failed to decode task outcome");
             }
             synchronized (JobDriver.this) {
-                JobDriver.this.results.add(act.getId() + " :: " + result);
-                LOG.log(Level.INFO, "Activity {0} result {1}: {2} state: {3}", new Object[] {
-                        act.getId(), JobDriver.this.results.size(), result, JobDriver.this.state });
+                JobDriver.this.results.add(task.getId() + " :: " + result);
+                LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[] {
+                        task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state });
                 if (--JobDriver.this.expectCount <= 0) {
                     JobDriver.this.returnResults();
                     JobDriver.this.state = State.READY;

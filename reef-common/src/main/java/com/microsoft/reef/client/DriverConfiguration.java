@@ -19,7 +19,7 @@ package com.microsoft.reef.client;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextMessage;
@@ -99,33 +99,33 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalImpl<EventHandler<FailedEvaluator>> ON_EVALUATOR_FAILED = new OptionalImpl<>();
 
-  // ***** ACTIVITY HANDLER BINDINGS:
+  // ***** TASK HANDLER BINDINGS:
 
   /**
-   * Event handler for activity messages. Defaults to logging if not bound.
+   * Event handler for task messages. Defaults to logging if not bound.
    */
-  public static final OptionalImpl<EventHandler<ActivityMessage>> ON_ACTIVITY_MESSAGE = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<TaskMessage>> ON_TASK_MESSAGE = new OptionalImpl<>();
 
   /**
-   * Event handler for completed activities. Defaults to closing the context the activity ran on if not bound.
+   * Event handler for completed tasks. Defaults to closing the context the task ran on if not bound.
    */
-  public static final OptionalImpl<EventHandler<CompletedActivity>> ON_ACTIVITY_COMPLETED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<CompletedTask>> ON_TASK_COMPLETED = new OptionalImpl<>();
 
   /**
-   * Event handler for failed activities. Defaults to job failure if not bound.
+   * Event handler for failed tasks. Defaults to job failure if not bound.
    */
-  public static final OptionalImpl<EventHandler<FailedActivity>> ON_ACTIVITY_FAILED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<FailedTask>> ON_TASK_FAILED = new OptionalImpl<>();
 
   /**
-   * Event handler for running activities. Defaults to logging if not bound.
+   * Event handler for running tasks. Defaults to logging if not bound.
    */
-  public static final OptionalImpl<EventHandler<RunningActivity>> ON_ACTIVITY_RUNNING = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<RunningTask>> ON_TASK_RUNNING = new OptionalImpl<>();
 
   /**
-   * Event handler for suspended activities. Defaults to job failure if not bound. Rationale: many jobs don't support
-   * activity suspension. Hence, this parameter should be optional. The only sane default is to crash the job, then.
+   * Event handler for suspended tasks. Defaults to job failure if not bound. Rationale: many jobs don't support
+   * task suspension. Hence, this parameter should be optional. The only sane default is to crash the job, then.
    */
-  public static final OptionalImpl<EventHandler<SuspendedActivity>> ON_ACTIVITY_SUSPENDED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<SuspendedTask>> ON_TASK_SUSPENDED = new OptionalImpl<>();
 
   // ***** CLIENT HANDLER BINDINGS:
 
@@ -187,12 +187,12 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(DriverConfigurationOptions.CompletedEvaluatorHandlers.class, ON_EVALUATOR_COMPLETED)
       .bindSetEntry(DriverConfigurationOptions.FailedEvaluatorHandlers.class, ON_EVALUATOR_FAILED)
 
-          // Activity handlers
-      .bindSetEntry(DriverConfigurationOptions.RunningActivityHandlers.class, ON_ACTIVITY_RUNNING)
-      .bindSetEntry(DriverConfigurationOptions.FailedActivityHandlers.class, ON_ACTIVITY_FAILED)
-      .bindSetEntry(DriverConfigurationOptions.ActivityMessageHandlers.class, ON_ACTIVITY_MESSAGE)
-      .bindSetEntry(DriverConfigurationOptions.CompletedActivityHandlers.class, ON_ACTIVITY_COMPLETED)
-      .bindSetEntry(DriverConfigurationOptions.SuspendedActivityHandlers.class, ON_ACTIVITY_SUSPENDED)
+          // Task handlers
+      .bindSetEntry(DriverConfigurationOptions.RunningTaskHandlers.class, ON_TASK_RUNNING)
+      .bindSetEntry(DriverConfigurationOptions.FailedTaskHandlers.class, ON_TASK_FAILED)
+      .bindSetEntry(DriverConfigurationOptions.TaskMessageHandlers.class, ON_TASK_MESSAGE)
+      .bindSetEntry(DriverConfigurationOptions.CompletedTaskHandlers.class, ON_TASK_COMPLETED)
+      .bindSetEntry(DriverConfigurationOptions.SuspendedTaskHandlers.class, ON_TASK_SUSPENDED)
 
           // Context handlers
       .bindSetEntry(DriverConfigurationOptions.ActiveContextHandlers.class, ON_CONTEXT_ACTIVE)

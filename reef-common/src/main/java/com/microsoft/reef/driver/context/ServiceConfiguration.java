@@ -15,10 +15,10 @@
  */
 package com.microsoft.reef.driver.context;
 
-import com.microsoft.reef.activity.events.ActivityStart;
-import com.microsoft.reef.activity.events.ActivityStop;
+import com.microsoft.reef.task.events.TaskStart;
+import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.activity.ActivityConfigurationOptions;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;
 import com.microsoft.reef.util.ObjectInstantiationLogger;
@@ -41,7 +41,7 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * A set of services to instantiate. All classes given here will be instantiated in the context, and their references
-   * will be made available to child context and activities.
+   * will be made available to child context and tasks.
    */
   public static final OptionalParameter<Object> SERVICES = new OptionalParameter<>();
 
@@ -56,14 +56,14 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<ContextStop>> ON_CONTEXT_STOP = new OptionalImpl<>();
   
   /**
-   * Event handlers to be informed right before an Activity enters its call() method.
+   * Event handlers to be informed right before a Task enters its call() method.
    */
-  public static final OptionalImpl<EventHandler<ActivityStart>> ON_ACTIVITY_STARTED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<TaskStart>> ON_TASK_STARTED = new OptionalImpl<>();
 
   /**
-   * Event handlers to be informed right after an Activity exits its call() method.
+   * Event handlers to be informed right after a Task exits its call() method.
    */
-  public static final OptionalImpl<EventHandler<ActivityStop>> ON_ACTIVITY_STOP = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<TaskStop>> ON_TASK_STOP = new OptionalImpl<>();
 
   /**
    * ConfigurationModule for services.
@@ -72,8 +72,8 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(Services.class, SERVICES)
       .bindSetEntry(ContextConfigurationOptions.StartHandlers.class, ON_CONTEXT_STARTED)
       .bindSetEntry(ContextConfigurationOptions.StopHandlers.class, ON_CONTEXT_STOP)
-      .bindSetEntry(ActivityConfigurationOptions.StartHandlers.class, ON_ACTIVITY_STARTED)
-      .bindSetEntry(ActivityConfigurationOptions.StopHandlers.class, ON_ACTIVITY_STOP)
+      .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, ON_TASK_STARTED)
+      .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
       .build();
 
   @NamedParameter(doc = "A set of classes to be instantiated and shared as singletons within this context and all child context",
@@ -81,5 +81,4 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
   @Private
   public static class Services implements Name<Set<Object>> {
   }
-
 }

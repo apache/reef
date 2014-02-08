@@ -77,16 +77,16 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public void submitActivity(Configuration activityConfiguration) {
+  public void submitTask(Configuration taskConf) {
     if (this.closed) throw new RuntimeException("Active context already closed");
-    LOG.log(Level.FINEST, "Submit activity: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
+    LOG.log(Level.FINEST, "Submit task: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
-            .setStartActivity(
-                EvaluatorRuntimeProtocol.StartActivityProto.newBuilder()
+            .setStartTask(
+                EvaluatorRuntimeProtocol.StartTaskProto.newBuilder()
                     .setContextId(this.identifier)
-                    .setConfiguration(ConfigurationFile.toConfigurationString(activityConfiguration))
+                    .setConfiguration(ConfigurationFile.toConfigurationString(taskConf))
                     .build()).build();
     this.evaluatorManager.handle(contextControlProto);
   }

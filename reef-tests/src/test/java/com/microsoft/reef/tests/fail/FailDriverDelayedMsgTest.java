@@ -48,7 +48,7 @@ public class FailDriverDelayedMsgTest {
   }
 
   @Test
-  public void testFailDriverActivityMessage() throws BindException, InjectionException {
+  public void testFailDriverTestMessage() throws BindException, InjectionException {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
@@ -57,8 +57,8 @@ public class FailDriverDelayedMsgTest {
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "FailDriverDelayedMsg")
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailDriverDelayedMsg.AllocatedEvaluatorHandler.class)
           .set(DriverConfiguration.ON_CONTEXT_ACTIVE, FailDriverDelayedMsg.ActiveContextHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_RUNNING, FailDriverDelayedMsg.RunningActivityHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_MESSAGE, FailDriverDelayedMsg.ActivityMessageHandler.class)
+          .set(DriverConfiguration.ON_TASK_RUNNING, FailDriverDelayedMsg.RunningTaskHandler.class)
+          .set(DriverConfiguration.ON_TASK_MESSAGE, FailDriverDelayedMsg.TaskMessageHandler.class)
           .set(DriverConfiguration.ON_DRIVER_STARTED, FailDriverDelayedMsg.StartHandler.class)
         .build();
 

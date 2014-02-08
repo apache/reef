@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.examples.ds;
 
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
@@ -69,18 +69,18 @@ public final class DistributedShellJobDriver {
   private final JobMessageObserver client;
 
   /**
-   * Job driver uses EvaluatorRequestor to request Evaluators that will run the Activities.
+   * Job driver uses EvaluatorRequestor to request Evaluators that will run the Tasks.
    */
   private final EvaluatorRequestor evaluatorRequestor;
 
   /**
-   * Shell command to execute in every Evaluator/Activity.
+   * Shell command to execute in every Evaluator/Task.
    */
   private final String cmd;
 
   /**
    * Static catalog of REEF resources.
-   * We use it to schedule Activity on every available node.
+   * We use it to schedule Task on every available node.
    */
   private final ResourceCatalog catalog;
 
@@ -116,52 +116,52 @@ public final class DistributedShellJobDriver {
   }
 
   /**
-   * Receive notification that the Activity has completed successfully.
-   * Store the activity results and close the Evaluator.
+   * Receive notification that the Task has completed successfully.
+   * Store the task results and close the Evaluator.
    */
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public void onNext(final CompletedActivity act) {
-      LOG.log(Level.INFO, "Completed activity: {0}", act.getId());
+    public void onNext(final CompletedTask task) {
+      LOG.log(Level.INFO, "Completed task: {0}", task.getId());
 
-      // Take the message returned by the activity and add it to the running result.
-      final String result = CODEC.decode(act.get());
-      final NodeDescriptor node = act.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor();
+      // Take the message returned by the task and add it to the running result.
+      final String result = CODEC.decode(task.get());
+      final NodeDescriptor node = task.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor();
       results.add("Node " + node.getName() + ":\n" + result);
 
-      LOG.log(Level.INFO, "Activity result: {0} on node {1}",
-              new Object[] { result, node.getName() });
+      LOG.log(Level.INFO, "Task result: {0} on node {1}",
+          new Object[]{result, node.getName()});
 
-      act.getActiveContext().close();
+      task.getActiveContext().close();
     }
   }
 
   /**
    * Receive notification that an Evaluator had been allocated,
-   * and submitActivity a new Activity in that Evaluator.
+   * and submitTask a new Task in that Evaluator.
    */
   final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
       try {
         LOG.log(Level.INFO, "Allocated Evaluator: {0}", eval.getId());
-        // Submit an Activity that executes the shell command in this Evaluator
+        // Submit a Task that executes the shell command in this Evaluator
 
-        final JavaConfigurationBuilder activityConfigurationBuilder = Tang.Factory.getTang()
+        final JavaConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
             .newConfigurationBuilder();
-        activityConfigurationBuilder.bindNamedParameter(
-                DSClient.Command.class, DistributedShellJobDriver.this.cmd);
-        activityConfigurationBuilder.addConfiguration(
-            ActivityConfiguration.CONF
-                .set(ActivityConfiguration.IDENTIFIER, eval.getId() + "_shell_activity")
-                .set(ActivityConfiguration.ACTIVITY, ShellActivity.class)
+        taskConfigurationBuilder.bindNamedParameter(
+            DSClient.Command.class, DistributedShellJobDriver.this.cmd);
+        taskConfigurationBuilder.addConfiguration(
+            TaskConfiguration.CONF
+                .set(TaskConfiguration.IDENTIFIER, eval.getId() + "_shell_task")
+                .set(TaskConfiguration.TASK, ShellTask.class)
                 .build());
 
         final Configuration contextConfiguration = ContextConfiguration.CONF
             .set(ContextConfiguration.IDENTIFIER, "DS")
             .build();
 
-        eval.submitContextAndActivity(contextConfiguration, activityConfigurationBuilder.build());
+        eval.submitContextAndTask(contextConfiguration, taskConfigurationBuilder.build());
       } catch (final BindException e) {
         throw new RuntimeException(e);
       }
@@ -193,7 +193,7 @@ public final class DistributedShellJobDriver {
                 .setSize(EvaluatorRequest.Size.SMALL)
                 .setNumber(numNodes).build());
       } catch (final Exception ex) {
-        LOG.log(Level.SEVERE, "submitActivity() failed", ex);
+        LOG.log(Level.SEVERE, "submitTask() failed", ex);
         throw new RuntimeException(ex);
       }
     } else {

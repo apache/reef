@@ -38,7 +38,7 @@ import java.util.Map;
  * Exposes the configuration of Group Communication Operators through a fluent
  * syntax using Builders
  * 
- * Also takes responsibility of creating the {@link Configuration} of each activity
+ * Also takes responsibility of creating the {@link Configuration} of each task
  * using the added operators by delegating it to {@link GroupCommOperators}
  * 
  * This idea from Markus is really elegant
@@ -54,7 +54,7 @@ public class GroupOperators {
 	private Class<? extends Codec<?>> dataCodecClass;
 	private Class<? extends ReduceFunction<?>> redFuncClass;
 	
-	/** The per activity {@link Configuration} */
+	/** The per task {@link Configuration} */
 	private Map<ComparableIdentifier, Configuration> configs;
 	
 	/** {@link NetworkService} related configs */
@@ -175,7 +175,7 @@ public class GroupOperators {
   }
   
   /**
-   * Get the Configuration for activity with identifier id
+   * Get the Configuration for task with identifier id
    * for all the operators added till now. Its illegal to add
    * any more operators once getConfig has been called.
    * @param id

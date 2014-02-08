@@ -58,8 +58,8 @@ public class GroupCommNetworkHandlerTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    id1 = (ComparableIdentifier) idFac.getNewInstance("Activity1");
-    id2 = (ComparableIdentifier) idFac.getNewInstance("Activity2");
+    id1 = (ComparableIdentifier) idFac.getNewInstance("Task1");
+    id2 = (ComparableIdentifier) idFac.getNewInstance("Task2");
   }
 
   /**
