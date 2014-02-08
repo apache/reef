@@ -15,7 +15,15 @@
  */
 package com.microsoft.reef.io.network.impl;
 
-import com.microsoft.reef.driver.task.TaskConfigurationOptions;
+import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import com.microsoft.reef.io.Tuple;
 import com.microsoft.reef.io.naming.Naming;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.ConnectionFactory;
@@ -25,21 +33,18 @@ import com.microsoft.reef.io.network.naming.NameCache;
 import com.microsoft.reef.io.network.naming.NameClient;
 import com.microsoft.reef.io.network.naming.NameServerParameters;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.Stage;
 import com.microsoft.wake.impl.LoggingEventHandler;
+import com.microsoft.wake.impl.SingleThreadStage;
 import com.microsoft.wake.remote.Codec;
 import com.microsoft.wake.remote.impl.TransportEvent;
 import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
 
-import javax.inject.Inject;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Network service for Task
@@ -48,33 +53,73 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
 
-  private final Identifier myId;
+  private Identifier myId;
   private final IdentifierFactory factory;
   private final Codec<T> codec;
   private final Transport transport;
   private final NameClient nameClient;
 
-  private ConcurrentMap<Identifier, Connection<T>> idToConnMap;
+  private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
+  
+  private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
+  private final EStage<Identifier> nameServiceUnregisteringStage;
 
   @Inject
   public NetworkService(
-      final @Parameter(TaskConfigurationOptions.Identifier.class) String myId,
       final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
-      final @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
+      @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
       final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
       final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
       final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
       final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
       final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
       final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
-
-    this.myId = factory.getNewInstance(myId);
+    
     this.factory = factory;
     this.codec = codec;
     this.transport = tpFactory.create(nsPort, new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
     this.nameClient = new NameClient(nameServerAddr, nameServerPort, factory, new NameCache(30000));
-    this.idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
+    nsPort = transport.getListeningPort();
+
+    nameServiceRegisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
+      @Override
+      public void onNext(Tuple<Identifier, InetSocketAddress> tuple) {
+        try {
+          nameClient.register(tuple.getKey(), tuple.getValue());
+          LOG.fine("Finished registering " + tuple.getKey() + " with nameservice");
+          System.out.println("Finished registering " + tuple.getKey() + " with nameservice");
+        } catch (Exception e) {
+          throw new RuntimeException("Unable to register " + tuple.getKey() + "with name service", e);
+        }
+      }
+    }, 5);
+
+    nameServiceUnregisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Identifier>() {
+      @Override
+      public void onNext(Identifier id) {
+        try {
+          nameClient.unregister(id);
+          LOG.fine("Finished unregistering " + id + " from nameservice");
+          System.out.println("Finished unregistering " + id + " from nameservice");
+        } catch (Exception e) {
+          throw new RuntimeException("Unable to unregister " + id + " with name service", e);
+        }
+      }
+    }, 5);
+  }
+
+  public void registerId(Identifier id) {
+    this.myId = id;
+    final Tuple<Identifier, InetSocketAddress> tuple = new Tuple<>(id, (InetSocketAddress) transport.getLocalAddress());
+    System.out.println("Binding " + tuple.getKey() + " to NetworkService@(" + tuple.getValue() + ")");
+    nameServiceRegisteringStage.onNext(tuple);
+  }
+  
+  public void unregisterId(Identifier id) {
+    this.myId = null;
+    System.out.println("Unbinding " + id + " from NetworkService@(" + transport.getLocalAddress() + ")");
+    nameServiceUnregisteringStage.onNext(id);
   }
 
   public Identifier getMyId() {
@@ -89,7 +134,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     return codec;
   }
 
-  public Naming getNameClinet() {
+  public Naming getNameClient() {
     return nameClient;
   }
 
@@ -97,7 +142,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     return factory;
   }
 
-  void remove(Identifier id) {
+  void remove(final Identifier id) {
     idToConnMap.remove(id);
   }
 
@@ -109,20 +154,24 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
   }
 
   @Override
-  public Connection<T> newConnection(Identifier destId) {
-    Connection<T> conn;
-    if ((conn = idToConnMap.get(destId)) != null)
+  public Connection<T> newConnection(final Identifier destId) {
+    if(myId==null)
+      throw new RuntimeException("Trying to establish a connection from a Network Service that is not bound to any task");
+    final Connection<T> conn = idToConnMap.get(destId);
+    if (conn != null) {
       return conn;
+    } else {
+      final Connection<T> newConnection = new NSConnection<T>(myId, destId, new LinkListener<T>() {
+        @Override
+        public void messageReceived(Object message) {
+        }
+      }, this);
 
-    conn = new NSConnection<T>(myId, destId, new LinkListener<T>() {
-      @Override
-      public void messageReceived(Object message) {
-      }
-    }, this);
-
-    Connection<T> existing = idToConnMap.putIfAbsent(destId, conn);
-    return (existing == null) ? conn : existing;
+      final Connection<T> existing = idToConnMap.putIfAbsent(destId, newConnection);
+      return (existing == null) ? newConnection : existing;
+    }
   }
+
 }
 
 class MessageHandler<T> implements EventHandler<TransportEvent> {
@@ -130,15 +179,16 @@ class MessageHandler<T> implements EventHandler<TransportEvent> {
   private final EventHandler<Message<T>> handler;
   private final NSMessageCodec<T> codec;
 
-  public MessageHandler(EventHandler<Message<T>> handler, Codec<T> codec, IdentifierFactory factory) {
+  public MessageHandler(final EventHandler<Message<T>> handler, final Codec<T> codec, final IdentifierFactory factory) {
     this.handler = handler;
     this.codec = new NSMessageCodec<T>(codec, factory);
   }
 
   @Override
-  public void onNext(TransportEvent value) {
-    byte[] data = value.getData();
-    NSMessage<T> obj = codec.decode(data);
+  public void onNext(final TransportEvent value) {
+    final byte[] data = value.getData();
+    final NSMessage<T> obj = codec.decode(data);
     handler.onNext(obj);
   }
+
 }

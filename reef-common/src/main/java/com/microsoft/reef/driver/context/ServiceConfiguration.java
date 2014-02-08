@@ -15,13 +15,20 @@
  */
 package com.microsoft.reef.driver.context;
 
+import com.microsoft.reef.task.events.TaskStart;
+import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
+import com.microsoft.reef.evaluator.context.events.ContextStart;
+import com.microsoft.reef.evaluator.context.events.ContextStop;
 import com.microsoft.reef.util.ObjectInstantiationLogger;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
+import com.microsoft.tang.formats.OptionalImpl;
 import com.microsoft.tang.formats.OptionalParameter;
+import com.microsoft.wake.EventHandler;
 
 import java.util.Set;
 
@@ -39,10 +46,34 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Object> SERVICES = new OptionalParameter<>();
 
   /**
+   * Event handler for context start. Defaults to logging if not bound.
+   */
+  public static final OptionalImpl<EventHandler<ContextStart>> ON_CONTEXT_STARTED = new OptionalImpl<>();
+
+  /**
+   * Event handler for context stop. Defaults to logging if not bound.
+   */
+  public static final OptionalImpl<EventHandler<ContextStop>> ON_CONTEXT_STOP = new OptionalImpl<>();
+  
+  /**
+   * Event handlers to be informed right before a Task enters its call() method.
+   */
+  public static final OptionalImpl<EventHandler<TaskStart>> ON_TASK_STARTED = new OptionalImpl<>();
+
+  /**
+   * Event handlers to be informed right after a Task exits its call() method.
+   */
+  public static final OptionalImpl<EventHandler<TaskStop>> ON_TASK_STOP = new OptionalImpl<>();
+
+  /**
    * ConfigurationModule for services.
    */
   public static final ConfigurationModule CONF = new ServiceConfiguration()
       .bindSetEntry(Services.class, SERVICES)
+      .bindSetEntry(ContextConfigurationOptions.StartHandlers.class, ON_CONTEXT_STARTED)
+      .bindSetEntry(ContextConfigurationOptions.StopHandlers.class, ON_CONTEXT_STOP)
+      .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, ON_TASK_STARTED)
+      .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
       .build();
 
   @NamedParameter(doc = "A set of classes to be instantiated and shared as singletons within this context and all child context",
@@ -50,5 +81,4 @@ public class ServiceConfiguration extends ConfigurationModuleBuilder {
   @Private
   public static class Services implements Name<Set<Object>> {
   }
-
 }

@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.io.network.group.impl.operators.basic.config;
 
-import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.io.network.group.impl.ExceptionHandler;
 import com.microsoft.reef.io.network.group.impl.GCMCodec;
 import com.microsoft.reef.io.network.group.impl.GroupCommNetworkHandler;
@@ -32,7 +31,6 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.RequiredParameter;
 import com.microsoft.wake.ComparableIdentifier;
-import com.microsoft.wake.Identifier;
 
 import java.util.*;
 
@@ -50,7 +48,6 @@ public class GroupCommOperators {
   public static final class NetworkServiceConfig extends ConfigurationModuleBuilder {
     public static final RequiredParameter<String> NAME_SERVICE_ADDRESS = new RequiredParameter<>();
     public static final RequiredParameter<Integer> NAME_SERVICE_PORT = new RequiredParameter<>();
-    public static final RequiredParameter<String> SELF = new RequiredParameter<>();
     public static final RequiredParameter<String> ID_LIST_STRING = new RequiredParameter<>();
     public static final RequiredParameter<Integer> NETWORK_SERVICE_PORT = new RequiredParameter<>();
     public static final ConfigurationModule CONF = new NetworkServiceConfig()
@@ -61,7 +58,6 @@ public class GroupCommOperators {
         .bindImplementation(GroupCommNetworkHandler.class, GroupCommNetworkHandler.class)
         .bindNamedParameter(NameServerParameters.NameServerAddr.class, NAME_SERVICE_ADDRESS)
         .bindNamedParameter(NameServerParameters.NameServerPort.class, NAME_SERVICE_PORT)
-        .bindNamedParameter(TaskConfigurationOptions.Identifier.class, SELF)
         .bindNamedParameter(GroupCommNetworkHandler.IDs.class, ID_LIST_STRING)
         .bindNamedParameter(NetworkServiceParameters.NetworkServicePort.class, NETWORK_SERVICE_PORT)
         .build();
@@ -73,20 +69,18 @@ public class GroupCommOperators {
    *
    * @param nameServiceAddr
    * @param nameServicePort
-   * @param self
    * @param ids
    * @param nsPort
    * @return per task {@link NetworkService} {@link Configuration} for the specified task
    * @throws BindException
    */
   private static Configuration createNetworkServiceConf(
-      String nameServiceAddr, int nameServicePort, Identifier self,
+      String nameServiceAddr, int nameServicePort,
       List<ComparableIdentifier> ids, int nsPort) throws BindException {
     return
         NetworkServiceConfig.CONF
             .set(NetworkServiceConfig.NAME_SERVICE_ADDRESS, nameServiceAddr)
             .set(NetworkServiceConfig.NAME_SERVICE_PORT, nameServicePort)
-            .set(NetworkServiceConfig.SELF, self.toString())
             .set(NetworkServiceConfig.ID_LIST_STRING, Utils.listToString(ids))
             .set(NetworkServiceConfig.NETWORK_SERVICE_PORT, nsPort)
             .build();
@@ -135,24 +129,21 @@ public class GroupCommOperators {
       }
     }
 
-    //For each task store all other participating task ids
+    // For each task store all other participating task ids
     for (final ComparableIdentifier taskId : tasks) {
-      List<ComparableIdentifier> srcsPerTask = new ArrayList<>();
-      srcsPerTask.addAll(tasks);
+      final List<ComparableIdentifier> srcsPerTask = new ArrayList<>(tasks);
       srcsPerTask.remove(taskId);
       sources.put(taskId, srcsPerTask);
     }
 
-    //For each task merge the individual group operator config
-    //with the network service config to create the full config
-    Map<ComparableIdentifier, Configuration> result = new HashMap<>();
-    for (Map.Entry<ComparableIdentifier, Integer> entry : networkServicePorts
-        .entrySet()) {
-      ComparableIdentifier taskId = entry.getKey();
-      int nsPort = entry.getValue();
-      Configuration nsConf = createNetworkServiceConf(nameServiceAddr,
-          nameServicePort, taskId, sources.get(taskId),
-          nsPort);
+    // For each task merge the individual group operator config
+    // with the network service config to create the full config
+    final Map<ComparableIdentifier, Configuration> result = new HashMap<>();
+    for (final Map.Entry<ComparableIdentifier, Integer> entry : networkServicePorts.entrySet()) {
+      final ComparableIdentifier taskId = entry.getKey();
+      final int nsPort = entry.getValue();
+      final Configuration nsConf = createNetworkServiceConf(
+          nameServiceAddr, nameServicePort, sources.get(taskId), nsPort);
       JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(nsConf);
       opConfigs.addConfigurations(taskId, jcb);
       result.put(taskId, jcb.build());

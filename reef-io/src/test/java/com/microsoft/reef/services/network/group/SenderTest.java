@@ -76,9 +76,10 @@ public class SenderTest {
       BlockingQueue<GroupCommMessage> queue = queues.get(i);
       EventHandler<Message<GroupCommMessage>> recvHandler = new RcvHandler(id, queue);
       EventHandler<Exception> exHandler = new SndExcHandler(id, queue);
-      NetworkService<GroupCommMessage> netService = new NetworkService<>(id.toString(),
+      NetworkService<GroupCommMessage> netService = new NetworkService<>(
           idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
           new MessagingTransportFactory(), recvHandler, exHandler);
+      netService.registerId(id);
       netServices.add(netService);
       int port = netService.getTransport().getListeningPort();
       nameService.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), port));
@@ -124,6 +125,7 @@ public class SenderTest {
         BlockingQueue<GroupCommMessage> toQue = queues.get(j);
 
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           String msg = "Hello" + i + j + type;
           byte[] msgBytes = msg.getBytes();
           GroupCommMessage expected = TestUtils.bldGCM(type, from, to,
@@ -156,6 +158,7 @@ public class SenderTest {
         BlockingQueue<GroupCommMessage> toQue = queues.get(j);
 
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           List<String> msgs = new ArrayList<>();
           byte[][] msgsBytes = new byte[5][];
           for (int k = 0; k < 5; k++) {
@@ -196,6 +199,7 @@ public class SenderTest {
         BlockingQueue<GroupCommMessage> toQue = queues.get(j);
 
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           List<List<String>> msgss = new ArrayList<>(5);
           byte[][] msgsBytes = new byte[5][];
           for (int l = 0; l < 5; l++) {
@@ -238,6 +242,7 @@ public class SenderTest {
       }
 
       for (Type type : Type.values()) {
+        if(TestUtils.controlMessage(type)) continue;
         final int numMsgs = r.nextInt(100) + 1;
         List<Integer> counts = genRndCounts(ids.size(), numMsgs, r);
         List<String> msgs = new ArrayList<>(numMsgs);
