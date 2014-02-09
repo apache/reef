@@ -41,7 +41,7 @@ public final class HelloCLR {
    * The name of the class hierarchy file.
    */
   // TODO: Make this a config option
-  public static final String CLASS_HIERARCHY_FILENAME = "activity.bin";
+  public static final String CLASS_HIERARCHY_FILENAME = "task.bin";
 
   private static final Logger LOG = Logger.getLogger(HelloCLR.class.getName());
 
@@ -72,7 +72,7 @@ public final class HelloCLR {
 
       final File dllsForCLRConfigurationFile = new File(clrFolder, "DllsForCLR.conf");
       try (PrintWriter clientOut = new PrintWriter(dllsForCLRConfigurationFile)) {
-          clientOut.write("com.microsoft.reef.activity.dll,com.microsoft.reef.ActivityInterface.dll");
+          clientOut.write("com.microsoft.reef.task.dll,com.microsoft.reef.TaskInterface.dll");
       } catch (final FileNotFoundException e) {
           throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
       }

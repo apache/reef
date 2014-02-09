@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.examples.pool;
 
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 
@@ -35,8 +35,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Allocate N evaluators, submit M activities to them, and measure the time.
- * Each activity does nothing but sleeps for D seconds.
+ * Allocate N evaluators, submit M tasks to them, and measure the time.
+ * Each task does nothing but sleeps for D seconds.
  */
 @Unit
 public final class JobDriver {
@@ -44,27 +44,27 @@ public final class JobDriver {
   /** Standard Java logger. */
   private static final Logger LOG = Logger.getLogger(JobDriver.class.getName());
 
-  /** Job driver uses EvaluatorRequestor to request Evaluators that will run the Activities. */
+  /** Job driver uses EvaluatorRequestor to request Evaluators that will run the Tasks. */
   private final EvaluatorRequestor evaluatorRequestor;
 
-  /** If true, submit context and activity in one request. */
+  /** If true, submit context and task in one request. */
   private final boolean isPiggyback;
 
   /** Number of Evaluators to request. */
   private final int numEvaluators;
 
-  /** Number of Activities to run. */
-  private final int numActivities;
+  /** Number of Tasks to run. */
+  private final int numTasks;
 
   /** Number of Evaluators started. */
   private int numEvaluatorsStarted = 0;
 
-  /** Number of Activities launched. */
-  private int numActivitiesStarted = 0;
+  /** Number of Tasks launched. */
+  private int numTasksStarted = 0;
 
   /**
-   * Number of seconds to sleep in each Activity.
-   * (has to be a String to pass it into Activity config).
+   * Number of seconds to sleep in each Task.
+   * (has to be a String to pass it into Task config).
    */
   private final String delayStr;
 
@@ -78,12 +78,12 @@ public final class JobDriver {
   JobDriver(final EvaluatorRequestor evaluatorRequestor,
             final @Parameter(Launch.Piggyback.class) Boolean isPiggyback,
             final @Parameter(Launch.NumEvaluators.class) Integer numEvaluators,
-            final @Parameter(Launch.NumActivities.class) Integer numActivities,
+            final @Parameter(Launch.NumTasks.class) Integer numTasks,
             final @Parameter(Launch.Delay.class) Integer delay) {
     this.evaluatorRequestor = evaluatorRequestor;
     this.isPiggyback = isPiggyback;
     this.numEvaluators = numEvaluators;
-    this.numActivities = numActivities;
+    this.numTasks = numTasks;
     this.delayStr = "" + delay;
   }
 
@@ -113,7 +113,7 @@ public final class JobDriver {
 
   /**
    * Receive notification that an Evaluator had been allocated,
-   * and submitActivity a new Activity in that Evaluator.
+   * and submitTask a new Task in that Evaluator.
    */
   final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
@@ -121,23 +121,23 @@ public final class JobDriver {
 
       LOG.log(Level.INFO, "TIME: Allocated Evaluator {0}", eval.getId());
 
-      final boolean runActivity;
+      final boolean runTask;
       final int nEval;
-      final int nActivity;
+      final int nTask;
 
       synchronized (JobDriver.this) {
-        runActivity = numActivitiesStarted < numActivities;
-        if (runActivity) {
+        runTask = numTasksStarted < numTasks;
+        if (runTask) {
           ++numEvaluatorsStarted;
           if (isPiggyback) {
-            ++numActivitiesStarted;
+            ++numTasksStarted;
           }
         }
         nEval = numEvaluatorsStarted;
-        nActivity = numActivitiesStarted;
+        nTask = numTasksStarted;
       }
 
-      if (runActivity) {
+      if (runTask) {
 
         final String contextId = String.format("Context_%06d", nEval);
         LOG.log(Level.INFO, "TIME: Submit Context {0} to Evaluator {1}",
@@ -156,13 +156,13 @@ public final class JobDriver {
 
           if (isPiggyback) {
 
-            final String activityId = String.format("StartActivity_%08d", nActivity);
-            final Configuration activityConfig = getActivityConfiguration(activityId);
+            final String taskId = String.format("StartTask_%08d", nTask);
+            final Configuration taskConfig = getTaskConfiguration(taskId);
 
-            LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
-                new Object[] { activityId, eval.getId() });
+            LOG.log(Level.INFO, "TIME: Submit Task {0} to Evaluator {1}",
+                new Object[] { taskId, eval.getId() });
 
-            eval.submitContextAndActivity(contextConfigBuilder.build(), activityConfig);
+            eval.submitContextAndTask(contextConfigBuilder.build(), taskConfig);
 
           } else {
             eval.submitContext(contextConfigBuilder.build());
@@ -180,20 +180,20 @@ public final class JobDriver {
   }
 
   /**
-   * Build a new Activity configuration for a given activity ID.
+   * Build a new Task configuration for a given task ID.
    *
-   * @param activityId Unique string ID of the activity
-   * @return Immutable activity configuration object, ready to be submitted to REEF.
+   * @param taskId Unique string ID of the task
+   * @return Immutable task configuration object, ready to be submitted to REEF.
    * @throws RuntimeException that wraps BindException if unable to build the configuration.
    */
-  private Configuration getActivityConfiguration(final String activityId) {
+  private Configuration getTaskConfiguration(final String taskId) {
     try {
-      return ActivityConfiguration.CONF
-          .set(ActivityConfiguration.IDENTIFIER, activityId)
-          .set(ActivityConfiguration.ACTIVITY, SleepActivity.class)
+      return TaskConfiguration.CONF
+          .set(TaskConfiguration.IDENTIFIER, taskId)
+          .set(TaskConfiguration.TASK, SleepTask.class)
           .build();
     } catch (final BindException ex) {
-      LOG.log(Level.SEVERE, "Failed to create  Activity Configuration: " + activityId, ex);
+      LOG.log(Level.SEVERE, "Failed to create  Task Configuration: " + taskId, ex);
       throw new RuntimeException(ex);
     }
   }
@@ -207,24 +207,24 @@ public final class JobDriver {
 
       LOG.log(Level.INFO, "TIME: Active Context {0}", context.getId());
 
-      if (isPiggyback) return; // Activity already submitted
+      if (isPiggyback) return; // Task already submitted
 
-      final boolean runActivity;
-      final int nActivity;
+      final boolean runTask;
+      final int nTask;
 
       synchronized (JobDriver.this) {
-        runActivity = numActivitiesStarted < numActivities;
-        if (runActivity) {
-          ++numActivitiesStarted;
+        runTask = numTasksStarted < numTasks;
+        if (runTask) {
+          ++numTasksStarted;
         }
-        nActivity = numActivitiesStarted;
+        nTask = numTasksStarted;
       }
 
-      if (runActivity) {
-        final String activityId = String.format("StartActivity_%08d", nActivity);
-        LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
-            new Object[] { activityId, context.getEvaluatorId() });
-        context.submitActivity(getActivityConfiguration(activityId));
+      if (runTask) {
+        final String taskId = String.format("StartTask_%08d", nTask);
+        LOG.log(Level.INFO, "TIME: Submit Task {0} to Evaluator {1}",
+            new Object[] { taskId, context.getEvaluatorId() });
+        context.submitTask(getTaskConfiguration(taskId));
       } else {
         context.close();
       }
@@ -232,41 +232,41 @@ public final class JobDriver {
   }
 
   /**
-   * Receive notification that the Activity is running.
+   * Receive notification that the Task is running.
    */
-  final class RunningActivityHandler implements EventHandler<RunningActivity> {
+  final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
-    public void onNext(final RunningActivity act) {
-      LOG.log(Level.INFO, "TIME: Running Activity {0}", act.getId());
+    public void onNext(final RunningTask task) {
+      LOG.log(Level.INFO, "TIME: Running Task {0}", task.getId());
     }
   }
 
   /**
-   * Receive notification that the Activity has completed successfully.
+   * Receive notification that the Task has completed successfully.
    */
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public void onNext(final CompletedActivity act) {
+    public void onNext(final CompletedTask task) {
 
-      final ActiveContext context = act.getActiveContext();
-      LOG.log(Level.INFO, "TIME: Completed Activity {0} on Evaluator {1}",
-              new Object[] { act.getId(), context.getEvaluatorId() });
+      final ActiveContext context = task.getActiveContext();
+      LOG.log(Level.INFO, "TIME: Completed Task {0} on Evaluator {1}",
+              new Object[] { task.getId(), context.getEvaluatorId() });
 
-      final boolean runActivity;
-      final int nActivity;
+      final boolean runTask;
+      final int nTask;
       synchronized (JobDriver.this) {
-        runActivity = numActivitiesStarted < numActivities;
-        if (runActivity) {
-          ++numActivitiesStarted;
+        runTask = numTasksStarted < numTasks;
+        if (runTask) {
+          ++numTasksStarted;
         }
-        nActivity = numActivitiesStarted;
+        nTask = numTasksStarted;
       }
 
-      if (runActivity) {
-        final String activityId = String.format("Activity_%08d", nActivity);
-        LOG.log(Level.INFO, "TIME: Submit Activity {0} to Evaluator {1}",
-                new Object[] { activityId, context.getEvaluatorId() });
-        context.submitActivity(getActivityConfiguration(activityId));
+      if (runTask) {
+        final String taskId = String.format("Task_%08d", nTask);
+        LOG.log(Level.INFO, "TIME: Submit Task {0} to Evaluator {1}",
+                new Object[] { taskId, context.getEvaluatorId() });
+        context.submitTask(getTaskConfiguration(taskId));
       } else {
         LOG.log(Level.INFO, "TIME: Close Evaluator {0}", context.getEvaluatorId());
         context.close();
@@ -275,7 +275,7 @@ public final class JobDriver {
   }
 
   /**
-   * Receive notification that the Activity is running.
+   * Receive notification that the Task is running.
    */
   final class CompletedEvaluatorHandler implements EventHandler<CompletedEvaluator> {
     @Override

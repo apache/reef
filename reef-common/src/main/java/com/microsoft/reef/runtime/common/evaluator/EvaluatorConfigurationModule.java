@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.evaluator;
 
-import com.microsoft.reef.proto.ReefServiceProtos.ActivityStatusProto;
+import com.microsoft.reef.proto.ReefServiceProtos.TaskStatusProto;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -32,8 +32,8 @@ import java.util.concurrent.Executors;
 
 public final class EvaluatorConfigurationModule extends ConfigurationModuleBuilder {
 
-  @NamedParameter(doc = "The event handler for activity manager status.")
-  final static class ActivityManagerStatusHandler implements Name<EventHandler<ActivityStatusProto>> {
+  @NamedParameter(doc = "The event handler for task manager status.")
+  final static class TaskManagerStatusHandler implements Name<EventHandler<TaskStatusProto>> {
   }
 
   private final static class ExecutorServiceConstructor implements ExternalConstructor<ExecutorService> {
@@ -56,8 +56,8 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
   public final static class RootServiceConfiguration implements Name<String> {
   }
 
-  @NamedParameter(doc = "An initial activity to launch on startup.")
-  public final static class ActivityConfiguration implements Name<String> {
+  @NamedParameter(doc = "An initial task to launch on startup.")
+  public final static class TaskConfiguration implements Name<String> {
   }
 
   @NamedParameter(doc = "The remote identifier to the driver runtime.")
@@ -76,7 +76,7 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
   public static final RequiredParameter<String> EVALUATOR_IDENTIFIER = new RequiredParameter<>();
   public static final RequiredParameter<String> ROOT_CONTEXT_CONFIGURATION = new RequiredParameter<>();
   public static final OptionalParameter<String> ROOT_SERVICE_CONFIGURATION = new OptionalParameter<>();
-  public static final OptionalParameter<String> ACTIVITY_CONFIGURATION = new OptionalParameter<>();
+  public static final OptionalParameter<String> TASK_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<Integer> HEARTBEAT_PERIOD = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new EvaluatorConfigurationModule()
@@ -87,7 +87,7 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
       .bindNamedParameter(EvaluatorIdentifier.class, EVALUATOR_IDENTIFIER)
       .bindNamedParameter(HeartbeatPeriod.class, HEARTBEAT_PERIOD)
       .bindNamedParameter(RootContextConfiguration.class, ROOT_CONTEXT_CONFIGURATION)
-      .bindNamedParameter(ActivityConfiguration.class, ACTIVITY_CONFIGURATION)
+      .bindNamedParameter(TaskConfiguration.class, TASK_CONFIGURATION)
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
       .build();
 

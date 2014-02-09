@@ -23,8 +23,8 @@ import com.microsoft.reef.driver.context.ServiceConfiguration;
 import com.microsoft.reef.evaluator.context.ContextMessage;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.evaluator.activity.ActivityClientCodeException;
-import com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime;
+import com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException;
+import com.microsoft.reef.runtime.common.evaluator.task.TaskRuntime;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
@@ -64,9 +64,9 @@ public final class ContextRuntime {
    */
   private final Optional<ContextRuntime> parentContext; // guarded by this
   /**
-   * The currently running activity, if there is any.
+   * The currently running task, if there is any.
    */
-  private Optional<ActivityRuntime> activity = Optional.empty(); // guarded by this
+  private Optional<TaskRuntime> task = Optional.empty(); // guarded by this
 
   // TODO: Which lock guards this?
   private ReefServiceProtos.ContextStatusProto.State contextState = ReefServiceProtos.ContextStatusProto.State.READY;
@@ -122,16 +122,16 @@ public final class ContextRuntime {
    * @param serviceConfiguration the new context's service Configuration.
    * @return a child context.
    * @throws ContextClientCodeException If the context can't be instantiate due to user code / configuration issues
-   * @throws IllegalStateException      If this method is called when there is either an activity or child context already
+   * @throws IllegalStateException      If this method is called when there is either a task or child context already
    *                                    present.
    */
   ContextRuntime spawnChildContext(final Configuration contextConfiguration, final Configuration serviceConfiguration)
       throws ContextClientCodeException {
 
     synchronized (this.contextLifeCycle) {
-      if (this.activity.isPresent()) {
-        throw new IllegalStateException("Attempting to spawn a child context when an Activity with id '" +
-            this.activity.get().getId() + "' is running.");
+      if (this.task.isPresent()) {
+        throw new IllegalStateException("Attempting to spawn a child context when a Task with id '" +
+            this.task.get().getId() + "' is running.");
       }
       if (this.childContext.isPresent()) {
         throw new IllegalStateException("Attempting to instantiate a child context on a context that is not the topmost active context");
@@ -159,15 +159,15 @@ public final class ContextRuntime {
    * @param contextConfiguration the new context's context (local) Configuration.
    * @return a child context.
    * @throws ContextClientCodeException If the context can't be instantiate due to user code / configuration issues.
-   * @throws IllegalStateException      If this method is called when there is either an activity or child context already
+   * @throws IllegalStateException      If this method is called when there is either a task or child context already
    *                                    present.
    */
   ContextRuntime spawnChildContext(final Configuration contextConfiguration) throws ContextClientCodeException {
 
     synchronized (this.contextLifeCycle) {
-      if (this.activity.isPresent()) {
-        throw new IllegalStateException("Attempting to to spawn a child context while an Activity with id '" +
-            this.activity.get().getId() + "' is running.");
+      if (this.task.isPresent()) {
+        throw new IllegalStateException("Attempting to to spawn a child context while a Task with id '" +
+            this.task.get().getId() + "' is running.");
       }
       if (this.childContext.isPresent()) {
         throw new IllegalStateException("Attempting to spawn a child context on a context that is not the topmost active context");
@@ -180,43 +180,43 @@ public final class ContextRuntime {
   }
 
   /**
-   * Launches an Activity on this context.
+   * Launches a Task on this context.
    *
-   * @param activityConfiguration the configuration to be used for the activity.
-   * @throws ActivityClientCodeException If the Activity cannot be instantiated due to user code / configuration issues.
-   * @throws IllegalStateException       If this method is called when there is either an activity or child context already
+   * @param taskConfig the configuration to be used for the task.
+   * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException If the Task cannot be instantiated due to user code / configuration issues.
+   * @throws IllegalStateException       If this method is called when there is either a task or child context already
    *                                     present.
    */
-  void startActivity(final Configuration activityConfiguration) throws ActivityClientCodeException {
+  void startTask(final Configuration taskConfig) throws TaskClientCodeException {
     synchronized (this.contextLifeCycle) {
-      if (this.activity.isPresent() && this.activity.get().hasEnded()) {
+      if (this.task.isPresent() && this.task.get().hasEnded()) {
         // clean up state
-        this.activity = Optional.empty();
+        this.task = Optional.empty();
       }
 
-      if (this.activity.isPresent()) {
-        throw new IllegalStateException("Attempting to start an Activity when an Activity with id '" +
-            this.activity.get().getId() + "' is running.");
+      if (this.task.isPresent()) {
+        throw new IllegalStateException("Attempting to start a Task when a Task with id '" +
+            this.task.get().getId() + "' is running.");
       }
       if (this.childContext.isPresent()) {
-        throw new IllegalStateException("Attempting to start an Activity on a context that is not the topmost active context");
+        throw new IllegalStateException("Attempting to start a Task on a context that is not the topmost active context");
       }
       try {
-        final Injector activityInjector = this.contextInjector.forkInjector(activityConfiguration);
-        final ActivityRuntime activityRuntime = activityInjector.getInstance(ActivityRuntime.class);
-        activityRuntime.initialize();
-        activityRuntime.start();
-        this.activity = Optional.of(activityRuntime);
-        LOG.log(Level.FINEST, "Started activity '" + activityRuntime.getActivityId());
+        final Injector taskInjector = this.contextInjector.forkInjector(taskConfig);
+        final TaskRuntime taskRuntime = taskInjector.getInstance(TaskRuntime.class);
+        taskRuntime.initialize();
+        taskRuntime.start();
+        this.task = Optional.of(taskRuntime);
+        LOG.log(Level.FINEST, "Started task '" + taskRuntime.getTaskId());
       } catch (final BindException | InjectionException e) {
-        throw new ActivityClientCodeException(ActivityClientCodeException.getActivityIdentifier(activityConfiguration),
+        throw new TaskClientCodeException(TaskClientCodeException.getTaskId(taskConfig),
             this.getIdentifier(),
-            "Unable to instantiate the new activity",
+            "Unable to instantiate the new task",
             e);
       } catch (final Throwable t) {
-        throw new ActivityClientCodeException(ActivityClientCodeException.getActivityIdentifier(activityConfiguration),
+        throw new TaskClientCodeException(TaskClientCodeException.getTaskId(taskConfig),
             this.getIdentifier(),
-            "Unable to start the new activity",
+            "Unable to start the new task",
             t);
       }
     }
@@ -224,14 +224,14 @@ public final class ContextRuntime {
 
   /**
    * Close this context. If there is a child context, this recursively closes it before closing this context. If
-   * there is an Activity currently running, that will be closed.
+   * there is a Task currently running, that will be closed.
    */
   final void close() {
     synchronized (this.contextLifeCycle) {
       this.contextState = ReefServiceProtos.ContextStatusProto.State.DONE;
-      if (this.activity.isPresent()) {
-        LOG.log(Level.WARNING, "Shutting down an activity because the underlying context is being closed.");
-        this.activity.get().close(null);
+      if (this.task.isPresent()) {
+        LOG.log(Level.WARNING, "Shutting down a task because the underlying context is being closed.");
+        this.task.get().close(null);
       }
       if (this.childContext.isPresent()) {
         LOG.log(Level.WARNING, "Closing a context because its parent context is being closed.");
@@ -253,55 +253,55 @@ public final class ContextRuntime {
   }
 
   /**
-   * Deliver the given message to the Activity.
+   * Deliver the given message to the Task.
    * <p/>
-   * Note that due to races, the activity might have already ended. In that case, we drop this call and leave a WARNING
+   * Note that due to races, the task might have already ended. In that case, we drop this call and leave a WARNING
    * in the log.
    *
    * @param message the suspend message to deliver or null if there is none.
    */
-  void suspendActivity(final byte[] message) {
+  void suspendTask(final byte[] message) {
     synchronized (this.contextLifeCycle) {
-      if (!this.activity.isPresent()) {
-        LOG.log(Level.WARNING, "Received a suspend activity while there was no activity running. Ignoring.");
+      if (!this.task.isPresent()) {
+        LOG.log(Level.WARNING, "Received a suspend task while there was no task running. Ignoring.");
       } else {
-        this.activity.get().suspend(message);
+        this.task.get().suspend(message);
       }
     }
   }
 
   /**
-   * Issue a close call to the Activity
+   * Issue a close call to the Task
    * <p/>
-   * Note that due to races, the activity might have already ended. In that case, we drop this call and leave a WARNING
+   * Note that due to races, the task might have already ended. In that case, we drop this call and leave a WARNING
    * in the log.
    *
    * @param message the close  message to deliver or null if there is none.
    */
-  void closeActivity(final byte[] message) {
+  void closeTask(final byte[] message) {
     synchronized (this.contextLifeCycle) {
-      if (!this.activity.isPresent()) {
-        LOG.log(Level.WARNING, "Received a close activity while there was no activity running. Ignoring.");
+      if (!this.task.isPresent()) {
+        LOG.log(Level.WARNING, "Received a close task while there was no task running. Ignoring.");
       } else {
-        this.activity.get().close(message);
+        this.task.get().close(message);
       }
     }
   }
 
   /**
-   * Deliver a message to the Activity
+   * Deliver a message to the Task
    * <p/>
-   * Note that due to races, the activity might have already ended. In that case, we drop this call and leave a WARNING
+   * Note that due to races, the task might have already ended. In that case, we drop this call and leave a WARNING
    * in the log.
    *
    * @param message the close  message to deliver or null if there is none.
    */
-  void deliverActivityMessage(final byte[] message) {
+  void deliverTaskMessage(final byte[] message) {
     synchronized (this.contextLifeCycle) {
-      if (!this.activity.isPresent()) {
-        LOG.log(Level.WARNING, "Received a activity message while there was no activity running. Ignoring.");
+      if (!this.task.isPresent()) {
+        LOG.log(Level.WARNING, "Received a task message while there was no task running. Ignoring.");
       } else {
-        this.activity.get().deliver(message);
+        this.task.get().deliver(message);
       }
     }
   }
@@ -322,22 +322,22 @@ public final class ContextRuntime {
   }
 
   /**
-   * @return the state of the running Activity, if one is running.
+   * @return the state of the running Task, if one is running.
    */
-  Optional<ReefServiceProtos.ActivityStatusProto> getActivityStatus() {
+  Optional<ReefServiceProtos.TaskStatusProto> getTaskStatus() {
     synchronized (this.contextLifeCycle) {
-      if (this.activity.isPresent()) {
-        if (this.activity.get().hasEnded()) {
-          this.activity = Optional.empty();
+      if (this.task.isPresent()) {
+        if (this.task.get().hasEnded()) {
+          this.task = Optional.empty();
           return Optional.empty();
         } else {
-          final ReefServiceProtos.ActivityStatusProto activityStatusProto = this.activity.get().getStatusProto();
-          if (activityStatusProto.getState() == ReefServiceProtos.State.RUNNING) {
+          final ReefServiceProtos.TaskStatusProto taskStatusProto = this.task.get().getStatusProto();
+          if (taskStatusProto.getState() == ReefServiceProtos.State.RUNNING) {
             /* I'm only allowed to return RUNNING status here...
              * all other state pushed out to heartbeat */
-            return Optional.of(activityStatusProto);
+            return Optional.of(taskStatusProto);
           }
-          throw new IllegalStateException("Activity state must be RUNNING, but instead is in " + activityStatusProto.getState());
+          throw new IllegalStateException("Task state must be RUNNING, but instead is in " + taskStatusProto.getState());
         }
       } else {
         return Optional.empty();

@@ -52,34 +52,35 @@ import java.util.Random;
  */
 public class ReceiverTest {
   private static final StringIdentifierFactory idFac = new StringIdentifierFactory();
-  private static final int numActivities = 5;
-  private static final List<ComparableIdentifier> ids = new ArrayList<>(numActivities);
+  private static final int numTasks = 5;
+  private static final List<ComparableIdentifier> ids = new ArrayList<>(numTasks);
   private static final String nameServiceAddr = NetUtils.getLocalAddress();
   private static final NameServer nameService = new NameServer(0, idFac);
   private static final int nameServicePort = nameService.getPort();
-  private static final List<Integer> nsPorts = new ArrayList<>(numActivities);
-  private static final List<GroupCommNetworkHandler> gcnhs = new ArrayList<>(numActivities);
-  private static List<NetworkService<GroupCommMessage>> netServices = new ArrayList<>(numActivities);
+  private static final List<Integer> nsPorts = new ArrayList<>(numTasks);
+  private static final List<GroupCommNetworkHandler> gcnhs = new ArrayList<>(numTasks);
+  private static List<NetworkService<GroupCommMessage>> netServices = new ArrayList<>(numTasks);
 
   /**
    * @throws java.lang.Exception
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    for (int i = 0; i < numActivities; i++) {
-      Identifier id = idFac.getNewInstance("Activity" + i);
+    for (int i = 0; i < numTasks; i++) {
+      Identifier id = idFac.getNewInstance("Task" + i);
 
       ids.add((ComparableIdentifier) id);
     }
 
-    for (int i = 0; i < numActivities; i++) {
+    for (int i = 0; i < numTasks; i++) {
       Identifier id = ids.get(i);
       GroupCommNetworkHandler gcnh = new GroupCommNetworkHandler(Utils.listToString(ids), idFac, 5);
       gcnhs.add(gcnh);
       EventHandler<Exception> exHandler = new RcvExcHandler(id, gcnh);
-      NetworkService<GroupCommMessage> netService = new NetworkService<>(id.toString(),
+      NetworkService<GroupCommMessage> netService = new NetworkService<>(
           idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
           new MessagingTransportFactory(), gcnh, exHandler);
+      netService.registerId(id);
       netServices.add(netService);
       int port = netService.getTransport().getListeningPort();
       nameService.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), port));
@@ -124,6 +125,7 @@ public class ReceiverTest {
         GroupCommNetworkHandler gcnh = gcnhs.get(j);
         ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           String expected = "Hello" + i + j + type;
           byte[] expBytes = expected.getBytes();
           GroupCommMessage gcm = TestUtils.bldGCM(type, from, to,
@@ -166,6 +168,7 @@ public class ReceiverTest {
         GroupCommNetworkHandler gcnh = gcnhs.get(j);
         ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           List<String> expected = new ArrayList<>();
           byte[][] expBytes = new byte[5][];
           for (int k = 0; k < 5; k++) {
@@ -204,6 +207,7 @@ public class ReceiverTest {
         GroupCommNetworkHandler gcnh = gcnhs.get(j);
         ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
         for (Type type : Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           List<List<String>> expected = new ArrayList<>();
           byte[][] expBytes = new byte[5][];
           for (int l = 0; l < 5; l++) {
@@ -234,8 +238,8 @@ public class ReceiverTest {
   public final void testReceiveListOfQextendsIdentifierIdentifierType() throws NetworkException, InterruptedException {
     StringCodec strCodec = new StringCodec();
 
-    List<Identifier> froms = new ArrayList<>(numActivities);
-    List<NetworkService<GroupCommMessage>> netSers = new ArrayList<>(numActivities);
+    List<Identifier> froms = new ArrayList<>(numTasks);
+    List<NetworkService<GroupCommMessage>> netSers = new ArrayList<>(numTasks);
     int[] indexArr = {1, 3, 2, 4, 0};
     for (int i : indexArr) {
       froms.add(ids.get(i));
@@ -247,6 +251,7 @@ public class ReceiverTest {
       GroupCommNetworkHandler gcnh = gcnhs.get(j);
       ReceiverHelper<String> receiver = new ReceiverHelperImpl<String>(toNetService, strCodec, gcnh);
       for (Type type : Type.values()) {
+        if(TestUtils.controlMessage(type)) continue;
         List<String> expected = new ArrayList<>(froms.size());
         for (int k = 0; k < froms.size(); k++) {
           String msg = "Hello" + j + type + k;

@@ -58,8 +58,8 @@ public class GroupCommNetworkHandlerTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    id1 = (ComparableIdentifier) idFac.getNewInstance("Activity1");
-    id2 = (ComparableIdentifier) idFac.getNewInstance("Activity2");
+    id1 = (ComparableIdentifier) idFac.getNewInstance("Task1");
+    id2 = (ComparableIdentifier) idFac.getNewInstance("Task2");
   }
 
   /**
@@ -119,6 +119,7 @@ public class GroupCommNetworkHandlerTest {
     ids.add(id2);
     GroupCommNetworkHandler gcnh = new GroupCommNetworkHandler(ids, idFac, 5);
     for (GroupCommMessage.Type type : GroupCommMessage.Type.values()) {
+      if(TestUtils.controlMessage(type)) continue;
       Handler h = gcnh.getHandler(type);
       Assert.assertNotNull("GCNH.getHandler( " + type + " )", h);
     }
@@ -152,6 +153,7 @@ public class GroupCommNetworkHandlerTest {
       try (EStage<Message<GroupCommMessage>> stage = new SingleThreadStage<>(
           gcnh, totCapacity)) {
         for (Type type : GroupCommMessage.Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           for (int i = 0; i < msgsPerType[type.ordinal()]; i++) {
             String msgStr = "Hello" + type.toString() + i;
             logger.log(Level.FINE, "Message: " + msgStr);
@@ -162,6 +164,7 @@ public class GroupCommNetworkHandlerTest {
           }
         }
         for (Type type : GroupCommMessage.Type.values()) {
+          if(TestUtils.controlMessage(type)) continue;
           for (int i = 0; i < msgsPerType[type.ordinal()]; i++) {
             String msgStr = "Hello" + type.toString() + i;
             GroupCommMessage ret = gcnh.getHandler(type).getData(id1);

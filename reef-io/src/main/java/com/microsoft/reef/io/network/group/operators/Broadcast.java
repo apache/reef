@@ -20,33 +20,35 @@ import com.microsoft.reef.io.network.group.impl.operators.basic.BroadcastOp;
 import com.microsoft.tang.annotations.DefaultImplementation;
 
 /**
- * MPI Broadcast operator
+ * MPI Broadcast operator.
  * 
  * The sender or root send's an element that is received by all the receivers or
- * other activities
+ * other tasks.
  * 
- * This is an asymmetric operation and hence the differentiation b/w Sender &
- * Receiver
+ * This is an asymmetric operation and hence the differentiation b/w Sender and
+ * Receiver.
  * 
  * @author shravan
  * 
  */
 public interface Broadcast {
+
   /**
-   * Sender or Root
+   * Sender or Root.
    * 
    * @param <T>
    */
   @DefaultImplementation(BroadcastOp.Sender.class)
   public static interface Sender<T> {
+
     /**
-     * Send element to all receivers
+     * Send element to all receivers.
      * 
      * @param element
      * @throws NetworkException
      * @throws InterruptedException
      */
-    public void send(T element) throws NetworkException, InterruptedException;
+    void send(T element) throws NetworkException, InterruptedException;
   }
 
   /**
@@ -56,13 +58,14 @@ public interface Broadcast {
    */
   @DefaultImplementation(BroadcastOp.Receiver.class)
   public static interface Receiver<T> {
+
     /**
-     * Receiver the element broadcasted by sender
+     * Receiver the element broadcasted by sender.
      * 
      * @return the element broadcasted by sender
      * @throws NetworkException
      * @throws InterruptedException
      */
-    public T receive() throws NetworkException, InterruptedException;
+    T receive() throws NetworkException, InterruptedException;
   }
 }

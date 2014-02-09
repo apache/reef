@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * This package contains a test of the Evaluator reuse. It submits the EchoActivity several times to the same Evaluator.
- * This test also incidentially tests whether the memento is transferred correctly from and to the Activity.
+ * This package contains a test of the Evaluator reuse. It submits the EchoTask several times to the same Evaluator.
+ * This test also incidentially tests whether the memento is transferred correctly from and to the Task.
  */
 package com.microsoft.reef.tests.evaluatorreuse;

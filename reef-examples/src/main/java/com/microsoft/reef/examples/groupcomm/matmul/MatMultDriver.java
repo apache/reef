@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.examples.groupcomm.matmul;
 
-import com.microsoft.reef.driver.activity.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.examples.utils.wake.BlockingEventHandler;
@@ -44,29 +44,29 @@ public final class MatMultDriver {
   private final Logger LOG = Logger.getLogger(MatMultDriver.class.getName());
 
   /**
-   * The number of compute activities to be spawned
+   * The number of compute tasks to be spawned
    */
-  private final int computeActivities;
+  private final int computeTasks;
 
   /**
-   * The sole Control Activity
+   * The sole Control Task
    */
-  private static final int controllerActivities = 1;
+  private static final int controllerTasks = 1;
 
   /**
-   * Track the number of compute activities that are running
+   * Track the number of compute tasks that are running
    */
-  private final AtomicInteger compActRunning = new AtomicInteger(0);
+  private final AtomicInteger compTasksRunning = new AtomicInteger(0);
 
   /**
-   * Activity submission is delegated to
+   * Task submission is delegated to
    */
-  private final ActivitySubmitter activitySubmitter;
+  private final TaskSubmitter taskSubmitter;
 
   /**
-   * Blocks till all evaluators are available and submits activities using
-   * activity submitter. First all the compute activities are submitted. The
-   * the control activity is submitted
+   * Blocks till all evaluators are available and submits tasks using
+   * task submitter. First all the compute tasks are submitted. Then
+   * the control task is submitted.
    */
   private final BlockingEventHandler<ActiveContext> contextAccumulator;
 
@@ -77,8 +77,8 @@ public final class MatMultDriver {
 
 
   public static class Parameters {
-    @NamedParameter(default_value = "5", doc = "The number of compute activities to spawn")
-    public static class ComputeActivities implements Name<Integer> {
+    @NamedParameter(default_value = "5", doc = "The number of compute tasks to spawn")
+    public static class ComputeTasks implements Name<Integer> {
     }
 
     @NamedParameter(default_value = "5678", doc = "Port on which Name Service should listen")
@@ -91,20 +91,19 @@ public final class MatMultDriver {
    *
    * @param requestor          evaluator requestor object used to create new evaluator
    *                           containers.
-   * @param _computeActivities - named parameter
+   * @param computeTasks - named parameter
    * @param nameServicePort    - named parameter
    */
   @Inject
   public MatMultDriver(
       final EvaluatorRequestor requestor,
-      @Parameter(Parameters.ComputeActivities.class) int _computeActivities,
-      @Parameter(Parameters.NameServicePort.class) int nameServicePort) {
+      final @Parameter(Parameters.ComputeTasks.class) int computeTasks,
+      final @Parameter(Parameters.NameServicePort.class) int nameServicePort) {
     this.requestor = requestor;
-    this.computeActivities = _computeActivities;
-    activitySubmitter = new ActivitySubmitter(this.computeActivities,
-        nameServicePort);
-    contextAccumulator = new BlockingEventHandler<>(computeActivities
-        + controllerActivities, activitySubmitter);
+    this.computeTasks = computeTasks;
+    this.taskSubmitter = new TaskSubmitter(this.computeTasks, nameServicePort);
+    this.contextAccumulator = new BlockingEventHandler<>(
+        this.computeTasks + this.controllerTasks, this.taskSubmitter);
   }
 
   /**
@@ -123,46 +122,43 @@ public final class MatMultDriver {
   }
 
   /**
-   * Activity is running. Track the compute activities that are running.
-   * Once all compute activities are running submitActivity the ControllerActivity.
+   * Task is running. Track the compute tasks that are running.
+   * Once all compute tasks are running submitTask the ControllerTask.
    */
-  final class RunningActivityHandler implements EventHandler<RunningActivity> {
+  final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
-    public final void onNext(final RunningActivity act) {
-      LOG.log(Level.INFO, "Activity \"{0}\" is running!", act.getId());
-      if (compActRunning.incrementAndGet() == computeActivities) {
-        // All compute activities are running
-        // Launch controller activity
-        activitySubmitter.submitControlActivity();
+    public final void onNext(final RunningTask task) {
+      LOG.log(Level.INFO, "Task \"{0}\" is running!", task.getId());
+      if (compTasksRunning.incrementAndGet() == computeTasks) {
+        // All compute tasks are running - launch controller task
+        taskSubmitter.submitControlTask();
       }
     }
   }
 
   /**
-   * Activity has completed successfully.
+   * Task has completed successfully.
    */
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
     @SuppressWarnings("ConvertToTryWithResources")
-    public final void onNext(final CompletedActivity completed) {
-      LOG.log(Level.INFO, "Activity {0} is done.", completed.getId()
-          .toString());
-      if (activitySubmitter.controllerCompleted(completed.getId())) {
+    public final void onNext(final CompletedTask completed) {
+      LOG.log(Level.INFO, "Task {0} is done.", completed.getId());
+      if (taskSubmitter.controllerCompleted(completed.getId())) {
         // Get results from controller
         System.out.println("****************** RESULT ******************");
         System.out.println(new String(completed.get()));
         System.out.println("********************************************");
       }
       final ActiveContext context = completed.getActiveContext();
-      LOG.log(Level.INFO, "Releasing Context {0}.", context.getId()
-          .toString());
+      LOG.log(Level.INFO, "Releasing Context {0}.", context.getId());
       context.close();
     }
   }
 
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
-    public void onNext(ActiveContext activeContext) {
+    public void onNext(final ActiveContext activeContext) {
       LOG.log(Level.INFO, "Received a RunningEvaluator with ID: {0}", activeContext.getId());
       contextAccumulator.onNext(activeContext);
     }
@@ -173,7 +169,7 @@ public final class MatMultDriver {
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: {0}", startTime);
       MatMultDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(computeActivities + controllerActivities)
+          .setNumber(computeTasks + controllerTasks)
           .setSize(EvaluatorRequest.Size.SMALL).build());
     }
 

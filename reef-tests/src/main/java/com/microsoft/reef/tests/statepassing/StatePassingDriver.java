@@ -15,8 +15,8 @@
  */
 package com.microsoft.reef.tests.statepassing;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
-import com.microsoft.reef.driver.activity.CompletedActivity;
+import com.microsoft.reef.driver.task.TaskConfiguration;
+import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
@@ -77,9 +77,9 @@ public class StatePassingDriver {
 
   private void nextPass(final ActiveContext activeContext) {
     try {
-      activeContext.submitActivity(ActivityConfiguration.CONF
-          .set(ActivityConfiguration.IDENTIFIER, "StatePassing-" + pass)
-          .set(ActivityConfiguration.ACTIVITY, StatePassingActivity.class)
+      activeContext.submitTask(TaskConfiguration.CONF
+          .set(TaskConfiguration.IDENTIFIER, "StatePassing-" + pass)
+          .set(TaskConfiguration.TASK, StatePassingTask.class)
           .build());
       ++pass;
     } catch (final BindException e) {
@@ -87,10 +87,10 @@ public class StatePassingDriver {
     }
   }
 
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public void onNext(final CompletedActivity completed) {
-      LOG.log(Level.INFO, "Received a completed activity: " + completed);
+    public void onNext(final CompletedTask completed) {
+      LOG.log(Level.INFO, "Received a completed task: " + completed);
       final byte[] message = completed.get();
 
       if (message.length != pass) {
@@ -106,7 +106,7 @@ public class StatePassingDriver {
       }
 
       if (pass < PASSES) {
-        LOG.log(Level.INFO, "Submitting the next Activity");
+        LOG.log(Level.INFO, "Submitting the next Task");
         nextPass(completed.getActiveContext());
       } else {
         LOG.log(Level.INFO, "Done");

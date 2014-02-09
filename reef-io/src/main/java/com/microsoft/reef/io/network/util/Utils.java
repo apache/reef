@@ -15,7 +15,11 @@
  */
 package com.microsoft.reef.io.network.util;
 
+import com.google.protobuf.ByteString;
 import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
+import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage;
+import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupMessageBody;
+import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
 import com.microsoft.wake.ComparableIdentifier;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
@@ -88,9 +92,9 @@ public class Utils {
   private static class AddressComparator implements Comparator<Inet4Address> {
 
     @Override
-    public int compare(Inet4Address aa, Inet4Address ba) {
-      byte[] a = aa.getAddress();
-      byte[] b = ba.getAddress();
+    public int compare(final Inet4Address aa, final Inet4Address ba) {
+      final byte[] a = aa.getAddress();
+      final byte[] b = ba.getAddress();
       // local subnet comes after all else.
       if (a[0] == 127 && b[0] != 127) {
         return 1;
@@ -117,18 +121,18 @@ public class Utils {
    * @deprecated
    */
   public static String getLocalAddress() {
-    Enumeration<NetworkInterface> ifaces;
+    final Enumeration<NetworkInterface> ifaces;
     try {
       ifaces = NetworkInterface.getNetworkInterfaces();
-    } catch (SocketException e) {
+    } catch (final SocketException e) {
       throw new NamingRuntimeException("Unable to get local host address", e.getCause());
     }
-    TreeSet<Inet4Address> sortedAddrs = new TreeSet<>(new AddressComparator());
+    final TreeSet<Inet4Address> sortedAddrs = new TreeSet<>(new AddressComparator());
     while (ifaces.hasMoreElements()) {
-      NetworkInterface iface = ifaces.nextElement();
-      Enumeration<InetAddress> addrs = iface.getInetAddresses();
+      final NetworkInterface iface = ifaces.nextElement();
+      final Enumeration<InetAddress> addrs = iface.getInetAddresses();
       while (addrs.hasMoreElements()) {
-        InetAddress a = addrs.nextElement();
+        final InetAddress a = addrs.nextElement();
         if (a instanceof Inet4Address) {
           sortedAddrs.add((Inet4Address) a);
         }
@@ -136,28 +140,21 @@ public class Utils {
     }
     return sortedAddrs.pollFirst().getHostAddress();
   }
-//	public static String getLocalAddress(){
-//	  try {
-//      return InetAddress.getLocalHost().getHostAddress();
-//    } catch (UnknownHostException e) {
-//      throw new NamingRuntimeException("Unable to get local host address", e.getCause());
-//    }
-//	}
 
-	/*public static Configuration NetworkServiceConfiguration(String activityID, String nameServerAddr, int nameServerPort, int netSerPort) throws BindException{
-		JavaConfigurationBuilder jcb = tang.newConfigurationBuilder();
-		
-		jcb.bindNamedParameter(NetworkService.ActivityId.class, activityID);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceIdentifierFactory.class, StringIdentifierFactory.class);
-		jcb.bindNamedParameter(NameServer.NameServerAddr.class, nameServerAddr);
-		jcb.bindNamedParameter(NameServer.NameServerPort.class, Integer.toString(nameServerPort));
-		jcb.bindNamedParameter(NetworkService.NetworkServicePort.class, Integer.toString(netSerPort));
-		jcb.bindNamedParameter(NetworkService.NetworkServiceCodec.class, GCMCodec.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceTransportFactory.class, MessagingTransportFactory.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceHandler.class, GroupCommNetworkHandler.class);
-		jcb.bindNamedParameter(NetworkService.NetworkServiceExceptionHandler.class, ExceptionHandler.class);
-		
-		return jcb.build();
-	}*/
+  public static GroupCommMessage bldGCM(
+      final Type msgType, final Identifier from, final Identifier to, final byte[]... elements) {
 
+    final GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
+    GCMBuilder.setType(msgType);
+    GCMBuilder.setSrcid(from.toString());
+    GCMBuilder.setDestid(to.toString());
+
+    final GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
+    for (final byte[] element : elements) {
+      bodyBuilder.setData(ByteString.copyFrom(element));
+      GCMBuilder.addMsgs(bodyBuilder.build());
+    }
+
+    return GCMBuilder.build();
+  }
 }

@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.local.driver;
 
-import com.microsoft.reef.annotations.audience.ActivitySide;
+import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.annotations.audience.Private;
 
 import java.io.File;
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * A Container that runs an Evaluator in a Process
  */
 @Private
-@ActivitySide
+@TaskSide
 final class ProcessContainer implements Container {
   private static final Logger LOG = Logger.getLogger(ProcessContainer.class.getName());
   private final String errorHandlerRID;
@@ -38,6 +38,7 @@ final class ProcessContainer implements Container {
   private RunnableProcess process;
   private final File folder;
   private final String containedID;
+  private final int megaBytes;
 
   /**
    * @param errorHandlerRID
@@ -45,11 +46,12 @@ final class ProcessContainer implements Container {
    * @param containedID     the  ID used to identify this container uniquely
    * @param folder          the folder in which logs etc. will be deposited
    */
-  ProcessContainer(final String errorHandlerRID, final String nodeID, final String containedID, final File folder) {
+  ProcessContainer(final String errorHandlerRID, final String nodeID, final String containedID, final File folder, final int megaBytes) {
     this.errorHandlerRID = errorHandlerRID;
     this.nodeID = nodeID;
     this.containedID = containedID;
     this.folder = folder;
+    this.megaBytes = megaBytes;
   }
 
   @Override
@@ -76,7 +78,7 @@ final class ProcessContainer implements Container {
 
   @Override
   public final int getMemory() {
-    return 512;
+    return this.megaBytes;
   }
 
   @Override

@@ -58,7 +58,7 @@ public class JobClient {
   private final REEF reef;
 
   /**
-   * Shell command to submitActivity to the job driver.
+   * Shell command to submitTask to the job driver.
    */
   private final String command;
 
@@ -140,7 +140,7 @@ public class JobClient {
           .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
           .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
           .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
+          .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
           .set(DriverConfiguration.ON_CLIENT_MESSAGE, JobDriver.ClientMessageHandler.class)
           .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
           .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)

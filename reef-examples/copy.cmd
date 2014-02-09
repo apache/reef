@@ -27,8 +27,8 @@ copy /y %enlistment_root%\bin\x64\Debug\Incubation\Streaming\StreamInsightActivi
 copy /y %enlistment_root%\bin\x64\Debug\Incubation\Streaming\StreamInsightActivity\Microsoft.Practices.EnterpriseLibrary.Common.* %REEF_HOME%\reef-examples\dotnet
 copy /y %enlistment_root%\bin\x64\Debug\Incubation\Streaming\StreamInsightActivity\Microsoft.Practices.TransientFaultHandling.Core.* %REEF_HOME%\reef-examples\dotnet
 copy /y %enlistment_root%\bin\x64\Debug\Incubation\Streaming\StreamInsightTask\Microsoft.ComplexEventProcessing.* %REEF_HOME%\reef-examples\dotnet
-copy /z /y %REEF_HOME%\..\TANG\tang\src\test\cs\TangTest\bin\x64\Debug\activity.bin  %REEF_HOME%\reef-examples\dotnet
-copy /z /y %REEF_HOME%\..\TANG\tang\src\test\cs\TangTest\bin\x64\Debug\com.microsoft.reef.activity.*  %REEF_HOME%\reef-examples\dotnet
+copy /z /y %REEF_HOME%\..\TANG\tang\src\test\cs\TangTest\bin\x64\Debug\task.bin  %REEF_HOME%\reef-examples\dotnet
+copy /z /y %REEF_HOME%\..\TANG\tang\src\test\cs\TangTest\bin\x64\Debug\com.microsoft.reef.task.*  %REEF_HOME%\reef-examples\dotnet
 copy /z /y %REEF_HOME%\..\TANG\tang\src\test\cs\TangTest\bin\x64\Debug\com.microsoft.reef.activityInterface.*  %REEF_HOME%\reef-examples\dotnet
 
 

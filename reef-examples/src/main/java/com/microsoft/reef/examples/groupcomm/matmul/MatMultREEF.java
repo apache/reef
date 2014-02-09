@@ -40,8 +40,8 @@ public final class MatMultREEF {
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "MatrixMultiply")
           .set(DriverConfiguration.ON_DRIVER_STARTED, MatMultDriver.StartHandler.class)
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, MatMultDriver.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_RUNNING, MatMultDriver.RunningActivityHandler.class)
-          .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, MatMultDriver.CompletedActivityHandler.class)
+          .set(DriverConfiguration.ON_TASK_RUNNING, MatMultDriver.RunningTaskHandler.class)
+          .set(DriverConfiguration.ON_TASK_COMPLETED, MatMultDriver.CompletedTaskHandler.class)
           .set(DriverConfiguration.ON_CONTEXT_ACTIVE, MatMultDriver.ActiveContextHandler.class)
           .build();
       return DriverLauncher.getLauncher(runtimeConfiguration).run(driverConfiguration, 100000);

@@ -15,13 +15,13 @@
  */
 package com.microsoft.reef.tests.evaluatorreuse;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
-import com.microsoft.reef.driver.activity.CompletedActivity;
+import com.microsoft.reef.driver.task.TaskConfiguration;
+import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.tests.exceptions.UnexpectedActivityReturnValue;
+import com.microsoft.reef.tests.exceptions.UnexpectedTaskReturnValue;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -56,16 +56,16 @@ final class Driver {
     this.client = client;
   }
 
-  final class CompletedActivityHandler implements EventHandler<CompletedActivity> {
+  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public void onNext(final CompletedActivity completed) {
+    public void onNext(final CompletedTask completed) {
       final String returned = new String(completed.get());
-      final String msg = "CompletedActivity returned: \"" + returned + "\"";
+      final String msg = "CompletedTask returned: \"" + returned + "\"";
       client.onNext(msg.getBytes());
       if (!returned.equals(lastMessage)) {
-        throw new UnexpectedActivityReturnValue(lastMessage, returned);
+        throw new UnexpectedTaskReturnValue(lastMessage, returned);
       } else {
-        startActivity(completed.getActiveContext());
+        startTask(completed.getActiveContext());
       }
     }
   }
@@ -86,20 +86,20 @@ final class Driver {
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
-      startActivity(context);
+      startTask(context);
     }
   }
 
-  private void startActivity(final ActiveContext context) {
+  private void startTask(final ActiveContext context) {
     if (counter < numberOfIterations) {
       try {
         this.lastMessage = "ECHO-" + counter;
         client.onNext(("Submitting iteration " + counter).getBytes());
         final String memento = DatatypeConverter.printBase64Binary(this.lastMessage.getBytes());
-        context.submitActivity(ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, this.lastMessage)
-            .set(ActivityConfiguration.ACTIVITY, EchoActivity.class)
-            .set(ActivityConfiguration.MEMENTO, memento)
+        context.submitTask(TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, this.lastMessage)
+            .set(TaskConfiguration.TASK, EchoTask.class)
+            .set(TaskConfiguration.MEMENTO, memento)
             .build());
         counter += 1;
       } catch (final BindException e) {

@@ -23,9 +23,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
@@ -57,7 +55,7 @@ public class JobClient {
     private final REEF reef;
 
     /**
-     * Shell command to submitActivity to the job driver.
+     * Shell command to submitTask to the job driver.
      */
     private final String command;
 
@@ -139,7 +137,7 @@ public class JobClient {
                         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
                         .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
                         .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
-                        .set(DriverConfiguration.ON_ACTIVITY_COMPLETED, JobDriver.CompletedActivityHandler.class)
+                        .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
                         .set(DriverConfiguration.ON_CLIENT_MESSAGE, JobDriver.ClientMessageHandler.class)
                         .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
                         .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class);
@@ -148,7 +146,10 @@ public class JobClient {
     private void addCLRFiles( final File folder) throws BindException{
         final File DllsForCLRConfigurationFile = new File(folder, "DllsForCLR.conf");
         try (PrintWriter clientOut = new PrintWriter(DllsForCLRConfigurationFile)) {
-            clientOut.write("Microsoft.Reef.Activity.DBCActivity.dll,com.microsoft.reef.ActivityInterface.dll");
+            clientOut.write("Microsoft.Reef.Task.DBCTask.dll," +
+                            "com.microsoft.reef.TaskInterface.dll, " +
+                            "Microsoft.Reef.Services.DBCServices.dll, " +
+                            "Microsoft.Reef.Services.IServices.dll");
         } catch (final FileNotFoundException e) {
             throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
         }

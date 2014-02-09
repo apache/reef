@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.examples.hello;
 
-import com.microsoft.reef.driver.activity.ActivityConfiguration;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
@@ -63,23 +63,23 @@ public final class HelloDriver {
   }
 
   /**
-   * Handles AllocatedEvaluator: Submit an empty context and the HelloActivity
+   * Handles AllocatedEvaluator: Submit an empty context and the HelloTask
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      LOG.log(Level.INFO, "Submitting HelloCLR activity to AllocatedEvaluator: {0}", allocatedEvaluator);
+      LOG.log(Level.INFO, "Submitting HelloREEF task to AllocatedEvaluator: {0}", allocatedEvaluator);
       try {
         final Configuration contextConfiguration = ContextConfiguration.CONF
             .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
             .build();
-        final Configuration activityConfiguration = ActivityConfiguration.CONF
-            .set(ActivityConfiguration.IDENTIFIER, "HelloREEFActivity")
-            .set(ActivityConfiguration.ACTIVITY, HelloActivity.class)
+        final Configuration taskConfiguration = TaskConfiguration.CONF
+            .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
+            .set(TaskConfiguration.TASK, HelloTask.class)
             .build();
-        allocatedEvaluator.submitContextAndActivity(contextConfiguration, activityConfiguration);
+        allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
       } catch (final BindException ex) {
-        throw new RuntimeException("Unable to setup Activity or Context configuration.", ex);
+        throw new RuntimeException("Unable to setup Task or Context configuration.", ex);
       }
     }
   }

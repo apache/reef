@@ -18,7 +18,7 @@ package com.microsoft.reef.driver.evaluator;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.ContextAndActivitySubmittable;
+import com.microsoft.reef.driver.ContextAndTaskSubmittable;
 import com.microsoft.reef.driver.ContextSubmittable;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.io.naming.Identifiable;
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Public
 @DriverSide
 @Provided
-public interface AllocatedEvaluator extends AutoCloseable, Identifiable, ContextSubmittable, ContextAndActivitySubmittable {
+public interface AllocatedEvaluator extends AutoCloseable, Identifiable, ContextSubmittable, ContextAndTaskSubmittable {
 
 
   /**
@@ -71,13 +71,13 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
                                       final Configuration serviceConfiguration);
 
   @Override
-  public void submitContextAndActivity(final Configuration contextConfiguration,
-                                       final Configuration activityConfiguration);
+  public void submitContextAndTask(final Configuration contextConfiguration,
+                                   final Configuration taskConfiguration);
 
   @Override
-  public void submitContextAndServiceAndActivity(final Configuration contextConfiguration,
-                                                 final Configuration serviceConfiguration,
-                                                 final Configuration activityConfiguration);
+  public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
+                                             final Configuration serviceConfiguration,
+                                             final Configuration taskConfiguration);
 
   /**
    * Set the type of Evaluator to be instantiated. Defaults to EvaluatorType.JVM.
@@ -94,10 +94,10 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
   public void submit(final Configuration contextConfiguration);
 
   /**
-   * @deprecated use submitContextAndActivity() instead.
+   * @deprecated use submitContextAndTask() instead.
    */
   @Deprecated
-  public void submit(final Configuration contextConfiguration, final Configuration activityConfiguration);
+  public void submit(final Configuration contextConfiguration, final Configuration taskConfiguration);
 
   /**
    * Puts the given resource into the working directory of the Evaluator.

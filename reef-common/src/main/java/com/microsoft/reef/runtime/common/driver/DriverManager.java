@@ -163,6 +163,11 @@ final class DriverManager implements EvaluatorRequestor {
     }
     request.setResourceCount(req.getNumber());
 
+    // Copy the requested memory size over.
+    if (req.getMegaBytes() > 0) {
+      request.setMemorySize(req.getMegaBytes());
+    }
+
     final ResourceCatalog.Descriptor descriptor = req.getDescriptor();
     if (descriptor != null) {
       if (descriptor instanceof RackDescriptor) {
@@ -219,7 +224,6 @@ final class DriverManager implements EvaluatorRequestor {
    * Receives and routes heartbeats from Evaluators.
    *
    * @param evaluatorHeartbeatProtoRemoteMessage
-   *
    */
   private final void handle(
       final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
@@ -229,14 +233,15 @@ final class DriverManager implements EvaluatorRequestor {
     final String evaluatorId = status.getEvaluatorId();
 
     LOG.log(Level.FINEST, "Heartbeat from Evaluator {0} with state {1} timestamp {2}",
-        new Object[] { evaluatorId, status.getState(), heartbeat.getTimestamp() });
+        new Object[]{evaluatorId, status.getState(), heartbeat.getTimestamp()});
 
     // Make sure that the timestamp we got for this evaluator is newer than the last one we got.
     this.sanityChecker.check(evaluatorId, heartbeat.getTimestamp());
 
+    EvaluatorManager eManager = null;
     synchronized (this.evaluators) {
       if (this.evaluators.containsKey(evaluatorId)) {
-        this.evaluators.get(evaluatorId).handle(evaluatorHeartbeatProtoRemoteMessage);
+        eManager = this.evaluators.get(evaluatorId);
       } else {
         String msg = "Contact from unknown evaluator identifier " + evaluatorId;
         if (heartbeat.hasEvaluatorStatus()) {
@@ -246,6 +251,7 @@ final class DriverManager implements EvaluatorRequestor {
         throw new RuntimeException(msg);
       }
     }
+    eManager.handle(evaluatorHeartbeatProtoRemoteMessage);
   }
 
   /**
@@ -256,15 +262,17 @@ final class DriverManager implements EvaluatorRequestor {
    * @param resourceStatusProto resource status message from the ResourceManager
    */
   private final void handle(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
+    EvaluatorManager eManager = null;
     synchronized (this.evaluators) {
       if (this.evaluators.containsKey(resourceStatusProto.getIdentifier())) {
-        this.evaluators.get(resourceStatusProto.getIdentifier()).handle(resourceStatusProto);
+        eManager = this.evaluators.get(resourceStatusProto.getIdentifier());
       } else {
         throw new RuntimeException(
             "Unknown resource status from evaluator " + resourceStatusProto.getIdentifier() +
                 " with state " + resourceStatusProto.getState());
       }
     }
+    eManager.handle(resourceStatusProto);
   }
 
   /**
@@ -328,16 +336,18 @@ final class DriverManager implements EvaluatorRequestor {
     final FailedRuntime error = new FailedRuntime(runtimeErrorProto);
     LOG.log(Level.WARNING, "Runtime error: " + error, error.getCause());
 
+    final EvaluatorException evaluatorException = error.getCause() != null ?
+        new EvaluatorException(error.getId(), error.getCause()) :
+        new EvaluatorException(error.getId(), "Runtime error");
+    EvaluatorManager eManager = null;
     synchronized (this.evaluators) {
       if (evaluators.containsKey(error.getId())) {
-        final EvaluatorException evaluatorException = error.getCause() != null ?
-            new EvaluatorException(error.getId(), error.getCause()) :
-            new EvaluatorException(error.getId(), "Runtime error");
-        evaluators.get(error.getId()).handle(evaluatorException);
+        eManager = evaluators.get(error.getId());
       } else {
         LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error, error.getCause());
       }
     }
+    if (null != eManager) eManager.handle(evaluatorException);
   }
 
   /**

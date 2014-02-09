@@ -16,10 +16,10 @@
 package com.microsoft.reef.tests.fail;
 
 import com.microsoft.reef.client.LauncherStatus;
-import com.microsoft.reef.driver.activity.ActivityMessage;
-import com.microsoft.reef.driver.activity.CompletedActivity;
-import com.microsoft.reef.driver.activity.RunningActivity;
-import com.microsoft.reef.driver.activity.SuspendedActivity;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.driver.task.SuspendedTask;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
@@ -85,23 +85,23 @@ public class FailDriverTest {
   }
 
   @Test
-  public void testFailDriverRunningActivity() throws BindException, InjectionException {
-    failOn(RunningActivity.class);
+  public void testFailDriverRunningTask() throws BindException, InjectionException {
+    failOn(RunningTask.class);
   }
 
   @Test
-  public void testFailDriverActivityMessage() throws BindException, InjectionException {
-    failOn(ActivityMessage.class);
+  public void testFailDriverTaskMessage() throws BindException, InjectionException {
+    failOn(TaskMessage.class);
   }
 
   @Test
-  public void testFailDriverSuspendedActivity() throws BindException, InjectionException {
-    failOn(SuspendedActivity.class);
+  public void testFailDriverSuspendedTask() throws BindException, InjectionException {
+    failOn(SuspendedTask.class);
   }
 
   @Test
-  public void testFailDriverCompletedActivity() throws BindException, InjectionException {
-    failOn(CompletedActivity.class);
+  public void testFailDriverCompletedTask() throws BindException, InjectionException {
+    failOn(CompletedTask.class);
   }
 
   @Test
