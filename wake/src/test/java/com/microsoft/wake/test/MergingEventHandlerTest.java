@@ -41,7 +41,7 @@ public class MergingEventHandlerTest {
     final MergingEventHandler<Integer, Integer> dut =
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
       @Override
-      public void onNext(Pair<Integer, Integer> value) {
+      public void onNext(final Pair<Integer, Integer> value) {
         i.addAndGet(value.first + 31 * value.second);
       }
     });
@@ -90,7 +90,7 @@ public class MergingEventHandlerTest {
     final MergingEventHandler<Integer, Integer> dut =
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
       @Override
-      public void onNext(Pair<Integer, Integer> value) {
+      public void onNext(final Pair<Integer, Integer> value) {
         i.addAndGet(value.first + 31 * value.second);
       }
     });
@@ -111,15 +111,15 @@ public class MergingEventHandlerTest {
     final int testRight1 = 23;
     final int testLeft2 = 14;
     final int testRight2 = 1001;
-    final int expected1 = testLeft1 + 31*testRight1;
-    final int expected2 = testLeft2 + 31*testRight2;
+    final int expected1 = testLeft1 + 31 * testRight1;
+    final int expected2 = testLeft2 + 31 * testRight2;
     
     final AtomicInteger i = new AtomicInteger(0);
 
     final MergingEventHandler<Integer, Integer> dut =
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
       @Override
-      public void onNext(Pair<Integer, Integer> value) {
+      public void onNext(final Pair<Integer, Integer> value) {
         i.addAndGet(value.first + 31 * value.second);
       }
     });
@@ -161,11 +161,11 @@ public class MergingEventHandlerTest {
     final int numLeftTasks = 2;
     final int numRightTasks = 4;
     
-    final int eventsPerLeft = expectedEvents/numLeftTasks;
+    final int eventsPerLeft = expectedEvents / numLeftTasks;
     Assert.assertEquals("Test parameters must divide",
         expectedEvents, numLeftTasks * eventsPerLeft);
 
-    final int eventsPerRight = expectedEvents/numRightTasks;
+    final int eventsPerRight = expectedEvents / numRightTasks;
     Assert.assertEquals("Test parameters must divide",
         expectedEvents, numRightTasks * eventsPerRight);
     
@@ -174,7 +174,7 @@ public class MergingEventHandlerTest {
     final MergingEventHandler<Integer, Integer> dut =
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
       @Override
-      public void onNext(Pair<Integer, Integer> value) {
+      public void onNext(final Pair<Integer, Integer> value) {
         i.incrementAndGet();
       }
     });
@@ -222,7 +222,7 @@ public class MergingEventHandlerTest {
     final MergingEventHandler<Boolean, Double> dut =
         new MergingEventHandler<>(new EventHandler<Pair<Boolean, Double>>() {
       @Override
-      public void onNext(Pair<Boolean,Double> value) {
+      public void onNext(final Pair<Boolean,Double> value) {
         i.incrementAndGet();
       }
     });
