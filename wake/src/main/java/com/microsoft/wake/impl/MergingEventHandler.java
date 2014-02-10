@@ -46,8 +46,8 @@ public final class MergingEventHandler<L,R> {
   private L leftEvent;
   private R rightEvent;
 
-  public final EventHandler<L> leftHandler = new Left();
-  public final EventHandler<R> rightHandler = new Right();
+  public final EventHandler<L> left = new Left();
+  public final EventHandler<R> right = new Right();
 
   @Inject
   public MergingEventHandler(final EventHandler<Pair<L, R>> destination) {

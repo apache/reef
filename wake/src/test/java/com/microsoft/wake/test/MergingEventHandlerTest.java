@@ -46,8 +46,8 @@ public class MergingEventHandlerTest {
       }
     });
 
-    dut.leftHandler.onNext(testLeft);
-    dut.rightHandler.onNext(testRight);
+    dut.left.onNext(testLeft);
+    dut.right.onNext(testRight);
 
     Assert.assertEquals(expected, i.get());
   }
@@ -69,8 +69,8 @@ public class MergingEventHandlerTest {
       }
     });
     
-    dut.rightHandler.onNext(testRight);
-    dut.leftHandler.onNext(testLeft);
+    dut.right.onNext(testRight);
+    dut.left.onNext(testLeft);
 
     Assert.assertEquals(expected, i.get());
   }
@@ -95,13 +95,13 @@ public class MergingEventHandlerTest {
       }
     });
     
-    dut.leftHandler.onNext(testLeft1);
-    dut.rightHandler.onNext(testRight1);
+    dut.left.onNext(testLeft1);
+    dut.right.onNext(testRight1);
     
-    dut.leftHandler.onNext(testLeft2);
-    dut.rightHandler.onNext(testRight2);
+    dut.left.onNext(testLeft2);
+    dut.right.onNext(testRight2);
 
-    Assert.assertEquals(expected1+expected2, i.get());
+    Assert.assertEquals(expected1 + expected2, i.get());
   }  
   
   @Test
@@ -130,16 +130,16 @@ public class MergingEventHandlerTest {
     pool.submit(new Runnable() {
       @Override
       public void run() {
-        dut.leftHandler.onNext(testLeft1);
-        dut.rightHandler.onNext(testRight2);
+        dut.left.onNext(testLeft1);
+        dut.right.onNext(testRight2);
       }
     });
 
     pool.submit(new Runnable() {
       @Override
       public void run() {
-        dut.rightHandler.onNext(testRight1);
-        dut.leftHandler.onNext(testLeft2);
+        dut.right.onNext(testRight1);
+        dut.left.onNext(testLeft2);
       }
     });
     
@@ -151,7 +151,7 @@ public class MergingEventHandlerTest {
       Assert.fail("Timeout waiting for events to fire, perhaps due to deadlock");
     }
 
-    Assert.assertEquals(expected1+expected2, i.get());
+    Assert.assertEquals(expected1 + expected2, i.get());
   }  
 
   @Test
@@ -187,7 +187,7 @@ public class MergingEventHandlerTest {
         @Override
         public void run() {
           for (int kk = 0; kk < eventsPerLeft; ++kk) {
-            dut.leftHandler.onNext(kk);
+            dut.left.onNext(kk);
           }
         }
       });
@@ -198,7 +198,7 @@ public class MergingEventHandlerTest {
         @Override
         public void run() {
           for (int kk = 0; kk < eventsPerRight; ++kk) {
-            dut.rightHandler.onNext(kk);
+            dut.right.onNext(kk);
           }
         }
       });
@@ -227,8 +227,8 @@ public class MergingEventHandlerTest {
       }
     });
 
-    dut.leftHandler.onNext(true);
-    dut.rightHandler.onNext(104.0);
+    dut.left.onNext(true);
+    dut.right.onNext(104.0);
 
     Assert.assertEquals(1, i.get());
   }
