@@ -56,7 +56,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
   
-  static int retryCount, retryTimeout;
+  private static final int retryCount, retryTimeout;
   static{
     Tang tang = Tang.Factory.getTang();
     try {
