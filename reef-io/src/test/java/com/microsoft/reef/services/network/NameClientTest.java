@@ -17,9 +17,12 @@ package com.microsoft.reef.services.network;
 
 import com.microsoft.reef.io.network.naming.NameCache;
 import com.microsoft.reef.io.network.naming.NameClient;
+import com.microsoft.reef.io.network.naming.NameLookupClient;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.naming.exception.NamingException;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.NetUtils;
@@ -35,6 +38,17 @@ import java.util.concurrent.ExecutionException;
  * @author shravan
  */
 public class NameClientTest {
+  
+  static int retryCount, retryTimeout;
+  static{
+    Tang tang = Tang.Factory.getTang();
+    try {
+      retryCount = tang.newInjector().getNamedInstance(NameLookupClient.RetryCount.class);
+      retryTimeout = tang.newInjector().getNamedInstance(NameLookupClient.RetryTimeout.class);
+    } catch (InjectionException e1) {
+      throw new RuntimeException("Exception while trying to find default values for retryCount & Timeout", e1);
+    }
+  }
 
   /**
    * @throws java.lang.Exception
@@ -60,7 +74,7 @@ public class NameClientTest {
     IdentifierFactory factory = new StringIdentifierFactory();
     try (NameServer server = new NameServer(0, factory)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory,
+      try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory, retryCount, retryTimeout,
           new NameCache(10000))) {
         Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
@@ -82,7 +96,7 @@ public class NameClientTest {
     IdentifierFactory factory = new StringIdentifierFactory();
     try (NameServer server = new NameServer(0, factory)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory,
+      try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory, retryCount, retryTimeout,
           new NameCache(150))) {
         Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), 7001));

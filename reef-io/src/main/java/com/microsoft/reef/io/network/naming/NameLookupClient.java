@@ -22,6 +22,8 @@ import com.microsoft.reef.io.network.naming.exception.NamingException;
 import com.microsoft.reef.io.network.naming.serialization.NamingLookupRequest;
 import com.microsoft.reef.io.network.naming.serialization.NamingLookupResponse;
 import com.microsoft.reef.io.network.naming.serialization.NamingMessage;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
@@ -46,11 +48,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+
 /**
  * Naming lookup client 
  */
 public class NameLookupClient implements Stage, NamingLookup {
   private static final Logger LOG = Logger.getLogger(NameLookupClient.class.getName());
+  
+  @NamedParameter(doc="When should a retry timeout(msec)?", short_name="retryTimeout", default_value="100")
+  public static class RetryTimeout implements Name<Integer> {}
+  
+  @NamedParameter(doc="How many times should I retry?", short_name="retryCount", default_value="10")
+  public static class RetryCount implements Name<Integer> {}
 
   private final SocketAddress serverSocketAddr;
   private final Transport transport;
@@ -58,6 +68,8 @@ public class NameLookupClient implements Stage, NamingLookup {
   private final BlockingQueue<NamingLookupResponse> replyQueue;
   private final long timeout;
   private final Cache<Identifier, InetSocketAddress> cache;
+  private final int retryCount;
+  private final int retryTimeout;
  
   
   /**
@@ -68,8 +80,10 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory an identifier factory
    * @param cache an cache
    */
-  public NameLookupClient(String serverAddr, int serverPort, IdentifierFactory factory, Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr, serverPort, 10000, factory, cache);
+  public NameLookupClient(String serverAddr, int serverPort,
+      IdentifierFactory factory, int retryCount, int retryTimeout, 
+      Cache<Identifier, InetSocketAddress> cache) {
+    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache);
   }
   
   /**
@@ -81,25 +95,33 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory an identifier factory
    * @param cache an cache
    */
-  public NameLookupClient(String serverAddr, int serverPort, long timeout, IdentifierFactory factory, 
+  public NameLookupClient(String serverAddr, int serverPort, long timeout,
+      IdentifierFactory factory, int retryCount, int retryTimeout, 
       Cache<Identifier, InetSocketAddress> cache) {
     serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
     this.timeout = timeout;
     this.cache = cache;
     replyQueue = new LinkedBlockingQueue<NamingLookupResponse>();
     codec = NamingCodecFactory.createLookupCodec(factory);
-    transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0, 
-        new SyncStage<TransportEvent>(new NamingLookupClientHandler(new NamingLookupResponseHandler(replyQueue), codec)), null);
+    transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
+        new SyncStage<TransportEvent>(new NamingLookupClientHandler(
+            new NamingLookupResponseHandler(replyQueue), codec)), null);
+    this.retryCount = retryCount;
+    this.retryTimeout = retryTimeout;
   }
   
-  NameLookupClient(String serverAddr, int serverPort, long timeout, IdentifierFactory factory, 
-      BlockingQueue<NamingLookupResponse> replyQueue, Transport transport, Cache<Identifier, InetSocketAddress> cache) {
+  NameLookupClient(String serverAddr, int serverPort, long timeout,
+      IdentifierFactory factory, int retryCount, int retryTimeout,
+      BlockingQueue<NamingLookupResponse> replyQueue, Transport transport,
+      Cache<Identifier, InetSocketAddress> cache) {
     serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
     this.timeout = timeout;
     this.cache = cache;
     codec = NamingCodecFactory.createFullCodec(factory);
     this.replyQueue = replyQueue;
     this.transport = transport;
+    this.retryCount = retryCount;
+    this.retryTimeout = retryTimeout;
   }
   
   /**
@@ -115,7 +137,24 @@ public class NameLookupClient implements Stage, NamingLookup {
 
       @Override
       public InetSocketAddress call() throws Exception {
-        return remoteLookup(id);
+        int retryCount = NameLookupClient.this.retryCount;
+        int retryTimeout = NameLookupClient.this.retryTimeout;
+        while(true){
+          try {
+            return remoteLookup(id);
+          } catch (NamingException e) {
+            if(retryCount<=0)
+              throw e;
+            else{
+              LOG.log(Level.WARNING,
+                  "Caught Naming Exception while looking up " + id
+                      + " with Name Server. Will retry " + retryCount
+                      + " time(s) after waiting for " + retryTimeout + " msec.");
+              Thread.sleep(retryTimeout);
+              --retryCount;
+            }
+          }
+        }
       }
       
     });

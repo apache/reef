@@ -31,8 +31,11 @@ import com.microsoft.reef.io.network.Message;
 import com.microsoft.reef.io.network.TransportFactory;
 import com.microsoft.reef.io.network.naming.NameCache;
 import com.microsoft.reef.io.network.naming.NameClient;
+import com.microsoft.reef.io.network.naming.NameLookupClient;
 import com.microsoft.reef.io.network.naming.NameServerParameters;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.Identifier;
@@ -52,6 +55,17 @@ import com.microsoft.wake.remote.transport.Transport;
 public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
+  
+  static int retryCount, retryTimeout;
+  static{
+    Tang tang = Tang.Factory.getTang();
+    try {
+      retryCount = tang.newInjector().getNamedInstance(NameLookupClient.RetryCount.class);
+      retryTimeout = tang.newInjector().getNamedInstance(NameLookupClient.RetryTimeout.class);
+    } catch (InjectionException e1) {
+      throw new RuntimeException("Exception while trying to find default values for retryCount & Timeout", e1);
+    }
+  }
 
   private Identifier myId;
   private final IdentifierFactory factory;
@@ -63,6 +77,19 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
   
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
   private final EStage<Identifier> nameServiceUnregisteringStage;
+  
+  public NetworkService(
+      IdentifierFactory factory,
+      int nsPort,
+      String nameServerAddr,
+      int nameServerPort,
+      Codec<T> codec,
+      TransportFactory tpFactory,
+      EventHandler<Message<T>> recvHandler,
+      EventHandler<Exception> exHandler
+      ){
+    this(factory,nsPort,nameServerAddr,nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler);
+  }
 
   @Inject
   public NetworkService(
@@ -70,6 +97,8 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
       final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
       final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
+      final @Parameter(NameLookupClient.RetryCount.class) int retryCount, 
+      final @Parameter(NameLookupClient.RetryTimeout.class) int retryTimeout,
       final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
       final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
       final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
@@ -79,7 +108,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
     this.codec = codec;
     this.transport = tpFactory.create(nsPort, new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
-    this.nameClient = new NameClient(nameServerAddr, nameServerPort, factory, new NameCache(30000));
+    this.nameClient = new NameClient(nameServerAddr, nameServerPort, factory, retryCount, retryTimeout, new NameCache(30000));
     nsPort = transport.getListeningPort();
 
     nameServiceRegisteringStage = new SingleThreadStage<>("NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
