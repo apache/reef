@@ -208,16 +208,16 @@ public final class JobDriver {
         final ConfigurationBuilder cb = Tang.Factory.getTang()
                 .newConfigurationBuilder(loadCLRClassHierarchyBinFile(DBC_TASK_CLASS_HIERARCHY_FILENAME));
 
-        cb.bind("com.microsoft.reef.task.ITask", "Microsoft.Reef.Task.DBCTask");
+        cb.bind("Microsoft.Reef.Tasks.ITask", "Microsoft.Reef.Tasks.DBCTask");
         if(! (taskKey.equals("s") || taskKey.equals("S")) )
         {
-            cb.bind("Microsoft.Reef.Task.DBCTask+Key", taskKey);
+            cb.bind("Microsoft.Reef.Tasks.DBCTask+Key", taskKey);
         }
         else
         {
-            cb.bind("Microsoft.Reef.Task.DBCTask+Key", "");
+            cb.bind("Microsoft.Reef.Tasks.DBCTask+Key", "");
         }
-        cb.bind("Microsoft.Reef.Task.Configurations.TaskConfigurationOptions.Identifier", taskId);
+        cb.bind("Microsoft.Reef.Tasks.TaskConfigurationOptions.Identifier", taskId);
 
         return cb.build();
     }
