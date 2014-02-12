@@ -57,8 +57,10 @@ public class NameClient implements Stage, Naming {
    * @param factory an identifier factory
    * @param cache a cache
    */
-  public NameClient(String serverAddr, int serverPort, IdentifierFactory factory, Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr, serverPort, 10000, factory, cache);
+  public NameClient(String serverAddr, int serverPort,
+      IdentifierFactory factory, int retryCount, int retryTimeout, 
+      Cache<Identifier, InetSocketAddress> cache) {
+    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache);
   }
   
   /**
@@ -70,15 +72,21 @@ public class NameClient implements Stage, Naming {
    * @param factory an identifier factory
    * @param cache a cache
    */
-  public NameClient(String serverAddr, int serverPort, long timeout, IdentifierFactory factory, Cache<Identifier, InetSocketAddress> cache) {
+  public NameClient(String serverAddr, int serverPort, long timeout,
+      IdentifierFactory factory, int retryCount, int retryTimeout, 
+      Cache<Identifier, InetSocketAddress> cache) {
     BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
     BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
     Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
-    transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0, 
-        new SyncStage<TransportEvent>(new NamingClientEventHandler(new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)), null);
-    
-    lookupClient = new NameLookupClient(serverAddr, serverPort, timeout, factory, replyLookupQueue, transport, cache);
-    registryClient = new NameRegistryClient(serverAddr, serverPort, timeout, factory, replyRegisterQueue, transport);
+    transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
+        new SyncStage<TransportEvent>(new NamingClientEventHandler(
+            new NamingResponseHandler(replyLookupQueue, replyRegisterQueue),
+            codec)), null);
+
+    lookupClient = new NameLookupClient(serverAddr, serverPort, timeout,
+        factory, retryCount, retryTimeout, replyLookupQueue, transport, cache);
+    registryClient = new NameRegistryClient(serverAddr, serverPort, timeout,
+        factory, replyRegisterQueue, transport);
   }
 
   /**

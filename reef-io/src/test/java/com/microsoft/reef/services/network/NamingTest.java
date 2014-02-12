@@ -18,6 +18,8 @@ package com.microsoft.reef.services.network;
 import com.microsoft.reef.io.naming.NameAssignment;
 import com.microsoft.reef.io.network.naming.*;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.NetUtils;
@@ -41,6 +43,17 @@ public class NamingTest {
   final long TTL = 30000;
   int port;
   final IdentifierFactory factory = new StringIdentifierFactory();
+  
+  static int retryCount, retryTimeout;
+  static{
+    Tang tang = Tang.Factory.getTang();
+    try {
+      retryCount = tang.newInjector().getNamedInstance(NameLookupClient.RetryCount.class);
+      retryTimeout = tang.newInjector().getNamedInstance(NameLookupClient.RetryTimeout.class);
+    } catch (InjectionException e1) {
+      throw new RuntimeException("Exception while trying to find default values for retryCount & Timeout", e1);
+    }
+  }
 
   /**
    * NameServer and NameLookupClient test
@@ -64,7 +77,7 @@ public class NamingTest {
     }
 
     // run a client
-    NameLookupClient client = new NameLookupClient(NetUtils.getLocalAddress(), port, 10000, factory, new NameCache(TTL));
+    NameLookupClient client = new NameLookupClient(NetUtils.getLocalAddress(), port, 10000, factory, retryCount, retryTimeout, new NameCache(TTL));
     
     final Identifier id1 = factory.getNewInstance("task1");
     final Identifier id2 = factory.getNewInstance("task2");
@@ -112,7 +125,7 @@ public class NamingTest {
 
       // run a client
       final NameLookupClient client = new NameLookupClient(
-          NetUtils.getLocalAddress(), port, 10000, factory, new NameCache(TTL));
+          NetUtils.getLocalAddress(), port, 10000, factory, retryCount, retryTimeout, new NameCache(TTL));
 
       final Identifier id1 = factory.getNewInstance("task1");
       final Identifier id2 = factory.getNewInstance("task2");
@@ -252,7 +265,7 @@ public class NamingTest {
 
     // registration
     // invoke registration from the client side
-    final NameClient client = new NameClient(NetUtils.getLocalAddress(), port, factory, new NameCache(TTL));
+    final NameClient client = new NameClient(NetUtils.getLocalAddress(), port, factory, retryCount, retryTimeout, new NameCache(TTL));
     for (final Identifier id : idToAddrMap.keySet()) {
       client.register(id, idToAddrMap.get(id));
     }
