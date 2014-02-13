@@ -26,5 +26,10 @@ public enum EvaluatorType {
   /**
    * Indicates an Evaluator that runs on the CLR
    */
-  CLR
+  CLR,
+  /**
+   * Indicates an Evaluator whose type hasn't been decided yet. This is common e.g. between Evaluator allocation
+   * and launch.
+   */
+  UNDECIDED
 }
