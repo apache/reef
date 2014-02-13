@@ -31,4 +31,9 @@ public interface EvaluatorDescriptor {
    * @return the type of Evaluator.
    */
   public EvaluatorType getType();
+
+  /**
+   * @return the amount of memory allocated to this Evaluator.
+   */
+  public int getMemory();
 }

@@ -17,16 +17,13 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.DriverConfigurationOptions;
-import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextMessage;
 import com.microsoft.reef.driver.context.FailedContext;
-import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorType;
-import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.evaluator.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
@@ -73,7 +70,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   @NamedParameter(doc = "The Evaluator Host.")
-  final static class EvaluatorDescriptor implements Name<NodeDescriptor> {
+  final static class EvaluatorDescriptorName implements Name<EvaluatorDescriptorImpl> {
   }
 
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
@@ -106,7 +103,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final String evaluatorId;
 
-  private final NodeDescriptor nodeDescriptor;
+  private final EvaluatorDescriptorImpl evaluatorDescriptor;
 
   private final List<EvaluatorContext> activeContextList = new ArrayList<>();
 
@@ -134,7 +131,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
       final ResourceLaunchHandler resourceLaunchHandler,
       final REEFErrorHandler errorHandler,
       final @Parameter(EvaluatorIdentifier.class) String evaluatorId,
-      final @Parameter(EvaluatorDescriptor.class) NodeDescriptor nodeDescriptor,
+      final @Parameter(EvaluatorDescriptorName.class) EvaluatorDescriptorImpl evaluatorDescriptor,
       final @Parameter(DriverConfigurationOptions.ActiveContextHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
       final @Parameter(DriverConfigurationOptions.ClosedContextHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
       final @Parameter(DriverConfigurationOptions.FailedContextHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
@@ -154,7 +151,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     this.resourceReleaseHandler = resourceReleaseHandler;
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
-    this.nodeDescriptor = nodeDescriptor;
+    this.evaluatorDescriptor = evaluatorDescriptor;
 
     this.dispatcher = new DispatchingEStage(errorHandler, 16); // 16 threads
 
@@ -181,14 +178,14 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @return NodeDescriptor for the node executing this evaluator
    */
   final NodeDescriptor getNodeDescriptor() {
-    return this.nodeDescriptor;
+    return this.getEvaluatorDescriptor().getNodeDescriptor();
   }
 
   /**
    * @return current running task, or null if there is not one.
    */
   final RunningTask getRunningTask() {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       return this.runningTask;
     }
   }
@@ -198,21 +195,17 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
     return this.evaluatorId;
   }
 
-  public EvaluatorType getType() {
-    return type;
-  }
-
   public void setType(final EvaluatorType type) {
-    this.type = type;
+    this.evaluatorDescriptor.setType(type);
   }
 
-  public final com.microsoft.reef.driver.evaluator.EvaluatorDescriptor getEvaluatorDescriptor() {
-    return new EvaluatorDescriptorImpl(this.nodeDescriptor, this.getType());
+  public final EvaluatorDescriptor getEvaluatorDescriptor() {
+    return this.evaluatorDescriptor;
   }
 
   @Override
   public final void close() {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       if (STATE.RUNNING == this.state) {
         LOG.log(Level.WARNING, "Dirty shutdown of running evaluator id[{0}]", getId());
         try {
@@ -277,7 +270,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param exception on the EvaluatorRuntime
    */
   final void handle(final EvaluatorException exception) {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       if (this.state.ordinal() >= STATE.DONE.ordinal()) return;
 
       LOG.log(Level.WARNING, "Failed evaluator: " + getId(), exception);
@@ -312,7 +305,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   final void handle(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
 
       if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
@@ -368,7 +361,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   final void handle(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       if (STATE.ALLOCATED == this.state) {
         this.state = STATE.SUBMITTED;
         this.resourceLaunchHandler.onNext(resourceLaunchProto);
@@ -385,7 +378,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param taskControlProto message contains task control info.
    */
   final void handle(EvaluatorRuntimeProtocol.ContextControlProto taskControlProto) {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       LOG.log(Level.FINEST, "Task control message from {0}", this.evaluatorId);
 
       final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
@@ -403,7 +396,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param evaluatorControlProto message contains evaluator control information.
    */
   final void handle(final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto) {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       if (STATE.RUNNING == this.state) {
         this.evaluatorControlHandler.onNext(evaluatorControlProto);
       } else {
@@ -530,7 +523,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
    * Resource status information from the (actual) resource manager.
    */
   final void handle(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
-    synchronized (this.nodeDescriptor) {
+    synchronized (this.evaluatorDescriptor) {
       LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusProto.getState());
 
       if (resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||

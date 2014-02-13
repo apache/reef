@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -65,6 +66,11 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   @Override
   public final NodeDescriptor getNodeDescriptor() {
     return this.evaluatorManager.getNodeDescriptor();
+  }
+
+  @Override
+  public EvaluatorDescriptor getEvaluatorDescriptor() {
+    return this.evaluatorManager.getEvaluatorDescriptor();
   }
 
   @Override
@@ -179,11 +185,11 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
       }
 
       { // Set the type
-        switch (this.evaluatorManager.getType()) {
+        switch (this.evaluatorManager.getEvaluatorDescriptor().getType()) {
           case CLR:
             rbuilder.setType(ReefServiceProtos.ProcessType.CLR);
             break;
-          case JVM:
+          default:
             rbuilder.setType(ReefServiceProtos.ProcessType.JVM);
         }
       }
