@@ -1,11 +1,16 @@
 package com.microsoft.reef.tests.evaluatorsize;
 
+import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.util.TANGUtils;
+import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
+import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 
@@ -43,10 +48,32 @@ final class Driver {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       final int evaluatorMemory = allocatedEvaluator.getEvaluatorDescriptor().getMemory();
-      allocatedEvaluator.close();
       if (evaluatorMemory < Driver.this.memorySize) {
         throw new DriverSideFailure("Got an Evaluator with too little RAM. Asked for " + Driver.this.memorySize
             + "MB, but got " + evaluatorMemory + "MB.");
+      } else { // ALL good on the Driver side. Let's move on to the Task
+        try {
+          final Configuration contextConfiguration = ContextConfiguration.CONF
+              .set(ContextConfiguration.IDENTIFIER, "EvaluatorSizeTest")
+              .build();
+
+          final Configuration taskConfiguration = TaskConfiguration.CONF
+              .set(TaskConfiguration.TASK, MemorySizeTask.class)
+              .set(TaskConfiguration.IDENTIFIER, "EvaluatorSizeTestTask")
+              .build();
+
+          final Configuration testConfiguration = EvaluatorSizeTestConfiguration.CONF
+              .set(EvaluatorSizeTestConfiguration.MEMORY_SIZE, Driver.this.memorySize)
+              .build();
+
+          final Configuration mergedTaskConfiguration = TANGUtils.merge(taskConfiguration, testConfiguration);
+
+          allocatedEvaluator.submitContextAndTask(contextConfiguration, mergedTaskConfiguration);
+
+        } catch (final BindException e) {
+          throw new DriverSideFailure("Unable to launch Task", e);
+        }
+
       }
     }
   }
