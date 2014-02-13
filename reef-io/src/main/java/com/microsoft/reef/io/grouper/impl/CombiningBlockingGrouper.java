@@ -22,15 +22,17 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.StageConfiguration;
+import com.microsoft.wake.rx.AbstractRxStage;
 import com.microsoft.wake.rx.Observer;
 
 import javax.inject.Inject;
+
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-public class CombiningBlockingGrouper<InType, OutType, K extends Comparable<K>, V> implements Grouper<InType> {
+public class CombiningBlockingGrouper<InType, OutType, K extends Comparable<K>, V> extends AbstractRxStage<InType> implements Grouper<InType> {
   private static final Logger LOG = Logger.getLogger(CombiningBlockingGrouper.class.getName());
   
   private final ConcurrentSkipListMap<K, V> combined;
@@ -54,6 +56,7 @@ public class CombiningBlockingGrouper<InType, OutType, K extends Comparable<K>, 
   public CombiningBlockingGrouper(Combiner<OutType, K, V> c, Partitioner<K> p, Extractor<InType, K, V> ext,
       @Parameter(StageConfiguration.StageObserver.class) Observer<Tuple<Integer, OutType>> o, 
       @Parameter(StageConfiguration.NumberOfThreads.class) int outputThreads) {
+    super("CombiningBlockingGrouper");
     this.c = c;
     this.p = p;
     this.ext = ext;
@@ -129,6 +132,7 @@ public class CombiningBlockingGrouper<InType, OutType, K extends Comparable<K>, 
     }
   
   private void output(K key, V val) {
+    afterOnNext();
     o.onNext(new Tuple<>(p.partition(key), c.generate(key, val)));
   }
   
@@ -178,6 +182,7 @@ public class CombiningBlockingGrouper<InType, OutType, K extends Comparable<K>, 
   }
   @Override
   public void onNext(InType arg0) {
+    beforeOnNext();
     inputObserver.onNext(arg0);
   }
   

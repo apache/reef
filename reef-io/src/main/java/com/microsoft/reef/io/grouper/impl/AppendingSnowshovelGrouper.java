@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,14 +34,15 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.StageConfiguration;
+import com.microsoft.wake.rx.AbstractRxStage;
 import com.microsoft.wake.rx.Observer;
 
-public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>, V> implements Grouper<InType> {
+public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>, V> extends AbstractRxStage<InType> implements Grouper<InType> {
   
   private Logger LOG = Logger.getLogger(AppendingSnowshovelGrouper.class.getName());
   
   private ConcurrentSkipListMap<K, AppendingEntry<V>> register;
-  private boolean inputDone;
+  private volatile boolean inputDone;
   private Combiner<OutType,K, List<V>> c;
   private Partitioner<K> p;
   private Extractor<InType, K, V> ext;
@@ -49,6 +51,7 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
 
   private final EStage<Object> outputDriver;
   private final EventHandler<Integer> doneHandler;
+  private final AtomicInteger sleeping;
   
   @Inject
   public AppendingSnowshovelGrouper(Combiner<OutType, K, List<V>> c, Partitioner<K> p, Extractor<InType, K, V> ext,
@@ -56,22 +59,24 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
       @Parameter(StageConfiguration.NumberOfThreads.class) int outputThreads,
       @Parameter(StageConfiguration.StageName.class) String stageName,
       @Parameter(ContinuousStage.PeriodNS.class) long outputPeriod_ns) {
- 
+    super(stageName);
     this.c = c;
     this.p = p;
     this.ext = ext;
     this.o = o;
     // calling this.new on a @Unit's inner class without its own state is currently the same as Tang injecting it
-    this.outputDriver = new ContinuousStage<Object>(this.new OutputImpl(), outputThreads, stageName, outputPeriod_ns);
+    this.outputDriver = new ContinuousStage<Object>(this.new OutputImpl(), outputThreads, stageName+"-out", outputPeriod_ns);
     this.doneHandler = ((ContinuousStage<Object>)outputDriver).getDoneHandler();
     register = new ConcurrentSkipListMap<>();
     inputDone = false;
     this.inputObserver = this.new InputImpl();
 
+    this.sleeping = new AtomicInteger();
+
     // there is no dependence from input finish to output start
     // The alternative placement of this event is in the first call to onNext,
     // but Output onNext already provides blocking
-    //outputReady.onNext(new GrouperEvent());
+    outputDriver.onNext(new GrouperEvent());
   }
 
   @Inject
@@ -108,7 +113,6 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
       boolean succ = false;
       // conservative flag that says whether we might have made the map go from empty to not empty,
       // meaning that some output threads may be waiting
-      boolean mayHaveFilled = true; 
       oldVal = register.get(key);
       do {
         if (oldVal == null) {
@@ -125,21 +129,20 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
             oldVal = register.get(key);
           else {
             if (LOG.isLoggable(Level.FINER)) LOG.finer("input key:"+key+" val:"+val);
-            mayHaveFilled = false;
             break;
           }
         }
       } while (true);
 
       // TODO: make less conservative
-      if (mayHaveFilled) {
+      if (sleeping.get() > 0) {
         synchronized (register) {
           register.notify();
         }
       }
      
       // notify at least the first time that consuming is possible
-      outputDriver.onNext(new GrouperEvent());
+      //outputDriver.onNext(new GrouperEvent());
       
     }   
   }
@@ -175,10 +178,9 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
         // quick check for empty
         if (register.isEmpty()) {
           // if it may be empty now then wait until filled
-          boolean cachedInputDone = false;
+          sleeping.incrementAndGet();
           synchronized (register) {
             // if observed empty and done then finished outputting
-            cachedInputDone = inputDone;
 
             while (register.isEmpty() && !inputDone) {
               try {
@@ -191,7 +193,8 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
               }
             }
           }
-          if (cachedInputDone) {
+          sleeping.decrementAndGet();
+          if (inputDone) {
             doneHandler.onNext(threadId);
             return;
           }
@@ -204,6 +207,7 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
           if (outEntry != null) {
             // close the queue, claiming the elements
             List<V> outList = outEntry.closeAndRead();
+            afterOnNext();
             o.onNext(new Tuple<>(p.partition(cursor.getKey()), c.generate(cursor.getKey(), outList)));
             flushedSomething = true;
           }
@@ -238,9 +242,15 @@ public class AppendingSnowshovelGrouper<InType, OutType, K extends Comparable<K>
   }
   @Override
   public void onNext(InType arg0) {
+    beforeOnNext();
     inputObserver.onNext(arg0);
   }
 
+  /**
+    * Each map entry is a queue. A consumer closes the queue before reading
+    * so that it is guarenteed not to miss any elements. Since closing is
+    * monotonic, this entry cannot be reused and must be discarded.
+    */
   private class AppendingEntry<VV> {
     private boolean closed;
     private final List<VV> elements;
