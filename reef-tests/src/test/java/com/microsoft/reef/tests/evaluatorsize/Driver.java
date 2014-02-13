@@ -42,7 +42,7 @@ final class Driver {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      final int evaluatorMemory = allocatedEvaluator.getNodeDescriptor().getRAMCapability().getMegaBytes();
+      final int evaluatorMemory = allocatedEvaluator.getEvaluatorDescriptor().getMemory();
       allocatedEvaluator.close();
       if (evaluatorMemory < Driver.this.memorySize) {
         throw new DriverSideFailure("Got an Evaluator with too little RAM. Asked for " + Driver.this.memorySize

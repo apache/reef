@@ -6,13 +6,13 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.RequiredParameter;
 
-final class EvaluatorSizeTestConfiguration extends ConfigurationModuleBuilder {
+public final class EvaluatorSizeTestConfiguration extends ConfigurationModuleBuilder {
 
   @NamedParameter(doc = "The size of the Evaluator to test for")
   public static class MemorySize implements Name<Integer> {
   }
 
-  public static RequiredParameter<Integer> MEMORY_SIZE = new RequiredParameter<>();
+  public static final RequiredParameter<Integer> MEMORY_SIZE = new RequiredParameter<>();
 
   public static final ConfigurationModule CONF = new EvaluatorSizeTestConfiguration()
       .bindNamedParameter(MemorySize.class, MEMORY_SIZE)
