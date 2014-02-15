@@ -68,13 +68,14 @@ public final class HelloStreaming {
     ConfigurationModule driverConf = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloStreaming")
         .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class);
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_TASK_RUNNING, HelloDriver.TaskRunningHandler.class);
 
     driverConf = EnvironmentUtils.addClasspath(driverConf, DriverConfiguration.GLOBAL_LIBRARIES);
 
       final File dllsForCLRConfigurationFile = new File(clrFolder, "DllsForCLR.conf");
       try (PrintWriter clientOut = new PrintWriter(dllsForCLRConfigurationFile)) {
-          clientOut.write("com.microsoft.reef.task.dll,com.microsoft.reef.TaskInterface.dll");
+          clientOut.write("Microsoft.Reef.Tasks.StreamingTask.dll,Microsoft.Reef.Tasks.ITask.dll");
       } catch (final FileNotFoundException e) {
           throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
       }

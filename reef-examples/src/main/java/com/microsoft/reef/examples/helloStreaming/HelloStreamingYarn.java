@@ -15,20 +15,12 @@
  */
 package com.microsoft.reef.examples.helloStreaming;
 
-import com.microsoft.reef.client.DriverConfiguration;
-import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
-import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.OptionalParameter;
-
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,46 +33,14 @@ public final class HelloStreamingYarn {
    * The name of the class hierarchy file.
    */
   // TODO: Make this a config option
-  public static final String CLASS_HIERARCHY_FILENAME = "task.bin";
+  //public static final String CLASS_HIERARCHY_FILENAME = "task.bin";
 
-  private static final Logger LOG = Logger.getLogger(HelloStreaming.class.getName());
+  private static final Logger LOG = Logger.getLogger(HelloStreamingYarn.class.getName());
 
   /**
    * Number of milliseconds to wait for the job to complete.
    */
   private static final int JOB_TIMEOUT = 1000000; // 10 sec.
-
-  private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final File folder) {
-    ConfigurationModule result = conf;
-    for (final File f : folder.listFiles()) {
-      if (f.canRead() && f.exists() && f.isFile()) {
-        result = result.set(param, f.getAbsolutePath());
-      }
-    }
-    return result;
-  }
-
-  public static LauncherStatus runHelloStreamingYarn(final Configuration runtimeConf, final int timeOut, final File clrFolder)
-      throws BindException, InjectionException {
-
-    ConfigurationModule driverConf = DriverConfiguration.CONF
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloStreamingYarn")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class);
-
-    driverConf = EnvironmentUtils.addClasspath(driverConf, DriverConfiguration.GLOBAL_LIBRARIES);
-
-    final File dllsForCLRConfigurationFile = new File(clrFolder, "DllsForCLR.conf");
-    try (PrintWriter clientOut = new PrintWriter(dllsForCLRConfigurationFile)) {
-      clientOut.write("com.microsoft.reef.task.dll,com.microsoft.reef.TaskInterface.dll");
-    } catch (final FileNotFoundException e) {
-      throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
-    }
-
-    driverConf = addAll(driverConf, DriverConfiguration.GLOBAL_FILES, clrFolder);
-
-    return DriverLauncher.getLauncher(runtimeConf).run(driverConf.build(), timeOut);
-  }
 
   /**
    * Start Hello REEF job. Runs method runHelloReef().
@@ -93,7 +53,7 @@ public final class HelloStreamingYarn {
     final Configuration runtimeConfiguration = YarnClientConfiguration.CONF.build();
 
     final File dotNetFolder = new File(args[0]).getAbsoluteFile();
-    final LauncherStatus status = runHelloStreamingYarn(runtimeConfiguration, JOB_TIMEOUT, dotNetFolder);
+    final LauncherStatus status = HelloStreaming.runHelloStreaming(runtimeConfiguration, JOB_TIMEOUT, dotNetFolder);
     LOG.log(Level.INFO, "REEF Streaming Yarn job completed: {0}", status);
   }
 }
