@@ -26,11 +26,15 @@ import com.microsoft.reef.driver.evaluator.EvaluatorType;
 public final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
 
   private final NodeDescriptor nodeDescriptor;
-  private final EvaluatorType type;
+  private EvaluatorType type;
+  private final int megaBytes;
 
-  public EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor, final EvaluatorType type) {
+  public EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
+                                 final EvaluatorType type,
+                                 final int megaBytes) {
     this.nodeDescriptor = nodeDescriptor;
     this.type = type;
+    this.megaBytes = megaBytes;
   }
 
   @Override
@@ -39,7 +43,19 @@ public final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   }
 
   @Override
-  public EvaluatorType getType() {
+  public synchronized EvaluatorType getType() {
     return this.type;
+  }
+
+  @Override
+  public int getMemory() {
+    return this.megaBytes;
+  }
+
+  public synchronized void setType(final EvaluatorType type) {
+    if (this.getType() != EvaluatorType.UNDECIDED) {
+      throw new RuntimeException("Unable to change state of an Evaluator of Type: " + this.getType());
+    }
+    this.type = type;
   }
 }

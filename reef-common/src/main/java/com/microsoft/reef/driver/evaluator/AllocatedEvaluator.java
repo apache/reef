@@ -60,8 +60,16 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
 
   /**
    * @return the node descriptor of the physical environment on this evaluator.
+   * @deprecated use getEvaluatorDescriptor().getNodeDescriptor() instead.
    */
+  @Deprecated
   public NodeDescriptor getNodeDescriptor();
+
+  /**
+   * @return the evaluator descriptor of this evaluator.
+   */
+  public EvaluatorDescriptor getEvaluatorDescriptor();
+
 
   @Override
   public void submitContext(final Configuration contextConfiguration);

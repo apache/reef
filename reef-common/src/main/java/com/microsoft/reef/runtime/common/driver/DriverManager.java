@@ -23,6 +23,7 @@ import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
@@ -30,6 +31,7 @@ import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorDescriptorImpl;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.InjectionFuture;
@@ -207,13 +209,13 @@ final class DriverManager implements EvaluatorRequestor {
    * @param desc NodeDescriptor on which the Evaluator executes.
    * @return a new EvaluatorManager instance.
    */
-  private final EvaluatorManager getNewEvaluatorManagerInstance(final String id, final NodeDescriptor desc) {
+  private final EvaluatorManager getNewEvaluatorManagerInstance(final String id, final EvaluatorDescriptorImpl desc) {
     // TODO: Make this to use the InjectorModule
     try {
       LOG.log(Level.FINEST, "Create Evaluator Manager: {0}", id);
       final Injector child = this.injector.createChildInjector();
       child.bindVolatileParameter(EvaluatorManager.EvaluatorIdentifier.class, id);
-      child.bindVolatileParameter(EvaluatorManager.EvaluatorDescriptor.class, desc);
+      child.bindVolatileParameter(EvaluatorManager.EvaluatorDescriptorName.class, desc);
       return child.getInstance(EvaluatorManager.class);
     } catch (final BindException | InjectionException e) {
       throw new RuntimeException(e);
@@ -288,9 +290,11 @@ final class DriverManager implements EvaluatorRequestor {
         if (nodeDescriptor == null) {
           throw new RuntimeException("Unknown resource: " + resourceAllocationProto.getNodeId());
         }
+        final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
+            EvaluatorType.UNDECIDED, resourceAllocationProto.getResourceMemory());
 
         LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
-        final EvaluatorManager evaluator = getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), nodeDescriptor);
+        final EvaluatorManager evaluator = getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
         this.evaluators.put(resourceAllocationProto.getIdentifier(), evaluator);
       } catch (Exception e) {
         throw new RuntimeException(e);
