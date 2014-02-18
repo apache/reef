@@ -108,6 +108,11 @@ public class JobClient {
   private boolean isBusy = true;
 
   /**
+   * Last result returned from the job driver.
+   */
+  private String lastResult;
+
+  /**
    * Retained Evaluator client.
    * Parameters are injected automatically by TANG.
    *
@@ -222,15 +227,15 @@ public class JobClient {
     public void onNext(final JobMessage message) {
       synchronized (JobClient.this) {
 
-        final String result = CODEC.decode(message.get());
+        lastResult = CODEC.decode(message.get());
         final long jobTime = System.currentTimeMillis() - startTime;
         totalTime += jobTime;
         ++numRuns;
 
         LOG.log(Level.INFO, "TIME: Task {0} completed in {1} msec.:\n{2}",
-                new Object[] { "" + numRuns, "" + jobTime, result });
+                new Object[] { "" + numRuns, "" + jobTime, lastResult });
 
-        System.out.println(result);
+        System.out.println(lastResult);
 
         if (runningJob != null) {
           if (isInteractive || numRuns < maxRuns) {
@@ -290,9 +295,9 @@ public class JobClient {
   }
 
   /**
-   * Wait for the job driver to complete. This method is called from Launcher.main()
+   * Wait for the job driver to complete. This method is called from Launch.main()
    */
-  public void waitForCompletion() {
+  public String waitForCompletion() {
     while (this.isBusy) {
       LOG.info("Waiting for the Job Driver to complete.");
       try {
@@ -304,5 +309,6 @@ public class JobClient {
       }
     }
     this.reef.close();
+    return this.lastResult;
   }
 }

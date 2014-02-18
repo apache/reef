@@ -161,6 +161,18 @@ public final class Launch {
   /**
    * Main method that starts the Retained Evaluators job.
    *
+   * @return a string that contains last results from all evaluators.
+   */
+  public static String run(final Configuration config) throws InjectionException {
+    final Injector injector = Tang.Factory.getTang().newInjector(config);
+    final JobClient client = injector.getInstance(JobClient.class);
+    client.submit();
+    return client.waitForCompletion();
+  }
+
+  /**
+   * Main method that starts the Retained Evaluators job.
+   *
    * @param args command line parameters.
    */
   public static void main(final String[] args) {
@@ -168,10 +180,7 @@ public final class Launch {
       final Configuration config = getClientConfiguration(args);
       LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
           ConfigurationFile.toConfigurationString(config));
-      final Injector injector = Tang.Factory.getTang().newInjector(config);
-      final JobClient client = injector.getInstance(JobClient.class);
-      client.submit();
-      client.waitForCompletion();
+      run(config);
       LOG.info("Done!");
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);

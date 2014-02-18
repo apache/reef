@@ -13,24 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.ds;
+package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.client.ClientConfiguration;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.OSUtils;
+
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
-import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.tang.formats.ConfigurationFile;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Distributed Shell end-to-end test.
  */
-public class LocalThreadsTest {
+public class RetainedEvalTest {
+
+  /**
+   * Standard Java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(RetainedEvalTest.class.getName());
 
   /**
    * Number of worker threads to run.
@@ -38,7 +49,7 @@ public class LocalThreadsTest {
   private static final int NUM_LOCAL_THREADS = 2;
 
   /**
-   * Command to execute in (remote) shells.
+   * Message to print in (remote) shells.
    */
   private static final String MESSAGE = "Hello REEF";
 
@@ -54,22 +65,34 @@ public class LocalThreadsTest {
    */
   @BeforeClass
   public static void setUpClass() throws BindException {
+
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    confBuilder.bindNamedParameter(DSClient.Command.class,
+
+    confBuilder.bindNamedParameter(Launch.Local.class, "true");
+    confBuilder.bindNamedParameter(Launch.NumEval.class, "1");
+    confBuilder.bindNamedParameter(Launch.NumRuns.class, "1");
+    confBuilder.bindNamedParameter(Launch.Command.class,
         (OSUtils.isWindows() ? "cmd.exe /C echo " : "echo ") + MESSAGE);
-    confBuilder.bindNamedParameter(DSClient.Local.class, "true");
-    confBuilder.bindNamedParameter(DSClient.Files.class, "");
+
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
         .build();
+
     final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.ON_JOB_MESSAGE, DistributedShell.JobMessageHandler.class)
-        .set(ClientConfiguration.ON_JOB_COMPLETED, DistributedShell.CompletedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_RUNNING, JobClient.RunningJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_MESSAGE, JobClient.JobMessageHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, JobClient.CompletedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_FAILED, JobClient.FailedJobHandler.class)
+        .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
         .build();
+
     confBuilder.addConfiguration(runtimeConfiguration);
     confBuilder.addConfiguration(clientConfiguration);
+
     sConfig = confBuilder.build();
-    System.out.println(com.microsoft.tang.formats.ConfigurationFile.toConfigurationString(sConfig));
+
+    LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
+        ConfigurationFile.toConfigurationString(sConfig));
   }
 
   /**
@@ -82,7 +105,8 @@ public class LocalThreadsTest {
    */
   @Test
   public void testDistributedShell() throws BindException, InjectionException {
-    final String dsResult = DSClient.runDistributedShell(sConfig);
+    final String dsResult = Launch.run(sConfig);
+    Assert.assertNotNull(dsResult);
     Assert.assertTrue(dsResult.contains(MESSAGE));
   }
 }
