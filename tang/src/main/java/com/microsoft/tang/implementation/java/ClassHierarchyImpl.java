@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.ExternalConstructor;
@@ -42,23 +41,40 @@ import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.PackageNode;
 import com.microsoft.tang.util.MonotonicTreeMap;
-import com.microsoft.tang.util.MonotonicSet;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ClassHierarchyImpl implements JavaClassHierarchy {
   // TODO Want to add a "register namespace" method, but Java is not designed
   // to support such things.
   // There are third party libraries that would help, but they can fail if the
-  // relevant jar has not yet been loaded.
+  // relevant jar has not yet been loaded.  Tint works around this using such
+  // a library.
 
+  /** The classloader that was used to populate this class hierarchy. */
   private final URLClassLoader loader;
+  /**
+   * The jars that are reflected by that loader.  These are in addition to
+   * whatever jars are available by the default classloader (i.e., the one
+   * that loaded Tang.  We need this list so that we can merge class hierarchies
+   * that are backed by different classpaths.
+   */
   private final List<URL> jars;
-
+  /**
+   * A reference to the root package which is a root of a tree of nodes.
+   * The children of each node in the tree are accessible by name, and the
+   * structure of the tree mirrors Java's package namespace.
+   */
   private final PackageNode namespace;
-  private final TreeSet<String> registeredClasses = new MonotonicSet<>();
-  // Note: this is only used to sanity check short names (so that name clashes get resolved).
+  /**
+   * A map from short name to named parameter node.  This is only used to
+   * sanity check short names so that name clashes get resolved.
+   */
   private final Map<String, NamedParameterNode<?>> shortNames = new MonotonicTreeMap<>();
-
+  /**
+   * The ParameterParser that this ClassHierarchy uses to parse default values.
+   * Custom parameter parsers allow applications to extend the set of classes
+   * that Tang can parse.
+   */
   public final ParameterParser parameterParser = new ParameterParser();
 
   @SuppressWarnings("unchecked")
@@ -364,7 +380,6 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
         }
       }
     }
-    registeredClasses.add(ReflectionUtilities.getFullName(c));
     return n;
   }
   @Override
