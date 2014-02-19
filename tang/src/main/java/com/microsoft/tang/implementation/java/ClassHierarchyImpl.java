@@ -77,6 +77,13 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
    */
   public final ParameterParser parameterParser = new ParameterParser();
 
+  /**
+   * A helper method that returns the parsed default value of a given
+   * NamedParameter.
+   * @return null or an empty set if there is no default value, the default value (or set of values) otherwise.
+   * @throws ClassHierarchyException if a default value was specified, but could not be parsed, or if a set of
+   *         values were specified for a non-set parameter.
+   */
   @SuppressWarnings("unchecked")
   @Override
   public <T> T parseDefaultValue(NamedParameterNode<T> name) {
@@ -103,6 +110,15 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
   }
 
+  /**
+   * Parse a string, assuming that it is of the type expected by a given NamedParameter.
+   * 
+   * This method does not deal with sets; if the NamedParameter is set valued, then the provided
+   * string should correspond to a single member of the set.  It is up to the caller to call parse
+   * once for each value that should be parsed as a member of the set.
+   * 
+   * @return a non-null reference to the parsed value.
+   */
   @Override
   @SuppressWarnings("unchecked")
   public <T> T parse(NamedParameterNode<T> np, String value) throws ParseException {
@@ -142,6 +158,10 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
   }
 
+  /**
+   * Helper method that converts a String to a Class using this
+   * ClassHierarchy's classloader.
+   */
   @Override
   public Class<?> classForName(String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
