@@ -46,7 +46,7 @@ public class RetainedEvalTest {
   /**
    * Number of worker threads to run.
    */
-  private static final int NUM_LOCAL_THREADS = 2;
+  private static final int NUM_LOCAL_THREADS = 4;
 
   /**
    * Message to print in (remote) shells.
@@ -69,8 +69,8 @@ public class RetainedEvalTest {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
 
     confBuilder.bindNamedParameter(Launch.Local.class, "true");
-    confBuilder.bindNamedParameter(Launch.NumEval.class, "1");
-    confBuilder.bindNamedParameter(Launch.NumRuns.class, "1");
+    confBuilder.bindNamedParameter(Launch.NumEval.class, "" + NUM_LOCAL_THREADS);
+    confBuilder.bindNamedParameter(Launch.NumRuns.class, "10");
     confBuilder.bindNamedParameter(Launch.Command.class,
         (OSUtils.isWindows() ? "cmd.exe /C echo " : "echo ") + MESSAGE);
 
