@@ -36,7 +36,13 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 
 public class ReflectionUtilities {
+  /**
+   *  This is used to split Java classnames.  Currently, we split on . and on $
+   */
   public final static String regexp = "[\\.\\$]";
+  /**
+   * A map from numeric classes to the number of bits used by their representations.
+   */
   private final static Map<Class<?>, Integer> sizeof = new HashMap<>();
   static {
     sizeof.put(Byte.class, Byte.SIZE);
@@ -47,6 +53,16 @@ public class ReflectionUtilities {
     sizeof.put(Double.class, Double.SIZE);
   }
 
+  /**
+   * Given a primitive type, return its boxed representation.
+   * 
+   * Examples:
+   * boxClass(int.class) -> Integer.class
+   * boxClass(String.class) -> String.class
+   * 
+   * @param c The class to be boxed.
+   * @return The boxed version of c, or c if it is not a primitive type.
+   */
   public static Class<?> boxClass(Class<?> c) {
     if (c.isPrimitive() && c != Class.class) {
       if (c == boolean.class) {
@@ -76,6 +92,17 @@ public class ReflectionUtilities {
     }
   }
   
+  /**
+   * Given a Type, return all of the classes it extends and interfaces it implements (including the class itself).
+   * 
+   * Examples:
+   * Integer.class -> {Integer.class, Number.class, Object.class}
+   * T -> Object
+   * ? -> Object
+   * HashSet<T> -> {HashSet<T>, Set<T>, Collection<T>, Object}
+   * FooEventHandler -> {FooEventHandler, EventHandler<Foo>, Object}
+   * 
+   */
   public static Iterable<Type> classAndAncestors(Type c) {
     List<Type> workQueue = new ArrayList<>();
 
