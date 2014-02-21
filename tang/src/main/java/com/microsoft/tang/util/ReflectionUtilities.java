@@ -137,6 +137,16 @@ public class ReflectionUtilities {
     return workQueue;
   }
 
+  /**
+   * Check to see if one class can be coerced into another.  A class is
+   * coercable to another if, once both are boxed, the target class is a 
+   * superclass or implemented interface of the source class.
+   * 
+   * If both classes are numeric types, then this method returns true iff
+   * the conversion will not result in a loss of precision.
+   * 
+   * TODO: Float and double are currently coercible to int and long.  This is a bug.
+   */
   public static boolean isCoercable(Class<?> to, Class<?> from) {
     to = boxClass(to);
     from = boxClass(from);
@@ -146,6 +156,13 @@ public class ReflectionUtilities {
     }
     return to.isAssignableFrom(from);
   }
+  /**
+   * Lookup the provided name using the provided classloader. This method
+   * includes special handling for primitive types, which can be looked up
+   * by short name (all other types need to be looked up by long name).
+   * 
+   * @throws ClassNotFoundException
+   */
   public static Class<?> classForName(String name, ClassLoader loader)
       throws ClassNotFoundException {
     if (name.startsWith("[")) {
@@ -191,9 +208,29 @@ public class ReflectionUtilities {
     }
     return ret;
   }
+  /**
+   * Return the full name of the raw type of the provided Type.
+   * 
+   * Examples:
+   * 
+   * java.lang.String.class -> "java.lang.String"
+   * Set<String> -> "java.util.Set"  // such types can occur as constructor arguments, for example
+   * 
+   * @param name
+   * @return
+   */
   public static String getFullName(Type name) {
     return getRawClass(name).getName();
   }
+  /**
+   * Return the full name of the provided field.  This will be globally
+   * unique.  Following Java semantics, the full name will have all the
+   * generic parameters stripped out of it.
+   * 
+   * Example:
+   * 
+   * Set<X> { int size; } -> java.util.Set.size
+   */
   public static String getFullName(Field f) {
     return getFullName(f.getDeclaringClass()) + "." + f.getName();
   }
@@ -336,6 +373,16 @@ public class ReflectionUtilities {
     }
   }
 
+  /**
+   * Coerce a Type into a Class.  This strips out any generic paramters, and
+   * resolves wildcards and free parameters to Object.
+   * 
+   * Examples:
+   * java.util.Set<String> -> java.util.Set
+   * ? extends T -> Object
+   * T -> Object
+   * ? -> Object
+   */
   public static Class<?> getRawClass(Type clazz) {
     if(clazz instanceof Class) {
       return (Class<?>)clazz;
