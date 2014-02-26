@@ -9,14 +9,8 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.microsoft.reef</groupId>
-    <version>0.1-SNAPSHOT</version>
     <name>REEF Runtime for YARN</name>
     <artifactId>reef-runtime-yarn</artifactId>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
 
     <dependencies>
         <dependency>
