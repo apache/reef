@@ -4,7 +4,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.wake</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Wake-Project</name>
     <artifactId>wake-project</artifactId>
@@ -157,7 +157,7 @@
             <dependency>
                 <groupId>com.microsoft.tang</groupId>
                 <artifactId>tang</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>0.1-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
