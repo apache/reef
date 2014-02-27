@@ -220,7 +220,7 @@
             <dependency>
                 <groupId>com.microsoft.tang</groupId>
                 <artifactId>tang</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -350,7 +350,7 @@
         <dependency>
             <groupId>com.microsoft.wake</groupId>
             <artifactId>wake</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
