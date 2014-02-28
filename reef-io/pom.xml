@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
-<project
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.microsoft.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
     </parent>
     <artifactId>reef-io</artifactId>
     <name>REEF IO</name>
@@ -21,13 +19,13 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="target/generated-sources/proto"/>
+                                <mkdir dir="target/generated-sources/proto" />
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/"/>
-                                    <arg value="--java_out=target/generated-sources/proto"/>
-                                    <arg value="src/main/proto/group_comm_protocol.proto"/>
-                                    <arg value="src/main/proto/ns_protocol.proto"/>
-                                    <arg value="src/main/proto/naming_protocol.proto"/>
+                                    <arg value="--proto_path=src/main/proto/" />
+                                    <arg value="--java_out=target/generated-sources/proto" />
+                                    <arg value="src/main/proto/group_comm_protocol.proto" />
+                                    <arg value="src/main/proto/ns_protocol.proto" />
+                                    <arg value="src/main/proto/naming_protocol.proto" />
                                 </exec>
                             </tasks>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
@@ -86,7 +84,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore></ignore>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
@@ -105,7 +103,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore></ignore>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
