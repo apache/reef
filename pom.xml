@@ -25,8 +25,9 @@
     </licenses>
 
     <scm>
-        <url>scm:git:https://github.com/Microsoft-CISL/REEF.git</url>
-        <connection>scm:git:https://github.com/Microsoft-CISL/REEF.git</connection>
+        <connection>scm:git:git@github.com:Microsoft-CISL/REEF.git</connection>
+        <developerConnection>scm:git:git@github.com:Microsoft-CISL/REEF.git</developerConnection>
+        <url>git@github.com:Microsoft-CISL/REEF.git</url>
     </scm>
 
     <organization>
@@ -231,7 +232,7 @@
 
             <!-- Testing -->
             <dependency>
-            <groupId>junit</groupId>
+                <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.11</version>
                 <scope>test</scope>
