@@ -16,13 +16,13 @@
 package com.microsoft.reef.tests.fail;
 
 import com.microsoft.reef.client.LauncherStatus;
-import com.microsoft.reef.driver.task.CompletedTask;
-import com.microsoft.reef.driver.task.TaskMessage;
-import com.microsoft.reef.driver.task.RunningTask;
-import com.microsoft.reef.driver.task.SuspendedTask;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.driver.task.SuspendedTask;
+import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
 import com.microsoft.reef.tests.TestUtils;
@@ -69,7 +69,7 @@ public class FailDriverTest {
     failOn(FailDriver.class);
   }
 
-  @Test
+  //  @Test
   public void testFailDriverStart() throws BindException, InjectionException {
     failOn(StartTime.class);
   }
