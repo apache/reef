@@ -40,6 +40,8 @@
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.2.0</hadoop.version>
+        <tang.version>0.1</tang.version>
+        <wake.version>0.1</wake.version>
     </properties>
 
 
@@ -215,26 +217,36 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Tang and Wake -->
             <dependency>
-                <groupId>junit</groupId>
+                <groupId>com.microsoft.tang</groupId>
+                <artifactId>tang</artifactId>
+                <version>${tang.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.wake</groupId>
+                <artifactId>wake</artifactId>
+                <version>${wake.version}</version>
+            </dependency>
+
+            <!-- Testing -->
+            <dependency>
+            <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.11</version>
                 <scope>test</scope>
             </dependency>
-
-            <dependency>
-                <groupId>com.microsoft.tang</groupId>
-                <artifactId>tang</artifactId>
-                <version>0.1-SNAPSHOT</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>1.9.5</version>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.9.5</version>
+            </dependency>
 
             <!-- Google libraries -->
             <dependency>
@@ -261,7 +273,6 @@
                 <artifactId>hadoop-common</artifactId>
                 <version>${hadoop.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-mapreduce-client-core</artifactId>
@@ -277,33 +288,27 @@
                 <artifactId>hadoop-mapreduce-examples</artifactId>
                 <version>${hadoop.version}</version>
             </dependency>
-
-
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-yarn-common</artifactId>
                 <version>${hadoop.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-yarn</artifactId>
                 <version>${hadoop.version}</version>
                 <type>pom</type>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-hdfs</artifactId>
                 <version>${hadoop.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-yarn-client</artifactId>
                 <version>${hadoop.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-minicluster</artifactId>
@@ -319,11 +324,7 @@
             </dependency>
             <!-- End of Apache Commons -->
 
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>1.9.5</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -355,7 +356,6 @@
         <dependency>
             <groupId>com.microsoft.wake</groupId>
             <artifactId>wake</artifactId>
-            <version>0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
