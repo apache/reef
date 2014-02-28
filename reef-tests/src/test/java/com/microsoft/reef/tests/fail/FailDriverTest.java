@@ -64,12 +64,12 @@ public class FailDriverTest {
         SimulatedDriverFailure.class);
   }
 
-  @Test
+  // @Test
   public void testFailDriverConstructor() throws BindException, InjectionException {
     failOn(FailDriver.class);
   }
 
-  //  @Test
+  // @Test
   public void testFailDriverStart() throws BindException, InjectionException {
     failOn(StartTime.class);
   }
