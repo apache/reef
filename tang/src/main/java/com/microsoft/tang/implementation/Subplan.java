@@ -15,13 +15,9 @@
  */
 package com.microsoft.tang.implementation;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
 import com.microsoft.tang.types.Node;
+
+import java.util.*;
 
 final public class Subplan<T> extends InjectionPlan<T> {
   final InjectionPlan<? extends T>[] alternatives;
@@ -47,20 +43,21 @@ final public class Subplan<T> extends InjectionPlan<T> {
     }
   }
 
-  /**
-   * Get child elements of the injection plan tree.
-   * TODO: use ArrayList internally (and maybe for input, too).
-   * @return A list of injection sub-plans.
-   */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  @Override
-  public Collection<InjectionPlan<?>> getChildren() {
-    return (Collection)Collections.unmodifiableCollection(Arrays.asList(this.alternatives));
-  }
-
   @SafeVarargs
   public Subplan(Node node, InjectionPlan<T>... alternatives) {
     this(node, -1, alternatives);
+  }
+
+  /**
+   * Get child elements of the injection plan tree.
+   * TODO: use ArrayList internally (and maybe for input, too).
+   *
+   * @return A list of injection sub-plans.
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  @Override
+  public Collection<InjectionPlan<?>> getChildren() {
+    return (Collection) Collections.unmodifiableCollection(Arrays.asList(this.alternatives));
   }
 
   @Override
@@ -104,6 +101,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
     sb.append("]");
     return sb.toString();
   }
+
   @Override
   public String toShallowString() {
     if (alternatives.length == 1) {
@@ -119,9 +117,11 @@ final public class Subplan<T> extends InjectionPlan<T> {
     sb.append("]");
     return sb.toString();
   }
+
   public int getSelectedIndex() {
     return selectedIndex;
   }
+
   public InjectionPlan<? extends T> getDelegatedPlan() {
     if (selectedIndex == -1) {
       throw new IllegalStateException();
@@ -148,10 +148,10 @@ final public class Subplan<T> extends InjectionPlan<T> {
         }
       }
       StringBuffer sb = new StringBuffer("Ambigous subplan " + getNode().getFullName());
-      for(InjectionPlan<?> alt: alts) {
+      for (InjectionPlan<?> alt : alts) {
         sb.append("\n  " + alt.toShallowString() + " ");
       }
-      for(InjectionPlan<?> alt: ambig) {
+      for (InjectionPlan<?> alt : ambig) {
         sb.append("\n  " + alt.toShallowString() + " ");
       }
       sb.append("\n]");
@@ -163,7 +163,7 @@ final public class Subplan<T> extends InjectionPlan<T> {
   protected String toInfeasibleInjectString() {
     if (alternatives.length == 1) {
       return alternatives[0].toInfeasibleInjectString();
-    } else if(alternatives.length == 0) {
+    } else if (alternatives.length == 0) {
       return "No known implementations / injectable constructors for "
           + this.getNode().getFullName();
     } else if (selectedIndex != -1) {
@@ -180,15 +180,6 @@ final public class Subplan<T> extends InjectionPlan<T> {
 
   public InjectionPlan<?>[] getPlans() {
     return Arrays.copyOf(alternatives, alternatives.length);
-  }
-
-  @Override
-  @Deprecated
-  public boolean hasFutureDependency() {
-    if(selectedIndex == -1) {
-      throw new IllegalStateException("hasFutureDependency() called on ambiguous subplan!");
-    }
-    return alternatives[selectedIndex].hasFutureDependency();
   }
 
 }

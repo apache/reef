@@ -15,14 +15,10 @@
  */
 package com.microsoft.tang.implementation;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
+
+import java.util.*;
 
 final public class Constructor<T> extends InjectionPlan<T> {
 
@@ -40,6 +36,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
    * Get child elements of the injection plan tree.
    * This method is inherited from the Traversable interface.
    * TODO: use ArrayList internally (and maybe for input, too).
+   *
    * @return A list of injection plans for the constructor's arguments.
    */
   @Override
@@ -52,7 +49,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
   }
 
   public Constructor(final ClassNode<T> classNode,
-      final ConstructorDef<T> constructor, final InjectionPlan<?>[] args) {
+                     final ConstructorDef<T> constructor, final InjectionPlan<?>[] args) {
     super(classNode);
     this.constructor = constructor;
     this.args = args;
@@ -168,7 +165,7 @@ final public class Constructor<T> extends InjectionPlan<T> {
     }
 
     if (leaves.size() == 1) {
-     return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName();
+      return getNode().getFullName() + " missing argument " + leaves.get(0).getNode().getFullName();
     } else {
       final StringBuffer sb = new StringBuffer(getNode().getFullName() + " missing arguments: [\n\t");
       for (final InjectionPlan<?> leaf : leaves) {
@@ -181,15 +178,6 @@ final public class Constructor<T> extends InjectionPlan<T> {
 
   @Override
   protected boolean isInfeasibleLeaf() {
-    return false;
-  }
-
-  @Override
-  @Deprecated
-  public boolean hasFutureDependency() {
-    for(InjectionPlan<?> p : args) {
-      if(p.hasFutureDependency()) return true;
-    }
     return false;
   }
 }

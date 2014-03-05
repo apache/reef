@@ -15,18 +15,16 @@
  */
 package com.microsoft.tang;
 
-import javax.inject.Inject;
-
-import org.junit.Test;
-
 import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-
 import junit.framework.Assert;
+import org.junit.Test;
+
+import javax.inject.Inject;
 
 public class TestInjectionFuture {
   @Test
@@ -34,11 +32,11 @@ public class TestInjectionFuture {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
-    
+
     Futurist f = i.getInstance(Futurist.class);
     Assert.assertTrue(f == f.getMyCar().getDriver());
     Assert.assertTrue(f.getMyCar() == f.getMyCar().getDriver().getMyCar());
-    
+
     Futurist f2 = i2.getInstance(Futurist.class);
     Assert.assertTrue(f2 == f2.getMyCar().getDriver());
     Assert.assertTrue(f2.getMyCar() == f2.getMyCar().getDriver().getMyCar());
@@ -47,12 +45,13 @@ public class TestInjectionFuture {
     Assert.assertTrue(f.getMyCar() != f2.getMyCar().getDriver().getMyCar());
 
   }
+
   @Test
   public void testFutures2() throws InjectionException, BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    Injector i2 = i.createChildInjector();
-    
+    Injector i2 = i.forkInjector();
+
     FlyingCar c = i.getInstance(FlyingCar.class);
     Assert.assertTrue(c == c.getDriver().getMyCar());
     Assert.assertTrue(c.getDriver() == c.getDriver().getMyCar().getDriver());
@@ -74,6 +73,7 @@ public class TestInjectionFuture {
     PickyFuturist f = i.getInstance(PickyFuturist.class);
     Assert.assertNotNull(f.getMyCar());
   }
+
   @Test
   public void testNamedParameterInjectionFutureDefaultImpl() throws InjectionException, BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -81,6 +81,7 @@ public class TestInjectionFuture {
     PickyFuturist f = i.getInstance(PickyFuturist.class);
     Assert.assertNotNull(f.getMyCar());
   }
+
   @Test
   public void testNamedParameterInjectionFutureBindImpl() throws InjectionException, BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -88,14 +89,16 @@ public class TestInjectionFuture {
     cb.bindNamedParameter(MyFlyingCar.class, BigFlyingCar.class);
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     PickyFuturist f = i.getInstance(PickyFuturist.class);
-    Assert.assertNotNull((BigFlyingCar)f.getMyCar());
+    Assert.assertNotNull((BigFlyingCar) f.getMyCar());
   }
+
   @Test
   public void testNamedParameterBoundToDelegatingInterface() throws InjectionException, BindException {
     Injector i = Tang.Factory.getTang().newInjector();
     @SuppressWarnings("unused")
     C c = (C) i.getNamedInstance(AName.class);
   }
+
   @Test
   public void testBoundToDelegatingInterface() throws InjectionException, BindException {
     Injector i = Tang.Factory.getTang().newInjector();
@@ -103,65 +106,87 @@ public class TestInjectionFuture {
     C c = (C) i.getInstance(B.class);
   }
 
-  
+
   @DefaultImplementation(Futurist.class)
   public static class Futurist {
     private final InjectionFuture<FlyingCar> f_car;
+
     @Inject
     public Futurist(InjectionFuture<FlyingCar> car) {
       this.f_car = car;
     }
+
     public FlyingCar getMyCar() {
       FlyingCar c = f_car.get();
       return c;
-    }    
+    }
   }
+
   public static class PickyFuturist extends Futurist {
     private final InjectionFuture<FlyingCar> f_car;
+
     @Inject
     public PickyFuturist(@Parameter(MyFlyingCar.class) InjectionFuture<FlyingCar> myFlyingCar) {
       super(myFlyingCar);
       f_car = myFlyingCar;
     }
+
     public FlyingCar getMyCar() {
       FlyingCar c = f_car.get();
       return c;
-    }    
+    }
   }
+
   @DefaultImplementation(FlyingCar.class)
   public static class FlyingCar {
     private final String color;
     private final Futurist driver;
-    @NamedParameter(default_value="blue")
-    class Color implements Name<String> { }
+
+    @NamedParameter(default_value = "blue")
+    class Color implements Name<String> {
+    }
+
     @Inject
     FlyingCar(@Parameter(Color.class) String color, Futurist driver) {
       this.color = color;
       this.driver = driver;
     }
+
     public String getColor() {
       return color;
     }
+
     public Futurist getDriver() {
       return driver;
     }
   }
+
   public static class BigFlyingCar extends FlyingCar {
     @Inject
     BigFlyingCar(@Parameter(Color.class) String color, Futurist driver) {
       super(color, driver);
     }
   }
-  @NamedParameter(default_class=FlyingCar.class)
-  public static class MyFlyingCar implements Name<FlyingCar> {}
-  
-}
-@NamedParameter(default_class=B.class)
-class AName implements Name<A> { }
 
-interface A { }
+  @NamedParameter(default_class = FlyingCar.class)
+  public static class MyFlyingCar implements Name<FlyingCar> {
+  }
+
+}
+
+@NamedParameter(default_class = B.class)
+class AName implements Name<A> {
+}
+
+interface A {
+}
+
 @DefaultImplementation(C.class)
-interface B extends A { }
-class C implements B { 
-  @Inject C () { }
+interface B extends A {
+}
+
+class C implements B {
+  @Inject
+  C() {
+  }
 }

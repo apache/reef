@@ -15,11 +15,11 @@
  */
 package com.microsoft.tang.implementation;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.types.Traversable;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> {
 
@@ -29,6 +29,13 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
     this.node = node;
   }
 
+  private static void newline(StringBuffer pretty, int indent) {
+    pretty.append('\n');
+    for (int j = 0; j < indent * 2; j++) {
+      pretty.append(' ');
+    }
+  }
+
   public Node getNode() {
     return node;
   }
@@ -36,6 +43,7 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
   /**
    * Get child elements of the injection plan tree.
    * By default, returns an empty list.
+   *
    * @return An empty list.
    */
   @SuppressWarnings("unchecked")
@@ -54,23 +62,9 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
 
   abstract public boolean isInjectable();
 
-  /**
-   * This is only here because of old singleton semantics
-   * XXX delete hasFutureDependency()
-   */
-  @Deprecated
-  abstract public boolean hasFutureDependency();
-  
   protected void pad(StringBuffer sb, int n) {
     for (int i = 0; i < n; i++) {
       sb.append("  ");
-    }
-  }
-
-  private static void newline(StringBuffer pretty, int indent) {
-    pretty.append('\n');
-    for (int j = 0; j < indent * 2; j++) {
-      pretty.append(' ');
     }
   }
 
@@ -121,9 +115,9 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
 
   /**
    * Algorithm for generating cant inject string:
-   * 
+   * <p/>
    * For infeasible plans:
-   * 
+   * <p/>
    * Some node types are "leaves":
    * <ul>
    * <li>NamedParameterNode</li>
@@ -133,9 +127,9 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
    * most constructor arguments. When we encounter a constructor whose arguments
    * are all either injectable or non-injectable leaf nodes, we return the name
    * of its parent, and the name of the non-injectable leaves.
-   * 
+   * <p/>
    * For ambiguous plans:
-   * 
+   * <p/>
    * We perform a depth first search of the ambiguous constructors, as above. We
    * return the name of the first class that has multiple constructors that are
    * feasible or ambiguous (as opposed to having a single constructor with an

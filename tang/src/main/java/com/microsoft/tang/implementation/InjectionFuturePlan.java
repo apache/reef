@@ -39,11 +39,6 @@ public class InjectionFuturePlan<T> extends InjectionPlan<T> {
   }
 
   @Override
-  public boolean hasFutureDependency() {
-    return true;
-  }
-
-  @Override
   protected String toAmbiguousInjectString() {
     throw new UnsupportedOperationException("InjectionFuturePlan cannot be ambiguous!");
   }
@@ -60,7 +55,7 @@ public class InjectionFuturePlan<T> extends InjectionPlan<T> {
 
   @Override
   public String toShallowString() {
-    return "InjectionFuture<"+getNode().getFullName()+">";
+    return "InjectionFuture<" + getNode().getFullName() + ">";
   }
 
 }

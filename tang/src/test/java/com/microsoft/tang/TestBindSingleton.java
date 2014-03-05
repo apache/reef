@@ -15,18 +15,16 @@
  */
 package com.microsoft.tang;
 
-import static org.junit.Assert.assertTrue;
-
-import javax.inject.Inject;
-
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ConfigurationFile;
+import junit.framework.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.inject.Inject;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestBindSingleton {
 
@@ -97,7 +95,7 @@ public class TestBindSingleton {
         "Two different injectors should return two different singletons",
         a3 != a1);
 
-    final Injector injector3 = injector2.createChildInjector();
+    final Injector injector3 = injector2.forkInjector();
     final A a4 = injector3.getInstance(A.class);
     assertTrue(
         "Child Injectors should return the same singletons as their parents",
@@ -115,18 +113,18 @@ public class TestBindSingleton {
     i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
     i.getInstance(LateBoundVolatile.A.class);
   }
-  
+
   @Test
   public void testMultipleInjectorInstaceWithSingleton() throws BindException, InjectionException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    
+
     final Injector i1 = Tang.Factory.getTang().newInjector(cb.build());
     final Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
 
     assertTrue("Different injectors should return different singleton object instances", i1.getInstance(AA.class) != i2.getInstance(AA.class));
 
     final Configuration c = cb.build();
-    
+
     final Injector i3 = Tang.Factory.getTang().newInjector(c);
     final Injector i4 = Tang.Factory.getTang().newInjector(c);
 
@@ -251,7 +249,8 @@ public class TestBindSingleton {
     Assert.assertTrue(t.newInjector(b.build()).isInjectable(
         IsBrokenClassInjectable.class));
   }
-  @Test(expected=InjectionException.class)
+
+  @Test(expected = InjectionException.class)
   public void testBrokenSingletonClassCantInject() throws BindException, InjectionException {
     Tang t = Tang.Factory.getTang();
     JavaConfigurationBuilder b = t.newConfigurationBuilder();
