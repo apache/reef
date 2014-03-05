@@ -44,7 +44,7 @@ final class FileSet {
    * @param file
    * @throws IOException
    */
-  final void add(final File file) throws IOException {
+  final void add(final File file) {
     if (file.isFile()) {
       if (this.fileNames.contains(file.getName())) {
         LOG.log(Level.FINEST, "A file with this name has already been added: {0}", file.getName());

@@ -66,7 +66,7 @@ final class DriverFiles {
     this.globalLibs.add(f);
   }
 
-  private void checkFile(final File f) throws IOException {
+  private void checkFile(final File f) {
     if (this.globalLibs.containsFileWithName(f.getName())) {
       LOG.log(Level.FINEST, "Adding a file that is already part of the global libraries: {0}", f);
     }
