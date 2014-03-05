@@ -38,7 +38,6 @@ public final class MatMultREEF {
       final Configuration driverConfiguration = DriverConfiguration.CONF
           .set(DriverConfiguration.ON_DRIVER_STARTED, MatMultDriver.StartHandler.class)
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "MatrixMultiply")
-          .set(DriverConfiguration.ON_DRIVER_STARTED, MatMultDriver.StartHandler.class)
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, MatMultDriver.AllocatedEvaluatorHandler.class)
           .set(DriverConfiguration.ON_TASK_RUNNING, MatMultDriver.RunningTaskHandler.class)
           .set(DriverConfiguration.ON_TASK_COMPLETED, MatMultDriver.CompletedTaskHandler.class)
