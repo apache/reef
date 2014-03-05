@@ -114,7 +114,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusProto> runtimeStatusProtoEventHandler,
       final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationHandler,
       final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler)
-  throws IOException {
+      throws IOException {
 
     this.globalClassPath = globalClassPath;
     this.clock = clock;
@@ -158,7 +158,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         Thread.currentThread().getName().replace(' ', '_'), System.currentTimeMillis());
 
     LOG.log(Level.FINE, "TIME: Allocated Containers {0} {1} of {2}",
-        new Object[] { id, containers.size(), this.requestedContainerCount });
+        new Object[]{id, containers.size(), this.requestedContainerCount});
 
     for (final Container container : containers) {
       handleNewContainer(container);
@@ -345,7 +345,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         container = this.allocatedContainers.get(containerId);
         if (container == null) {
           LOG.log(Level.SEVERE, "Unknown allocated container identifier: {0} of {1}",
-                  new Object[] { containerId, this.allocatedContainers.keySet() });
+              new Object[]{containerId, this.allocatedContainers.keySet()});
           throw new RuntimeException("Unknown allocated container identifier: " + containerId);
         }
       }
@@ -358,7 +358,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       // EVALUATOR CONFIGURATION
       final File evaluatorConfigurationFile = File.createTempFile("evaluator_" + container.getId(), ".conf");
       LOG.log(Level.FINEST, "TIME: Config ResourceLaunchProto {0} {1}",
-              new Object[] { containerId, evaluatorConfigurationFile });
+          new Object[]{containerId, evaluatorConfigurationFile});
 
       FileUtils.writeStringToFile(evaluatorConfigurationFile, resourceLaunchProto.getEvaluatorConf());
       localResources.put(evaluatorConfigurationFile.getName(),
@@ -377,7 +377,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
               LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: reference {0}", dst);
               localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, dst));
             } else {
-              LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload {0} to {1}", new Object[] { src, dst });
+              LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload {0} to {1}", new Object[]{src, dst});
               localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             }
             break;
@@ -387,7 +387,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
               LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: reference {0}", dst);
               localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, dst));
             } else {
-              LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload {0} to {1}", new Object[] { src, dst });
+              LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload {0} to {1}", new Object[]{src, dst});
               localResources.put(file.getName(), YarnUtils.getLocalResource(this.fileSystem, src, dst));
             }
 
@@ -424,7 +424,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
       final String command = StringUtils.join(commandList, ' ');
       LOG.log(Level.FINEST, "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
-          new Object[] { containerId, command, localResources });
+          new Object[]{containerId, command, localResources});
 
       final ContainerLaunchContext ctx = YarnUtils.getContainerLaunchContext(command, localResources);
       nodeManager.startContainerAsync(container, ctx);
@@ -454,9 +454,6 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private void handle(final ResourceRequestProto resourceRequestProto) {
 
-    if (resourceRequestProto.hasMemorySize()) {
-      LOG.log(Level.WARNING, "The YARN runtime currently doesn't support explicit memory sizes.");
-    }
 
     final ResourceRequest request = Records.newRecord(ResourceRequest.class);
 
@@ -473,10 +470,23 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         Records.newRecord(org.apache.hadoop.yarn.api.records.Resource.class);
 
     LOG.log(Level.FINE, "Submit request under registration: {0} capability: {1}",
-            new Object[] { registration, registration.getMaximumResourceCapability() });
+        new Object[]{registration, registration.getMaximumResourceCapability()});
 
-    final int memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(),
-        512, registration.getMaximumResourceCapability().getMemory());
+    // Pare the memory reuqest.
+    final int memory;
+    final int maxMemory = registration.getMaximumResourceCapability().getMemory();
+    if (resourceRequestProto.hasMemorySize()) {
+      final int requestedMemory = resourceRequestProto.getMemorySize();
+      if (requestedMemory > maxMemory) {
+        LOG.log(Level.WARNING, "Asking for " + requestedMemory + "MB of memory, but max on this cluster is: " + maxMemory + "MB");
+        memory = maxMemory;
+      } else {
+        memory = requestedMemory;
+      }
+    } else {
+      memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(), 512, maxMemory);
+    }
+
 
     LOG.log(Level.FINE, "Request memory: {0} MB", memory);
     capability.setMemory(memory);
@@ -624,7 +634,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         container = allocatedContainers.remove(containerId);
         if (container == null) {
           LOG.log(Level.SEVERE, "Unknown allocated container identifier: {0} of {1}",
-                  new Object[] { containerId, allocatedContainers.keySet() });
+              new Object[]{containerId, allocatedContainers.keySet()});
           throw new RuntimeException("Unknown allocated container identifier: " + containerId);
         }
       }
