@@ -18,7 +18,7 @@ package com.microsoft.tang;
 import java.io.File;
 import java.net.MalformedURLException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

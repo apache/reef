@@ -17,7 +17,7 @@ package com.microsoft.tang;
 
 import javax.inject.Inject;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
