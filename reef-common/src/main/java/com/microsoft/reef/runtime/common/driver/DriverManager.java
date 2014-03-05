@@ -213,7 +213,7 @@ final class DriverManager implements EvaluatorRequestor {
     // TODO: Make this to use the InjectorModule
     try {
       LOG.log(Level.FINEST, "Create Evaluator Manager: {0}", id);
-      final Injector child = this.injector.createChildInjector();
+      final Injector child = this.injector.forkInjector();
       child.bindVolatileParameter(EvaluatorManager.EvaluatorIdentifier.class, id);
       child.bindVolatileParameter(EvaluatorManager.EvaluatorDescriptorName.class, desc);
       return child.getInstance(EvaluatorManager.class);

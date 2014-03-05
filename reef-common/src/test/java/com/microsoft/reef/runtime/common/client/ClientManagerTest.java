@@ -73,7 +73,7 @@ public final class ClientManagerTest {
     Mockito.when(this.injector.getInstance(EventHandler.class)).thenReturn(this.runtimeErrorHandler);
 
     Mockito.when(this.injector.getInstance(RunningJob.class)).thenReturn(Mockito.mock(RunningJob.class));
-    Mockito.when(this.injector.createChildInjector()).thenReturn(this.injector);
+    Mockito.when(this.injector.forkInjector()).thenReturn(this.injector);
 
     Mockito.when(this.remoteManager.registerHandler(Mockito.<Class<Object>>any(), Mockito.<EventHandler<RemoteMessage<Object>>>any())).thenReturn(Mockito.mock(AutoCloseable.class));
     Mockito.when(this.remoteManager.registerHandler(Mockito.anyString(), Mockito.<Class<Object>>any(), Mockito.<EventHandler<Object>>any())).thenReturn(Mockito.mock(AutoCloseable.class));

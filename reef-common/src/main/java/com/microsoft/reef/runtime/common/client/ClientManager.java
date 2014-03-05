@@ -223,7 +223,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
       if (status.getState() == ReefServiceProtos.State.INIT) {
         assert (!this.runningJobMap.containsKey(status.getIdentifier()));
         LOG.log(Level.FINEST,  "Initializing running job {0}", status.getIdentifier());
-        final Injector child = this.injector.createChildInjector();
+        final Injector child = this.injector.forkInjector();
         child.bindVolatileParameter(DriverRemoteIdentifier.class, message.getIdentifier().toString());
         child.bindVolatileInstance(JobStatusProto.class, status);
 
