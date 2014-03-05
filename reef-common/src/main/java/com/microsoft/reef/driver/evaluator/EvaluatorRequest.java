@@ -35,7 +35,10 @@ public final class EvaluatorRequest {
 
   /**
    * The size of the Evaluators requested.
+   *
+   * @deprecated in version 0.2. Use explicit memory requests instead.
    */
+  @Deprecated
   public static enum Size {
     SMALL,
     MEDIUM,
