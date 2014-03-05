@@ -48,7 +48,9 @@ public final class EvaluatorContext implements ActiveContext {
 
   @Override
   public void close() {
-    if (this.closed) throw new RuntimeException("Active context already closed");
+    if (this.closed) {
+      throw new RuntimeException("Active context already closed");
+    }
     LOG.log(Level.FINEST, "Submit close context: RunningEvaluator id[" + getEvaluatorId() + "] for context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
