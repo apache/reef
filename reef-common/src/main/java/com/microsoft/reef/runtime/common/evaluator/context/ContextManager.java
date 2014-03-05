@@ -102,7 +102,6 @@ public final class ContextManager implements AutoCloseable {
   /**
    * @return true if there is no context.
    */
-  // TODO: Do we really need this?
   public boolean contextStackIsEmpty() {
     synchronized (this.contextStack) {
       return this.contextStack.isEmpty();
