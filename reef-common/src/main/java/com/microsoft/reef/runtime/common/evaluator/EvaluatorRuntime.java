@@ -92,7 +92,7 @@ final class EvaluatorRuntime {
         if (message.hasContextControl()) {
           LOG.log(Level.FINEST, "Send task control message to ContextManager");
           try {
-            this.contextManager.handleTaskControl(message.getContextControl());
+            this.contextManager.handleContextControlProtocol(message.getContextControl());
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
               this.state = ReefServiceProtos.State.DONE;
               this.heartBeatManager.onNext(this.getEvaluatorStatus());

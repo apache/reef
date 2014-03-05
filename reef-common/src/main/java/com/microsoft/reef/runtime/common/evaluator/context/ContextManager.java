@@ -116,7 +116,7 @@ public final class ContextManager implements AutoCloseable {
    *
    * @param controlMessage the message to process
    */
-  public void handleTaskControl(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
+  public void handleContextControlProtocol(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
 
     synchronized (this.heartBeatManager) {
       try {
