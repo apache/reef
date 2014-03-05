@@ -63,10 +63,6 @@ public final class ResourceManager {
    * Libraries to be added to all evaluators.
    */
   private final List<String> globalLibraries;
-  /**
-   * Files to be added to all evaluators.
-   */
-  private final Set<String> globalFiles;
 
   private final Set<File> globalFilesAndLibraries;
 
@@ -85,11 +81,10 @@ public final class ResourceManager {
     this.defaultMemorySize = defaultMemorySize;
     this.globalLibraries = new ArrayList<>(globalLibraries);
     Collections.sort(this.globalLibraries);
-    this.globalFiles = globalFiles;
 
     this.globalFilesAndLibraries = new HashSet<>(globalFiles.size() + globalLibraries.size());
 
-    for (final String fileName : this.globalFiles) {
+    for (final String fileName : globalFiles) {
       this.globalFilesAndLibraries.add(new File(fileName));
     }
     for (final String fileName : this.globalLibraries) {
