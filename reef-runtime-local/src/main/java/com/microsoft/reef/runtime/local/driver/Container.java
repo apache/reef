@@ -31,14 +31,14 @@ interface Container extends AutoCloseable {
   /**
    * Run the given commandLine in the container.
    *
-   * @param commandLine
+   * @param commandLine the command line to execute. It will typically be joined by spaces to form the command line.
    */
   public void run(final List<String> commandLine);
 
   /**
    * Copies the files to the working directory of the container.
    *
-   * @param files
+   * @param files the files to be added to the container.
    */
   public void addFiles(final Iterable<File> files);
 
@@ -58,9 +58,7 @@ interface Container extends AutoCloseable {
   public String getContainerID();
 
   /**
-   * Access the main memory available to the Container.
-   *
-   * @return
+   * @return the main memory available to the Container.
    */
   public int getMemory();
 

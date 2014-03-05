@@ -102,8 +102,8 @@ final class DriverFiles {
   /**
    * Copies this set of files to the destination folder given.
    *
-   * @param destinationFolder
-   * @throws IOException
+   * @param destinationFolder the folder the files shall be copied to.
+   * @throws IOException if one or more of the copies fail.
    */
   public void copyTo(final File destinationFolder) throws IOException {
     destinationFolder.mkdirs();
@@ -116,12 +116,12 @@ final class DriverFiles {
   /**
    * Fils out a ConfigurationModule.
    *
-   * @param input
+   * @param input           The ConfigurationModule to start with.
    * @param globalFileField the field on which to set() the global files.
    * @param globalLibField  the field on which to set() the global libraries.
    * @param localFileField  the field on which to set() the local files.
    * @param localLibField   the field on which to set() the local libraries.
-   * @return
+   * @return a copy of input with files and libraries added to the given fields.
    */
   public ConfigurationModule addNamesTo(final ConfigurationModule input,
                                         final OptionalParameter<String> globalFileField,
@@ -139,8 +139,8 @@ final class DriverFiles {
   /**
    * Instantiates an instance based on the given JobSubmissionProto
    *
-   * @param jobSubmissionProto
-   * @return
+   * @param jobSubmissionProto the JobSubmissionProto to parse.
+   * @return a DriverFiles instance pre-populated with the information from the given JobSubmissionProto.
    * @throws IOException
    */
   public static DriverFiles fromJobSubmission(

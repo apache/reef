@@ -219,8 +219,8 @@ public final class ResourceManager {
   /**
    * Utility that writes the given string to a file and throw a RuntimeException if it can't
    *
-   * @param message
-   * @param destination
+   * @param message     the message to write.
+   * @param destination the file to write the message to.
    * @return the file given.
    */
   private static File write(final String message, final File destination) {
@@ -235,8 +235,8 @@ public final class ResourceManager {
   /**
    * Assembles the class path: sorts localLibraries and adds the globalLibraries
    *
-   * @param localLibraries
-   * @return
+   * @param localLibraries a list of file names to assemble to a classpath.
+   * @return a classpath list.
    */
   private List<String> assembleClasspath(final List<String> localLibraries) {
     Collections.sort(localLibraries);
@@ -249,8 +249,8 @@ public final class ResourceManager {
   /**
    * Extracts the libraries out of the launchRequest.
    *
-   * @param launchRequest
-   * @return
+   * @param launchRequest the ResourceLaunchProto to parse
+   * @return a list of libraries set in the given ResourceLaunchProto
    */
   private static List<String> getLocalLibraries(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     final List<String> localLibraries = new ArrayList<>();  // Libraries local to this evaluator
@@ -265,8 +265,8 @@ public final class ResourceManager {
   /**
    * Extracts the files out of the launchRequest.
    *
-   * @param launchRequest
-   * @return
+   * @param launchRequest the ResourceLaunchProto to parse
+   * @return a list of files set in the given ResourceLaunchProto
    */
   private static List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     final List<File> files = new ArrayList<>();  // Libraries local to this evaluator
