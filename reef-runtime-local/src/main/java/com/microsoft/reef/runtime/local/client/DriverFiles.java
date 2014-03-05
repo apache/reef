@@ -93,7 +93,7 @@ final class DriverFiles {
     Collections.sort(localList);
     final List<String> globalList = new ArrayList<>(globalLibs.fileNames());
     Collections.sort(globalList);
-    final List classPathList = new ArrayList();
+    final List<String> classPathList = new ArrayList<>();
     classPathList.addAll(localList);
     classPathList.addAll(globalList);
     return StringUtils.join(classPathList, File.pathSeparatorChar);
