@@ -221,18 +221,6 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
-  @Deprecated
-  public final <T> ConfigurationModuleBuilder bindSingletonImplementation(
-      Class<T> iface, Class<? extends T> impl) throws BindException {
-    ConfigurationModuleBuilder c = deepCopy();
-    try {
-      c.b.bindSingletonImplementation(iface, impl);
-    } catch (BindException e) {
-      throw new ClassHierarchyException(e);
-    }
-    return c;
-  }
-
   public final <T> ConfigurationModuleBuilder bindNamedParameter(
       Class<? extends Name<T>> name, String value) {
     ConfigurationModuleBuilder c = deepCopy();
