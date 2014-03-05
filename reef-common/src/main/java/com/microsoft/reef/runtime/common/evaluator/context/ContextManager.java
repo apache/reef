@@ -110,7 +110,7 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * Processes the given TaskControlProto to launch / close / suspend Tasks and Contexts.
+   * Processes the given ContextControlProto to launch / close / suspend Tasks and Contexts.
    * <p/>
    * This also triggers the HeartBeatManager to send a heartbeat with the result of this operation.
    *
@@ -120,10 +120,11 @@ public final class ContextManager implements AutoCloseable {
 
     synchronized (this.heartBeatManager) {
       try {
-        final byte[] message = controlMessage.hasTaskMessage() ? controlMessage.getTaskMessage().toByteArray() : null;
         if (controlMessage.hasAddContext() && controlMessage.hasRemoveContext()) {
           throw new IllegalArgumentException("Received a message with both add and remove context. This is unsupported.");
         }
+
+        final byte[] message = controlMessage.hasTaskMessage() ? controlMessage.getTaskMessage().toByteArray() : null;
 
         if (controlMessage.hasAddContext()) {
           this.addContext(controlMessage.getAddContext());
