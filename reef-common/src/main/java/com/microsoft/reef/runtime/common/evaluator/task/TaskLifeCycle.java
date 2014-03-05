@@ -52,8 +52,8 @@ final class TaskLifeCycle {
   }
 
   public void stop() {
-    for (final EventHandler<TaskStop> startHandler : this.taskStopHandlers) {
-      startHandler.onNext(this.taskStop);
+    for (final EventHandler<TaskStop> stopHandler : this.taskStopHandlers) {
+      stopHandler.onNext(this.taskStop);
     }
   }
 
