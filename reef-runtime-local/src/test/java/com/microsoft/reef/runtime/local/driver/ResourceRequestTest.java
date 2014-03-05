@@ -29,7 +29,7 @@ public final class ResourceRequestTest {
     try {
       final ResourceRequest rr2 = new ResourceRequest(null);
       Assert.fail("Resource Requests should throw an IllegalArgumentException when initialized with null");
-    } catch (IllegalArgumentException ex) {
+    } catch (final IllegalArgumentException ex) {
     }
   }
 
@@ -50,7 +50,7 @@ public final class ResourceRequestTest {
     try {
       rr.satisfyOne();
       Assert.fail("Satisfying more than the request should throw an IllegalStateException");
-    } catch (IllegalStateException ex) {
+    } catch (final IllegalStateException ex) {
     }
   }
 
