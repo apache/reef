@@ -10,18 +10,13 @@
 
     <artifactId>reef-runtime-local</artifactId>
     <name>REEF Runtime Local</name>
-    <description>A local implementation of REEF that uses local JVMsfor execution.</description>
+    <description>A local implementation of REEF that uses local JVMs for execution.</description>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>reef-common</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
