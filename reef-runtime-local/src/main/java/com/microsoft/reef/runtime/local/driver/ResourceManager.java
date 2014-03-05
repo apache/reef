@@ -223,7 +223,7 @@ public final class ResourceManager {
    * @param destination
    * @return the file given.
    */
-  private static final File write(final String message, final File destination) {
+  private static File write(final String message, final File destination) {
     try (final PrintWriter clientOut = new PrintWriter(destination)) {
       clientOut.write(message.toCharArray());
     } catch (final IOException e) {
@@ -238,7 +238,7 @@ public final class ResourceManager {
    * @param localLibraries
    * @return
    */
-  private final List<String> assembleClasspath(final List<String> localLibraries) {
+  private List<String> assembleClasspath(final List<String> localLibraries) {
     Collections.sort(localLibraries);
     final ArrayList<String> classPathList = new ArrayList<>(this.globalLibraries.size() + localLibraries.size());
     classPathList.addAll(localLibraries);
@@ -252,7 +252,7 @@ public final class ResourceManager {
    * @param launchRequest
    * @return
    */
-  private static final List<String> getLocalLibraries(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+  private static List<String> getLocalLibraries(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     final List<String> localLibraries = new ArrayList<>();  // Libraries local to this evaluator
     for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
       if (frp.getType() == ReefServiceProtos.FileType.LIB) {
@@ -268,7 +268,7 @@ public final class ResourceManager {
    * @param launchRequest
    * @return
    */
-  private static final List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+  private static List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     final List<File> files = new ArrayList<>();  // Libraries local to this evaluator
     for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
       files.add(new File(frp.getPath()).getAbsoluteFile());
