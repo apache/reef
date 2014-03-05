@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.runtime.common.driver;
 
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
@@ -30,7 +29,6 @@ import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.formats.ConfigurationModule;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,24 +62,10 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   @Override
-  public final NodeDescriptor getNodeDescriptor() {
-    return this.evaluatorManager.getNodeDescriptor();
-  }
-
-  @Override
   public EvaluatorDescriptor getEvaluatorDescriptor() {
     return this.evaluatorManager.getEvaluatorDescriptor();
   }
 
-  @Override
-  public final void submit(final Configuration contextConfiguration, final Configuration taskConfiguration) {
-    this.submitContextAndTask(contextConfiguration, taskConfiguration);
-  }
-
-  @Override
-  public final void submit(final Configuration contextConfiguration) {
-    submitContext(contextConfiguration);
-  }
 
   @Override
   public void submitContext(final Configuration contextConfiguration) {
@@ -108,15 +92,6 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   @Override
   public void setType(final EvaluatorType type) {
     this.evaluatorManager.setType(type);
-  }
-
-  @Override
-  public void addFileResource(final File file) throws IOException {
-    if (file.getName().toLowerCase().endsWith(".jar")) {
-      this.libraries.add(file);
-    } else {
-      this.files.add(file);
-    }
   }
 
   @Override

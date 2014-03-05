@@ -16,19 +16,17 @@
 package com.microsoft.reef.io.network.util;
 
 import com.google.protobuf.ByteString;
-import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage;
-import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupMessageBody;
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
+import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupMessageBody;
 import com.microsoft.wake.ComparableIdentifier;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Utils {
 
@@ -112,33 +110,6 @@ public class Utils {
       }
       return 0;
     }
-  }
-
-  /**
-   * Call com.microsoft.wake.remote.NetUtils.getLocalAddress instead.
-   *
-   * @return
-   * @deprecated
-   */
-  public static String getLocalAddress() {
-    final Enumeration<NetworkInterface> ifaces;
-    try {
-      ifaces = NetworkInterface.getNetworkInterfaces();
-    } catch (final SocketException e) {
-      throw new NamingRuntimeException("Unable to get local host address", e.getCause());
-    }
-    final TreeSet<Inet4Address> sortedAddrs = new TreeSet<>(new AddressComparator());
-    while (ifaces.hasMoreElements()) {
-      final NetworkInterface iface = ifaces.nextElement();
-      final Enumeration<InetAddress> addrs = iface.getInetAddresses();
-      while (addrs.hasMoreElements()) {
-        final InetAddress a = addrs.nextElement();
-        if (a instanceof Inet4Address) {
-          sortedAddrs.add((Inet4Address) a);
-        }
-      }
-    }
-    return sortedAddrs.pollFirst().getHostAddress();
   }
 
   public static GroupCommMessage bldGCM(

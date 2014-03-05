@@ -15,11 +15,11 @@
  */
 package com.microsoft.reef.tests.files;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
@@ -102,7 +102,7 @@ final class Driver {
       try {
         // Add the files to the Evaluator.
         for (final String fileName : Driver.this.fileNamesToExpect) {
-          allocatedEvaluator.addFileResource(new File(fileName));
+          allocatedEvaluator.addFile(new File(fileName));
         }
 
         // Trivial context Configuration

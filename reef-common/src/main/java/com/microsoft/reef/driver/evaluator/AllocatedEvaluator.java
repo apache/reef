@@ -20,7 +20,6 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.driver.ContextAndTaskSubmittable;
 import com.microsoft.reef.driver.ContextSubmittable;
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.tang.Configuration;
 
@@ -59,13 +58,6 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
   public void close();
 
   /**
-   * @return the node descriptor of the physical environment on this evaluator.
-   * @deprecated use getEvaluatorDescriptor().getNodeDescriptor() instead.
-   */
-  @Deprecated
-  public NodeDescriptor getNodeDescriptor();
-
-  /**
    * @return the evaluator descriptor of this evaluator.
    */
   public EvaluatorDescriptor getEvaluatorDescriptor();
@@ -93,30 +85,5 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
    * @param type
    */
   public void setType(final EvaluatorType type);
-
-
-  /**
-   * @deprecated Use submitContext() instead.
-   */
-  @Deprecated
-  public void submit(final Configuration contextConfiguration);
-
-  /**
-   * @deprecated use submitContextAndTask() instead.
-   */
-  @Deprecated
-  public void submit(final Configuration contextConfiguration, final Configuration taskConfiguration);
-
-  /**
-   * Puts the given resource into the working directory of the Evaluator.
-   * <p/>
-   * If its name ends in ".jar", it will be added to the class path for the
-   * Evaluator.
-   *
-   * @param file that will be added to the local directory of this evaluator
-   * @throws IOException
-   * @deprecated use addFile and addLibrary instead.
-   */
-  public void addFileResource(final File file) throws IOException;
 
 }
