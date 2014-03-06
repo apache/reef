@@ -35,7 +35,10 @@ public final class EvaluatorRequest {
 
   /**
    * The size of the Evaluators requested.
+   *
+   * @deprecated in version 0.2. Use explicit memory requests instead.
    */
+  @Deprecated
   public static enum Size {
     SMALL,
     MEDIUM,
@@ -65,7 +68,9 @@ public final class EvaluatorRequest {
    * Access the size of the evaluator requested.
    *
    * @return the size of the evaluator requested.
+   * @deprecated in version 0.2. Use explicit memory requests instead.
    */
+  @Deprecated
   public Size getSize() {
     return this.size;
   }
@@ -149,15 +154,17 @@ public final class EvaluatorRequest {
      *
      * @param size
      * @return this builder
+     * @deprecated in version 0.2. Use explicit memory requests instead (setMemory).
      */
+    @Deprecated
     public Builder setSize(final Size size) {
       this.evaluatorSize = size;
       return this;
     }
 
     /**
-     * @param megaBytes
-     * @return
+     * @param megaBytes the amount of megabytes to request for the Evaluator.
+     * @return this builder
      */
     public Builder setMemory(final int megaBytes) {
       this.megaBytes = megaBytes;
