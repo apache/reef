@@ -16,6 +16,7 @@
 package com.microsoft.reef.runtime.common.evaluator;
 
 import com.google.protobuf.ByteString;
+import com.microsoft.reef.annotations.audience.EvaluatorSide;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.EvaluatorControlProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.EvaluatorStatusProto;
@@ -34,6 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
+@EvaluatorSide
 final class EvaluatorRuntime {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorRuntime.class.getName());
@@ -90,7 +92,7 @@ final class EvaluatorRuntime {
         if (message.hasContextControl()) {
           LOG.log(Level.FINEST, "Send task control message to ContextManager");
           try {
-            this.contextManager.handleTaskControl(message.getContextControl());
+            this.contextManager.handleContextControlProtocol(message.getContextControl());
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
               this.state = ReefServiceProtos.State.DONE;
               this.heartBeatManager.onNext(this.getEvaluatorStatus());

@@ -47,8 +47,10 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public void close() {
-    if (this.closed) throw new RuntimeException("Active context already closed");
+  public synchronized void close() {
+    if (this.closed) {
+      throw new RuntimeException("Active context already closed");
+    }
     LOG.log(Level.FINEST, "Submit close context: RunningEvaluator id[" + getEvaluatorId() + "] for context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
@@ -62,8 +64,10 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public void sendMessage(final byte[] message) {
-    if (this.closed) throw new RuntimeException("Active context already closed");
+  public synchronized void sendMessage(final byte[] message) {
+    if (this.closed) {
+      throw new RuntimeException("Active context already closed");
+    }
     LOG.log(Level.FINEST, "Send message: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
@@ -77,8 +81,10 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public void submitTask(Configuration taskConf) {
-    if (this.closed) throw new RuntimeException("Active context already closed");
+  public synchronized void submitTask(Configuration taskConf) {
+    if (this.closed) {
+      throw new RuntimeException("Active context already closed");
+    }
     LOG.log(Level.FINEST, "Submit task: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
@@ -92,8 +98,10 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public void submitContext(final Configuration contextConfiguration) {
-    if (this.closed) throw new RuntimeException("Active context already closed");
+  public synchronized void submitContext(final Configuration contextConfiguration) {
+    if (this.closed) {
+      throw new RuntimeException("Active context already closed");
+    }
     LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
@@ -108,8 +116,10 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration) {
-    if (this.closed) throw new RuntimeException("Active context already closed");
+  public synchronized void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration) {
+    if (this.closed) {
+      throw new RuntimeException("Active context already closed");
+    }
     LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =

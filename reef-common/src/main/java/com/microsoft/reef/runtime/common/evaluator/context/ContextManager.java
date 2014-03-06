@@ -102,7 +102,6 @@ public final class ContextManager implements AutoCloseable {
   /**
    * @return true if there is no context.
    */
-  // TODO: Do we really need this?
   public boolean contextStackIsEmpty() {
     synchronized (this.contextStack) {
       return this.contextStack.isEmpty();
@@ -110,20 +109,21 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * Processes the given TaskControlProto to launch / close / suspend Tasks and Contexts.
+   * Processes the given ContextControlProto to launch / close / suspend Tasks and Contexts.
    * <p/>
    * This also triggers the HeartBeatManager to send a heartbeat with the result of this operation.
    *
    * @param controlMessage the message to process
    */
-  public void handleTaskControl(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
+  public void handleContextControlProtocol(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
 
     synchronized (this.heartBeatManager) {
       try {
-        final byte[] message = controlMessage.hasTaskMessage() ? controlMessage.getTaskMessage().toByteArray() : null;
         if (controlMessage.hasAddContext() && controlMessage.hasRemoveContext()) {
           throw new IllegalArgumentException("Received a message with both add and remove context. This is unsupported.");
         }
+
+        final byte[] message = controlMessage.hasTaskMessage() ? controlMessage.getTaskMessage().toByteArray() : null;
 
         if (controlMessage.hasAddContext()) {
           this.addContext(controlMessage.getAddContext());
