@@ -478,7 +478,8 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     if (resourceRequestProto.hasMemorySize()) {
       final int requestedMemory = resourceRequestProto.getMemorySize();
       if (requestedMemory > maxMemory) {
-        LOG.log(Level.WARNING, "Asking for " + requestedMemory + "MB of memory, but max on this cluster is: " + maxMemory + "MB");
+        LOG.log(Level.WARNING, "Asking for {0}MB of memory, but max on this cluster is {1}MB ",
+            new Object[]{requestedMemory, maxMemory});
         memory = maxMemory;
       } else {
         memory = requestedMemory;
@@ -509,6 +510,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   /**
    * Update the driver with my current status
    */
+
   private void updateRuntimeStatus() {
     final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder;
     synchronized (this.allocatedContainers) {
