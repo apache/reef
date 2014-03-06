@@ -16,20 +16,20 @@
 package com.microsoft.reef.services.network.group;
 
 import java.util.Collections;
-import java.util.Random;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.group.impl.ExceptionHandler;
 import com.microsoft.reef.io.network.group.impl.GCMCodec;
 import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadRedHandler;
+import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadReduceConfig;
 import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadcastHandler;
 import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadcastOp;
-import com.microsoft.reef.io.network.group.impl.operators.faulty.NetworkFault;
 import com.microsoft.reef.io.network.group.impl.operators.faulty.ReduceHandler;
 import com.microsoft.reef.io.network.group.impl.operators.faulty.ReduceOp;
-import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadcastOp.Sender;
-import com.microsoft.reef.io.network.group.impl.operators.faulty.ReduceOp.Receiver;
+import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadcastOp.Receiver;
+import com.microsoft.reef.io.network.group.impl.operators.faulty.ReduceOp.Sender;
 import com.microsoft.reef.io.network.group.operators.Reduce.ReduceFunction;
 import com.microsoft.reef.io.network.impl.MessagingTransportFactory;
 import com.microsoft.reef.io.network.impl.NetworkService;
@@ -45,20 +45,19 @@ import com.microsoft.wake.remote.NetUtils;
 /**
  * 
  */
-public class ChkBroadcastMemLeakSnd {
+public class CheckBroadcastMemoryLeakReceiver {
   private static final IdentifierFactory idFac = new StringIdentifierFactory();
   private static final String nameServiceAddr = NetUtils.getLocalAddress();
   private static final int nameServicePort = 5678;
   
-
   /**
    * @param args
    * @throws Exception 
    */
   public static void main(String[] args) throws Exception {
-    Thread.sleep(1000);
-    Identifier senderId = idFac.getNewInstance("SENDER");
-    Identifier receiverId = idFac.getNewInstance("RECEIVER");
+    Identifier senderId = idFac.getNewInstance(args[0]);
+    Identifier receiverId = idFac.getNewInstance(args[1]);
+    boolean leaf = receiverId.toString().indexOf("LEAF") != -1;
     Codec<byte[]> baCodec = new Codec<byte[]>() {
       
       @Override
@@ -72,13 +71,24 @@ public class ChkBroadcastMemLeakSnd {
       }
     };
     EventHandler<Exception> excHandler = new ExceptionHandler();
-    final Set<String> rcvIds = Collections.singleton(receiverId.toString());
-    final BroadcastHandler sndHandler = new BroadcastHandler(rcvIds, idFac);
-    final ReduceHandler rcvHandler = new ReduceHandler(rcvIds, idFac);
-    final BroadRedHandler sndRcvHandler = new BroadRedHandler(sndHandler, rcvHandler);
-    final NetworkService<GroupCommMessage> senderService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(), new MessagingTransportFactory(), sndRcvHandler, excHandler);
-    senderService.registerId(senderId);
-    final BroadcastOp.Sender<byte[]> brdCstSender = new BroadcastOp.Sender<>(senderService, sndHandler, baCodec, senderId.toString(), null, rcvIds, idFac);
+    com.microsoft.reef.io.network.group.impl.operators.faulty.ExceptionHandler redExcHandler = new com.microsoft.reef.io.network.group.impl.operators.faulty.ExceptionHandler();
+    final Set<String> sndIds = Collections.singleton(senderId.toString());
+    Set<String> rcvChildren = null;
+    Set<String> rcvIds = new HashSet<>(sndIds);
+    if(leaf)
+      rcvChildren = Collections.singleton(BroadReduceConfig.defaultValue);
+    else{
+      rcvChildren = new HashSet<>();
+      rcvChildren.add("RECEIVERLEAF1");
+      rcvChildren.add("RECEIVERLEAF2");
+      rcvIds.addAll(rcvChildren);
+    }
+    final BroadcastHandler rcvHandler = new BroadcastHandler(rcvIds, idFac);
+    final ReduceHandler sndHandler = new ReduceHandler(rcvIds, idFac);
+    final BroadRedHandler rcvSndHandler = new BroadRedHandler(rcvHandler, sndHandler);
+    final NetworkService<GroupCommMessage> recvService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(), new MessagingTransportFactory(), rcvSndHandler, excHandler);
+    recvService.registerId(receiverId);
+    final BroadcastOp.Receiver<byte[]> brdCstReceiver = new BroadcastOp.Receiver<>(recvService, rcvHandler, baCodec, receiverId.toString(), senderId.toString(), rcvChildren, idFac);
     ReduceFunction<byte[]> redFunc = new ReduceFunction<byte[]>() {
 
       @Override
@@ -86,24 +96,21 @@ public class ChkBroadcastMemLeakSnd {
         return elements.iterator().next();
       }
     };
-    final ReduceOp.Receiver<byte[]> reduceReceiver = new ReduceOp.Receiver<>(senderService, rcvHandler, baCodec, redFunc, senderId.toString(), null, rcvIds, idFac);
-    
+    final ReduceOp.Sender<byte[]> reduceSener = new ReduceOp.Sender<>(recvService, sndHandler, baCodec, redFunc , receiverId.toString(), senderId.toString(), rcvChildren, false, idFac, redExcHandler);
     final int iterations = 100;
-    Random r = new Random(1337);
-    byte[] rBytes = new byte[1<<26];
-    r.nextBytes(rBytes);
     for(int i=0;i<iterations;i++){
       try {
-        brdCstSender.send(rBytes);
-        reduceReceiver.reduce();
-        System.out.println("Sent " + (i+1));
-//        Thread.sleep(6000);
-      } catch (NetworkFault | NetworkException | InterruptedException e) {
+        byte[] b = brdCstReceiver.receive();
+        reduceSener.send(b);
+        System.out.println("Received " + (i+1));
+      } catch (NetworkException | InterruptedException e) {
         e.printStackTrace();
       }
     }
-    senderService.unregisterId(senderId);
-    senderService.close();
+    Thread.sleep(10000);
+    recvService.unregisterId(receiverId);
+    recvService.close();
+    System.exit(0);
   }
 
 }
