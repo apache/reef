@@ -338,9 +338,7 @@ public class TestTang {
     tc = tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
     Assert.assertEquals(-1, tc.i);
     Assert.assertEquals("default", tc.s);
-    Assert.assertEquals(2.0f, tc.f);
-
-    
+    Assert.assertEquals(2.0f, tc.f, 1e-9);
   }
 
   @Test
