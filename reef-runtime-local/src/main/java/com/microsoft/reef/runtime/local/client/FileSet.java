@@ -41,10 +41,9 @@ final class FileSet {
    * <p/>
    * Files already added will be ignored.
    *
-   * @param file
-   * @throws IOException
+   * @param file the file to be added.
    */
-  final void add(final File file) throws IOException {
+  final void add(final File file) {
     if (file.isFile()) {
       if (this.fileNames.contains(file.getName())) {
         LOG.log(Level.FINEST, "A file with this name has already been added: {0}", file.getName());
@@ -71,7 +70,7 @@ final class FileSet {
   /**
    * Copies all files in the current FileSet to the given destinationFolder.
    *
-   * @param destinationFolder
+   * @param destinationFolder the folder where the files shall be copied to.
    * @throws IOException
    */
   final void copyTo(final File destinationFolder) throws IOException {
@@ -84,8 +83,8 @@ final class FileSet {
   /**
    * Adds the file names of this FileSet to the given field of the given ConfigurationModule.
    *
-   * @param input
-   * @param field
+   * @param input the ConfigurationModule to fill out
+   * @param field the field to add the files in this set to.
    * @return the filled out ConfigurationModule
    */
   final ConfigurationModule addNamesTo(final ConfigurationModule input, final OptionalParameter<String> field) {

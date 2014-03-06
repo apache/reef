@@ -63,10 +63,6 @@ public final class ResourceManager {
    * Libraries to be added to all evaluators.
    */
   private final List<String> globalLibraries;
-  /**
-   * Files to be added to all evaluators.
-   */
-  private final Set<String> globalFiles;
 
   private final Set<File> globalFilesAndLibraries;
 
@@ -85,11 +81,10 @@ public final class ResourceManager {
     this.defaultMemorySize = defaultMemorySize;
     this.globalLibraries = new ArrayList<>(globalLibraries);
     Collections.sort(this.globalLibraries);
-    this.globalFiles = globalFiles;
 
     this.globalFilesAndLibraries = new HashSet<>(globalFiles.size() + globalLibraries.size());
 
-    for (final String fileName : this.globalFiles) {
+    for (final String fileName : globalFiles) {
       this.globalFilesAndLibraries.add(new File(fileName));
     }
     for (final String fileName : this.globalLibraries) {
@@ -224,11 +219,11 @@ public final class ResourceManager {
   /**
    * Utility that writes the given string to a file and throw a RuntimeException if it can't
    *
-   * @param message
-   * @param destination
+   * @param message     the message to write.
+   * @param destination the file to write the message to.
    * @return the file given.
    */
-  private static final File write(final String message, final File destination) {
+  private static File write(final String message, final File destination) {
     try (final PrintWriter clientOut = new PrintWriter(destination)) {
       clientOut.write(message.toCharArray());
     } catch (final IOException e) {
@@ -240,10 +235,10 @@ public final class ResourceManager {
   /**
    * Assembles the class path: sorts localLibraries and adds the globalLibraries
    *
-   * @param localLibraries
-   * @return
+   * @param localLibraries a list of file names to assemble to a classpath.
+   * @return a classpath list.
    */
-  private final List<String> assembleClasspath(final List<String> localLibraries) {
+  private List<String> assembleClasspath(final List<String> localLibraries) {
     Collections.sort(localLibraries);
     final ArrayList<String> classPathList = new ArrayList<>(this.globalLibraries.size() + localLibraries.size());
     classPathList.addAll(localLibraries);
@@ -254,10 +249,10 @@ public final class ResourceManager {
   /**
    * Extracts the libraries out of the launchRequest.
    *
-   * @param launchRequest
-   * @return
+   * @param launchRequest the ResourceLaunchProto to parse
+   * @return a list of libraries set in the given ResourceLaunchProto
    */
-  private static final List<String> getLocalLibraries(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+  private static List<String> getLocalLibraries(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     final List<String> localLibraries = new ArrayList<>();  // Libraries local to this evaluator
     for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
       if (frp.getType() == ReefServiceProtos.FileType.LIB) {
@@ -270,10 +265,10 @@ public final class ResourceManager {
   /**
    * Extracts the files out of the launchRequest.
    *
-   * @param launchRequest
-   * @return
+   * @param launchRequest the ResourceLaunchProto to parse
+   * @return a list of files set in the given ResourceLaunchProto
    */
-  private static final List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+  private static List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     final List<File> files = new ArrayList<>();  // Libraries local to this evaluator
     for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
       files.add(new File(frp.getPath()).getAbsoluteFile());

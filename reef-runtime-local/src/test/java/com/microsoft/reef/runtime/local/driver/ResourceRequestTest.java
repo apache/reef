@@ -22,16 +22,18 @@ import org.junit.Test;
 
 public final class ResourceRequestTest {
 
-  @Test
+  @Test()
   public void testInitializer() {
     final ResourceRequest rr = get(1);
     Assert.assertFalse("A fresh request should not be satisfied.", rr.isSatisfied());
-    try {
-      final ResourceRequest rr2 = new ResourceRequest(null);
-      Assert.fail("Resource Requests should throw an IllegalArgumentException when initialized with null");
-    } catch (IllegalArgumentException ex) {
-    }
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInitializationWithNull() {
+    final ResourceRequest rr2 = new ResourceRequest(null);
+    Assert.fail("Passing null to the ResourceRequest constructor should throw an IllegalArgumentException.");
+  }
+
 
   @Test
   public void testSatisfaction() {
@@ -43,15 +45,12 @@ public final class ResourceRequestTest {
     Assert.assertTrue("A satisfied request should tell so", rr.isSatisfied());
   }
 
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void testOverSatisfaction() {
     final ResourceRequest rr = get(1);
     rr.satisfyOne();
-    try {
-      rr.satisfyOne();
-      Assert.fail("Satisfying more than the request should throw an IllegalStateException");
-    } catch (IllegalStateException ex) {
-    }
+    rr.satisfyOne();
+    Assert.fail("Satisfying more than the request should throw an IllegalStateException");
   }
 
   private ResourceRequest get(final int n) {

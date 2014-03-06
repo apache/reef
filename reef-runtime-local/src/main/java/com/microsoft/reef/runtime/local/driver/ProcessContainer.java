@@ -15,8 +15,8 @@
  */
 package com.microsoft.reef.runtime.local.driver;
 
-import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.annotations.audience.TaskSide;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ final class ProcessContainer implements Container {
   private final int megaBytes;
 
   /**
-   * @param errorHandlerRID
+   * @param errorHandlerRID the remoteID of the error handler.
    * @param nodeID          the ID of the (fake) node this Container is instantiated on
    * @param containedID     the  ID used to identify this container uniquely
    * @param folder          the folder in which logs etc. will be deposited
@@ -58,13 +58,13 @@ final class ProcessContainer implements Container {
   public void addFiles(final Iterable<File> files) {
     try {
       copy(files, this.folder);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
     }
   }
 
   @Override
-  public void run(List<String> commandLine) {
+  public void run(final List<String> commandLine) {
     this.process = new RunnableProcess(commandLine, containedID, this.folder);
     this.theThread = new Thread(process);
     this.theThread.start();
