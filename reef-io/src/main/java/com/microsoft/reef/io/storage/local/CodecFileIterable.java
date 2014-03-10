@@ -25,15 +25,14 @@ import java.util.Iterator;
 /**
  * A read-only spool implementation, based on files. Some other process needs to
  * create the spool file for us.
- * 
+ *
  * @author sears
- * 
  */
 public class CodecFileIterable<T, C extends Codec<T>> implements Iterable<T> {
-  final File filename;
-  final C codec;
+  private final File filename;
+  private final C codec;
 
-  public CodecFileIterable(File filename, C codec) {
+  public CodecFileIterable(final File filename, final C codec) {
     this.filename = filename;
     this.codec = codec;
   }
@@ -42,8 +41,7 @@ public class CodecFileIterable<T, C extends Codec<T>> implements Iterable<T> {
   @Override
   public Iterator<T> iterator() {
     try {
-      final ObjectInputStream in;
-      in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
+      final ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
           filename)));
       return new Iterator<T>() {
         int sz = in.readInt();
@@ -56,15 +54,15 @@ public class CodecFileIterable<T, C extends Codec<T>> implements Iterable<T> {
         @Override
         public T next() {
           try {
-          byte[] buf = new byte[sz];
-          for (int rem = buf.length; rem > 0; rem -= in.read(buf, buf.length
-              - rem, rem)) {
-          }
-          sz = in.readInt();
-          if (sz == -1) {
-            in.close();
-          }
-          return codec.decode(buf);
+            byte[] buf = new byte[sz];
+            for (int rem = buf.length; rem > 0; rem -= in.read(buf, buf.length
+                - rem, rem)) {
+            }
+            sz = in.readInt();
+            if (sz == -1) {
+              in.close();
+            }
+            return codec.decode(buf);
           } catch (IOException e) {
             throw new ServiceRuntimeException(new StorageException(e));
           }
@@ -76,7 +74,7 @@ public class CodecFileIterable<T, C extends Codec<T>> implements Iterable<T> {
               "Attempt to remove value from read-only input file!");
         }
       };
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new ServiceRuntimeException(new StorageException(e));
     }
   }

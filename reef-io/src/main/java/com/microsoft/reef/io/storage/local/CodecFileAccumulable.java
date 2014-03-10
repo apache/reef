@@ -23,9 +23,12 @@ import com.microsoft.reef.io.serialization.Codec;
 import java.io.*;
 import java.util.ConcurrentModificationException;
 
+/**
+ * @deprecated Please don't use this code. It isn't safe and might leak file handles.
+ */
 public class CodecFileAccumulable<T, C extends Codec<T>> implements Accumulable<T> {
-  final File filename;
-  final C codec;
+  private final File filename;
+  private final C codec;
 
   public CodecFileAccumulable(LocalStorageService s, C codec) {
     this.filename = s.getScratchSpace().newFile();

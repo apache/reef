@@ -36,7 +36,6 @@ import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,15 +43,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 public class SpoolFileTest {
   public static final class RamConf extends ConfigurationModuleBuilder {
     public static final ConfigurationModule CONF = new RamConf()
-      .bindImplementation(RamStorageService.class, RamStorageService.class)
-      .bindImplementation(Spool.class, RamSpool.class)
-      .build();
+        .bindImplementation(RamStorageService.class, RamStorageService.class)
+        .bindImplementation(Spool.class, RamSpool.class)
+        .build();
   }
 
   @Test
@@ -182,12 +180,12 @@ public class SpoolFileTest {
   }
 
   protected void test(Accumulable<Integer> f, Iterable<Integer> g) throws ServiceException {
-    Accumulator<Integer> acc = f.accumulator();
 
-    for (int i = 0; i < 1000; i++) {
-      acc.add(i);
+    try (Accumulator<Integer> acc = f.accumulator()) {
+      for (int i = 0; i < 1000; i++) {
+        acc.add(i);
+      }
     }
-    acc.close();
     int i = 0;
     for (int j : g) {
       Assert.assertEquals(i, j);
@@ -202,10 +200,5 @@ public class SpoolFileTest {
     }
     Assert.assertFalse(itA.hasNext());
     Assert.assertFalse(itB.hasNext());
-    try {
-      acc.add(-1);
-      Assert.fail("Expected ConcurrentModificationException");
-    } catch (ConcurrentModificationException e) { /* expected */
-    }
   }
 }
