@@ -20,13 +20,10 @@ import com.microsoft.reef.io.Accumulable;
 import com.microsoft.reef.io.Accumulator;
 import com.microsoft.reef.io.serialization.Codec;
 
-import java.io.*;
-import java.util.ConcurrentModificationException;
+import java.io.File;
+import java.io.IOException;
 
-/**
- * @deprecated Please don't use this code. It isn't safe and might leak file handles.
- */
-public class CodecFileAccumulable<T, C extends Codec<T>> implements Accumulable<T> {
+public final class CodecFileAccumulable<T, C extends Codec<T>> implements Accumulable<T> {
   private final File filename;
   private final C codec;
 
@@ -42,37 +39,7 @@ public class CodecFileAccumulable<T, C extends Codec<T>> implements Accumulable<
   @Override
   public Accumulator<T> accumulator() throws StorageException {
     try {
-      return new Accumulator<T>() {
-        ObjectOutputStream out = new ObjectOutputStream(
-            new BufferedOutputStream(new FileOutputStream(filename)));
-
-        @Override
-        public void add(T datum) throws StorageException {
-          if (out == null) {
-            throw new ConcurrentModificationException(
-                "Attempt to write to accumulator after done()");
-          }
-            byte[] buf = codec.encode(datum);
-            try {
-              out.writeInt(buf.length);
-              out.write(buf);
-            } catch (IOException e) {
-              throw new StorageException(e);
-            }
-        }
-
-        @Override
-        public void close() throws StorageException {
-          try {
-            out.writeInt(-1);
-            out.close();
-            out = null;
-          } catch (Exception e) {
-            throw new StorageException(e);
-          }
-
-        }
-      };
+      return new CodecFileAccumulator<>(this.codec, this.filename);
     } catch (IOException e) {
       throw new StorageException(e);
     }
