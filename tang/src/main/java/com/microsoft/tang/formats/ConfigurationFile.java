@@ -44,18 +44,16 @@ import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationFile {
+
   /**
-   * Writes this Configuration to the given File
+   * Write Configuration to the given File.
    * 
    * @throws IOException
-   * 
    */
-  public static void writeConfigurationFile(final Configuration conf, final File confFile)
-      throws IOException {
-    try (final OutputStream outStream = new FileOutputStream(confFile)) {
-      final PrintStream printStream = new PrintStream(outStream);
+  public static void writeConfigurationFile(
+      final Configuration conf, final File confFile) throws IOException {
+    try (final PrintStream printStream = new PrintStream(new FileOutputStream(confFile))) {
       printStream.print(toConfigurationString(conf));
-      printStream.flush();
     }
   }
 
