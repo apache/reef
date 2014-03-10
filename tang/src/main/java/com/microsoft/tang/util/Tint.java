@@ -596,119 +596,122 @@ public class Tint {
       
       i++;
     }
+
     final Tint t;
-    if(jar != null) {
-      File f = new File(jar);
-      if(!f.exists()) { throw new FileNotFoundException(jar); }
+    if (jar != null) {
+      final File f = new File(jar);
+      if (!f.exists()) {
+        throw new FileNotFoundException(jar);
+      }
       t = new Tint(new URL[] { f.toURI().toURL() }, tangTests);
     } else {
       t = new Tint(new URL[0], tangTests);
     }
-    if(doc != null) {
-      PrintStream out = new PrintStream(new FileOutputStream(new File(doc)));
-      out.println("<html><head><title>TangDoc</title>");
-      
-      out.println("<style>");
-      out.println("body { font-family: 'Segoe UI', 'Comic Sans MS'; font-size:12pt; font-weight: 200; margin: 1em; column-count: 2; }" );
-      out.println(".package { font-size:18pt; font-weight: 500; column-span: all; }" );
+
+    if (doc != null) {
+      try (final PrintStream out = new PrintStream(new FileOutputStream(new File(doc)))) {
+        out.println("<html><head><title>TangDoc</title>");
+
+        out.println("<style>");
+        out.println("body { font-family: 'Segoe UI', 'Comic Sans MS'; font-size:12pt; font-weight: 200; margin: 1em; column-count: 2; }" );
+        out.println(".package { font-size:18pt; font-weight: 500; column-span: all; }" );
 //      out.println(".class { break-after: never; }");
 //      out.println(".doc { break-before: never; }");
-      out.println(".decl-margin { padding: 8pt; break-inside: avoid; }");
-      out.println(".module-margin { padding: 8pt; column-span: all; break-inside: avoid; }");
-      out.println(".decl { background-color: aliceblue; padding: 6pt;}");
-      out.println(".fullName { font-size: 11pt; font-weight: 400; }");
-      out.println(".simpleName { font-size: 11pt; font-weight: 400; }");
-      out.println(".constructorArg { padding-left: 16pt; }");
-      out.println("."+SETTERS+" { padding-top: 6pt; font-size: 10pt; }");
-      out.println("."+USES+" { padding-top: 6pt; font-size: 10pt; }");
-      out.println("pre { font-size: 10pt; }");
-      out.println("</style>");
-    
-      out.println("</head><body>");
+        out.println(".decl-margin { padding: 8pt; break-inside: avoid; }");
+        out.println(".module-margin { padding: 8pt; column-span: all; break-inside: avoid; }");
+        out.println(".decl { background-color: aliceblue; padding: 6pt;}");
+        out.println(".fullName { font-size: 11pt; font-weight: 400; }");
+        out.println(".simpleName { font-size: 11pt; font-weight: 400; }");
+        out.println(".constructorArg { padding-left: 16pt; }");
+        out.println("."+SETTERS+" { padding-top: 6pt; font-size: 10pt; }");
+        out.println("."+USES+" { padding-top: 6pt; font-size: 10pt; }");
+        out.println("pre { font-size: 10pt; }");
+        out.println("</style>");
+
+        out.println("</head><body>");
 //      out.println("<table border='1'><tr><th>Type</th><th>Name</th><th>Default value</th><th>Documentation</th><th>Used by</th><th>Set by</th></tr>");
 
-      String currentPackage = "";
+        String currentPackage = "";
 //      int numcols = 0;
-      for(Node n : t.getNamesUsedAndSet()) {
-        String fullName = n.getFullName();
-        String tok[] = fullName.split("\\.");
-        StringBuffer sb = new StringBuffer(tok[0]);
-        for(int j = 1; j < tok.length; j++) {
-          if(tok[j].matches("^[A-Z].*") || j > 4) {
-            break;
-          } else
-            sb.append("." + tok[j]);
-        }
-        String pack = sb.toString();
-        if(!currentPackage.equals(pack)) {
-          currentPackage = pack;
-          out.println(t.endPackage());
-          out.println(t.startPackage(currentPackage));
+        for (final Node n : t.getNamesUsedAndSet()) {
+          String fullName = n.getFullName();
+          String tok[] = fullName.split("\\.");
+          StringBuffer sb = new StringBuffer(tok[0]);
+          for(int j = 1; j < tok.length; j++) {
+            if(tok[j].matches("^[A-Z].*") || j > 4) {
+              break;
+            } else
+              sb.append("." + tok[j]);
+          }
+          String pack = sb.toString();
+          if (!currentPackage.equals(pack)) {
+            currentPackage = pack;
+            out.println(t.endPackage());
+            out.println(t.startPackage(currentPackage));
 //          numcols = 0;
 //          out.println("<div class='row'>");
-        }
+          }
 //        numcols++;
 //        if(numcols == NUMCOLS) {
 //          out.println("</div><div class='row'>");
 //        }
-        if(n instanceof NamedParameterNode<?>) {
-          out.println(t.toHtmlString((NamedParameterNode<?>)n, currentPackage));
-        } else if (n instanceof ClassNode<?>) {
-          out.println(t.toHtmlString((ClassNode<?>)n, currentPackage));
-        } else {
-          out.close();
-          throw new IllegalStateException();
+          if(n instanceof NamedParameterNode<?>) {
+            out.println(t.toHtmlString((NamedParameterNode<?>)n, currentPackage));
+          } else if (n instanceof ClassNode<?>) {
+            out.println(t.toHtmlString((ClassNode<?>)n, currentPackage));
+          } else {
+            throw new IllegalStateException();
+          }
         }
-      }
-      out.println("</div>");
-      out.println(t.endPackage());
+        out.println("</div>");
+        out.println(t.endPackage());
 //      out.println("</table>");
-      out.println("<div class='package'>Module definitions</div>");
-      for(Field f : t.modules.keySet()) {
-        String moduleName = ReflectionUtilities.getFullName(f);
+        out.println("<div class='package'>Module definitions</div>");
+        for (final Field f : t.modules.keySet()) {
+          String moduleName = ReflectionUtilities.getFullName(f);
 //        String declaringClassName = ReflectionUtilities.getFullName(f.getDeclaringClass());
-        out.println("<div class='module-margin' id='"+moduleName+"'><div class='decl'><span class='fullName'>" + moduleName + "</span>");
-        out.println("<pre>");
-        String conf = t.modules.get(f).toPrettyString();
-        String[] tok = conf.split("\n");
-        for(String line : tok) {
-          out.println(stripPrefix(line, "no.such.prefix"));//t.modules.get(f).toPrettyString());
-        }
+          out.println("<div class='module-margin' id='"+moduleName+"'><div class='decl'><span class='fullName'>" + moduleName + "</span>");
+          out.println("<pre>");
+          String conf = t.modules.get(f).toPrettyString();
+          String[] tok = conf.split("\n");
+          for (final String line : tok) {
+            out.println(stripPrefix(line, "no.such.prefix"));//t.modules.get(f).toPrettyString());
+          }
 //        List<Entry<String,String>> lines = t.modules.get(f).toStringPairs();
 //        for(Entry<String,String> line : lines) {
 //          String k = t.stripPrefix(line.getKey(), declaringClassName);
 //          String v = t.stripPrefix(line.getValue(), declaringClassName);
 //          out.println(k+"="+v);
 //        }
-        out.println("</pre>");
-        out.println("</div></div>");
-      }
-      out.println("<div class='package'>Interfaces and injectable classes</div>");
-      for(ClassNode<?> c : t.knownClasses) {
-        if(t.classFilter(tangTests, c.getFullName())) {
-        Class<?> clz = null;
-        try {
-          clz = t.ch.classForName(c.getFullName());
-        } catch (ClassNotFoundException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          out.println("</pre>");
+          out.println("</div></div>");
         }
-        String typ = clz.isInterface() ? "interface" : "class";
-        out.println("<div class='module-margin' id='"+c.getFullName()+"'><div class='decl'><span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
-        for(ConstructorDef<?> d : c.getInjectableConstructors()) {
-          out.println("<div class='uses'>" + c.getFullName() + "(");
-          for(ConstructorArg a : d.getArgs()) {
-            if(a.getNamedParameterName() != null) {
-              out.print("<div class='constructorArg'><a href='#"+a.getType()+"'>" + stripPrefix(a.getType(),"xxx") + "</a> <a href='#" + a.getNamedParameterName() + "'>" + a.getNamedParameterName() + "</a></div>");
-            } else {
-              out.print("<div class='constructorArg'><a href='#"+a.getType()+"'>" + stripPrefix(a.getType(),"xxx") + "</a></div>");
-            }
+
+        out.println("<div class='package'>Interfaces and injectable classes</div>");
+        for (final ClassNode<?> c : t.knownClasses) {
+          if(t.classFilter(tangTests, c.getFullName())) {
+          Class<?> clz = null;
+          try {
+            clz = t.ch.classForName(c.getFullName());
+          } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
           }
-          out.println(")</div>");
+          String typ = clz.isInterface() ? "interface" : "class";
+          out.println("<div class='module-margin' id='"+c.getFullName()+"'><div class='decl'><span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
+          for(ConstructorDef<?> d : c.getInjectableConstructors()) {
+            out.println("<div class='uses'>" + c.getFullName() + "(");
+            for(ConstructorArg a : d.getArgs()) {
+              if(a.getNamedParameterName() != null) {
+                out.print("<div class='constructorArg'><a href='#"+a.getType()+"'>" + stripPrefix(a.getType(),"xxx") + "</a> <a href='#" + a.getNamedParameterName() + "'>" + a.getNamedParameterName() + "</a></div>");
+              } else {
+                out.print("<div class='constructorArg'><a href='#"+a.getType()+"'>" + stripPrefix(a.getType(),"xxx") + "</a></div>");
+              }
+            }
+            out.println(")</div>");
+          }
+          out.println("</div></div>");
         }
-        
-        out.println("</div></div>");
-      }
 /*
       out.println("<h1>Default usage of classes and constants</h1>");
       for(String s : t.usages.keySet()) {
@@ -717,11 +720,9 @@ public class Tint {
           out.println("<p>" + n.getFullName() + "</p>");
         }
       } */
+        }
+        out.println("</body></html>");
       }
-      out.println("</body></html>");
-      out.close();
-      
     }
   }
-
 }
