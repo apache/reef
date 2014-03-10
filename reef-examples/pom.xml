@@ -73,6 +73,8 @@
                                 <exclude>yarn-default.xml</exclude>
                                 <exclude>yarn-version-info.properties</exclude>
                                 <exclude>core-default.xml</exclude>
+                                <exclude>LICENSE</exclude>
+                                <exclude>META-INF/*</exclude>
                             </excludes>
                         </filter>
                     </filters>
