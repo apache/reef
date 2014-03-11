@@ -44,39 +44,26 @@ import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
 
 public class ConfigurationFile {
-  /**
-   * Writes this Configuration to the given File
-   * 
-   * @throws IOException
-   * 
-   */
-  public static void writeConfigurationFile(Configuration c, File f)
-      throws IOException {
-    OutputStream o = new FileOutputStream(f);
-    writeConfigurationFile(c, o);
-    o.close();
-  }
 
   /**
-   * Writes a Configuration to the given OutputStream.
+   * Write Configuration to the given File.
    * 
-   * @param s
    * @throws IOException
    */
-  @Deprecated
-  public static void writeConfigurationFile(Configuration c, OutputStream o) {
-    PrintStream p = new PrintStream(o);
-    p.print(toConfigurationString(c));
-    p.flush();
+  public static void writeConfigurationFile(
+      final Configuration conf, final File confFile) throws IOException {
+    try (final PrintStream printStream = new PrintStream(new FileOutputStream(confFile))) {
+      printStream.print(toConfigurationString(conf));
+    }
   }
 
-  public static void addConfiguration(ConfigurationBuilder conf, File file)
-      throws IOException, BindException {
-    PropertiesConfiguration confFile;
+  public static void addConfiguration(final ConfigurationBuilder conf,
+                                      final File tmpConfFile) throws IOException, BindException {
+    final PropertiesConfiguration confFile;
     try {
-      confFile = new PropertiesConfiguration(file);
-    } catch (ConfigurationException e) {
-      throw new BindException("Problem parsing config file", e);
+      confFile = new PropertiesConfiguration(tmpConfFile);
+    } catch (final ConfigurationException e) {
+      throw new BindException("Problem parsing config file: " + tmpConfFile, e);
     }
     processConfigFile(conf, confFile);
   }
@@ -86,21 +73,25 @@ public class ConfigurationFile {
    * @param conf
    *          This configuration builder will be modified to incorporate the
    *          contents of the configuration file.
-   * @param s
+   * @param contents
    *          A string containing the contents of the configuration file.
    * @throws BindException
    */
-  public static void addConfiguration(ConfigurationBuilder conf, String s)
-      throws BindException {
+  public static void addConfiguration(final ConfigurationBuilder conf,
+                                      final String contents) throws BindException {
+    File tmpConfFile = null;
     try {
-      File tmp = File.createTempFile("tang", "tmp");
-      FileOutputStream fos = new FileOutputStream(tmp);
-      fos.write(s.getBytes());
-      fos.close();
-      addConfiguration(conf, tmp);
-      tmp.delete();
-    } catch (IOException e) {
-      e.printStackTrace();
+      tmpConfFile = File.createTempFile("tang", "tmp");
+      try (final FileOutputStream outStream = new FileOutputStream(tmpConfFile)) {
+        outStream.write(contents.getBytes());
+      }
+      addConfiguration(conf, tmpConfFile);
+    } catch (final IOException ex) {
+      throw new BindException("Error writing config file: " + tmpConfFile, ex);
+    } finally {
+      if (tmpConfFile != null) {
+        tmpConfFile.delete();
+      }
     }
   }
 

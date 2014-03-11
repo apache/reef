@@ -96,43 +96,42 @@ public class ValidateConfiguration {
     this.inConfig = inConfig;
     this.outConfig = outConfig;
   }
+
   public void validatePlan() throws IOException, BindException, InjectionException {
+
     final Tang t = Tang.Factory.getTang();
 
-    final InputStream chin = new FileInputStream(ch);
     final ClassHierarchyProto.Node root;
-
-    try {
+    try (final InputStream chin = new FileInputStream(this.ch)) {
       root = ClassHierarchyProto.Node.parseFrom(chin);
-    } finally {
-      chin.close();
     }
+
     final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
     final ConfigurationBuilder cb = t.newConfigurationBuilder(ch);
 
     if(!inConfig.canRead()) {
       throw new IOException("Cannot read input config file: " + inConfig);
     }
+
     ConfigurationFile.addConfiguration(cb, inConfig);
-    if(target != null) {
-      Injector i = t.newInjector(cb.build());
-      InjectionPlan<?> ip = i.getInjectionPlan(target);
-      if(!ip.isInjectable()) {
+
+    if (target != null) {
+      final Injector i = t.newInjector(cb.build());
+      final InjectionPlan<?> ip = i.getInjectionPlan(target);
+      if (!ip.isInjectable()) {
         throw new InjectionException(target + " is not injectable: " + ip.toCantInjectString());
       }
     }
+
     ConfigurationFile.writeConfigurationFile(cb.build(), outConfig);
+
 //    Injector i = t.newInjector(cb.build());
 //    InjectionPlan<?> ip = i.getInjectionPlan(target);
-//    
-//    final OutputStream ipout = new FileOutputStream(injectionPlan);
-//    try {
+//    try (final OutputStream ipout = new FileOutputStream(injectionPlan)) {
 //      new ProtocolBufferInjectionPlan().serialize(ip).writeTo(ipout);
-//    } finally {
-//      ipout.close();
 //    }
-    
   }
+
   public static void main(String[] argv) throws IOException, BindException, InjectionException {
     @SuppressWarnings("unchecked")
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder((Class<? extends ExternalConstructor<?>>[])new Class[] { FileParser.class } );

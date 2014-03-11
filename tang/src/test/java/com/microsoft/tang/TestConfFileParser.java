@@ -84,21 +84,20 @@ public class TestConfFileParser {
   
   @Test
   public void testNamedParameter2() throws BindException, IOException, InjectionException {
-	  final String value = "socket://131.179.176.216:19278";
-	  final File tmp = File.createTempFile("test", "conf");
-	  final FileOutputStream fout = new FileOutputStream(tmp);
-	  
-	  final String line = ReflectionUtilities.getFullName(RemoteIdentifier.class) + "=" + value;
-	  fout.write(line.getBytes());
-	  fout.close();
-	  
-	  JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-	  ConfigurationFile.addConfiguration(cb, tmp);
-	  final Injector i = Tang.Factory.getTang().newInjector(cb.build());
-	  Assert.assertEquals(value, i.getNamedInstance(RemoteIdentifier.class));
-  }
 
-  
+    final String value = "socket://131.179.176.216:19278";
+    final File tmp = File.createTempFile("test", "conf");
+
+    try (final FileOutputStream fout = new FileOutputStream(tmp)) {
+      final String line = ReflectionUtilities.getFullName(RemoteIdentifier.class) + "=" + value;
+      fout.write(line.getBytes());
+    }
+
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    ConfigurationFile.addConfiguration(cb, tmp);
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    Assert.assertEquals(value, i.getNamedInstance(RemoteIdentifier.class));
+  }
 }
 
 @NamedParameter
