@@ -356,6 +356,7 @@
 
     <modules>
         <module>reef-annotations</module>
+	<module>reef-bridge</module>
         <module>reef-checkpoint</module>
         <module>reef-common</module>
         <module>reef-examples</module>
