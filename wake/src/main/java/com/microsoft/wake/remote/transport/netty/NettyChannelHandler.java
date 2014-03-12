@@ -27,94 +27,99 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 
 class NettyChannelHandler extends SimpleChannelUpstreamHandler {
+
   private static final Logger LOG = Logger.getLogger(NettyChannelHandler.class.getName());
+
+  private final String tag;
   private final ChannelGroup channelGroup;
   private final NettyEventListener listener;
-  private final String tag;
-  
+
   /**
    * Constructs a Netty channel handler
    * 
    * @param channelGroup the channel group
    * @param listener the Netty event listener
    */
-  public NettyChannelHandler(String tag, ChannelGroup channelGroup, NettyEventListener listener) {
+  public NettyChannelHandler(
+      final String tag, final ChannelGroup channelGroup, final NettyEventListener listener) {
+    this.tag = tag;
     this.channelGroup = channelGroup;
     this.listener = listener;
-    this.tag = tag;
   }
   
   /**
    * Handles the specified upstream event
    * 
    * @param ctx the context object for this handler
-   * @param e the upstream event to process or intercept
+   * @param event the upstream event to process or intercept
    * @throws Exception
    */
   @Override
-  public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-    if (e instanceof ChannelStateEvent) {
-      if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, tag + " " + e.toString() + " local: " + e.getChannel().getLocalAddress() + 
-          " remote: " + e.getChannel().getRemoteAddress());
+  public void handleUpstream(
+      final ChannelHandlerContext ctx, final ChannelEvent event) throws Exception {
+    if (event instanceof ChannelStateEvent && LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "{0} {1} local: {2} remote: {3}", new Object[] { this.tag, event,
+          event.getChannel().getLocalAddress(), event.getChannel().getRemoteAddress() });
     }
-    super.handleUpstream(ctx, e);
+    super.handleUpstream(ctx, event);
   }
   
   /**
-   * Handles the received message
+   * Handle the incoming message: pass it to the listener.
    * 
-   * @param ctx the context object for this handler
-   * @param e the message event
+   * @param ctx the context object for this handler.
+   * @param event the message event.
    * @throws Exception
    */
   @Override
-  public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-    listener.messageReceived(e);
+  public void messageReceived(
+      final ChannelHandlerContext ctx, final MessageEvent event) throws Exception {
+    this.listener.messageReceived(event);
   }
   
   /**
    * Handles the channel connected event
    * 
    * @param ctx the context object for this handler
-   * @param e the channel state event
+   * @param event the channel state event
    * @throws Exception
    */
   @Override
-  public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-    channelGroup.add(e.getChannel());
-    listener.channelConnected(e);
-    super.channelConnected(ctx, e);
+  public void channelConnected(
+      final ChannelHandlerContext ctx, final ChannelStateEvent event) throws Exception {
+    channelGroup.add(event.getChannel());
+    listener.channelConnected(event);
+    super.channelConnected(ctx, event);
   }
   
   /**
    * Handles the channel closed event
    * 
    * @param ctx the context object for this handler
-   * @param e the channel state event
+   * @param event the channel state event
    * @throws Exception
    */
   @Override 
-  public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-    listener.channelClosed(e);
-    super.channelClosed(ctx, e);
+  public void channelClosed(
+      final ChannelHandlerContext ctx, final ChannelStateEvent event) throws Exception {
+    listener.channelClosed(event);
+    super.channelClosed(ctx, event);
   }
   
   /**
    * Handles the exception event
    * 
    * @param ctx the context object for this handler
-   * @param e the exception event
+   * @param event the exception event
    * @throws Exception
    */
   @Override
-  public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-    LOG.log(Level.WARNING, "Unexpected exception from downstream. " + " channel: " + e.getChannel() + 
-        " local: " + e.getChannel().getLocalAddress() + 
-        " remote: " + e.getChannel().getRemoteAddress() + 
-        " cause: " + e.getCause());
-    e.getCause().printStackTrace();
-    e.getChannel().close();
-    listener.exceptionCaught(e);
+  public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent event) {
+    LOG.log(Level.INFO, "Unexpected exception from downstream. channel: {0} local: {1} remote: {2}",
+        new Object[]{event.getChannel(), event.getChannel().getLocalAddress(),
+            event.getChannel().getRemoteAddress()});
+    LOG.log(Level.WARNING, "Unexpected exception from downstream.", event.getCause());
+    event.getChannel().close();
+    this.listener.exceptionCaught(event);
   }
-
 }

@@ -15,7 +15,6 @@
  */
 package com.microsoft.wake.impl;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +24,6 @@ import java.util.logging.Logger;
 
 import com.microsoft.wake.Stage;
 
-
 /**
  * A manager that manages all the stage
  */
@@ -33,13 +31,16 @@ public final class StageManager implements Stage {
 
   private static final Logger LOG = Logger.getLogger(StageManager.class.getName());
 
-  private static StageManager instance = new StageManager();
-  private final List<Stage> stages;
-  private final AtomicBoolean closed = new AtomicBoolean(false);
-  
-  StageManager() {
+  private static final StageManager instance = new StageManager();
 
-    stages = Collections.synchronizedList(new ArrayList<Stage>());
+  private final List<Stage> stages = Collections.synchronizedList(new ArrayList<Stage>());
+  private final AtomicBoolean closed = new AtomicBoolean(false);
+
+  public static StageManager instance() {
+    return instance;
+  }
+
+  private StageManager() {
     LOG.log(Level.FINE, "StageManager adds a shutdown hook");
     Runtime.getRuntime().addShutdownHook(new Thread(
       new Runnable() {
@@ -49,32 +50,26 @@ public final class StageManager implements Stage {
             LOG.log(Level.FINEST, "Shutdown hook : closing stages");
             StageManager.instance().close();
             LOG.log(Level.FINEST, "Shutdown hook : closed stages");
-          } catch (Exception e) {
-            LOG.log(Level.WARNING, "StageManager close failure " + e.getMessage());
+          } catch (final Exception ex) {
+            LOG.log(Level.WARNING, "StageManager close failure", ex);
           }
         }
       }
     ));
   }
   
-  public static StageManager instance() {
-    return instance;
-  }
-  
-  public void register(Stage stage) {
-    LOG.log(Level.FINEST, "StageManager adds stage " + stage);
-
-    stages.add(stage);
+  public void register(final Stage stage) {
+    LOG.log(Level.FINEST, "StageManager adds stage {0}", stage);
+    this.stages.add(stage);
   }
   
   @Override
   public void close() throws Exception {
-    if (closed.compareAndSet(false, true)) {
-      for (Stage stage : stages) {
+    if (this.closed.compareAndSet(false, true)) {
+      for (final Stage stage : this.stages) {
         LOG.log(Level.FINEST, "Closing {0}", stage);
         stage.close();
       }
     }
   }
- 
 }

@@ -18,9 +18,7 @@ package com.microsoft.wake.remote.impl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 import com.microsoft.wake.remote.Codec;
@@ -41,22 +39,13 @@ public class ObjectSerializableCodec<T> implements Codec<T> {
    * @throws RemoteRuntimeException
    */
   @Override
-  public byte[] encode(T obj) {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    ObjectOutput out = null;
-    try {
-      out = new ObjectOutputStream(bos);   
+  public byte[] encode(final T obj) {
+    try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         final ObjectOutputStream out = new ObjectOutputStream(bos)) {
       out.writeObject(obj);
       return bos.toByteArray();
-    } catch (IOException e) {
-      throw new RemoteRuntimeException(e);
-    } finally {
-      try {
-        if (out != null) out.close();
-        bos.close();
-      } catch (IOException e) {
-        throw new RemoteRuntimeException(e);
-      }
+    } catch (final IOException ex) {
+      throw new RemoteRuntimeException(ex);
     }
   }
 
@@ -69,23 +58,11 @@ public class ObjectSerializableCodec<T> implements Codec<T> {
    */
   @SuppressWarnings("unchecked")
   @Override
-  public T decode(byte[] buf) {
-    ByteArrayInputStream bis = new ByteArrayInputStream(buf);
-    ObjectInput in = null;
-    try {
-      in = new ObjectInputStream(bis);
+  public T decode(final byte[] buf) {
+    try (final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buf))) {
       return (T)in.readObject();
-    } catch (ClassNotFoundException e) {
-      throw new RemoteRuntimeException(e);
-    } catch (IOException e) {
-      throw new RemoteRuntimeException(e);
-    } finally {
-      try {
-        bis.close();
-        if (in != null) in.close();
-      } catch (IOException e) {
-        throw new RemoteRuntimeException(e);
-      }
+    } catch (final ClassNotFoundException | IOException ex) {
+      throw new RemoteRuntimeException(ex);
     }
   }
 }
