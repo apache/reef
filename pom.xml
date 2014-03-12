@@ -41,6 +41,7 @@
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.2.0</hadoop.version>
+        <avro.version>1.7.6</avro.version>
         <tang.version>0.2-SNAPSHOT</tang.version>
         <wake.version>0.2-SNAPSHOT</wake.version>
     </properties>
@@ -54,7 +55,24 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro-maven-plugin</artifactId>
+                    <version>${avro.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>schema</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+                                <outputDirectory>${project.basedir}/target/generated-sources</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
                     <configuration>
@@ -319,6 +337,13 @@
             </dependency>
             <!-- End of Apache Commons -->
 
+            <!-- Apache Avro -->
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
+            </dependency>
+            <!-- End of Apache Avro -->
 
         </dependencies>
     </dependencyManagement>
@@ -356,7 +381,7 @@
 
     <modules>
         <module>reef-annotations</module>
-	<module>reef-bridge</module>
+        <module>reef-bridge</module>
         <module>reef-checkpoint</module>
         <module>reef-common</module>
         <module>reef-examples</module>
