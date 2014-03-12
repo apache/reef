@@ -1,0 +1,8 @@
+{
+    "namespace":"com.microsoft.tang.formats",
+    "type":"record",
+    "name":"Configuration",
+    "fields":[
+	{"name":"Bindings","type":{"type":"map", "values":"string"}}
+    ]
+}
