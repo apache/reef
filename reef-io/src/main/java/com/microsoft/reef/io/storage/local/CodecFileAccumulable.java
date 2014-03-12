@@ -24,23 +24,24 @@ import java.io.File;
 import java.io.IOException;
 
 public final class CodecFileAccumulable<T, C extends Codec<T>> implements Accumulable<T> {
+
   private final File filename;
   private final C codec;
 
-  public CodecFileAccumulable(LocalStorageService s, C codec) {
+  public CodecFileAccumulable(final LocalStorageService s, final C codec) {
     this.filename = s.getScratchSpace().newFile();
     this.codec = codec;
   }
 
   public String getName() {
-    return filename.toString();
+    return this.filename.toString();
   }
 
   @Override
   public Accumulator<T> accumulator() throws StorageException {
     try {
       return new CodecFileAccumulator<>(this.codec, this.filename);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new StorageException(e);
     }
   }

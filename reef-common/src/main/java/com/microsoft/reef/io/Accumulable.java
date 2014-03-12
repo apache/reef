@@ -22,7 +22,7 @@ import com.microsoft.reef.exception.evaluator.ServiceException;
  * Similar to {@link Iterable}, this is an interface for objects that can return
  * {@link Accumulator}s.
  *
- * @param <T> The type acumulted
+ * @param <T> The type accumulated.
  */
 @Unstable
 public interface Accumulable<T> {
