@@ -48,11 +48,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  */
 public class AllReduceManager<T> {
+
+  private static final Logger LOG = Logger.getLogger(AllReduceManager.class.getName());
 
   /**
    * TANG instance
@@ -170,7 +174,7 @@ public class AllReduceManager<T> {
    */
   public synchronized void remove(final ComparableIdentifier failedTaskId) {
 
-    System.out.println("All Reduce Manager removing " + failedTaskId);
+    LOG.log(Level.FINEST, "All Reduce Manager removing " + failedTaskId);
     final ComparableIdentifier from = failedTaskId;
     final ComparableIdentifier to = tasks[parent(taskIdMap.get(failedTaskId))];
 
@@ -181,7 +185,7 @@ public class AllReduceManager<T> {
         Connection<GroupCommMessage> link = ns.newConnection(to);
         try {
           link.open();
-          System.out.println("Sending source dead msg " + srcDeadMsg + " to parent " + to);
+          LOG.log(Level.FINEST, "Sending source dead msg " + srcDeadMsg + " to parent " + to);
           link.write(srcDeadMsg);
         } catch (NetworkException e) {
           e.printStackTrace();

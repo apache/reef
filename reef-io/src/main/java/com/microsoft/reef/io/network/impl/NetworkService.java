@@ -15,14 +15,6 @@
  */
 package com.microsoft.reef.io.network.impl;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.io.Tuple;
 import com.microsoft.reef.io.naming.Naming;
 import com.microsoft.reef.io.network.Connection;
@@ -36,17 +28,20 @@ import com.microsoft.reef.io.network.naming.NameServerParameters;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.wake.EStage;
-import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.Identifier;
-import com.microsoft.wake.IdentifierFactory;
-import com.microsoft.wake.Stage;
+import com.microsoft.wake.*;
 import com.microsoft.wake.impl.LoggingEventHandler;
 import com.microsoft.wake.impl.SingleThreadStage;
 import com.microsoft.wake.remote.Codec;
 import com.microsoft.wake.remote.impl.TransportEvent;
 import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
+
+import javax.inject.Inject;
+import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -55,9 +50,10 @@ import com.microsoft.wake.remote.transport.Transport;
 public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
-  
+
   private static final int retryCount, retryTimeout;
-  static{
+
+  static {
     Tang tang = Tang.Factory.getTang();
     try {
       retryCount = tang.newInjector().getNamedInstance(NameLookupClient.RetryCount.class);
@@ -74,10 +70,10 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
   private final NameClient nameClient;
 
   private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
-  
+
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
   private final EStage<Identifier> nameServiceUnregisteringStage;
-  
+
   public NetworkService(
       IdentifierFactory factory,
       int nsPort,
@@ -87,8 +83,8 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
       TransportFactory tpFactory,
       EventHandler<Message<T>> recvHandler,
       EventHandler<Exception> exHandler
-      ){
-    this(factory,nsPort,nameServerAddr,nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler);
+  ) {
+    this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler);
   }
 
   @Inject
@@ -97,13 +93,13 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
       final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
       final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
-      final @Parameter(NameLookupClient.RetryCount.class) int retryCount, 
+      final @Parameter(NameLookupClient.RetryCount.class) int retryCount,
       final @Parameter(NameLookupClient.RetryTimeout.class) int retryTimeout,
       final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
       final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
       final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
       final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
-    
+
     this.factory = factory;
     this.codec = codec;
     this.transport = tpFactory.create(nsPort, new LoggingEventHandler<TransportEvent>(),
@@ -117,7 +113,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
         try {
           nameClient.register(tuple.getKey(), tuple.getValue());
           LOG.fine("Finished registering " + tuple.getKey() + " with nameservice");
-          System.out.println("Finished registering " + tuple.getKey() + " with nameservice");
+          LOG.log(Level.FINEST, "Finished registering " + tuple.getKey() + " with nameservice");
         } catch (Exception e) {
           throw new RuntimeException("Unable to register " + tuple.getKey() + "with name service", e);
         }
@@ -130,7 +126,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
         try {
           nameClient.unregister(id);
           LOG.fine("Finished unregistering " + id + " from nameservice");
-          System.out.println("Finished unregistering " + id + " from nameservice");
+          LOG.log(Level.FINEST, "Finished unregistering " + id + " from nameservice");
         } catch (Exception e) {
           throw new RuntimeException("Unable to unregister " + id + " with name service", e);
         }
@@ -141,13 +137,13 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
   public void registerId(Identifier id) {
     this.myId = id;
     final Tuple<Identifier, InetSocketAddress> tuple = new Tuple<>(id, (InetSocketAddress) transport.getLocalAddress());
-    System.out.println("Binding " + tuple.getKey() + " to NetworkService@(" + tuple.getValue() + ")");
+    LOG.log(Level.FINEST, "Binding " + tuple.getKey() + " to NetworkService@(" + tuple.getValue() + ")");
     nameServiceRegisteringStage.onNext(tuple);
   }
-  
+
   public void unregisterId(Identifier id) {
     this.myId = null;
-    System.out.println("Unbinding " + id + " from NetworkService@(" + transport.getLocalAddress() + ")");
+    LOG.log(Level.FINEST, "Unbinding " + id + " from NetworkService@(" + transport.getLocalAddress() + ")");
     nameServiceUnregisteringStage.onNext(id);
   }
 
@@ -184,7 +180,7 @@ public class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   @Override
   public Connection<T> newConnection(final Identifier destId) {
-    if(myId==null)
+    if (myId == null)
       throw new RuntimeException("Trying to establish a connection from a Network Service that is not bound to any task");
     final Connection<T> conn = idToConnMap.get(destId);
     if (conn != null) {

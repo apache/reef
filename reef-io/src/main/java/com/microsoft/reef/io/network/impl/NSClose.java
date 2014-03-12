@@ -15,17 +15,21 @@
  */
 package com.microsoft.reef.io.network.impl;
 
-import javax.inject.Inject;
-
 import com.microsoft.reef.evaluator.context.events.ContextStop;
 import com.microsoft.wake.EventHandler;
 
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * 
+ *
  */
 public class NSClose implements EventHandler<ContextStop> {
+
+  private static final Logger LOG = Logger.getLogger(NSClose.class.getName());
   private final NetworkService<?> ns;
-  
+
   @Inject
   public NSClose(NetworkService<?> ns) {
     this.ns = ns;
@@ -34,10 +38,10 @@ public class NSClose implements EventHandler<ContextStop> {
   @Override
   public void onNext(ContextStop arg0) {
     try {
-      System.out.println("Closing Network Service");
+      LOG.log(Level.FINEST, "Closing Network Service");
       ns.close();
     } catch (Exception e) {
-      System.out.println("Exception while closing");
+      LOG.log(Level.FINEST, "Exception while closing");
       e.printStackTrace();
     }
   }

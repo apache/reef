@@ -37,88 +37,88 @@ import java.util.List;
 /**
  * Implementation of {@link SenderHelper} using point-to-point
  * communication provided by the {@link NetworkService}
- * @author shravan
  *
  * @param <T>
+ * @author shravan
  */
 public class SenderHelperImpl<T> implements SenderHelper<T> {
-	NetworkService<GroupCommMessage> netService;
-	Codec<T> codec;
+  NetworkService<GroupCommMessage> netService;
+  Codec<T> codec;
 
-	@NamedParameter(doc = "codec for the network service", short_name = "nscodec")
-	public static class SenderCodec implements Name<Codec<?>> {
-		//intentionally blank
-	}
+  @NamedParameter(doc = "codec for the network service", short_name = "nscodec")
+  public static class SenderCodec implements Name<Codec<?>> {
+    //intentionally blank
+  }
 
-	@Inject
-	public SenderHelperImpl(
-			NetworkService<GroupCommMessage> netService,
-			@Parameter(SenderCodec.class) Codec<T> codec) {
-		super();
-		this.netService = netService;
-		this.codec = codec;
-	}
+  @Inject
+  public SenderHelperImpl(
+      NetworkService<GroupCommMessage> netService,
+      @Parameter(SenderCodec.class) Codec<T> codec) {
+    super();
+    this.netService = netService;
+    this.codec = codec;
+  }
 
-	@Override
-	public void send(Identifier from, Identifier to, T element, Type msgType)
-			throws NetworkException {
-		send(from, to, Arrays.asList(element), msgType);
-	}
+  @Override
+  public void send(Identifier from, Identifier to, T element, Type msgType)
+      throws NetworkException {
+    send(from, to, Arrays.asList(element), msgType);
+  }
 
-	@Override
-	public void send(Identifier from, Identifier to, List<T> elements,
-			Type msgType) throws NetworkException {
-		GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
-		GCMBuilder.setType(msgType);
-		GCMBuilder.setSrcid(from.toString());
-		GCMBuilder.setDestid(to.toString());
-		GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
-		for (T element : elements) {
-			bodyBuilder.setData(ByteString.copyFrom(codec.encode(element)));
-			GCMBuilder.addMsgs(bodyBuilder.build());
-		}
-		GroupCommMessage msg = GCMBuilder.build();
-		netServiceSend(to, msg);
+  @Override
+  public void send(Identifier from, Identifier to, List<T> elements,
+                   Type msgType) throws NetworkException {
+    GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
+    GCMBuilder.setType(msgType);
+    GCMBuilder.setSrcid(from.toString());
+    GCMBuilder.setDestid(to.toString());
+    GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
+    for (T element : elements) {
+      bodyBuilder.setData(ByteString.copyFrom(codec.encode(element)));
+      GCMBuilder.addMsgs(bodyBuilder.build());
+    }
+    GroupCommMessage msg = GCMBuilder.build();
+    netServiceSend(to, msg);
 
-	}
-	
-	@Override
-	public void sendListOfList(Identifier from, Identifier to, List<List<T>> elements,
-			Type msgType) throws NetworkException {
-		GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
-		GCMBuilder.setType(msgType);
-		GCMBuilder.setSrcid(from.toString());
-		GCMBuilder.setDestid(to.toString());
-		GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
-		ListCodec<T> lstCodec = new ListCodec<>(codec);
-		for (List<T> subElems : elements) {
-			bodyBuilder.setData(ByteString.copyFrom(lstCodec.encode(subElems)));
-			GCMBuilder.addMsgs(bodyBuilder.build());
-		}
-		GroupCommMessage msg = GCMBuilder.build();
-		netServiceSend(to, msg);
-	}
+  }
 
-	private void netServiceSend(Identifier to, GroupCommMessage msg) throws NetworkException {
-		Connection<GroupCommMessage> conn = netService.newConnection(to);
-		conn.open();
-		conn.write(msg);
-		//conn.close();
-	}
+  @Override
+  public void sendListOfList(Identifier from, Identifier to, List<List<T>> elements,
+                             Type msgType) throws NetworkException {
+    GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
+    GCMBuilder.setType(msgType);
+    GCMBuilder.setSrcid(from.toString());
+    GCMBuilder.setDestid(to.toString());
+    GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
+    ListCodec<T> lstCodec = new ListCodec<>(codec);
+    for (List<T> subElems : elements) {
+      bodyBuilder.setData(ByteString.copyFrom(lstCodec.encode(subElems)));
+      GCMBuilder.addMsgs(bodyBuilder.build());
+    }
+    GroupCommMessage msg = GCMBuilder.build();
+    netServiceSend(to, msg);
+  }
 
-	@Override
-	public void send(Identifier from, List<? extends Identifier> to, List<T> elements,
-			List<Integer> counts, Type msgType) throws NetworkException {
-		int offset = 0;
-		Iterator<? extends Identifier> toIter = to.iterator();
-		for (int cnt : counts) {
-			Identifier dstId = toIter.next();
-			List<T> subElems = elements.subList(offset, offset + cnt);
-			send(from, dstId, subElems, msgType);
-//			System.out.println(from.toString() + " Sending elements(" + offset
+  private void netServiceSend(Identifier to, GroupCommMessage msg) throws NetworkException {
+    Connection<GroupCommMessage> conn = netService.newConnection(to);
+    conn.open();
+    conn.write(msg);
+    //conn.close();
+  }
+
+  @Override
+  public void send(Identifier from, List<? extends Identifier> to, List<T> elements,
+                   List<Integer> counts, Type msgType) throws NetworkException {
+    int offset = 0;
+    Iterator<? extends Identifier> toIter = to.iterator();
+    for (int cnt : counts) {
+      Identifier dstId = toIter.next();
+      List<T> subElems = elements.subList(offset, offset + cnt);
+      send(from, dstId, subElems, msgType);
+//			LOG.log(Level.FINEST, from.toString() + " Sending elements(" + offset
 //					+ "," + cnt + "): " + subElems + " to " + dstId.toString());
-			offset += cnt;
-		}
-	}
+      offset += cnt;
+    }
+  }
 
 }

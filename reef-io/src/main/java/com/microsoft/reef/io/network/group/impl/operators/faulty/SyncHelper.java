@@ -4,11 +4,14 @@ import com.microsoft.wake.Identifier;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  */
 public class SyncHelper {
+  private static final Logger LOG = Logger.getLogger(SyncHelper.class.getName());
 
   static void update(final Set<Identifier> childIdentifiers, final Map<Identifier, Integer> childStatus, final Identifier self) {
     //TODO: Currently does not care about parents
@@ -21,10 +24,10 @@ public class SyncHelper {
     for (final Identifier childIdentifier : childStatus.keySet()) {
       final int status = childStatus.get(childIdentifier);
       if (status < 0) {
-        System.out.println("RedReceiver: Removing " + childIdentifier + " from children of " + self);
+        LOG.log(Level.FINEST, "RedReceiver: Removing " + childIdentifier + " from children of " + self);
         childIdentifiers.remove(childIdentifier);
       } else if (status > 0) {
-        System.out.println("RedReceiver: Adding " + childIdentifier + " to children of " + self);
+        LOG.log(Level.FINEST, "RedReceiver: Adding " + childIdentifier + " to children of " + self);
         childIdentifiers.add(childIdentifier);
       } else {
         //No change. Need not worry

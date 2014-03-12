@@ -53,8 +53,7 @@ public final class TANGUtils {
     try {
       return cstr.replaceAll("\n", "#");
     } catch (Throwable t) {
-      System.out.println("CONFIGURATION STRING: " + cstr);
-      throw t;
+      throw new RuntimeException("Unable to encode Configuration.", t);
     }
   }
 }

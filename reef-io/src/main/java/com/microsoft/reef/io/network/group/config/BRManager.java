@@ -15,14 +15,6 @@
  */
 package com.microsoft.reef.io.network.group.config;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.Connection;
 import com.microsoft.reef.io.network.Message;
@@ -55,10 +47,21 @@ import com.microsoft.wake.impl.SingleThreadStage;
 import com.microsoft.wake.impl.ThreadPoolStage;
 import com.microsoft.wake.remote.Codec;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  */
 public class BRManager {
+  private static final Logger LOG = Logger.getLogger(BRManager.class.getName());
   /**
    * TANG instance
    */
@@ -66,12 +69,16 @@ public class BRManager {
 
   private Configuration reduceBaseConf;
 
-  /** Common configs */
+  /**
+   * Common configs
+   */
   private Class<? extends Codec<?>> brDataCodecClass;
   private Class<? extends Codec<?>> redDataCodecClass;
   private Class<? extends ReduceFunction<?>> redFuncClass;
 
-  /** {@link NetworkService} related configs */
+  /**
+   * {@link NetworkService} related configs
+   */
   private final String nameServiceAddr;
   private final int nameServicePort;
   private final NetworkService<GroupCommMessage> ns;
@@ -84,7 +91,7 @@ public class BRManager {
   private TaskTree tree = null;
 
   public BRManager(Class<? extends Codec<?>> brDataCodec, Class<? extends Codec<?>> redDataCodec, Class<? extends ReduceFunction<?>> redFunc,
-      String nameServiceAddr, int nameServicePort) throws BindException{
+                   String nameServiceAddr, int nameServicePort) throws BindException {
     brDataCodecClass = brDataCodec;
     redDataCodecClass = redDataCodec;
     redFuncClass = redFunc;
@@ -113,37 +120,37 @@ public class BRManager {
         idFac, 0, nameServiceAddr, nameServicePort, new GCMCodec(),
         new MessagingTransportFactory(), new EventHandler<Message<GroupCommMessage>>() {
 
-          @Override
-          public void onNext(Message<GroupCommMessage> srcAddsMsg) {
-            GroupCommMessage srcAdds = srcAddsMsg.getData().iterator().next();
-            assert(srcAdds.getType()==Type.SourceAdd);
-            final SingleThreadStage<GroupCommMessage> sendReqSrcAdd = new SingleThreadStage<>(new EventHandler<GroupCommMessage>() {
+      @Override
+      public void onNext(Message<GroupCommMessage> srcAddsMsg) {
+        GroupCommMessage srcAdds = srcAddsMsg.getData().iterator().next();
+        assert (srcAdds.getType() == Type.SourceAdd);
+        final SingleThreadStage<GroupCommMessage> sendReqSrcAdd = new SingleThreadStage<>(new EventHandler<GroupCommMessage>() {
 
-              @Override
-              public void onNext(GroupCommMessage srcAddsInner) {
-                SerializableCodec<HashSet<Integer>> sc = new SerializableCodec<>();
-                for(GroupMessageBody body : srcAddsInner.getMsgsList()){
-                  Set<Integer> srcs = sc.decode(body.getData().toByteArray());
-                  System.out.println("Received req to send srcAdd for " + srcs);
-                  for (Integer src : srcs) {
-                    Identifier srcId = idFac.getNewInstance("ComputeGradientTask" + src);
-                    BRManager.this.srcAdds.putIfAbsent(srcId, new LinkedBlockingQueue<GroupCommMessage>(1));
-                    BlockingQueue<GroupCommMessage> msgQue = BRManager.this.srcAdds.get(srcId);
-                    try {
-                      System.out.println("Waiting for srcAdd msg from: " + srcId);
-                      GroupCommMessage srcAddMsg = msgQue.take();
-                      System.out.println("Found a srcAdd msg from: " + srcId);
-                      senderStage.onNext(srcAddMsg);
-                    } catch (InterruptedException e) {
-                      throw new RuntimeException(e);
-                    }
-                  }
+          @Override
+          public void onNext(GroupCommMessage srcAddsInner) {
+            SerializableCodec<HashSet<Integer>> sc = new SerializableCodec<>();
+            for (GroupMessageBody body : srcAddsInner.getMsgsList()) {
+              Set<Integer> srcs = sc.decode(body.getData().toByteArray());
+              LOG.log(Level.FINEST, "Received req to send srcAdd for " + srcs);
+              for (Integer src : srcs) {
+                Identifier srcId = idFac.getNewInstance("ComputeGradientTask" + src);
+                BRManager.this.srcAdds.putIfAbsent(srcId, new LinkedBlockingQueue<GroupCommMessage>(1));
+                BlockingQueue<GroupCommMessage> msgQue = BRManager.this.srcAdds.get(srcId);
+                try {
+                  LOG.log(Level.FINEST, "Waiting for srcAdd msg from: " + srcId);
+                  GroupCommMessage srcAddMsg = msgQue.take();
+                  LOG.log(Level.FINEST, "Found a srcAdd msg from: " + srcId);
+                  senderStage.onNext(srcAddMsg);
+                } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
                 }
               }
-            }, 5);
-            sendReqSrcAdd.onNext(srcAdds);
+            }
           }
-        },
+        }, 5);
+        sendReqSrcAdd.onNext(srcAdds);
+      }
+    },
         new LoggingEventHandler<Exception>());
     ns.registerId(driverId);
     senderStage = new ThreadPoolStage<>("SrcCtrlMsgSender", new EventHandler<GroupCommMessage>() {
@@ -152,13 +159,13 @@ public class BRManager {
       public void onNext(GroupCommMessage srcCtrlMsg) {
         Identifier id = idFac.getNewInstance(srcCtrlMsg.getDestid());
 
-        if(tree.getStatus((ComparableIdentifier) id)!=Status.SCHEDULED)
+        if (tree.getStatus((ComparableIdentifier) id) != Status.SCHEDULED)
           return;
 
         Connection<GroupCommMessage> link = ns.newConnection(id);
         try {
           link.open();
-          System.out.println("Sending source ctrl msg " + srcCtrlMsg.getType() + " for "  + srcCtrlMsg.getSrcid() + " to " + id);
+          LOG.log(Level.FINEST, "Sending source ctrl msg " + srcCtrlMsg.getType() + " for " + srcCtrlMsg.getSrcid() + " to " + id);
           link.write(srcCtrlMsg);
         } catch (NetworkException e) {
           e.printStackTrace();
@@ -181,14 +188,13 @@ public class BRManager {
    * @param taskId
    */
   public synchronized void add(final ComparableIdentifier taskId) {
-    if(tree==null){
+    if (tree == null) {
       //Controller
-      System.out.println("Adding controller");
+      LOG.log(Level.FINEST, "Adding controller");
       tree = new TaskTreeImpl();
       tree.add(taskId);
-    }
-    else{
-      System.out.println("Adding Compute task. First updating tree");
+    } else {
+      LOG.log(Level.FINEST, "Adding Compute task. First updating tree");
       //Compute Task
       //Update tree
       tree.add(taskId);
@@ -231,7 +237,7 @@ public class BRManager {
     jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Sender.SelfId.class, taskId.toString());
     jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Receiver.SelfId.class, taskId.toString());
     ComparableIdentifier parent = tree.parent(taskId);
-    if(parent!=null && Status.SCHEDULED==tree.getStatus(parent)){
+    if (parent != null && Status.SCHEDULED == tree.getStatus(parent)) {
       jcb.bindNamedParameter(BroadReduceConfig.ReduceConfig.Sender.ParentId.class, tree.parent(taskId).toString());
       jcb.bindNamedParameter(BroadReduceConfig.BroadcastConfig.Receiver.ParentId.class, tree.parent(taskId).toString());
     }
@@ -301,19 +307,18 @@ public class BRManager {
    */
   public synchronized void schedule(final ComparableIdentifier taskId, final boolean reschedule) {
 
-    if(Status.SCHEDULED==tree.getStatus(taskId))
+    if (Status.SCHEDULED == tree.getStatus(taskId))
       return;
     tree.setStatus(taskId, Status.SCHEDULED);
     //This will not work when failure
     //is in an intermediate node
     List<ComparableIdentifier> schNeighs = tree.scheduledNeighbors(taskId);
-    if(!schNeighs.isEmpty()){
+    if (!schNeighs.isEmpty()) {
       for (ComparableIdentifier neighbor : schNeighs) {
-        System.out.println("Adding " + taskId + " as neighbor of " + neighbor);
+        LOG.log(Level.FINEST, "Adding " + taskId + " as neighbor of " + neighbor);
         sendSrcAddMsg(taskId, neighbor, reschedule);
       }
-    }
-    else{
+    } else {
       //TODO: I seem some friction between elasticity and fault tolerance
       //here. Because of elasticity I have the if checks here and
       //the logic is restricted to just the parent instead of the
@@ -321,23 +326,23 @@ public class BRManager {
       //needs to co-ordinated with how faults are handled. We need
       //to generalize this carefully
       final ComparableIdentifier parent = tree.parent(taskId);
-      if(tree.parent(taskId)!=null){
+      if (tree.parent(taskId) != null) {
         //Only for compute tasks
-        System.out.println("Parent " + parent + " was alive while submitting.");
-        System.out.println("While scheduling found that parent is not scheduled.");
-        System.out.println("Sending Src Dead msg");
+        LOG.log(Level.FINEST, "Parent " + parent + " was alive while submitting.");
+        LOG.log(Level.FINEST, "While scheduling found that parent is not scheduled.");
+        LOG.log(Level.FINEST, "Sending Src Dead msg");
         sendSrcDeadMsg(parent, taskId);
       }
     }
   }
 
   private void sendSrcAddMsg(ComparableIdentifier from,
-      final ComparableIdentifier to, boolean reschedule) {
+                             final ComparableIdentifier to, boolean reschedule) {
     GroupCommMessage srcAddMsg = Utils.bldGCM(Type.SourceAdd, from, to, new byte[0]);
-    if(!reschedule)
+    if (!reschedule)
       senderStage.onNext(srcAddMsg);
-    else{
-      System.out.println("SrcAdd from: " + from + " queued up");
+    else {
+      LOG.log(Level.FINEST, "SrcAdd from: " + from + " queued up");
       srcAdds.putIfAbsent(from, new LinkedBlockingQueue<GroupCommMessage>(1));
       BlockingQueue<GroupCommMessage> msgQue = srcAdds.get(from);
       msgQue.add(srcAddMsg);
@@ -358,7 +363,7 @@ public class BRManager {
     }*/
     List<ComparableIdentifier> completedChildren = new ArrayList<>();
     for (ComparableIdentifier child : children) {
-      if(Status.COMPLETED==tree.getStatus(child))
+      if (Status.COMPLETED == tree.getStatus(child))
         completedChildren.add(child);
     }
     children.removeAll(completedChildren);
@@ -370,11 +375,11 @@ public class BRManager {
    * @param failedTaskId
    */
   public synchronized void unschedule(final ComparableIdentifier failedTaskId) {
-    System.out.println("BRManager unscheduling " + failedTaskId);
+    LOG.log(Level.FINEST, "BRManager unscheduling " + failedTaskId);
     tree.setStatus(failedTaskId, Status.UNSCHEDULED);
     //Send a Source Dead message
     ComparableIdentifier from = failedTaskId;
-    for(ComparableIdentifier to : tree.scheduledNeighbors(failedTaskId)){
+    for (ComparableIdentifier to : tree.scheduledNeighbors(failedTaskId)) {
       sendSrcDeadMsg(from, to);
     }
   }
@@ -390,7 +395,7 @@ public class BRManager {
    */
   public boolean canReschedule(final ComparableIdentifier failedTaskId) {
     final ComparableIdentifier parent = tree.parent(failedTaskId);
-    if(parent!=null && Status.SCHEDULED==tree.getStatus(parent))
+    if (parent != null && Status.SCHEDULED == tree.getStatus(parent))
       return true;
     return false;
   }

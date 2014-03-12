@@ -21,9 +21,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ListCodec<T> implements Codec<List<T>> {
+  private static final Logger LOG = Logger.getLogger(ListCodec.class.getName());
 
   /**
    * @param args
@@ -31,10 +34,10 @@ public class ListCodec<T> implements Codec<List<T>> {
   public static void main(String[] args) {
     String[] strArr = {"One", "Two", "Three", "Four", "Five"};
     List<String> arrList = Arrays.asList(strArr);
-    System.out.println(arrList);
+    LOG.log(Level.FINEST, arrList.toString());
     ListCodec<String> lstCodec = new ListCodec<>(new StringCodec());
     byte[] bytes = lstCodec.encode(arrList);
-    System.out.println(lstCodec.decode(bytes));
+    LOG.log(Level.FINEST, lstCodec.decode(bytes).toString());
   }
 
   Codec<T> codec;

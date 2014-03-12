@@ -15,20 +15,19 @@
  */
 package com.microsoft.reef.io.network.group.config;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.TreeSet;
-
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.wake.ComparableIdentifier;
 import com.microsoft.wake.IdentifierFactory;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  */
 public class TaskTreeImpl implements TaskTree {
+  private static final Logger LOG = Logger.getLogger(TaskTreeImpl.class.getName());
 
   private static class IdentifierStatus {
 
@@ -49,8 +48,7 @@ public class TaskTreeImpl implements TaskTree {
       final IdentifierStatus that = (IdentifierStatus) obj;
       if (this.status != Status.ANY && that.status != Status.ANY) {
         return this.id.equals(that.id) && this.status.equals(that.status);
-      }
-      else {
+      } else {
         return this.id.equals(that.id);
       }
     }
@@ -77,22 +75,21 @@ public class TaskTreeImpl implements TaskTree {
 
   @Override
   public synchronized void add(final ComparableIdentifier id) {
-    System.out.println("Before Tasks: " + tasks);
-//    System.out.println("Before Holes: " + holes);
-    if(holes.isEmpty()){
-//      System.out.println("No holes. Adding at the end");
+    LOG.log(Level.FINEST, "Before Tasks: " + tasks);
+//    LOG.log(Level.FINEST, "Before Holes: " + holes);
+    if (holes.isEmpty()) {
+//      LOG.log(Level.FINEST, "No holes. Adding at the end");
       tasks.add(new IdentifierStatus(id));
-    }
-    else{
-//      System.out.println("Found holes: " + holes);
+    } else {
+//      LOG.log(Level.FINEST, "Found holes: " + holes);
       int firstHole = holes.first();
-//      System.out.println("First hole at " + firstHole + ". Removing it");
+//      LOG.log(Level.FINEST, "First hole at " + firstHole + ". Removing it");
       holes.remove(firstHole);
-//      System.out.println("Adding " + id + " at " + firstHole);
+//      LOG.log(Level.FINEST, "Adding " + id + " at " + firstHole);
       tasks.add(firstHole, new IdentifierStatus(id));
     }
-    System.out.println("After Tasks: " + tasks);
-//    System.out.println("After Holes: " + holes);
+    LOG.log(Level.FINEST, "After Tasks: " + tasks);
+//    LOG.log(Level.FINEST, "After Holes: " + holes);
   }
 
   @Override
@@ -108,7 +105,7 @@ public class TaskTreeImpl implements TaskTree {
     int parIdx = (idx - 1) / 2;
     try {
       return tasks.get(parIdx).id;
-    }catch (final IndexOutOfBoundsException e) {
+    } catch (final IndexOutOfBoundsException e) {
       return null;
     }
   }
@@ -134,7 +131,7 @@ public class TaskTreeImpl implements TaskTree {
     final int rightIdx = idx * 2 + 2;
     try {
       return tasks.get(rightIdx).id;
-    }catch (final IndexOutOfBoundsException e) {
+    } catch (final IndexOutOfBoundsException e) {
       return null;
     }
   }
@@ -156,7 +153,7 @@ public class TaskTreeImpl implements TaskTree {
     if (left != null) {
       retVal.add(left);
       final ComparableIdentifier right = right(id);
-      if (right!=null)
+      if (right != null)
         retVal.add(right);
     }
     return retVal;
@@ -218,7 +215,7 @@ public class TaskTreeImpl implements TaskTree {
     final IdentifierFactory idFac = new StringIdentifierFactory();
     final TaskTree tree = new TaskTreeImpl();
     final ComparableIdentifier[] ids = new ComparableIdentifier[7];
-    for(int i = 0; i < ids.length; ++i) {
+    for (int i = 0; i < ids.length; ++i) {
       ids[i] = (ComparableIdentifier) idFac.getNewInstance(Integer.toString(i));
     }
     tree.add(ids[0]);
@@ -231,31 +228,31 @@ public class TaskTreeImpl implements TaskTree {
 
     tree.setStatus(ids[2], Status.SCHEDULED);
 
-    System.out.println(tree);
-    System.out.println("Children");
-    System.out.println(tree.children(ids[0]));
-    System.out.println("Sched Children");
-    System.out.println(tree.scheduledChildren(ids[0]));
-    System.out.println();
+    LOG.log(Level.FINEST, tree.toString());
+    LOG.log(Level.FINEST, "Children");
+    LOG.log(Level.FINEST, tree.children(ids[0]).toString());
+    LOG.log(Level.FINEST, "Sched Children");
+    LOG.log(Level.FINEST, tree.scheduledChildren(ids[0]).toString());
+
 
     Queue<ComparableIdentifier> idss = new LinkedList<>();
     idss.add((ComparableIdentifier) idFac.getNewInstance("0"));
-    while(!idss.isEmpty()){
+    while (!idss.isEmpty()) {
       ComparableIdentifier id = idss.poll();
-      System.out.println(id);
+      LOG.log(Level.FINEST, id.toString());
       ComparableIdentifier left = tree.left(id);
-      if(left!=null){
+      if (left != null) {
         idss.add(left);
         ComparableIdentifier right = tree.right(id);
-        if(right!=null)
+        if (right != null)
           idss.add(right);
       }
     }
     tree.setStatus(ids[4], Status.SCHEDULED);
-    System.out.println(tree);
-    System.out.println("Neighbors");
-    System.out.println(tree.neighbors(ids[2]));
-    System.out.println("Sched Neighbors");
-    System.out.println(tree.scheduledNeighbors(ids[2]));
+    LOG.log(Level.FINEST, tree.toString());
+    LOG.log(Level.FINEST, "Neighbors");
+    LOG.log(Level.FINEST, tree.neighbors(ids[2]).toString());
+    LOG.log(Level.FINEST, "Sched Neighbors");
+    LOG.log(Level.FINEST, tree.scheduledNeighbors(ids[2]).toString());
   }
 }

@@ -32,11 +32,15 @@ import com.microsoft.wake.remote.Codec;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  */
 public class ReduceOp {
+  private static final Logger LOG = Logger.getLogger(ReduceOp.class.getName());
+
   public static class Sender<V> {
     private final Identifier self;
     private final Identifier parent;
@@ -74,10 +78,10 @@ public class ReduceOp {
       this.self = (selfId.equals(BroadReduceConfig.defaultValue) ? null : idFac.getNewInstance(selfId));
       this.excHandler = (ExceptionHandler) excHandler;
 
-      System.out.println("Approximate Gradient: " + reusePreviousValues);
-      System.out.println("Received childIds:");
+      LOG.log(Level.FINEST, "Approximate Gradient: " + reusePreviousValues);
+      LOG.log(Level.FINEST, "Received childIds:");
       for (final String childId : childIds) {
-        System.out.println(childId);
+        LOG.log(Level.FINEST, childId);
         if (!childId.equals(AllReduceConfig.defaultValue)) {
           this.children.add(idFac.getNewInstance(childId));
         }
@@ -96,11 +100,11 @@ public class ReduceOp {
      * @throws NetworkException
      */
     public void send(final V myData) throws NetworkFault, NetworkException, InterruptedException {
-      System.out.println("I am Reduce sender" + self.toString());
+      LOG.log(Level.FINEST, "I am Reduce sender" + self.toString());
       final List<V> vals = new ArrayList<>(this.children.size() + 1);
       vals.add(myData);
       for (final Identifier child : children) {
-        System.out.println("Waiting for child: " + child);
+        LOG.log(Level.FINEST, "Waiting for child: " + child);
         final Optional<V> valueFromChild = getValueForChild(child);
         if (valueFromChild.isPresent()) {
           vals.add(valueFromChild.get());
@@ -109,7 +113,7 @@ public class ReduceOp {
 
       //Reduce the received values
       final V reducedValue = redFunc.apply(vals);
-      System.out.println("Sending " + reducedValue + " to parent: " + parent);
+      LOG.log(Level.FINEST, "Sending " + reducedValue + " to parent: " + parent);
       assert (parent != null);
       this.send(reducedValue, parent);
     }
@@ -128,9 +132,9 @@ public class ReduceOp {
      * @throws InterruptedException
      */
     private Optional<V> getValueForChild(final Identifier childIdentifier) throws NetworkException, InterruptedException {
-      System.out.println("Waiting for child: " + childIdentifier);
+      LOG.log(Level.FINEST, "Waiting for child: " + childIdentifier);
       final V valueFromChild = handler.get(childIdentifier, codec);
-      System.out.println("Received: " + valueFromChild);
+      LOG.log(Level.FINEST, "Received: " + valueFromChild);
 
       final Optional<V> returnValue;
       if (valueFromChild != null) {
@@ -187,7 +191,7 @@ public class ReduceOp {
       this.redFunc = redFunc;
       this.self = (selfId.equals(BroadReduceConfig.defaultValue) ? null : idFac.getNewInstance(selfId));
 
-      System.out.println("Received childIds: " + childIds);
+      LOG.log(Level.FINEST, "Received childIds: " + childIds);
       for (final String childId : childIds) {
         if (!childId.equals(AllReduceConfig.defaultValue)) {
           children.add(idFac.getNewInstance(childId));
@@ -203,14 +207,14 @@ public class ReduceOp {
 
     public V reduce() throws NetworkException, InterruptedException {
       //I am root.
-      System.out.println("I am root " + self);
+      LOG.log(Level.FINEST, "I am root " + self);
       //Wait for children to send
       final List<V> vals = new ArrayList<>(this.children.size());
 
       for (final Identifier childIdentifier : this.children) {
-        System.out.println("Waiting for child: " + childIdentifier);
+        LOG.log(Level.FINEST, "Waiting for child: " + childIdentifier);
         final V cVal = handler.get(childIdentifier, codec);
-        System.out.println("Received: " + cVal);
+        LOG.log(Level.FINEST, "Received: " + cVal);
         if (cVal != null) {
           vals.add(cVal);
         }
@@ -218,7 +222,7 @@ public class ReduceOp {
 
       //Reduce the received values
       final V redVal = redFunc.apply(vals);
-      System.out.println("Local Reduced value: " + redVal);
+      LOG.log(Level.FINEST, "Local Reduced value: " + redVal);
       return redVal;
     }
 
