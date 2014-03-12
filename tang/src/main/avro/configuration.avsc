@@ -1,7 +1,7 @@
 {
     "namespace":"com.microsoft.tang.formats",
     "type":"record",
-    "name":"Configuration",
+    "name":"AvroConfiguration",
     "fields":[
 	{"name":"Bindings","type":{"type":"map", "values":"string"}}
     ]
