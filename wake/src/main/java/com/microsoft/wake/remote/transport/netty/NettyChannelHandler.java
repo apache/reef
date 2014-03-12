@@ -18,12 +18,7 @@ package com.microsoft.wake.remote.transport.netty;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
 
 class NettyChannelHandler extends SimpleChannelUpstreamHandler {
@@ -87,8 +82,8 @@ class NettyChannelHandler extends SimpleChannelUpstreamHandler {
   @Override
   public void channelConnected(
       final ChannelHandlerContext ctx, final ChannelStateEvent event) throws Exception {
-    channelGroup.add(event.getChannel());
-    listener.channelConnected(event);
+    this.channelGroup.add(event.getChannel());
+    this.listener.channelConnected(event);
     super.channelConnected(ctx, event);
   }
   
@@ -102,7 +97,7 @@ class NettyChannelHandler extends SimpleChannelUpstreamHandler {
   @Override 
   public void channelClosed(
       final ChannelHandlerContext ctx, final ChannelStateEvent event) throws Exception {
-    listener.channelClosed(event);
+    this.listener.channelClosed(event);
     super.channelClosed(ctx, event);
   }
   
@@ -115,11 +110,11 @@ class NettyChannelHandler extends SimpleChannelUpstreamHandler {
    */
   @Override
   public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent event) {
+    final Channel channel = event.getChannel();
     LOG.log(Level.INFO, "Unexpected exception from downstream. channel: {0} local: {1} remote: {2}",
-        new Object[]{event.getChannel(), event.getChannel().getLocalAddress(),
-            event.getChannel().getRemoteAddress()});
+        new Object[] { channel, channel.getLocalAddress(), channel.getRemoteAddress() });
     LOG.log(Level.WARNING, "Unexpected exception from downstream.", event.getCause());
-    event.getChannel().close();
+    channel.close();
     this.listener.exceptionCaught(event);
   }
 }
