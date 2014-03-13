@@ -22,25 +22,31 @@ import com.microsoft.reef.io.serialization.Codec;
 import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 final class CodecFileIterator<T> implements Iterator<T> {
 
-  private static final Logger LOG = Logger.getLogger(CodecFileIterator.class.getName());
-
   private final Codec<T> codec;
   private final ObjectInputStream in;
-  private int sz = -1;
+  private int sz = 0;
 
   CodecFileIterator(final Codec<T> codec, final File file) throws IOException {
     this.in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
     this.codec = codec;
-    try {
-      this.sz = this.in.readInt();
-    } catch (final IOException ex) {
-      this.in.close();
-      throw ex;
+    this.readNextSize();
+  }
+
+  private void readNextSize() throws IOException {
+    if (this.hasNext()) {
+      try {
+        this.sz = this.in.readInt();
+        if (this.sz == -1) {
+          this.in.close();
+        }
+      } catch (final IOException ex) {
+        this.sz = -1; // Don't read from that file again.
+        this.in.close();
+        throw ex;
+      }
     }
   }
 
@@ -51,25 +57,17 @@ final class CodecFileIterator<T> implements Iterator<T> {
 
   @Override
   public T next() {
-    if (this.sz == -1) {
+    if (!this.hasNext()) {
       throw new NoSuchElementException("Moving past the end of the file.");
     }
     try {
       final byte[] buf = new byte[this.sz];
-      for (int rem = buf.length; rem > 0; rem -= this.in.read(buf, buf.length - rem, rem)) {
+      for (int rem = buf.length; rem > 0; ) {
+        rem -= this.in.read(buf, buf.length - rem, rem);
       }
-      this.sz = this.in.readInt();
-      if (this.sz == -1) {
-        this.in.close();
-      }
+      this.readNextSize();
       return this.codec.decode(buf);
     } catch (final IOException e) {
-      this.sz = -1; // Don't read from that file again.
-      try {
-        this.in.close();
-      } catch (final IOException exClose) {
-        LOG.log(Level.WARNING, "Error closing file.", exClose);
-      }
       throw new ServiceRuntimeException(new StorageException(e));
     }
   }
