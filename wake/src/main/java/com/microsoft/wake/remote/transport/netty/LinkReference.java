@@ -19,7 +19,7 @@ import com.microsoft.wake.remote.transport.Link;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class LinkReference {
+final class LinkReference {
 
   private Link<?> link;
   private AtomicBoolean connectInProgress = new AtomicBoolean(false);
@@ -36,7 +36,7 @@ class LinkReference {
   }
 
   synchronized Link<?> getLink() {
-    return link;
+    return this.link;
   }
 
   AtomicBoolean getConnectInProgress() {

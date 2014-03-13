@@ -6,7 +6,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 /**
  * Default Netty channel handler factory
  */
-class NettyDefaultChannelHandlerFactory implements NettyChannelHandlerFactory {
+final class NettyDefaultChannelHandlerFactory implements NettyChannelHandlerFactory {
 
   /**
    * Creates a Netty channel handler

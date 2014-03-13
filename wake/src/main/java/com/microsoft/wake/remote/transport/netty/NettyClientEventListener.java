@@ -24,7 +24,7 @@ import org.jboss.netty.channel.ExceptionEvent;
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
 
-class NettyClientEventListener extends AbstractNettyEventListener {
+final class NettyClientEventListener extends AbstractNettyEventListener {
 
   public NettyClientEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,

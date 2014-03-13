@@ -26,7 +26,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
-class NettyServerEventListener extends AbstractNettyEventListener {
+final class NettyServerEventListener extends AbstractNettyEventListener {
 
   public NettyServerEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
