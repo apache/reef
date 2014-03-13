@@ -15,28 +15,19 @@
  */
 package com.microsoft.tang.implementation;
 
+import com.microsoft.tang.*;
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
+import com.microsoft.tang.types.*;
+import com.microsoft.tang.util.MonotonicMultiMap;
+import com.microsoft.tang.util.TracingMonotonicMap;
+import com.microsoft.tang.util.TracingMonotonicTreeMap;
+
 import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import com.microsoft.tang.ClassHierarchy;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
-import com.microsoft.tang.ExternalConstructor;
-import com.microsoft.tang.JavaClassHierarchy;
-import com.microsoft.tang.Tang;
-import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.NameResolutionException;
-import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
-import com.microsoft.tang.types.ClassNode;
-import com.microsoft.tang.types.ConstructorArg;
-import com.microsoft.tang.types.ConstructorDef;
-import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.types.Node;
-import com.microsoft.tang.util.MonotonicMultiMap;
-import com.microsoft.tang.util.TracingMonotonicMap;
-import com.microsoft.tang.util.TracingMonotonicTreeMap;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   // TODO: None of these should be public! - Move to configurationBuilder. Have
@@ -49,20 +40,21 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
   final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
-  
+
   public final static String IMPORT = "import";
   public final static String INIT = "<init>";
 
   protected ConfigurationBuilderImpl() {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
+
   protected ConfigurationBuilderImpl(ClassHierarchy namespace) {
     this.namespace = namespace;
   }
 
   protected ConfigurationBuilderImpl(URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {
-    this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars,parsers);
+    this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars, parsers);
     for (Configuration tc : confs) {
       addConfiguration(((ConfigurationImpl) tc));
     }
@@ -97,10 +89,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private <T> void addConfiguration(ClassHierarchy ns, ConfigurationBuilderImpl builder)
       throws BindException {
     namespace = namespace.merge(ns);
-    if((namespace instanceof ClassHierarchyImpl || builder.namespace instanceof ClassHierarchyImpl)) {
-      if((namespace instanceof ClassHierarchyImpl && builder.namespace instanceof ClassHierarchyImpl)) {
+    if ((namespace instanceof ClassHierarchyImpl || builder.namespace instanceof ClassHierarchyImpl)) {
+      if ((namespace instanceof ClassHierarchyImpl && builder.namespace instanceof ClassHierarchyImpl)) {
         ((ClassHierarchyImpl) namespace).parameterParser
-          .mergeIn(((ClassHierarchyImpl) builder.namespace).parameterParser);
+            .mergeIn(((ClassHierarchyImpl) builder.namespace).parameterParser);
       } else {
         throw new IllegalArgumentException("Attempt to merge Java and non-Java class hierarchy!  Not supported.");
       }
@@ -122,17 +114,18 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       registerLegacyConstructor(cn, builder.legacyConstructors.get(cn)
           .getArgs());
     }
-    for (Entry<NamedParameterNode<Set<?>>, Object> e: builder.boundSetEntries) {
-      String name = ((NamedParameterNode<Set<T>>)(NamedParameterNode<?>)e.getKey()).getFullName();
-      if(e.getValue() instanceof Node) {
-        bindSetEntry(name, (Node)e.getValue());
-      } else if(e.getValue() instanceof String) {
-        bindSetEntry(name, (String)e.getValue());
+    for (Entry<NamedParameterNode<Set<?>>, Object> e : builder.boundSetEntries) {
+      String name = ((NamedParameterNode<Set<T>>) (NamedParameterNode<?>) e.getKey()).getFullName();
+      if (e.getValue() instanceof Node) {
+        bindSetEntry(name, (Node) e.getValue());
+      } else if (e.getValue() instanceof String) {
+        bindSetEntry(name, (String) e.getValue());
       } else {
         throw new IllegalStateException();
       }
     }
   }
+
   @Override
   public ClassHierarchy getClassHierarchy() {
     return namespace;
@@ -140,7 +133,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public void registerLegacyConstructor(ClassNode<?> c,
-      final ConstructorArg... args) throws BindException {
+                                        final ConstructorArg... args) throws BindException {
     String cn[] = new String[args.length];
     for (int i = 0; i < args.length; i++) {
       cn[i] = args[i].getType();
@@ -161,7 +154,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @Override
   public void registerLegacyConstructor(ClassNode<?> cn,
-      final ClassNode<?>... args) throws BindException {
+                                        final ClassNode<?>... args) throws BindException {
     legacyConstructors.put(cn, cn.getConstructorDef(args));
   }
 
@@ -178,7 +171,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void bind(Node key, Node value) throws BindException {
     if (key instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) key, value.getFullName());
@@ -204,15 +197,15 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public <T> void bindParameter(NamedParameterNode<T> name, String value)
       throws BindException {
     /* Parse and discard value; this is just for type checking */
-    if(namespace instanceof JavaClassHierarchy) {
-      ((JavaClassHierarchy)namespace).parse(name, value);
+    if (namespace instanceof JavaClassHierarchy) {
+      ((JavaClassHierarchy) namespace).parse(name, value);
     }
-    if(name.isSet()) {
-      bindSetEntry((NamedParameterNode)name, value);
+    if (name.isSet()) {
+      bindSetEntry((NamedParameterNode) name, value);
     } else {
       namedParameters.put(name, value);
     }
@@ -222,32 +215,33 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void bindSetEntry(String iface, String impl)
       throws BindException {
-    boundSetEntries.put((NamedParameterNode<Set<?>>)namespace.getNode(iface), impl);
+    boundSetEntries.put((NamedParameterNode<Set<?>>) namespace.getNode(iface), impl);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public void bindSetEntry(String iface, Node impl)
       throws BindException {
-    boundSetEntries.put((NamedParameterNode<Set<?>>)namespace.getNode(iface), impl);
+    boundSetEntries.put((NamedParameterNode<Set<?>>) namespace.getNode(iface), impl);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException {
-    boundSetEntries.put((NamedParameterNode<Set<?>>)(NamedParameterNode<?>)iface, impl);
+    boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
   }
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
       throws BindException {
-    boundSetEntries.put((NamedParameterNode<Set<?>>)(NamedParameterNode<?>)iface, impl);
+    boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
   }
 
   @Override
   public <T> void bindConstructor(ClassNode<T> k,
-      ClassNode<? extends ExternalConstructor<? extends T>> v) {
+                                  ClassNode<? extends ExternalConstructor<? extends T>> v) {
     boundConstructors.put(k, v);
   }
 
@@ -264,23 +258,63 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   private String join(String sep, String[] s) {
-    if(s.length == 0) {
+    if (s.length == 0) {
       return null;
     } else {
       StringBuilder sb = new StringBuilder(s[0]);
-      for(int i = 1; i < s.length; i++) {
+      for (int i = 1; i < s.length; i++) {
         sb.append(sep);
         sb.append(s[i]);
       }
       return sb.toString();
     }
   }
+
   @Override
   public String classPrettyDescriptionString(String fullName)
       throws NameResolutionException {
     final NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
-      .getNode(fullName);
+        .getNode(fullName);
     return param.getDocumentation() + "\n" + param.getFullName();
   }
 
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ConfigurationBuilderImpl that = (ConfigurationBuilderImpl) o;
+
+    if (boundConstructors != null ? !boundConstructors.equals(that.boundConstructors) : that.boundConstructors != null) {
+      return false;
+    }
+    if (boundImpls != null ? !boundImpls.equals(that.boundImpls) : that.boundImpls != null) {
+      return false;
+    }
+    if (boundSetEntries != null ? !boundSetEntries.equals(that.boundSetEntries) : that.boundSetEntries != null) {
+      return false;
+    }
+    if (legacyConstructors != null ? !legacyConstructors.equals(that.legacyConstructors) : that.legacyConstructors != null) {
+      return false;
+    }
+    if (namedParameters != null ? !namedParameters.equals(that.namedParameters) : that.namedParameters != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = boundImpls != null ? boundImpls.hashCode() : 0;
+    result = 31 * result + (boundConstructors != null ? boundConstructors.hashCode() : 0);
+    result = 31 * result + (namedParameters != null ? namedParameters.hashCode() : 0);
+    result = 31 * result + (legacyConstructors != null ? legacyConstructors.hashCode() : 0);
+    result = 31 * result + (boundSetEntries != null ? boundSetEntries.hashCode() : 0);
+    return result;
+  }
 }

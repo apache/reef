@@ -15,20 +15,50 @@
  */
 package com.microsoft.tang.util;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
-public class MonotonicTreeMap<T, U> extends TreeMap<T, U> {
+public final class MonotonicTreeMap<T, U> implements Map<T, U> {
   private static final long serialVersionUID = 1L;
+
+  private final TreeMap<T, U> innerMap = new TreeMap<>();
+
+
+  @Override
+  public int size() {
+    return innerMap.size();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return innerMap.isEmpty();
+  }
+
+  @Override
+  public boolean containsKey(final Object o) {
+    return innerMap.containsKey(o);
+  }
+
+  @Override
+  public boolean containsValue(final Object o) {
+    return innerMap.containsValue(o);
+  }
+
+  @Override
+  public U get(final Object o) {
+    return innerMap.get(o);
+  }
 
   @Override
   public U put(T key, U value) {
-    U old = super.get(key);
+    U old = innerMap.get(key);
     if (old != null) {
       throw new IllegalArgumentException("Attempt to re-add: [" + key
           + "]\n old value: " + old + " new value " + value);
     }
-    return super.put(key, value);
+    return innerMap.put(key, value);
   }
 
   @Override
@@ -42,7 +72,45 @@ public class MonotonicTreeMap<T, U> extends TreeMap<T, U> {
   }
 
   @Override
+  public Set<T> keySet() {
+    return innerMap.keySet();
+  }
+
+  @Override
+  public Collection<U> values() {
+    return innerMap.values();
+  }
+
+  @Override
+  public Set<Entry<T, U>> entrySet() {
+    return innerMap.entrySet();
+  }
+
+  @Override
   public U remove(Object o) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o){
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()){
+      return false;
+    }
+
+    final MonotonicTreeMap that = (MonotonicTreeMap) o;
+
+    if (!innerMap.equals(that.innerMap)){
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return innerMap.hashCode();
   }
 }

@@ -15,11 +15,6 @@
  */
 package com.microsoft.tang.implementation;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
@@ -27,7 +22,10 @@ import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
-import com.microsoft.tang.util.MonotonicSet;
+
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class ConfigurationImpl implements Configuration {
   final ConfigurationBuilderImpl builder;
@@ -84,7 +82,7 @@ public class ConfigurationImpl implements Configuration {
   public ConfigurationBuilder newBuilder() {
     return builder.build().builder;
   }
-  
+
   @Override
   public ClassHierarchy getClassHierarchy() {
     return builder.namespace;
@@ -94,14 +92,38 @@ public class ConfigurationImpl implements Configuration {
   public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np) {
     return this.builder.boundSetEntries.getValuesForKey(np);
   }
+
   @Override
   public Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets() {
     return new Iterable<Entry<NamedParameterNode<Set<?>>, Object>>() {
-      
+
       @Override
       public Iterator<Entry<NamedParameterNode<Set<?>>, Object>> iterator() {
         return builder.boundSetEntries.iterator();
       }
     };
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    final ConfigurationImpl that = (ConfigurationImpl) o;
+
+    if (builder != null ? !builder.equals(that.builder) : that.builder != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return builder != null ? builder.hashCode() : 0;
   }
 }
