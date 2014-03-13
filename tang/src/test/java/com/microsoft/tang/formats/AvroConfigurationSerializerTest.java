@@ -1,7 +1,6 @@
 package com.microsoft.tang.formats;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -13,6 +12,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Tests for the Avro Serializer
@@ -23,28 +24,96 @@ public class AvroConfigurationSerializerTest {
   public static final class AnIntParameter implements Name<Integer> {
   }
 
-
+  /**
+   * Tests the roundtrip of a Configuration to and from Avro.
+   *
+   * @throws BindException
+   * @throws InjectionException
+   */
   @Test
   public void testRoundTrip() throws BindException, InjectionException {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindImplementation(InterfaceA.class, ImplementationA.class);
-    cb.bindNamedParameter(AnIntParameter.class, "5");
-    cb.bindImplementation(InterfaceB.class, ImplementationB.class);
-
-    final Configuration conf = cb.build();
-
+    final Configuration conf = getRoundTripConfiguration();
     final InterfaceB before = Tang.Factory.getTang().newInjector(conf).getInstance(InterfaceB.class);
-    final InterfaceB after = Tang.Factory.getTang().newInjector(roundTrip(conf)).getInstance(InterfaceB.class);
-
-    Assert.assertEquals(before, after);
+    final InterfaceB after = Tang.Factory.getTang().newInjector(roundTripThroughAvro(conf)).getInstance(InterfaceB.class);
+    Assert.assertEquals("Configuration conversion to and from Avro datatypes failed.", before, after);
   }
 
-  private static final Configuration roundTrip(final Configuration conf) throws BindException {
+  /**
+   * Tests the roundtrip of a Configuration to and from an Avro file.
+   *
+   * @throws BindException
+   * @throws InjectionException
+   */
+  @Test
+  public void testRoundTripThroughFile() throws BindException, InjectionException, IOException {
+    final Configuration conf = getRoundTripConfiguration();
+    final InterfaceB before = Tang.Factory.getTang().newInjector(conf).getInstance(InterfaceB.class);
+    final InterfaceB after = Tang.Factory.getTang().newInjector(roundTripThroughFile(conf)).getInstance(InterfaceB.class);
+    Assert.assertEquals("Configuration (de-)serialization to a file failed.", before, after);
+  }
+
+  /**
+   * Tests the roundtrip of a Configuration to and from a byte[].
+   *
+   * @throws BindException
+   * @throws InjectionException
+   */
+  @Test
+  public void testRoundTripThroughByteArray() throws BindException, InjectionException, IOException {
+    final Configuration conf = getRoundTripConfiguration();
+    final InterfaceB before = Tang.Factory.getTang().newInjector(conf).getInstance(InterfaceB.class);
+    final InterfaceB after = Tang.Factory.getTang().newInjector(roundtripThroughByteArray(conf)).getInstance(InterfaceB.class);
+    Assert.assertEquals("Configuration (de-)serialization to a byte[] failed.", before, after);
+  }
+
+  /**
+   * @return The Configuration used in the roundtrip tests.
+   * @throws BindException
+   */
+  private Configuration getRoundTripConfiguration() throws BindException {
+    return Tang.Factory.getTang().newConfigurationBuilder()
+        .bindImplementation(InterfaceA.class, ImplementationA.class)
+        .bindNamedParameter(AnIntParameter.class, "5")
+        .bindImplementation(InterfaceB.class, ImplementationB.class)
+        .build();
+  }
+
+  /**
+   * Converts the given Configuration to AvroConfiguration and back.
+   *
+   * @param conf
+   * @return
+   * @throws BindException
+   */
+  private Configuration roundTripThroughAvro(final Configuration conf) throws BindException {
     final AvroConfiguration aConf = new AvroConfigurationSerializer().toAvro(conf);
     return new AvroConfigurationSerializer().fromAvro(aConf);
   }
 
+  /**
+   * Stores the given Configuration in an Avro file and reads it back.
+   *
+   * @param conf
+   * @return
+   * @throws BindException
+   * @throws IOException
+   */
+  private Configuration roundTripThroughFile(final Configuration conf) throws BindException, IOException {
+    final File tempFile = File.createTempFile("TangTest", "avroconf");
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    serializer.toFile(conf, tempFile);
+    return serializer.fromFile(tempFile);
+  }
+
+  private Configuration roundtripThroughByteArray(final Configuration conf) throws IOException, BindException {
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final byte[] theBytes = serializer.toByteArray(conf);
+    return serializer.fromByteArray(theBytes);
+  }
+
 }
+
+// Below: The classes used to form the object graph we are testing with.
 
 interface InterfaceA {
 }
