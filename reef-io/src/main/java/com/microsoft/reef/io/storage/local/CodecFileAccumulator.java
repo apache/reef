@@ -15,35 +15,41 @@
  */
 package com.microsoft.reef.io.storage.local;
 
+import com.microsoft.reef.exception.evaluator.ServiceException;
 import com.microsoft.reef.exception.evaluator.StorageException;
-import com.microsoft.reef.io.Accumulable;
 import com.microsoft.reef.io.Accumulator;
 import com.microsoft.reef.io.serialization.Codec;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
-public final class CodecFileAccumulable<T, C extends Codec<T>> implements Accumulable<T> {
+final class CodecFileAccumulator<T> implements Accumulator<T> {
 
-  private final File filename;
-  private final C codec;
+  private final Codec<T> codec;
+  private final ObjectOutputStream out;
 
-  public CodecFileAccumulable(final LocalStorageService s, final C codec) {
-    this.filename = s.getScratchSpace().newFile();
+  public CodecFileAccumulator(final Codec<T> codec, final File file) throws IOException {
     this.codec = codec;
-  }
-
-  public String getName() {
-    return this.filename.toString();
+    this.out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
   }
 
   @Override
-  public Accumulator<T> accumulator() throws StorageException {
+  public void add(final T datum) throws ServiceException {
+    final byte[] buf = codec.encode(datum);
     try {
-      return new CodecFileAccumulator<>(this.codec, this.filename);
+      this.out.writeInt(buf.length);
+      this.out.write(buf);
     } catch (final IOException e) {
       throw new StorageException(e);
     }
   }
 
+  @Override
+  public void close() throws ServiceException {
+    try {
+      this.out.writeInt(-1);
+      this.out.close();
+    } catch (final IOException e) {
+      throw new ServiceException(e);
+    }
+  }
 }
