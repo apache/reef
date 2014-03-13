@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>reef-bridge-clr</artifactId>
+  <name>REEF Bridge CLR</name>
+  <description>Bridge between JVM and CLR.</description>
+
+
+  <parent>
+    <groupId>com.microsoft.reef</groupId>
+    <artifactId>reef-bridge-project</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reef-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reef-runtime-local</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reef-runtime-yarn</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reef-io</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reef-checkpoint</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reef-bridge-java</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+
+  </dependencies>
+
+
+  <build>
+    <plugins>
+      <!--
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>false</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>javabridge.JavaBridge</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+       
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      -->
+      <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <executions>
+
+        <execution>
+          <id>unpack</id>
+          <phase>process-resources</phase>
+          <goals>
+            <goal>unpack</goal>
+          </goals>
+          <configuration>
+            <artifactItems>
+              <artifactItem>
+                <groupId>com.microsoft.reef</groupId>
+
+                <artifactId>reef-bridge-java</artifactId>
+
+                <version>${project.version}</version>
+
+                <type>jar</type>
+
+                <outputDirectory>${project.basedir}/lib</outputDirectory>
+
+                <overWrite>true</overWrite>
+
+              </artifactItem>
+            </artifactItems>
+          </configuration>
+        </execution>
+      </executions>
+      </plugin>      
+      
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>exec-maven-plugin</artifactId>
+
+    <configuration>
+
+        <executable>${FrameworkDir}/${FrameworkVersion}/msbuild.exe</executable>
+
+    </configuration>
+
+    <executions>
+
+        <execution>
+
+            <id>clean</id>
+
+            <phase>clean</phase>
+
+            <configuration>
+
+                <arguments>
+                  <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
+                  <!--
+                    <argument>/p:Configuration=${foo.config}</argument>
+
+                    <argument>/p:Platform=${foo.cpu}</argument>
+                -->
+                    <argument>/t:Clean</argument>
+
+                </arguments>
+
+            </configuration>
+
+            <goals>
+
+                <goal>exec</goal>
+
+            </goals>
+
+        </execution>
+
+        <execution>
+
+            <id>build</id>
+
+            <phase>compile</phase>
+
+            <configuration>
+
+                <arguments>
+                  <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
+              <!--
+                    <argument>/p:Configuration=${foo.config}</argument>
+
+                    <argument>/p:Platform=${foo.cpu}</argument>
+
+                    <argument>/t:Build</argument>
+            -->
+                </arguments>
+
+            </configuration>
+
+            <goals>
+
+                <goal>exec</goal>
+
+            </goals>
+
+        </execution>
+
+    </executions>
+
+</plugin>
+ 
+
+
+
+    
+    </plugins>
+  </build>
+</project>
