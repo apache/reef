@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public final class ConfigurationImpl implements Configuration {
+public class ConfigurationImpl implements Configuration {
   final ConfigurationBuilderImpl builder;
 
   protected ConfigurationImpl(final ConfigurationBuilderImpl builder) {
