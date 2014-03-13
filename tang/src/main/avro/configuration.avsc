@@ -1,8 +1,19 @@
+[
 {
-    "namespace":"com.microsoft.tang.formats",
+    "namespace":"com.microsoft.tang.formats.avro",
+    "type":"record",
+    "name":"ConfigurationEntry",
+    "fields":[
+	{"name":"key","type":"string"},
+	{"name":"value","type":"string"}
+    ]
+},
+{
+    "namespace":"com.microsoft.tang.formats.avro",
     "type":"record",
     "name":"AvroConfiguration",
     "fields":[
-	{"name":"Bindings","type":{"type":"map", "values":"string"}}
+	{"name":"Bindings","type":{"type":"array", "items":"ConfigurationEntry"}}
     ]
 }
+]
