@@ -15,21 +15,31 @@
  */
 package com.microsoft.wake.remote.transport.netty;
 
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
+import com.microsoft.wake.remote.transport.Link;
 
-/**
- * Factory that creates a Netty channel handler
- */
-interface NettyChannelHandlerFactory {
-  
-  /**
-   * Creates an channel upstream handler
-   * @param tag the name of the handler
-   * @param group the channel group
-   * @param listener the Netty event listener
-   * @return a simple channel upstream handler
-   */
-  SimpleChannelUpstreamHandler createUpstreamHandler(
-      String tag, ChannelGroup group, NettyEventListener listener);
+import java.util.concurrent.atomic.AtomicBoolean;
+
+final class LinkReference {
+
+  private Link<?> link;
+  private AtomicBoolean connectInProgress = new AtomicBoolean(false);
+
+  LinkReference() {
+  }
+
+  LinkReference(final Link<?> link) {
+    this.link = link;
+  }
+
+  synchronized void setLink(final Link<?> link) {
+    this.link = link;
+  }
+
+  synchronized Link<?> getLink() {
+    return this.link;
+  }
+
+  AtomicBoolean getConnectInProgress() {
+    return this.connectInProgress;
+  }
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -21,9 +21,7 @@ import com.microsoft.wake.WakeParameters;
 import com.microsoft.wake.impl.DefaultThreadFactory;
 import com.microsoft.wake.remote.Encoder;
 import com.microsoft.wake.remote.exception.RemoteRuntimeException;
-import com.microsoft.wake.remote.impl.ByteCodec;
 import com.microsoft.wake.remote.impl.TransportEvent;
-import com.microsoft.wake.remote.impl.Tuple2;
 import com.microsoft.wake.remote.transport.Link;
 import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
@@ -36,18 +34,14 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,18 +51,20 @@ import java.util.logging.Logger;
  */
 public class NettyMessagingTransport implements Transport {
 
-  private static final Logger LOG = Logger.getLogger(NettyMessagingTransport.class.getName());
-  private final long shutdownTimeout = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
+  private static final String CLASS_NAME = NettyMessagingTransport.class.getName();
+  private static final Logger LOG = Logger.getLogger(CLASS_NAME);
+
+  private static final long SHUTDOWN_TIMEOUT = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
+
+  private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap = new ConcurrentHashMap<>();
 
   private final ClientBootstrap clientBootstrap;
   private final ServerBootstrap serverBootstrap;
 
-  private final ChannelGroup clientChannelGroup;
-  private final ChannelGroup serverChannelGroup;
+  private final ChannelGroup clientChannelGroup = new DefaultChannelGroup();
+  private final ChannelGroup serverChannelGroup = new DefaultChannelGroup();
 
-  private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap;
-
-  private int serverPort;
+  private final int serverPort;
   private final SocketAddress localAddress;
 
   private final NettyClientEventListener clientEventListener;
@@ -78,72 +74,72 @@ public class NettyMessagingTransport implements Transport {
    * Constructs a messaging transport
    *
    * @param hostAddress the server host address
-   * @param serverPort  the server listening port; when it is 0, randomly assign a port number
+   * @param port  the server listening port; when it is 0, randomly assign a port number
    * @param clientStage the client-side stage that handles transport events
    * @param serverStage the server-side stage that handles transport events
    */
-  public NettyMessagingTransport(String hostAddress, int serverPort, EStage<TransportEvent> clientStage, EStage<TransportEvent> serverStage) {
+  public NettyMessagingTransport(final String hostAddress, int port,
+                                 final EStage<TransportEvent> clientStage,
+                                 final EStage<TransportEvent> serverStage) {
 
-    addrToLinkRefMap = new ConcurrentHashMap<SocketAddress, LinkReference>();
+    if (port < 0) {
+      throw new RemoteRuntimeException("Invalid server port: " + port);
+    }
 
-    clientBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
-        Executors.newCachedThreadPool(new DefaultThreadFactory(NettyMessagingTransport.class.getName())),
-        Executors.newCachedThreadPool(new DefaultThreadFactory(NettyMessagingTransport.class.getName()))));
-    clientBootstrap.setOption("reuseAddress", true);
-    clientBootstrap.setOption("tcpNoDelay", true);
-    clientBootstrap.setOption("keepAlive", true);
-    clientChannelGroup = new DefaultChannelGroup();
-    clientEventListener = new NettyClientEventListener(addrToLinkRefMap, clientStage);
+    this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
+    this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
 
-    clientBootstrap.setPipelineFactory(new NettyChannelPipelineFactory("client", clientChannelGroup,
-        clientEventListener, new NettyDefaultChannelHandlerFactory()));
-  
-    serverBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
-        Executors.newCachedThreadPool(new DefaultThreadFactory(NettyMessagingTransport.class.getName())),
-        Executors.newCachedThreadPool(new DefaultThreadFactory(NettyMessagingTransport.class.getName()))));
-    serverBootstrap.setOption("reuseAddress", true);
-    serverBootstrap.setOption("tcpNoDelay", true);
-    serverBootstrap.setOption("keepAlive", true);
-    serverChannelGroup = new DefaultChannelGroup();
-    serverEventListener = new NettyServerEventListener(addrToLinkRefMap, serverStage);
+    this.clientBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
+        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME)),
+        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME))));
+    this.clientBootstrap.setOption("reuseAddress", true);
+    this.clientBootstrap.setOption("tcpNoDelay", true);
+    this.clientBootstrap.setOption("keepAlive", true);
+    this.clientBootstrap.setPipelineFactory(new NettyChannelPipelineFactory("client",
+        this.clientChannelGroup, this.clientEventListener, new NettyDefaultChannelHandlerFactory()));
 
-    serverBootstrap.setPipelineFactory(new NettyChannelPipelineFactory("server", serverChannelGroup,
-        serverEventListener, new NettyDefaultChannelHandlerFactory()));
+    this.serverBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
+        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME)),
+        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME))));
 
-    // check serverPort is 0?
+    this.serverBootstrap.setOption("reuseAddress", true);
+    this.serverBootstrap.setOption("tcpNoDelay", true);
+    this.serverBootstrap.setOption("keepAlive", true);
+    this.serverBootstrap.setPipelineFactory(new NettyChannelPipelineFactory("server",
+        this.serverChannelGroup, this.serverEventListener, new NettyDefaultChannelHandlerFactory()));
+
     Channel acceptor = null;
-    this.serverPort = serverPort;
-    if (serverPort < 0) {
-      throw new RemoteRuntimeException("Port " + serverPort + " is less than 0.");
-    } else if (serverPort == 0) {
-      // assign a random port
-      Random r = new Random();
-      while (this.serverPort == 0) {
-        int port = r.nextInt(10000) + 10000;
+    if (port > 0) {
+      acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port));
+    } else {
+      final Random rand = new Random();
+      while (acceptor == null) {
+        port = rand.nextInt(10000) + 10000;
         try {
-          LOG.log(Level.FINEST, "port bind {0}", port);
-          acceptor = serverBootstrap.bind(
-              new InetSocketAddress(hostAddress, port));
-          this.serverPort = port;
-        } catch (ChannelException e) {
-          LOG.log(Level.FINEST, "port collision", e);
+          LOG.log(Level.FINEST, "Try port {0}", port);
+          acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port));
+        } catch (final ChannelException ex) {
+          LOG.log(Level.WARNING, "Port collision", ex);
         }
       }
-    } else {
-      acceptor = serverBootstrap.bind(
-          new InetSocketAddress(hostAddress, serverPort));
     }
 
+    this.serverPort = port;
+
     if (acceptor.isBound()) {
-      localAddress = new InetSocketAddress(hostAddress, this.serverPort);
-      serverChannelGroup.add(acceptor);
+
+      this.localAddress = new InetSocketAddress(hostAddress, this.serverPort);
+      this.serverChannelGroup.add(acceptor);
+
     } else {
-      localAddress = null;
-      clientBootstrap.releaseExternalResources();
-      serverBootstrap.releaseExternalResources();
-      throw new TransportRuntimeException("Cannot bind to " + this.serverPort);
+      final RuntimeException transportException =
+          new TransportRuntimeException("Cannot bind to " + this.serverPort);
+      LOG.log(Level.SEVERE, "Cannot bind to " + this.serverPort, transportException);
+      this.clientBootstrap.releaseExternalResources();
+      this.serverBootstrap.releaseExternalResources();
+      throw transportException;
     }
-    
+
     LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
   }
 
@@ -154,13 +150,14 @@ public class NettyMessagingTransport implements Transport {
    */
   @Override
   public void close() throws Exception {
+
     LOG.log(Level.FINE, "Closing netty transport socket address: {0}", this.localAddress);
 
-    clientChannelGroup.close().awaitUninterruptibly();
-    serverChannelGroup.close().awaitUninterruptibly();
+    this.clientChannelGroup.close().awaitUninterruptibly();
+    this.serverChannelGroup.close().awaitUninterruptibly();
 
-    clientBootstrap.releaseExternalResources();
-    serverBootstrap.releaseExternalResources();
+    this.clientBootstrap.releaseExternalResources();
+    this.serverBootstrap.releaseExternalResources();
 
     LOG.log(Level.FINE, "Closing netty transport socket address: {0} done", this.localAddress);
   }
@@ -176,53 +173,62 @@ public class NettyMessagingTransport implements Transport {
    * @throws IOException
    */
   @Override
-  public <T> Link<T> open(final SocketAddress remoteAddr, Encoder<? super T> encoder, LinkListener<? super T> listener)
-      throws IOException {
-    LinkReference linkRef = addrToLinkRefMap.get(remoteAddr);
-    Link<?> link;
+  public <T> Link<T> open(final SocketAddress remoteAddr, final Encoder<? super T> encoder,
+                          final LinkListener<? super T> listener) throws IOException {
+
+    LinkReference linkRef = this.addrToLinkRefMap.get(remoteAddr);
+    Link<T> link;
+
     if (linkRef != null) {
-      LOG.log(Level.FINE, "link ref found");
-      link = linkRef.getLink();
+      link = (Link<T>) linkRef.getLink();
+      if (LOG.isLoggable(Level.FINE)) {
+        LOG.log(Level.FINE, "Link {0} for {1} found", new Object[] {link, remoteAddr});
+      }
       if (link != null) {
-        if (LOG.isLoggable(Level.FINE)) 
-          LOG.log(Level.FINE, "link {0} for {1} found", new Object[] {link, remoteAddr});
-        return (Link<T>) link;
+        return link;
       }
     }
-    LOG.log(Level.FINE, "No cached link for {0} thread {1}", new Object[]{remoteAddr, Thread.currentThread()});
+
+    LOG.log(Level.FINE, "No cached link for {0} thread {1}",
+        new Object[]{remoteAddr, Thread.currentThread()});
+
     // no linkRef
-    LinkReference newLinkRef = new LinkReference();
-    LinkReference prior = addrToLinkRefMap.putIfAbsent(remoteAddr, newLinkRef);
-    AtomicBoolean flag = (prior != null) ? prior.getConnectInProgress() : newLinkRef.getConnectInProgress();
+    final LinkReference newLinkRef = new LinkReference();
+    final LinkReference prior = this.addrToLinkRefMap.putIfAbsent(remoteAddr, newLinkRef);
+    final AtomicBoolean flag = prior != null ?
+        prior.getConnectInProgress() : newLinkRef.getConnectInProgress();
+
     synchronized (flag) {
       if (!flag.compareAndSet(false, true)) {
         while (flag.get()) {
           try {
             flag.wait();
-          } catch (InterruptedException e) {
-            e.printStackTrace();
+          } catch (final InterruptedException ex) {
+            LOG.log(Level.WARNING, "Wait interrupted", ex);
           }
         }
       }
     }
 
-    linkRef = addrToLinkRefMap.get(remoteAddr);
-    link = linkRef.getLink();
-    if (link != null)
-      return (Link<T>) link;
-    else {
-      ChannelFuture f = clientBootstrap.connect(remoteAddr);
-      f.awaitUninterruptibly();
-      Channel channel = f.getChannel();
-      link = new NettyLink<T>(channel, encoder, listener);
-      linkRef.setLink(link);
+    linkRef = this.addrToLinkRefMap.get(remoteAddr);
+    link = (Link<T>) linkRef.getLink();
+
+    if (link != null) {
+      return link;
     }
+
+    final ChannelFuture connectFuture = this.clientBootstrap.connect(remoteAddr);
+    connectFuture.awaitUninterruptibly();
+
+    link = new NettyLink<>(connectFuture.getChannel(), encoder, listener);
+    linkRef.setLink(link);
 
     synchronized (flag) {
       flag.compareAndSet(true, false);
       flag.notifyAll();
     }
-    return (Link<T>) link;
+
+    return link;
   }
 
   /**
@@ -231,11 +237,9 @@ public class NettyMessagingTransport implements Transport {
    * @param remoteAddr the remote address
    * @return a link if already cached; otherwise, null
    */
-  public <T> Link<T> get(SocketAddress remoteAddr) {
-    LinkReference linkRef = addrToLinkRefMap.get(remoteAddr);
-    if (linkRef != null)
-      return (Link<T>) linkRef.getLink();
-    return null;
+  public <T> Link<T> get(final SocketAddress remoteAddr) {
+    final LinkReference linkRef = this.addrToLinkRefMap.get(remoteAddr);
+    return linkRef != null ? (Link<T>) linkRef.getLink() : null;
   }
 
   /**
@@ -245,7 +249,7 @@ public class NettyMessagingTransport implements Transport {
    */
   @Override
   public SocketAddress getLocalAddress() {
-    return localAddress;
+    return this.localAddress;
   }
 
   /**
@@ -255,7 +259,7 @@ public class NettyMessagingTransport implements Transport {
    */
   @Override
   public int getListeningPort() {
-    return serverPort;
+    return this.serverPort;
   }
 
   /**
@@ -264,170 +268,8 @@ public class NettyMessagingTransport implements Transport {
    * @param handler the exception event handler
    */
   @Override
-  public void registerErrorHandler(EventHandler<Exception> handler) {
-    clientEventListener.registerErrorHandler(handler);
-    serverEventListener.registerErrorHandler(handler);
+  public void registerErrorHandler(final EventHandler<Exception> handler) {
+    this.clientEventListener.registerErrorHandler(handler);
+    this.serverEventListener.registerErrorHandler(handler);
   }
-}
-
-class LinkReference {
-
-  private Link<?> link;
-  private AtomicBoolean connectInProgress = new AtomicBoolean(false);
-
-  LinkReference() {
-  }
-
-  LinkReference(Link<?> link) {
-    this.link = link;
-  }
-
-  synchronized void setLink(Link<?> link) {
-    this.link = link;
-  }
-
-  synchronized Link<?> getLink() {
-    return link;
-  }
-
-  AtomicBoolean getConnectInProgress() {
-    return connectInProgress;
-  }
-
-}
-
-class AddressPair extends Tuple2<SocketAddress, SocketAddress> {
-
-  AddressPair(SocketAddress addr1, SocketAddress addr2) {
-    super(addr1, addr2);
-  }
-
-}
-
-class NettyClientEventListener implements NettyEventListener {
-
-  private static final Logger LOG = Logger.getLogger(NettyClientEventListener.class.getName());
-
-  private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap;
-  private final EStage<TransportEvent> stage;
-  private EventHandler<Exception> handler;
-
-  public NettyClientEventListener(ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
-                                  EStage<TransportEvent> stage) {
-    this.addrToLinkRefMap = addrToLinkRefMap;
-    this.stage = stage;
-  }
-
-  public void registerErrorHandler(EventHandler<Exception> handler) {
-    LOG.log(Level.FINE, "set error handler {0}", handler);
-    this.handler = handler;
-  }
-
-  @Override
-  public void messageReceived(MessageEvent e) {
-    if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "local: " + e.getChannel().getLocalAddress() + " remote: " + e.getChannel().getRemoteAddress() + " " + e.getMessage().toString());
-
-    byte[] message = (byte[]) e.getMessage();
-    if (message.length <= 0)
-      return;
-
-    // send to the dispatch stage
-    stage.onNext(new TransportEvent(message, e.getChannel().getLocalAddress(), e.getChannel().getRemoteAddress()));
-  }
-
-  @Override
-  public void exceptionCaught(final ExceptionEvent e) {
-    final Throwable cause = e.getCause();
-    LOG.log(Level.WARNING, "ExceptionEvent: " + e, cause);
-    SocketAddress addr = e.getChannel().getRemoteAddress();
-    if (addr != null) {
-      addrToLinkRefMap.remove(addr);
-    }
-    if (handler != null) {
-      handler.onNext(cause instanceof Exception ? (Exception) cause : new Exception(cause));
-    }
-  }
-
-  @Override
-  public void channelConnected(ChannelStateEvent e) {
-  }
-
-  @Override
-  public void channelClosed(ChannelStateEvent e) {
-    LOG.log(Level.FINE, "Channel Closed. Trying to remove link ref");
-    SocketAddress addr = e.getChannel().getRemoteAddress();
-    if (addr != null) {
-      if (LOG.isLoggable(Level.FINER)) LOG.log(Level.FINER, "key: " + e.getChannel().getRemoteAddress() + " " + e.toString());
-      addrToLinkRefMap.remove(addr);
-      LOG.log(Level.FINE, "Link ref found and removed");
-    } else
-      LOG.log(Level.FINE, "No Link ref found");
-  }
-
-}
-
-class NettyServerEventListener implements NettyEventListener {
-
-  private static final Logger LOG = Logger.getLogger(NettyServerEventListener.class.getName());
-
-  private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap;
-  private final EStage<TransportEvent> stage;
-  private EventHandler<Exception> handler;
-
-  public NettyServerEventListener(ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
-                                  EStage<TransportEvent> stage) {
-    this.addrToLinkRefMap = addrToLinkRefMap;
-    this.stage = stage;
-  }
-
-  public void registerErrorHandler(EventHandler<Exception> handler) {
-    LOG.log(Level.FINE, "set error handler {0}", handler);
-    this.handler = handler;
-  }
-  
-  @Override
-  public void messageReceived(MessageEvent e) {
-    if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "local: " + e.getChannel().getLocalAddress() + " remote: " + e.getChannel().getRemoteAddress() + " " + e.getMessage().toString());
-
-    // byte[] message
-    byte[] message = (byte[]) e.getMessage();
-    if (message.length <= 0)
-      return;
-
-    Link<byte[]> link = new NettyLink<>(e.getChannel(), new ByteEncoder());
-    // send to the dispatch stage
-    stage.onNext(new TransportEvent(message, link));
-  }
-
-  @Override
-  public void exceptionCaught(ExceptionEvent e) {
-    final Throwable cause = e.getCause();
-    LOG.log(Level.WARNING, "ExceptionEvent: " + e, cause);
-    if (handler != null) {
-      LOG.log(Level.WARNING, "handler {0} called", handler);
-      handler.onNext(cause instanceof Exception ? (Exception) cause : new Exception(cause));
-    } else {
-      LOG.log(Level.WARNING, "handler {0} is null", handler);
-    }
-  }
-
-  @Override
-  public void channelConnected(ChannelStateEvent e) {
-    if (LOG.isLoggable(Level.FINER)) LOG.log(Level.FINER, "key: " + e.getChannel().getRemoteAddress() + " " + e.toString());
-    LinkReference ref = addrToLinkRefMap.putIfAbsent(e.getChannel().getRemoteAddress(),
-        new LinkReference(new NettyLink<byte[]>(e.getChannel(), new ByteCodec(), new LoggingLinkListener<byte[]>())));
-    LOG.log(Level.FINER, "put: {0}", ref);
-  }
-
-  @Override
-  public void channelClosed(ChannelStateEvent e) {
-    LOG.log(Level.FINE, "Channel Closed. Trying to remove link ref");
-    if (e.getChannel() != null) {
-      if (LOG.isLoggable(Level.FINER)) LOG.log(Level.FINER, "key: " + e.getChannel().getRemoteAddress() + " " + e.toString());
-      addrToLinkRefMap.remove(e.getChannel().getRemoteAddress());
-      LOG.log(Level.FINE, "Link ref found and removed");
-    } else
-      LOG.log(Level.FINE, "No Link ref found");
-  }
-
 }
