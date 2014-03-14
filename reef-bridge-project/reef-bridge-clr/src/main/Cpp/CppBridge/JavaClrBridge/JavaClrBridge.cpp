@@ -1,48 +1,23 @@
-// This is the main DLL file.
-
 #include "InteropUtil.h"
 #include "javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
-
-
-
-#define _MT 1
-#define _DLL 1
+#include "InteropReturnInfo.h"
+//#define _MT 1
+//#define _DLL 1
 
 using namespace System;
 using namespace System::IO;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
-using namespace ClrHandler;
+using namespace Microsoft::Reef::Interop;
 
-static Assembly^ MyResolveEventHandler(Object^ sender, ResolveEventArgs^ args);
+
 
 static void ManagedLog (String^ fname, String^ msg)
 {		
 	Console::WriteLine (fname);
-#ifdef xx
-	try
-	{
-	
-	FileStream^ fs = gcnew FileStream ("d:\\BondIoLog.txt", System::IO::FileMode::Append);
-	StreamWriter^ sw = gcnew StreamWriter(fs);
-	
-	sw->WriteLine (DateTime::Now.ToString("s") + " [" + fname + "] [" + msg + "]");
-	sw->Flush();
-	sw->Close();
-	fs->Close();
-	}
-	catch (Exception^ ex)
-	{
-		Console::WriteLine (ex->Message);
-		Console::WriteLine ("ex");
-	}
-	catch (...)
-	{
-	}
-#endif	
 }
 
 static void Log1 (const wchar_t* fname, const wchar_t* msg)
@@ -57,7 +32,7 @@ static void Log0 (char* fname)
 
 
 	
-	static void MarshalErrorToJava (
+static void MarshalErrorToJava (
 		JNIEnv *env, 
 		jobject  jerrorInfo,
 		int errorNo,
@@ -94,7 +69,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 }
 
 /*
- * Class:     com_yingda_NativeInterop
+ * Class:     javabridge_NativeInterop
  * Method:    createHandler1
  * Signature: (Ljava/lang/String;)J
  */
@@ -124,7 +99,7 @@ JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_createHandler1
 
 
 /*
- * Class:     com_yingda_NativeInterop
+ * Class:     javabridge_NativeInterop
  * Method:    clrHandlerOnNext
  * Signature: (J)V
  */
@@ -135,14 +110,26 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext
     jlong   handle,
 	jbyteArray value)
 {
-	byte* bytes = (byte*)env->GetByteArrayElements (value, FALSE);
-	int len = env->GetArrayLength(value);
-	array<byte>^  bytearray = gcnew array<byte>(len);
-	for (int i=0; i<len; i++)
-	{
-		bytearray[i] = bytes[i];
-	}
+	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, value);
 	ClrHandlerWrapper::CallMethod_ClrHandler_OnNext(handle, bytearray);
+}
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    clrHandlerOnNext2
+ * Signature: (Ljavabridge/InteropReturnInfo;J[B)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext2  
+(
+	JNIEnv *env, 
+	jclass  jclassInteropReturnInfo, 
+	jobject jObjectInteropReturnInfo,
+    jlong   handle,
+	jbyteArray value)
+{
+	InteropReturnInfo^ ret = gcnew InteropReturnInfo(env, jclassInteropReturnInfo, jObjectInteropReturnInfo);
+	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, value);
+	ClrHandlerWrapper::CallMethod_ClrHandler_OnNext2(handle, bytearray, ret);
 }
 
 
@@ -150,28 +137,6 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext
 
 
 /*
-public ref class Logger : public Datalab::ILogger
-{
-	jclass  _jerrorInfo;
-	jmethodID _jmid;
-	JNIEnv* _env;
-
-public:
-	Logger (JNIEnv* env, jclass jerrInfo, jmethodID jmid)
-	{
-		_env = env;
-		_jerrorInfo = jerrInfo;
-		_jmid = jmid;
-	}
-	virtual void Log(String^ message, Datalab::TraceLevel traceLevel)
-	{	
-		pin_ptr<const wchar_t> wch = PtrToStringChars(message);		
-		jstring ret = _env->NewString((const jchar*)wch, message->Length);
-		_env->CallStaticVoidMethod (_jerrorInfo, _jmid, ret, traceLevel);
-	}
-};
-
-
 JNIEXPORT jlong JNICALL Java_com_microsoft_hadoop_mapreduce_lib_aipinput_NativeInterop_createFileReader
   (JNIEnv *env, 
   jclass cls, 
@@ -272,3 +237,6 @@ JNIEXPORT jstring JNICALL Java_com_microsoft_hadoop_mapreduce_lib_aipinput_Nativ
 	return ret;
 }
 */
+//}
+//}
+//}

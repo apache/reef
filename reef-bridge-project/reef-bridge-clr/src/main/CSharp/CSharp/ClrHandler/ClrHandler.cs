@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ClrHandler
+namespace Microsoft.Reef.Interop
 {
     public class ClrHandler : IObserver<byte[]>
     {

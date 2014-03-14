@@ -29,7 +29,18 @@ import javabridge.NativeInterop;
             value[1] = (byte)0x10;
             value[2] = (byte)0xee;
             NativeInterop.clrHandlerOnNext(handle, value);
-            System.out.println("after loadClrAssembly");
+            System.out.println("before Exception");
+            value[0] = (byte)0x1;
+            value[1] = (byte)0x2;
+            value[2] = (byte)0x3;
+            InteropReturnInfo ret = new   InteropReturnInfo ();
+            NativeInterop.clrHandlerOnNext2(ret, handle, value);
+            System.out.println("after Exception");
+            System.out.println("error code " + ret.getReturnCode());
+            String ex = ret.getExceptionList().get(0);
+            System.out.println("exception str " + ex);
+
+
         }
 
     }

@@ -36,3 +36,17 @@ String^ ManagedStringFromJavaString (
 	return managedStr;
 }
 
+array<byte>^ ManagedByteArrayFromJavaByteArray(
+	JNIEnv *env,
+	jbyteArray javaByteArray)
+{
+	byte* bytes = (byte*)env->GetByteArrayElements (javaByteArray, FALSE);
+	int len = env->GetArrayLength(javaByteArray);
+	array<byte>^  managedByteArray = gcnew array<byte>(len);
+	//System::Array
+	for (int i=0; i<len; i++)
+	{
+		managedByteArray[i] = bytes[i];
+	}
+	return managedByteArray;
+}
