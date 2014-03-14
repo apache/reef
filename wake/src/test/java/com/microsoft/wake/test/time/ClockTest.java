@@ -138,9 +138,9 @@ public class ClockTest {
 
     final EventRecorder alarmRecorder = new EventRecorder();
     try {
-      int numAlarms = 100;
+      int numAlarms = 10;
       long[] expected = new long[numAlarms];
-      for (int i=0; i<100; ++i) {
+      for (int i=0; i<numAlarms; ++i) {
         clock.scheduleAlarm(i*100, alarmRecorder);
         expected[i] = i*100;
       }
