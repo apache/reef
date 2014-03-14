@@ -36,12 +36,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class AllReduceHandler implements EventHandler<Message<GroupCommMessage>> {
+
   private static final Logger LOG = Logger.getLogger(AllReduceHandler.class.getName());
-  private final ConcurrentHashMap<Identifier, BlockingQueue<GroupCommMessage>> id2que = new ConcurrentHashMap<>();
+
+  private final ConcurrentHashMap<Identifier,
+      BlockingQueue<GroupCommMessage>> id2que = new ConcurrentHashMap<>();
 
   @NamedParameter(doc = "List of Identifiers on which the handler should listen")
   public static class IDs implements Name<Set<String>> {
@@ -50,55 +50,55 @@ public class AllReduceHandler implements EventHandler<Message<GroupCommMessage>>
   private final IdentifierFactory idFac;
 
   @Inject
-  public AllReduceHandler(@Parameter(IDs.class) Set<String> ids,
-                          @Parameter(AllReduceConfig.IdFactory.class) IdentifierFactory idFac) {
+  public AllReduceHandler(
+      final @Parameter(IDs.class) Set<String> ids,
+      final @Parameter(AllReduceConfig.IdFactory.class) IdentifierFactory idFac) {
     this.idFac = idFac;
-    LOG.log(Level.FINEST, "\t\tI can listen from:");
-    for (String id : ids) {
-      Identifier compId = idFac.getNewInstance(id);
-      id2que.put(compId, new LinkedBlockingQueue<GroupCommMessage>());
-      LOG.log(Level.FINEST, "\t\t" + compId);
+    for (final String id : ids) {
+      final Identifier compId = idFac.getNewInstance(id);
+      this.id2que.put(compId, new LinkedBlockingQueue<GroupCommMessage>());
+      LOG.log(Level.FINEST, "Listen from: {0}", compId);
     }
   }
 
   @Override
-  public void onNext(Message<GroupCommMessage> value) {
-    GroupCommMessage oneVal = null;
-    if (value.getData().iterator().hasNext())
-      oneVal = value.getData().iterator().next();
-
-    Identifier srcId = idFac.getNewInstance(oneVal.getSrcid());
+  public void onNext(final Message<GroupCommMessage> value) {
+    final GroupCommMessage oneVal = value.getData().iterator().next();
+    final Identifier srcId = this.idFac.getNewInstance(oneVal.getSrcid());
     try {
-      LOG.log(Level.FINEST, "\t\tonNext( " + oneVal + ") from: " + srcId);
-      id2que.get(srcId).put(oneVal);
-    } catch (InterruptedException e) {
-      throw new RuntimeException("Could not put " + oneVal + " into the queue of " + srcId, e);
+      LOG.log(Level.FINEST, "Message {0} from: {1}", new Object[] { oneVal, srcId });
+      this.id2que.get(srcId).put(oneVal);
+    } catch (final InterruptedException e) {
+      final String msg = "Could not put " + oneVal + " into the queue of " + srcId;
+      LOG.log(Level.WARNING, msg, e);
+      throw new RuntimeException(msg, e);
     }
   }
 
-  /**
-   * @param child
-   * @return
-   * @throws InterruptedException
-   * @throws NetworkException
-   */
-  public <T> T get(Identifier id, Codec<T> codec) throws InterruptedException, NetworkException {
-    LOG.log(Level.FINEST, "\t\tget from " + id);
-    if (!id2que.containsKey(id)) {
-      LOG.log(Level.FINEST, "\t\tCan't receive from a non-child");
-      throw new RuntimeException("Can't receive from a non-child");
+  public <T> T get(final Identifier id,
+                   final Codec<T> codec) throws InterruptedException, NetworkException {
+
+    LOG.log(Level.FINEST, "Get from {0}", id);
+
+    if (!this.id2que.containsKey(id)) {
+      final RuntimeException ex = new RuntimeException("Can't receive from a non-child");
+      LOG.log(Level.WARNING, "Can't receive from a non-child", ex);
+      throw ex;
     }
-    T retVal = null;
-    GroupCommMessage gcm = id2que.get(id).take();
+
+    final GroupCommMessage gcm = this.id2que.get(id).take();
     if (gcm.getType() == Type.SourceDead) {
-      LOG.log(Level.FINEST, "\t\tGot src dead msg from driver. Terminating wait and returning null");
+      LOG.log(Level.FINEST, "Got src dead msg from driver. Terminating wait and returning null");
       return null;
     }
-    for (GroupMessageBody body : gcm.getMsgsList()) {
+
+    T retVal = null;
+    for (final GroupMessageBody body : gcm.getMsgsList()) {
       retVal = codec.decode(body.getData().toByteArray());
     }
-    LOG.log(Level.FINEST, "\t\tReturning " + retVal);
+
+    LOG.log(Level.FINEST, "\t\tReturning {0}", retVal);
+
     return retVal;
   }
-
 }
