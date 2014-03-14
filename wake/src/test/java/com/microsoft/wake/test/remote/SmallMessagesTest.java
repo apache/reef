@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Rule;
 import org.junit.Test;

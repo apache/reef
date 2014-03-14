@@ -18,7 +18,7 @@ package com.microsoft.wake.test.remote;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
