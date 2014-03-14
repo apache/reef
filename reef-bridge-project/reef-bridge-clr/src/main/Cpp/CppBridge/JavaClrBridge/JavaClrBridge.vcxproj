@@ -22,7 +22,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="DefaultDirectories">
-    <JAVA_HOME Condition=" '$(DirRootWinPython)' == '' ">c:\progra~1\java\jdk1.7.0_40</JAVA_HOME>
+    <JAVA_HOME Condition=" '$(JAVA_HOME)' == '' ">c:\progra~1\java\jdk1.7.0_40</JAVA_HOME>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2825FD53-350B-4294-8CFC-8DD2F4F4F285}</ProjectGuid>
