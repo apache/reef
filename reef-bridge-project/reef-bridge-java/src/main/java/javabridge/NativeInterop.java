@@ -25,6 +25,13 @@ public class NativeInterop {
             byte[] value
     );
 
+
+    public static native void clrHandlerOnNext2 (
+            InteropReturnInfo interopReturnInfo,
+            long handle,
+            byte[] value
+    );
+
 /*
     public static native String GetNextRow (
             long cookie,

@@ -41,6 +41,8 @@
   <ItemGroup>
     <Compile Include="ClrHandler.cs" />
     <Compile Include="ClrHandlerWrapper.cs" />
+    <Compile Include="ILogger.cs" />
+    <Compile Include="IInteropReturnInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
