@@ -13,37 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.io.network.impl;
+package com.microsoft.reef.io.network.util;
 
-import com.microsoft.reef.evaluator.context.events.ContextStop;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
-public class NSClose implements EventHandler<ContextStop> {
+public class AutoCloseableHandler <T> implements EventHandler<T> {
 
-  private static final Logger LOG = Logger.getLogger(NSClose.class.getName());
-  private final NetworkService<?> ns;
+  private static final Logger LOG = Logger.getLogger(AutoCloseableHandler.class.getName());
+
+  private final AutoCloseable toClose;
 
   @Inject
-  public NSClose(NetworkService<?> ns) {
-    this.ns = ns;
+  public AutoCloseableHandler(final AutoCloseable toClose) {
+    this.toClose = toClose;
   }
 
   @Override
-  public void onNext(ContextStop arg0) {
+  public void onNext(final T event) {
     try {
-      LOG.log(Level.FINEST, "Closing Network Service");
-      ns.close();
-    } catch (Exception e) {
-      LOG.log(Level.FINEST, "Exception while closing");
-      e.printStackTrace();
+      LOG.log(Level.FINEST, "Closing {0}", this.toClose);
+      // TODO: Should we check if the resource had been closed already?
+      this.toClose.close();
+    } catch (final Throwable ex) {
+      LOG.log(Level.SEVERE, "Exception while closing " + this.toClose, ex);
     }
   }
-
 }

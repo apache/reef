@@ -18,6 +18,7 @@ package com.microsoft.reef.services.network;
 import com.microsoft.reef.io.naming.NameAssignment;
 import com.microsoft.reef.io.network.naming.*;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
+import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.Identifier;
@@ -40,24 +41,28 @@ import java.util.logging.Logger;
  * Naming server and client test
  */
 public class NamingTest {
+
   private static final Logger LOG = Logger.getLogger(NamingTest.class.getName());
 
   @Rule
-  public TestName name = new TestName();
+  public final TestName name = new TestName();
 
   final long TTL = 30000;
   int port;
   final IdentifierFactory factory = new StringIdentifierFactory();
 
-  static int retryCount, retryTimeout;
+  private static final int retryCount;
+  private static final int retryTimeout;
 
   static {
-    Tang tang = Tang.Factory.getTang();
     try {
-      retryCount = tang.newInjector().getNamedInstance(NameLookupClient.RetryCount.class);
-      retryTimeout = tang.newInjector().getNamedInstance(NameLookupClient.RetryTimeout.class);
-    } catch (InjectionException e1) {
-      throw new RuntimeException("Exception while trying to find default values for retryCount & Timeout", e1);
+      final Injector injector = Tang.Factory.getTang().newInjector();
+      retryCount = injector.getNamedInstance(NameLookupClient.RetryCount.class);
+      retryTimeout = injector.getNamedInstance(NameLookupClient.RetryTimeout.class);
+    } catch (final InjectionException ex) {
+      final String msg = "Exception while trying to find default values for retryCount & Timeout";
+      LOG.log(Level.SEVERE, msg, ex);
+      throw new RuntimeException(msg, ex);
     }
   }
 
@@ -69,25 +74,26 @@ public class NamingTest {
   @Test
   public void testNamingLookup() throws Exception {
 
-    LOG.log(Level.FINEST, name.getMethodName());
+    LOG.log(Level.FINEST, this.name.getMethodName());
 
     // names 
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-    idToAddrMap.put(factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-    idToAddrMap.put(factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
+    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
+    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
 
     // run a server
-    final NameServer server = new NameServer(0, factory);
-    port = server.getPort();
+    final NameServer server = new NameServer(0, this.factory);
+    this.port = server.getPort();
     for (final Identifier id : idToAddrMap.keySet()) {
       server.register(id, idToAddrMap.get(id));
     }
 
     // run a client
-    NameLookupClient client = new NameLookupClient(NetUtils.getLocalAddress(), port, 10000, factory, retryCount, retryTimeout, new NameCache(TTL));
+    final NameLookupClient client = new NameLookupClient(NetUtils.getLocalAddress(), this.port,
+        10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL));
 
-    final Identifier id1 = factory.getNewInstance("task1");
-    final Identifier id2 = factory.getNewInstance("task2");
+    final Identifier id1 = this.factory.getNewInstance("task1");
+    final Identifier id2 = this.factory.getNewInstance("task2");
 
     final Map<Identifier, InetSocketAddress> respMap = new HashMap<Identifier, InetSocketAddress>();
     InetSocketAddress addr1 = client.lookup(id1);
@@ -96,7 +102,7 @@ public class NamingTest {
     respMap.put(id2, addr2);
 
     for (final Identifier id : respMap.keySet()) {
-      LOG.log(Level.FINEST, "Mapping: " + id + " -> " + respMap.get(id));
+      LOG.log(Level.FINEST, "Mapping: {0} -> {1}", new Object[] { id, respMap.get(id) });
     }
 
     Assert.assertTrue(isEqual(idToAddrMap, respMap));
@@ -112,34 +118,36 @@ public class NamingTest {
    */
   @Test
   public void testConcurrentNamingLookup() throws Exception {
-    LOG.log(Level.FINEST, name.getMethodName());
+
+    LOG.log(Level.FINEST, this.name.getMethodName());
 
     // test it 3 times to make failure likely
     for (int i = 0; i < 3; i++) {
-      LOG.log(Level.FINEST, "test " + i);
+
+      LOG.log(Level.FINEST, "test {0}", i);
 
       // names 
       final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-      idToAddrMap.put(factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-      idToAddrMap.put(factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
-      idToAddrMap.put(factory.getNewInstance("task3"), new InetSocketAddress(NetUtils.getLocalAddress(), 7003));
+      idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
+      idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
+      idToAddrMap.put(this.factory.getNewInstance("task3"), new InetSocketAddress(NetUtils.getLocalAddress(), 7003));
 
       // run a server
-      final NameServer server = new NameServer(0, factory);
-      port = server.getPort();
+      final NameServer server = new NameServer(0, this.factory);
+      this.port = server.getPort();
       for (final Identifier id : idToAddrMap.keySet()) {
         server.register(id, idToAddrMap.get(id));
       }
 
       // run a client
-      final NameLookupClient client = new NameLookupClient(
-          NetUtils.getLocalAddress(), port, 10000, factory, retryCount, retryTimeout, new NameCache(TTL));
+      final NameLookupClient client = new NameLookupClient(NetUtils.getLocalAddress(), this.port,
+          10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL));
 
-      final Identifier id1 = factory.getNewInstance("task1");
-      final Identifier id2 = factory.getNewInstance("task2");
-      final Identifier id3 = factory.getNewInstance("task3");
+      final Identifier id1 = this.factory.getNewInstance("task1");
+      final Identifier id2 = this.factory.getNewInstance("task2");
+      final Identifier id3 = this.factory.getNewInstance("task3");
 
-      ExecutorService e = Executors.newCachedThreadPool();
+      final ExecutorService e = Executors.newCachedThreadPool();
 
       final ConcurrentMap<Identifier, InetSocketAddress> respMap = new ConcurrentHashMap<Identifier, InetSocketAddress>();
 
@@ -150,7 +158,7 @@ public class NamingTest {
           try {
             addr = client.lookup(id1);
           } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, "Lookup failed", e);
             Assert.fail(e.toString());
           }
           respMap.put(id1, addr);
@@ -163,7 +171,7 @@ public class NamingTest {
           try {
             addr = client.lookup(id2);
           } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, "Lookup failed", e);
             Assert.fail(e.toString());
           }
           respMap.put(id2, addr);
@@ -176,7 +184,7 @@ public class NamingTest {
           try {
             addr = client.lookup(id3);
           } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, "Lookup failed", e);
             Assert.fail(e.toString());
           }
           respMap.put(id3, addr);
@@ -188,7 +196,7 @@ public class NamingTest {
       f3.get();
 
       for (final Identifier id : respMap.keySet()) {
-        LOG.log(Level.FINEST, "Mapping: " + id + " -> " + respMap.get(id));
+        LOG.log(Level.FINEST, "Mapping: {0} -> {1}", new Object[] { id, respMap.get(id) });
       }
 
       Assert.assertTrue(isEqual(idToAddrMap, respMap));
@@ -205,19 +213,21 @@ public class NamingTest {
    */
   @Test
   public void testNamingRegistry() throws Exception {
-    LOG.log(Level.FINEST, name.getMethodName());
 
-    final NameServer server = new NameServer(0, factory);
-    port = server.getPort();
+    LOG.log(Level.FINEST, this.name.getMethodName());
+
+    final NameServer server = new NameServer(0, this.factory);
+    this.port = server.getPort();
 
     // names to start with
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-    idToAddrMap.put(factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-    idToAddrMap.put(factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
+    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
+    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
 
     // registration
     // invoke registration from the client side
-    final NameRegistryClient client = new NameRegistryClient(NetUtils.getLocalAddress(), port, factory);
+    final NameRegistryClient client = new NameRegistryClient(
+        NetUtils.getLocalAddress(), this.port, this.factory);
     for (final Identifier id : idToAddrMap.keySet()) {
       client.register(id, idToAddrMap.get(id));
     }
@@ -231,7 +241,8 @@ public class NamingTest {
     Iterable<NameAssignment> nas = server.lookup(ids);
 
     for (final NameAssignment na : nas) {
-      LOG.log(Level.FINEST, "Mapping: " + na.getIdentifier() + " -> " + na.getAddress());
+      LOG.log(Level.FINEST, "Mapping: {0} -> {1}",
+          new Object[] { na.getIdentifier(), na.getAddress() });
       serverMap.put(na.getIdentifier(), na.getAddress());
     }
 
@@ -254,7 +265,6 @@ public class NamingTest {
 
     client.close();
     server.close();
-
   }
 
   /**
@@ -264,18 +274,20 @@ public class NamingTest {
    */
   @Test
   public void testNameClient() throws Exception {
-    LOG.log(Level.FINEST, name.getMethodName());
 
-    final NameServer server = new NameServer(0, factory);
-    port = server.getPort();
+    LOG.log(Level.FINEST, this.name.getMethodName());
+
+    final NameServer server = new NameServer(0, this.factory);
+    this.port = server.getPort();
 
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-    idToAddrMap.put(factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-    idToAddrMap.put(factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
+    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
+    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
 
     // registration
     // invoke registration from the client side
-    final NameClient client = new NameClient(NetUtils.getLocalAddress(), port, factory, retryCount, retryTimeout, new NameCache(TTL));
+    final NameClient client = new NameClient(NetUtils.getLocalAddress(), this.port,
+        this.factory, retryCount, retryTimeout, new NameCache(this.TTL));
     for (final Identifier id : idToAddrMap.keySet()) {
       client.register(id, idToAddrMap.get(id));
     }
@@ -285,8 +297,8 @@ public class NamingTest {
     busyWait(server, ids.size(), ids);
 
     // lookup
-    final Identifier id1 = factory.getNewInstance("task1");
-    final Identifier id2 = factory.getNewInstance("task2");
+    final Identifier id1 = this.factory.getNewInstance("task1");
+    final Identifier id2 = this.factory.getNewInstance("task2");
 
     final Map<Identifier, InetSocketAddress> respMap = new HashMap<Identifier, InetSocketAddress>();
     InetSocketAddress addr1 = client.lookup(id1);
@@ -295,7 +307,7 @@ public class NamingTest {
     respMap.put(id2, addr2);
 
     for (final Identifier id : respMap.keySet()) {
-      LOG.log(Level.FINEST, "Mapping: " + id + " -> " + respMap.get(id));
+      LOG.log(Level.FINEST, "Mapping: {0} -> {1}", new Object[] { id, respMap.get(id) });
     }
 
     Assert.assertTrue(isEqual(idToAddrMap, respMap));
@@ -322,30 +334,32 @@ public class NamingTest {
 
   private boolean isEqual(final Map<Identifier, InetSocketAddress> map1,
                           final Map<Identifier, InetSocketAddress> map2) {
-    boolean equal = true;
-    if (map1.size() != map2.size())
-      equal = false;
+
+    if (map1.size() != map2.size()) {
+      return false;
+    }
 
     for (final Identifier id : map1.keySet()) {
       final InetSocketAddress addr1 = map1.get(id);
       final InetSocketAddress addr2 = map2.get(id);
       if (!addr1.equals(addr2)) {
-        equal = false;
-        break;
+        return false;
       }
     }
-    return equal;
+
+    return true;
   }
 
   private void busyWait(final NameServer server, final int expected, final Set<Identifier> ids) {
     int count = 0;
-    while (true) {
+    for (;;) {
       final Iterable<NameAssignment> nas = server.lookup(ids);
       for (final @SuppressWarnings("unused") NameAssignment na : nas) {
         ++count;
       }
-      if (count == expected)
+      if (count == expected) {
         break;
+      }
       count = 0;
     }
   }
