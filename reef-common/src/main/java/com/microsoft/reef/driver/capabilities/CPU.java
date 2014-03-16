@@ -21,7 +21,11 @@ import com.microsoft.reef.annotations.audience.Public;
 
 /**
  * A {@link Capability} that represents the CPUs available to an Evaluator.
+ *
+ * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
+ * we will remove this API.
  */
+@Deprecated
 @DriverSide
 @Public
 @Provided

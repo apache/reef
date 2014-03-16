@@ -44,7 +44,10 @@ public interface ResourceCatalog {
      * Evaluator.
      *
      * @return the list of {@link Capability}s of this Evaluator.
+     * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
+     * we will remove this API.
      */
+    @Deprecated
     public Collection<Capability> getCapabilities();
 
   }
@@ -53,7 +56,7 @@ public interface ResourceCatalog {
    * The global list of resources.
    *
    * @return a list of all the static resources available. This is an upper
-   *         bound.
+   * bound.
    */
   public Collection<NodeDescriptor> getNodes();
 
@@ -78,8 +81,11 @@ public interface ResourceCatalog {
    *
    * @param capabilities the set of {@link Capability}s queried for.
    * @return the list of entries supporting the given set of
-   *         {@link Capability}s
+   * {@link Capability}s
+   * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
+   * we will remove this API.
    */
+  @Deprecated
   public Collection<NodeDescriptor> withCapabilities(final Capability... capabilities);
 
 }

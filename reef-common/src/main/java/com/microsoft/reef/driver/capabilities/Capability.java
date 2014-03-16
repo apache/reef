@@ -23,10 +23,14 @@ import com.microsoft.reef.annotations.audience.Public;
 /**
  * Base interface for Capabilities of Evaluators such as installed OS
  * and available software.
+ *
+ * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
+ *             we will remove this API.
  */
 @DriverSide
 @Public
 @Provided
 @Unstable
+@Deprecated
 public interface Capability {
 }
