@@ -19,21 +19,21 @@ import com.microsoft.reef.exception.evaluator.ServiceRuntimeException;
 import com.microsoft.reef.exception.evaluator.StorageException;
 import com.microsoft.reef.io.serialization.Codec;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 /**
  * A read-only spool implementation, based on files. Some other process needs to
  * create the spool file for us.
- * 
+ *
  * @author sears
- * 
  */
 public class CodecFileIterable<T, C extends Codec<T>> implements Iterable<T> {
-  final File filename;
-  final C codec;
+  private final File filename;
+  private final C codec;
 
-  public CodecFileIterable(File filename, C codec) {
+  public CodecFileIterable(final File filename, final C codec) {
     this.filename = filename;
     this.codec = codec;
   }
@@ -42,41 +42,8 @@ public class CodecFileIterable<T, C extends Codec<T>> implements Iterable<T> {
   @Override
   public Iterator<T> iterator() {
     try {
-      final ObjectInputStream in;
-      in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
-          filename)));
-      return new Iterator<T>() {
-        int sz = in.readInt();
-
-        @Override
-        public boolean hasNext() {
-          return sz != -1;
-        }
-
-        @Override
-        public T next() {
-          try {
-          byte[] buf = new byte[sz];
-          for (int rem = buf.length; rem > 0; rem -= in.read(buf, buf.length
-              - rem, rem)) {
-          }
-          sz = in.readInt();
-          if (sz == -1) {
-            in.close();
-          }
-          return codec.decode(buf);
-          } catch (IOException e) {
-            throw new ServiceRuntimeException(new StorageException(e));
-          }
-        }
-
-        @Override
-        public void remove() {
-          throw new UnsupportedOperationException(
-              "Attempt to remove value from read-only input file!");
-        }
-      };
-    } catch (IOException e) {
+      return new CodecFileIterator<>(this.codec, this.filename);
+    } catch (final IOException e) {
       throw new ServiceRuntimeException(new StorageException(e));
     }
   }
