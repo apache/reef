@@ -27,10 +27,10 @@
     <ClInclude Include="InteropAssemblies.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ILogger.h">
+    <ClInclude Include="InteropReturnInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InteropReturnInfo.h">
+    <ClInclude Include="InteropLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,10 +47,10 @@
     <ClCompile Include="AssemblyUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Logger.cpp">
+    <ClCompile Include="InteropReturnInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InteropReturnInfo.cpp">
+    <ClCompile Include="InteropLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,10 +8,10 @@ namespace Microsoft.Reef.Interop
 {
     public class ClrHandlerWrapper
     {
-        public static ulong CreateFromString_ClrHandler (String str)
+        public static ulong CreateFromString_ClrHandler (IInteropReturnInfo interopReturnInfo, ILogger iLogger, String str)
         {
             Console.WriteLine("+ClrHandlerFromString  " + str);
-            var obj = new ClrHandler(str);
+            var obj = new ClrHandler(interopReturnInfo, iLogger, str);
 
             GCHandle gc = GCHandle.Alloc(obj);
             IntPtr intPtr = GCHandle.ToIntPtr(gc);
@@ -37,9 +37,10 @@ namespace Microsoft.Reef.Interop
                 throw new ApplicationException("TestException");
             }
             catch (Exception ex)
-            {
-                ret.SetReturnCode(11);
+            {                
                 ret.AddExceptionString(ex.Message + ex.StackTrace);
+                ret.SetReturnCode(255);
+                Console.WriteLine("came back from ret.AddExceptionString");
             }
         }
 

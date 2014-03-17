@@ -155,8 +155,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ILogger.h" />
     <ClInclude Include="InteropAssemblies.h" />
+    <ClInclude Include="InteropLogger.h" />
     <ClInclude Include="InteropReturnInfo.h" />
     <ClInclude Include="InteropUtil.h" />
     <ClInclude Include="JavaClrBridge.h" />
@@ -165,10 +165,10 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
+    <ClCompile Include="InteropLogger.cpp" />
     <ClCompile Include="InteropReturnInfo.cpp" />
     <ClCompile Include="InteropUtil.cpp" />
     <ClCompile Include="JavaClrBridge.cpp" />
-    <ClCompile Include="Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

@@ -1,5 +1,6 @@
 package javabridge;
 import javabridge.NativeInterop;
+import org.apache.hadoop.yarn.webapp.hamlet.HamletSpec;
 
 /**
  * Created by beysims on 3/10/14.
@@ -10,9 +11,9 @@ import javabridge.NativeInterop;
         static {
             //logger.info("Loading DLL");
             try {
-                System.out.println("before load cppbridge");
+                //System.out.println("before load cppbridge");
                 System.loadLibrary(CPP_BRIDGE);
-                System.out.println("after load cppbridge");
+                //System.out.println("after load cppbridge");
                 //logger.info("DLL is loaded from memory");
                 //loadFromJar();
             } catch (UnsatisfiedLinkError e) {
@@ -20,10 +21,14 @@ import javabridge.NativeInterop;
             }
         }
 
+    public static Object[] roots = new Object[2];
         public static void main (String[] args){
-            //NativeInterop.loadClrAssembly("d:\\yingda\\CSharp\\ClrHandler\\bin\\Debug\\ClrHandler.dll");
+
+            InteropReturnInfo interopReturnInfo = new   InteropReturnInfo ();
+            InteropLogger interopLogger = new InteropLogger();
+
             System.out.println("before NativeInterop.createHandler1");
-            long handle = NativeInterop.createHandler1 ("hello yingda0");
+            long handle = NativeInterop.createHandler1 (interopReturnInfo, interopLogger, "hello world");
             byte[] value = new byte[3];
             value[0] = (byte)0xcc;
             value[1] = (byte)0x10;
@@ -33,11 +38,22 @@ import javabridge.NativeInterop;
             value[0] = (byte)0x1;
             value[1] = (byte)0x2;
             value[2] = (byte)0x3;
-            InteropReturnInfo ret = new   InteropReturnInfo ();
-            NativeInterop.clrHandlerOnNext2(ret, handle, value);
+            NativeInterop.clrHandlerOnNext2(interopReturnInfo, interopLogger, handle, value);
             System.out.println("after Exception");
-            System.out.println("error code " + ret.getReturnCode());
-            String ex = ret.getExceptionList().get(0);
+            System.out.println("error code " + interopReturnInfo.getReturnCode());
+            String ex = interopReturnInfo.getExceptionList().get(0);
+            System.out.println("exception str " + ex);
+
+
+            value[0] = (byte)0x4;
+            value[1] = (byte)0x5;
+            value[2] = (byte)0x6;
+            NativeInterop.clrHandlerOnNext2(interopReturnInfo, interopLogger, handle, value);
+            System.out.println("after Exception");
+            System.out.println("error code " + interopReturnInfo.getReturnCode());
+            ex = interopReturnInfo.getExceptionList().get(0);
+            System.out.println("exception str " + ex);
+            ex = interopReturnInfo.getExceptionList().get(1);
             System.out.println("exception str " + ex);
 
 
