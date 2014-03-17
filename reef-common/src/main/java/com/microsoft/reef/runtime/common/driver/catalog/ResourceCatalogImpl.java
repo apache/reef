@@ -21,6 +21,7 @@ import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.NodeDescriptorProto;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
@@ -68,8 +69,7 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
 
   @Override
   public final Collection<NodeDescriptor> withCapabilities(final Capability... capabilities) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   public final void handle(final NodeDescriptorProto node) {

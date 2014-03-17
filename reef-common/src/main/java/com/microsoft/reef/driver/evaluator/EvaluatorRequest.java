@@ -52,6 +52,15 @@ public final class EvaluatorRequest {
   private final List<Capability> capabilities;
   private final ResourceCatalog.Descriptor descriptor;
 
+  /**
+   * @param size
+   * @param number
+   * @param megaBytes
+   * @param capabilities
+   * @param descriptor
+   * @deprecated in 0.2 because of the use of Size and Capability
+   */
+  @Deprecated
   EvaluatorRequest(final Size size,
                    final int number,
                    final int megaBytes,
@@ -61,6 +70,16 @@ public final class EvaluatorRequest {
     this.number = number;
     this.megaBytes = megaBytes;
     this.capabilities = capabilities;
+    this.descriptor = descriptor;
+  }
+
+  EvaluatorRequest(final int number,
+                   final int megaBytes,
+                   final ResourceCatalog.Descriptor descriptor) {
+    this.size = null;
+    this.number = number;
+    this.megaBytes = megaBytes;
+    this.capabilities = new ArrayList<>();
     this.descriptor = descriptor;
   }
 
@@ -88,7 +107,10 @@ public final class EvaluatorRequest {
    * Access the list of {@link Capability}s requested.
    *
    * @return the list of {@link Capability}s requested.
+   * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
+   * we will remove this API.
    */
+  @Deprecated
   public final List<Capability> getCapabilities() {
     return this.capabilities;
   }
@@ -192,11 +214,14 @@ public final class EvaluatorRequest {
 
     /**
      * Add a {@link Capability} to the request. If the capability cannot be
-     * met by the {@link EvaluatorFactory}, the request will be denied.
+     * met by the {@link EvaluatorRequestor}, the request will be denied.
      *
      * @param cap the {@link Capability} requested.
      * @return this Builder.
+     * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
+     * we will remove this API.
      */
+    @Deprecated
     public Builder withCapability(final Capability cap) {
       this.capabilities.add(cap);
       return this;
