@@ -96,6 +96,7 @@ final class EvaluatorRuntime {
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
               this.state = ReefServiceProtos.State.DONE;
               this.heartBeatManager.onNext(this.getEvaluatorStatus());
+              this.clock.close();
             }
           } catch (Throwable e) {
             this.handle(e);
