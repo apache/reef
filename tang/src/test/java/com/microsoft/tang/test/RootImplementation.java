@@ -68,4 +68,43 @@ public class RootImplementation implements RootInterface {
 
     return true;
   }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    RootImplementation that = (RootImplementation) o;
+
+    if (Double.compare(that.aDouble, aDouble) != 0) return false;
+    if (anInt != that.anInt) return false;
+    if (anInterface != null ? !anInterface.equals(that.anInterface) : that.anInterface != null) return false;
+    if (integerHandler != null ? !integerHandler.equals(that.integerHandler) : that.integerHandler != null)
+      return false;
+    if (optionalString != null ? !optionalString.equals(that.optionalString) : that.optionalString != null)
+      return false;
+    if (requiredString != null ? !requiredString.equals(that.requiredString) : that.requiredString != null)
+      return false;
+    if (stringHandler != null ? !stringHandler.equals(that.stringHandler) : that.stringHandler != null) return false;
+    if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    result = requiredString != null ? requiredString.hashCode() : 0;
+    result = 31 * result + (optionalString != null ? optionalString.hashCode() : 0);
+    result = 31 * result + (unit != null ? unit.hashCode() : 0);
+    result = 31 * result + (stringHandler != null ? stringHandler.hashCode() : 0);
+    result = 31 * result + (integerHandler != null ? integerHandler.hashCode() : 0);
+    result = 31 * result + (anInterface != null ? anInterface.hashCode() : 0);
+    result = 31 * result + anInt;
+    temp = Double.doubleToLongBits(aDouble);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 }

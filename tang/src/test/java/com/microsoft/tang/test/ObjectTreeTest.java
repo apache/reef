@@ -1,7 +1,6 @@
 package com.microsoft.tang.test;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -12,9 +11,16 @@ public class ObjectTreeTest {
 
   @Test
   public void testInstantiation() throws BindException, InjectionException {
-    final Injector injector = Tang.Factory.getTang().newInjector(getConfiguration());
-    final RootInterface root = injector.getInstance(RootInterface.class);
-    Assert.assertTrue(root.isValid());
+    final RootInterface root = Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
+    Assert.assertTrue("Object instantiation left us in an inconsistent state.", root.isValid());
+  }
+
+  public void testTwoInstantiations() throws BindException, InjectionException {
+    final RootInterface firstRoot = Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
+    final RootInterface secondRoot = Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
+    Assert.assertFalse("Two instantiations of the object tree should not be the same", firstRoot == secondRoot);
+    Assert.assertEquals("Two instantiations of the object tree should be equal", firstRoot, secondRoot);
+
   }
 
 
