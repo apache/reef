@@ -14,18 +14,25 @@ final class SetOfBaseTypes {
   private final Set<Integer> integers;
   private final Set<Double> doubles;
   private final Set<String> strings;
+  private final Set<Integer> moreIntegers;
 
   @Inject
   SetOfBaseTypes(@Parameter(Integers.class) final Set<Integer> integers,
                  @Parameter(Doubles.class) final Set<Double> doubles,
-                 @Parameter(Strings.class) final Set<String> strings) {
+                 @Parameter(Strings.class) final Set<String> strings,
+                 @Parameter(MoreIntegers.class) final Set<Integer> moreIntegers) {
     this.integers = integers;
     this.doubles = doubles;
     this.strings = strings;
+    this.moreIntegers = moreIntegers;
   }
 
   @NamedParameter
   public static class Integers implements Name<Set<Integer>> {
+  }
+
+  @NamedParameter(default_values = {"1", "2", "3"})
+  public static class MoreIntegers implements Name<Set<Integer>> {
   }
 
   @NamedParameter
