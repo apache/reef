@@ -346,13 +346,7 @@ public class EvaluatorManager implements Identifiable, AutoCloseable {
         LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
         this.state = STATE.DONE;
 
-        dispatcher.onNext(CompletedEvaluator.class, new CompletedEvaluator() {
-          @Override
-          public String getId() {
-            return EvaluatorManager.this.evaluatorId;
-          }
-        });
-
+        dispatcher.onNext(CompletedEvaluator.class, new CompletedEvaluatorImpl(this.evaluatorId));
         close();
       }
 
