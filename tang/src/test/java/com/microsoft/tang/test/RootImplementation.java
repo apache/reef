@@ -18,6 +18,8 @@ public class RootImplementation implements RootInterface {
   private final AnInterface anInterface;
   private final int anInt;
   private final double aDouble;
+  private final InjectableClass injectableClass;
+  private final SetOfImplementations setOfImplementations;
 
   @Inject
   public RootImplementation(@Parameter(TestConfiguration.RequiredString.class) final String requiredString,
@@ -26,7 +28,10 @@ public class RootImplementation implements RootInterface {
                             @Parameter(TestConfiguration.IntegerHandler.class) final Handler<Integer> integerHandler,
                             @Parameter(TestConfiguration.NamedParameterInteger.class) final int anInt,
                             @Parameter(TestConfiguration.NamedParameterDouble.class) double aDouble,
-                            final UnitClass unit, AnInterface anInterface) {
+                            final UnitClass unit,
+                            final AnInterface anInterface,
+                            final InjectableClass injectableClass,
+                            SetOfImplementations setOfImplementations) {
     this.requiredString = requiredString;
     this.optionalString = optionalString;
     this.unit = unit;
@@ -35,10 +40,15 @@ public class RootImplementation implements RootInterface {
     this.anInterface = anInterface;
     this.anInt = anInt;
     this.aDouble = aDouble;
+    this.injectableClass = injectableClass;
+    this.setOfImplementations = setOfImplementations;
   }
 
   @Override
   public boolean isValid() {
+    if (!this.setOfImplementations.isValid()) {
+      return false;
+    }
     if (!this.requiredString.equals(TestConfiguration.REQUIRED_STRING_VALUE)) {
       return false;
     }
@@ -88,7 +98,10 @@ public class RootImplementation implements RootInterface {
       return false;
     if (stringHandler != null ? !stringHandler.equals(that.stringHandler) : that.stringHandler != null) return false;
     if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
-
+    if (injectableClass != null ? !injectableClass.equals(that.injectableClass) : that.injectableClass != null)
+      return false;
+    if (setOfImplementations != null ? !setOfImplementations.equals(that.setOfImplementations) : that.setOfImplementations != null)
+      return false;
     return true;
   }
 

@@ -15,16 +15,16 @@ public class ObjectTreeTest {
     Assert.assertTrue("Object instantiation left us in an inconsistent state.", root.isValid());
   }
 
+  @Test
   public void testTwoInstantiations() throws BindException, InjectionException {
     final RootInterface firstRoot = Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
     final RootInterface secondRoot = Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
-    Assert.assertFalse("Two instantiations of the object tree should not be the same", firstRoot == secondRoot);
+    Assert.assertNotSame("Two instantiations of the object tree should not be the same", firstRoot, secondRoot);
     Assert.assertEquals("Two instantiations of the object tree should be equal", firstRoot, secondRoot);
-
   }
 
 
-  public Configuration getConfiguration() throws BindException {
+  public static Configuration getConfiguration() throws BindException {
     return TestConfiguration.CONF
         .set(TestConfiguration.OPTIONAL_STRING, TestConfiguration.OPTIONAL_STRING_VALUE)
         .set(TestConfiguration.REQUIRED_STRING, TestConfiguration.REQUIRED_STRING_VALUE)
