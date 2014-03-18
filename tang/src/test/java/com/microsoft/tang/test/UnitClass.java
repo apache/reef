@@ -2,31 +2,42 @@ package com.microsoft.tang.test;
 
 import com.microsoft.tang.annotations.Unit;
 
+import javax.inject.Inject;
+
 /**
  * A test user for the @Unit annotation
  */
 @Unit
-public final class UnitClass {
+final class UnitClass {
+  private String stringValue;
+  private int intValue;
 
-  private static int instanceCounter = 0;
+  @Inject
+  UnitClass() {
 
-  public UnitClass() {
-    ++instanceCounter;
   }
 
-  public final class InnerClassOne implements TypedInterface<Integer> {
+  public String getStringValue() {
+    return stringValue;
+  }
+
+  public int getIntValue() {
+    return intValue;
+  }
+
+  final class IntegerHandler implements Handler<Integer> {
 
     @Override
     public void process(final Integer value) {
-      // just do nothing
+      UnitClass.this.intValue = value;
     }
   }
 
-  public final class InnerClassTwo implements TypedInterface<String> {
+  final class StringHandler implements Handler<String> {
 
     @Override
     public void process(final String value) {
-      // just do nothing
+      UnitClass.this.stringValue = value;
     }
   }
 

@@ -5,7 +5,7 @@ package com.microsoft.tang.test;
  *
  * @param <T>
  */
-public interface TypedInterface<T> {
+public interface Handler<T> {
 
   public void process(final T value);
 
