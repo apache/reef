@@ -20,6 +20,7 @@ public class RootImplementation implements RootInterface {
   private final double aDouble;
   private final InjectableClass injectableClass;
   private final SetOfImplementations setOfImplementations;
+  private final SetOfBaseTypes setOfBaseTypes;
 
   @Inject
   public RootImplementation(@Parameter(TestConfiguration.RequiredString.class) final String requiredString,
@@ -31,7 +32,8 @@ public class RootImplementation implements RootInterface {
                             final UnitClass unit,
                             final AnInterface anInterface,
                             final InjectableClass injectableClass,
-                            SetOfImplementations setOfImplementations) {
+                            final SetOfImplementations setOfImplementations,
+                            final SetOfBaseTypes setOfBaseTypes) {
     this.requiredString = requiredString;
     this.optionalString = optionalString;
     this.unit = unit;
@@ -42,6 +44,7 @@ public class RootImplementation implements RootInterface {
     this.aDouble = aDouble;
     this.injectableClass = injectableClass;
     this.setOfImplementations = setOfImplementations;
+    this.setOfBaseTypes = setOfBaseTypes;
   }
 
   @Override
@@ -101,6 +104,8 @@ public class RootImplementation implements RootInterface {
     if (injectableClass != null ? !injectableClass.equals(that.injectableClass) : that.injectableClass != null)
       return false;
     if (setOfImplementations != null ? !setOfImplementations.equals(that.setOfImplementations) : that.setOfImplementations != null)
+      return false;
+    if (setOfBaseTypes != null ? !setOfBaseTypes.equals(that.setOfBaseTypes) : that.setOfBaseTypes != null)
       return false;
     return true;
   }

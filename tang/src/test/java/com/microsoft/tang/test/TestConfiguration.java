@@ -63,6 +63,16 @@ public class TestConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(SetOfInstances.class, SetInterfaceImplTwo.class)
       .bindNamedParameter(RequiredString.class, REQUIRED_STRING)
       .bindNamedParameter(OptionalString.class, OPTIONAL_STRING)
+          // Sets of base types
+      .bindSetEntry(SetOfBaseTypes.Integers.class, "1")
+      .bindSetEntry(SetOfBaseTypes.Integers.class, "2")
+      .bindSetEntry(SetOfBaseTypes.Integers.class, "3")
+      .bindSetEntry(SetOfBaseTypes.Doubles.class, "1")
+      .bindSetEntry(SetOfBaseTypes.Doubles.class, "2")
+      .bindSetEntry(SetOfBaseTypes.Doubles.class, "3")
+      .bindSetEntry(SetOfBaseTypes.Strings.class, "1")
+      .bindSetEntry(SetOfBaseTypes.Strings.class, "2")
+      .bindSetEntry(SetOfBaseTypes.Strings.class, "3")
       .build();
 
 
