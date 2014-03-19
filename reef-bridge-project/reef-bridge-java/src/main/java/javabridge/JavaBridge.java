@@ -34,16 +34,14 @@ import java.util.Date;
             InteropReturnInfo interopReturnInfo = new   InteropReturnInfo ();
             InteropLogger interopLogger = new InteropLogger();
 
-            System.out.println("before NativeInterop.createHandler1");
-            long handle = NativeInterop.createHandler1 (interopReturnInfo, interopLogger, "hello world");
-
             byte[] value = new byte[3];
             value[0] = (byte)0xcc;
             value[1] = (byte)0x10;
             value[2] = (byte)0xee;
 
             EManager eManager = new EManager();
-            NativeInterop.CallClrSystemAllocatedEvaluatorHandlerOnNext(handle0, eManager, interopLogger, value);
+            DriverManager driverManager = new DriverManager();
+            NativeInterop.CallClrSystemAllocatedEvaluatorHandlerOnNext(handle0, eManager, driverManager, interopLogger, value);
 
 
 
@@ -68,7 +66,7 @@ import java.util.Date;
 
         EManager eManager = new EManager();
 
-        NativeInterop.CallClrSystemAllocatedEvaluatorHandlerOnNext(handle0, eManager, interopLogger, value);
+        //NativeInterop.CallClrSystemAllocatedEvaluatorHandlerOnNext(handle0, eManager, interopLogger, value);
 
         NativeInterop.clrHandlerOnNext(handle, value);
         System.out.println("before Exception");

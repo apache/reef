@@ -6,7 +6,11 @@ package javabridge;
 public class EManager {
     public void submit(byte[] value)
     {
-        System.out.println("submitting" + value);
+        System.out.println("submitting  value:");
+        for (int i=0; i<value.length; i++)
+        {
+            System.out.println(value[i]);
+        }
     }
     public void submit2()
     {

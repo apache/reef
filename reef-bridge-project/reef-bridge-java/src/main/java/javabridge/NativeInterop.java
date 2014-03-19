@@ -41,6 +41,7 @@ public class NativeInterop {
     public static native void CallClrSystemAllocatedEvaluatorHandlerOnNext (
             long handle,
             EManager eManager,
+            DriverManager driverManager,
             InteropLogger interopLogger,
             byte[] value
     );

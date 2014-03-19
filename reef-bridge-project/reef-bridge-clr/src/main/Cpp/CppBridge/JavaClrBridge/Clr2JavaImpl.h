@@ -23,11 +23,13 @@ namespace Microsoft
 			{
 				jclass  _jclassEManager;
 				jobject  _jobjectEManager;
+				jclass  _jclassDriverManager;
+				jobject  _jobjectDriverManager;
 				jmethodID _jmidSubmit;
 				JNIEnv* _env;
 
 			public:
-				Clr2JavaImpl (JNIEnv* env, jobject jobjectEManager);
+				Clr2JavaImpl (JNIEnv* env, jobject jobjectEManager, jobject  jobjectDriverManager);
 				virtual void Emanager_submit(array<byte>^ bytes);
 			};
 		}

@@ -171,12 +171,15 @@ JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandle
  * Signature: (J[B)V
  */
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_CallClrSystemAllocatedEvaluatorHandlerOnNext
-  (JNIEnv *env, jclass cls, jlong handle, jobject jobjectEManager, jobject jobject, jbyteArray bytes)
+  (JNIEnv *env, jclass cls, jlong handle, jobject jobjectEManager, jobject jobjectDriverManager, jobject jObjectLogger, jbyteArray bytes)
 {
 	try 
 	{
+		//InteropLogger^ logger = gcnew InteropLogger(env, jObjectLogger);
+		
+	
+	Clr2JavaImpl^ clr2JavaImpl = gcnew Clr2JavaImpl (env, jobjectEManager, jobjectDriverManager);		
 	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, bytes);
-	Clr2JavaImpl^ clr2JavaImpl = gcnew Clr2JavaImpl (env, jobjectEManager);	
 	ClrSystemAllocatedEvaluatorHandlerWrapper::CallMethod_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, clr2JavaImpl, bytearray);
 	}
 	catch (System::Exception^ ex)

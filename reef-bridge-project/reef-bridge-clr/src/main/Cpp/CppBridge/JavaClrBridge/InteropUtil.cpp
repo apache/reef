@@ -56,12 +56,7 @@ jbyteArray JavaByteArrayFromManagedByteArray(
 	array<byte>^ managedByteArray)
 {	
 	jbyteArray javaByteArray = env->NewByteArray(managedByteArray->Length);
-	
-	byte* bytes = (byte*)env->GetByteArrayElements (javaByteArray, NULL);
-	for (int i=0; i<managedByteArray->Length; i++)
-	{
-		bytes[i] = managedByteArray[i];
-	}
-	
+	pin_ptr<Byte> p = &managedByteArray[0];
+	env->SetByteArrayRegion(javaByteArray, 0, managedByteArray->Length, (jbyte*) p);
 	return javaByteArray;
 }
