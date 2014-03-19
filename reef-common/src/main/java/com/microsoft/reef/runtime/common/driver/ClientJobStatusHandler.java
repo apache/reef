@@ -71,7 +71,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
     this.jobControlChannel = remoteManager.registerHandler(clientRID, JobControlProto.class, jobControlHandler);
   }
 
-  public void close(final Optional<Throwable> exception) {
+  public synchronized void close(final Optional<Throwable> exception) {
     try {
       if (exception.isPresent()) {
         this.onError(exception.get());
@@ -94,7 +94,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   }
 
   @Override
-  public void onNext(final byte[] message) {
+  public synchronized void onNext(final byte[] message) {
     LOG.log(Level.FINEST, "Job message from {0}", this.jobID);
     this.sendInit();
     this.send(JobStatusProto.newBuilder()
@@ -105,7 +105,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   }
 
   @Override
-  public void onError(final Throwable exception) {
+  public synchronized void onError(final Throwable exception) {
     LOG.log(Level.SEVERE, "Job exception", exception);
     this.send(JobStatusProto.newBuilder()
         .setIdentifier(this.jobID.toString())
@@ -121,7 +121,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
    *
    * @param status of the job
    */
-  private void send(final JobStatusProto status) {
+  private synchronized void send(final JobStatusProto status) {
     LOG.log(Level.FINEST, "Sending job status: {0}", status);
     this.jobStatusHandler.onNext(status);
   }
