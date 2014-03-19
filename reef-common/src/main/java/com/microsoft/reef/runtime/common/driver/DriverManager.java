@@ -131,7 +131,8 @@ final class DriverManager implements EvaluatorRequestor {
             handle(value);
             LOG.log(Level.FINEST, "TIME: End Heartbeat {0}", evalId);
           }
-        });
+        }
+    );
 
     // Runtime error channel for errors that occur on evaluators
     this.errorChannel = remoteManager.registerHandler(
@@ -141,7 +142,8 @@ final class DriverManager implements EvaluatorRequestor {
           public void onNext(RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
             handle(value.getMessage());
           }
-        });
+        }
+    );
 
     LOG.log(Level.FINEST, "DriverManager instantiated");
   }
@@ -286,7 +288,8 @@ final class DriverManager implements EvaluatorRequestor {
       } else {
         throw new RuntimeException(
             "Unknown resource status from evaluator " + resourceStatusProto.getIdentifier() +
-                " with state " + resourceStatusProto.getState());
+                " with state " + resourceStatusProto.getState()
+        );
       }
     }
     eManager.handle(resourceStatusProto);
@@ -489,25 +492,20 @@ final class DriverManager implements EvaluatorRequestor {
     @Override
     public void onNext(final IdleClock idleClock) {
       LOG.log(Level.INFO, "IdleClock: {0}"
-          + "\n\t Runtime state {1}"
-          + "\n\t Outstanding container requests {2}"
-          + "\n\t Container allocation count {3}",
+              + "\n\t Runtime state {1}"
+              + "\n\t Outstanding container requests {2}"
+              + "\n\t Container allocation count {3}",
           new Object[]{idleClock,
               runtimeStatusProto.getState(),
               runtimeStatusProto.getOutstandingContainerRequests(),
-              runtimeStatusProto.getContainerAllocationCount()});
+              runtimeStatusProto.getContainerAllocationCount()}
+      );
 
       synchronized (DriverManager.this.evaluators) {
         if (ReefServiceProtos.State.RUNNING == runtimeStatusProto.getState() &&
             0 == runtimeStatusProto.getOutstandingContainerRequests() &&
             0 == runtimeStatusProto.getContainerAllocationCount() &&
             DriverManager.this.evaluatorsClosed()) {
-          try {
-            // TODO: Instead of sleeping, make sure Wake remote queue is empty.
-            Thread.sleep(500);
-          } catch (final InterruptedException ex) {
-            LOG.log(Level.WARNING, "Idle runtime shutdown interrupted", ex);
-          }
           LOG.log(Level.FINEST, "Idle runtime shutdown");
           DriverManager.this.clockFuture.get().close();
         }
