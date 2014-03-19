@@ -9,7 +9,12 @@ public class InteropReturnInfo {
     int returnCode;
     ArrayList<String> exceptionList = new ArrayList<String>();
 
-    public void AddExceptionString (String exceptionString)
+    public void setReturnCode(int rc)
+    {
+        returnCode = rc;
+    }
+
+    public void addExceptionString (String exceptionString)
     {
         exceptionList.add(exceptionString);
     }
@@ -24,13 +29,15 @@ public class InteropReturnInfo {
         return exceptionList;
     }
 
-    public void SetReturnCode(int rc)
-    {
-        returnCode = rc;
-    }
 
     public int getReturnCode()
     {
         return returnCode;
+    }
+
+    public void reset()
+    {
+        exceptionList = new ArrayList<String>();
+        returnCode = 0;
     }
 }

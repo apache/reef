@@ -4,6 +4,7 @@
 #include "InteropAssemblies.h"
 #include "InteropReturnInfo.h"
 #include "Clr2JavaImpl.h"
+#include "InteropLogger.h"
 
 using namespace System;
 using namespace System::IO;
@@ -58,7 +59,6 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 	jclass  tobj, 
 	jstring jfileName)
 {
-	Log0("In c++ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly +");
 	const wchar_t* charAsmName = UnicodeCppStringFromJavaString (env, jfileName);
 	int len = env->GetStringLength(jfileName);	
 	
@@ -76,15 +76,19 @@ JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_createHandler1
  (
 	JNIEnv *env, 
 	jclass  tobj, 
+	jobject jObjectInteropReturnInfo,
+	jobject jObjectLogger,
 	jstring jstrConfig)
 {
 	try 
 	{
+	InteropLogger^ logger = gcnew InteropLogger(env, jObjectLogger);
+	InteropReturnInfo^ interopReturnInfo = gcnew InteropReturnInfo(env, jObjectInteropReturnInfo, logger);
 	
 	const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, jstrConfig);
 	int lenConfig = env->GetStringLength(jstrConfig);		
 	String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
-	return ClrHandlerWrapper::CreateFromString_ClrHandler(strConfig);
+	return ClrHandlerWrapper::CreateFromString_ClrHandler(interopReturnInfo, logger, strConfig);
 	}
 	catch (System::Exception^ ex)
 	{
@@ -116,19 +120,22 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext
 /*
  * Class:     javabridge_NativeInterop
  * Method:    clrHandlerOnNext2
- * Signature: (Ljavabridge/InteropReturnInfo;J[B)V
+ * Signature: (Ljavabridge/InteropReturnInfo;Ljavabridge/InteropLogger;J[B)V
  */
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext2  
 (
 	JNIEnv *env, 
-	jclass  jclassInteropReturnInfo, 
+	jclass  jclass, 
 	jobject jObjectInteropReturnInfo,
+	jobject jObjectLogger,
     jlong   handle,
 	jbyteArray value)
 {
-	InteropReturnInfo^ ret = gcnew InteropReturnInfo(env, jclassInteropReturnInfo, jObjectInteropReturnInfo);
+	InteropLogger^ logger = gcnew InteropLogger(env, jObjectLogger);
+	InteropReturnInfo^ interopReturnInfo = gcnew InteropReturnInfo(env, jObjectInteropReturnInfo, logger);
+
 	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, value);
-	ClrHandlerWrapper::CallMethod_ClrHandler_OnNext2(handle, bytearray, ret);
+	ClrHandlerWrapper::CallMethod_ClrHandler_OnNext2(handle, bytearray, interopReturnInfo);
 }
 /*
  * Class:     javabridge_NativeInterop

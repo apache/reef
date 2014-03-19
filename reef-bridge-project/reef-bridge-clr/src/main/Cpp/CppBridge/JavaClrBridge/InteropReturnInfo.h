@@ -19,24 +19,19 @@ namespace Microsoft
 		{
 			public ref class InteropReturnInfo : public IInteropReturnInfo
 			{
-				JNIEnv* _env;
-				jclass		_jclassInteropReturnInfo;
+				JNIEnv* _env;				
 				jobject		_jobjectInteropReturnInfo; 
 				
 				jmethodID	_jmidAddExceptionString;
 				jmethodID	_jmidHasExceptions;
-				jmethodID	_jmidSetReturnCode;
-				jmethodID	_jmidGetReturnCode;
+				jmethodID	_jmidsetReturnCode;
+				jmethodID	_jmidgetReturnCode;
 
 			public:
 				InteropReturnInfo  (
-					JNIEnv* env, 
-					jclass			jclassInteropReturnInfo, 
-					jobject			jobjectInteropReturnInfo
-					//jmethodID		jmidAddExceptionString,
-					//jmethodID		jmidHasExceptions,
-					//jmethodID		jmidSetReturnCode,
-					//jmethodID		jmidGetReturnCode
+					JNIEnv* env, 					
+					jobject			jobjectInteropReturnInfo,
+					ILogger^		logger
 					);
 				virtual void AddExceptionString(String^ exceptionString);       
 				virtual Boolean HasExceptions();

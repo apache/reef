@@ -7,8 +7,12 @@ namespace Microsoft.Reef.Interop
 {
     public class ClrHandler : IObserver<byte[]>
     {
-        public ClrHandler(String str)
+        IInteropReturnInfo _interopReturnInfo;
+        ILogger _iLogger;
+        public ClrHandler(IInteropReturnInfo interopReturnInfo, ILogger iLogger, String str)
         {
+            _interopReturnInfo = interopReturnInfo;
+            _iLogger = iLogger;
         }
 
         public void OnCompleted()
@@ -23,6 +27,9 @@ namespace Microsoft.Reef.Interop
 
         public void OnNext(byte[] value)
         {
+            try
+            {
+
             if (value != null)
             {
             // use avro to unpack from byte[] to object
@@ -33,7 +40,13 @@ namespace Microsoft.Reef.Interop
                     Console.WriteLine("[" + i  + "] "  + value[i]);
                 }
             }
-            Console.WriteLine("OnNext was called Yingda!!!!" + value.Length);
+            }
+            catch (Exception ex)
+            {
+                _interopReturnInfo.AddExceptionString(ex.Message + ex.StackTrace);
+                _interopReturnInfo.SetReturnCode(255);                
+            }
+
         }
     }
 }

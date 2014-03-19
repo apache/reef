@@ -32,6 +32,7 @@ public class InteropLogger {
         }
         else
         {
+
             LOG.log(Level.WARNING, "Level " + intLevel + " is not a valid Log level");
             LOG.log(Level.WARNING, message);
         }

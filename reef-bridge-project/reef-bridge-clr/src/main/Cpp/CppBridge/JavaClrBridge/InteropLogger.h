@@ -17,14 +17,15 @@ namespace Microsoft
 	{
 		namespace Interop
 		{
-			public ref class Logger : public ILogger
+			public ref class InteropLogger : public ILogger
 			{
-				jclass  _jerrorInfo;
-				jmethodID _jmid;
+				jobject _jobjectInteropLogger;
+				jclass  _jclassInteropLogger;				
+				jmethodID _jmidLog;
 				JNIEnv* _env;
 
 			public:
-				Logger (JNIEnv* env, jclass jerrInfo, jmethodID jmid);
+				InteropLogger (JNIEnv* env, jobject jobjectInteropLogger);
 				virtual void Log(TraceLevel traceLevel, String^ message );
 			};
 		}
