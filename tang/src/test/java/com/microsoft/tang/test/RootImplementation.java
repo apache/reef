@@ -8,7 +8,7 @@ import javax.inject.Inject;
 /**
  * The root of the object graph instantiated.
  */
-public class RootImplementation implements RootInterface {
+final class RootImplementation implements RootInterface {
 
   private final String requiredString;
   private final String optionalString;

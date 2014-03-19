@@ -5,7 +5,7 @@ import javax.inject.Inject;
 /**
  * Created by mweimer on 3/18/14.
  */
-public class SetInterfaceImplOne implements SetInterface {
+final class SetInterfaceImplOne implements SetInterface {
 
   private final int magicNumber;
 

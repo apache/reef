@@ -2,7 +2,7 @@ package com.microsoft.tang.test;
 
 import javax.inject.Inject;
 
-class SetInterfaceImplTwo implements SetInterface {
+final class SetInterfaceImplTwo implements SetInterface {
 
   private final double magicNumber;
 
