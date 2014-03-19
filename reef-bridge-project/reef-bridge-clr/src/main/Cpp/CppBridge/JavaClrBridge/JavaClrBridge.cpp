@@ -3,8 +3,7 @@
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
 #include "InteropReturnInfo.h"
-//#define _MT 1
-//#define _DLL 1
+#include "Clr2JavaImpl.h"
 
 using namespace System;
 using namespace System::IO;
@@ -131,112 +130,53 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext2
 	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, value);
 	ClrHandlerWrapper::CallMethod_ClrHandler_OnNext2(handle, bytearray, ret);
 }
-
-
-
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    CallClrSystemOnStartHandler
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandler
+  (JNIEnv * env, jclass jclassx, jstring dateTimeString)
+{
+	try
+	{
+		
+		const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
+	int lenConfig = env->GetStringLength(dateTimeString);		
+	String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
+	Console::WriteLine("Current time is " + strConfig);
+	DateTime dt = DateTime::Now; //DateTime::Parse(strConfig);
+	return ClrSystemOnStartHandler::OnStart(dt);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+	return 0;
+}
 
 
 /*
-JNIEXPORT jlong JNICALL Java_com_microsoft_hadoop_mapreduce_lib_aipinput_NativeInterop_createFileReader
-  (JNIEnv *env, 
-  jclass cls, 
-			jstring jfileName, 
-		    jstring  jfileStorageAccount,
-		    jstring  jfileStorageKey,
-		    jstring  jcontainerName,
-		    jstring  jdfsHttpAddress,
-			jstring  jprotectionServicesLabelsBlobUri,
-			jstring  jschemaKind,
-			jobject  jinteropLogger,
-			jobject  jinteropReturnCode
-			)
-{		
-	
-	Log0 ("c++ cfr enter");
-	jclass jcinteropLogger = env->GetObjectClass(jinteropLogger);	
-	jmethodID jmid = env->GetStaticMethodID(jcinteropLogger, "Trace", "(Ljava/lang/String;I)V");	
-	Logger^ logger = gcnew Logger (env, jcinteropLogger, jmid);	
-	
-	String^ fileName = ManagedStringFromJavaString (env, jfileName);
-	String^ fileStorageAccount = ManagedStringFromJavaString (env, jfileStorageAccount);
-	String^ fileStorageKey = ManagedStringFromJavaString (env, jfileStorageKey);
-	String^ containerName = ManagedStringFromJavaString (env, jcontainerName);
-	String^ dfsHttpAddress = ManagedStringFromJavaString (env, jdfsHttpAddress);
-	String^ protectionServicesLabelsBlobUri = ManagedStringFromJavaString (env, jprotectionServicesLabelsBlobUri);
-	String^ schemaKind = ManagedStringFromJavaString (env, jschemaKind);
-
-	int errorNo = 0;
-	String^ exceptionString = nullptr;
-	
-	unsigned long long cookie  = Datalab::BondIo::GetCookieForFile(
-		fileName,
-		fileStorageAccount,
-		fileStorageKey,
-		containerName,
-		dfsHttpAddress,
-		protectionServicesLabelsBlobUri,
-		schemaKind,
-		logger,
-		errorNo,
-		exceptionString
-		);
-	if (errorNo != 0)
+ * Class:     javabridge_NativeInterop
+ * Method:    CallClrSystemAllocatedEvaluatorHandlerOnNext
+ * Signature: (J[B)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_CallClrSystemAllocatedEvaluatorHandlerOnNext
+  (JNIEnv *env, jclass cls, jlong handle, jobject jobjectEManager, jobject jobject, jbyteArray bytes)
+{
+	try 
 	{
-		MarshalErrorToJava (env, jinteropReturnCode, errorNo, exceptionString);
+	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, bytes);
+	Clr2JavaImpl^ clr2JavaImpl = gcnew Clr2JavaImpl (env, jobjectEManager);	
+	ClrSystemAllocatedEvaluatorHandlerWrapper::CallMethod_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, clr2JavaImpl, bytearray);
 	}
-
-	return cookie;
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
 }
 
-JNIEXPORT jstring JNICALL Java_com_microsoft_hadoop_mapreduce_lib_aipinput_NativeInterop_GetNextRow
-(
-	JNIEnv*		env, 
-	jclass		cls, 
-	jlong		cookie,
-	jobject		jinteropLogger,
-	jobject		jinteropReturnCode
-)
-{	
-	ManagedLog("GetNexRow cookie", cookie.ToString());
-	jclass jcinteropLogger = env->GetObjectClass(jinteropLogger);	
-	jmethodID jmid = env->GetStaticMethodID(jcinteropLogger, "Trace", "(Ljava/lang/String;I)V");	
-	Logger^ logger = gcnew Logger (env, jcinteropLogger, jmid);	
-
-	int errorNo;
-	String^ exceptionString = nullptr;
-
-	String^ str = Datalab::BondIo::GetNextRow (
-		cookie,
-		logger,
-		errorNo,
-		exceptionString
-		);
-
-	if (errorNo != 0)
-	{
-		MarshalErrorToJava (env, jinteropReturnCode, errorNo, exceptionString);
-	}
-	
-	jstring ret = NULL;
-	
-	if (!String::IsNullOrEmpty(str))
-	{	
-		ManagedLog("GetNexRow not null", str);
-		pin_ptr<const wchar_t> wch = PtrToStringChars(str);
-		Log1(L"Unmanaged GetNexRow not null", wch);
-		ret = env->NewString((const jchar*)wch, str->Length);
-		if (ret == NULL)
-		{
-			Log1(L"Ret is NULL", L"xx");
-		}	
-	}
-	else 
-	{
-		ManagedLog("GetNexRow null", "x");
-	}
-	return ret;
-}
-*/
-//}
-//}
-//}

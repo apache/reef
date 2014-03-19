@@ -28,7 +28,7 @@
     <ProjectGuid>{2825FD53-350B-4294-8CFC-8DD2F4F4F285}</ProjectGuid>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
-    <RootNamespace>JavaClrBridge</RootNamespace>
+    <RootNamespace>Microsoft.Reef.Interop</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -75,6 +75,11 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <ClCompile>
+      <AdditionalUsingDirectories>..\..\..\..\..\target\classes;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+    </ClCompile>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
@@ -87,6 +92,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalUsingDirectories>..\..\..\..\..\target\classes</AdditionalUsingDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -94,7 +107,6 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\..\..\..\lib;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32</AdditionalIncludeDirectories>
-      <AdditionalOptions>/FU"..\..\..\..\..\target\classes\clrhandler.dll" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -109,7 +121,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\..\..\..\lib;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32</AdditionalIncludeDirectories>
-      <AdditionalOptions>/FU"..\..\..\..\..\target\classes\clrhandler.dll" %(AdditionalOptions)</AdditionalOptions>
+
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -124,7 +136,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\..\..\..\lib;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32</AdditionalIncludeDirectories>
-      <AdditionalOptions>/FU"..\..\..\..\..\target\classes\clrhandler.dll" %(AdditionalOptions)</AdditionalOptions>
+
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -138,7 +150,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\..\..\..\..\lib;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32</AdditionalIncludeDirectories>
-      <AdditionalOptions>/FU"..\..\..\..\..\target\classes\clrhandler.dll" %(AdditionalOptions)</AdditionalOptions>
+
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -155,6 +167,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Clr2JavaImpl.h" />
     <ClInclude Include="ILogger.h" />
     <ClInclude Include="InteropAssemblies.h" />
     <ClInclude Include="InteropReturnInfo.h" />
@@ -165,6 +178,7 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
+    <ClCompile Include="Clr2JavaImpl.cpp" />
     <ClCompile Include="InteropReturnInfo.cpp" />
     <ClCompile Include="InteropUtil.cpp" />
     <ClCompile Include="JavaClrBridge.cpp" />

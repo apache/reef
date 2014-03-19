@@ -2,8 +2,8 @@
 #include "javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
-#using "clrhandler.dll" 
 
+#using "clrhandler.dll" 
 using namespace System;
 using namespace System::IO;
 using namespace System::Collections::Generic;
@@ -11,21 +11,24 @@ using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
 using namespace Microsoft::Reef::Interop;
 
+
+
 namespace Microsoft
 {
 	namespace Reef
 	{
 		namespace Interop
 		{
-			public ref class Logger : public ILogger
+			public ref class Clr2JavaImpl : public IClr2Java
 			{
-				jclass  _jerrorInfo;
-				jmethodID _jmid;
+				jclass  _jclassEManager;
+				jobject  _jobjectEManager;
+				jmethodID _jmidSubmit;
 				JNIEnv* _env;
 
 			public:
-				Logger (JNIEnv* env, jclass jerrInfo, jmethodID jmid);
-				virtual void Log(TraceLevel traceLevel, String^ message );
+				Clr2JavaImpl (JNIEnv* env, jobject jobjectEManager);
+				virtual void Emanager_submit(array<byte>^ bytes);
 			};
 		}
 	}

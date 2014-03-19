@@ -2,9 +2,7 @@
 #include "javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
-
-//#define _MT 1
-//#define _DLL 1
+#using "clrhandler.dll" 
 
 using namespace System;
 using namespace System::IO;

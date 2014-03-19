@@ -31,6 +31,17 @@ public class NativeInterop {
             long handle,
             byte[] value
     );
+    public static  native long CallClrSystemOnStartHandler (
+            String dateTime
+    );
+
+    public static native void CallClrSystemAllocatedEvaluatorHandlerOnNext (
+            long handle,
+            EManager eManager,
+            InteropLogger interopLogger,
+            byte[] value
+    );
+
 
 /*
     public static native String GetNextRow (

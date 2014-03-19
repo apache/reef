@@ -50,3 +50,18 @@ array<byte>^ ManagedByteArrayFromJavaByteArray(
 	}
 	return managedByteArray;
 }
+
+jbyteArray JavaByteArrayFromManagedByteArray(
+	JNIEnv *env,
+	array<byte>^ managedByteArray)
+{	
+	jbyteArray javaByteArray = env->NewByteArray(managedByteArray->Length);
+	
+	byte* bytes = (byte*)env->GetByteArrayElements (javaByteArray, NULL);
+	for (int i=0; i<managedByteArray->Length; i++)
+	{
+		bytes[i] = managedByteArray[i];
+	}
+	
+	return javaByteArray;
+}
