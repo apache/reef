@@ -111,6 +111,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final DispatchingEStage dispatcher;
 
+  private final DriverExceptionHandler driverExceptionHandler;
+
   // TODO: Wrap this in a set-once-with-default class
   private EvaluatorType type = EvaluatorType.JVM;
 
@@ -143,7 +145,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final @Parameter(DriverConfigurationOptions.FailedTaskHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
       final @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
       final @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
-      final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers) {
+      final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
+      final DriverExceptionHandler driverExceptionHandler) {
 
     this.clock = clock;
     this.remoteManager = remoteManager;
@@ -152,8 +155,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
     this.evaluatorDescriptor = evaluatorDescriptor;
+    this.driverExceptionHandler = driverExceptionHandler;
 
-    this.dispatcher = new DispatchingEStage(errorHandler, 16); // 16 threads
+    this.dispatcher = new DispatchingEStage(driverExceptionHandler, 16); // 16 threads
 
     this.dispatcher.register(ActiveContext.class, activeContextEventHandlers);
     this.dispatcher.register(ClosedContext.class, closedContextEventHandlers);

@@ -17,7 +17,6 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.REEFErrorHandler;
 import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.reef.util.ExceptionHandlingEventHandler;
 import com.microsoft.tang.util.MonotonicHashMap;
@@ -49,7 +48,7 @@ public final class DispatchingEStage implements AutoCloseable {
 
     @SuppressWarnings("unchecked")
     public <T, U extends T> DelayedOnNext(final EventHandler<T> handler, final U message) {
-      this.handler = (EventHandler<Object>)handler;
+      this.handler = (EventHandler<Object>) handler;
       this.message = message;
     }
   }
@@ -63,7 +62,7 @@ public final class DispatchingEStage implements AutoCloseable {
   /**
    * Exception handler, one for all event handlers.
    */
-  private final REEFErrorHandler errorHandler;
+  private final EventHandler<Throwable> errorHandler;
 
   /**
    * Thread pool to process delayed event handler invocations.
@@ -78,7 +77,7 @@ public final class DispatchingEStage implements AutoCloseable {
    */
   private final AtomicInteger queueLength = new AtomicInteger(0);
 
-  public DispatchingEStage(final REEFErrorHandler errorHandler, final int numThreads) {
+  public DispatchingEStage(final EventHandler<Throwable> errorHandler, final int numThreads) {
     this.errorHandler = errorHandler;
     this.stage = new ThreadPoolStage<>(
         new EventHandler<DelayedOnNext>() {
@@ -90,15 +89,17 @@ public final class DispatchingEStage implements AutoCloseable {
               queueLength.decrementAndGet();
             }
           }
-        }, numThreads);
+        }, numThreads
+    );
   }
 
   /**
    * Register a new event handler.
-   * @param type Message type to process with this handler.
+   *
+   * @param type     Message type to process with this handler.
    * @param handlers A set of handlers that process that type of message.
-   * @param <T> Message type.
-   * @param <U> Type of message that event handler supports. Must be a subclass of T.
+   * @param <T>      Message type.
+   * @param <U>      Type of message that event handler supports. Must be a subclass of T.
    */
   public <T, U extends T> void register(final Class<T> type, final Set<EventHandler<U>> handlers) {
     this.handlers.put(type, new ExceptionHandlingEventHandler<>(
@@ -107,14 +108,15 @@ public final class DispatchingEStage implements AutoCloseable {
 
   /**
    * Dispatch a new message by type.
-   * @param type Type of event handler - must match the register() call.
+   *
+   * @param type    Type of event handler - must match the register() call.
    * @param message A message to process. Must be a subclass of T.
-   * @param <T> Message type that event handler supports.
-   * @param <U> input message type. Must be a subclass of T.
+   * @param <T>     Message type that event handler supports.
+   * @param <U>     input message type. Must be a subclass of T.
    */
   @SuppressWarnings("unchecked")
   public <T, U extends T> void onNext(final Class<T> type, final U message) {
-    final EventHandler<T> handler = (EventHandler<T>)this.handlers.get(type);
+    final EventHandler<T> handler = (EventHandler<T>) this.handlers.get(type);
     this.queueLength.incrementAndGet();
     this.stage.onNext(new DelayedOnNext(handler, message));
   }
@@ -128,6 +130,7 @@ public final class DispatchingEStage implements AutoCloseable {
 
   /**
    * Close the internal thread pool.
+   *
    * @throws Exception forwarded from EStage.close() call.
    */
   @Override
