@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -87,7 +88,8 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   private final AutoCloseable masterChannel;
   private final AutoCloseable errorChannel;
   private final String userName = System.getProperty("user.name");
-  private final Map<String, RunningJobImpl> runningJobMap = new HashMap<>();
+  private final Map<String, RunningJobImpl> runningJobMap =
+      Collections.synchronizedMap(new HashMap<String, RunningJobImpl>());
 
   @Inject
   ClientManager(final Injector injector,
@@ -102,7 +104,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
     this.masterChannel = this.remoteManager.registerHandler(JobStatusProto.class, this);
     this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class,
-        new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture));
+        new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture, this.runningJobMap));
   }
 
   @Override
@@ -267,22 +269,5 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
       jarMaker.addChildren(file);
     }
     return jarFile;
-  }
-
-  private final class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<RuntimeErrorProto>> {
-
-    private final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture;
-
-    RuntimeErrorProtoHandler(final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture) {
-      this.runtimeErrorHandlerFuture = runtimeErrorHandlerFuture;
-    }
-
-    @Override
-    public void onNext(final RemoteMessage<RuntimeErrorProto> error) {
-      LOG.log(Level.WARNING, "{0} Runtime Error: {1}", new Object[] {
-          error.getIdentifier(), error.getMessage().getMessage() });
-      runningJobMap.remove(error.getIdentifier());
-      this.runtimeErrorHandlerFuture.get().onNext(new FailedRuntime(error.getMessage()));
-    }
   }
 }
