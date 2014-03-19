@@ -21,6 +21,7 @@ public class RootImplementation implements RootInterface {
   private final InjectableClass injectableClass;
   private final SetOfImplementations setOfImplementations;
   private final SetOfBaseTypes setOfBaseTypes;
+  private final CyclicDependency cyclicDependency;
 
   @Inject
   public RootImplementation(@Parameter(TestConfiguration.RequiredString.class) final String requiredString,
@@ -33,7 +34,7 @@ public class RootImplementation implements RootInterface {
                             final AnInterface anInterface,
                             final InjectableClass injectableClass,
                             final SetOfImplementations setOfImplementations,
-                            final SetOfBaseTypes setOfBaseTypes) {
+                            final SetOfBaseTypes setOfBaseTypes, CyclicDependency cyclicDependency) {
     this.requiredString = requiredString;
     this.optionalString = optionalString;
     this.unit = unit;
@@ -45,6 +46,7 @@ public class RootImplementation implements RootInterface {
     this.injectableClass = injectableClass;
     this.setOfImplementations = setOfImplementations;
     this.setOfBaseTypes = setOfBaseTypes;
+    this.cyclicDependency = cyclicDependency;
   }
 
   @Override
@@ -107,6 +109,9 @@ public class RootImplementation implements RootInterface {
       return false;
     if (setOfBaseTypes != null ? !setOfBaseTypes.equals(that.setOfBaseTypes) : that.setOfBaseTypes != null)
       return false;
+    if (cyclicDependency != null ? !cyclicDependency.equals(that.cyclicDependency) : that.cyclicDependency != null)
+      return false;
+
     return true;
   }
 
