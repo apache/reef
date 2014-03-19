@@ -30,7 +30,8 @@ public final class ExceptionHandlingEventHandler<T> implements EventHandler<T> {
   private final EventHandler<T> wrapped;
   private final EventHandler<Throwable> exceptionHandler;
 
-  public ExceptionHandlingEventHandler(EventHandler<T> wrapped, EventHandler<Throwable> exceptionHandler) {
+  public ExceptionHandlingEventHandler(final EventHandler<T> wrapped,
+                                       final EventHandler<Throwable> exceptionHandler) {
     this.wrapped = wrapped;
     this.exceptionHandler = exceptionHandler;
   }
@@ -38,7 +39,7 @@ public final class ExceptionHandlingEventHandler<T> implements EventHandler<T> {
   @Override
   public void onNext(T t) {
     try {
-      wrapped.onNext(t);
+      this.wrapped.onNext(t);
     } catch (final Throwable throwable) {
       this.exceptionHandler.onNext(throwable);
     }

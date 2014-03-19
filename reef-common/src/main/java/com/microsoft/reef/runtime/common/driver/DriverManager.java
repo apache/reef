@@ -223,6 +223,21 @@ final class DriverManager implements EvaluatorRequestor {
   }
 
   /**
+   * Return true if <em>all</em> evaluators are in closed state
+   * (and their processing queues are empty).
+   */
+  private boolean evaluatorsClosed() {
+    synchronized (this.evaluators) {
+      for (final EvaluatorManager eval : this.evaluators.values()) {
+        if (!eval.isClosed()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
    * Receives and routes heartbeats from Evaluators.
    *
    * @param evaluatorHeartbeatProtoRemoteMessage
@@ -485,7 +500,14 @@ final class DriverManager implements EvaluatorRequestor {
       synchronized (DriverManager.this.evaluators) {
         if (ReefServiceProtos.State.RUNNING == runtimeStatusProto.getState() &&
             0 == runtimeStatusProto.getOutstandingContainerRequests() &&
-            0 == runtimeStatusProto.getContainerAllocationCount()) {
+            0 == runtimeStatusProto.getContainerAllocationCount() &&
+            DriverManager.this.evaluatorsClosed()) {
+          try {
+            // TODO: Instead of sleeping, make sure Wake remote queue is empty.
+            Thread.sleep(500);
+          } catch (final InterruptedException ex) {
+            LOG.log(Level.WARNING, "Idle runtime shutdown interrupted", ex);
+          }
           LOG.log(Level.FINEST, "Idle runtime shutdown");
           DriverManager.this.clockFuture.get().close();
         }

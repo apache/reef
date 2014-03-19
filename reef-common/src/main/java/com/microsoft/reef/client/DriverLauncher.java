@@ -198,6 +198,7 @@ public final class DriverLauncher {
    * Update job status and notify the waiting thread.
    */
   private synchronized void setStatusAndNotify(final LauncherStatus status) {
+    LOG.log(Level.FINEST, "Set status: {0} -> {1}", new Object[]{ this.status, status });
     this.status = status;
     this.notify();
   }

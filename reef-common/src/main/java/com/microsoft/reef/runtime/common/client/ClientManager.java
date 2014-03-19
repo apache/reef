@@ -269,7 +269,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     return jarFile;
   }
 
-  private final static class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<RuntimeErrorProto>> {
+  private final class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<RuntimeErrorProto>> {
 
     private final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture;
 
@@ -279,7 +279,9 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
     @Override
     public void onNext(final RemoteMessage<RuntimeErrorProto> error) {
-      LOG.log(Level.WARNING, "Runtime Error: {0}", error.getMessage().getMessage());
+      LOG.log(Level.WARNING, "{0} Runtime Error: {1}", new Object[] {
+          error.getIdentifier(), error.getMessage().getMessage() });
+      runningJobMap.remove(error.getIdentifier());
       this.runtimeErrorHandlerFuture.get().onNext(new FailedRuntime(error.getMessage()));
     }
   }

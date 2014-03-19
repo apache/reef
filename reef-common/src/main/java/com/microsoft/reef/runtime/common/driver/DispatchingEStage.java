@@ -28,6 +28,7 @@ import com.microsoft.wake.impl.ThreadPoolStage;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Delayed event router that dispatches messages to the proper event handler by type.
@@ -41,11 +42,12 @@ public final class DispatchingEStage implements AutoCloseable {
    * Delayed EventHandler.onNext() call.
    * Contains a message object and EventHandler to process it.
    */
-  private class DelayedOnNext {
+  private static final class DelayedOnNext {
 
     public final EventHandler<Object> handler;
     public final Object message;
 
+    @SuppressWarnings("unchecked")
     public <T, U extends T> DelayedOnNext(final EventHandler<T> handler, final U message) {
       this.handler = (EventHandler<Object>)handler;
       this.message = message;
@@ -68,13 +70,25 @@ public final class DispatchingEStage implements AutoCloseable {
    */
   private final EStage<DelayedOnNext> stage;
 
+  /**
+   * Number of messages still being processed by all handlers registered
+   * with the dispatcher.
+   * The counter is incremented at the beginning of each DispatchingEStage.onNext()
+   * call and decremented upon completion of the DelayedOnNext.onNext() method.
+   */
+  private final AtomicInteger queueLength = new AtomicInteger(0);
+
   public DispatchingEStage(final REEFErrorHandler errorHandler, final int numThreads) {
     this.errorHandler = errorHandler;
     this.stage = new ThreadPoolStage<>(
         new EventHandler<DelayedOnNext>() {
           @Override
           public void onNext(final DelayedOnNext promise) {
-            promise.handler.onNext(promise.message);
+            try {
+              promise.handler.onNext(promise.message);
+            } finally {
+              queueLength.decrementAndGet();
+            }
           }
         }, numThreads);
   }
@@ -98,9 +112,18 @@ public final class DispatchingEStage implements AutoCloseable {
    * @param <T> Message type that event handler supports.
    * @param <U> input message type. Must be a subclass of T.
    */
+  @SuppressWarnings("unchecked")
   public <T, U extends T> void onNext(final Class<T> type, final U message) {
     final EventHandler<T> handler = (EventHandler<T>)this.handlers.get(type);
+    this.queueLength.incrementAndGet();
     this.stage.onNext(new DelayedOnNext(handler, message));
+  }
+
+  /**
+   * Return true if there are no messages queued or in processing, false otherwise.
+   */
+  public boolean isEmpty() {
+    return this.queueLength.get() == 0;
   }
 
   /**
