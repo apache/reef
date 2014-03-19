@@ -15,12 +15,12 @@
  */
 package com.microsoft.reef.examples.helloCLR;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.examples.hello.HelloTask;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
@@ -73,7 +73,7 @@ public final class HelloDriver {
       LOG.log(Level.INFO, "StartTime: ", startTime);
       HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(nCLRTasks + nJVMTasks)
-          .setSize(EvaluatorRequest.Size.SMALL)
+          .setMemory(128)
           .build());
     }
   }
@@ -160,6 +160,7 @@ public final class HelloDriver {
 
   /**
    * Loads the class hierarchy.
+   *
    * @return
    */
   private static ClassHierarchy loadClassHierarchy() {

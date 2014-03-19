@@ -15,11 +15,11 @@
  */
 package com.microsoft.reef.examples.hello;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
@@ -58,7 +58,9 @@ public final class HelloDriver {
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: ", startTime);
       HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1)
+          .setMemory(64)
+          .build());
     }
   }
 
