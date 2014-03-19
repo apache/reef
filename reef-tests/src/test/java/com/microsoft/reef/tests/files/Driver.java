@@ -71,7 +71,7 @@ final class Driver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: {0} Number of files in the set: {1}",
-              new Object[] { startTime, Driver.this.fileNamesToExpect.size() });
+          new Object[]{startTime, Driver.this.fileNamesToExpect.size()});
 
       // Check whether the files made it
       for (final String fileName : Driver.this.fileNamesToExpect) {
@@ -88,7 +88,7 @@ final class Driver {
 
       // Ask for a single evaluator.
       Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1).setMemory(128).build());
     }
   }
 
