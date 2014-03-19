@@ -15,22 +15,6 @@
  */
 package com.microsoft.tang.formats;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.exceptions.BindException;
@@ -42,6 +26,15 @@ import com.microsoft.tang.types.ConstructorArg;
 import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.ReflectionUtilities;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ConfigurationFile {
 
@@ -95,7 +88,7 @@ public class ConfigurationFile {
     }
   }
 
-  public static void processConfigFile(ConfigurationBuilder conf,
+  private static void processConfigFile(ConfigurationBuilder conf,
       PropertiesConfiguration confFile) throws IOException, BindException {
     ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) conf;
     Iterator<String> it = confFile.getKeys();
@@ -182,7 +175,8 @@ public class ConfigurationFile {
     }
     return sb.toString();
   }
-  public static List<String> toConfigurationStringList(final Configuration c) {
+
+  static List<String> toConfigurationStringList(final Configuration c) {
     ConfigurationImpl conf = (ConfigurationImpl) c;
     List<String> l = new ArrayList<>();
     for (ClassNode<?> opt : conf.getBoundImplementations()) {
