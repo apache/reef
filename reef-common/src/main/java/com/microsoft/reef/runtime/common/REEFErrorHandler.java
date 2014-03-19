@@ -32,6 +32,7 @@ import java.util.logging.Logger;
  * The error handler REEF registers with Wake.
  */
 public final class REEFErrorHandler implements EventHandler<Throwable> {
+
   private static final Logger LOG = Logger.getLogger(REEFErrorHandler.class.getName());
 
   // This class is used as the ErrorHandler in the RemoteManager. Hence, we need an InjectionFuture here.

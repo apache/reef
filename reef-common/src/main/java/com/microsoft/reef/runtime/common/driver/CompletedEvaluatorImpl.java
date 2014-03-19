@@ -6,9 +6,10 @@ import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
  * Implementation of CompletedEvaluator.
  */
 final class CompletedEvaluatorImpl implements CompletedEvaluator {
+
   private final String id;
 
-  CompletedEvaluatorImpl(String id) {
+  CompletedEvaluatorImpl(final String id) {
     this.id = id;
   }
 
