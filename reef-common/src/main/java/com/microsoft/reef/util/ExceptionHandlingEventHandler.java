@@ -37,7 +37,7 @@ public final class ExceptionHandlingEventHandler<T> implements EventHandler<T> {
   }
 
   @Override
-  public void onNext(T t) {
+  public void onNext(final T t) {
     try {
       this.wrapped.onNext(t);
     } catch (final Throwable throwable) {
