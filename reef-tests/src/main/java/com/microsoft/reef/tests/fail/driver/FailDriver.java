@@ -15,9 +15,9 @@
  */
 package com.microsoft.reef.tests.fail.driver;
 
-import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.*;
 import com.microsoft.reef.driver.evaluator.*;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.reef.tests.exceptions.SimulatedDriverFailure;
 import com.microsoft.tang.annotations.Name;
@@ -286,7 +286,7 @@ public final class FailDriver {
     public void onNext(final StartTime time) {
       FailDriver.this.checkMsgOrder(time);
       FailDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1).setMemory(128).build());
     }
   }
 

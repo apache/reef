@@ -152,18 +152,24 @@ final class DriverManager implements EvaluatorRequestor {
   public void submit(final EvaluatorRequest req) {
     LOG.log(Level.FINEST, "Got an EvaluatorRequest");
     final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto.newBuilder();
-    switch (req.getSize()) {
-      case MEDIUM:
-        request.setResourceSize(ReefServiceProtos.SIZE.MEDIUM);
-        break;
-      case LARGE:
-        request.setResourceSize(ReefServiceProtos.SIZE.LARGE);
-        break;
-      case XLARGE:
-        request.setResourceSize(ReefServiceProtos.SIZE.XLARGE);
-        break;
-      default:
-        request.setResourceSize(ReefServiceProtos.SIZE.SMALL);
+    if (null != req.getSize()) {
+      switch (req.getSize()) {
+        case MEDIUM:
+          request.setResourceSize(ReefServiceProtos.SIZE.MEDIUM);
+          break;
+        case LARGE:
+          request.setResourceSize(ReefServiceProtos.SIZE.LARGE);
+          break;
+        case XLARGE:
+          request.setResourceSize(ReefServiceProtos.SIZE.XLARGE);
+          break;
+        default:
+          request.setResourceSize(ReefServiceProtos.SIZE.SMALL);
+      }
+    } else {
+      if (req.getMegaBytes() <= 0) {
+        throw new RuntimeException("Resource request does specify neither a size nor a memory amount.");
+      }
     }
     request.setResourceCount(req.getNumber());
 

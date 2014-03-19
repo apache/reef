@@ -34,7 +34,7 @@ final class StatePassingStartHandler implements EventHandler<StartTime> {
   @Override
   public void onNext(final StartTime startTime) {
     this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-        .setSize(EvaluatorRequest.Size.SMALL)
+        .setMemory(128)
         .setNumber(1)
         .build());
   }

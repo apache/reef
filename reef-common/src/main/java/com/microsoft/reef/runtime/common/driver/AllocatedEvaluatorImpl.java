@@ -31,8 +31,12 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
+
+  private final static Logger LOG = Logger.getLogger(AllocatedEvaluatorImpl.class.getName());
 
   private final EvaluatorManager evaluatorManager;
   private final String remoteID;
@@ -66,19 +70,20 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     return this.evaluatorManager.getEvaluatorDescriptor();
   }
 
-
   @Override
   public void submitContext(final Configuration contextConfiguration) {
     launch(contextConfiguration, Optional.<Configuration>empty(), Optional.<Configuration>empty());
   }
 
   @Override
-  public void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration) {
+  public void submitContextAndService(final Configuration contextConfiguration,
+                                      final Configuration serviceConfiguration) {
     launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.<Configuration>empty());
   }
 
   @Override
-  public void submitContextAndTask(final Configuration contextConfiguration, final Configuration taskConfiguration) {
+  public void submitContextAndTask(final Configuration contextConfiguration,
+                                   final Configuration taskConfiguration) {
     launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
   }
 
@@ -110,7 +115,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     try {
       final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfigurationModule.CONF
           .set(EvaluatorConfigurationModule.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
-          .set(EvaluatorConfigurationModule.EVALUATOR_IDENTIFIER, this.evaluatorManager.getId());
+          .set(EvaluatorConfigurationModule.EVALUATOR_IDENTIFIER, this.getId());
 
       final String encodedContextConfigurationString = TANGUtils.toStringEncoded(contextConfiguration);
       // Add the (optional) service configuration
@@ -170,15 +175,15 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
       }
 
       this.evaluatorManager.handle(rbuilder.build());
-    } catch (final BindException e) {
-      throw new RuntimeException(e);
+
+    } catch (final BindException ex) {
+      LOG.log(Level.SEVERE, "Bad Evaluator configuration", ex);
+      throw new RuntimeException("Bad Evaluator configuration", ex);
     }
   }
 
   @Override
   public String toString() {
-    return "AllocatedEvaluator{" +
-        "ID='" + getId() + '\'' +
-        '}';
+    return "AllocatedEvaluator{ID='" + getId() + "\'}";
   }
 }

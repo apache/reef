@@ -15,9 +15,13 @@
  */
 package com.microsoft.reef.examples.groupcomm.matmul;
 
-import com.microsoft.reef.driver.task.*;
-import com.microsoft.reef.driver.context.*;
-import com.microsoft.reef.driver.evaluator.*;
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ContextConfiguration;
+import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.examples.utils.wake.BlockingEventHandler;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -89,10 +93,10 @@ public final class MatMultDriver {
   /**
    * This class is instantiated by TANG
    *
-   * @param requestor          evaluator requestor object used to create new evaluator
-   *                           containers.
-   * @param computeTasks - named parameter
-   * @param nameServicePort    - named parameter
+   * @param requestor       evaluator requestor object used to create new evaluator
+   *                        containers.
+   * @param computeTasks    - named parameter
+   * @param nameServicePort - named parameter
    */
   @Inject
   public MatMultDriver(
@@ -170,7 +174,8 @@ public final class MatMultDriver {
       LOG.log(Level.INFO, "StartTime: {0}", startTime);
       MatMultDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(computeTasks + controllerTasks)
-          .setSize(EvaluatorRequest.Size.SMALL).build());
+          .setMemory(128)
+          .build());
     }
 
     @Override
