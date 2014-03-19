@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.examples.suspend;
 
-import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
@@ -24,6 +23,7 @@ import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.io.checkpoint.fs.FSCheckPointServiceConfiguration;
 import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
@@ -237,7 +237,8 @@ public class SuspendDriver {
         eval.submitContext(TANGUtils.merge(
             SuspendDriver.this.contextConfig,
             ContextConfiguration.CONF.set(
-                ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build()));
+                ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build()
+        ));
         ++SuspendDriver.this.numberOfEvaluatorsReceived;
       } catch (final BindException ex) {
         throw new RuntimeException(ex);
@@ -336,7 +337,7 @@ public class SuspendDriver {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
       SuspendDriver.this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-          .setSize(EvaluatorRequest.Size.SMALL)
+          .setMemory(128)
           .setNumber(SuspendDriver.this.numberOfEvaluatorsRequested)
           .build());
 
@@ -355,7 +356,8 @@ public class SuspendDriver {
                 throw ex;
               }
             }
-          });
+          }
+      );
     }
   }
 

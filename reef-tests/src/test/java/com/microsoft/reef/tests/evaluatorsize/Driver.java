@@ -36,7 +36,6 @@ final class Driver {
     @Override
     public void onNext(final StartTime startTime) {
       Driver.this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-          .setSize(EvaluatorRequest.Size.SMALL)
           .setNumber(1)
           .setMemory(Driver.this.memorySize)
           .build());

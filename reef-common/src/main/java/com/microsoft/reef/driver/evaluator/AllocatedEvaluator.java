@@ -32,8 +32,8 @@ import java.io.IOException;
 @Public
 @DriverSide
 @Provided
-public interface AllocatedEvaluator extends AutoCloseable, Identifiable, ContextSubmittable, ContextAndTaskSubmittable {
-
+public interface AllocatedEvaluator
+    extends AutoCloseable, Identifiable, ContextSubmittable, ContextAndTaskSubmittable {
 
   /**
    * Puts the given file into the working directory of the Evaluator.
@@ -41,7 +41,7 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
    * @param file the file to be copied
    * @throws IOException if the copy fails.
    */
-  public void addFile(final File file);
+  void addFile(final File file);
 
   /**
    * Puts the given file into the working directory of the Evaluator and adds it to its classpath.
@@ -49,41 +49,39 @@ public interface AllocatedEvaluator extends AutoCloseable, Identifiable, Context
    * @param file the file to be copied
    * @throws IOException if the copy fails.
    */
-  public void addLibrary(final File file);
-
-  /**
-   * Releases the allocated evaluator back to the resource manager.
-   */
-  @Override
-  public void close();
+  void addLibrary(final File file);
 
   /**
    * @return the evaluator descriptor of this evaluator.
    */
-  public EvaluatorDescriptor getEvaluatorDescriptor();
-
-
-  @Override
-  public void submitContext(final Configuration contextConfiguration);
-
-  @Override
-  public void submitContextAndService(final Configuration contextConfiguration,
-                                      final Configuration serviceConfiguration);
-
-  @Override
-  public void submitContextAndTask(final Configuration contextConfiguration,
-                                   final Configuration taskConfiguration);
-
-  @Override
-  public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
-                                             final Configuration serviceConfiguration,
-                                             final Configuration taskConfiguration);
+  EvaluatorDescriptor getEvaluatorDescriptor();
 
   /**
    * Set the type of Evaluator to be instantiated. Defaults to EvaluatorType.JVM.
    *
    * @param type
    */
-  public void setType(final EvaluatorType type);
+  void setType(final EvaluatorType type);
 
+  /**
+   * Releases the allocated evaluator back to the resource manager.
+   */
+  @Override
+  void close();
+
+  @Override
+  void submitContext(final Configuration contextConfiguration);
+
+  @Override
+  void submitContextAndService(final Configuration contextConfiguration,
+                               final Configuration serviceConfiguration);
+
+  @Override
+  void submitContextAndTask(final Configuration contextConfiguration,
+                            final Configuration taskConfiguration);
+
+  @Override
+  void submitContextAndServiceAndTask(final Configuration contextConfiguration,
+                                      final Configuration serviceConfiguration,
+                                      final Configuration taskConfiguration);
 }

@@ -17,7 +17,6 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.REEFErrorHandler;
 import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.reef.util.ExceptionHandlingEventHandler;
 import com.microsoft.tang.util.MonotonicHashMap;
@@ -28,6 +27,7 @@ import com.microsoft.wake.impl.ThreadPoolStage;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Delayed event router that dispatches messages to the proper event handler by type.
@@ -41,13 +41,14 @@ public final class DispatchingEStage implements AutoCloseable {
    * Delayed EventHandler.onNext() call.
    * Contains a message object and EventHandler to process it.
    */
-  private class DelayedOnNext {
+  private static final class DelayedOnNext {
 
     public final EventHandler<Object> handler;
     public final Object message;
 
+    @SuppressWarnings("unchecked")
     public <T, U extends T> DelayedOnNext(final EventHandler<T> handler, final U message) {
-      this.handler = (EventHandler<Object>)handler;
+      this.handler = (EventHandler<Object>) handler;
       this.message = message;
     }
   }
@@ -61,30 +62,44 @@ public final class DispatchingEStage implements AutoCloseable {
   /**
    * Exception handler, one for all event handlers.
    */
-  private final REEFErrorHandler errorHandler;
+  private final EventHandler<Throwable> errorHandler;
 
   /**
    * Thread pool to process delayed event handler invocations.
    */
   private final EStage<DelayedOnNext> stage;
 
-  public DispatchingEStage(final REEFErrorHandler errorHandler, final int numThreads) {
+  /**
+   * Number of messages still being processed by all handlers registered
+   * with the dispatcher.
+   * The counter is incremented at the beginning of each DispatchingEStage.onNext()
+   * call and decremented upon completion of the DelayedOnNext.onNext() method.
+   */
+  private final AtomicInteger queueLength = new AtomicInteger(0);
+
+  public DispatchingEStage(final EventHandler<Throwable> errorHandler, final int numThreads) {
     this.errorHandler = errorHandler;
     this.stage = new ThreadPoolStage<>(
         new EventHandler<DelayedOnNext>() {
           @Override
           public void onNext(final DelayedOnNext promise) {
-            promise.handler.onNext(promise.message);
+            try {
+              promise.handler.onNext(promise.message);
+            } finally {
+              queueLength.decrementAndGet();
+            }
           }
-        }, numThreads);
+        }, numThreads
+    );
   }
 
   /**
    * Register a new event handler.
-   * @param type Message type to process with this handler.
+   *
+   * @param type     Message type to process with this handler.
    * @param handlers A set of handlers that process that type of message.
-   * @param <T> Message type.
-   * @param <U> Type of message that event handler supports. Must be a subclass of T.
+   * @param <T>      Message type.
+   * @param <U>      Type of message that event handler supports. Must be a subclass of T.
    */
   public <T, U extends T> void register(final Class<T> type, final Set<EventHandler<U>> handlers) {
     this.handlers.put(type, new ExceptionHandlingEventHandler<>(
@@ -93,18 +108,29 @@ public final class DispatchingEStage implements AutoCloseable {
 
   /**
    * Dispatch a new message by type.
-   * @param type Type of event handler - must match the register() call.
+   *
+   * @param type    Type of event handler - must match the register() call.
    * @param message A message to process. Must be a subclass of T.
-   * @param <T> Message type that event handler supports.
-   * @param <U> input message type. Must be a subclass of T.
+   * @param <T>     Message type that event handler supports.
+   * @param <U>     input message type. Must be a subclass of T.
    */
+  @SuppressWarnings("unchecked")
   public <T, U extends T> void onNext(final Class<T> type, final U message) {
-    final EventHandler<T> handler = (EventHandler<T>)this.handlers.get(type);
+    final EventHandler<T> handler = (EventHandler<T>) this.handlers.get(type);
+    this.queueLength.incrementAndGet();
     this.stage.onNext(new DelayedOnNext(handler, message));
   }
 
   /**
+   * Return true if there are no messages queued or in processing, false otherwise.
+   */
+  public boolean isEmpty() {
+    return this.queueLength.get() == 0;
+  }
+
+  /**
    * Close the internal thread pool.
+   *
    * @throws Exception forwarded from EStage.close() call.
    */
   @Override

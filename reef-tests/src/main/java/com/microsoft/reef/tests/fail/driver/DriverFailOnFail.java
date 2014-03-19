@@ -15,10 +15,13 @@
  */
 package com.microsoft.reef.tests.fail.driver;
 
-import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.client.JobMessageObserver;
-import com.microsoft.reef.driver.context.*;
-import com.microsoft.reef.driver.evaluator.*;
+import com.microsoft.reef.driver.context.ContextConfiguration;
+import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.FailedTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.tests.exceptions.SimulatedDriverFailure;
 import com.microsoft.reef.tests.fail.task.FailTaskCall;
 import com.microsoft.tang.Configuration;
@@ -54,13 +57,13 @@ public final class DriverFailOnFail {
         LOG.log(Level.INFO, "Submit task: Fail2");
 
         final Configuration contextConfig = ContextConfiguration.CONF
-                .set(ContextConfiguration.IDENTIFIER, "Fail2")
-                .build();
+            .set(ContextConfiguration.IDENTIFIER, "Fail2")
+            .build();
 
         final Configuration taskConfig = TaskConfiguration.CONF
-                .set(TaskConfiguration.IDENTIFIER, "Fail2")
-                .set(TaskConfiguration.TASK, FailTaskCall.class)
-                .build();
+            .set(TaskConfiguration.IDENTIFIER, "Fail2")
+            .set(TaskConfiguration.TASK, FailTaskCall.class)
+            .build();
 
         eval.submitContextAndTask(contextConfig, taskConfig);
 
@@ -86,7 +89,7 @@ public final class DriverFailOnFail {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
       DriverFailOnFail.this.requestor.submit(EvaluatorRequest.newBuilder()
-              .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1).setMemory(128).build());
     }
   }
 }

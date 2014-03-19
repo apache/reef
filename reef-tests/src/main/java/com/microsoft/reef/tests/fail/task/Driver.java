@@ -15,18 +15,18 @@
  */
 package com.microsoft.reef.tests.fail.task;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.task.Task;
-import com.microsoft.reef.task.events.TaskStart;
-import com.microsoft.reef.task.events.TaskStop;
-import com.microsoft.reef.task.events.DriverMessage;
-import com.microsoft.reef.task.events.SuspendEvent;
-import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
+import com.microsoft.reef.task.Task;
+import com.microsoft.reef.task.events.DriverMessage;
+import com.microsoft.reef.task.events.SuspendEvent;
+import com.microsoft.reef.task.events.TaskStart;
+import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
@@ -163,6 +163,7 @@ public final class Driver {
       }
     }
   }
+
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) throws DriverSideFailure {
@@ -175,7 +176,7 @@ public final class Driver {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
       Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1).setMemory(128).build());
     }
   }
 }

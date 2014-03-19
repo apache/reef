@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -69,13 +70,13 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
             "From Microsoft CISL\n");
   }
 
-  private static final File tempFolder;
+  private static final File TEMP_FOLDER;
 
   static {
     try {
-      tempFolder = Files.createTempDirectory("reef-tmp-tempFolder").toFile();
+      TEMP_FOLDER = Files.createTempDirectory("reef-tmp-tempFolder").toFile();
     } catch (final IOException e) {
-      throw new RuntimeException("Can't create temp tempFolder.", e);
+      throw new RuntimeException("Can't create temporary folder", e);
     }
   }
 
@@ -87,7 +88,8 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   private final AutoCloseable masterChannel;
   private final AutoCloseable errorChannel;
   private final String userName = System.getProperty("user.name");
-  private final Map<String, RunningJobImpl> runningJobMap = new HashMap<>();
+  private final Map<String, RunningJobImpl> runningJobMap =
+      Collections.synchronizedMap(new HashMap<String, RunningJobImpl>());
 
   @Inject
   ClientManager(final Injector injector,
@@ -102,7 +104,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
     this.masterChannel = this.remoteManager.registerHandler(JobStatusProto.class, this);
     this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class,
-        new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture));
+        new RuntimeErrorProtoHandler(runtimeErrorHandlerFuture, this.runningJobMap));
   }
 
   @Override
@@ -159,7 +161,6 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
           .setDriverSize(ReefServiceProtos.SIZE.valueOf(injector.getNamedInstance(DriverConfigurationOptions.DriverSize.class)))
           .setConfiguration(ConfigurationFile.toConfigurationString(driverConf));
 
-
       for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
         LOG.log(Level.FINEST,  "Adding global file: {0}", globalFileName);
         jbuilder.addGlobalFile(getFileResourceProto(globalFileName, FileType.PLAIN));
@@ -194,22 +195,32 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     }
   }
 
-  private final FileResourceProto getFileResourceProto(final String fileName, final FileType type) throws IOException {
-    final File file = new File(fileName);
-    if (file.exists()) { // It is a local file and can be added.
-      if (file.isDirectory()) { // if it is a directory, create a JAR file of it and add that instead.
-        final File jarFile = toJar(file);
-        return FileResourceProto.newBuilder().setName(jarFile.getName()).setPath(jarFile.getPath()).setType(type).build();
-      } else { // Just add the file
-        return FileResourceProto.newBuilder().setName(file.getName()).setPath(file.getPath()).setType(type).build();
+  private final FileResourceProto getFileResourceProto(
+      final String fileName, final FileType type) throws IOException {
+    File file = new File(fileName);
+    if (file.exists()) {
+      // It is a local file and can be added.
+      if (file.isDirectory()) {
+        // If it is a directory, create a JAR file of it and add that instead.
+        file = toJar(file);
       }
-    } else { // The file isn't in the local filesytem. Assume that the file is actually a URI.
+      return FileResourceProto.newBuilder()
+          .setName(file.getName())
+          .setPath(file.getPath())
+          .setType(type)
+          .build();
+    } else {
+      // The file isn't in the local filesytem. Assume that the file is actually a URI.
       // We then assume that the underlying resource manager knows how to deal with it.
       try {
         final URI uri = new URI(fileName);
         final String path = uri.getPath();
         final String name = path.substring(path.lastIndexOf('/') + 1);
-        return FileResourceProto.newBuilder().setName(name).setPath(uri.toString()).setType(type).build();
+        return FileResourceProto.newBuilder()
+            .setName(name)
+            .setPath(uri.toString())
+            .setType(type)
+            .build();
       } catch (final URISyntaxException e) {
         throw new IOException("Unable to parse URI.", e);
       }
@@ -254,33 +265,18 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   }
 
   /**
-   * Turns a tempFolder "foo" into a jar file "foo.jar"
+   * Turns temporary folder "foo" into a jar file "foo.jar"
    *
    * @param file
    * @return
    * @throws IOException
    */
   private static File toJar(final File file) throws IOException {
-    final File jarFile = File.createTempFile(file.getName(), ".jar", tempFolder);
-    LOG.log(Level.FINEST,  "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});
+    final File jarFile = File.createTempFile(file.getName(), ".jar", TEMP_FOLDER);
+    LOG.log(Level.FINEST, "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});
     try (final JARFileMaker jarMaker = new JARFileMaker(jarFile)) {
       jarMaker.addChildren(file);
     }
     return jarFile;
-  }
-
-  private final static class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<RuntimeErrorProto>> {
-
-    private final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture;
-
-    RuntimeErrorProtoHandler(final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture) {
-      this.runtimeErrorHandlerFuture = runtimeErrorHandlerFuture;
-    }
-
-    @Override
-    public void onNext(final RemoteMessage<RuntimeErrorProto> error) {
-      LOG.log(Level.WARNING, "Runtime Error: {0}", error.getMessage().getMessage());
-      this.runtimeErrorHandlerFuture.get().onNext(new FailedRuntime(error.getMessage()));
-    }
   }
 }
