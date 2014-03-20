@@ -33,6 +33,7 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.commons.lang.StringUtils;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,12 @@ import java.util.*;
  * <p/>
  * This class is stateless and is therefore safe to reuse.
  */
-public final class AvroConfigurationSerializer {
+public final class AvroConfigurationSerializer implements ConfigurationSerializer {
+
+
+  @Inject
+  public AvroConfigurationSerializer() {
+  }
 
   /**
    * Converts a given Configuration to AvroConfiguration
@@ -108,6 +114,7 @@ public final class AvroConfigurationSerializer {
    * @param file the file to store the Configuration in
    * @throws java.io.IOException if there is an IO error in the process.
    */
+  @Override
   public void toFile(final Configuration conf, final File file) throws IOException {
     final AvroConfiguration avroConfiguration = toAvro(conf);
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
@@ -124,6 +131,7 @@ public final class AvroConfigurationSerializer {
    * @return
    * @throws IOException
    */
+  @Override
   public byte[] toByteArray(final Configuration conf) throws IOException {
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
     final byte[] theBytes;
@@ -135,7 +143,17 @@ public final class AvroConfigurationSerializer {
       theBytes = out.toByteArray();
     }
     return theBytes;
+  }
 
+  /**
+   * Writes the Configuration as a String. In this case, the String will be JSON formatted.
+   *
+   * @param configuration
+   * @return a String representation of the Configuration
+   */
+  @Override
+  public String toString(final Configuration configuration) {
+    return this.toAvro(configuration).toString();
   }
 
   /**
@@ -201,6 +219,7 @@ public final class AvroConfigurationSerializer {
    * @throws IOException   if the File can't be read or parsed
    * @throws BindException if the file contains an illegal Configuration
    */
+  @Override
   public Configuration fromFile(final File file) throws IOException, BindException {
     final AvroConfiguration avroConfiguration;
     try (final DataFileReader<AvroConfiguration> dataFileReader =
@@ -218,9 +237,24 @@ public final class AvroConfigurationSerializer {
    * @throws IOException   if the byte[] can't be deserialized
    * @throws BindException if the byte[] contains an illegal Configuration.
    */
-
+  @Override
   public Configuration fromByteArray(final byte[] theBytes) throws IOException, BindException {
     final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(theBytes, null);
+    final SpecificDatumReader<AvroConfiguration> reader = new SpecificDatumReader<>(AvroConfiguration.class);
+    return fromAvro(reader.read(null, decoder));
+  }
+
+  /**
+   * Decodes a String generated via toString()
+   *
+   * @param theString to be parsed
+   * @return the Configuration stored in theString.
+   * @throws IOException   if theString can't be parsed.
+   * @throws BindException if theString contains an illegal Configuration.
+   */
+  @Override
+  public Configuration fromString(final String theString) throws IOException, BindException {
+    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(AvroConfiguration.getClassSchema(), theString);
     final SpecificDatumReader<AvroConfiguration> reader = new SpecificDatumReader<>(AvroConfiguration.class);
     return fromAvro(reader.read(null, decoder));
   }
