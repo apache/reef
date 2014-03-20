@@ -15,27 +15,32 @@
  */
 package com.microsoft.reef.examples.retained_eval;
 
-import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.client.JobMessageObserver;
-import com.microsoft.reef.driver.context.*;
-import com.microsoft.reef.driver.evaluator.*;
-
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ClosedContext;
+import com.microsoft.reef.driver.context.ContextConfiguration;
+import com.microsoft.reef.driver.context.FailedContext;
+import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
-
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -142,7 +147,7 @@ public final class JobDriver {
     public void onNext(final AllocatedEvaluator eval) {
       synchronized (JobDriver.this) {
         LOG.log(Level.INFO, "Allocated Evaluator: {0} expect {1} running {2}",
-            new Object[] { eval.getId(), JobDriver.this.expectCount, JobDriver.this.contexts.size() });
+            new Object[]{eval.getId(), JobDriver.this.expectCount, JobDriver.this.contexts.size()});
         assert (JobDriver.this.state == State.WAIT_EVALUATORS);
         try {
           eval.submitContext(ContextConfiguration.CONF.set(
@@ -181,14 +186,14 @@ public final class JobDriver {
     public void onNext(final ActiveContext context) {
       synchronized (JobDriver.this) {
         LOG.log(Level.INFO, "Context available: {0} expect {1} state {2}",
-            new Object[] { context.getId(), JobDriver.this.expectCount, JobDriver.this.state });
+            new Object[]{context.getId(), JobDriver.this.expectCount, JobDriver.this.state});
         assert (JobDriver.this.state == State.WAIT_EVALUATORS);
         JobDriver.this.contexts.put(context.getId(), context);
         if (--JobDriver.this.expectCount <= 0) {
           JobDriver.this.state = State.READY;
           if (JobDriver.this.cmd == null) {
             LOG.log(Level.INFO, "All evaluators ready; waiting for command. State: {0}",
-                    JobDriver.this.state);
+                JobDriver.this.state);
           } else {
             JobDriver.this.submit(JobDriver.this.cmd);
           }
@@ -237,8 +242,8 @@ public final class JobDriver {
       final String result = CODEC.decode(task.get());
       synchronized (JobDriver.this) {
         JobDriver.this.results.add(task.getId() + " :: " + result);
-        LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[] {
-          task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state });
+        LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[]{
+            task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state});
         if (--JobDriver.this.expectCount <= 0) {
           JobDriver.this.returnResults();
           JobDriver.this.state = State.READY;
@@ -272,7 +277,7 @@ public final class JobDriver {
       synchronized (JobDriver.this) {
         final String command = CODEC.decode(message);
         LOG.log(Level.INFO, "Client message: {0} state: {1}",
-                new Object[] { command, JobDriver.this.state });
+            new Object[]{command, JobDriver.this.state});
         assert (JobDriver.this.cmd == null);
         if (JobDriver.this.state == State.READY) {
           JobDriver.this.submit(command);
@@ -314,7 +319,8 @@ public final class JobDriver {
           TaskConfiguration.CONF
               .set(TaskConfiguration.IDENTIFIER, context.getId() + "_task")
               .set(TaskConfiguration.TASK, ShellTask.class)
-              .build());
+              .build()
+      );
       cb.bindNamedParameter(Launch.Command.class, command);
       context.submitTask(cb.build());
     } catch (final BindException ex) {
@@ -343,9 +349,10 @@ public final class JobDriver {
     assert (this.state == State.INIT);
     LOG.log(Level.INFO, "Schedule on {0} Evaluators.", this.numEvaluators);
     this.evaluatorRequestor.submit(
-      EvaluatorRequest.newBuilder()
-          .setSize(EvaluatorRequest.Size.SMALL)
-          .setNumber(this.numEvaluators).build());
+        EvaluatorRequest.newBuilder()
+            .setMemory(128)
+            .setNumber(this.numEvaluators).build()
+    );
     this.state = State.WAIT_EVALUATORS;
     this.expectCount = this.numEvaluators;
   }

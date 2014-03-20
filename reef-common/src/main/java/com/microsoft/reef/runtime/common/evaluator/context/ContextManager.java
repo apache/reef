@@ -95,7 +95,9 @@ public final class ContextManager implements AutoCloseable {
   @Override
   public void close() {
     synchronized (this.contextStack) {
-      this.contextStack.lastElement().close();
+      if (!this.contextStackIsEmpty()) {
+        this.contextStack.lastElement().close();
+      }
     }
   }
 

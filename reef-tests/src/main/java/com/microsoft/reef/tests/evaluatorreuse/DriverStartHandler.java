@@ -34,7 +34,7 @@ final class DriverStartHandler implements EventHandler<StartTime> {
   public void onNext(StartTime startTime) {
     this.requestor.submit(EvaluatorRequest.newBuilder()
         .setNumber(1)
-        .setSize(EvaluatorRequest.Size.MEDIUM)
+        .setMemory(256)
         .build());
   }
 }

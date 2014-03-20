@@ -15,14 +15,14 @@
  */
 package com.microsoft.reef.tests.fail.driver;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.driver.task.TaskMessage;
-import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
+import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
@@ -119,7 +119,7 @@ public final class FailDriverDelayedMsg {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(StartTime): {0}", time);
       FailDriverDelayedMsg.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1).setMemory(128).build());
     }
   }
 }

@@ -15,17 +15,21 @@
  */
 package com.microsoft.reef.examples.pool;
 
-import com.microsoft.reef.driver.task.*;
-import com.microsoft.reef.driver.context.*;
-import com.microsoft.reef.driver.evaluator.*;
-
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ContextConfiguration;
+import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
+import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
-
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
@@ -41,25 +45,39 @@ import java.util.logging.Logger;
 @Unit
 public final class JobDriver {
 
-  /** Standard Java logger. */
+  /**
+   * Standard Java logger.
+   */
   private static final Logger LOG = Logger.getLogger(JobDriver.class.getName());
 
-  /** Job driver uses EvaluatorRequestor to request Evaluators that will run the Tasks. */
+  /**
+   * Job driver uses EvaluatorRequestor to request Evaluators that will run the Tasks.
+   */
   private final EvaluatorRequestor evaluatorRequestor;
 
-  /** If true, submit context and task in one request. */
+  /**
+   * If true, submit context and task in one request.
+   */
   private final boolean isPiggyback;
 
-  /** Number of Evaluators to request. */
+  /**
+   * Number of Evaluators to request.
+   */
   private final int numEvaluators;
 
-  /** Number of Tasks to run. */
+  /**
+   * Number of Tasks to run.
+   */
   private final int numTasks;
 
-  /** Number of Evaluators started. */
+  /**
+   * Number of Evaluators started.
+   */
   private int numEvaluatorsStarted = 0;
 
-  /** Number of Tasks launched. */
+  /**
+   * Number of Tasks launched.
+   */
   private int numTasksStarted = 0;
 
   /**
@@ -96,8 +114,9 @@ public final class JobDriver {
       LOG.log(Level.INFO, "TIME: Start Driver with {0} Evaluators", numEvaluators);
       evaluatorRequestor.submit(
           EvaluatorRequest.newBuilder()
-              .setSize(EvaluatorRequest.Size.SMALL)
-              .setNumber(numEvaluators).build());
+              .setMemory(128)
+              .setNumber(numEvaluators).build()
+      );
     }
   }
 
@@ -141,7 +160,7 @@ public final class JobDriver {
 
         final String contextId = String.format("Context_%06d", nEval);
         LOG.log(Level.INFO, "TIME: Submit Context {0} to Evaluator {1}",
-                new Object[] { contextId, eval.getId() });
+            new Object[]{contextId, eval.getId()});
 
         try {
 
@@ -160,7 +179,7 @@ public final class JobDriver {
             final Configuration taskConfig = getTaskConfiguration(taskId);
 
             LOG.log(Level.INFO, "TIME: Submit Task {0} to Evaluator {1}",
-                new Object[] { taskId, eval.getId() });
+                new Object[]{taskId, eval.getId()});
 
             eval.submitContextAndTask(contextConfigBuilder.build(), taskConfig);
 
@@ -169,8 +188,8 @@ public final class JobDriver {
           }
 
         } catch (final BindException ex) {
-            LOG.log(Level.SEVERE, "Failed to submit Context to Evaluator: " + eval.getId(), ex);
-            throw new RuntimeException(ex);
+          LOG.log(Level.SEVERE, "Failed to submit Context to Evaluator: " + eval.getId(), ex);
+          throw new RuntimeException(ex);
         }
       } else {
         LOG.log(Level.INFO, "TIME: Close Evaluator {0}", eval.getId());
@@ -223,7 +242,7 @@ public final class JobDriver {
       if (runTask) {
         final String taskId = String.format("StartTask_%08d", nTask);
         LOG.log(Level.INFO, "TIME: Submit Task {0} to Evaluator {1}",
-            new Object[] { taskId, context.getEvaluatorId() });
+            new Object[]{taskId, context.getEvaluatorId()});
         context.submitTask(getTaskConfiguration(taskId));
       } else {
         context.close();
@@ -250,7 +269,7 @@ public final class JobDriver {
 
       final ActiveContext context = task.getActiveContext();
       LOG.log(Level.INFO, "TIME: Completed Task {0} on Evaluator {1}",
-              new Object[] { task.getId(), context.getEvaluatorId() });
+          new Object[]{task.getId(), context.getEvaluatorId()});
 
       final boolean runTask;
       final int nTask;
@@ -265,7 +284,7 @@ public final class JobDriver {
       if (runTask) {
         final String taskId = String.format("Task_%08d", nTask);
         LOG.log(Level.INFO, "TIME: Submit Task {0} to Evaluator {1}",
-                new Object[] { taskId, context.getEvaluatorId() });
+            new Object[]{taskId, context.getEvaluatorId()});
         context.submitTask(getTaskConfiguration(taskId));
       } else {
         LOG.log(Level.INFO, "TIME: Close Evaluator {0}", context.getEvaluatorId());

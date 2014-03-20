@@ -60,7 +60,7 @@ final class Driver {
     public void onNext(StartTime startTime) {
       LOG.info("StartTime: " + startTime.toString());
       Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1).setMemory(128).build());
     }
   }
 

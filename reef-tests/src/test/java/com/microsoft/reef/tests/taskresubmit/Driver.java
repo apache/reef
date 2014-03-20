@@ -15,16 +15,16 @@
  */
 package com.microsoft.reef.tests.taskresubmit;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.FailedTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.tests.TestUtils;
-import com.microsoft.reef.tests.exceptions.TaskSideFailure;
 import com.microsoft.reef.tests.exceptions.SimulatedTaskFailure;
+import com.microsoft.reef.tests.exceptions.TaskSideFailure;
 import com.microsoft.reef.tests.fail.task.FailTaskCall;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
@@ -66,7 +66,7 @@ public class Driver {
     public void onNext(final StartTime startTime) {
       Driver.this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1)
-          .setSize(EvaluatorRequest.Size.MEDIUM)
+          .setMemory(256)
           .build());
     }
   }
