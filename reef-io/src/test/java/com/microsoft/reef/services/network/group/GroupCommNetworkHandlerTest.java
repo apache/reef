@@ -49,7 +49,8 @@ import java.util.logging.Logger;
  */
 public class GroupCommNetworkHandlerTest {
 
-  private static final Logger logger = Logger.getLogger(GroupCommNetworkHandlerTest.class.getName());
+
+  private static final Logger LOG = Logger.getLogger(GroupCommNetworkHandlerTest.class.getName());
   static StringIdentifierFactory idFac = new StringIdentifierFactory();
   static ComparableIdentifier id1, id2;
 
@@ -119,7 +120,7 @@ public class GroupCommNetworkHandlerTest {
     ids.add(id2);
     GroupCommNetworkHandler gcnh = new GroupCommNetworkHandler(ids, idFac, 5);
     for (GroupCommMessage.Type type : GroupCommMessage.Type.values()) {
-      if(TestUtils.controlMessage(type)) continue;
+      if (TestUtils.controlMessage(type)) continue;
       Handler h = gcnh.getHandler(type);
       Assert.assertNotNull("GCNH.getHandler( " + type + " )", h);
     }
@@ -136,7 +137,7 @@ public class GroupCommNetworkHandlerTest {
     ids.add(id1);
     ids.add(id2);
     for (int capacity = 1; capacity <= 100; capacity++) {
-      System.out.println("*************Capacity = " + capacity + "*****************");
+      LOG.log(Level.FINEST, "*************Capacity = " + capacity + "*****************");
       GroupCommNetworkHandler gcnh = new GroupCommNetworkHandler(ids, idFac, capacity);
       int[] msgsPerType = new int[GroupCommMessage.Type.values().length];
       Random r = new Random(1331);
@@ -148,15 +149,15 @@ public class GroupCommNetworkHandlerTest {
       }
       //totCapacity should be at least 1
       totCapacity = Math.max(totCapacity, 1);
-      logger.log(Level.FINE, Arrays.toString(msgsPerType));
-      logger.log(Level.FINE, Integer.toString(totCapacity));
+      LOG.log(Level.FINE, Arrays.toString(msgsPerType));
+      LOG.log(Level.FINE, Integer.toString(totCapacity));
       try (EStage<Message<GroupCommMessage>> stage = new SingleThreadStage<>(
           gcnh, totCapacity)) {
         for (Type type : GroupCommMessage.Type.values()) {
-          if(TestUtils.controlMessage(type)) continue;
+          if (TestUtils.controlMessage(type)) continue;
           for (int i = 0; i < msgsPerType[type.ordinal()]; i++) {
             String msgStr = "Hello" + type.toString() + i;
-            logger.log(Level.FINE, "Message: " + msgStr);
+            LOG.log(Level.FINE, "Message: " + msgStr);
             GroupCommMessage exp = TestUtils.bldGCM(type, id1, id2, msgStr.getBytes());
             Message<GroupCommMessage> m = new NSMessage<ReefNetworkGroupCommProtos.GroupCommMessage>(
                 id1, id2, exp);
@@ -164,7 +165,7 @@ public class GroupCommNetworkHandlerTest {
           }
         }
         for (Type type : GroupCommMessage.Type.values()) {
-          if(TestUtils.controlMessage(type)) continue;
+          if (TestUtils.controlMessage(type)) continue;
           for (int i = 0; i < msgsPerType[type.ordinal()]; i++) {
             String msgStr = "Hello" + type.toString() + i;
             GroupCommMessage ret = gcnh.getHandler(type).getData(id1);

@@ -31,7 +31,7 @@ public final class TANGUtils {
       final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
       ConfigurationFile.addConfiguration(cb, s);
       return cb.build();
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -39,7 +39,7 @@ public final class TANGUtils {
   public static Configuration merge(final Configuration... confs) {
     try {
       return Tang.Factory.getTang().newConfigurationBuilder(confs).build();
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -52,9 +52,8 @@ public final class TANGUtils {
     final String cstr = ConfigurationFile.toConfigurationString(c);
     try {
       return cstr.replaceAll("\n", "#");
-    } catch (Throwable t) {
-      System.out.println("CONFIGURATION STRING: " + cstr);
-      throw t;
+    } catch (final Throwable t) {
+      throw new RuntimeException("Unable to encode Configuration.", t);
     }
   }
 }

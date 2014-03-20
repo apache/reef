@@ -31,11 +31,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  */
 public class BroadcastOp {
+  private static final Logger LOG = Logger.getLogger(BroadcastOp.class.getName());
+
   public static class Sender<V> {
     private final Identifier self;
     private final Set<Identifier> children = new HashSet<>();
@@ -56,9 +60,9 @@ public class BroadcastOp {
       this.codec = codec;
       this.self = (selfId.equals(BroadReduceConfig.defaultValue) ? null : idFac.getNewInstance(selfId));
 
-      System.out.println("Received childIds:");
+      LOG.log(Level.FINEST, "Received childIds:");
       for (final String childId : childIds) {
-        System.out.println(childId);
+        LOG.log(Level.FINEST, childId);
         if (!childId.equals(AllReduceConfig.defaultValue)) {
           children.add(idFac.getNewInstance(childId));
         }
@@ -78,11 +82,11 @@ public class BroadcastOp {
      */
     public void send(V myData) throws NetworkFault, NetworkException, InterruptedException {
       //I am root.
-      System.out.println("I am Broadcast sender" + self.toString());
+      LOG.log(Level.FINEST, "I am Broadcast sender" + self.toString());
 
-      System.out.println("Sending " + myData + " to " + children);
+      LOG.log(Level.FINEST, "Sending " + myData + " to " + children);
       for (final Identifier child : children) {
-        System.out.println("Sending " + myData + " to child: " + child);
+        LOG.log(Level.FINEST, "Sending " + myData + " to child: " + child);
         send(myData, child);
       }
     }
@@ -116,9 +120,9 @@ public class BroadcastOp {
       this.self = (selfId.equals(BroadReduceConfig.defaultValue) ? null : idFac.getNewInstance(selfId));
       this.parent = (parentId.equals(BroadReduceConfig.defaultValue)) ? null : idFac.getNewInstance(parentId);
 
-      System.out.println("Received childIds:");
+      LOG.log(Level.FINEST, "Received childIds:");
       for (final String childId : childIds) {
-        System.out.println(childId);
+        LOG.log(Level.FINEST, childId);
         if (!childId.equals(AllReduceConfig.defaultValue)) {
           children.add(idFac.getNewInstance(childId));
         }
@@ -137,13 +141,13 @@ public class BroadcastOp {
       final V retVal;
       if (this.parent != null) {
         //Wait for parent to send
-        System.out.println("Waiting for parent: " + parent);
+        LOG.log(Level.FINEST, "Waiting for parent: " + parent);
         retVal = handler.get(parent, codec);
-        System.out.println("Received: " + retVal);
+        LOG.log(Level.FINEST, "Received: " + retVal);
 
-        System.out.println("Sending " + retVal + " to " + children);
+        LOG.log(Level.FINEST, "Sending " + retVal + " to " + children);
         for (final Identifier child : children) {
-          System.out.println("Sending " + retVal + " to child: " + child);
+          LOG.log(Level.FINEST, "Sending " + retVal + " to child: " + child);
           this.send(retVal, child);
         }
       } else {

@@ -21,66 +21,60 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+public final class ListCodec<T> implements Codec<List<T>> {
 
-public class ListCodec<T> implements Codec<List<T>> {
+  private static final Logger LOG = Logger.getLogger(ListCodec.class.getName());
 
-  /**
-   * @param args
-   */
-  public static void main(String[] args) {
-    String[] strArr = {"One", "Two", "Three", "Four", "Five"};
-    List<String> arrList = Arrays.asList(strArr);
-    System.out.println(arrList);
-    ListCodec<String> lstCodec = new ListCodec<>(new StringCodec());
-    byte[] bytes = lstCodec.encode(arrList);
-    System.out.println(lstCodec.decode(bytes));
-  }
+  private final Codec<T> codec;
 
-  Codec<T> codec;
-
-
-  public ListCodec(Codec<T> codec) {
+  public ListCodec(final Codec<T> codec) {
     super();
     this.codec = codec;
   }
 
   @Override
-  public byte[] encode(List<T> arg0) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream daos = new DataOutputStream(baos);
-    try {
-      for (T t : arg0) {
-        byte[] tBytes = codec.encode(t);
-
+  public byte[] encode(final List<T> list) {
+    try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         final DataOutputStream daos = new DataOutputStream(baos)) {
+      for (final T t : list) {
+        final byte[] tBytes = this.codec.encode(t);
         daos.writeInt(tBytes.length);
         daos.write(tBytes);
-
       }
-      daos.close();
-    } catch (IOException e) {
-      throw new RuntimeException(e.getCause());
+      return baos.toByteArray();
+    } catch (final IOException ex) {
+      LOG.log(Level.WARNING, "Error in list encoding", ex);
+      throw new RuntimeException(ex);
     }
-    return baos.toByteArray();
   }
 
   @Override
-  public List<T> decode(byte[] arg0) {
-    List<T> result = new ArrayList<>();
-    ByteArrayInputStream bais = new ByteArrayInputStream(arg0);
-    DataInputStream dais = new DataInputStream(bais);
-    try {
+  public List<T> decode(final byte[] list) {
+    final List<T> result = new ArrayList<>();
+    try (final DataInputStream dais = new DataInputStream(new ByteArrayInputStream(list))) {
       while (dais.available() > 0) {
-        int length = dais.readInt();
-        byte[] tBytes = new byte[length];
+        final int length = dais.readInt();
+        final byte[] tBytes = new byte[length];
         dais.readFully(tBytes);
-        T t = codec.decode(tBytes);
+        final T t = this.codec.decode(tBytes);
         result.add(t);
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e.getCause());
+      return result;
+    } catch (final IOException ex) {
+      LOG.log(Level.WARNING, "Error in list decoding", ex);
+      throw new RuntimeException(ex);
     }
-    return result;
   }
 
+  public static void main(final String[] args) {
+    final List<String> arrList = Arrays.asList(
+        new String[] { "One", "Two", "Three", "Four", "Five" });
+    LOG.log(Level.FINEST, "Input: {0}", arrList);
+    final ListCodec<String> lstCodec = new ListCodec<>(new StringCodec());
+    final byte[] bytes = lstCodec.encode(arrList);
+    LOG.log(Level.FINEST, "Output: {0}", lstCodec.decode(bytes));
+  }
 }
