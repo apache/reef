@@ -98,7 +98,8 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
                 final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class)
                 InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture,
                 final RemoteManager remoteManager,
-                final JobSubmissionHandler jobSubmissionHandler, ConfigurationSerializer configurationSerializer) {
+                final JobSubmissionHandler jobSubmissionHandler,
+                final ConfigurationSerializer configurationSerializer) {
 
     this.injector = injector;
     this.remoteManager = remoteManager;

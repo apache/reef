@@ -50,7 +50,9 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
    */
   private final Set<File> libraries = new HashSet<>();
 
-  AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager, final String remoteID, ConfigurationSerializer configurationSerializer) {
+  AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager,
+                         final String remoteID,
+                         final ConfigurationSerializer configurationSerializer) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
     this.configurationSerializer = configurationSerializer;

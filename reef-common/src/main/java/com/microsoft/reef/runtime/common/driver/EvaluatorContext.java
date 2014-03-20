@@ -42,7 +42,8 @@ public final class EvaluatorContext implements ActiveContext {
   private boolean closed = false;
 
   public EvaluatorContext(final EvaluatorManager evaluatorManager,
-                          final String identifier, Optional<String> parentID,
+                          final String identifier,
+                          final Optional<String> parentID,
                           final ConfigurationSerializer configurationSerializer) {
     this.identifier = identifier;
     this.parentID = parentID;
