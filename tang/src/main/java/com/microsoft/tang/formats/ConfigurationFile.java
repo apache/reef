@@ -36,13 +36,19 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.Map.Entry;
 
+/**
+ * @deprecated in Tang 0.2 Use AvroConfigurationSerializer instead.
+ */
+@Deprecated
 public class ConfigurationFile {
 
   /**
    * Write Configuration to the given File.
-   * 
+   *
    * @throws IOException
+   * @deprecated in Tang 0.2 Use AvroConfigurationSerializer instead.
    */
+  @Deprecated
   public static void writeConfigurationFile(
       final Configuration conf, final File confFile) throws IOException {
     try (final PrintStream printStream = new PrintStream(new FileOutputStream(confFile))) {
@@ -50,6 +56,10 @@ public class ConfigurationFile {
     }
   }
 
+  /**
+   * @deprecated in Tang 0.2 Use AvroConfigurationSerializer instead.
+   */
+  @Deprecated
   public static void addConfiguration(final ConfigurationBuilder conf,
                                       final File tmpConfFile) throws IOException, BindException {
     final PropertiesConfiguration confFile;
@@ -62,14 +72,13 @@ public class ConfigurationFile {
   }
 
   /**
-   * 
-   * @param conf
-   *          This configuration builder will be modified to incorporate the
-   *          contents of the configuration file.
-   * @param contents
-   *          A string containing the contents of the configuration file.
+   * @param conf     This configuration builder will be modified to incorporate the
+   *                 contents of the configuration file.
+   * @param contents A string containing the contents of the configuration file.
    * @throws BindException
+   * @deprecated in Tang 0.2 Use AvroConfigurationSerializer instead.
    */
+  @Deprecated
   public static void addConfiguration(final ConfigurationBuilder conf,
                                       final String contents) throws BindException {
     File tmpConfFile = null;
@@ -89,7 +98,7 @@ public class ConfigurationFile {
   }
 
   private static void processConfigFile(ConfigurationBuilder conf,
-      PropertiesConfiguration confFile) throws IOException, BindException {
+                                        PropertiesConfiguration confFile) throws IOException, BindException {
     ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) conf;
     Iterator<String> it = confFile.getKeys();
     Map<String, String> importedNames = new HashMap<>();
@@ -129,10 +138,10 @@ public class ConfigurationFile {
           } else {
             ci.bind(key, value);
           }
-        } catch(BindException e) {
-          throw new BindException("Failed to process configuration tuple: ["+key+"="+value+"]",e);
-        } catch(ClassHierarchyException e) {
-          throw new ClassHierarchyException("Failed to process configuration tuple: ["+key+"="+value+"]",e);
+        } catch (BindException e) {
+          throw new BindException("Failed to process configuration tuple: [" + key + "=" + value + "]", e);
+        } catch (ClassHierarchyException e) {
+          throw new ClassHierarchyException("Failed to process configuration tuple: [" + key + "=" + value + "]", e);
         }
       }
     }
@@ -140,6 +149,7 @@ public class ConfigurationFile {
 
   /**
    * Replace any \'s in the input string with \\. and any "'s with \".
+   *
    * @param in
    * @return
    */
@@ -153,7 +163,7 @@ public class ConfigurationFile {
     // respectively.
     return in.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\\\"");
   }
- 
+
   /**
    * Obtain the effective configuration of this ConfigurationBuilderImpl
    * instance. This consists of string-string pairs that could be written
@@ -162,57 +172,63 @@ public class ConfigurationFile {
    * parameter annotations, or about the auto-discovered stuff in TypeHierarchy.
    * All of that should be automatically imported as these keys are parsed on
    * the other end.
-   * 
+   *
    * @return A string containing enough information to rebuild this
-   *         configuration object (assuming the same classes / jars are
-   *         available when the string is parsed by Tang).
+   * configuration object (assuming the same classes / jars are
+   * available when the string is parsed by Tang).
+   * @deprecated in Tang 0.2 Use AvroConfigurationSerializer instead.
    */
+  @Deprecated
   public static String toConfigurationString(final Configuration c) {
     StringBuilder sb = new StringBuilder();
-    for(String s: toConfigurationStringList(c)) {
+    for (String s : toConfigurationStringList(c)) {
       sb.append(s);
       sb.append('\n');
     }
     return sb.toString();
   }
 
+  /**
+   * @deprecated in Tang 0.2 Use AvroConfigurationSerializer instead.
+   */
+  @Deprecated
   static List<String> toConfigurationStringList(final Configuration c) {
     ConfigurationImpl conf = (ConfigurationImpl) c;
     List<String> l = new ArrayList<>();
     for (ClassNode<?> opt : conf.getBoundImplementations()) {
       l.add(opt.getFullName()
-          +'='
-          +escape(conf.getBoundImplementation(opt).getFullName()));
+          + '='
+          + escape(conf.getBoundImplementation(opt).getFullName()));
     }
     for (ClassNode<?> opt : conf.getBoundConstructors()) {
       l.add(opt.getFullName()
-          +'='
-          +escape(conf.getBoundConstructor(opt).getFullName()));
+          + '='
+          + escape(conf.getBoundConstructor(opt).getFullName()));
     }
     for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
       l.add(opt.getFullName()
-          +'='
-          +escape(conf.getNamedParameter(opt)));
+          + '='
+          + escape(conf.getNamedParameter(opt)));
     }
     for (ClassNode<?> cn : conf.getLegacyConstructors()) {
       StringBuilder sb = new StringBuilder();
       join(sb, "-", conf.getLegacyConstructor(cn).getArgs());
       l.add(cn.getFullName()
-          +escape('='
-          +ConfigurationBuilderImpl.INIT
-          +'('
-          +sb.toString()
-          +')'
-          ));
+          + escape('='
+              + ConfigurationBuilderImpl.INIT
+              + '('
+              + sb.toString()
+              + ')'
+      ));
       //s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
 //      .append(")\n");
     }
-    for (Entry<NamedParameterNode<Set<?>>,Object> e : conf.getBoundSets()) {
+    for (Entry<NamedParameterNode<Set<?>>, Object> e : conf.getBoundSets()) {
       final String val;
-      if(e.getValue() instanceof String) {
-        val = (String)e.getValue();
-      } else if(e.getValue() instanceof Node) {
-        val = ((Node)e.getValue()).getFullName();
+      if (e.getValue() instanceof String) {
+        val = (String) e.getValue();
+      } else if (e.getValue() instanceof Node) {
+        val = ((Node) e.getValue()).getFullName();
       } else {
         throw new IllegalStateException();
       }
