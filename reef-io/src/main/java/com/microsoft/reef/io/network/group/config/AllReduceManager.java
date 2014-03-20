@@ -44,10 +44,7 @@ import com.microsoft.wake.impl.LoggingEventHandler;
 import com.microsoft.wake.impl.SingleThreadStage;
 import com.microsoft.wake.remote.Codec;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,8 +76,6 @@ public class AllReduceManager<T> {
   private Map<ComparableIdentifier, Integer> id2port;
   private final NetworkService<GroupCommMessage> ns;
   private final StringIdentifierFactory idFac = new StringIdentifierFactory();
-  private final ComparableIdentifier driverId = (ComparableIdentifier) idFac.getNewInstance("driver");
-
 
   private Map<ComparableIdentifier, Integer> taskIdMap = new HashMap<>();
   private final ComparableIdentifier[] tasks;
@@ -199,8 +194,8 @@ public class AllReduceManager<T> {
    * @return
    */
   public List<ComparableIdentifier> getReceivers() {
-    final List<ComparableIdentifier> retVal = new ArrayList<>();
-    final int end = (this.numTasks == 1) ? 1 : parent(this.numTasks);
+    final int end = this.numTasks == 1 ? 1 : parent(this.numTasks);
+    final List<ComparableIdentifier> retVal = new ArrayList<>(end);
     for (int i = 1; i <= end; i++)
       retVal.add(this.tasks[i]);
     return retVal;
@@ -210,8 +205,8 @@ public class AllReduceManager<T> {
    * @return
    */
   public List<ComparableIdentifier> getSenders() {
-    final List<ComparableIdentifier> retVal = new ArrayList<>();
-    int start = (this.numTasks == 1) ? 1 : parent(this.numTasks);
+    final int start = this.numTasks == 1 ? 1 : parent(this.numTasks);
+    final List<ComparableIdentifier> retVal = new ArrayList<>(this.numTasks - start);
     for (int i = start + 1; i <= this.numTasks; i++)
       retVal.add(this.tasks[i]);
     return retVal;
