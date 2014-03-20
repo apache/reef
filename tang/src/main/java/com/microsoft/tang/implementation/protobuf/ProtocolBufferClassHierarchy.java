@@ -324,7 +324,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   @Override
   public Node getNode(String fullName) throws NameResolutionException {
-      return lookupTable.get(fullName);
+
+     Node ret = lookupTable.get(fullName);
 /*    String[] tok = fullName.split(regex);
 
     Node ret = namespace.get(fullName);
@@ -340,12 +341,12 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
         }
         return n;
       }
-    }
+    } */
     if(ret != null) {
       return ret;
     } else {
       throw new NameResolutionException(fullName, "");
-    }*/
+    }
   }
 
   @Override
