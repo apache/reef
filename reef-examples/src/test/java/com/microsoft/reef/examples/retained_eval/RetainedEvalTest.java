@@ -18,14 +18,12 @@ package com.microsoft.reef.examples.retained_eval;
 import com.microsoft.reef.client.ClientConfiguration;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.OSUtils;
-
-import com.microsoft.tang.Tang;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationFile;
-
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Distributed Shell end-to-end test.
+ * Retained Evaluators end-to-end test.
  */
 public class RetainedEvalTest {
 
@@ -66,14 +64,6 @@ public class RetainedEvalTest {
   @BeforeClass
   public static void setUpClass() throws BindException {
 
-    final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-
-    confBuilder.bindNamedParameter(Launch.Local.class, "true");
-    confBuilder.bindNamedParameter(Launch.NumEval.class, "" + NUM_LOCAL_THREADS);
-    confBuilder.bindNamedParameter(Launch.NumRuns.class, "10");
-    confBuilder.bindNamedParameter(Launch.Command.class,
-        (OSUtils.isWindows() ? "cmd.exe /C echo " : "echo ") + MESSAGE);
-
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
         .build();
@@ -86,25 +76,32 @@ public class RetainedEvalTest {
         .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
         .build();
 
+    final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(Launch.Local.class, "true")
+        .bindNamedParameter(Launch.NumEval.class, "" + NUM_LOCAL_THREADS)
+        .bindNamedParameter(Launch.NumRuns.class, "10")
+        .bindNamedParameter(Launch.Command.class,
+            (OSUtils.isWindows() ? "cmd.exe /C echo " : "echo ") + MESSAGE);
+
     confBuilder.addConfiguration(runtimeConfiguration);
     confBuilder.addConfiguration(clientConfiguration);
 
     sConfig = confBuilder.build();
 
     LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
-        ConfigurationFile.toConfigurationString(sConfig));
+        new AvroConfigurationSerializer().toString(sConfig));
   }
 
   /**
-   * Test the Distributed Shell in local mode.
+   * Test the Retained Evaluators example in local mode.
    * Run the COMMAND on each worker and make sure the results are as expected.
    *
-   * @throws BindException        configuration error.
-   * @throws InjectionException   configuration error.
+   * @throws BindException configuration error.
+   * @throws InjectionException configuration error.
    * @throws InterruptedException waiting for the result interrupted.
    */
   @Test
-  public void testDistributedShell() throws BindException, InjectionException {
+  public void testRetainedEvaluator() throws BindException, InjectionException {
     final String dsResult = Launch.run(sConfig);
     Assert.assertNotNull(dsResult);
     Assert.assertTrue(dsResult.contains(MESSAGE));
