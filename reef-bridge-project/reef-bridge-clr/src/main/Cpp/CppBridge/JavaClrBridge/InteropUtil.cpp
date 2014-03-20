@@ -36,6 +36,14 @@ String^ ManagedStringFromJavaString (
 	return managedStr;
 }
 
+jstring JavaStringFromManagedString(
+	JNIEnv *env,
+	String^ managedString)
+{	
+	pin_ptr<const wchar_t> wch = PtrToStringChars(managedString);		
+	return env->NewString((const jchar*)wch, managedString->Length);
+}
+
 array<byte>^ ManagedByteArrayFromJavaByteArray(
 	JNIEnv *env,
 	jbyteArray javaByteArray)

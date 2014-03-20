@@ -190,3 +190,27 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_CallClrSystemAllocatedEvalu
 	}
 }
 
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemAllocatedEvaluatorHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/driver/evaluator/AllocatedEvaluator;Ljava/lang/String;Ljava/lang/String;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext
+  (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluator, jstring jcontextConfigString, jstring jtaskConfigString, jobject jlogger)
+{
+	
+	try{
+		AllocatedEvaluatorClr2Java^ jallocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluator, jcontextConfigString, jtaskConfigString);
+		String^ contextConfigStr = ManagedStringFromJavaString(env, jcontextConfigString);
+		String^ taskConfigStr = ManagedStringFromJavaString(env, jtaskConfigString);
+
+		ClrSystemAllocatedEvaluatorHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, jallocatedEval, contextConfigStr, taskConfigStr);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+

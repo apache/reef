@@ -1,5 +1,7 @@
 package javabridge;
 
+        import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+
         import java.io.File;
         import java.io.FileOutputStream;
         import java.io.InputStream;
@@ -44,6 +46,14 @@ public class NativeInterop {
             DriverManager driverManager,
             InteropLogger interopLogger,
             byte[] value
+    );
+
+    public static native void ClrSystemAllocatedEvaluatorHandlerOnNext (
+            long handle,
+            AllocatedEvaluator javaEvaluator,
+            String contextConfigurationStr,
+            String taskConfigurationStr,
+            InteropLogger interopLogger
     );
 
 

@@ -80,6 +80,9 @@ public interface AllocatedEvaluator
   void submitContextAndTask(final Configuration contextConfiguration,
                             final Configuration taskConfiguration);
 
+  void submitContextAndTasksString(final String contextConfigurationString,
+                              final String taskConfigurationString);
+
   @Override
   void submitContextAndServiceAndTask(final Configuration contextConfiguration,
                                       final Configuration serviceConfiguration,

@@ -23,6 +23,9 @@ String^ ManagedStringFromJavaString (
 	JNIEnv *env,
 	jstring javaString);
 
+jstring JavaStringFromManagedString(
+	JNIEnv *env,
+	String^ managedString);
 
 array<byte>^ ManagedByteArrayFromJavaByteArray(
 	JNIEnv *env,

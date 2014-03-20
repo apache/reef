@@ -31,6 +31,22 @@ namespace Microsoft
 			public:
 				Clr2JavaImpl (JNIEnv* env, jobject jobjectEManager, jobject  jobjectDriverManager);
 				virtual void Emanager_submit(array<byte>^ bytes);
+				virtual void AllocatedEvaluatorSubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
+
+			};
+
+			public ref class AllocatedEvaluatorClr2Java : public IClr2Java
+			{
+				jclass  _jclassAllocatedEvaluator;
+				jobject  _jobjectAllocatedEvaluator;
+				jstring _contextConfigStr;
+				jstring _taskConfigStr;
+				jmethodID _jmidSubmit;
+				JNIEnv* _env;
+			public:
+				AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator, jstring contextConfigString, jstring taskConfigString);
+				virtual void Emanager_submit(array<byte>^ bytes);
+				virtual void AllocatedEvaluatorSubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
 			};
 		}
 	}

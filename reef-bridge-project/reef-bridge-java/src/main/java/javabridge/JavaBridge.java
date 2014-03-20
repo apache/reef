@@ -30,8 +30,6 @@ import java.util.Date;
             System.out.println("java side date " + strDate);
             long handle0 = NativeInterop.CallClrSystemOnStartHandler(new Date().toString());
 
-
-            InteropReturnInfo interopReturnInfo = new   InteropReturnInfo ();
             InteropLogger interopLogger = new InteropLogger();
 
             byte[] value = new byte[3];

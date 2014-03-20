@@ -22,10 +22,7 @@ namespace ClrHandler
         public void OnNext(AllocatedEvaluator value)
         {
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 1");
-            byte[] context = new byte[2];
-            context[0] = 0x10;
-            context[1] = 0x20;
-            value.Clr2Java.Emanager_submit(context);
+            value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(value.ContextConfigStr, value.TaskConfigStr);
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 2");
         }
     }
