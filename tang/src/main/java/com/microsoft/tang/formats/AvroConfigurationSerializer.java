@@ -135,7 +135,16 @@ public final class AvroConfigurationSerializer {
       theBytes = out.toByteArray();
     }
     return theBytes;
+  }
 
+  /**
+   * Writes the Configuration as a String. In this case, the String will be JSON formatted.
+   *
+   * @param configuration
+   * @return a String representation of the Configuration
+   */
+  public String toString(final Configuration configuration) {
+    return this.toAvro(configuration).toString();
   }
 
   /**
@@ -221,6 +230,20 @@ public final class AvroConfigurationSerializer {
 
   public Configuration fromByteArray(final byte[] theBytes) throws IOException, BindException {
     final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(theBytes, null);
+    final SpecificDatumReader<AvroConfiguration> reader = new SpecificDatumReader<>(AvroConfiguration.class);
+    return fromAvro(reader.read(null, decoder));
+  }
+
+  /**
+   * Decodes a String generated via toString()
+   *
+   * @param theString to be parsed
+   * @return the Configuration stored in theString.
+   * @throws IOException   if theString can't be parsed.
+   * @throws BindException if theString contains an illegal Configuration.
+   */
+  public Configuration fromString(final String theString) throws IOException, BindException {
+    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(AvroConfiguration.getClassSchema(), theString);
     final SpecificDatumReader<AvroConfiguration> reader = new SpecificDatumReader<>(AvroConfiguration.class);
     return fromAvro(reader.read(null, decoder));
   }
