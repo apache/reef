@@ -17,13 +17,14 @@ package com.microsoft.reef.runtime.common.evaluator.context;
 
 import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfigurationModule;
 import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 /**
  * Helper class that encapsulates the root context configuration: With or without services and an initial task.
@@ -40,42 +41,48 @@ final class RootContextLauncher {
 
   private final Optional<Configuration> initialTaskConfiguration;
 
+  private final ConfigurationSerializer configurationSerializer;
+
   @Inject
   RootContextLauncher(final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
                       final @Parameter(EvaluatorConfigurationModule.RootServiceConfiguration.class) String rootServiceConfiguration,
                       final @Parameter(EvaluatorConfigurationModule.TaskConfiguration.class) String initialTaskConfiguration,
-                      final Injector injector) {
+                      final Injector injector, ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
-    this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
-    this.rootServiceConfiguration = Optional.of(TANGUtils.fromStringEncoded(rootServiceConfiguration));
-    this.initialTaskConfiguration = Optional.of(TANGUtils.fromStringEncoded(initialTaskConfiguration));
+    this.configurationSerializer = configurationSerializer;
+    this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
+    this.rootServiceConfiguration = Optional.of(this.configurationSerializer.fromString(rootServiceConfiguration));
+    this.initialTaskConfiguration = Optional.of(this.configurationSerializer.fromString(initialTaskConfiguration));
   }
 
   @Inject
   RootContextLauncher(final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
                       final Injector injector,
-                      final @Parameter(EvaluatorConfigurationModule.RootServiceConfiguration.class) String rootServiceConfiguration) {
+                      final @Parameter(EvaluatorConfigurationModule.RootServiceConfiguration.class) String rootServiceConfiguration, ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
-    this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
-    this.rootServiceConfiguration = Optional.of(TANGUtils.fromStringEncoded(rootServiceConfiguration));
+    this.configurationSerializer = configurationSerializer;
+    this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
+    this.rootServiceConfiguration = Optional.of(this.configurationSerializer.fromString(rootServiceConfiguration));
     this.initialTaskConfiguration = Optional.empty();
   }
 
   @Inject
   RootContextLauncher(final Injector injector,
                       final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
-                      final @Parameter(EvaluatorConfigurationModule.TaskConfiguration.class) String initialTaskConfiguration) {
+                      final @Parameter(EvaluatorConfigurationModule.TaskConfiguration.class) String initialTaskConfiguration, ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
-    this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
+    this.configurationSerializer = configurationSerializer;
+    this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
     this.rootServiceConfiguration = Optional.empty();
-    this.initialTaskConfiguration = Optional.of(TANGUtils.fromStringEncoded(initialTaskConfiguration));
+    this.initialTaskConfiguration = Optional.of(this.configurationSerializer.fromString(initialTaskConfiguration));
   }
 
   @Inject
   RootContextLauncher(final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
-                      final Injector injector) {
+                      final Injector injector, ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
-    this.rootContextConfiguration = TANGUtils.fromStringEncoded(rootContextConfiguration);
+    this.configurationSerializer = configurationSerializer;
+    this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
     this.rootServiceConfiguration = Optional.empty();
     this.initialTaskConfiguration = Optional.empty();
   }

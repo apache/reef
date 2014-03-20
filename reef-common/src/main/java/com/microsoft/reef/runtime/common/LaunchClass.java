@@ -24,14 +24,13 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.profiler.WakeProfiler;
 import com.microsoft.wake.remote.RemoteConfiguration;
 import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,6 +47,7 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   private final boolean isProfilingEnabled;
   private final REEFErrorHandler errorHandler;
   private WakeProfiler profiler;
+  private final ConfigurationSerializer configurationSerializer;
 
   @Inject
   LaunchClass(final RemoteManager remoteManager,
@@ -56,13 +56,15 @@ public final class LaunchClass implements AutoCloseable, Runnable {
               final @Parameter(Launcher.LaunchID.class) String launchID,
               final @Parameter(Launcher.ErrorHandlerRID.class) String errorHandlerID,
               final @Parameter(Launcher.EvaluatorConfigurationFilePath.class) String evaluatorConfigurationPath,
-              final @Parameter(ProfilingEnabled.class) boolean enableProfiling) {
+              final @Parameter(ProfilingEnabled.class) boolean enableProfiling,
+              final ConfigurationSerializer configurationSerializer) {
     this.remoteManager = remoteManager;
     this.launchID = launchID;
     this.errorHandlerID = errorHandlerID;
     this.evaluatorConfigurationPath = evaluatorConfigurationPath;
     this.isProfilingEnabled = enableProfiling;
     this.errorHandler = errorHandler;
+    this.configurationSerializer = configurationSerializer;
 
 
     // Registering a default exception handler. It sends every exception to the upstream RemoteManager
@@ -84,18 +86,7 @@ public final class LaunchClass implements AutoCloseable, Runnable {
     LOG.log(Level.FINEST, "Loading configfile: " + this.evaluatorConfigurationPath);
     final File evaluatorConfigFile = new File(this.evaluatorConfigurationPath);
     try {
-
-      if (!evaluatorConfigFile.exists()) {
-        throw new IOException("File " + this.evaluatorConfigurationPath + " does not exist");
-      }
-      if (!evaluatorConfigFile.isFile()) {
-        throw new IOException("File " + this.evaluatorConfigurationPath + " is not a file");
-      }
-      if (!evaluatorConfigFile.canRead()) {
-        throw new IOException("File " + this.evaluatorConfigurationPath + " cannot be read");
-      }
-
-      ConfigurationFile.addConfiguration(clockConfigurationBuilder, evaluatorConfigFile);
+      clockConfigurationBuilder.addConfiguration(configurationSerializer.fromFile(evaluatorConfigFile));
       clockConfigurationBuilder.bindNamedParameter(Launcher.LaunchID.class, this.launchID);
       clockConfigurationBuilder.bindNamedParameter(Launcher.ErrorHandlerRID.class, this.errorHandlerID);
       clockConfigurationBuilder.bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class);

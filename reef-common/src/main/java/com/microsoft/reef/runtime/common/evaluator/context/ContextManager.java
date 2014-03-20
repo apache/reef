@@ -24,12 +24,14 @@ import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException;
 import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.InjectionFuture;
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Stack;
@@ -58,13 +60,23 @@ public final class ContextManager implements AutoCloseable {
   private final HeartBeatManager heartBeatManager;
 
   /**
-   * @param launchContext    to instantiate the root context.
-   * @param heartBeatManager for status reporting to the Driver.
+   * To serialize Configurations.
+   */
+  private final ConfigurationSerializer configurationSerializer;
+
+
+  /**
+   * @param launchContext           to instantiate the root context.
+   * @param heartBeatManager        for status reporting to the Driver.
+   * @param configurationSerializer
    */
   @Inject
-  ContextManager(final InjectionFuture<RootContextLauncher> launchContext, final HeartBeatManager heartBeatManager) {
+  ContextManager(final InjectionFuture<RootContextLauncher> launchContext,
+                 final HeartBeatManager heartBeatManager,
+                 final ConfigurationSerializer configurationSerializer) {
     this.launchContext = launchContext;
     this.heartBeatManager = heartBeatManager;
+    this.configurationSerializer = configurationSerializer;
   }
 
   /**
@@ -207,23 +219,28 @@ public final class ContextManager implements AutoCloseable {
    */
   private void addContext(final EvaluatorRuntimeProtocol.AddContextProto addContextProto) throws ContextClientCodeException {
     synchronized (this.contextStack) {
-      final ContextRuntime currentTopContext = this.contextStack.peek();
-      if (!currentTopContext.getIdentifier().equals(addContextProto.getParentContextId())) {
-        throw new IllegalStateException("Trying to instantiate a child context on context with id `" +
-            addContextProto.getParentContextId() + "` while the current top context id is `" +
-            currentTopContext.getIdentifier() +
-            "`");
-      }
-      final Configuration contextConfiguration = TANGUtils.fromString(addContextProto.getContextConfiguration());
-      final ContextRuntime newTopContext;
-      if (addContextProto.hasServiceConfiguration()) {
-        newTopContext = currentTopContext.spawnChildContext(contextConfiguration,
-            TANGUtils.fromString(addContextProto.getServiceConfiguration()));
+      try {
+        final ContextRuntime currentTopContext = this.contextStack.peek();
+        if (!currentTopContext.getIdentifier().equals(addContextProto.getParentContextId())) {
+          throw new IllegalStateException("Trying to instantiate a child context on context with id `" +
+              addContextProto.getParentContextId() + "` while the current top context id is `" +
+              currentTopContext.getIdentifier() +
+              "`");
+        }
+        final Configuration contextConfiguration = this.configurationSerializer.fromString(addContextProto.getContextConfiguration());
+        final ContextRuntime newTopContext;
+        if (addContextProto.hasServiceConfiguration()) {
+          newTopContext = currentTopContext.spawnChildContext(contextConfiguration,
+              this.configurationSerializer.fromString(addContextProto.getServiceConfiguration()));
 
-      } else {
-        newTopContext = currentTopContext.spawnChildContext(contextConfiguration);
+        } else {
+          newTopContext = currentTopContext.spawnChildContext(contextConfiguration);
+        }
+        this.contextStack.push(newTopContext);
+      } catch (final IOException | BindException e) {
+        throw new RuntimeException("Unable to read configuration.", e);
       }
-      this.contextStack.push(newTopContext);
+
     }
   }
 
@@ -270,8 +287,13 @@ public final class ContextManager implements AutoCloseable {
             "` but the active context has ID `" + currentActiveContext.getIdentifier() + "`");
       }
 
-      final Configuration taskConfig = TANGUtils.fromString(startTaskProto.getConfiguration());
-      currentActiveContext.startTask(taskConfig);
+      try {
+        final Configuration taskConfig = this.configurationSerializer.fromString(startTaskProto.getConfiguration());
+        currentActiveContext.startTask(taskConfig);
+      } catch (IOException | BindException e) {
+        throw new RuntimeException("Unable to read configuration.", e);
+      }
+
     }
   }
 

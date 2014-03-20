@@ -16,24 +16,12 @@
 package com.microsoft.reef.util;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.formats.ConfigurationFile;
 
 public final class TANGUtils {
 
   private TANGUtils() {
-  }
-
-  public static Configuration fromString(final String s) {
-    try {
-      final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-      ConfigurationFile.addConfiguration(cb, s);
-      return cb.build();
-    } catch (final BindException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public static Configuration merge(final Configuration... confs) {
@@ -41,19 +29,6 @@ public final class TANGUtils {
       return Tang.Factory.getTang().newConfigurationBuilder(confs).build();
     } catch (final BindException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  public static Configuration fromStringEncoded(final String s) {
-    return fromString(s.replaceAll("#", "\n"));
-  }
-
-  public static String toStringEncoded(final Configuration c) {
-    final String cstr = ConfigurationFile.toConfigurationString(c);
-    try {
-      return cstr.replaceAll("\n", "#");
-    } catch (final Throwable t) {
-      throw new RuntimeException("Unable to encode Configuration.", t);
     }
   }
 }

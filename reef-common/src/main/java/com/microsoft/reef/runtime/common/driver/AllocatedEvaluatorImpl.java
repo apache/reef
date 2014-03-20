@@ -22,11 +22,10 @@ import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfigurationModule;
 import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 
 import java.io.File;
 import java.util.HashSet;
@@ -40,6 +39,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   private final EvaluatorManager evaluatorManager;
   private final String remoteID;
+  private final ConfigurationSerializer configurationSerializer;
 
   /**
    * The set of files to be places on the Evaluator.
@@ -50,9 +50,10 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
    */
   private final Set<File> libraries = new HashSet<>();
 
-  AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager, final String remoteID) {
+  AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager, final String remoteID, ConfigurationSerializer configurationSerializer) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
+    this.configurationSerializer = configurationSerializer;
   }
 
   @Override
@@ -117,12 +118,12 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
           .set(EvaluatorConfigurationModule.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
           .set(EvaluatorConfigurationModule.EVALUATOR_IDENTIFIER, this.getId());
 
-      final String encodedContextConfigurationString = TANGUtils.toStringEncoded(contextConfiguration);
+      final String encodedContextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
       // Add the (optional) service configuration
       final ConfigurationModule contextConfigurationModule;
       if (serviceConfiguration.isPresent()) {
         // With service configuration
-        final String encodedServiceConfigurationString = TANGUtils.toStringEncoded(serviceConfiguration.get());
+        final String encodedServiceConfigurationString = this.configurationSerializer.toString(serviceConfiguration.get());
         contextConfigurationModule = evaluatorConfigurationModule
             .set(EvaluatorConfigurationModule.ROOT_SERVICE_CONFIGURATION, encodedServiceConfigurationString)
             .set(EvaluatorConfigurationModule.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
@@ -135,7 +136,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
       // Add the (optional) task configuration
       final Configuration evaluatorConfiguration;
       if (taskConfiguration.isPresent()) {
-        final String encodedTaskConfigurationString = TANGUtils.toStringEncoded(taskConfiguration.get());
+        final String encodedTaskConfigurationString = this.configurationSerializer.toString(taskConfiguration.get());
         evaluatorConfiguration = contextConfigurationModule
             .set(EvaluatorConfigurationModule.TASK_CONFIGURATION, encodedTaskConfigurationString).build();
       } else {
@@ -146,7 +147,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
           DriverRuntimeProtocol.ResourceLaunchProto.newBuilder()
               .setIdentifier(this.evaluatorManager.getId())
               .setRemoteId(this.remoteID)
-              .setEvaluatorConf(ConfigurationFile.toConfigurationString(evaluatorConfiguration));
+              .setEvaluatorConf(configurationSerializer.toString(evaluatorConfiguration));
 
       for (final File file : this.files) {
         rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()

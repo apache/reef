@@ -23,7 +23,7 @@ import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,13 +37,17 @@ public final class EvaluatorContext implements ActiveContext {
   private final Optional<String> parentID;
 
   private final EvaluatorManager evaluatorManager;
+  private final ConfigurationSerializer configurationSerializer;
 
   private boolean closed = false;
 
-  public EvaluatorContext(final EvaluatorManager evaluatorManager, String identifier, Optional<String> parentID) {
+  public EvaluatorContext(final EvaluatorManager evaluatorManager,
+                          final String identifier, Optional<String> parentID,
+                          final ConfigurationSerializer configurationSerializer) {
     this.identifier = identifier;
     this.parentID = parentID;
     this.evaluatorManager = evaluatorManager;
+    this.configurationSerializer = configurationSerializer;
   }
 
   @Override
@@ -58,7 +62,8 @@ public final class EvaluatorContext implements ActiveContext {
             .setRemoveContext(
                 EvaluatorRuntimeProtocol.RemoveContextProto.newBuilder()
                     .setContextId(getId())
-                    .build()).build();
+                    .build()
+            ).build();
     this.evaluatorManager.handle(contextControlProto);
     this.closed = true;
   }
@@ -92,8 +97,9 @@ public final class EvaluatorContext implements ActiveContext {
             .setStartTask(
                 EvaluatorRuntimeProtocol.StartTaskProto.newBuilder()
                     .setContextId(this.identifier)
-                    .setConfiguration(ConfigurationFile.toConfigurationString(taskConf))
-                    .build()).build();
+                    .setConfiguration(this.configurationSerializer.toString(taskConf))
+                    .build()
+            ).build();
     this.evaluatorManager.handle(contextControlProto);
   }
 
@@ -109,8 +115,9 @@ public final class EvaluatorContext implements ActiveContext {
             .setAddContext(
                 EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
                     .setParentContextId(getId())
-                    .setContextConfiguration(ConfigurationFile.toConfigurationString(contextConfiguration))
-                    .build()).build();
+                    .setContextConfiguration(this.configurationSerializer.toString(contextConfiguration))
+                    .build()
+            ).build();
     this.evaluatorManager.handle(contextControlProto);
 
   }
@@ -127,9 +134,10 @@ public final class EvaluatorContext implements ActiveContext {
             .setAddContext(
                 EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
                     .setParentContextId(getId())
-                    .setContextConfiguration(ConfigurationFile.toConfigurationString(contextConfiguration))
-                    .setServiceConfiguration(ConfigurationFile.toConfigurationString(serviceConfiguration))
-                    .build()).build();
+                    .setContextConfiguration(this.configurationSerializer.toString(contextConfiguration))
+                    .setServiceConfiguration(this.configurationSerializer.toString(serviceConfiguration))
+                    .build()
+            ).build();
     this.evaluatorManager.handle(contextControlProto);
   }
 
