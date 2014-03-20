@@ -18,14 +18,12 @@ package com.microsoft.reef.examples.retained_eval;
 import com.microsoft.reef.client.ClientConfiguration;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.OSUtils;
-
-import com.microsoft.tang.Tang;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationFile;
-
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -92,7 +90,7 @@ public class RetainedEvalTest {
     sConfig = confBuilder.build();
 
     LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
-        ConfigurationFile.toConfigurationString(sConfig));
+        new AvroConfigurationSerializer().toString(sConfig));
   }
 
   /**

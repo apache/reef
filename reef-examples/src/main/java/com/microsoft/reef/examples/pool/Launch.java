@@ -29,8 +29,8 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.CommandLine;
-import com.microsoft.tang.formats.ConfigurationFile;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -185,7 +185,7 @@ public final class Launch {
 
       final Configuration runtimeConfig = getClientConfiguration(commandLineConf, isLocal);
       LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{2}--",
-          new Object[]{jobId, timeout / 1000, ConfigurationFile.toConfigurationString(runtimeConfig)});
+          new Object[]{jobId, timeout / 1000, new AvroConfigurationSerializer().toString(runtimeConfig)});
 
       final Configuration driverConfig =
           EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
