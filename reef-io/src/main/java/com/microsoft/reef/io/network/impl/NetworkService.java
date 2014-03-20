@@ -111,9 +111,6 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
     this.nameClient = new NameClient(nameServerAddr, nameServerPort,
         factory, retryCount, retryTimeout, new NameCache(30000));
 
-    // FIXME: nsPort was assigned, but never used below:
-    // nsPort = this.transport.getListeningPort();
-
     this.nameServiceRegisteringStage = new SingleThreadStage<>(
         "NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
       @Override
