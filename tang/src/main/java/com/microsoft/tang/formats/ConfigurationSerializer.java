@@ -1,14 +1,16 @@
 package com.microsoft.tang.formats;
 
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.exceptions.BindException;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by mweimer on 2014-03-19.
+ * A base interface for Configuration serializers.
  */
+@DefaultImplementation(AvroConfigurationSerializer.class)
 public interface ConfigurationSerializer {
 
 
