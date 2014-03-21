@@ -46,7 +46,9 @@ public final class EnvironmentUtils {
 
   /**
    * @return the current REEF version.
+   * @deprecated in 0.2 use Reef.getVersion() instead.
    */
+  @Deprecated
   public static String getReefVersion() {
     return REEF_VERSION;
   }
