@@ -74,7 +74,7 @@ public class FailDriverTest {
     failOn(StartTime.class);
   }
 
-  @Test
+//  @Test
   public void testFailDriverAllocatedEvaluator() throws BindException, InjectionException {
     failOn(AllocatedEvaluator.class);
   }
