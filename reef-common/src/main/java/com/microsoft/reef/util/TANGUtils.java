@@ -21,6 +21,10 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationFile;
 
+/**
+ * @deprecated in 0.2. merge() should be provided by Tang itself.
+ */
+@Deprecated
 public final class TANGUtils {
 
   private TANGUtils() {
