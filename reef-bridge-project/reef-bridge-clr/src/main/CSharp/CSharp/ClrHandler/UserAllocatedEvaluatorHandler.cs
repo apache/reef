@@ -36,7 +36,14 @@ namespace ClrHandler
             Console.WriteLine("context configuration constructed by CLR: " + contextConfigurationString);
             Console.WriteLine("task configuration constructed by CLR: " + taskConfigurationString);
 
-            value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(contextConfigurationString, taskConfigurationString);
+            if (value.ContextConfigStr.Contains("empty") || value.TaskConfigStr.Contains("empty"))
+            {
+                value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(contextConfigurationString, taskConfigurationString);
+            }
+            else
+            {
+                value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(value.ContextConfigStr, value.TaskConfigStr);
+            }
 
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 2");
         }
