@@ -29,19 +29,36 @@ import java.util.logging.Logger;
 
 public final class EnvironmentUtils {
 
+  private static final String REEF_VERSION = "0.3-SNAPSHOT";
+
   private static final Logger LOG = Logger.getLogger(EnvironmentUtils.class.getName());
 
+  /**
+   * @return
+   * @deprecated in 0.2. REEF no longer assumes to be installed. Hence REEF_HOME is not a reasonable concept.
+   */
+  @Deprecated
   public static String getReefHome() {
     final String reefHome = System.getProperty("REEF_HOME", System.getenv("REEF_HOME"));
     assert (null != reefHome) : "REEF_HOME is not set";
     return reefHome;
   }
 
+  /**
+   * @return the current REEF version.
+   * @deprecated in 0.2 use Reef.getVersion() instead.
+   */
+  @Deprecated
   public static String getReefVersion() {
-    final String envVersion = System.getenv("REEF_VERSION");
-    return System.getProperty("REEF_VERSION", envVersion == null ? "0.1-SNAPSHOT" : envVersion);
+    return REEF_VERSION;
   }
 
+  /**
+   * @param clazz
+   * @return the path to a file containing the given class
+   * @deprecated in 0.2. It wasn't used.
+   */
+  @Deprecated
   public static String getClassLocationFile(final Class<?> clazz) {
     return clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
   }
@@ -90,13 +107,23 @@ public final class EnvironmentUtils {
           }
         }
       } catch (final InvalidPathException ex) {
-        LOG.log(Level.FINE, "Skip path: {0}: {1}", new Object[] { path, ex });
+        LOG.log(Level.FINE, "Skip path: {0}: {1}", new Object[]{path, ex});
       }
     }
 
     return jars;
   }
 
+  /**
+   * @param config
+   * @param param
+   * @param values
+   * @param <P>
+   * @return
+   * @deprecated in 0.2 this really should be in Tang.
+   * See <a href="https://github.com/Microsoft-CISL/TANG/issues/164">Tang #164</a> for details.
+   */
+  @Deprecated
   public static <P extends Param> ConfigurationModule addAll(
       ConfigurationModule config, final P param, final Iterable<String> values) {
     for (final String val : values) {
@@ -105,6 +132,11 @@ public final class EnvironmentUtils {
     return config;
   }
 
+  /**
+   * @param config
+   * @param param
+   * @return
+   */
   public static ConfigurationModule addClasspath(
       ConfigurationModule config, final OptionalParameter<String> param) {
     return addAll(config, param, getAllClasspathJars());

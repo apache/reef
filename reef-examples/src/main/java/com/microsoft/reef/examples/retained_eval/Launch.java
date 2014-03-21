@@ -26,8 +26,8 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.CommandLine;
-import com.microsoft.tang.formats.ConfigurationFile;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -179,7 +179,7 @@ public final class Launch {
     try {
       final Configuration config = getClientConfiguration(args);
       LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
-          ConfigurationFile.toConfigurationString(config));
+          new AvroConfigurationSerializer().toString(config));
       run(config);
       LOG.info("Done!");
     } catch (final BindException | InjectionException | IOException ex) {

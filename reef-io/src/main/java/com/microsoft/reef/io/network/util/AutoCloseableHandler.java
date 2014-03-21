@@ -1,0 +1,45 @@
+/*
+ * Copyright 2013 Microsoft.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.microsoft.reef.io.network.util;
+
+import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class AutoCloseableHandler <T> implements EventHandler<T> {
+
+  private static final Logger LOG = Logger.getLogger(AutoCloseableHandler.class.getName());
+
+  private final AutoCloseable toClose;
+
+  @Inject
+  public AutoCloseableHandler(final AutoCloseable toClose) {
+    this.toClose = toClose;
+  }
+
+  @Override
+  public void onNext(final T event) {
+    try {
+      LOG.log(Level.FINEST, "Closing {0}", this.toClose);
+      // TODO: Should we check if the resource had been closed already?
+      this.toClose.close();
+    } catch (final Throwable ex) {
+      LOG.log(Level.SEVERE, "Exception while closing " + this.toClose, ex);
+    }
+  }
+}

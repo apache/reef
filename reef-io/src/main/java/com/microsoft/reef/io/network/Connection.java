@@ -18,32 +18,32 @@ package com.microsoft.reef.io.network;
 import com.microsoft.reef.exception.evaluator.NetworkException;
 
 /**
- * Connection between two end-points named by identifiers
+ * Connection between two end-points named by identifiers.
  * 
  * @param <T> type
  */
-public interface Connection<T> {
-  
+public interface Connection<T> extends AutoCloseable {
+
   /**
-   * Opens the connection
+   * Opens the connection.
    * 
    * @throws NetworkException
    */
-  public void open() throws NetworkException;
-  
+  void open() throws NetworkException;
+
   /**
-   * Writes an object to the connection
+   * Writes an object to the connection.
    * 
    * @param obj
    * @throws NetworkException
    */
-  public void write(T obj) throws NetworkException;
-  
+  void write(T obj) throws NetworkException;
+
   /**
-   * Closes the connection
+   * Closes the connection.
    * 
    * @throws NetworkException
    */
-  public void close() throws NetworkException;
-  
+  @Override
+  void close() throws NetworkException;
 }

@@ -27,9 +27,10 @@ import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
-import com.microsoft.reef.util.FileUtils;
+import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.impl.ThreadPoolStage;
@@ -98,6 +99,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private final EventHandler<NodeDescriptorProto> nodeDescriptorProtoEventHandler;
 
   private final Map<String, Container> allocatedContainers = new ConcurrentHashMap<>();
+  private final ConfigurationSerializer configurationSerializer;
 
   private RegisterApplicationMasterResponse registration;
 
@@ -113,11 +115,13 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorProto> nodeDescriptorProtoEventHandler,
       final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusProto> runtimeStatusProtoEventHandler,
       final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationHandler,
-      final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler)
+      final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler,
+      final ConfigurationSerializer configurationSerializer)
       throws IOException {
 
     this.globalClassPath = globalClassPath;
     this.clock = clock;
+    this.configurationSerializer = configurationSerializer;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.yarnConf = yarnConf;
     this.resourceAllocationHandler = new ThreadPoolStage<>(resourceAllocationHandler, 8);
@@ -360,10 +364,13 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       LOG.log(Level.FINEST, "TIME: Config ResourceLaunchProto {0} {1}",
           new Object[]{containerId, evaluatorConfigurationFile});
 
-      FileUtils.writeStringToFile(evaluatorConfigurationFile, resourceLaunchProto.getEvaluatorConf());
+      final Configuration evaluatorConfiguration = this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf());
+      this.configurationSerializer.toFile(evaluatorConfiguration, evaluatorConfigurationFile);
+
       localResources.put(evaluatorConfigurationFile.getName(),
           YarnUtils.getLocalResource(this.fileSystem, new Path(evaluatorConfigurationFile.toURI()),
-              new Path(evaluatorSubmissionDirectory, evaluatorConfigurationFile.getName())));
+              new Path(evaluatorSubmissionDirectory, evaluatorConfigurationFile.getName()))
+      );
 
       // LOCAL FILE RESOURCES
       LOG.log(Level.FINEST, "TIME: Local ResourceLaunchProto {0}", containerId);

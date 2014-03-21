@@ -21,9 +21,10 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteIdentifier;
 import com.microsoft.wake.remote.RemoteMessage;
@@ -34,6 +35,7 @@ import org.mockito.Mockito;
 
 public final class ClientManagerTest {
 
+  private final ConfigurationSerializer configurationSerializer = new AvroConfigurationSerializer();
   private Injector injector;
 
   private InjectionFuture injectionFuture;
@@ -93,7 +95,7 @@ public final class ClientManagerTest {
         .setIdentifier("test")
         .build();
 
-    final ClientManager clientManager = new ClientManager(this.injector, null, this.remoteManager, this.jobSubmissionHandler);
+    final ClientManager clientManager = new ClientManager(this.injector, null, this.remoteManager, this.jobSubmissionHandler, configurationSerializer);
     final RemoteMessage message = Mockito.mock(RemoteMessage.class);
 
     Mockito.when(message.getIdentifier()).thenReturn(Mockito.mock(RemoteIdentifier.class));

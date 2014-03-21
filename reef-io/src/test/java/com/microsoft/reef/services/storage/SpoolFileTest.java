@@ -33,7 +33,7 @@ import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import org.junit.Assert;
@@ -54,16 +54,16 @@ public class SpoolFileTest {
   }
 
   @Test
-  public void testRam() throws BindException, InjectionException, ServiceException {
-    Tang t = Tang.Factory.getTang();
-    ConfigurationBuilder cb = t.newConfigurationBuilder(RamConf.CONF.build());
+  public void testRam() throws BindException, InjectionException, ServiceException, IOException {
+    final Tang t = Tang.Factory.getTang();
+    final ConfigurationBuilder configurationBuilderOne = t.newConfigurationBuilder(RamConf.CONF.build());
 
-    String s = ConfigurationFile.toConfigurationString(cb.build());
-    cb = t.newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(cb, s);
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final String serializedConfiguration = serializer.toString(configurationBuilderOne.build());
+    final ConfigurationBuilder configurationBuilderTwo = t.newConfigurationBuilder(serializer.fromString(serializedConfiguration));
 
     @SuppressWarnings("unchecked")
-    Spool<Integer> f = (Spool<Integer>) t.newInjector(cb.build()).getInstance(
+    final Spool<Integer> f = (Spool<Integer>) t.newInjector(configurationBuilderTwo.build()).getInstance(
         Spool.class);
     test(f);
   }

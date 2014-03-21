@@ -36,97 +36,91 @@ import com.microsoft.wake.remote.Codec;
 
 import javax.inject.Inject;
 import java.util.List;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementation of {@link Gather}
- * @author shravan
- *
  */
 public class GatherOp implements Gather {
 
-	public static class Sender<T> extends SenderBase<T> implements Gather.Sender<T> {
+  private static final Logger LOG = Logger.getLogger(GatherOp.class.getName());
 
+  public final static class Sender<T> extends SenderBase<T> implements Gather.Sender<T> {
 
-		@Inject
-		public Sender(
-				NetworkService<GroupCommMessage> netService,
-				GroupCommNetworkHandler multiHandler,
-				@Parameter(GroupParameters.Gather.DataCodec.class) Codec<T> codec,
-				@Parameter(GroupParameters.Gather.SenderParams.SelfId.class) String self,
-				@Parameter(GroupParameters.Gather.SenderParams.ParentId.class) String parent, 
-				@Parameter(GroupParameters.Gather.SenderParams.ChildIds.class) String children,
-				@Parameter(GroupParameters.IDFactory.class) IdentifierFactory idFac){
-			super(
-					new SenderHelperImpl<>(netService, codec),
-					new ReceiverHelperImpl<String>(netService, new StringCodec(), multiHandler),
-					idFac.getNewInstance(self),
-					idFac.getNewInstance(parent),
-					(children==GroupParameters.defaultValue) ? null : Utils.parseListCmp(children, idFac)
-				);
-		}
-		
-		public Sender(
-				SenderHelper<T> dataSender,
-				ReceiverHelper<String> ackReceiver, 
-				Identifier self, Identifier parent,
-				List<ComparableIdentifier> children) {
-			super(dataSender, ackReceiver, self, parent, children);
-		}
+    @Inject
+    public Sender(
+        final NetworkService<GroupCommMessage> netService,
+        final GroupCommNetworkHandler multiHandler,
+        final @Parameter(GroupParameters.Gather.DataCodec.class) Codec<T> codec,
+        final @Parameter(GroupParameters.Gather.SenderParams.SelfId.class) String self,
+        final @Parameter(GroupParameters.Gather.SenderParams.ParentId.class) String parent,
+        final @Parameter(GroupParameters.Gather.SenderParams.ChildIds.class) String children,
+        final @Parameter(GroupParameters.IDFactory.class) IdentifierFactory idFac) {
+      super(new SenderHelperImpl<>(netService, codec),
+            new ReceiverHelperImpl<>(netService, new StringCodec(), multiHandler),
+            idFac.getNewInstance(self),
+            idFac.getNewInstance(parent),
+            children == GroupParameters.defaultValue ? null : Utils.parseListCmp(children, idFac));
+    }
 
-		@Override
-		public void send(T element) throws NetworkException,
-				InterruptedException {
-			dataSender.send(getSelf(), getParent(), element, Type.Gather);
-			String result = ackReceiver.receive(getParent(), getSelf(), Type.Gather);
-			System.out.println(getSelf() + " received: " + result + " from "
-					+ getParent());
-		}
-	}
+    public Sender(
+        final SenderHelper<T> dataSender,
+        final ReceiverHelper<String> ackReceiver,
+        final Identifier self, final Identifier parent,
+        final List<ComparableIdentifier> children) {
+      super(dataSender, ackReceiver, self, parent, children);
+    }
 
-	public static class Receiver<T> extends ReceiverBase<T> implements Gather.Receiver<T> {
-		@Inject
-		public Receiver(
-				NetworkService<GroupCommMessage> netService,
-				GroupCommNetworkHandler multiHandler,
-				@Parameter(GroupParameters.Gather.DataCodec.class) Codec<T> codec,
-				@Parameter(GroupParameters.Gather.ReceiverParams.SelfId.class) String self,
-				@Parameter(GroupParameters.Gather.ReceiverParams.ParentId.class) String parent, 
-				@Parameter(GroupParameters.Gather.ReceiverParams.ChildIds.class) String children,
-				@Parameter(GroupParameters.IDFactory.class) IdentifierFactory idFac){
-			super(
-					new ReceiverHelperImpl<>(netService, codec, multiHandler),
-					new SenderHelperImpl<>(netService, new StringCodec()),
-					idFac.getNewInstance(self),
-					(parent==GroupParameters.defaultValue) ? null : idFac.getNewInstance(parent),
-					Utils.parseListCmp(children, idFac)
-				);
-		}
-		
-		public Receiver(
-				ReceiverHelper<T> dataReceiver,
-				SenderHelper<String> ackSender, 
-				Identifier self, Identifier parent,
-				List<ComparableIdentifier> children) {
-			super(dataReceiver, ackSender, self, parent, children);
-		}
+    @Override
+    public void send(final T element) throws NetworkException, InterruptedException {
+      this.dataSender.send(getSelf(), getParent(), element, Type.Gather);
+      final String result = this.ackReceiver.receive(getParent(), getSelf(), Type.Gather);
+      LOG.log(Level.FINEST, "{0} received: {1} from {2}",
+          new Object[] { getSelf(), result, getParent() });
+    }
+  }
 
-		@Override
-		public List<T> receive() throws InterruptedException, NetworkException {
-			return receive(getChildren());
-		}
+  public static class Receiver<T> extends ReceiverBase<T> implements Gather.Receiver<T> {
+    @Inject
+    public Receiver(
+        final NetworkService<GroupCommMessage> netService,
+        final GroupCommNetworkHandler multiHandler,
+        final @Parameter(GroupParameters.Gather.DataCodec.class) Codec<T> codec,
+        final @Parameter(GroupParameters.Gather.ReceiverParams.SelfId.class) String self,
+        final @Parameter(GroupParameters.Gather.ReceiverParams.ParentId.class) String parent,
+        final @Parameter(GroupParameters.Gather.ReceiverParams.ChildIds.class) String children,
+        final @Parameter(GroupParameters.IDFactory.class) IdentifierFactory idFac) {
+      super(new ReceiverHelperImpl<>(netService, codec, multiHandler),
+            new SenderHelperImpl<>(netService, new StringCodec()),
+            idFac.getNewInstance(self),
+            parent == GroupParameters.defaultValue ? null : idFac.getNewInstance(parent),
+            Utils.parseListCmp(children, idFac));
+    }
 
-		@Override
-		public List<T> receive(List<? extends Identifier> order)
-				throws InterruptedException, NetworkException {
-			List<T> result = dataReceiver.receive(order, getSelf(), Type.Gather);
-			System.out.println(getSelf() + " received " + result + " from "
-					+ order);
-			for (Identifier child : order) {
-				ackSender.send(getSelf(), child, "ACK", Type.Gather);
-			}
-			return result;
-		}
-	}
+    public Receiver(
+        final ReceiverHelper<T> dataReceiver,
+        final SenderHelper<String> ackSender,
+        final Identifier self, final Identifier parent,
+        final List<ComparableIdentifier> children) {
+      super(dataReceiver, ackSender, self, parent, children);
+    }
 
+    @Override
+    public List<T> receive() throws InterruptedException, NetworkException {
+      return receive(getChildren());
+    }
+
+    @Override
+    public List<T> receive(final List<? extends Identifier> order)
+        throws InterruptedException, NetworkException {
+      final List<T> result = this.dataReceiver.receive(order, getSelf(), Type.Gather);
+      LOG.log(Level.FINEST, "{0} received: {1} from {2}",
+          new Object[] { getSelf(), result, order });
+      for (final Identifier child : order) {
+        this.ackSender.send(getSelf(), child, "ACK", Type.Gather);
+      }
+      return result;
+    }
+  }
 }

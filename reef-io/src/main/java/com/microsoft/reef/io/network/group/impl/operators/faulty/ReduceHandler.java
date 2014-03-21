@@ -15,14 +15,6 @@
  */
 package com.microsoft.reef.io.network.group.impl.operators.faulty;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.exception.evaluator.NetworkException;
 import com.microsoft.reef.io.network.Message;
 import com.microsoft.reef.io.network.group.impl.operators.faulty.BroadRedHandler.IDs;
@@ -35,97 +27,117 @@ import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
 
-/**
- * 
- */
-public class ReduceHandler implements EventHandler<Message<GroupCommMessage>>{
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-  private final ConcurrentHashMap<Identifier, BlockingQueue<GroupCommMessage>> id2dataQue = new ConcurrentHashMap<>();
+/**
+ *
+ */
+public final class ReduceHandler implements EventHandler<Message<GroupCommMessage>> {
+
+  private static final Logger LOG = Logger.getLogger(ReduceHandler.class.getName());
+
+  private final ConcurrentHashMap<Identifier,
+      BlockingQueue<GroupCommMessage>> id2dataQue = new ConcurrentHashMap<>();
+
   private final BlockingQueue<GroupCommMessage> ctrlQue = new LinkedBlockingQueue<>();
-  
+
   private final IdentifierFactory idFac;
-  
+
   @Inject
-  public ReduceHandler(@Parameter(IDs.class) Set<String> ids,
-      @Parameter(BroadReduceConfig.IdFactory.class) IdentifierFactory idFac) {
+  public ReduceHandler(
+      final @Parameter(IDs.class) Set<String> ids,
+      final @Parameter(BroadReduceConfig.IdFactory.class) IdentifierFactory idFac) {
     this.idFac = idFac;
-    System.out.println("\t\tI can listen from:");
-    for(String id : ids){
+    LOG.log(Level.FINEST, "\t\tI can listen from:");
+    for (String id : ids) {
       Identifier compId = idFac.getNewInstance(id);
       addChild(compId);
-      System.out.println("\t\t" + compId);
+      LOG.log(Level.FINEST, "\t\t{0}", compId);
     }
   }
-  
-  public synchronized void addChild(Identifier compId){
-    System.out.println("Adding " + compId + " as one of the senders to which I can listen from");
-    id2dataQue.put(compId, new LinkedBlockingQueue<GroupCommMessage>());
+
+  public synchronized void addChild(final Identifier compId) {
+    LOG.log(Level.FINEST, "Adding {0} as one of the senders to which I can listen from", compId);
+    this.id2dataQue.put(compId, new LinkedBlockingQueue<GroupCommMessage>());
   }
-  
-  public synchronized void removeChild(Identifier compId){
-    System.out.println("Removing " + compId + " as one of the senders to which I can listen from");
-    id2dataQue.remove(compId);
+
+  public synchronized void removeChild(final Identifier compId) {
+    LOG.log(Level.FINEST, "Removing {0} as one of the senders to which I can listen from", compId);
+    this.id2dataQue.remove(compId);
   }
 
   @Override
-  public void onNext(Message<GroupCommMessage> value) {
-    GroupCommMessage oneVal = null;
-    if(value.getData().iterator().hasNext())
-      oneVal = value.getData().iterator().next();
-    Identifier srcId = idFac.getNewInstance(oneVal.getSrcid());
+  public void onNext(final Message<GroupCommMessage> value) {
+
+    final GroupCommMessage oneVal = value.getData().iterator().hasNext() ?
+        value.getData().iterator().next() : null;
+
+    final Identifier srcId = this.idFac.getNewInstance(oneVal.getSrcid());
+
     try {
-      System.out.println("\t\t" + oneVal.getType() + " from:" + srcId);
-      if(Type.SourceAdd==oneVal.getType()){
-        ctrlQue.put(oneVal);
+      LOG.log(Level.FINEST, "\t\t{0} from: {1}", new Object[] { oneVal.getType(), srcId });
+      switch (oneVal.getType()) {
+        case SourceAdd:
+          this.ctrlQue.put(oneVal);
+          break;
+        case SourceDead:
+          this.ctrlQue.put(oneVal);
+          if (this.id2dataQue.containsKey(srcId)) {
+            this.id2dataQue.get(srcId).put(oneVal);
+          }
+          break;
+        default:
+          if (!this.id2dataQue.containsKey(srcId)) {
+            LOG.log(Level.FINEST, "Ignoring msg as I am not configured to recv from " + srcId);
+            return;
+          }
+          this.id2dataQue.get(srcId).put(oneVal);
       }
-      else if(Type.SourceDead==oneVal.getType()){
-        ctrlQue.put(oneVal);
-        if(id2dataQue.containsKey(srcId))
-          id2dataQue.get(srcId).put(oneVal);
-      }
-      else{
-        if(!id2dataQue.containsKey(srcId)){
-          System.out.println("Ignoring msg as I am not configured to recv from " + srcId);
-          return;
-        }
-        id2dataQue.get(srcId).put(oneVal);
-      }
-    } catch (InterruptedException e) {
-      throw new RuntimeException("Could not put " + oneVal + " into the queue of " + srcId, e);
+    } catch (final InterruptedException e) {
+      final String msg = "Could not put " + oneVal + " into the queue of " + srcId;
+      LOG.log(Level.WARNING, msg, e);
+      throw new RuntimeException(msg, e);
     }
   }
-  
-  public void sync(Map<Identifier, Integer> isIdAlive/*Set<Identifier> born, Set<Identifier> dead*/){
-    System.out.println("Synching any control messages");
-    while(!ctrlQue.isEmpty()){
-      GroupCommMessage gcm = ctrlQue.poll();
-      Identifier id = idFac.getNewInstance(gcm.getSrcid());
-      if(gcm.getType()==Type.SourceAdd){
-        int status = 0;
-        if(isIdAlive.containsKey(id))
-          status = isIdAlive.get(id);
-        isIdAlive.put(id, status+1);
-      }
-      else{
-        int status = 0;
-        if(isIdAlive.containsKey(id))
-          status = isIdAlive.get(id);
-        isIdAlive.put(id, status-1);
+
+  public void sync(final Map<Identifier, Integer> isIdAlive
+                   /* final Set<Identifier> born, final Set<Identifier> dead */) {
+
+    LOG.log(Level.FINEST, "Synching any control messages");
+
+    while (!this.ctrlQue.isEmpty()) {
+
+      final GroupCommMessage gcm = this.ctrlQue.poll();
+      final Identifier id = this.idFac.getNewInstance(gcm.getSrcid());
+      final int status = isIdAlive.containsKey(id) ? isIdAlive.get(id) : 0;
+
+      if (gcm.getType() == Type.SourceAdd) {
+        isIdAlive.put(id, status + 1);
+      } else {
+        isIdAlive.put(id, status - 1);
       }
     }
-    System.out.println("Id to life status: " + isIdAlive);
 
-    for (Identifier identifier : isIdAlive.keySet()) {
-      int status = isIdAlive.get(identifier);
-      if(status<0){
-        System.out.println(identifier + " is dead(" + status + "). Removing from handler");
+    LOG.log(Level.FINEST, "Id to life status: {0}", isIdAlive);
+
+    for (final Identifier identifier : isIdAlive.keySet()) {
+      final int status = isIdAlive.get(identifier);
+      if (status < 0) {
+        LOG.log(Level.FINEST,
+            "{0} is dead({1}). Removing from handler", new Object[] { identifier, status });
         removeChild(identifier);
-      }
-      else if(status>0){
-        System.out.println(identifier + " is alive(" + status + "). Adding to handler");
+      } else if (status > 0) {
+        LOG.log(Level.FINEST,
+            "{0} is alive({1}). Adding to handler", new Object[] { identifier, status });
         addChild(identifier);
-      }
-      else{
+      } else {
         //status == 0
         //if(handler can receive from this id)
         //  means that (srcDead + srcAdd)*
@@ -140,27 +152,27 @@ public class ReduceHandler implements EventHandler<Message<GroupCommMessage>>{
     }
   }
 
-  /**
-   * @param child
-   * @return
-   * @throws InterruptedException 
-   * @throws NetworkException 
-   */
-  public <T> T get(Identifier id, Codec<T> codec) throws InterruptedException, NetworkException {
-    System.out.println("\t\tget from " + id);
-    if(!id2dataQue.containsKey(id)){
-      System.out.println("\t\tCan't receive from a non-child");
+  public <T> T get(final Identifier id,
+                   final Codec<T> codec) throws InterruptedException, NetworkException {
+
+    LOG.log(Level.FINEST, "\t\tget from {0}", id);
+
+    if (!this.id2dataQue.containsKey(id)) {
+      LOG.log(Level.FINEST, "\t\tCan't receive from a non-child");
       throw new RuntimeException("Can't receive from a non-child");
     }
-    T retVal = null;
-    GroupCommMessage gcm = id2dataQue.get(id).take();
-    if(gcm.getType()==Type.SourceDead){
-      System.out.println("\t\tGot src dead msg from driver. Terminating wait and returning null");
+
+    final GroupCommMessage gcm = id2dataQue.get(id).take();
+    if (gcm.getType() == Type.SourceDead) {
+      LOG.log(Level.FINEST, "\t\tGot src dead msg from driver. Terminating wait and returning null");
       return null;
     }
-    for(GroupMessageBody body : gcm.getMsgsList()){
+
+    T retVal = null;
+    for (final GroupMessageBody body : gcm.getMsgsList()) {
       retVal = codec.decode(body.getData().toByteArray());
     }
+
     return retVal;
   }
 }

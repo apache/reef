@@ -30,12 +30,13 @@ import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +57,7 @@ public final class ResourceManager {
   private final ContainerManager theContainers;
   private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
   private final int defaultMemorySize;
+  private final ConfigurationSerializer configurationSerializer;
 
   private final RemoteManager remoteManager;
 
@@ -73,10 +75,12 @@ public final class ResourceManager {
                   final @Parameter(LocalDriverConfiguration.GlobalLibraries.class) Set<String> globalLibraries,
                   final @Parameter(LocalDriverConfiguration.GlobalFiles.class) Set<String> globalFiles,
                   final @Parameter(LocalRuntimeConfiguration.DefaultMemorySize.class) int defaultMemorySize,
+                  final ConfigurationSerializer configurationSerializer,
                   final RemoteManager remoteManager) {
     this.theContainers = cm;
     this.allocationHandler = allocationHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusHandlerEventHandler;
+    this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
     this.defaultMemorySize = defaultMemorySize;
     this.globalLibraries = new ArrayList<>(globalLibraries);
@@ -139,7 +143,13 @@ public final class ResourceManager {
       final List<String> classPath = this.assembleClasspath(getLocalLibraries(launchRequest));
 
       // Make the configuration file of the evaluator.
-      final File evaluatorConfigurationFile = write(launchRequest.getEvaluatorConf(), new File(c.getFolder(), EVALUATOR_CONFIGURATION_NAME));
+      final File evaluatorConfigurationFile = new File(c.getFolder(), EVALUATOR_CONFIGURATION_NAME);
+
+      try {
+        this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()), evaluatorConfigurationFile);
+      } catch (final IOException | BindException e) {
+        throw new RuntimeException("Unable to write configuration.", e);
+      }
 
       // Assemble the command line
       final LaunchCommandBuilder commandBuilder;
@@ -214,22 +224,6 @@ public final class ResourceManager {
     final String logMessage = "Outstanding Container Requests: " + msg.getOutstandingContainerRequests() + ", AllocatedContainers: " + msg.getContainerAllocationCount();
     LOG.log(Level.FINEST, logMessage);
     this.runtimeStatusHandlerEventHandler.onNext(msg);
-  }
-
-  /**
-   * Utility that writes the given string to a file and throw a RuntimeException if it can't
-   *
-   * @param message     the message to write.
-   * @param destination the file to write the message to.
-   * @return the file given.
-   */
-  private static File write(final String message, final File destination) {
-    try (final PrintWriter clientOut = new PrintWriter(destination)) {
-      clientOut.write(message.toCharArray());
-    } catch (final IOException e) {
-      throw new RuntimeException("Unable to write file.", e);
-    }
-    return destination;
   }
 
   /**

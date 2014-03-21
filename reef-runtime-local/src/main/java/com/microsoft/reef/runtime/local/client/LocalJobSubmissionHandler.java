@@ -26,8 +26,8 @@ import com.microsoft.reef.runtime.local.driver.RunnableProcess;
 import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -65,21 +65,25 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final ExecutorService executor;
   private final int nThreads;
   private final String rootFolderName;
+  private final ConfigurationSerializer configurationSerializer;
 
 
   @Inject
   public LocalJobSubmissionHandler(final ExecutorService executor,
                                    final @Parameter(LocalRuntimeConfiguration.RootFolder.class) String rootFolderName,
-                                   final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads) {
+                                   final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads,
+                                   final ConfigurationSerializer configurationSerializer) {
     this.executor = executor;
     this.nThreads = nThreads;
+    this.configurationSerializer = configurationSerializer;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
   }
 
   @Inject
   public LocalJobSubmissionHandler(final ExecutorService executor,
-                                   final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads) {
-    this(executor, System.getProperty(ROOT_FOLDER_ENV_KEY, "REEF_LOCAL_RUNTIME"), nThreads);
+                                   final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads,
+                                   final ConfigurationSerializer configurationSerializer) {
+    this(executor, System.getProperty(ROOT_FOLDER_ENV_KEY, "REEF_LOCAL_RUNTIME"), nThreads, configurationSerializer);
   }
 
 
@@ -110,13 +114,13 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
 
       final Configuration driverConfigurationPart2 = new LocalDriverRuntimeConfiguration()
-          .addClientConfiguration(TANGUtils.fromString(t.getConfiguration()))
+          .addClientConfiguration(this.configurationSerializer.fromString(t.getConfiguration()))
           .setClientRemoteIdentifier(t.getRemoteId())
           .setJobIdentifier(t.getIdentifier()).build();
 
       final Configuration driverConfiguration = TANGUtils.merge(driverConfigurationPart2, driverConfigurationPart1.build());
       final File runtimeConfigurationFile = new File(driverFolder, DRIVER_CONFIGURATION_FILE_NAME);
-      ConfigurationFile.writeConfigurationFile(driverConfiguration, runtimeConfigurationFile);
+      this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
       final List<String> command = new JavaLaunchCommandBuilder()
           .setErrorHandlerRID(t.getRemoteId())

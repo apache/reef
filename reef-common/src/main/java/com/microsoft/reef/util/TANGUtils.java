@@ -16,45 +16,23 @@
 package com.microsoft.reef.util;
 
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.formats.ConfigurationFile;
 
+/**
+ * @deprecated in 0.2. merge() should be provided by Tang itself.
+ */
+@Deprecated
 public final class TANGUtils {
 
   private TANGUtils() {
   }
 
-  public static Configuration fromString(final String s) {
-    try {
-      final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-      ConfigurationFile.addConfiguration(cb, s);
-      return cb.build();
-    } catch (BindException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public static Configuration merge(final Configuration... confs) {
     try {
       return Tang.Factory.getTang().newConfigurationBuilder(confs).build();
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  public static Configuration fromStringEncoded(final String s) {
-    return fromString(s.replaceAll("#", "\n"));
-  }
-
-  public static String toStringEncoded(final Configuration c) {
-    final String cstr = ConfigurationFile.toConfigurationString(c);
-    try {
-      return cstr.replaceAll("\n", "#");
-    } catch (Throwable t) {
-      System.out.println("CONFIGURATION STRING: " + cstr);
-      throw t;
     }
   }
 }

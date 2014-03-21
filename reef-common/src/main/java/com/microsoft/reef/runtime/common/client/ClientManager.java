@@ -38,7 +38,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteMessage;
 
@@ -67,7 +67,8 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
             "  /  /\\  \\     /  ___/ /  ___/ /  ____/" + "\n" +
             " /  /  \\  \\   /  /__  /  /__  /  /" + "\n" +
             "/__/    \\__\\ /_____/ /_____/ /__/    version " + EnvironmentUtils.getReefVersion() + "\n\n" +
-            "From Microsoft CISL\n");
+            "From Microsoft CISL\n"
+    );
   }
 
   private static final File TEMP_FOLDER;
@@ -90,17 +91,20 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   private final String userName = System.getProperty("user.name");
   private final Map<String, RunningJobImpl> runningJobMap =
       Collections.synchronizedMap(new HashMap<String, RunningJobImpl>());
+  private final ConfigurationSerializer configurationSerializer;
 
   @Inject
   ClientManager(final Injector injector,
                 final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class)
                 InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture,
                 final RemoteManager remoteManager,
-                final JobSubmissionHandler jobSubmissionHandler) {
+                final JobSubmissionHandler jobSubmissionHandler,
+                final ConfigurationSerializer configurationSerializer) {
 
     this.injector = injector;
     this.remoteManager = remoteManager;
     this.jobSubmissionHandler = jobSubmissionHandler;
+    this.configurationSerializer = configurationSerializer;
 
     this.masterChannel = this.remoteManager.registerHandler(JobStatusProto.class, this);
     this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class,
@@ -159,25 +163,25 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
           .setRemoteId(this.remoteManager.getMyIdentifier())
           .setUserName(this.userName)
           .setDriverSize(ReefServiceProtos.SIZE.valueOf(injector.getNamedInstance(DriverConfigurationOptions.DriverSize.class)))
-          .setConfiguration(ConfigurationFile.toConfigurationString(driverConf));
+          .setConfiguration(configurationSerializer.toString(driverConf));
 
       for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
-        LOG.log(Level.FINEST,  "Adding global file: {0}", globalFileName);
+        LOG.log(Level.FINEST, "Adding global file: {0}", globalFileName);
         jbuilder.addGlobalFile(getFileResourceProto(globalFileName, FileType.PLAIN));
       }
 
       for (final String globalLibraryName : injector.getNamedInstance(DriverConfigurationOptions.GlobalLibraries.class)) {
-        LOG.log(Level.FINEST,  "Adding global library: {0}", globalLibraryName);
+        LOG.log(Level.FINEST, "Adding global library: {0}", globalLibraryName);
         jbuilder.addGlobalFile(getFileResourceProto(globalLibraryName, FileType.LIB));
       }
 
       for (final String localFileName : injector.getNamedInstance(DriverConfigurationOptions.LocalFiles.class)) {
-        LOG.log(Level.FINEST,  "Adding local file: {0}", localFileName);
+        LOG.log(Level.FINEST, "Adding local file: {0}", localFileName);
         jbuilder.addLocalFile(getFileResourceProto(localFileName, FileType.PLAIN));
       }
 
       for (final String localLibraryName : injector.getNamedInstance(DriverConfigurationOptions.LocalLibraries.class)) {
-        LOG.log(Level.FINEST,  "Adding local library: {0}", localLibraryName);
+        LOG.log(Level.FINEST, "Adding local library: {0}", localLibraryName);
         jbuilder.addLocalFile(getFileResourceProto(localLibraryName, FileType.LIB));
       }
 
@@ -193,6 +197,11 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
       }
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public String getVersion() {
+    return EnvironmentUtils.getReefVersion();
   }
 
   private final FileResourceProto getFileResourceProto(
@@ -233,7 +242,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     try {
       if (status.getState() == ReefServiceProtos.State.INIT) {
         assert (!this.runningJobMap.containsKey(status.getIdentifier()));
-        LOG.log(Level.FINEST,  "Initializing running job {0}", status.getIdentifier());
+        LOG.log(Level.FINEST, "Initializing running job {0}", status.getIdentifier());
         final Injector child = this.injector.forkInjector();
         child.bindVolatileParameter(DriverRemoteIdentifier.class, message.getIdentifier().toString());
         child.bindVolatileInstance(JobStatusProto.class, status);

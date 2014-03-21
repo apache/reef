@@ -153,9 +153,10 @@ public final class HelloDriver {
   private static final Configuration getCLRTaskConfiguration(final String taskId) throws BindException {
     final ConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
         .newConfigurationBuilder(loadClassHierarchy());
-    taskConfigurationBuilder.bind("Microsoft.Reef.Tasks.TaskConfigurationOptions.Identifier", taskId);
-    taskConfigurationBuilder.bind("Microsoft.Reef.Tasks.ITask", "Microsoft.Reef.Tasks.HelloTask");
-    return taskConfigurationBuilder.build();
+    taskConfigurationBuilder.bind("Microsoft.Reef.Tasks.TaskConfigurationOptions+Identifier, Microsoft.Reef.Tasks.ITask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", taskId);
+    taskConfigurationBuilder.bind("Microsoft.Reef.Tasks.ITask, Microsoft.Reef.Tasks.ITask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "Microsoft.Reef.Tasks.HelloTask, Microsoft.Reef.Tasks.HelloTask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+
+      return taskConfigurationBuilder.build();
   }
 
   /**

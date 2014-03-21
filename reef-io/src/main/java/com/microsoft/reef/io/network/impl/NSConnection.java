@@ -32,7 +32,9 @@ import java.util.logging.Logger;
  * A connection from the network service
  */
 class NSConnection<T> implements Connection<T> {
+
   private static final Logger LOG = Logger.getLogger(NSConnection.class.getName());
+
   private final Identifier srcId;
   private final Identifier destId;
   private final LinkListener<NSMessage<T>> listener;
@@ -50,34 +52,41 @@ class NSConnection<T> implements Connection<T> {
    * @param listener a link listener
    * @param service  a network service
    */
-  NSConnection(final Identifier srcId, final Identifier destId, final LinkListener<T> listener,
-               final NetworkService<T> service) {
+  NSConnection(final Identifier srcId, final Identifier destId,
+               final LinkListener<T> listener, final NetworkService<T> service) {
     this.srcId = srcId;
     this.destId = destId;
-    this.listener = new NSMessageLinkListener<T>(listener);
+    this.listener = new NSMessageLinkListener<>(listener);
     this.service = service;
-    this.codec = new NSMessageCodec<T>(service.getCodec(), service.getIdentifierFactory());
+    this.codec = new NSMessageCodec<>(service.getCodec(), service.getIdentifierFactory());
   }
 
   /**
-   * Opens the connection
-   *
-   * @throws a network exception
+   * Opens the connection.
    */
   @Override
   public void open() throws NetworkException {
+
+    LOG.log(Level.FINE, "looking up {0}", this.destId);
+
     try {
-      LOG.log(Level.FINE, "looking up {0}", destId);
       // naming lookup
-      final InetSocketAddress addr = service.getNameClient().lookup(destId);
-      if (addr == null)
-        throw new NamingException("Cannot resolve " + destId);
-      LOG.log(Level.FINE, "Resolved {0} to {1}", new Object[]{destId, addr});
+      final InetSocketAddress addr = this.service.getNameClient().lookup(this.destId);
+      if (addr == null) {
+        final NetworkException ex = new NamingException("Cannot resolve " + this.destId);
+        LOG.log(Level.WARNING, "Cannot resolve " + this.destId, ex);
+        throw ex;
+      }
+
+      LOG.log(Level.FINE, "Resolved {0} to {1}", new Object[] { this.destId, addr });
+
       // connect to a remote address
-      link = service.getTransport().open(addr, codec, listener);
-      LOG.log(Level.FINE, "Transport returned a link {0}", link);
-    } catch (Exception e) {
-      throw new NetworkException(e.getCause());
+      this.link = this.service.getTransport().open(addr, this.codec, this.listener);
+      LOG.log(Level.FINE, "Transport returned a link {0}", this.link);
+
+    } catch (final Exception ex) {
+      LOG.log(Level.WARNING, "Could not open " + this.destId, ex);
+      throw new NetworkException(ex);
     }
   }
 
@@ -88,11 +97,12 @@ class NSConnection<T> implements Connection<T> {
    * @throws a network exception
    */
   @Override
-  public void write(T obj) throws NetworkException {
+  public void write(final T obj) throws NetworkException {
     try {
-      link.write(new NSMessage<T>(srcId, destId, obj));
-    } catch (final IOException e) {
-      throw new NetworkException(e);
+      this.link.write(new NSMessage<T>(this.srcId, this.destId, obj));
+    } catch (final IOException ex) {
+      LOG.log(Level.WARNING, "Could not write to " + this.destId, ex);
+      throw new NetworkException(ex);
     }
   }
 
@@ -101,9 +111,8 @@ class NSConnection<T> implements Connection<T> {
    */
   @Override
   public void close() throws NetworkException {
-    service.remove(destId);
+    this.service.remove(this.destId);
   }
-
 }
 
 /**
@@ -111,13 +120,12 @@ class NSConnection<T> implements Connection<T> {
  *
  * @param <T>
  */
-class NSMessageLinkListener<T> implements LinkListener<NSMessage<T>> {
+final class NSMessageLinkListener<T> implements LinkListener<NSMessage<T>> {
 
-  NSMessageLinkListener(LinkListener<T> listener) {
+  NSMessageLinkListener(final LinkListener<T> listener) {
   }
 
   @Override
-  public void messageReceived(NSMessage<T> message) {
+  public void messageReceived(final NSMessage<T> message) {
   }
-
 }
