@@ -38,7 +38,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationFile;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteMessage;
 
@@ -91,17 +91,20 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   private final String userName = System.getProperty("user.name");
   private final Map<String, RunningJobImpl> runningJobMap =
       Collections.synchronizedMap(new HashMap<String, RunningJobImpl>());
+  private final ConfigurationSerializer configurationSerializer;
 
   @Inject
   ClientManager(final Injector injector,
                 final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class)
                 InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture,
                 final RemoteManager remoteManager,
-                final JobSubmissionHandler jobSubmissionHandler) {
+                final JobSubmissionHandler jobSubmissionHandler,
+                final ConfigurationSerializer configurationSerializer) {
 
     this.injector = injector;
     this.remoteManager = remoteManager;
     this.jobSubmissionHandler = jobSubmissionHandler;
+    this.configurationSerializer = configurationSerializer;
 
     this.masterChannel = this.remoteManager.registerHandler(JobStatusProto.class, this);
     this.errorChannel = this.remoteManager.registerHandler(RuntimeErrorProto.class,
@@ -160,7 +163,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
           .setRemoteId(this.remoteManager.getMyIdentifier())
           .setUserName(this.userName)
           .setDriverSize(ReefServiceProtos.SIZE.valueOf(injector.getNamedInstance(DriverConfigurationOptions.DriverSize.class)))
-          .setConfiguration(ConfigurationFile.toConfigurationString(driverConf));
+          .setConfiguration(configurationSerializer.toString(driverConf));
 
       for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
         LOG.log(Level.FINEST, "Adding global file: {0}", globalFileName);

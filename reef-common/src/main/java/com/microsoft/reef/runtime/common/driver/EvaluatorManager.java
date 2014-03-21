@@ -38,6 +38,7 @@ import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteMessage;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
@@ -113,6 +114,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final DriverExceptionHandler driverExceptionHandler;
 
+  private final ConfigurationSerializer configurationSerializer;
+
   // TODO: Wrap this in a set-once-with-default class
   private EvaluatorType type = EvaluatorType.JVM;
 
@@ -146,7 +149,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
       final @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
       final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
-      final DriverExceptionHandler driverExceptionHandler) {
+      final DriverExceptionHandler driverExceptionHandler, ConfigurationSerializer configurationSerializer) {
 
     this.clock = clock;
     this.remoteManager = remoteManager;
@@ -156,6 +159,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorId = evaluatorId;
     this.evaluatorDescriptor = evaluatorDescriptor;
     this.driverExceptionHandler = driverExceptionHandler;
+    this.configurationSerializer = configurationSerializer;
 
     this.dispatcher = new DispatchingEStage(driverExceptionHandler, 16); // 16 threads
 
@@ -175,7 +179,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.dispatcher.register(AllocatedEvaluator.class, allocatedEvaluatorEventHandlers);
 
     this.dispatcher.onNext(AllocatedEvaluator.class,
-        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier()));
+        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer));
   }
 
   /**
@@ -237,14 +241,16 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           public void onNext(final Alarm alarm) {
             EvaluatorManager.this.resourceReleaseHandler.onNext(
                 DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-                    .setIdentifier(EvaluatorManager.this.evaluatorId).build());
+                    .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+            );
           }
         });
       } catch (final IllegalStateException e) {
         LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
         EvaluatorManager.this.resourceReleaseHandler.onNext(
             DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-                .setIdentifier(EvaluatorManager.this.evaluatorId).build());
+                .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+        );
       } finally {
         EvaluatorManager.this.driverManager.release(EvaluatorManager.this);
       }
@@ -428,7 +434,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
     if (ReefServiceProtos.ContextStatusProto.State.READY == contextStatusProto.getContextState()) {
       if (!this.activeContextIds.contains(contextID)) {
-        final EvaluatorContext context = new EvaluatorContext(this, contextID, parentID);
+        final EvaluatorContext context = new EvaluatorContext(this, contextID, parentID, configurationSerializer);
         addEvaluatorContext(context);
         if (notifyClientOnNewActiveContext) {
           this.dispatcher.onNext(ActiveContext.class, context);
@@ -445,7 +451,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       if (!this.activeContextIds.contains(contextID)) {
         if (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState()) {
           // It failed right away
-          addEvaluatorContext(new EvaluatorContext(this, contextID, parentID));
+          addEvaluatorContext(new EvaluatorContext(this, contextID, parentID, configurationSerializer));
         } else {
           throw new RuntimeException("unknown context signaling state " + contextStatusProto.getContextState());
         }
@@ -522,7 +528,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto taskMessageProto : taskStatusProto.getTaskMessageList()) {
         this.dispatcher.onNext(TaskMessage.class,
             new TaskMessageImpl(taskMessageProto.getMessage().toByteArray(),
-                taskId, contextId, taskMessageProto.getSourceId()));
+                taskId, contextId, taskMessageProto.getSourceId())
+        );
       }
     }
   }
