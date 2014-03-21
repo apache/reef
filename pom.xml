@@ -41,8 +41,8 @@
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.2.0</hadoop.version>
-        <tang.version>0.2-SNAPSHOT</tang.version>
-        <wake.version>0.2-SNAPSHOT</wake.version>
+        <tang.version>0.2</tang.version>
+        <wake.version>0.2</wake.version>
     </properties>
 
 
