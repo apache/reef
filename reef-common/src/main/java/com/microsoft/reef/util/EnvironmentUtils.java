@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 
 public final class EnvironmentUtils {
 
-  private static final String REEF_VERSION = "0.2";
+  private static final String REEF_VERSION = "0.3-SNAPSHOT";
 
   private static final Logger LOG = Logger.getLogger(EnvironmentUtils.class.getName());
 
