@@ -199,6 +199,11 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
     }
   }
 
+  @Override
+  public String getVersion() {
+    return EnvironmentUtils.getReefVersion();
+  }
+
   private final FileResourceProto getFileResourceProto(
       final String fileName, final FileType type) throws IOException {
     File file = new File(fileName);
