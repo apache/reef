@@ -17,6 +17,7 @@ package com.microsoft.tang.implementation.protobuf;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import com.microsoft.tang.ClassHierarchy;
@@ -38,6 +39,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   private final PackageNode namespace;
   private static final String regex = "[\\.\\$\\+]";
+  private HashMap<String, Node> lookupTable = new HashMap<>();
 
   // ############## Serialize implementation ############## 
 
@@ -196,11 +198,20 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     for (ClassHierarchyProto.Node child : root.getChildrenList()) {
       parseSubHierarchy(namespace, child);
     }
+    buildLookupTable(namespace);
     // Now, register the implementations
     for (ClassHierarchyProto.Node child : root.getChildrenList()) {
       wireUpInheritanceRelationships(child);
     }
   }
+
+    private void buildLookupTable(Node n)
+    {
+        for (Node child : n.getChildren()) {
+            lookupTable.put(child.getFullName(), child);
+            buildLookupTable(child);
+        }
+    }
 
   private static void parseSubHierarchy(Node parent, ClassHierarchyProto.Node n) {
     final Node parsed;
@@ -313,9 +324,11 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   @Override
   public Node getNode(String fullName) throws NameResolutionException {
-    String[] tok = fullName.split(regex);
 
-    Node ret = namespace.get(fullName); 
+     Node ret = lookupTable.get(fullName);
+/*    String[] tok = fullName.split(regex);
+
+    Node ret = namespace.get(fullName);
     for (int i = 0; i < tok.length; i++) {
       Node n = namespace.get(getNthPrefix(fullName, i));
       if (n != null) {
@@ -328,7 +341,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
         }
         return n;
       }
-    }
+    } */
     if(ret != null) {
       return ret;
     } else {
