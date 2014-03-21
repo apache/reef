@@ -61,8 +61,8 @@ public final class HelloBridgeDriver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: ", startTime);
-        allocatedEvalatorHandler = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
-        HelloBridgeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+      allocatedEvalatorHandler = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+      HelloBridgeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
     }
   }

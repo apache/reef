@@ -70,6 +70,11 @@ public class NativeInterop {
 
     static String[] managedDlls =		{
             "ClrHandler",
+            "Microsoft.Tang",
+            "Microsoft.Reef.Common.Utils",
+            "Microsoft.Reef.Driver",
+            "Microsoft.Reef.Tasks.ITask",
+            "Microsoft.Reef.Tasks.HelloTask",
     };
 
 

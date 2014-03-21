@@ -91,8 +91,8 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   @Override
   public void submitContextAndTasksString(final String contextConfigurationString,
                                      final String taskConfigurationString){
-        Configuration contextConfiguration = TANGUtils.fromString(contextConfigurationString);
-        Configuration taskConfiguration = TANGUtils.fromString(taskConfigurationString);
+        Configuration contextConfiguration = TANGUtils.fromString(contextConfigurationString.replace("+", "$"));
+        Configuration taskConfiguration = TANGUtils.fromString(taskConfigurationString.replace("+", "$"));
         launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
     }
 

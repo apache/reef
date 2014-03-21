@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.Reef.Driver.Context;
 using Microsoft.Reef.Interop;
+using Microsoft.Reef.Tasks;
+using Microsoft.Tang.Formats;
+using Microsoft.Tang.Interface;
+using Microsoft.Tang.Util;
+using System;
 
 namespace ClrHandler
 {
@@ -22,7 +24,20 @@ namespace ClrHandler
         public void OnNext(AllocatedEvaluator value)
         {
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 1");
-            value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(value.ContextConfigStr, value.TaskConfigStr);
+            IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
+                .Set(TaskConfiguration.Identifier, "bridgeCLRTaskId")
+                .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
+                .Build();
+            IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
+                .Set(ContextConfiguration.Identifier, "bridgeCLRContextId")
+                .Build();
+            string contextConfigurationString = ConfigurationFile.ToConfigurationString(contextConfiguration);
+            string taskConfigurationString = ConfigurationFile.ToConfigurationString(taskConfiguration);
+            Console.WriteLine("context configuration constructed by CLR: " + contextConfigurationString);
+            Console.WriteLine("task configuration constructed by CLR: " + taskConfigurationString);
+
+            value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(contextConfigurationString, taskConfigurationString);
+
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 2");
         }
     }
