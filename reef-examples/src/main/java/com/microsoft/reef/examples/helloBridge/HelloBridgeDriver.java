@@ -24,6 +24,7 @@ import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.ConfigurationFile;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
@@ -84,9 +85,10 @@ public final class HelloBridgeDriver {
             .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
             .set(TaskConfiguration.TASK, HelloTask.class)
             .build();
-        String contexConfigurationStr = ConfigurationFile.toConfigurationString(contextConfiguration);
-        String taskConfigurationStr = ConfigurationFile.toConfigurationString(taskConfiguration);
-        NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvalatorHandler, allocatedEvaluator, contexConfigurationStr, taskConfigurationStr, interopLogger);
+        final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+        String contextConfigurationStr = serializer.toString(contextConfiguration);
+        String taskConfigurationStr = serializer.toString(taskConfiguration);
+        NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvalatorHandler, allocatedEvaluator, contextConfigurationStr, taskConfigurationStr, interopLogger);
       } catch (final BindException ex) {
         throw new RuntimeException("Unable to setup Task or Context configuration.", ex);
       }

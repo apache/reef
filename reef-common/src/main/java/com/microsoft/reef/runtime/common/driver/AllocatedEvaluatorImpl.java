@@ -26,8 +26,10 @@ import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.reef.util.logging.Config;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationSerializer;
+import com.microsoft.tang.formats.avro.AvroConfiguration;
 
 import java.io.File;
 import java.util.HashSet;
@@ -94,11 +96,16 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   @Override
   public void submitContextAndTasksString(final String contextConfigurationString,
-                                     final String taskConfigurationString){
-        Configuration contextConfiguration = TANGUtils.fromString(contextConfigurationString.replace("+", "$"));
-        Configuration taskConfiguration = TANGUtils.fromString(taskConfigurationString.replace("+", "$"));
-        launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
-    }
+                                     final String taskConfigurationString) {
+      try {
+          final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+          Configuration contextConfiguration = serializer.fromString(contextConfigurationString.replace("+", "$"));
+          Configuration taskConfiguration = serializer.fromString(taskConfigurationString.replace("+", "$"));
+          launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
+      } catch (final Exception ex) {
+          throw new RuntimeException("Unable to setup Task or Context configuration.", ex);
+      }
+  }
 
   @Override
   public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
