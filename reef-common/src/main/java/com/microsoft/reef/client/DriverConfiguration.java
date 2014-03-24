@@ -19,7 +19,6 @@ package com.microsoft.reef.client;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextMessage;
@@ -27,6 +26,7 @@ import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfiguration;
 import com.microsoft.tang.formats.*;
 import com.microsoft.wake.EventHandler;
@@ -48,9 +48,10 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> DRIVER_IDENTIFIER = new RequiredParameter<>();
 
   /**
-   * The size of the container allocated for the Driver. One of SMALL, MEDIUM, LARGE and XLARGE. Defaults to SMALL.
+   * The amount of memory to be allocated for the Driver. This is the size of the AM container in YARN.
    */
-  public static final OptionalParameter<String> DRIVER_SIZE = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> DRIVER_MEMORY = new OptionalParameter<>();
+
 
   /**
    * Files to be made available on the Driver and all Evaluators.
@@ -172,7 +173,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final ConfigurationModule CONF = new DriverConfiguration().merge(DriverRuntimeConfiguration.CONF)
 
       .bindNamedParameter(DriverConfigurationOptions.DriverIdentifier.class, DRIVER_IDENTIFIER)
-      .bindNamedParameter(DriverConfigurationOptions.DriverSize.class, DRIVER_SIZE)
+      .bindNamedParameter(DriverConfigurationOptions.DriverMemory.class, DRIVER_MEMORY)
       .bindSetEntry(DriverConfigurationOptions.GlobalFiles.class, GLOBAL_FILES)
       .bindSetEntry(DriverConfigurationOptions.GlobalLibraries.class, GLOBAL_LIBRARIES)
       .bindSetEntry(DriverConfigurationOptions.LocalFiles.class, LOCAL_FILES)

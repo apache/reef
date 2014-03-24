@@ -16,7 +16,6 @@
 package com.microsoft.reef.driver.catalog;
 
 import com.microsoft.reef.annotations.Unstable;
-import com.microsoft.reef.driver.capabilities.Capability;
 
 import java.util.Collection;
 
@@ -35,21 +34,6 @@ public interface ResourceCatalog {
 
     public String getName();
 
-    /**
-     * Access the list of {@link Capability}s of this Evaluator.
-     * <p/>
-     * Note: This list at least contains the capabilities requested for this
-     * Evaluator upon allocation time, but a specific REEF implementation may
-     * choose to add more capabilities based on the physical environment of the
-     * Evaluator.
-     *
-     * @return the list of {@link Capability}s of this Evaluator.
-     * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
-     * we will remove this API.
-     */
-    @Deprecated
-    public Collection<Capability> getCapabilities();
-
   }
 
   /**
@@ -59,7 +43,6 @@ public interface ResourceCatalog {
    * bound.
    */
   public Collection<NodeDescriptor> getNodes();
-
 
   /**
    * The global list of racks
@@ -75,17 +58,5 @@ public interface ResourceCatalog {
    * @return the node descriptor assigned to the identifier.
    */
   public NodeDescriptor getNode(String nodeId);
-
-  /**
-   * Query interface.
-   *
-   * @param capabilities the set of {@link Capability}s queried for.
-   * @return the list of entries supporting the given set of
-   * {@link Capability}s
-   * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
-   * we will remove this API.
-   */
-  @Deprecated
-  public Collection<NodeDescriptor> withCapabilities(final Capability... capabilities);
 
 }

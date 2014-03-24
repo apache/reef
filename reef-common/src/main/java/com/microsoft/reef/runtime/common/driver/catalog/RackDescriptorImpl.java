@@ -15,69 +15,61 @@
  */
 package com.microsoft.reef.runtime.common.driver.catalog;
 
-import com.microsoft.reef.driver.capabilities.Capability;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public final class RackDescriptorImpl implements RackDescriptor {
 
-	private final String name;
-	
-	private final List<Capability> capabilities;
-	
-	private final List<NodeDescriptorImpl> nodes;
+  private final String name;
 
-	RackDescriptorImpl(String name) {
-		this.name = name;
-		this.capabilities = new ArrayList<>();
-		this.nodes = new ArrayList<>();
-	}
-	
-	public final String toString() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append("Rack " + this.name);
-		for (NodeDescriptorImpl node : nodes) {
-			sb.append("\n\t" + node);
-		}
-		return sb.toString();
-	}
-	
-	public final int hashCode() {
-		return this.name.hashCode();
-	}
-	
-	public final boolean equals(Object obj) {
-		if (obj instanceof RackDescriptorImpl) {
-			return obj.toString().equals(this.name);
-		} else {
-			return false;
-		}
-	}
-	
-	public String getName() {
-		return this.name;
-	}
-	
-	@Override
-	public Collection<Capability> getCapabilities() {
-		return this.capabilities;
-	}
 
-	@Override
-	public List<NodeDescriptor> getNodes() {
-		return Collections.unmodifiableList(new ArrayList<NodeDescriptor>(this.nodes));
-	}
+  private final List<NodeDescriptorImpl> nodes;
 
-	/**
-	 * Should only be used from YarnNodeDescriptor constructor.
-	 * @param node to add.
-	 */
-	void addNodeDescriptor(NodeDescriptorImpl node) {
-		this.nodes.add(node);
-	}
+  RackDescriptorImpl(String name) {
+    this.name = name;
+    this.nodes = new ArrayList<>();
+  }
+
+  public final String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("Rack " + this.name);
+    for (NodeDescriptorImpl node : nodes) {
+      sb.append("\n\t" + node);
+    }
+    return sb.toString();
+  }
+
+  public final int hashCode() {
+    return this.name.hashCode();
+  }
+
+  public final boolean equals(Object obj) {
+    if (obj instanceof RackDescriptorImpl) {
+      return obj.toString().equals(this.name);
+    } else {
+      return false;
+    }
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  @Override
+  public List<NodeDescriptor> getNodes() {
+    return Collections.unmodifiableList(new ArrayList<NodeDescriptor>(this.nodes));
+  }
+
+  /**
+   * Should only be used from YarnNodeDescriptor constructor.
+   *
+   * @param node to add.
+   */
+  void addNodeDescriptor(NodeDescriptorImpl node) {
+    this.nodes.add(node);
+  }
 }
