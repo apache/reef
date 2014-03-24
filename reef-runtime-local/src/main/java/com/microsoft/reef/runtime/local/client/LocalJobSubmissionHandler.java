@@ -23,10 +23,9 @@ import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.local.driver.LocalDriverConfiguration;
 import com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.local.driver.RunnableProcess;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
@@ -103,22 +102,22 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t);
       driverFiles.copyTo(driverFolder);
 
-      ConfigurationModule driverConfigurationPart1 = LocalDriverConfiguration.CONF
-          .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
-          .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath());
-      driverConfigurationPart1 = driverFiles.addNamesTo(driverConfigurationPart1,
+      final Configuration driverConfigurationPart1 = driverFiles.addNamesTo(LocalDriverConfiguration.CONF,
           LocalDriverConfiguration.GLOBAL_FILES,
           LocalDriverConfiguration.GLOBAL_LIBRARIES,
           LocalDriverConfiguration.LOCAL_FILES,
-          LocalDriverConfiguration.LOCAL_LIBRARIES);
-
+          LocalDriverConfiguration.LOCAL_LIBRARIES)
+          .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
+          .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
+          .build();
 
       final Configuration driverConfigurationPart2 = new LocalDriverRuntimeConfiguration()
           .addClientConfiguration(this.configurationSerializer.fromString(t.getConfiguration()))
           .setClientRemoteIdentifier(t.getRemoteId())
           .setJobIdentifier(t.getIdentifier()).build();
 
-      final Configuration driverConfiguration = TANGUtils.merge(driverConfigurationPart2, driverConfigurationPart1.build());
+      final Configuration driverConfiguration = Tang.Factory.getTang()
+          .newConfigurationBuilder(driverConfigurationPart1, driverConfigurationPart2).build();
       final File runtimeConfigurationFile = new File(driverFolder, DRIVER_CONFIGURATION_FILE_NAME);
       this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 

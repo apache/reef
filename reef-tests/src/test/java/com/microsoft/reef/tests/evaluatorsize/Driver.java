@@ -6,8 +6,8 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
@@ -65,7 +65,8 @@ final class Driver {
               .set(EvaluatorSizeTestConfiguration.MEMORY_SIZE, Driver.this.memorySize)
               .build();
 
-          final Configuration mergedTaskConfiguration = TANGUtils.merge(taskConfiguration, testConfiguration);
+          final Configuration mergedTaskConfiguration = Tang.Factory.getTang()
+              .newConfigurationBuilder(taskConfiguration, testConfiguration).build();
 
           allocatedEvaluator.submitContextAndTask(contextConfiguration, mergedTaskConfiguration);
 
