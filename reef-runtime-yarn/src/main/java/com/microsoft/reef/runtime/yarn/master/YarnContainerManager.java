@@ -479,20 +479,16 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     LOG.log(Level.FINE, "Submit request under registration: {0} capability: {1}",
         new Object[]{registration, registration.getMaximumResourceCapability()});
 
-    // Pare the memory reuqest.
+    // Pare the memory request.
     final int memory;
     final int maxMemory = registration.getMaximumResourceCapability().getMemory();
-    if (resourceRequestProto.hasMemorySize()) {
-      final int requestedMemory = resourceRequestProto.getMemorySize();
-      if (requestedMemory > maxMemory) {
-        LOG.log(Level.WARNING, "Asking for {0}MB of memory, but max on this cluster is {1}MB ",
-            new Object[]{requestedMemory, maxMemory});
-        memory = maxMemory;
-      } else {
-        memory = requestedMemory;
-      }
+    final int requestedMemory = resourceRequestProto.getMemorySize();
+    if (requestedMemory > maxMemory) {
+      LOG.log(Level.WARNING, "Asking for {0}MB of memory, but max on this cluster is {1}MB ",
+          new Object[]{requestedMemory, maxMemory});
+      memory = maxMemory;
     } else {
-      memory = YarnUtils.getMemorySize(resourceRequestProto.getResourceSize(), 512, maxMemory);
+      memory = requestedMemory;
     }
 
 

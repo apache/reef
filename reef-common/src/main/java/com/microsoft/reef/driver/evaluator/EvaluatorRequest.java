@@ -18,12 +18,8 @@ package com.microsoft.reef.driver.evaluator;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.capabilities.Capability;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A request for one ore more Evaluators.
@@ -33,65 +29,16 @@ import java.util.List;
 @Provided
 public final class EvaluatorRequest {
 
-  /**
-   * The size of the Evaluators requested.
-   *
-   * @deprecated in version 0.2. Use explicit memory requests instead.
-   */
-  @Deprecated
-  public static enum Size {
-    SMALL,
-    MEDIUM,
-    LARGE,
-    XLARGE
-  }
-
-  private final Size size;
   private final int megaBytes;
   private final int number;
-  private final List<Capability> capabilities;
   private final ResourceCatalog.Descriptor descriptor;
-
-  /**
-   * @param size
-   * @param number
-   * @param megaBytes
-   * @param capabilities
-   * @param descriptor
-   * @deprecated in 0.2 because of the use of Size and Capability
-   */
-  @Deprecated
-  EvaluatorRequest(final Size size,
-                   final int number,
-                   final int megaBytes,
-                   final List<Capability> capabilities,
-                   final ResourceCatalog.Descriptor descriptor) {
-    this.size = size;
-    this.number = number;
-    this.megaBytes = megaBytes;
-    this.capabilities = capabilities;
-    this.descriptor = descriptor;
-  }
 
   EvaluatorRequest(final int number,
                    final int megaBytes,
                    final ResourceCatalog.Descriptor descriptor) {
-    this.size = null;
     this.number = number;
     this.megaBytes = megaBytes;
-    this.capabilities = new ArrayList<>();
     this.descriptor = descriptor;
-  }
-
-  /**
-   * Access the size of the evaluator requested.
-   *
-   * @return the size of the evaluator requested.
-   * @deprecated in version 0.2. Use explicit memory requests instead.
-   */
-  @Deprecated
-  public Size getSize() {
-    return this.size;
   }
 
   /**
@@ -101,18 +48,6 @@ public final class EvaluatorRequest {
    */
   public int getNumber() {
     return this.number;
-  }
-
-  /**
-   * Access the list of {@link Capability}s requested.
-   *
-   * @return the list of {@link Capability}s requested.
-   * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
-   * we will remove this API.
-   */
-  @Deprecated
-  public final List<Capability> getCapabilities() {
-    return this.capabilities;
   }
 
   /**
@@ -153,9 +88,7 @@ public final class EvaluatorRequest {
    */
   public static class Builder implements com.microsoft.reef.util.Builder<EvaluatorRequest> {
 
-    private Size evaluatorSize;
     private int n = 1;
-    private final List<Capability> capabilities = new ArrayList<>();
     private ResourceCatalog.Descriptor descriptor = null;
     private int megaBytes = -1;
 
@@ -163,25 +96,8 @@ public final class EvaluatorRequest {
     }
 
     private Builder(final EvaluatorRequest request) {
-      setSize(request.getSize());
-      for (Capability capability : request.getCapabilities()) {
-        withCapability(capability);
-      }
       setNumber(request.getNumber());
       fromDescriptor(request.getDescriptor());
-    }
-
-    /**
-     * Set the {@link Size} of the requested Evaluators.
-     *
-     * @param size
-     * @return this builder
-     * @deprecated in version 0.2. Use explicit memory requests instead (setMemory).
-     */
-    @Deprecated
-    public Builder setSize(final Size size) {
-      this.evaluatorSize = size;
-      return this;
     }
 
     /**
@@ -209,22 +125,7 @@ public final class EvaluatorRequest {
      */
     @Override
     public EvaluatorRequest build() {
-      return new EvaluatorRequest(this.evaluatorSize, this.n, this.megaBytes, this.capabilities, this.descriptor);
-    }
-
-    /**
-     * Add a {@link Capability} to the request. If the capability cannot be
-     * met by the {@link EvaluatorRequestor}, the request will be denied.
-     *
-     * @param cap the {@link Capability} requested.
-     * @return this Builder.
-     * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
-     * we will remove this API.
-     */
-    @Deprecated
-    public Builder withCapability(final Capability cap) {
-      this.capabilities.add(cap);
-      return this;
+      return new EvaluatorRequest(this.n, this.megaBytes, this.descriptor);
     }
 
     /**
