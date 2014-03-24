@@ -15,13 +15,11 @@
  */
 package com.microsoft.reef.runtime.common.driver.catalog;
 
-import com.microsoft.reef.driver.capabilities.Capability;
-import com.microsoft.reef.driver.capabilities.RAM;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.NodeDescriptorProto;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
@@ -29,6 +27,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Private
 public final class ResourceCatalogImpl implements ResourceCatalog {
 
   private static final Logger LOG = Logger.getLogger(ResourceCatalog.class.getName());
@@ -67,17 +66,13 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
     return this.nodes.get(id);
   }
 
-  @Override
-  public final Collection<NodeDescriptor> withCapabilities(final Capability... capabilities) {
-    throw new NotImplementedException();
-  }
-
   public final void handle(final NodeDescriptorProto node) {
     final String rack_name = (node.hasRackName() ? node.getRackName() : DEFAULT_RACK);
 
-    LOG.log(Level.FINEST,  "Catalog new node: id[{0}], rack[{1}], host[{2}], port[{3}], memory[{4}]",
-            new Object[] { node.getIdentifier(), rack_name, node.getHostName(), node.getPort(),
-                           node.getMemorySize() });
+    LOG.log(Level.FINEST, "Catalog new node: id[{0}], rack[{1}], host[{2}], port[{3}], memory[{4}]",
+        new Object[]{node.getIdentifier(), rack_name, node.getHostName(), node.getPort(),
+            node.getMemorySize()}
+    );
 
     if (!this.racks.containsKey(rack_name)) {
       final RackDescriptorImpl rack = new RackDescriptorImpl(rack_name);
@@ -85,8 +80,7 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
     }
     final RackDescriptorImpl rack = this.racks.get(rack_name);
     final InetSocketAddress address = new InetSocketAddress(node.getHostName(), node.getPort());
-    final RAM ram = new RAM(node.getMemorySize());
-    final NodeDescriptorImpl nodeDescriptor = new NodeDescriptorImpl(node.getIdentifier(), address, rack, ram);
+    final NodeDescriptorImpl nodeDescriptor = new NodeDescriptorImpl(node.getIdentifier(), address, rack, node.getMemorySize());
     this.nodes.put(nodeDescriptor.getId(), nodeDescriptor);
   }
 }

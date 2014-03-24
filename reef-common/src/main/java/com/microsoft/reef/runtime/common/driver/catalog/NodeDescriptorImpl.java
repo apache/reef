@@ -15,76 +15,61 @@
  */
 package com.microsoft.reef.runtime.common.driver.catalog;
 
-import com.microsoft.reef.driver.capabilities.CPU;
-import com.microsoft.reef.driver.capabilities.Capability;
-import com.microsoft.reef.driver.capabilities.RAM;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 
+@Private
 public class NodeDescriptorImpl implements NodeDescriptor {
 
-	private final RackDescriptorImpl rack;
-	
-	private final String id;
-	
-	private final InetSocketAddress address;
-	
-	private final RAM ram;
-	
-	private final List<Capability> capabilities;
-	
-	public NodeDescriptorImpl(String id, InetSocketAddress address, RackDescriptorImpl rack, RAM ram) {
-		this.id = id;
-		this.address = address;
-		this.rack = rack;
-		this.ram = ram;
-		this.capabilities = new ArrayList<>();
-		
-		this.rack.addNodeDescriptor(this);
-	}
-	
-	@Override
-	public String toString() {
-		return "Node [" + this.address + "]: RACK " + this.rack.getName() + ", RAM " + ram;
-	}
-	
-	@Override
-	public final String getId() {
-		return this.id;
-	}
-	
-	@Override
-	public List<Capability> getCapabilities() {
-		return this.capabilities;
-	}
+  private final RackDescriptorImpl rack;
 
-	@Override
-	public InetSocketAddress getInetSocketAddress() {
-		return this.address;
-	}
+  private final String id;
 
-	@Override
-	public CPU getCPUCapability() {
-		return new CPU(1); // TODO: fix me, note YARN does not tell me this info
-	}
+  private final InetSocketAddress address;
 
-	@Override
-	public RAM getRAMCapability() {
-		return this.ram;
-	}
+  private final int ram;
 
-	@Override
-	public RackDescriptor getRackDescriptor() {
-		return this.rack;
-	}
+  /**
+   * @param id
+   * @param address
+   * @param rack
+   * @param ram     the RAM available to the machine, in MegaBytes.
+   */
+  NodeDescriptorImpl(final String id, final InetSocketAddress address, final RackDescriptorImpl rack, final int ram) {
+    this.id = id;
+    this.address = address;
+    this.rack = rack;
+    this.ram = ram;
+    this.rack.addNodeDescriptor(this);
+  }
 
-	@Override
-	public String getName() {
-		return this.address.getHostName();
-	}
+  @Override
+  public String toString() {
+    return "Node [" + this.address + "]: RACK " + this.rack.getName() + ", RAM " + ram;
+  }
+
+  @Override
+  public final String getId() {
+    return this.id;
+  }
+
+
+  @Override
+  public InetSocketAddress getInetSocketAddress() {
+    return this.address;
+  }
+
+  @Override
+  public RackDescriptor getRackDescriptor() {
+    return this.rack;
+  }
+
+  @Override
+  public String getName() {
+    return this.address.getHostName();
+  }
 
 }

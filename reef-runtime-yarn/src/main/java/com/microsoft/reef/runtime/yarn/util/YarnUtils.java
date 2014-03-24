@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.yarn.util;
 
-import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.annotations.audience.Private;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,26 +35,8 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Map;
 
+@Private
 public final class YarnUtils {
-
-
-  public final static int getMemorySize(ReefServiceProtos.SIZE size, final int minMemory, final int maxMemory) {
-    int sizeMem = minMemory;
-    switch (size) {
-      case SMALL:
-        break;
-      case MEDIUM:
-        sizeMem = Math.min(maxMemory, sizeMem * 2);
-        break;
-      case LARGE:
-        sizeMem = Math.min(maxMemory, sizeMem * 3);
-        break;
-      case XLARGE:
-        sizeMem = maxMemory;
-        break;
-    }
-    return sizeMem;
-  }
 
   public static final StringBuilder getClassPathBuilder(final YarnConfiguration yarnConfiguration) {
     // Add AppMaster.jar location to classpath
@@ -63,9 +45,9 @@ public final class YarnUtils {
     // It should be provided out of the box.
     // For now setting all required classpaths including
     // the classpath to "." for the application jar
-    StringBuilder classPathBuilder = new StringBuilder(ApplicationConstants.Environment.CLASSPATH.$())
+    final StringBuilder classPathBuilder = new StringBuilder(ApplicationConstants.Environment.CLASSPATH.$())
         .append(File.pathSeparatorChar).append("./*");
-    for (String c : yarnConfiguration.getStrings(
+    for (final String c : yarnConfiguration.getStrings(
         YarnConfiguration.YARN_APPLICATION_CLASSPATH,
         YarnConfiguration.DEFAULT_YARN_APPLICATION_CLASSPATH)) {
       classPathBuilder.append(File.pathSeparatorChar);
@@ -97,8 +79,8 @@ public final class YarnUtils {
   }
 
   public final static LocalResource getLocalResource(final FileSystem fs, final Path path) throws IOException {
-    FileStatus status = FileContext.getFileContext(fs.getUri()).getFileStatus(path);
-    LocalResource file = Records.newRecord(LocalResource.class);
+    final FileStatus status = FileContext.getFileContext(fs.getUri()).getFileStatus(path);
+    final LocalResource file = Records.newRecord(LocalResource.class);
 
     // Set the type of resource - file or archive
     // archives are untarred at destination
@@ -119,11 +101,12 @@ public final class YarnUtils {
   }
 
 
-  public static final ContainerLaunchContext getContainerLaunchContext(String command, Map<String, LocalResource> localResources)
+  public static final ContainerLaunchContext getContainerLaunchContext(final String command,
+                                                                       final Map<String, LocalResource> localResources)
       throws IOException, URISyntaxException {
 
     // Set up the container launch context for the application master
-    ContainerLaunchContext context = Records.newRecord(ContainerLaunchContext.class);
+    final ContainerLaunchContext context = Records.newRecord(ContainerLaunchContext.class);
 
     context.setLocalResources(localResources);
 
