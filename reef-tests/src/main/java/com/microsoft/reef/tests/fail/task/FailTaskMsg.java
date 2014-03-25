@@ -56,7 +56,7 @@ public final class FailTaskMsg implements Task, EventHandler<DriverMessage> {
   @Override
   public void onNext(final DriverMessage driverMessage) throws SimulatedTaskFailure {
     final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskMsg.onNext() invoked.");
-    LOG.log(Level.WARNING, "FailTaskMsg.onNext() invoked.", ex);
+    LOG.log(Level.FINE, "FailTaskMsg.onNext() invoked: {0}", ex);
     throw ex;
   }
 }
