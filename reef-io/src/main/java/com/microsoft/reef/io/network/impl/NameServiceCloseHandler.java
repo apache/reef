@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.io.network.util;
+package com.microsoft.reef.io.network.impl;
 
+import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AutoCloseableHandler <T> implements EventHandler<T> {
+public final class NameServiceCloseHandler<T> implements EventHandler<T> {
 
-  private static final Logger LOG = Logger.getLogger(AutoCloseableHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(NameServiceCloseHandler.class.getName());
 
   private final AutoCloseable toClose;
 
   @Inject
-  public AutoCloseableHandler(final AutoCloseable toClose) {
+  public NameServiceCloseHandler(final NameServer toClose) {
     this.toClose = toClose;
   }
 
