@@ -27,7 +27,6 @@ import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.util.JARFileMaker;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.InjectionFuture;
@@ -201,7 +200,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
   @Override
   public String getVersion() {
-    return EnvironmentUtils.getReefVersion();
+    return REEF.REEF_VERSION;
   }
 
   private final FileResourceProto getFileResourceProto(

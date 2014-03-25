@@ -34,6 +34,8 @@ import com.microsoft.tang.annotations.DefaultImplementation;
 @DefaultImplementation(ClientManager.class)
 public interface REEF extends AutoCloseable {
 
+  static final String REEF_VERSION = "0.3-SNAPSHOT";
+
   /**
    * Close the runtime instance. This forcefully kills all running jobs.
    */
