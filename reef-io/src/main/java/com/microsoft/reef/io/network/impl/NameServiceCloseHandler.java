@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 Microsoft.
+/**
+ * Copyright 2014 Microsoft.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.io.network.impl;
 
+import com.microsoft.reef.evaluator.context.events.ContextStop;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.wake.EventHandler;
 
@@ -22,7 +23,7 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class NameServiceCloseHandler<T> implements EventHandler<T> {
+public final class NameServiceCloseHandler implements EventHandler<ContextStop> {
 
   private static final Logger LOG = Logger.getLogger(NameServiceCloseHandler.class.getName());
 
@@ -34,10 +35,9 @@ public final class NameServiceCloseHandler<T> implements EventHandler<T> {
   }
 
   @Override
-  public void onNext(final T event) {
+  public void onNext(final ContextStop event) {
     try {
       LOG.log(Level.FINEST, "Closing {0}", this.toClose);
-      // TODO: Should we check if the resource had been closed already?
       this.toClose.close();
     } catch (final Throwable ex) {
       LOG.log(Level.SEVERE, "Exception while closing " + this.toClose, ex);
