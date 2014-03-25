@@ -16,7 +16,7 @@
 package com.microsoft.reef.tests.fail;
 
 import com.microsoft.reef.client.DriverConfiguration;
-import com.microsoft.reef.client.DriverLauncher;
+import com.microsoft.reef.tests.TestDriverLauncher;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
 import com.microsoft.reef.tests.TestUtils;
@@ -61,7 +61,7 @@ public final class DriverFailOnFailTest {
         .build();
 
     TestUtils.assertLauncherFailure(
-        DriverLauncher.getLauncher(runtimeConfiguration).run(
+        TestDriverLauncher.getLauncher(runtimeConfiguration).run(
             driverConfig, this.testEnvironment.getTestTimeout()),
         SimulatedDriverFailure.class);
   }
