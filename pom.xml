@@ -335,6 +335,13 @@
                 <version>1.2</version>
             </dependency>
             <!-- End of Apache Commons -->
+            <!-- AVRO -->
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
+            </dependency>
+            <!-- End of AVRO -->
 
 
         </dependencies>
