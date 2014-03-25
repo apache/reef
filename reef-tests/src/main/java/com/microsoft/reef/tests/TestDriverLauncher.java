@@ -51,6 +51,17 @@ public final class TestDriverLauncher {
   }
 
   /**
+   * Handler an error in the job driver.
+   */
+  protected final class SilentRuntimeErrorHandler implements EventHandler<FailedRuntime> {
+    @Override
+    public void onNext(final FailedRuntime error) {
+      LOG.log(Level.INFO, "Received a runtime error: {0}", error);
+      launcher.setStatusAndNotify(LauncherStatus.FAILED(error.getCause()));
+    }
+  }
+
+  /**
    * Job driver notifies us that the job had failed.
    */
   protected final class SilentFailedTestJobHandler implements EventHandler<FailedJob> {
@@ -106,7 +117,7 @@ public final class TestDriverLauncher {
     final Configuration clientConfiguration = ClientConfiguration.CONF
         .set(ClientConfiguration.ON_JOB_RUNNING, DriverLauncher.RunningJobHandler.class)
         .set(ClientConfiguration.ON_JOB_COMPLETED, DriverLauncher.CompletedJobHandler.class)
-        .set(ClientConfiguration.ON_RUNTIME_ERROR, DriverLauncher.RuntimeErrorHandler.class)
+        .set(ClientConfiguration.ON_RUNTIME_ERROR, SilentRuntimeErrorHandler.class)
         .set(ClientConfiguration.ON_JOB_FAILED, SilentFailedTestJobHandler.class)
         .build();
 
