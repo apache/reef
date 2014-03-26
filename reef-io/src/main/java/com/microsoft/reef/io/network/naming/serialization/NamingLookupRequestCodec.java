@@ -15,21 +15,19 @@
  */
 package com.microsoft.reef.io.network.naming.serialization;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.microsoft.io.network.naming.avro.AvroNamingLookupRequest;
-import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
-import com.microsoft.reef.io.network.proto.ReefNetworkNamingProtos.NamingLookupRequestPBuf;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Naming lookup request codec
  */
-public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
+public final class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
 
   private final IdentifierFactory factory;
 
@@ -38,7 +36,8 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    *
    * @param factory the identifier factory
    */
-  public NamingLookupRequestCodec(IdentifierFactory factory) {
+  @Inject
+  public NamingLookupRequestCodec(final IdentifierFactory factory) {
     this.factory = factory;
   }
 
@@ -49,14 +48,12 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    * @return a byte array
    */
   @Override
-  public byte[] encode(NamingLookupRequest obj) {
-    AvroNamingLookupRequest.Builder builder = AvroNamingLookupRequest.newBuilder();
-    List<CharSequence> ids = new ArrayList<>();
-    for (Identifier id : obj.getIdentifiers()) {
+  public byte[] encode(final NamingLookupRequest obj) {
+    final List<CharSequence> ids = new ArrayList<>();
+    for (final Identifier id : obj.getIdentifiers()) {
       ids.add(id.toString());
     }
-    builder.setIds(ids);
-    return AvroUtils.toBytes(builder.build(), AvroNamingLookupRequest.class);
+    return AvroUtils.toBytes(AvroNamingLookupRequest.newBuilder().setIds(ids).build(), AvroNamingLookupRequest.class);
   }
 
   /**
@@ -66,11 +63,11 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    * @return a naming lookup request
    */
   @Override
-  public NamingLookupRequest decode(byte[] buf) {
-    AvroNamingLookupRequest req = AvroUtils.fromBytes(buf, AvroNamingLookupRequest.class);
+  public NamingLookupRequest decode(final byte[] buf) {
+    final AvroNamingLookupRequest req = AvroUtils.fromBytes(buf, AvroNamingLookupRequest.class);
 
-    List<Identifier> ids = new ArrayList<Identifier>();
-    for (CharSequence s : req.getIds()) {
+    final List<Identifier> ids = new ArrayList<Identifier>(req.getIds().size());
+    for (final CharSequence s : req.getIds()) {
       ids.add(factory.getNewInstance(s.toString()));
     }
     return new NamingLookupRequest(ids);
