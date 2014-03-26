@@ -76,8 +76,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   public void onNext(ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
     try {
       // Get a new application id
-      YarnClientApplication yarnClientApplication = yarnClient.createApplication();
-      GetNewApplicationResponse applicationResponse = yarnClientApplication.getNewApplicationResponse();
+      final YarnClientApplication yarnClientApplication = yarnClient.createApplication();
+      final GetNewApplicationResponse applicationResponse = yarnClientApplication.getNewApplicationResponse();
 
       final ApplicationSubmissionContext applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
       final ApplicationId applicationId = applicationSubmissionContext.getApplicationId();
@@ -108,7 +108,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
       final StringBuilder globalClassPath = YarnUtils.getClassPathBuilder(this.yarnConfiguration);
 
-      for (ReefServiceProtos.FileResourceProto file : jobSubmissionProto.getGlobalFileList()) {
+      for (final ReefServiceProtos.FileResourceProto file : jobSubmissionProto.getGlobalFileList()) {
         final Path src = new Path(file.getPath());
         final Path dst = new Path(global_dir, file.getName());
         switch (file.getType()) {
@@ -170,8 +170,16 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       ////////////////////////////////////////////////////////////////////////////
 
       // SET MEMORY RESOURCE
-      final int amMemory = YarnUtils.getMemorySize(jobSubmissionProto.hasDriverSize() ? jobSubmissionProto.getDriverSize() : ReefServiceProtos.SIZE.SMALL,
-          MIN_REEF_MASTER_MEMORY, applicationResponse.getMaximumResourceCapability().getMemory());
+      final int amMemory;
+      final int maxMemory = applicationResponse.getMaximumResourceCapability().getMemory();
+      final int requestedMemory = jobSubmissionProto.getDriverMemory();
+      if (requestedMemory <= maxMemory) {
+        amMemory = requestedMemory;
+      } else {
+        LOG.log(Level.WARNING, "Requested {0}MB of memory for the driver. The max on this YARN installation is {1}. Using {1} as the memory for the driver.",
+            new Object[]{requestedMemory, maxMemory});
+        amMemory = maxMemory;
+      }
       final Resource capability = Records.newRecord(Resource.class);
       capability.setMemory(amMemory);
       applicationSubmissionContext.setResource(capability);
@@ -210,7 +218,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     }
   }
 
-  private boolean monitorApplication(ApplicationId appId)
+  private boolean monitorApplication(final ApplicationId appId)
       throws YarnException, IOException {
 
     while (true) {
@@ -252,8 +260,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
               report.getUser()}
       );
 
-      YarnApplicationState state = report.getYarnApplicationState();
-      FinalApplicationStatus dsStatus = report.getFinalApplicationStatus();
+      final YarnApplicationState state = report.getYarnApplicationState();
+      final FinalApplicationStatus dsStatus = report.getFinalApplicationStatus();
       if (YarnApplicationState.FINISHED == state) {
         if (FinalApplicationStatus.SUCCEEDED == dsStatus) {
           LOG.info("Application has completed successfully. Breaking monitoring loop");

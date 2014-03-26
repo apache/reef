@@ -20,7 +20,6 @@ import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -156,7 +155,9 @@ public final class Launch {
       LOG.log(Level.FINE, "Running on YARN");
       runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
-    return TANGUtils.merge(runtimeConfiguration, cloneCommandLineConfiguration(commandLineConf));
+    return Tang.Factory.getTang().newConfigurationBuilder(
+        runtimeConfiguration, cloneCommandLineConfiguration(commandLineConf))
+        .build();
   }
 
   /**
@@ -199,8 +200,10 @@ public final class Launch {
               .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
               .build();
 
+      final Configuration submittedConfiguration = Tang.Factory.getTang()
+          .newConfigurationBuilder(driverConfig, commandLineConf).build();
       DriverLauncher.getLauncher(runtimeConfig)
-          .run(TANGUtils.merge(driverConfig, commandLineConf), timeout);
+          .run(submittedConfiguration, timeout);
 
       LOG.log(Level.INFO, "TIME: Stop Client {0}", jobId);
 

@@ -21,12 +21,13 @@ enum FileType {
     ARCHIVE = 2;
 }
 
-enum SIZE {
-    SMALL = 0;
-    MEDIUM = 1;
-    LARGE = 2;
-    XLARGE = 3;
-}
+// Removed in REEF 0.3 in favor of explicit memory sizes.
+// enum SIZE {
+//    SMALL = 0;
+//    MEDIUM = 1;
+//    LARGE = 2;
+//    XLARGE = 3;
+//}
 
 enum ProcessType {
     JVM = 0;

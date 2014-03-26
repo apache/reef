@@ -17,7 +17,6 @@ package com.microsoft.reef.client;
 
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextMessage;
@@ -25,6 +24,7 @@ import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.runtime.common.driver.defaults.*;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -38,8 +38,8 @@ import java.util.Set;
 @Private
 @Provided
 public final class DriverConfigurationOptions {
-  @NamedParameter(doc = "Driver Size", default_value = "SMALL")
-  public static final class DriverSize implements Name<String> {
+  @NamedParameter(doc = "Driver RAM allocation in MB", default_value = "256")
+  public static final class DriverMemory implements Name<Integer> {
   }
 
   @NamedParameter(doc = "Driver Identifier", default_value = "Unnamed REEF Job")

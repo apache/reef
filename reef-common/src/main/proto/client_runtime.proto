@@ -13,7 +13,7 @@ message JobSubmissionProto {
 	required string configuration  = 5; // the runtime configuration
 	required string user_name      = 6; // the user name
 
-  optional SIZE   driver_size    = 7;
+  //optional SIZE   driver_size    = 7; // Removed in REEF 0.3 in favor of driver_memory below.
   optional int32  driver_memory  = 8;
   optional int32  priority       = 9;
   optional string queue          = 10;

@@ -47,7 +47,7 @@ message RuntimeStatusProto {
 // Messages from Driver Process -> Driver Runtime
 
 message ResourceRequestProto {
-	optional SIZE resource_size   = 1;
+	// optional SIZE resource_size   = 1; // Removed in REEF 0.3 in favor of memory_size.
     optional int32 memory_size = 2; // Memory size of the evaluator in MB
     optional int32 priority       = 3;
 

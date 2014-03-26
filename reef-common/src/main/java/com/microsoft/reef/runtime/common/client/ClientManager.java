@@ -27,7 +27,6 @@ import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.util.JARFileMaker;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.InjectionFuture;
@@ -61,12 +60,12 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
   static {
     System.out.println(
         "\nPowered by\n" +
-            "     ___________  ______  ______  _______" + "\n" +
-            "    /  ______  / /  ___/ /  ___/ /  ____/" + "\n" +
-            "   /     _____/ /  /__  /  /__  /  /___" + "\n" +
-            "  /  /\\  \\     /  ___/ /  ___/ /  ____/" + "\n" +
-            " /  /  \\  \\   /  /__  /  /__  /  /" + "\n" +
-            "/__/    \\__\\ /_____/ /_____/ /__/    version " + EnvironmentUtils.getReefVersion() + "\n\n" +
+            "     ___________  ______  ______  _______\n" +
+            "    /  ______  / /  ___/ /  ___/ /  ____/\n" +
+            "   /     _____/ /  /__  /  /__  /  /___\n" +
+            "  /  /\\  \\     /  ___/ /  ___/ /  ____/\n" +
+            " /  /  \\  \\   /  /__  /  /__  /  /\n" +
+            "/__/    \\__\\ /_____/ /_____/ /__/\n\n" +
             "From Microsoft CISL\n"
     );
   }
@@ -162,7 +161,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
           .setIdentifier(injector.getNamedInstance(DriverConfigurationOptions.DriverIdentifier.class))
           .setRemoteId(this.remoteManager.getMyIdentifier())
           .setUserName(this.userName)
-          .setDriverSize(ReefServiceProtos.SIZE.valueOf(injector.getNamedInstance(DriverConfigurationOptions.DriverSize.class)))
+          .setDriverMemory(injector.getNamedInstance(DriverConfigurationOptions.DriverMemory.class))
           .setConfiguration(configurationSerializer.toString(driverConf));
 
       for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
@@ -201,7 +200,7 @@ public final class ClientManager implements REEF, EventHandler<RemoteMessage<Job
 
   @Override
   public String getVersion() {
-    return EnvironmentUtils.getReefVersion();
+    return REEF.REEF_VERSION;
   }
 
   private final FileResourceProto getFileResourceProto(

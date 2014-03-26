@@ -16,7 +16,6 @@
 package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
-import com.microsoft.reef.proto.ReefServiceProtos;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,6 +53,6 @@ public final class ResourceRequestTest {
   }
 
   private ResourceRequest get(final int n) {
-    return new ResourceRequest(DriverRuntimeProtocol.ResourceRequestProto.newBuilder().setResourceCount(n).setResourceSize(ReefServiceProtos.SIZE.SMALL).build());
+    return new ResourceRequest(DriverRuntimeProtocol.ResourceRequestProto.newBuilder().setResourceCount(n).setMemorySize(128).build());
   }
 }

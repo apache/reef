@@ -61,7 +61,7 @@ public final class FailTaskSuspend implements Task, EventHandler<SuspendEvent> {
     //   this.notify();
     // }
     final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskSuspend.onNext() invoked.");
-    LOG.log(Level.WARNING, "FailTaskSuspend.onNext() invoked.", ex);
+    LOG.log(Level.FINE, "FailTaskSuspend.onNext() invoked: {0}", ex);
     throw ex;
   }
 }

@@ -56,7 +56,6 @@ public final class FailDriver {
   private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
   private static final byte[] HELLO_STR = CODEC.encode("MESSAGE::HELLO");
 
-
   /**
    * Send message to the Task MSG_DELAY milliseconds after start.
    */
@@ -375,7 +374,7 @@ public final class FailDriver {
     if (this.state == DriverState.FAILED) {
       final SimulatedDriverFailure ex = new SimulatedDriverFailure(
           "Simulated Failure at FailDriver :: " + msgClassName);
-      LOG.log(Level.SEVERE, "Simulated Failure", ex);
+      LOG.log(Level.INFO, "Simulated Failure: {0}", ex);
       throw ex;
     }
   }

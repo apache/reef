@@ -29,39 +29,7 @@ import java.util.logging.Logger;
 
 public final class EnvironmentUtils {
 
-  private static final String REEF_VERSION = "0.3-SNAPSHOT";
-
   private static final Logger LOG = Logger.getLogger(EnvironmentUtils.class.getName());
-
-  /**
-   * @return
-   * @deprecated in 0.2. REEF no longer assumes to be installed. Hence REEF_HOME is not a reasonable concept.
-   */
-  @Deprecated
-  public static String getReefHome() {
-    final String reefHome = System.getProperty("REEF_HOME", System.getenv("REEF_HOME"));
-    assert (null != reefHome) : "REEF_HOME is not set";
-    return reefHome;
-  }
-
-  /**
-   * @return the current REEF version.
-   * @deprecated in 0.2 use Reef.getVersion() instead.
-   */
-  @Deprecated
-  public static String getReefVersion() {
-    return REEF_VERSION;
-  }
-
-  /**
-   * @param clazz
-   * @return the path to a file containing the given class
-   * @deprecated in 0.2. It wasn't used.
-   */
-  @Deprecated
-  public static String getClassLocationFile(final Class<?> clazz) {
-    return clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
-  }
 
   /**
    * Get a set of all classpath entries EXCEPT of those under

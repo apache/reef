@@ -25,7 +25,6 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.io.checkpoint.fs.FSCheckPointServiceConfiguration;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
@@ -234,11 +233,11 @@ public class SuspendDriver {
     public void onNext(final AllocatedEvaluator eval) {
       try {
         LOG.log(Level.INFO, "Allocated Evaluator: {0}", eval.getId());
-        eval.submitContext(TANGUtils.merge(
-            SuspendDriver.this.contextConfig,
-            ContextConfiguration.CONF.set(
-                ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build()
-        ));
+        final Configuration thisContextConfiguration = ContextConfiguration.CONF.set(
+            ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build();
+        final Configuration mergedContextConfiguration = Tang.Factory.getTang()
+            .newConfigurationBuilder(thisContextConfiguration, SuspendDriver.this.contextConfig).build();
+        eval.submitContext(mergedContextConfiguration);
         ++SuspendDriver.this.numberOfEvaluatorsReceived;
       } catch (final BindException ex) {
         throw new RuntimeException(ex);

@@ -6,8 +6,8 @@ import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
 import com.microsoft.reef.util.EnvironmentUtils;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import org.junit.After;
@@ -41,7 +41,8 @@ public class EvaluatorSizeTest {
             .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
             .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.EvaluatorAllocatedHandler.class).build();
 
-    final Configuration mergedDriverConfiguration = TANGUtils.merge(driverConfiguration, testConfiguration);
+    final Configuration mergedDriverConfiguration = Tang.Factory.getTang()
+        .newConfigurationBuilder(driverConfiguration, testConfiguration).build();
 
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(mergedDriverConfiguration, this.testEnvironment.getTestTimeout());

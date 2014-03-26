@@ -16,8 +16,6 @@
 package com.microsoft.reef.driver.catalog;
 
 import com.microsoft.reef.annotations.Unstable;
-import com.microsoft.reef.driver.capabilities.CPU;
-import com.microsoft.reef.driver.capabilities.RAM;
 import com.microsoft.reef.io.naming.Identifiable;
 
 import java.net.InetSocketAddress;
@@ -33,24 +31,6 @@ public interface NodeDescriptor extends ResourceCatalog.Descriptor, Identifiable
    * @return the inet address of the Evaluator.
    */
   public InetSocketAddress getInetSocketAddress();
-
-  /**
-   * Access the CPU information of this Evaluator.
-   *
-   * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
-   * we will remove this API.
-   */
-  @Deprecated
-  public CPU getCPUCapability();
-
-  /**
-   * Access the memory configuration of this Evaluator.
-   *
-   * @deprecated in REEF 0.2. As none of the resource managers REEF runs on supports anything beyond memory and CPUs,
-   * we will remove this API.
-   */
-  @Deprecated
-  public RAM getRAMCapability();
 
   /**
    * @return the rack descriptor that contains this node
