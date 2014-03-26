@@ -15,12 +15,14 @@
  */
 package com.microsoft.reef.runtime.yarn.master;
 
+import com.microsoft.reef.io.TempFileCreator;
+import com.microsoft.reef.io.WorkingDiectoryTempFileCreator;
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.time.Clock;
-import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfiguration {
@@ -35,26 +37,31 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
       this.builder.bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class);
       this.builder.bindSetEntry(Clock.RuntimeStartHandler.class, YarnContainerManager.RuntimeStartHander.class);
       this.builder.bindSetEntry(Clock.RuntimeStopHandler.class, YarnContainerManager.RuntimeStopHandler.class);
+      this.builder.bindImplementation(TempFileCreator.class, WorkingDiectoryTempFileCreator.class);
     } catch (BindException e) {
       throw new RuntimeException(e);
     }
   }
 
   // JOB SUBMISSION DIRECTORY
-  @NamedParameter(doc="The job submission directory.")
-  public final static class JobSubmissionDirectory implements Name<String> {}
+  @NamedParameter(doc = "The job submission directory.")
+  public final static class JobSubmissionDirectory implements Name<String> {
+  }
 
   // YarnConfiguration File
-  @NamedParameter(doc="The YARN configuration file name.")
-  public final static class YarnConfigurationFile implements Name<String> {}
+  @NamedParameter(doc = "The YARN configuration file name.")
+  public final static class YarnConfigurationFile implements Name<String> {
+  }
 
   // DUTY CYCLE
-  @NamedParameter(doc="How often we talk to YARN.", default_value="1000")
-  public final static class YarnHeartbeatPeriod implements Name<Integer> {}
+  @NamedParameter(doc = "How often we talk to YARN.", default_value = "1000")
+  public final static class YarnHeartbeatPeriod implements Name<Integer> {
+  }
 
   // GLOBAL DIRECTORY CLASS PATH
-  @NamedParameter(doc="The global file class path.", default_value="")
-  public final static class GlobalFileClassPath implements Name<String> {}
+  @NamedParameter(doc = "The global file class path.", default_value = "")
+  public final static class GlobalFileClassPath implements Name<String> {
+  }
 
   public final YarnMasterConfiguration setJobSubmissionDirectory(final String path) {
     try {
@@ -75,7 +82,7 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
   }
 
   public final YarnMasterConfiguration setYarnHeartbeatPeriod(final Long period) {
-    try{
+    try {
       this.builder.bindNamedParameter(YarnHeartbeatPeriod.class, Long.toString(period));
       return this;
     } catch (BindException e) {
