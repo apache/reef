@@ -112,8 +112,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final DispatchingEStage dispatcher;
 
-  private final DriverExceptionHandler driverExceptionHandler;
-
   private final ConfigurationSerializer configurationSerializer;
 
   // Mutable fields
@@ -155,7 +153,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
     this.evaluatorDescriptor = evaluatorDescriptor;
-    this.driverExceptionHandler = driverExceptionHandler;
     this.configurationSerializer = configurationSerializer;
 
     this.dispatcher = new DispatchingEStage(driverExceptionHandler, 16); // 16 threads

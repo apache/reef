@@ -31,9 +31,12 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Launcher {
+public final class Launcher {
 
   public final static String EVALUATOR_CONFIGURATION_ARG = "runtime_configuration";
+
+  private Launcher() {
+  }
 
   @NamedParameter(doc = "The path to evaluator configuration.", short_name = EVALUATOR_CONFIGURATION_ARG)
   public final static class EvaluatorConfigurationFilePath implements Name<String> {

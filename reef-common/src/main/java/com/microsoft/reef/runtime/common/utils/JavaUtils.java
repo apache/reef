@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author mweimer
- */
-public class JavaUtils {
+public final class JavaUtils {
+
+  private JavaUtils() {
+  }
 
   public static String getClasspath() {
     try {
