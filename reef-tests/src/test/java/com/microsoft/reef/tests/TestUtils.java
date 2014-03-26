@@ -30,7 +30,8 @@ public final class TestUtils {
    * @param status launcher status. Must be FAILED for test to pass.
    * @param clazz runtime exception that should be in the stack of exceptions of the launcher status.
    */
-  public static void assertLauncherFailure(final LauncherStatus status, final Class<? extends Throwable> clazz) {
+  public static void assertLauncherFailure(
+      final LauncherStatus status, final Class<? extends Throwable> clazz) {
     Assert.assertEquals(LauncherStatus.FAILED, status);
     final Throwable ex = status.getError().orElse(null);
     if (!hasCause(ex, clazz)) {

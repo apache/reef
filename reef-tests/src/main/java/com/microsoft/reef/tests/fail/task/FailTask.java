@@ -34,7 +34,7 @@ public final class FailTask implements Task {
   @Inject
   public FailTask() throws SimulatedTaskFailure {
     final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTask constructor called.");
-    LOG.log(Level.WARNING, "FailTask created - failing now.", ex);
+    LOG.log(Level.FINE, "FailTask created - failing now: {0}", ex);
     throw ex;
   }
 
