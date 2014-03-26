@@ -76,6 +76,7 @@ public final class DriverLauncher {
     public void onNext(final FailedJob job) {
       final Throwable ex = job.getCause();
       LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), ex);
+      theJob = null;
       setStatusAndNotify(LauncherStatus.FAILED(ex));
     }
   }
@@ -87,6 +88,7 @@ public final class DriverLauncher {
     @Override
     public void onNext(final CompletedJob job) {
       LOG.log(Level.INFO, "The Job {0} is done.", job);
+      theJob = null;
       setStatusAndNotify(LauncherStatus.COMPLETED);
     }
   }
@@ -98,6 +100,7 @@ public final class DriverLauncher {
     @Override
     public void onNext(final FailedRuntime error) {
       LOG.log(Level.SEVERE, "Received a runtime error", error.getCause());
+      theJob = null;
       setStatusAndNotify(LauncherStatus.FAILED(error.getCause()));
     }
   }
