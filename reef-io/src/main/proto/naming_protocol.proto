@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ /*
 option java_package = "com.microsoft.reef.io.network.proto";
 option java_outer_classname = "ReefNetworkNamingProtos";
 option java_generic_services = true;
@@ -41,3 +42,4 @@ message NamingRegisterRequestPBuf {
 message NamingUnregisterRequestPBuf {
   required string id = 1;
 }
+*/

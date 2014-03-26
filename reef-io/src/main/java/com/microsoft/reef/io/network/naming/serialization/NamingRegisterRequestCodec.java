@@ -15,10 +15,9 @@
  */
 package com.microsoft.reef.io.network.naming.serialization;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.microsoft.io.network.naming.avro.AvroNamingRegisterRequest;
 import com.microsoft.reef.io.network.naming.NameAssignmentTuple;
 import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
-import com.microsoft.reef.io.network.proto.ReefNetworkNamingProtos.NamingRegisterRequestPBuf;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
 
@@ -48,11 +47,12 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
    */
   @Override
   public byte[] encode(NamingRegisterRequest obj) {
-    NamingRegisterRequestPBuf.Builder builder = NamingRegisterRequestPBuf.newBuilder();
-    builder.setId(obj.getNameAssignment().getIdentifier().toString());
-    builder.setHost(obj.getNameAssignment().getAddress().getHostName());
-    builder.setPort(obj.getNameAssignment().getAddress().getPort());
-    return builder.build().toByteArray();
+    final AvroNamingRegisterRequest result = AvroNamingRegisterRequest.newBuilder()
+        .setId(obj.getNameAssignment().getIdentifier().toString())
+        .setHost(obj.getNameAssignment().getAddress().getHostName())
+        .setPort(obj.getNameAssignment().getAddress().getPort())
+        .build();
+    return AvroUtils.toBytes(result, AvroNamingRegisterRequest.class);
   }
 
   /**
@@ -64,15 +64,10 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
    */
   @Override
   public NamingRegisterRequest decode(byte[] buf) {
-    NamingRegisterRequestPBuf pbuf;
-    try {
-      pbuf = NamingRegisterRequestPBuf.parseFrom(buf);
-    } catch (InvalidProtocolBufferException e) {
-      e.printStackTrace();
-      throw new NamingRuntimeException(e);
-    }
-    return new NamingRegisterRequest(new NameAssignmentTuple(factory.getNewInstance(pbuf.getId()),
-        new InetSocketAddress(pbuf.getHost(), pbuf.getPort())));
+    final AvroNamingRegisterRequest avroNamingRegisterRequest = AvroUtils.fromBytes(buf, AvroNamingRegisterRequest.class);
+    return new NamingRegisterRequest(
+        new NameAssignmentTuple(factory.getNewInstance(avroNamingRegisterRequest.getId().toString()),
+            new InetSocketAddress(avroNamingRegisterRequest.getHost().toString(), avroNamingRegisterRequest.getPort()))
+    );
   }
-
 }
