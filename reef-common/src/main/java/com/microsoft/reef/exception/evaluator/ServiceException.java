@@ -34,15 +34,15 @@ package com.microsoft.reef.exception.evaluator;
  * 
  */
 public class ServiceException extends Exception {
-  public ServiceException(String s, Throwable e) {
+  public ServiceException(final String s, final Throwable e) {
     super(s,e);
   }
 
-  public ServiceException(String s) {
+  public ServiceException(final String s) {
     super(s);
   }
 
-  public ServiceException(Throwable e) {
+  public ServiceException(final Throwable e) {
     super(e);
   }
 

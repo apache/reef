@@ -38,7 +38,7 @@ public class DriverException extends ExecutionException {
      * @param message
      * @param cause
      */
-    public DriverException(String message, Throwable cause) {
+    public DriverException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -47,7 +47,7 @@ public class DriverException extends ExecutionException {
      * 
      * @param message
      */
-    public DriverException(String message) {
+    public DriverException(final String message) {
         super(message);
     }
 
@@ -56,7 +56,7 @@ public class DriverException extends ExecutionException {
      * 
      * @param cause
      */
-    public DriverException(Throwable cause) {
+    public DriverException(final Throwable cause) {
         super(cause);
     }
 
