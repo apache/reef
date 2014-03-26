@@ -37,10 +37,23 @@ public final class Tuple<K, V> {
   }
 
   @Override
-  public boolean equals(Object oo) {
-    @SuppressWarnings("unchecked")
-    Tuple<K, V> o = (Tuple<K, V>) oo;
-    return o.getKey().equals(getKey()) && o.getValue().equals(getValue());
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Tuple tuple = (Tuple) o;
+
+    if (!k.equals(tuple.k)) return false;
+    if (!v.equals(tuple.v)) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = k.hashCode();
+    result = 31 * result + v.hashCode();
+    return result;
   }
 
   @Override
