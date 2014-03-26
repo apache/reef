@@ -16,6 +16,8 @@
 package com.microsoft.reef.runtime.yarn.master;
 
 import com.google.protobuf.ByteString;
+import com.microsoft.reef.io.TempFileCreator;
+import com.microsoft.reef.io.WorkingDirectoryTempFileCreator;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.*;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -28,6 +30,7 @@ import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.formats.ConfigurationSerializer;
@@ -100,6 +103,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   private final Map<String, Container> allocatedContainers = new ConcurrentHashMap<>();
   private final ConfigurationSerializer configurationSerializer;
+  private final TempFileCreator tempFileCreator;
 
   private RegisterApplicationMasterResponse registration;
 
@@ -116,12 +120,14 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusProto> runtimeStatusProtoEventHandler,
       final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationHandler,
       final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler,
-      final ConfigurationSerializer configurationSerializer)
+      final ConfigurationSerializer configurationSerializer,
+      final TempFileCreator tempFileCreator)
       throws IOException {
 
     this.globalClassPath = globalClassPath;
     this.clock = clock;
     this.configurationSerializer = configurationSerializer;
+    this.tempFileCreator = tempFileCreator;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.yarnConf = yarnConf;
     this.resourceAllocationHandler = new ThreadPoolStage<>(resourceAllocationHandler, 8);
@@ -360,11 +366,15 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final Map<String, LocalResource> localResources = new HashMap<>(this.globalResources);
 
       // EVALUATOR CONFIGURATION
-      final File evaluatorConfigurationFile = File.createTempFile("evaluator_" + container.getId(), ".conf");
+      final File evaluatorConfigurationFile = this.tempFileCreator.createTempFile("evaluator_" + container.getId(), ".conf");
       LOG.log(Level.FINEST, "TIME: Config ResourceLaunchProto {0} {1}",
           new Object[]{containerId, evaluatorConfigurationFile});
 
-      final Configuration evaluatorConfiguration = this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf());
+      final Configuration evaluatorConfiguration = Tang.Factory.getTang()
+          .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf()))
+          .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
+          .build();
+
       this.configurationSerializer.toFile(evaluatorConfiguration, evaluatorConfigurationFile);
 
       localResources.put(evaluatorConfigurationFile.getName(),

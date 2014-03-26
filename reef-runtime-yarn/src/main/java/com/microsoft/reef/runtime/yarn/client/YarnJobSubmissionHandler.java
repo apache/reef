@@ -15,7 +15,10 @@
  */
 package com.microsoft.reef.runtime.yarn.client;
 
+import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.io.SystemTempFileCreator;
+import com.microsoft.reef.io.TempFileCreator;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
@@ -49,13 +52,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Private
+@ClientSide
 final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   private static final Logger LOG = Logger.getLogger(YarnJobSubmissionHandler.class.getName());
-  private final static int MIN_REEF_MASTER_MEMORY = 512;
   private final YarnConfiguration yarnConfiguration;
   private final YarnClient yarnClient;
   private final ConfigurationSerializer configurationSerializer;
+  private final TempFileCreator tempFileCreator = new SystemTempFileCreator();
 
   @Inject
   YarnJobSubmissionHandler(final YarnConfiguration yarnConfiguration,
@@ -97,7 +101,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // FILE RESOURCES
       final Map<String, LocalResource> localResources = new HashMap<>();
 
-      final File yarnConfigurationFile = File.createTempFile("yarn", ".conf");
+      final File yarnConfigurationFile = this.tempFileCreator.createTempFile("yarn", ".conf");
       final FileOutputStream yarnConfigurationFOS = new FileOutputStream(yarnConfigurationFile);
       this.yarnConfiguration.writeXml(yarnConfigurationFOS);
       yarnConfigurationFOS.close();
@@ -161,7 +165,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setClientRemoteIdentifier(jobSubmissionProto.getRemoteId())
           .addClientConfiguration(this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
           .build();
-      final File masterConfigurationFile = File.createTempFile("driver", ".conf");
+      final File masterConfigurationFile = this.tempFileCreator.createTempFile("driver", ".conf");
       this.configurationSerializer.toFile(masterConfiguration, masterConfigurationFile);
 
       localResources.put(masterConfigurationFile.getName(),
@@ -210,7 +214,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // Set the queue to which this application is to be submitted in the RM
       applicationSubmissionContext.setQueue(jobSubmissionProto.hasQueue() ? jobSubmissionProto.getQueue() : "default");
 
-      LOG.log(Level.INFO, "Submiting REEF Application to YARN. ID: {0}", applicationId);
+      LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", applicationId);
       this.yarnClient.submitApplication(applicationSubmissionContext);
       // monitorApplication(applicationId);
     } catch (YarnException | IOException | URISyntaxException | BindException e) {
