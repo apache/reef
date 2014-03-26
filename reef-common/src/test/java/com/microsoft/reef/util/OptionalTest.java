@@ -58,7 +58,7 @@ public class OptionalTest {
 
   @Test
   public void testOrElse() {
-    Assert.assertEquals(Optional.empty().orElse(2), Integer.valueOf(2));
+    Assert.assertEquals(Optional.empty().orElse(2), 2);
     Assert.assertEquals(Optional.of(1).orElse(2), Integer.valueOf(1));
   }
 
@@ -88,7 +88,7 @@ public class OptionalTest {
 
     // Assert.assertFalse("one" == 1); // incompatible operands; does not compile.
 
-    Assert.assertFalse(Optional.of(new ArrayList<Object>()).equals(Optional.of(new Object[] {})));
+    Assert.assertFalse(Optional.of(new ArrayList<>()).equals(Optional.of(new Object[]{})));
 
     // Incompatible operands; does not compile, though == between objects is almost always a typo:
     // Assert.assertFalse(new java.util.ArrayList() == new java.awt.List());
