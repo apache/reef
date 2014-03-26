@@ -16,12 +16,12 @@
 package com.microsoft.reef.runtime.common.evaluator.task;
 
 import com.google.protobuf.ByteString;
-import com.microsoft.reef.driver.task.TaskConfigurationOptions;
-import com.microsoft.reef.task.TaskMessage;
-import com.microsoft.reef.task.TaskMessageSource;
 import com.microsoft.reef.driver.context.ContextConfigurationOptions;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
+import com.microsoft.reef.task.TaskMessage;
+import com.microsoft.reef.task.TaskMessageSource;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.remote.Encoder;
@@ -30,6 +30,7 @@ import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -289,7 +290,7 @@ public final class TaskStatus {
    * @return the messages to be sent on the Task's behalf in the next heartbeat.
    */
   private final Collection<TaskMessage> getMessages() {
-    final ArrayList<TaskMessage> result = new ArrayList<>(this.evaluatorMessageSources.size());
+    final List<TaskMessage> result = new ArrayList<>(this.evaluatorMessageSources.size());
     for (final TaskMessageSource messageSource : this.evaluatorMessageSources) {
       final Optional<TaskMessage> taskMessageOptional = messageSource.getMessage();
       if (taskMessageOptional.isPresent()) {

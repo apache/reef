@@ -108,7 +108,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final List<EvaluatorContext> activeContextList = new ArrayList<>();
 
-  private final HashSet<String> activeContextIds = new HashSet<>();
+  private final Set<String> activeContextIds = new HashSet<>();
 
   private final DispatchingEStage dispatcher;
 
