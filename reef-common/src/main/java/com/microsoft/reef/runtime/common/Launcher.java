@@ -27,7 +27,7 @@ import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.wake.remote.RemoteConfiguration;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -147,7 +147,7 @@ public class Launcher {
    * @param vargs     List of command line parameters to append to.
    * @param propNames Array of property names.
    */
-  public static void propagateProperties(final List<String> vargs, final String[] propNames) {
+  public static void propagateProperties(final Collection<String> vargs, final String[] propNames) {
     for (final String propName : propNames) {
       final String propValue = System.getProperty(propName);
       if (!(propValue == null || propValue.isEmpty())) {

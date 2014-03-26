@@ -28,8 +28,8 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,11 +44,11 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   /**
    * The set of files to be places on the Evaluator.
    */
-  private final Set<File> files = new HashSet<>();
+  private final Collection<File> files = new HashSet<>();
   /**
    * The set of libraries
    */
-  private final Set<File> libraries = new HashSet<>();
+  private final Collection<File> libraries = new HashSet<>();
 
   AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager,
                          final String remoteID,

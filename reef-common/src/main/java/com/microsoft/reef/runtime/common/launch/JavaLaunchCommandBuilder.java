@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
@@ -129,7 +130,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     return this;
   }
 
-  public JavaLaunchCommandBuilder setClassPath(final List<String> classPathElements) {
+  public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
     this.classPath = StringUtils.join(classPathElements, File.pathSeparatorChar);
     return this;
   }

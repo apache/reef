@@ -30,7 +30,6 @@ import com.microsoft.wake.time.event.Alarm;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -94,7 +93,7 @@ public class HeartBeatManager {
   public void onNext(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
     synchronized (this) {
       // TODO: Write a test that checks for the order.
-      final List<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
+      final Collection<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
       contextStatusList.add(contextStatusProto);
       contextStatusList.addAll(this.contextManager.get().getContextStatusCollection());
       final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto = this.getEvaluatorHeartbeatProto(
@@ -132,7 +131,7 @@ public class HeartBeatManager {
 
   private final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto getEvaluatorHeartbeatProto(
       final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto,
-      final Collection<ReefServiceProtos.ContextStatusProto> contextStatusProtos,
+      final Iterable<ReefServiceProtos.ContextStatusProto> contextStatusProtos,
       final Optional<ReefServiceProtos.TaskStatusProto> taskStatusProto) {
 
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.Builder builder = EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.newBuilder()
