@@ -211,9 +211,10 @@ public final class JobDriver {
     final ConfigurationBuilder cb = Tang.Factory.getTang()
         .newConfigurationBuilder(loadShellTaskClassHierarchy(SHELL_TASK_CLASS_HIERARCHY_FILENAME));
 
-    cb.bind("Microsoft.Reef.Tasks.ITask", "Microsoft.Reef.Tasks.ShellTask");
-    cb.bind("Microsoft.Reef.Tasks.TaskConfigurationOptions.Identifier", taskId);
-    cb.bind("Microsoft.Reef.Tasks.ShellTask+Command", command);
+    cb.bind("Microsoft.Reef.Tasks.ITask, Microsoft.Reef.Tasks.ITask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "Microsoft.Reef.Tasks.ShellTask, Microsoft.Reef.Tasks.ShellTask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+    cb.bind("Microsoft.Reef.Tasks.TaskConfigurationOptions+Identifier, Microsoft.Reef.Tasks.ITask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", taskId);
+    cb.bind("Microsoft.Reef.Tasks.ShellTask+Command, Microsoft.Reef.Tasks.ShellTask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", command);
+
     return cb.build();
   }
 
