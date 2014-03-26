@@ -16,6 +16,7 @@
 package com.microsoft.reef.io.network.naming.serialization;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.microsoft.io.network.naming.avro.AvroNamingLookupRequest;
 import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
 import com.microsoft.reef.io.network.proto.ReefNetworkNamingProtos.NamingLookupRequestPBuf;
 import com.microsoft.wake.Identifier;
@@ -49,11 +50,13 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    */
   @Override
   public byte[] encode(NamingLookupRequest obj) {
-    NamingLookupRequestPBuf.Builder builder = NamingLookupRequestPBuf.newBuilder();
+    AvroNamingLookupRequest.Builder builder = AvroNamingLookupRequest.newBuilder();
+    List<CharSequence> ids = new ArrayList<>();
     for (Identifier id : obj.getIdentifiers()) {
-      builder.addIds(id.toString());
+      ids.add(id.toString());
     }
-    return builder.build().toByteArray();
+    builder.setIds(ids);
+    return AvroUtils.toBytes(builder.build(), AvroNamingLookupRequest.class);
   }
 
   /**
@@ -64,17 +67,11 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    */
   @Override
   public NamingLookupRequest decode(byte[] buf) {
-    NamingLookupRequestPBuf pbuf;
-    try {
-      pbuf = NamingLookupRequestPBuf.parseFrom(buf);
-    } catch (InvalidProtocolBufferException e) {
-      e.printStackTrace();
-      throw new NamingRuntimeException(e);
-    }
+    AvroNamingLookupRequest req = AvroUtils.fromBytes(buf, AvroNamingLookupRequest.class);
 
     List<Identifier> ids = new ArrayList<Identifier>();
-    for (String s : pbuf.getIdsList()) {
-      ids.add(factory.getNewInstance(s));
+    for (CharSequence s : req.getIds()) {
+      ids.add(factory.getNewInstance(s.toString()));
     }
     return new NamingLookupRequest(ids);
   }
