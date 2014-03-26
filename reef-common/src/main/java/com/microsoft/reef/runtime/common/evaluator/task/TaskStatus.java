@@ -180,7 +180,7 @@ public final class TaskStatus {
          * and can happen at the next scheduled heartbeat period. */
         this.heartbeat();
         this.setState(State.RUNNING);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         // Task start handler error
         this.setException(e);
       }

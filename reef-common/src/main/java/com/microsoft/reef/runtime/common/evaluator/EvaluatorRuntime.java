@@ -82,11 +82,13 @@ final class EvaluatorRuntime {
       if (!message.getIdentifier().equals(this.evaluatorIdentifier.toString())) {
         this.handle(new RuntimeException(
             "Identifier mismatch: message for evaluator id[" + message.getIdentifier()
-                + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"));
+                + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"
+        ));
       } else if (ReefServiceProtos.State.RUNNING != this.state) {
         this.handle(new RuntimeException(
             "Evaluator sent a control message but its state is not "
-                + ReefServiceProtos.State.RUNNING + " but rather " + this.state));
+                + ReefServiceProtos.State.RUNNING + " but rather " + this.state
+        ));
       } else {
 
         if (message.hasContextControl()) {
@@ -98,7 +100,7 @@ final class EvaluatorRuntime {
               this.heartBeatManager.onNext(this.getEvaluatorStatus());
               this.clock.close();
             }
-          } catch (Throwable e) {
+          } catch (final Throwable e) {
             this.handle(e);
             throw new RuntimeException(e);
           }
@@ -175,7 +177,7 @@ final class EvaluatorRuntime {
 
         try {
           EvaluatorRuntime.this.evaluatorControlChannel.close();
-        } catch (Exception e) {
+        } catch (final Exception e) {
           LOG.log(Level.SEVERE, "Exception during shutdown of evaluatorControlChannel.", e);
         }
         LOG.log(Level.FINEST, "EvaluatorRuntime shutdown complete");

@@ -139,7 +139,7 @@ final class DriverManager implements EvaluatorRequestor {
         ReefServiceProtos.RuntimeErrorProto.class,
         new EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>>() {
           @Override
-          public void onNext(RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
+          public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
             handle(value.getMessage());
           }
         }
@@ -299,7 +299,7 @@ final class DriverManager implements EvaluatorRequestor {
         LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
         final EvaluatorManager evaluator = getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
         this.evaluators.put(resourceAllocationProto.getIdentifier(), evaluator);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         throw new RuntimeException(e);
       }
     }

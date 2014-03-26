@@ -141,7 +141,7 @@ public final class ContextRuntime {
         final ContextRuntime childContext = new ContextRuntime(childServiceInjector, contextConfiguration, Optional.of(this));
         this.childContext = Optional.of(childContext);
         return childContext;
-      } catch (BindException e) {
+      } catch (final BindException e) {
         final Optional<String> parentID = this.getParentContext().isPresent() ?
             Optional.of(this.getParentContext().get().getIdentifier()) :
             Optional.<String>empty();
@@ -184,8 +184,8 @@ public final class ContextRuntime {
    *
    * @param taskConfig the configuration to be used for the task.
    * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException If the Task cannot be instantiated due to user code / configuration issues.
-   * @throws IllegalStateException       If this method is called when there is either a task or child context already
-   *                                     present.
+   * @throws IllegalStateException                                                    If this method is called when there is either a task or child context already
+   *                                                                                  present.
    */
   void startTask(final Configuration taskConfig) throws TaskClientCodeException {
     synchronized (this.contextLifeCycle) {
@@ -315,6 +315,7 @@ public final class ContextRuntime {
 
   /**
    * Handle the context message.
+   *
    * @param message sent by the driver
    */
   final void handleContextMessage(final byte[] message) {

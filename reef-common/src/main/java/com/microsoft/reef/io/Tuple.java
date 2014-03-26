@@ -31,17 +31,17 @@ public final class Tuple<K, V> {
     return v;
   }
 
-  public Tuple(K k, V v) {
+  public Tuple(final K k, final V v) {
     this.k = k;
     this.v = v;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    Tuple tuple = (Tuple) o;
+    final Tuple tuple = (Tuple) o;
 
     if (!k.equals(tuple.k)) return false;
     if (!v.equals(tuple.v)) return false;

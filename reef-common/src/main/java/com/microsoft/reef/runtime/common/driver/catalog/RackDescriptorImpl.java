@@ -29,7 +29,7 @@ public final class RackDescriptorImpl implements RackDescriptor {
 
   private final List<NodeDescriptorImpl> nodes;
 
-  RackDescriptorImpl(String name) {
+  RackDescriptorImpl(final String name) {
     this.name = name;
     this.nodes = new ArrayList<>();
   }
@@ -37,7 +37,7 @@ public final class RackDescriptorImpl implements RackDescriptor {
   public final String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("Rack " + this.name);
-    for (NodeDescriptorImpl node : nodes) {
+    for (final NodeDescriptorImpl node : nodes) {
       sb.append("\n\t" + node);
     }
     return sb.toString();
@@ -47,7 +47,7 @@ public final class RackDescriptorImpl implements RackDescriptor {
     return this.name.hashCode();
   }
 
-  public final boolean equals(Object obj) {
+  public final boolean equals(final Object obj) {
     if (obj instanceof RackDescriptorImpl) {
       return obj.toString().equals(this.name);
     } else {
@@ -69,7 +69,7 @@ public final class RackDescriptorImpl implements RackDescriptor {
    *
    * @param node to add.
    */
-  void addNodeDescriptor(NodeDescriptorImpl node) {
+  void addNodeDescriptor(final NodeDescriptorImpl node) {
     this.nodes.add(node);
   }
 }

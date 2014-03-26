@@ -36,7 +36,7 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
       this.builder.bind(ResourceReleaseHandler.class, resourceReleaseHandlerClass);
       this.builder.bind(ResourceRequestHandler.class, resourceRequestHandlerClass);
 
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -45,27 +45,31 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
     return this.builder.build();
   }
 
-  @NamedParameter(doc="The job identifier.")
-  public final static class JobIdentifier implements Name<String> {}
+  @NamedParameter(doc = "The job identifier.")
+  public final static class JobIdentifier implements Name<String> {
+  }
 
-  @NamedParameter(doc="The client remote identifier.")
-  public final static class ClientRemoteIdentifier implements Name<String> {}
+  @NamedParameter(doc = "The client remote identifier.")
+  public final static class ClientRemoteIdentifier implements Name<String> {
+  }
 
-  @NamedParameter(doc="The evaluator timeout (how long to wait before deciding an evaluator is dead.", default_value="60000")
-  public final static class EvaluatorTimeout implements Name<Long> {}
+  @NamedParameter(doc = "The evaluator timeout (how long to wait before deciding an evaluator is dead.", default_value = "60000")
+  public final static class EvaluatorTimeout implements Name<Long> {
+  }
 
   /**
    * This parameter denotes that the driver process should actually be
    * started in a separate process with the given amount of JVM memory.
    */
-  @NamedParameter(doc="The driver process memory.", default_value="512")
-  public final static class DriverProcessMemory implements Name<Integer> {}
+  @NamedParameter(doc = "The driver process memory.", default_value = "512")
+  public final static class DriverProcessMemory implements Name<Integer> {
+  }
 
   public final AbstractDriverRuntimeConfiguration addClientConfiguration(final Configuration conf) {
     try {
       this.builder.addConfiguration(conf);
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -74,7 +78,7 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
     try {
       this.builder.bindNamedParameter(JobIdentifier.class, id.toString());
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -83,7 +87,7 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
     try {
       this.builder.bindNamedParameter(ClientRemoteIdentifier.class, rid.toString());
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -92,7 +96,7 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
     try {
       this.builder.bindNamedParameter(DriverProcessMemory.class, Integer.toString(memory));
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -101,7 +105,7 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
     try {
       this.builder.bindNamedParameter(EvaluatorTimeout.class, Long.toString(value));
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }

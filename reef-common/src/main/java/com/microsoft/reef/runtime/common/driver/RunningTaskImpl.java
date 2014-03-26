@@ -16,8 +16,8 @@
 package com.microsoft.reef.runtime.common.driver;
 
 import com.google.protobuf.ByteString;
-import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.ContextControlProto;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.StopTaskProto;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.SuspendTaskProto;
@@ -61,7 +61,7 @@ final class RunningTaskImpl implements RunningTask {
   public final void onNext(final byte[] message) {
     LOG.log(Level.FINEST, "MESSAGE: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
-    ContextControlProto contextControlProto = ContextControlProto.newBuilder()
+    final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setTaskMessage(ByteString.copyFrom(message))
         .build();
 
@@ -72,17 +72,17 @@ final class RunningTaskImpl implements RunningTask {
   public void close() {
     LOG.log(Level.FINEST, "CLOSE: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
-    ContextControlProto contextControlProto = ContextControlProto.newBuilder()
+    final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setStopTask(StopTaskProto.newBuilder().build())
         .build();
     this.evaluatorManager.handle(contextControlProto);
   }
 
   @Override
-  public void close(byte[] message) {
+  public void close(final byte[] message) {
     LOG.log(Level.FINEST, "CLOSE: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
 
-    ContextControlProto contextControlProto = ContextControlProto.newBuilder()
+    final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setStopTask(StopTaskProto.newBuilder().build())
         .setTaskMessage(ByteString.copyFrom(message))
         .build();
@@ -90,10 +90,10 @@ final class RunningTaskImpl implements RunningTask {
   }
 
   @Override
-  public void suspend(byte[] message) {
+  public void suspend(final byte[] message) {
     LOG.log(Level.FINEST, "SUSPEND: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
 
-    ContextControlProto contextControlProto = ContextControlProto.newBuilder()
+    final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setSuspendTask(SuspendTaskProto.newBuilder().build())
         .setTaskMessage(ByteString.copyFrom(message))
         .build();
@@ -104,7 +104,7 @@ final class RunningTaskImpl implements RunningTask {
   public void suspend() {
     LOG.log(Level.FINEST, "SUSPEND: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
-    ContextControlProto contextControlProto = ContextControlProto.newBuilder()
+    final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setSuspendTask(SuspendTaskProto.newBuilder().build())
         .build();
     this.evaluatorManager.handle(contextControlProto);
