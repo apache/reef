@@ -12,12 +12,12 @@ import java.nio.file.attribute.FileAttribute;
  * Creates temp files in a directory named "temp" within  the current working directory.
  */
 @Provided
-public final class WorkingDiectoryTempFileCreator implements TempFileCreator {
+public final class WorkingDirectoryTempFileCreator implements TempFileCreator {
 
   private final File tempFolder;
 
   @Inject
-  public WorkingDiectoryTempFileCreator() throws IOException {
+  public WorkingDirectoryTempFileCreator() throws IOException {
     final File workingDirectory = new File(".");
     this.tempFolder = Files.createTempDirectory(workingDirectory.toPath(), "temp").toFile();
   }

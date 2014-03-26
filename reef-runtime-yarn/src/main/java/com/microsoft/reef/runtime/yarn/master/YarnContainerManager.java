@@ -17,7 +17,7 @@ package com.microsoft.reef.runtime.yarn.master;
 
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.io.TempFileCreator;
-import com.microsoft.reef.io.WorkingDiectoryTempFileCreator;
+import com.microsoft.reef.io.WorkingDirectoryTempFileCreator;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.*;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -372,7 +372,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
       final Configuration evaluatorConfiguration = Tang.Factory.getTang()
           .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf()))
-          .bindImplementation(TempFileCreator.class, WorkingDiectoryTempFileCreator.class)
+          .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
           .build();
 
       this.configurationSerializer.toFile(evaluatorConfiguration, evaluatorConfigurationFile);

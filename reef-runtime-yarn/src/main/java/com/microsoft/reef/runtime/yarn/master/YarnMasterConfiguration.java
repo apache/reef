@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.yarn.master;
 
 import com.microsoft.reef.io.TempFileCreator;
-import com.microsoft.reef.io.WorkingDiectoryTempFileCreator;
+import com.microsoft.reef.io.WorkingDirectoryTempFileCreator;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import com.microsoft.tang.annotations.Name;
@@ -37,7 +37,7 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
       this.builder.bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class);
       this.builder.bindSetEntry(Clock.RuntimeStartHandler.class, YarnContainerManager.RuntimeStartHander.class);
       this.builder.bindSetEntry(Clock.RuntimeStopHandler.class, YarnContainerManager.RuntimeStopHandler.class);
-      this.builder.bindImplementation(TempFileCreator.class, WorkingDiectoryTempFileCreator.class);
+      this.builder.bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class);
     } catch (BindException e) {
       throw new RuntimeException(e);
     }
