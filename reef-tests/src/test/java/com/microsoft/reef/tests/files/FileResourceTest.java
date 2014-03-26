@@ -48,17 +48,10 @@ import java.util.logging.Logger;
 public class FileResourceTest {
   private static final Logger LOG = Logger.getLogger(FileResourceTest.class.getName());
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
-  private final TempFileCreator tempFileCreator;
   /**
    * The number of files to generate.
    */
   private final int nFiles = 3;
-
-  public FileResourceTest() throws InjectionException {
-    this.tempFileCreator = Tang.Factory.getTang()
-        .newInjector(testEnvironment.getRuntimeConfiguration())
-        .getInstance(TempFileCreator.class);
-  }
 
   /**
    * Assembles the driver configuration using the DriverConfiguration class.
@@ -74,7 +67,7 @@ public class FileResourceTest {
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.EvaluatorAllocatedHandler.class);
 
     for (final File f : theFiles) {
-      LOG.log(Level.INFO, "Adding a file to the DriverConfiguration: " + f.getAbsolutePath());
+      LOG.log(Level.FINEST, "Adding a file to the DriverConfiguration: " + f.getAbsolutePath());
       driverConfigurationModule = driverConfigurationModule.set(DriverConfiguration.LOCAL_FILES, f.getAbsolutePath());
     }
     return driverConfigurationModule.build();
@@ -91,7 +84,7 @@ public class FileResourceTest {
   private static Configuration getTestDriverConfiguration(final Set<File> theFiles) throws BindException, IOException {
     ConfigurationModule testDriverConfigurationModule = TestDriverConfiguration.CONF;
     for (final File f : theFiles) {
-      LOG.log(Level.INFO, "Adding a file to the TestDriverConfiguration: " + f.getName());
+      LOG.log(Level.FINEST, "Adding a file to the TestDriverConfiguration: " + f.getName());
       testDriverConfigurationModule = testDriverConfigurationModule.set(TestDriverConfiguration.EXPECTED_FILE_NAME, f.getName());
     }
 
@@ -106,10 +99,13 @@ public class FileResourceTest {
    * @return
    * @throws IOException
    */
-  private Set<File> getTempFiles(final int n) throws IOException {
+  private Set<File> getTempFiles(final int n) throws IOException, InjectionException {
+    final TempFileCreator tempFileCreator = Tang.Factory.getTang()
+        .newInjector(testEnvironment.getRuntimeConfiguration())
+        .getInstance(TempFileCreator.class);
     final Set<File> theFiles = new HashSet<>();
     for (int i = 0; i < n; ++i) {
-      final File tempFile = this.tempFileCreator.createTempFile("REEF_TEST_", ".tmp");
+      final File tempFile = tempFileCreator.createTempFile("REEF_TEST_", ".tmp");
       tempFile.deleteOnExit();
       theFiles.add(tempFile);
     }
