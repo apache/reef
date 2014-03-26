@@ -15,20 +15,19 @@
  */
 package com.microsoft.reef.io.network.naming.serialization;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
-import com.microsoft.reef.io.network.proto.ReefNetworkNamingProtos.NamingLookupRequestPBuf;
+import com.microsoft.io.network.naming.avro.AvroNamingLookupRequest;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Naming lookup request codec
  */
-public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
+public final class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
 
   private final IdentifierFactory factory;
 
@@ -37,7 +36,8 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    *
    * @param factory the identifier factory
    */
-  public NamingLookupRequestCodec(IdentifierFactory factory) {
+  @Inject
+  public NamingLookupRequestCodec(final IdentifierFactory factory) {
     this.factory = factory;
   }
 
@@ -48,12 +48,12 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    * @return a byte array
    */
   @Override
-  public byte[] encode(NamingLookupRequest obj) {
-    NamingLookupRequestPBuf.Builder builder = NamingLookupRequestPBuf.newBuilder();
-    for (Identifier id : obj.getIdentifiers()) {
-      builder.addIds(id.toString());
+  public byte[] encode(final NamingLookupRequest obj) {
+    final List<CharSequence> ids = new ArrayList<>();
+    for (final Identifier id : obj.getIdentifiers()) {
+      ids.add(id.toString());
     }
-    return builder.build().toByteArray();
+    return AvroUtils.toBytes(AvroNamingLookupRequest.newBuilder().setIds(ids).build(), AvroNamingLookupRequest.class);
   }
 
   /**
@@ -63,18 +63,12 @@ public class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
    * @return a naming lookup request
    */
   @Override
-  public NamingLookupRequest decode(byte[] buf) {
-    NamingLookupRequestPBuf pbuf;
-    try {
-      pbuf = NamingLookupRequestPBuf.parseFrom(buf);
-    } catch (InvalidProtocolBufferException e) {
-      e.printStackTrace();
-      throw new NamingRuntimeException(e);
-    }
+  public NamingLookupRequest decode(final byte[] buf) {
+    final AvroNamingLookupRequest req = AvroUtils.fromBytes(buf, AvroNamingLookupRequest.class);
 
-    List<Identifier> ids = new ArrayList<Identifier>();
-    for (String s : pbuf.getIdsList()) {
-      ids.add(factory.getNewInstance(s));
+    final List<Identifier> ids = new ArrayList<Identifier>(req.getIds().size());
+    for (final CharSequence s : req.getIds()) {
+      ids.add(factory.getNewInstance(s.toString()));
     }
     return new NamingLookupRequest(ids);
   }

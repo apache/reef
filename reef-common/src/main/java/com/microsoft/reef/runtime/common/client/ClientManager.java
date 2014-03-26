@@ -15,6 +15,9 @@
  */
 package com.microsoft.reef.runtime.common.client;
 
+import com.microsoft.reef.annotations.Provided;
+import com.microsoft.reef.annotations.audience.ClientSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.ClientConfigurationOptions;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.client.FailedRuntime;
@@ -55,6 +58,9 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@ClientSide
+@Provided
+@Private
 public final class ClientManager implements REEF, EventHandler<RemoteMessage<JobStatusProto>> {
 
   static {

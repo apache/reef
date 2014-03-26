@@ -188,6 +188,23 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>2.2</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro-maven-plugin</artifactId>
+                    <version>${avro.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>schema</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+                                <outputDirectory>${project.basedir}/target/generated-sources/avro/</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -335,6 +352,13 @@
                 <version>1.2</version>
             </dependency>
             <!-- End of Apache Commons -->
+            <!-- AVRO -->
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
+            </dependency>
+            <!-- End of AVRO -->
 
             <!-- Apache Avro -->
             <dependency>
