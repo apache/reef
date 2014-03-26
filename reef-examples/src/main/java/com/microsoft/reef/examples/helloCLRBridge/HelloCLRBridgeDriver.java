@@ -28,6 +28,7 @@ import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import com.microsoft.tang.proto.ClassHierarchyProto;
 import com.microsoft.wake.EventHandler;

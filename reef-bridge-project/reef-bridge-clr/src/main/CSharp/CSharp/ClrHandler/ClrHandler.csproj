@@ -47,7 +47,6 @@
     </Reference>
     <Reference Include="Microsoft.Reef.Tasks.ITask">
       <HintPath>externals\Microsoft.Reef.Tasks.ITask.dll</HintPath>
-      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.Tang">
       <HintPath>externals\Microsoft.Tang.dll</HintPath>

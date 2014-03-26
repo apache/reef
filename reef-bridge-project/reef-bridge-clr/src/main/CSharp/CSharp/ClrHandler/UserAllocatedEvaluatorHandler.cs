@@ -1,7 +1,7 @@
 ﻿using Microsoft.Reef.Driver.Context;
 using Microsoft.Reef.Interop;
 using Microsoft.Reef.Tasks;
-using Microsoft.Tang.formats;
+using Microsoft.Tang.Formats;
 using Microsoft.Tang.Implementations;
 using Microsoft.Tang.Interface;
 using Microsoft.Tang.Protobuf;
@@ -40,32 +40,34 @@ namespace ClrHandler
 
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Class hierarchy written to [{0}].", Directory.GetCurrentDirectory()));
 
-            IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
+            string contextConfigurationString = value.ContextConfigStr; 
+            string taskConfigurationString = value.TaskConfigStr;
+
+            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+
+            if (contextConfigurationString.Contains("empty"))
+            {         
+                IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
+                    .Set(ContextConfiguration.Identifier, "bridgeHelloCLRContextId")
+                    .Build();
+
+                contextConfigurationString = serializer.ToString(contextConfiguration);
+            }
+
+            if (taskConfigurationString.Contains("empty"))
+            {
+                IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "bridgeHelloCLRTaskId")
                 .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
                 .Build();
-            IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
-                .Set(ContextConfiguration.Identifier, "bridgeHelloCLRContextId")
-                .Build();
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
-            //string contextConfigurationString = ConfigurationFile.ToConfigurationString(contextConfiguration);
-            //string taskConfigurationString = ConfigurationFile.ToConfigurationString(taskConfiguration);
-
-            string contextConfigurationString = Encoding.UTF8.GetString(serializer.ToByteArray(contextConfiguration));
-            string taskConfigurationString = Encoding.UTF8.GetString(serializer.ToByteArray(taskConfiguration));
-
-            Console.WriteLine("context configuration constructed by CLR: " + contextConfigurationString);
-            Console.WriteLine("task configuration constructed by CLR: " + taskConfigurationString);
-
-            if (value.ContextConfigStr.Contains("empty") || value.TaskConfigStr.Contains("empty"))
-            {
-                value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(contextConfigurationString, taskConfigurationString);
+                taskConfigurationString = serializer.ToString(taskConfiguration);
             }
-            else
-            {
-                value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(value.ContextConfigStr, value.TaskConfigStr);
-            }
+
+            Console.WriteLine("context configuration string submitted: " + contextConfigurationString);
+            Console.WriteLine("task configuration string submitted: " + taskConfigurationString);
+
+            value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(contextConfigurationString, taskConfigurationString);
 
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 2");
         }

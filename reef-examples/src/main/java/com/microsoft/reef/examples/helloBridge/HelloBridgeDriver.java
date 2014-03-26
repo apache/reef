@@ -20,7 +20,6 @@ import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.util.TANGUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
@@ -64,7 +63,7 @@ public final class HelloBridgeDriver {
       LOG.log(Level.INFO, "StartTime: ", startTime);
       allocatedEvalatorHandler = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
       HelloBridgeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setSize(EvaluatorRequest.Size.SMALL).build());
+          .setNumber(1).setMemory(128).build());
     }
   }
 
