@@ -15,15 +15,15 @@
  */
 package com.microsoft.reef.io.network.naming.serialization;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.microsoft.io.network.naming.avro.AvroNamingAssignment;
+import com.microsoft.io.network.naming.avro.AvroNamingLookupResponse;
 import com.microsoft.reef.io.naming.NameAssignment;
 import com.microsoft.reef.io.network.naming.NameAssignmentTuple;
 import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
-import com.microsoft.reef.io.network.proto.ReefNetworkNamingProtos.NameAssignmentPBuf;
-import com.microsoft.reef.io.network.proto.ReefNetworkNamingProtos.NamingLookupResponsePBuf;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
 
+import javax.inject.Inject;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,58 +31,61 @@ import java.util.List;
 /**
  * Naming lookup response codec
  */
-public class NamingLookupResponseCodec implements Codec<NamingLookupResponse> {
+public final class NamingLookupResponseCodec implements Codec<NamingLookupResponse> {
 
   private final IdentifierFactory factory;
-  
+
   /**
    * Constructs a naming lookup response codec
-   * 
+   *
    * @param factory the identifier factory
    */
-  public NamingLookupResponseCodec(IdentifierFactory factory) {
+  @Inject
+  public NamingLookupResponseCodec(final IdentifierFactory factory) {
     this.factory = factory;
   }
-  
+
   /**
    * Encodes name assignments to bytes
-   * 
+   *
    * @param obj the naming lookup response
    * @return a byte array
    */
   @Override
   public byte[] encode(NamingLookupResponse obj) {
-    NamingLookupResponsePBuf.Builder builder = NamingLookupResponsePBuf.newBuilder();
-    for (NameAssignment na : obj.getNameAssignments()) {
-      builder.addTuples(NameAssignmentPBuf.newBuilder()
-          .setId(na.getIdentifier().toString())
-          .setHost(na.getAddress().getHostName())
-          .setPort(na.getAddress().getPort()));
+    final List<AvroNamingAssignment> assignments = new ArrayList<>(obj.getNameAssignments().size());
+    for (final NameAssignment nameAssignment : obj.getNameAssignments()) {
+      assignments.add(AvroNamingAssignment.newBuilder()
+          .setId(nameAssignment.getIdentifier().toString())
+          .setHost(nameAssignment.getAddress().getHostName())
+          .setPort(nameAssignment.getAddress().getPort())
+          .build());
     }
-    return builder.build().toByteArray();
+    return AvroUtils.toBytes(
+        AvroNamingLookupResponse.newBuilder().setTuples(assignments).build(), AvroNamingLookupResponse.class
+    );
   }
 
   /**
    * Decodes bytes to an iterable of name assignments
-   * 
+   *
    * @param buf the byte array
    * @return a naming lookup response
    * @throws NamingRuntimeException
    */
   @Override
-  public NamingLookupResponse decode(byte[] buf) {
-    NamingLookupResponsePBuf pbuf;
-    try {
-      pbuf = NamingLookupResponsePBuf.parseFrom(buf);
-    } catch (InvalidProtocolBufferException e) {
-      e.printStackTrace();
-      throw new NamingRuntimeException(e);
-    }
-    List<NameAssignment> nas = new ArrayList<NameAssignment>(); 
-    for (NameAssignmentPBuf tuple : pbuf.getTuplesList()) {
-      nas.add(new NameAssignmentTuple(factory.getNewInstance(tuple.getId()), new InetSocketAddress(tuple.getHost(), tuple.getPort())));
+  public NamingLookupResponse decode(final byte[] buf) {
+    final AvroNamingLookupResponse avroResponse = AvroUtils.fromBytes(buf, AvroNamingLookupResponse.class);
+    final List<NameAssignment> nas = new ArrayList<NameAssignment>(avroResponse.getTuples().size());
+    for (final AvroNamingAssignment tuple : avroResponse.getTuples()) {
+      nas.add(
+          new NameAssignmentTuple(
+              factory.getNewInstance(tuple.getId().toString()),
+              new InetSocketAddress(tuple.getHost().toString(), tuple.getPort())
+          )
+      );
     }
     return new NamingLookupResponse(nas);
   }
- 
+
 }
