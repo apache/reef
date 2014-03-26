@@ -116,9 +116,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final ConfigurationSerializer configurationSerializer;
 
-  // TODO: Wrap this in a set-once-with-default class
-  private EvaluatorType type = EvaluatorType.JVM;
-
   // Mutable fields
 
   private RunningTask runningTask = null;
