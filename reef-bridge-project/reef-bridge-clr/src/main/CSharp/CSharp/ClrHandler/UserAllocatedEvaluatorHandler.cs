@@ -1,10 +1,16 @@
 ﻿using Microsoft.Reef.Driver.Context;
 using Microsoft.Reef.Interop;
 using Microsoft.Reef.Tasks;
-using Microsoft.Tang.Formats;
+using Microsoft.Tang.formats;
+using Microsoft.Tang.Implementations;
 using Microsoft.Tang.Interface;
+using Microsoft.Tang.Protobuf;
 using Microsoft.Tang.Util;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
 
 namespace ClrHandler
 {
@@ -23,16 +29,32 @@ namespace ClrHandler
 
         public void OnNext(AllocatedEvaluator value)
         {
+            const string ClassHierarchyBinFileName = "clrClassHierarchy.bin";
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 1");
+            List<string> taskDlls = new List<string>();
+            taskDlls.Add(typeof(ITask).Assembly.GetName().Name);
+            taskDlls.Add(typeof(HelloTask).Assembly.GetName().Name);
+
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(taskDlls.ToArray());
+            ProtocolBufferClassHierarchy.Serialize(ClassHierarchyBinFileName, ns);
+
+            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Class hierarchy written to [{0}].", Directory.GetCurrentDirectory()));
+
             IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
-                .Set(TaskConfiguration.Identifier, "bridgeCLRTaskId")
+                .Set(TaskConfiguration.Identifier, "bridgeHelloCLRTaskId")
                 .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
                 .Build();
             IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
-                .Set(ContextConfiguration.Identifier, "bridgeCLRContextId")
+                .Set(ContextConfiguration.Identifier, "bridgeHelloCLRContextId")
                 .Build();
-            string contextConfigurationString = ConfigurationFile.ToConfigurationString(contextConfiguration);
-            string taskConfigurationString = ConfigurationFile.ToConfigurationString(taskConfiguration);
+            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+
+            //string contextConfigurationString = ConfigurationFile.ToConfigurationString(contextConfiguration);
+            //string taskConfigurationString = ConfigurationFile.ToConfigurationString(taskConfiguration);
+
+            string contextConfigurationString = Encoding.UTF8.GetString(serializer.ToByteArray(contextConfiguration));
+            string taskConfigurationString = Encoding.UTF8.GetString(serializer.ToByteArray(taskConfiguration));
+
             Console.WriteLine("context configuration constructed by CLR: " + contextConfigurationString);
             Console.WriteLine("task configuration constructed by CLR: " + taskConfigurationString);
 

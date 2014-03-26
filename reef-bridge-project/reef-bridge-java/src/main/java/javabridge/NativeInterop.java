@@ -75,6 +75,9 @@ public class NativeInterop {
             "Microsoft.Reef.Driver",
             "Microsoft.Reef.Tasks.ITask",
             "Microsoft.Reef.Tasks.HelloTask",
+            "protobuf-net",
+            "Microsoft.Hadoop.Avro",
+            "Newtonsoft.Json",
     };
 
 

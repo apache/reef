@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Hadoop.Avro">
+      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\Microsoft.Hadoop.Avro.1.1.0.5\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Reef.Driver">
       <HintPath>externals\Microsoft.Reef.Driver.dll</HintPath>
       <Private>true</Private>
@@ -48,6 +51,13 @@
     </Reference>
     <Reference Include="Microsoft.Tang">
       <HintPath>externals\Microsoft.Tang.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="System" />
@@ -71,6 +81,9 @@
     <Compile Include="IInteropReturnInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserAllocatedEvaluatorHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
