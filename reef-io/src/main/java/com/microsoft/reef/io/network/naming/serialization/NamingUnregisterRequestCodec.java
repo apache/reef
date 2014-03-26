@@ -15,16 +15,17 @@
  */
 package com.microsoft.reef.io.network.naming.serialization;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.microsoft.io.network.naming.avro.AvroNamingUnRegisterRequest;
 import com.microsoft.reef.io.network.naming.exception.NamingRuntimeException;
-import com.microsoft.reef.io.network.proto.ReefNetworkNamingProtos.NamingUnregisterRequestPBuf;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
+
+import javax.inject.Inject;
 
 /**
  * Naming un-registration request codec
  */
-public class NamingUnregisterRequestCodec implements Codec<NamingUnregisterRequest> {
+public final class NamingUnregisterRequestCodec implements Codec<NamingUnregisterRequest> {
 
   private final IdentifierFactory factory;
 
@@ -33,7 +34,8 @@ public class NamingUnregisterRequestCodec implements Codec<NamingUnregisterReque
    *
    * @param factory the identifier factory
    */
-  public NamingUnregisterRequestCodec(IdentifierFactory factory) {
+  @Inject
+  public NamingUnregisterRequestCodec(final IdentifierFactory factory) {
     this.factory = factory;
   }
 
@@ -45,9 +47,10 @@ public class NamingUnregisterRequestCodec implements Codec<NamingUnregisterReque
    */
   @Override
   public byte[] encode(NamingUnregisterRequest obj) {
-    NamingUnregisterRequestPBuf.Builder builder = NamingUnregisterRequestPBuf.newBuilder();
-    builder.setId(obj.getIdentifier().toString());
-    return builder.build().toByteArray();
+    final AvroNamingUnRegisterRequest result = AvroNamingUnRegisterRequest.newBuilder()
+        .setId(obj.getIdentifier().toString())
+        .build();
+    return AvroUtils.toBytes(result, AvroNamingUnRegisterRequest.class);
   }
 
   /**
@@ -59,14 +62,8 @@ public class NamingUnregisterRequestCodec implements Codec<NamingUnregisterReque
    */
   @Override
   public NamingUnregisterRequest decode(byte[] buf) {
-    NamingUnregisterRequestPBuf pbuf;
-    try {
-      pbuf = NamingUnregisterRequestPBuf.parseFrom(buf);
-    } catch (InvalidProtocolBufferException e) {
-      e.printStackTrace();
-      throw new NamingRuntimeException(e);
-    }
-    return new NamingUnregisterRequest(factory.getNewInstance(pbuf.getId()));
+    final AvroNamingUnRegisterRequest result = AvroUtils.fromBytes(buf, AvroNamingUnRegisterRequest.class);
+    return new NamingUnregisterRequest(factory.getNewInstance(result.getId().toString()));
   }
 
 }
