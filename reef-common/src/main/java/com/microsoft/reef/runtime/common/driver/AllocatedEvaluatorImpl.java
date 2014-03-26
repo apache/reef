@@ -109,7 +109,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   @Override
   public void addLibrary(final File file) {
-    this.files.add(file);
+    this.libraries.add(file);
   }
 
   private final void launch(final Configuration contextConfiguration,
