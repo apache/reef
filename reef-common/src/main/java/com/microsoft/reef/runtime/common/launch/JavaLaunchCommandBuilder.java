@@ -74,11 +74,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
         add("2>");
         add(stderr_path);
       }
-
-      final StringBuilder args = new StringBuilder();
-      for (final String s : this) {
-        args.append(s).append(' ');
-      }
     }};
   }
 
