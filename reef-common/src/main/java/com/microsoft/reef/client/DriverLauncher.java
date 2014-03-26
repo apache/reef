@@ -63,6 +63,7 @@ public final class DriverLauncher {
     @Override
     public void onNext(final RunningJob job) {
       LOG.log(Level.INFO, "The Job {0} is running.", job.getId());
+      theJob = job;
       setStatusAndNotify(LauncherStatus.RUNNING);
     }
   }
