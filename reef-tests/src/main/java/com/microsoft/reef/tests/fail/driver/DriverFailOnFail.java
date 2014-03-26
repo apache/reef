@@ -79,7 +79,7 @@ public final class DriverFailOnFail {
     public void onNext(final FailedTask task) throws SimulatedDriverFailure {
       final SimulatedDriverFailure error = new SimulatedDriverFailure(
           "Simulated Failure at DriverFailOnFail :: " + task.getClass().getName(), task.asError());
-      LOG.log(Level.SEVERE, "Simulated Failure", error);
+      LOG.log(Level.INFO, "Simulated Failure: {0}", error);
       throw error;
     }
   }

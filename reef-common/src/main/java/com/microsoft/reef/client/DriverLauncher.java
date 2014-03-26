@@ -59,7 +59,7 @@ public final class DriverLauncher {
   /**
    * Job driver notifies us that the job is running.
    */
-  final class RunningJobHandler implements EventHandler<RunningJob> {
+  public final class RunningJobHandler implements EventHandler<RunningJob> {
     @Override
     public void onNext(final RunningJob job) {
       LOG.log(Level.INFO, "The Job {0} is running.", job.getId());
@@ -70,7 +70,7 @@ public final class DriverLauncher {
   /**
    * Job driver notifies us that the job had failed.
    */
-  final class FailedJobHandler implements EventHandler<FailedJob> {
+  public final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
       final Throwable ex = job.getCause();
@@ -82,7 +82,7 @@ public final class DriverLauncher {
   /**
    * Job driver notifies us that the job had completed successfully.
    */
-  final class CompletedJobHandler implements EventHandler<CompletedJob> {
+  public final class CompletedJobHandler implements EventHandler<CompletedJob> {
     @Override
     public void onNext(final CompletedJob job) {
       LOG.log(Level.INFO, "The Job {0} is done.", job);
@@ -93,7 +93,7 @@ public final class DriverLauncher {
   /**
    * Handler an error in the job driver.
    */
-  final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
+  public final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
     public void onNext(final FailedRuntime error) {
       LOG.log(Level.SEVERE, "Received a runtime error", error.getCause());
@@ -175,12 +175,14 @@ public final class DriverLauncher {
    */
   public static DriverLauncher getLauncher(
       final Configuration runtimeConfiguration) throws BindException, InjectionException {
+
     final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.ON_JOB_RUNNING, DriverLauncher.RunningJobHandler.class)
-        .set(ClientConfiguration.ON_JOB_COMPLETED, DriverLauncher.CompletedJobHandler.class)
-        .set(ClientConfiguration.ON_JOB_FAILED, DriverLauncher.FailedJobHandler.class)
-        .set(ClientConfiguration.ON_RUNTIME_ERROR, DriverLauncher.RuntimeErrorHandler.class)
+        .set(ClientConfiguration.ON_JOB_RUNNING, RunningJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, CompletedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_FAILED, FailedJobHandler.class)
+        .set(ClientConfiguration.ON_RUNTIME_ERROR, RuntimeErrorHandler.class)
         .build();
+
     return Tang.Factory.getTang()
         .newInjector(runtimeConfiguration, clientConfiguration)
         .getInstance(DriverLauncher.class);
@@ -196,7 +198,7 @@ public final class DriverLauncher {
   /**
    * Update job status and notify the waiting thread.
    */
-  private synchronized void setStatusAndNotify(final LauncherStatus status) {
+  public synchronized void setStatusAndNotify(final LauncherStatus status) {
     LOG.log(Level.FINEST, "Set status: {0} -> {1}", new Object[]{ this.status, status });
     this.status = status;
     this.notify();

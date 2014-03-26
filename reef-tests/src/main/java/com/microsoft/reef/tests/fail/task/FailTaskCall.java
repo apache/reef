@@ -38,7 +38,7 @@ public final class FailTaskCall implements Task {
   @Override
   public byte[] call(final byte[] memento) throws SimulatedTaskFailure {
     final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskCall.call() invoked.");
-    LOG.log(Level.WARNING, "FailTaskCall.call() invoked.", ex);
+    LOG.log(Level.FINE, "FailTaskCall.call() invoked: {0}", ex);
     throw ex;
   }
 }
