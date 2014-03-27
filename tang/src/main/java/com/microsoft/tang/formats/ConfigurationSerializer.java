@@ -1,5 +1,6 @@
 package com.microsoft.tang.formats;
 
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.DefaultImplementation;
 import com.microsoft.tang.exceptions.BindException;
@@ -51,6 +52,17 @@ public interface ConfigurationSerializer {
    */
   public Configuration fromFile(final File file) throws IOException, BindException;
 
+  /**
+   * Loads a Configuration from a File created with toFile().
+   *
+   * @param file           the File to read from.
+   * @param classHierarchy used to validate the configuration against
+   * @return the Configuration stored in the file.
+   * @throws IOException   if the File can't be read or parsed
+   * @throws BindException if the file contains an illegal Configuration
+   */
+  public Configuration fromFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException;
+
 
   /**
    * Loads a Configuration from a byte[] created with toByteArray().
@@ -60,8 +72,18 @@ public interface ConfigurationSerializer {
    * @throws IOException   if the byte[] can't be deserialized
    * @throws BindException if the byte[] contains an illegal Configuration.
    */
-
   public Configuration fromByteArray(final byte[] theBytes) throws IOException, BindException;
+
+  /**
+   * Loads a Configuration from a byte[] created with toByteArray().
+   *
+   * @param theBytes       the bytes to deserialize.
+   * @param classHierarchy used to validate the configuration against
+   * @return the Configuration stored.
+   * @throws IOException   if the byte[] can't be deserialized
+   * @throws BindException if the byte[] contains an illegal Configuration.
+   */
+  public Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy) throws IOException, BindException;
 
   /**
    * Decodes a String generated via toString()
@@ -72,4 +94,15 @@ public interface ConfigurationSerializer {
    * @throws BindException if theString contains an illegal Configuration.
    */
   public Configuration fromString(final String theString) throws IOException, BindException;
+
+  /**
+   * Decodes a String generated via toString()
+   *
+   * @param theString      to be parsed
+   * @param classHierarchy used to validate the configuration against
+   * @return the Configuration stored in theString.
+   * @throws IOException   if theString can't be parsed.
+   * @throws BindException if theString contains an illegal Configuration.
+   */
+  public Configuration fromString(final String theString, final ClassHierarchy classHierarchy) throws IOException, BindException;
 }
