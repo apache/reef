@@ -163,6 +163,10 @@ public final class DriverLauncher {
           LOG.log(Level.FINE, "Interrupted: {0}", ex);
         }
       }
+      if (System.currentTimeMillis() >= endTime) {
+        LOG.log(Level.WARNING, "The Job timed out.");
+        this.status = LauncherStatus.FORCE_CLOSED;
+      }
     }
 
     this.reef.close();
@@ -203,7 +207,7 @@ public final class DriverLauncher {
    * Update job status and notify the waiting thread.
    */
   public synchronized void setStatusAndNotify(final LauncherStatus status) {
-    LOG.log(Level.FINEST, "Set status: {0} -> {1}", new Object[]{ this.status, status });
+    LOG.log(Level.FINEST, "Set status: {0} -> {1}", new Object[]{this.status, status});
     this.status = status;
     this.notify();
   }
