@@ -21,15 +21,15 @@ package com.microsoft.reef.exception.evaluator;
 public class NetworkException extends ServiceException {
   private static final long serialVersionUID = 1L;
 
-  public NetworkException(String s, Throwable e) {
+  public NetworkException(final String s, final Throwable e) {
     super(s, e);
   }
 
-  public NetworkException(String s) {
+  public NetworkException(final String s) {
     super(s);
   }
 
-  public NetworkException(Throwable e) {
+  public NetworkException(final Throwable e) {
     super(e);
   }
 }

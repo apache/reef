@@ -95,7 +95,7 @@ public final class ClientManagerTest {
         .setIdentifier("test")
         .build();
 
-    final ClientManager clientManager = new ClientManager(this.injector, null, this.remoteManager, this.jobSubmissionHandler, configurationSerializer);
+    final EventHandler clientManager = new ClientManager(this.injector, null, this.remoteManager, this.jobSubmissionHandler, configurationSerializer);
     final RemoteMessage message = Mockito.mock(RemoteMessage.class);
 
     Mockito.when(message.getIdentifier()).thenReturn(Mockito.mock(RemoteIdentifier.class));

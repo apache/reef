@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
@@ -73,11 +74,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
       if (stderr_path != null && !stderr_path.isEmpty()) {
         add("2>");
         add(stderr_path);
-      }
-
-      final StringBuilder args = new StringBuilder();
-      for (final String s : this) {
-        args.append(s).append(' ');
       }
     }};
   }
@@ -134,7 +130,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     return this;
   }
 
-  public JavaLaunchCommandBuilder setClassPath(final List<String> classPathElements) {
+  public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
     this.classPath = StringUtils.join(classPathElements, File.pathSeparatorChar);
     return this;
   }

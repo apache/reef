@@ -102,7 +102,7 @@ public final class Optional<T> implements Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    Optional optional = (Optional) o;
+    final Optional optional = (Optional) o;
 
     if (value != null ? !value.equals(optional.value) : optional.value != null) return false;
 

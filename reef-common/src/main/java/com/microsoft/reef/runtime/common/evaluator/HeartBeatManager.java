@@ -93,7 +93,7 @@ public class HeartBeatManager {
   public void onNext(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
     synchronized (this) {
       // TODO: Write a test that checks for the order.
-      final ArrayList<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
+      final Collection<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
       contextStatusList.add(contextStatusProto);
       contextStatusList.addAll(this.contextManager.get().getContextStatusCollection());
       final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto = this.getEvaluatorHeartbeatProto(
@@ -131,7 +131,7 @@ public class HeartBeatManager {
 
   private final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto getEvaluatorHeartbeatProto(
       final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto,
-      final Collection<ReefServiceProtos.ContextStatusProto> contextStatusProtos,
+      final Iterable<ReefServiceProtos.ContextStatusProto> contextStatusProtos,
       final Optional<ReefServiceProtos.TaskStatusProto> taskStatusProto) {
 
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.Builder builder = EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.newBuilder()

@@ -33,7 +33,7 @@ public final class DefaultClientMessageHandler implements EventHandler<byte[]> {
   }
 
   @Override
-  public void onNext(byte[] bytes) {
+  public void onNext(final byte[] bytes) {
     LOG.log(Level.INFO, "Received ClientMessage: {0}", new String(bytes));
   }
 }

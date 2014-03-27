@@ -21,15 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author mweimer
- */
-public class JavaUtils {
+public final class JavaUtils {
+
+  private JavaUtils() {
+  }
 
   public static String getClasspath() {
     try {
       return System.getProperty("java.class.path");
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -59,10 +59,10 @@ public class JavaUtils {
   public static List<String> getEnvironmentList() {
     final Map<String, String> env = System.getenv();
 
-    final ArrayList<String> envList = new ArrayList<>();
-    for (Map.Entry<String, String> entry : env.entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
+    final List<String> envList = new ArrayList<>();
+    for (final Map.Entry<String, String> entry : env.entrySet()) {
+      final String key = entry.getKey();
+      final String value = entry.getValue();
       envList.add(key + "='" + value + "'");
     }
     return envList;

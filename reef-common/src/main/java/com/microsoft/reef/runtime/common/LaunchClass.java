@@ -114,6 +114,7 @@ public final class LaunchClass implements AutoCloseable, Runnable {
       if (isProfilingEnabled) {
         clockInjector.bindAspect(profiler);
       }
+      clockInjector.bindVolatileInstance(RemoteManager.class, this.remoteManager);
       return clockInjector.getInstance(Clock.class);
     } catch (final Throwable ex) {
       fail("Unable to instantiate the clock", ex);

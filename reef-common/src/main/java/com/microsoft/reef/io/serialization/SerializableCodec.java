@@ -38,7 +38,7 @@ public class SerializableCodec<T extends Serializable> implements Codec<T> {
   }
 
   @Override
-  public byte[] encode(T obj) {
+  public byte[] encode(final T obj) {
     try (final ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
       try (final ObjectOutputStream out = new ObjectOutputStream(bout)) {
         out.writeObject(obj);

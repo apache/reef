@@ -40,7 +40,7 @@ final class ProfilingStopHandler implements EventHandler<StopTime> {
   }
 
   @Override
-  public void onNext(StopTime stopTime) {
+  public void onNext(final StopTime stopTime) {
     try (final PrintWriter out = new PrintWriter("profile-" + launchID + ".json")) {
       out.print(profiler.objectGraphToString());
     } catch (final FileNotFoundException e) {
