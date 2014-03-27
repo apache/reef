@@ -53,9 +53,12 @@ public final class EnvironmentUtils {
     final Set<Path> excludePaths = new HashSet<>();
 
     for (final String env : excludeEnv) {
-      final File file = new File(env);
-      if (file.exists()) {
-        excludePaths.add(file.toPath());
+      final String path = System.getenv(env);
+      if (null != path) {
+        final File file = new File(path);
+        if (file.exists()) {
+          excludePaths.add(file.toPath());
+        }
       }
     }
 
