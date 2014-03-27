@@ -15,7 +15,9 @@
  */
 package com.microsoft.tang.formats;
 
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
@@ -51,12 +53,6 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   public AvroConfigurationSerializer() {
   }
 
-  /**
-   * Converts a given Configuration to AvroConfiguration
-   *
-   * @param configuration
-   * @return an AvroConfiguration version of the given Configuration
-   */
   public AvroConfiguration toAvro(final Configuration configuration) {
     // Note: This code is an adapted version of ConfiurationFile.toConfigurationStringList();
 
@@ -107,13 +103,6 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     return AvroConfiguration.newBuilder().setBindings(configurationEntries).build();
   }
 
-  /**
-   * Stores the given Configuration in the given File.
-   *
-   * @param conf the Configuration to store
-   * @param file the file to store the Configuration in
-   * @throws java.io.IOException if there is an IO error in the process.
-   */
   @Override
   public void toFile(final Configuration conf, final File file) throws IOException {
     final AvroConfiguration avroConfiguration = toAvro(conf);
@@ -124,13 +113,6 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     }
   }
 
-  /**
-   * Writes the Configuration to a byte[].
-   *
-   * @param conf
-   * @return
-   * @throws IOException
-   */
   @Override
   public byte[] toByteArray(final Configuration conf) throws IOException {
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
@@ -145,12 +127,6 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     return theBytes;
   }
 
-  /**
-   * Writes the Configuration as a String. In this case, the String will be JSON formatted.
-   *
-   * @param configuration
-   * @return a String representation of the Configuration
-   */
   @Override
   public String toString(final Configuration configuration) {
     return this.toAvro(configuration).toString();
@@ -163,9 +139,27 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
    * @return a Configuration version of the given AvroConfiguration
    */
   public Configuration fromAvro(final AvroConfiguration avroConfiguration) throws BindException {
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    fromAvro(avroConfiguration, configurationBuilder);
+    return configurationBuilder.build();
+  }
+
+  /**
+   * Converts a given AvroConfiguration to Configuration
+   *
+   * @param avroConfiguration
+   * @param classHierarchy    the class hierarchy used for validation.
+   * @return a Configuration version of the given AvroConfiguration
+   */
+  public Configuration fromAvro(final AvroConfiguration avroConfiguration, final ClassHierarchy classHierarchy)
+      throws BindException {
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(classHierarchy);
+    fromAvro(avroConfiguration, configurationBuilder);
+    return configurationBuilder.build();
+  }
+
+  private static void fromAvro(final AvroConfiguration avroConfiguration, final ConfigurationBuilder configurationBuilder) throws BindException {
     // Note: This code is an adapted version of ConfigurationFile.processConfigFile();
-    final ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) Tang.Factory.getTang()
-        .newConfigurationBuilder();
     final Map<String, String> importedNames = new HashMap<>();
 
     for (final ConfigurationEntry entry : avroConfiguration.getBindings()) {
@@ -182,11 +176,11 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
       try {
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
-          ci.getClassHierarchy().getNode(value);
+          configurationBuilder.getClassHierarchy().getNode(value);
           final String[] tok = value.split(ReflectionUtilities.regexp);
           final String lastTok = tok[tok.length - 1];
           try {
-            ci.getClassHierarchy().getNode(lastTok);
+            configurationBuilder.getClassHierarchy().getNode(lastTok);
             throw new IllegalArgumentException("Conflict on short name: " + lastTok);
           } catch (final BindException e) {
             final String oldValue = importedNames.put(lastTok, value);
@@ -200,64 +194,65 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
               .replaceAll("^[\\s\\(]+", "")
               .replaceAll("[\\s\\)]+$", "")
               .split("[\\s\\-]+");
-          ci.registerLegacyConstructor(key, classes);
+          configurationBuilder.registerLegacyConstructor(key, classes);
         } else {
-          ci.bind(key, value);
+          configurationBuilder.bind(key, value);
         }
       } catch (final BindException | ClassHierarchyException e) {
         throw new BindException("Failed to process configuration tuple: [" + key + "=" + value + "]", e);
       }
     }
-    return ci.build();
   }
 
-  /**
-   * Loads a Configuration from a File created with toFile().
-   *
-   * @param file the File to read from.
-   * @return the Configuration stored in the file.
-   * @throws IOException   if the File can't be read or parsed
-   * @throws BindException if the file contains an illegal Configuration
-   */
-  @Override
-  public Configuration fromFile(final File file) throws IOException, BindException {
+  private static AvroConfiguration avroFromFile(final File file) throws IOException {
     final AvroConfiguration avroConfiguration;
     try (final DataFileReader<AvroConfiguration> dataFileReader =
              new DataFileReader<>(file, new SpecificDatumReader<>(AvroConfiguration.class))) {
       avroConfiguration = dataFileReader.next();
     }
-    return fromAvro(avroConfiguration);
+    return avroConfiguration;
   }
 
-  /**
-   * Loads a Configuration from a byte[] created with toByteArray().
-   *
-   * @param theBytes the bytes to deserialize.
-   * @return the Configuration stored.
-   * @throws IOException   if the byte[] can't be deserialized
-   * @throws BindException if the byte[] contains an illegal Configuration.
-   */
   @Override
-  public Configuration fromByteArray(final byte[] theBytes) throws IOException, BindException {
+  public Configuration fromFile(final File file) throws IOException, BindException {
+    return fromAvro(avroFromFile(file));
+  }
+
+  @Override
+  public Configuration fromFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException {
+    return fromAvro(avroFromFile(file), classHierarchy);
+  }
+
+  private static AvroConfiguration avroFromBytes(final byte[] theBytes) throws IOException {
     final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(theBytes, null);
     final SpecificDatumReader<AvroConfiguration> reader = new SpecificDatumReader<>(AvroConfiguration.class);
-    return fromAvro(reader.read(null, decoder));
+    return reader.read(null, decoder);
   }
 
-  /**
-   * Decodes a String generated via toString()
-   *
-   * @param theString to be parsed
-   * @return the Configuration stored in theString.
-   * @throws IOException   if theString can't be parsed.
-   * @throws BindException if theString contains an illegal Configuration.
-   */
   @Override
-  public Configuration fromString(final String theString) throws IOException, BindException {
+  public Configuration fromByteArray(final byte[] theBytes) throws IOException, BindException {
+    return fromAvro(avroFromBytes(theBytes));
+  }
+
+  @Override
+  public Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy) throws IOException, BindException {
+    return fromAvro(avroFromBytes(theBytes), classHierarchy);
+  }
+
+  private static AvroConfiguration avroFromString(final String theString) throws IOException {
     final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(AvroConfiguration.getClassSchema(), theString);
     final SpecificDatumReader<AvroConfiguration> reader = new SpecificDatumReader<>(AvroConfiguration.class);
-    return fromAvro(reader.read(null, decoder));
+    return reader.read(null, decoder);
   }
 
+  @Override
+  public Configuration fromString(final String theString) throws IOException, BindException {
+    return fromAvro(avroFromString(theString));
+  }
+
+  @Override
+  public Configuration fromString(final String theString, final ClassHierarchy classHierarchy) throws IOException, BindException {
+    return fromAvro(avroFromString(theString), classHierarchy);
+  }
 
 }
