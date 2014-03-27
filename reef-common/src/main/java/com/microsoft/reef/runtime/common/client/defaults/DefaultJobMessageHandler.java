@@ -18,12 +18,12 @@ package com.microsoft.reef.runtime.common.client.defaults;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.JobMessage;
-import com.microsoft.reef.client.RunningJob;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Default event handler for job message: Logging it.

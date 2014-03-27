@@ -106,7 +106,7 @@ public final class EnvironmentUtils {
    * @return
    */
   public static ConfigurationModule addClasspath(
-      ConfigurationModule config, final OptionalParameter<String> param) {
+      final ConfigurationModule config, final OptionalParameter<String> param) {
     return addAll(config, param, getAllClasspathJars());
   }
 }

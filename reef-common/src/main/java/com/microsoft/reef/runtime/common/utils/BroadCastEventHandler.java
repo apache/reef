@@ -24,13 +24,13 @@ import java.util.List;
 public class BroadCastEventHandler<E> implements EventHandler<E> {
   private final List<EventHandler<E>> handlers;
 
-  public BroadCastEventHandler(Collection<EventHandler<E>> handlers) {
+  public BroadCastEventHandler(final Collection<EventHandler<E>> handlers) {
     this.handlers = new ArrayList<>(handlers);
   }
 
   @Override
   public void onNext(final E event) {
-    for (EventHandler<E> handler : handlers)
+    for (final EventHandler<E> handler : handlers)
       handler.onNext(event);
   }
 

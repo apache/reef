@@ -47,7 +47,7 @@ final class REEFUncaughtExceptionHandler implements Thread.UncaughtExceptionHand
     this.errorHandler.onNext(new Exception(msg, throwable));
     try {
       this.wait(100); // TODO: Remove
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
 
     }
     this.errorHandler.close();

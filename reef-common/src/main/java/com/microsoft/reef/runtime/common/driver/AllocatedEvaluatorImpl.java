@@ -31,8 +31,8 @@ import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.tang.formats.avro.AvroConfiguration;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,11 +47,11 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   /**
    * The set of files to be places on the Evaluator.
    */
-  private final Set<File> files = new HashSet<>();
+  private final Collection<File> files = new HashSet<>();
   /**
    * The set of libraries
    */
-  private final Set<File> libraries = new HashSet<>();
+  private final Collection<File> libraries = new HashSet<>();
 
   AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager,
                          final String remoteID,
@@ -135,7 +135,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   @Override
   public void addLibrary(final File file) {
-    this.files.add(file);
+    this.libraries.add(file);
   }
 
   private final void launch(final String contextConfigurationStr,

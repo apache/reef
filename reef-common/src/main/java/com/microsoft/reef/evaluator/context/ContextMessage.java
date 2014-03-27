@@ -32,7 +32,7 @@ public final class ContextMessage implements Message {
   private final String messageSourceID;
   private final byte[] theBytes;
 
-  private ContextMessage(String messageSourceID, byte[] theBytes) {
+  private ContextMessage(final String messageSourceID, final byte[] theBytes) {
     this.messageSourceID = messageSourceID;
     this.theBytes = theBytes;
   }

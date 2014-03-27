@@ -40,23 +40,23 @@ public class ServiceRuntimeException extends RuntimeException {
    *
    * @param cause
    */
-  public ServiceRuntimeException(ServiceException cause) {
-    super("Wrapped ServiceException");
+  public ServiceRuntimeException(final ServiceException cause) {
+    super("Wrapped ServiceException", cause);
     this.isWrappedServiceException = true;
   }
 
-  public ServiceRuntimeException(String message, Throwable cause) {
+  public ServiceRuntimeException(final String message, final Throwable cause) {
     super(message, cause);
     this.isWrappedServiceException = false;
   }
 
-  public ServiceRuntimeException(String message) {
+  public ServiceRuntimeException(final String message) {
     super(message);
     this.isWrappedServiceException = false;
 
   }
 
-  public ServiceRuntimeException(Throwable cause) {
+  public ServiceRuntimeException(final Throwable cause) {
     super(cause);
     this.isWrappedServiceException = (cause instanceof ServiceException);
   }

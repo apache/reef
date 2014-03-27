@@ -64,7 +64,7 @@ public class JARFileMaker implements AutoCloseable {
     try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile))) {
       final byte[] buffer = new byte[1024];
       while (true) {
-        int count = in.read(buffer);
+        final int count = in.read(buffer);
         if (count == -1)
           break;
         this.jarOutputStream.write(buffer, 0, count);

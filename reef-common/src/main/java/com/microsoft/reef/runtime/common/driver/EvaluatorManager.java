@@ -108,16 +108,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final List<EvaluatorContext> activeContextList = new ArrayList<>();
 
-  private final HashSet<String> activeContextIds = new HashSet<>();
+  private final Set<String> activeContextIds = new HashSet<>();
 
   private final DispatchingEStage dispatcher;
 
-  private final DriverExceptionHandler driverExceptionHandler;
-
   private final ConfigurationSerializer configurationSerializer;
-
-  // TODO: Wrap this in a set-once-with-default class
-  private EvaluatorType type = EvaluatorType.JVM;
 
   // Mutable fields
 
@@ -149,7 +144,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
       final @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
       final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
-      final DriverExceptionHandler driverExceptionHandler, ConfigurationSerializer configurationSerializer) {
+      final DriverExceptionHandler driverExceptionHandler, final ConfigurationSerializer configurationSerializer) {
 
     this.clock = clock;
     this.remoteManager = remoteManager;
@@ -158,7 +153,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
     this.evaluatorDescriptor = evaluatorDescriptor;
-    this.driverExceptionHandler = driverExceptionHandler;
     this.configurationSerializer = configurationSerializer;
 
     this.dispatcher = new DispatchingEStage(driverExceptionHandler, 16); // 16 threads
@@ -391,7 +385,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param taskControlProto message contains task control info.
    */
-  void handle(EvaluatorRuntimeProtocol.ContextControlProto taskControlProto) {
+  void handle(final EvaluatorRuntimeProtocol.ContextControlProto taskControlProto) {
     synchronized (this.evaluatorDescriptor) {
       LOG.log(Level.FINEST, "Task control message from {0}", this.evaluatorId);
 

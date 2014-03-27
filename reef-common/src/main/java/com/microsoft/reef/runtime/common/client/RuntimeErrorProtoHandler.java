@@ -47,7 +47,7 @@ final class RuntimeErrorProtoHandler
   public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> error) {
     LOG.log(Level.WARNING, "{0} Runtime Error: {1}", new Object[] {
         error.getIdentifier(), error.getMessage().getMessage() });
-    this.runningJobMap.remove(error.getIdentifier());
+    this.runningJobMap.remove(error.getIdentifier().toString());
     this.runtimeErrorHandlerFuture.get().onNext(new FailedRuntime(error.getMessage()));
   }
 }

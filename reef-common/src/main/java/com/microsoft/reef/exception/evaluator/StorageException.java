@@ -18,15 +18,15 @@ package com.microsoft.reef.exception.evaluator;
 public class StorageException extends ServiceException {
   private static final long serialVersionUID = 1L;
 
-  public StorageException(String s, Throwable e) {
+  public StorageException(final String s, final Throwable e) {
     super(s, e);
   }
 
-  public StorageException(String s) {
+  public StorageException(final String s) {
     super(s);
   }
 
-  public StorageException(Throwable e) {
+  public StorageException(final Throwable e) {
     super(e);
   }
 

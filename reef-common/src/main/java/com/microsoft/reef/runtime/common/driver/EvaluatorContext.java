@@ -87,7 +87,7 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   @Override
-  public synchronized void submitTask(Configuration taskConf) {
+  public synchronized void submitTask(final Configuration taskConf) {
     if (this.closed) {
       throw new RuntimeException("Active context already closed");
     }

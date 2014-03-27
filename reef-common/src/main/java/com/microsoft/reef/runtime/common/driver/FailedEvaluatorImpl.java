@@ -15,9 +15,9 @@
  */
 package com.microsoft.reef.runtime.common.driver;
 
-import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.util.Optional;
 
@@ -30,7 +30,7 @@ final class FailedEvaluatorImpl implements FailedEvaluator {
   private final Optional<FailedTask> task;
   final String id;
 
-  public FailedEvaluatorImpl(EvaluatorException ex, List<FailedContext> ctx, Optional<FailedTask> task, String id) {
+  public FailedEvaluatorImpl(final EvaluatorException ex, final List<FailedContext> ctx, final Optional<FailedTask> task, final String id) {
     this.ex = ex;
     this.ctx = ctx;
     this.task = task;

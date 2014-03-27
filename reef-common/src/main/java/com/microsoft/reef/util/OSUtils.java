@@ -19,8 +19,11 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class OSUtils {
+public final class OSUtils {
   private static final Logger LOG = Logger.getLogger(OSUtils.class.getName());
+
+  private OSUtils() {
+  }
 
   /**
    * Determines whether the current JVM is running on the Windows OS.

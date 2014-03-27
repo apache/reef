@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -201,7 +202,7 @@ public final class ContextManager implements AutoCloseable {
    */
   public Collection<ReefServiceProtos.ContextStatusProto> getContextStatusCollection() {
     synchronized (this.contextStack) {
-      final ArrayList<ReefServiceProtos.ContextStatusProto> result = new ArrayList<>(this.contextStack.size());
+      final List<ReefServiceProtos.ContextStatusProto> result = new ArrayList<>(this.contextStack.size());
       for (final ContextRuntime contextRuntime : this.contextStack) {
         final ReefServiceProtos.ContextStatusProto contextStatusProto = contextRuntime.getContextStatus();
         LOG.log(Level.FINEST, "Add context status: " + contextStatusProto);

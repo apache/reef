@@ -39,7 +39,7 @@ public class PartitionSpec {
     return id;
   }
 
-  public PartitionSpec(Type type, int id) {
+  public PartitionSpec(final Type type, final int id) {
     this.type = type;
     this.id = id;
   }

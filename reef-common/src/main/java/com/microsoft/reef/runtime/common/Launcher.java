@@ -27,13 +27,16 @@ import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.wake.remote.RemoteConfiguration;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Launcher {
+public final class Launcher {
 
   public final static String EVALUATOR_CONFIGURATION_ARG = "runtime_configuration";
+
+  private Launcher() {
+  }
 
   @NamedParameter(doc = "The path to evaluator configuration.", short_name = EVALUATOR_CONFIGURATION_ARG)
   public final static class EvaluatorConfigurationFilePath implements Name<String> {
@@ -147,7 +150,7 @@ public class Launcher {
    * @param vargs     List of command line parameters to append to.
    * @param propNames Array of property names.
    */
-  public static void propagateProperties(final List<String> vargs, final String[] propNames) {
+  public static void propagateProperties(final Collection<String> vargs, final String[] propNames) {
     for (final String propName : propNames) {
       final String propValue = System.getProperty(propName);
       if (!(propValue == null || propValue.isEmpty())) {

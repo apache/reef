@@ -27,9 +27,9 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.inject.Inject;
 
 public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> {
 
@@ -45,11 +45,11 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
 
   @Inject
   RunningJobImpl(final RemoteManager remoteManager, final JobStatusProto status,
-      final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
-      final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
-      final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
-      final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
-      final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler) {
+                 final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
+                 final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
+                 final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
+                 final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
+                 final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler) {
 
     this.jobId = status.getIdentifier();
 
@@ -69,7 +69,8 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
         JobControlProto.newBuilder()
             .setIdentifier(this.jobId)
             .setSignal(Signal.SIG_TERMINATE)
-            .build());
+            .build()
+    );
   }
 
   @Override
@@ -79,7 +80,8 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
             .setIdentifier(this.jobId)
             .setSignal(Signal.SIG_TERMINATE)
             .setMessage(ByteString.copyFrom(message))
-            .build());
+            .build()
+    );
   }
 
   @Override
@@ -88,20 +90,21 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   }
 
   @Override
-  public void send(byte[] message) {
+  public void send(final byte[] message) {
     this.jobControlHandler.onNext(
         JobControlProto.newBuilder()
             .setIdentifier(this.jobId)
             .setMessage(ByteString.copyFrom(message))
-            .build());
+            .build()
+    );
   }
 
   @Override
   public void onNext(final JobStatusProto value) {
 
     final ReefServiceProtos.State state = value.getState();
-    LOG.log(Level.FINEST,  "Received job status: {0} from {1}",
-            new Object[] { state, value.getIdentifier() });
+    LOG.log(Level.FINEST, "Received job status: {0} from {1}",
+        new Object[]{state, value.getIdentifier()});
 
     if (value.hasMessage()) {
       this.jobMessageEventHandler.onNext(
