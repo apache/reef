@@ -20,15 +20,15 @@ import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.impl.StageManager;
 import com.microsoft.wake.remote.*;
-import com.microsoft.wake.remote.exception.RemoteRuntimeException;
 import com.microsoft.wake.remote.transport.Transport;
 import com.microsoft.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
-
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -80,23 +80,28 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
     this.handlerContainer = new HandlerContainer<>(name, codec);
 
     this.reRecvStage = orderingGuarantee ?
-      new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
-      new RemoteReceiverStage(this.handlerContainer, errorHandler);
+        new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
+        new RemoteReceiverStage(this.handlerContainer, errorHandler);
 
     this.transport = new NettyMessagingTransport(
         hostAddress, listeningPort, this.reRecvStage, this.reRecvStage);
 
+
     this.handlerContainer.setTransport(this.transport);
 
     this.myIdentifier = new SocketRemoteIdentifier(
-        (InetSocketAddress)this.transport.getLocalAddress());
+        (InetSocketAddress) this.transport.getLocalAddress());
 
     this.reSendStage = new RemoteSenderStage(codec, this.transport);
 
     StageManager.instance().register(this);
 
-    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2}",
-        new Object[] { this.name, this.myIdentifier, counter.incrementAndGet() });
+    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}",
+        new Object[]{this.name, this.myIdentifier, counter.incrementAndGet(),
+            this.transport.getLocalAddress().toString(),
+            this.transport.getListeningPort()}
+    );
+
   }
 
   @Inject
@@ -153,7 +158,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
     if (LOG.isLoggable(Level.FINE)) {
       LOG.log(Level.FINE, "RemoteManager: {0} destinationIdentifier: {1} messageType: {2}",
-          new Object[] { this.name, destinationIdentifier, messageType.getName() });
+          new Object[]{this.name, destinationIdentifier, messageType.getName()});
     }
 
     return new ProxyEventHandler<>(this.myIdentifier, destinationIdentifier,
@@ -175,8 +180,9 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final Class<U> messageType, final EventHandler<T> theHandler) {
     if (LOG.isLoggable(Level.FINE)) {
       LOG.log(Level.FINE, "RemoteManager: {0} remoteid: {1} messageType: {2} handler: {3}",
-          new Object[] { this.name, sourceIdentifier, messageType.getName(),
-              theHandler.getClass().getName() });
+          new Object[]{this.name, sourceIdentifier, messageType.getName(),
+              theHandler.getClass().getName()}
+      );
     }
     return this.handlerContainer.registerHandler(sourceIdentifier, messageType, theHandler);
   }
@@ -225,7 +231,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
     if (closed.compareAndSet(false, true)) {
 
       LOG.log(Level.FINE, "RemoteManager: {0} Closing remote manager id: {1}",
-          new Object[] { this.name, this.myIdentifier });
+          new Object[]{this.name, this.myIdentifier});
 
       final Runnable closeRunnable = new Runnable() {
         @Override
