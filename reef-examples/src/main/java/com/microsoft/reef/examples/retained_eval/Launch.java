@@ -178,7 +178,7 @@ public final class Launch {
   public static void main(final String[] args) {
     try {
       final Configuration config = getClientConfiguration(args);
-      LOG.log(Level.INFO, "Configuration:\n--\n{0}--",
+      LOG.log(Level.FINEST, "Configuration:\n--\n{0}--",
           new AvroConfigurationSerializer().toString(config));
       run(config);
       LOG.info("Done!");
