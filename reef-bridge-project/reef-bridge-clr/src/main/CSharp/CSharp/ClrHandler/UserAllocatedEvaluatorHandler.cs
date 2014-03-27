@@ -29,16 +29,16 @@ namespace ClrHandler
 
         public void OnNext(AllocatedEvaluator value)
         {
-            const string ClassHierarchyBinFileName = "clrClassHierarchy.bin";
+            //const string ClassHierarchyBinFileName = "clrClassHierarchy.bin";
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 1");
-            List<string> taskDlls = new List<string>();
-            taskDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            taskDlls.Add(typeof(HelloTask).Assembly.GetName().Name);
+            //List<string> taskDlls = new List<string>();
+            //taskDlls.Add(typeof(ITask).Assembly.GetName().Name);
+            //taskDlls.Add(typeof(HelloTask).Assembly.GetName().Name);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(taskDlls.ToArray());
-            ProtocolBufferClassHierarchy.Serialize(ClassHierarchyBinFileName, ns);
+            //IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(taskDlls.ToArray());
+            //ProtocolBufferClassHierarchy.Serialize(ClassHierarchyBinFileName, ns);
 
-            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Class hierarchy written to [{0}].", Directory.GetCurrentDirectory()));
+            //Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Class hierarchy written to [{0}].", Directory.GetCurrentDirectory()));
 
             string contextConfigurationString = value.ContextConfigStr; 
             string taskConfigurationString = value.TaskConfigStr;

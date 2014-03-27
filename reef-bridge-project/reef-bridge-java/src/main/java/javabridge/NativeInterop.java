@@ -1,16 +1,26 @@
+/**
+ * Copyright (C) 2013 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package javabridge;
 
-        import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import org.apache.commons.io.FilenameUtils;
+import java.io.*;
+import java.util.Date;
 
-        import java.io.File;
-        import java.io.FileOutputStream;
-        import java.io.InputStream;
-        import java.io.OutputStream;
-        import java.util.Date;
-
-/**
- * Created by beysims on 3/6/14.
- */
 
 public class NativeInterop {
 
@@ -66,23 +76,15 @@ public class NativeInterop {
 */
 
     private static final String LIB_BIN = "/";
+    private static final String DLL_EXTENSION = ".dll";
     private final static String CPP_BRIDGE = "JavaClrBridge";
 
     static String[] managedDlls =		{
             "ClrHandler",
-            "Microsoft.Tang",
-            "Microsoft.Reef.Common.Utils",
-            "Microsoft.Reef.Driver",
-            "Microsoft.Reef.Tasks.ITask",
-            "Microsoft.Reef.Tasks.HelloTask",
-            "protobuf-net",
-            "Microsoft.Hadoop.Avro",
-            "Newtonsoft.Json",
     };
 
 
     static {
-        //System.out.println("Loading DLL");
         try {
             System.loadLibrary(CPP_BRIDGE);
             System.out.println("DLL is loaded from memory");
@@ -92,20 +94,33 @@ public class NativeInterop {
         }
     }
 
-
-
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir
         //System.out.println("loadFromJar 1");
         String path = "Reef_" + new Date().getTime();
         loadLib(path, CPP_BRIDGE, false);
         //logger.info("loadFromJar 2");
+        File[]  files =  new File(System.getProperty("user.dir")).listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(DLL_EXTENSION);
+            }
+        });
+
+        for (int i=0; i<files.length; i++)
+        {
+            try {
+                loadLib(path, FilenameUtils.getBaseName(files[i].getName()), true);
+            } catch (Exception e) {
+                System.out.println("exception " + e);
+                throw e;
+            }
+        }
+
         for (int i=0; i<managedDlls.length; i++)
         {
             //System.out.println("xload " + managedDlls[i]);
             loadLib(path, managedDlls[i], true);
         }
-        //System.out.println("loadFromJar done.");
     }
 
     /**
@@ -113,7 +128,7 @@ public class NativeInterop {
      */
 
     private static void loadLib(String path, String name, boolean copyOnly) {
-        name = name + ".dll";
+        name = name + DLL_EXTENSION;
         try {
             //System.out.println("class loader [" + NativeInterop.class.toString() + "]");
             // have to use a stream
@@ -128,7 +143,8 @@ public class NativeInterop {
             //System.out.println("after new FileOutputStream(fileOut)");
             if (null == in)
             {
-                System.out.println("** in is null");
+                System.out.println(name + " cannot be found to be loaded, skipped.");
+                return;
             }
             if (out == null)
             {

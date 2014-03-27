@@ -12,10 +12,6 @@ namespace Microsoft
 				_jobjectEManager = jobjectEManager;
 				_jclassEManager =  env->GetObjectClass (_jobjectEManager);
 				_jmidSubmit = env->GetMethodID(_jclassEManager, "submit", "([B)V");	
-				//fprintf(stdout, "Emanager_submit _env %p\n", _env); fflush (stdout);
-				//fprintf(stdout, "Emanager_submit _jobjectEManager %p\n", _jobjectEManager); fflush (stdout);
-				//fprintf(stdout, "Emanager_submit _jclassEManager %p\n", _jclassEManager); fflush (stdout);
-				//fprintf(stdout, "Emanager_submit _jmidSubmit %p\n", _jmidSubmit); fflush (stdout);
 				_jobjectDriverManager = jobjectDriverManager;
 				_jclassDriverManager = env->GetObjectClass (_jobjectDriverManager);
 
