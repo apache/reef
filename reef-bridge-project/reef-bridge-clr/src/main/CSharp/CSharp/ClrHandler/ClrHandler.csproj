@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.Hadoop.Avro">
       <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\Microsoft.Hadoop.Avro.1.1.0.16\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.Reef.Driver">
       <HintPath>externals\Microsoft.Reef.Driver.dll</HintPath>
@@ -50,6 +51,14 @@
     </Reference>
     <Reference Include="Microsoft.Tang">
       <HintPath>externals\Microsoft.Tang.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="System" />
