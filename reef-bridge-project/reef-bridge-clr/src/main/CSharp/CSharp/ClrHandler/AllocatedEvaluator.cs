@@ -11,25 +11,11 @@ namespace Microsoft.Reef.Interop
         public string InstanceId { get; set; }
 
         [DataMember]
-        public string ContextConfigStr { get; set; }
+        public IAllocatedEvaluaotrClr2Java Clr2Java { get; set; }
 
-        [DataMember]
-        public string TaskConfigStr { get; set; }
-
-        [DataMember]
-        public IClr2Java Clr2Java { get; set; }
-
-        public AllocatedEvaluator(IClr2Java clr2Java, byte[] input)
-        {
-            InstanceId = Encoding.ASCII.GetString(input);
-            Clr2Java = clr2Java;
-        }
-
-        public AllocatedEvaluator(IClr2Java clr2Java, string contextConfigStr, string taskConfigStr)
+        public AllocatedEvaluator(IAllocatedEvaluaotrClr2Java clr2Java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
-            ContextConfigStr = contextConfigStr;
-            TaskConfigStr = taskConfigStr;
             Clr2Java = clr2Java;
         }
 

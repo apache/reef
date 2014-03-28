@@ -139,14 +139,12 @@
     <ClInclude Include="InteropLogger.h" />
     <ClInclude Include="InteropReturnInfo.h" />
     <ClInclude Include="InteropUtil.h" />
-    <ClInclude Include="JavaClrBridge.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AllocatedEvaluatorClr2Java.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
-    <ClCompile Include="Clr2JavaImpl.cpp" />
     <ClCompile Include="InteropLogger.cpp" />
     <ClCompile Include="InteropReturnInfo.cpp" />
     <ClCompile Include="InteropUtil.cpp" />

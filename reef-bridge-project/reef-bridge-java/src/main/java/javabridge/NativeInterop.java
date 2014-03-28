@@ -28,24 +28,6 @@ public class NativeInterop {
             String filePath
     );
 
-    public static native long createHandler1 (
-            InteropReturnInfo interopReturnInfo,
-            InteropLogger interopLogger,
-            String strConfig
-    );
-
-    public static native void clrHandlerOnNext (
-            long handle,
-            byte[] value
-    );
-
-
-    public static native void clrHandlerOnNext2 (
-            InteropReturnInfo interopReturnInfo,
-            InteropLogger interopLogger,
-            long handle,
-            byte[] value
-    );
     public static  native long CallClrSystemOnStartHandler (
             String dateTime
     );
@@ -60,20 +42,9 @@ public class NativeInterop {
 
     public static native void ClrSystemAllocatedEvaluatorHandlerOnNext (
             long handle,
-            AllocatedEvaluator javaEvaluator,
-            String contextConfigurationStr,
-            String taskConfigurationStr,
+            AllocatedEvaluatorBridge javaEvaluatorBridge,
             InteropLogger interopLogger
     );
-
-
-/*
-    public static native String GetNextRow (
-            long cookie,
-            InteropLogger interopLogger,
-            InteropReturnCode interopReturnCode
-    );
-*/
 
     private static final String LIB_BIN = "/";
     private static final String DLL_EXTENSION = ".dll";

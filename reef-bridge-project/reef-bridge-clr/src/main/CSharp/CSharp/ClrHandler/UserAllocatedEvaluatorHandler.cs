@@ -40,34 +40,27 @@ namespace ClrHandler
 
             //Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Class hierarchy written to [{0}].", Directory.GetCurrentDirectory()));
 
-            string contextConfigurationString = value.ContextConfigStr; 
-            string taskConfigurationString = value.TaskConfigStr;
+            string contextConfigurationString = string.Empty; 
+            string taskConfigurationString = string.Empty;
 
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
-            if (contextConfigurationString.Contains("empty"))
-            {         
-                IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
+            IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
                     .Set(ContextConfiguration.Identifier, "bridgeHelloCLRContextId")
                     .Build();
 
-                contextConfigurationString = serializer.ToString(contextConfiguration);
-            }
-
-            if (taskConfigurationString.Contains("empty"))
-            {
-                IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
+            IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "bridgeHelloCLRTaskId")
                 .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
                 .Build();
 
-                taskConfigurationString = serializer.ToString(taskConfiguration);
-            }
+            taskConfigurationString = serializer.ToString(taskConfiguration);
+            contextConfigurationString = serializer.ToString(contextConfiguration);
+            
+            Console.WriteLine("context configuration string to be submitted: " + contextConfigurationString);
+            Console.WriteLine("task configuration string to be submitted: " + taskConfigurationString);
 
-            Console.WriteLine("context configuration string submitted: " + contextConfigurationString);
-            Console.WriteLine("task configuration string submitted: " + taskConfigurationString);
-
-            value.Clr2Java.AllocatedEvaluatorSubmitContextAndTask(contextConfigurationString, taskConfigurationString);
+            value.Clr2Java.SubmitContextAndTask(contextConfigurationString, taskConfigurationString);
 
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 2");
         }

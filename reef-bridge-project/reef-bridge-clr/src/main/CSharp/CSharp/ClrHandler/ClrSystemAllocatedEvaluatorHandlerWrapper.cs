@@ -19,42 +19,14 @@ namespace Microsoft.Reef.Interop
             return ul;
         }
 
-        public static void CallMethod_ClrSystemAllocatedEvaluatorHandler_OnNext(ulong handle, IClr2Java clr2Java, byte[] bytes)
-        {
-            Console.WriteLine("tt2");
-            GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
-            ClrSystemAllocatedEvaluatorHandler obj = (ClrSystemAllocatedEvaluatorHandler)gc.Target;
-
-            obj.OnNext(new AllocatedEvaluator(clr2Java, bytes));
-        }
-
-        public static void Call_ClrSystemAllocatedEvaluatorHandler_OnNext(ulong handle, IClr2Java clr2Java, string contextConfig, string taskConfig)
+        public static void Call_ClrSystemAllocatedEvaluatorHandler_OnNext(ulong handle, IAllocatedEvaluaotrClr2Java clr2Java)
         {
             Console.WriteLine("Call_ClrSystemAllocatedEvaluatorHandler_OnNext");
-            Console.WriteLine("context configuration in managed string: " + contextConfig);
-            Console.WriteLine("task configuration in managed string: " + taskConfig);
 
             GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
             ClrSystemAllocatedEvaluatorHandler obj = (ClrSystemAllocatedEvaluatorHandler)gc.Target;
-            obj.OnNext(new AllocatedEvaluator(clr2Java, contextConfig, taskConfig));
+            obj.OnNext(new AllocatedEvaluator(clr2Java));
         }
-
-
-        //public static void CallMethod_ClrSystemAllocatedEvaluatorHandler_OnNext2(ulong handle, byte[] bytes, IInteropReturnInfo ret)
-        //{
-        //    try
-        //    {
-        //        GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
-        //        ClrSystemAllocatedEvaluatorHandler obj = (ClrSystemAllocatedEvaluatorHandler)gc.Target;
-        //        obj.OnNext(new AllocatedEvaluator(bytes));
-        //        throw new ApplicationException("TestException");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ret.SetReturnCode(11);
-        //        ret.AddExceptionString(ex.Message + ex.StackTrace);
-        //    }
-        //}
 
 
         public static void FreeHandle(ulong handle)

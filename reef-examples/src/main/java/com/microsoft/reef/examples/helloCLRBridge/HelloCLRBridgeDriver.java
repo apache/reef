@@ -33,6 +33,7 @@ import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import com.microsoft.tang.proto.ClassHierarchyProto;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
+import javabridge.AllocatedEvaluatorBridge;
 import javabridge.InteropLogger;
 import javabridge.NativeInterop;
 
@@ -55,7 +56,7 @@ public final class HelloCLRBridgeDriver {
   private long  allocatedEvalatorHandler;
 
 
-    private int nJVMTasks = 1;  // guarded by this
+    private int nJVMTasks = 0;  // guarded by this
   private int nCLRTasks = 1;  // guarded by this
 
 
@@ -111,7 +112,8 @@ public final class HelloCLRBridgeDriver {
     try {
       InteropLogger interopLogger = new InteropLogger();
       allocatedEvaluator.setType(EvaluatorType.CLR);
-      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvalatorHandler, allocatedEvaluator, "empty", "empty", interopLogger);
+      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(allocatedEvaluator);
+      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvalatorHandler, allocatedEvaluatorBridge,interopLogger);
     } catch (final Exception ex) {
       final String message = "Unable to setup Task or Context configuration.";
       LOG.log(Level.SEVERE, message, ex);

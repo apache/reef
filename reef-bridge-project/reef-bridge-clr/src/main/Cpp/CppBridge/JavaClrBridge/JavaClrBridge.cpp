@@ -13,8 +13,6 @@ using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
 using namespace Microsoft::Reef::Interop;
 
-
-
 static void ManagedLog (String^ fname, String^ msg)
 {		
 	Console::WriteLine (fname);
@@ -69,76 +67,6 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 
 /*
  * Class:     javabridge_NativeInterop
- * Method:    createHandler1
- * Signature: (Ljava/lang/String;)J
- */
-JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_createHandler1
- (
-	JNIEnv *env, 
-	jclass  tobj, 
-	jobject jObjectInteropReturnInfo,
-	jobject jObjectLogger,
-	jstring jstrConfig)
-{
-	try 
-	{
-	InteropLogger^ logger = gcnew InteropLogger(env, jObjectLogger);
-	InteropReturnInfo^ interopReturnInfo = gcnew InteropReturnInfo(env, jObjectInteropReturnInfo, logger);
-	
-	const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, jstrConfig);
-	int lenConfig = env->GetStringLength(jstrConfig);		
-	String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
-	return ClrHandlerWrapper::CreateFromString_ClrHandler(interopReturnInfo, logger, strConfig);
-	}
-	catch (System::Exception^ ex)
-	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_createHandler1");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
-	}
-	return 0;
-}
-
-
-
-/*
- * Class:     javabridge_NativeInterop
- * Method:    clrHandlerOnNext
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext
- (
-	JNIEnv *env, 
-	jclass  tobj, 
-    jlong   handle,
-	jbyteArray value)
-{
-	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, value);
-	ClrHandlerWrapper::CallMethod_ClrHandler_OnNext(handle, bytearray);
-}
-
-/*
- * Class:     javabridge_NativeInterop
- * Method:    clrHandlerOnNext2
- * Signature: (Ljavabridge/InteropReturnInfo;Ljavabridge/InteropLogger;J[B)V
- */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_clrHandlerOnNext2  
-(
-	JNIEnv *env, 
-	jclass  jclass, 
-	jobject jObjectInteropReturnInfo,
-	jobject jObjectLogger,
-    jlong   handle,
-	jbyteArray value)
-{
-	InteropLogger^ logger = gcnew InteropLogger(env, jObjectLogger);
-	InteropReturnInfo^ interopReturnInfo = gcnew InteropReturnInfo(env, jObjectInteropReturnInfo, logger);
-
-	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, value);
-	ClrHandlerWrapper::CallMethod_ClrHandler_OnNext2(handle, bytearray, interopReturnInfo);
-}
-/*
- * Class:     javabridge_NativeInterop
  * Method:    CallClrSystemOnStartHandler
  * Signature: (Ljava/lang/String;)V
  */
@@ -147,13 +75,12 @@ JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandle
 {
 	try
 	{
-		
 		const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
-	int lenConfig = env->GetStringLength(dateTimeString);		
-	String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
-	Console::WriteLine("Current time is " + strConfig);
-	DateTime dt = DateTime::Now; //DateTime::Parse(strConfig);
-	return ClrSystemOnStartHandler::OnStart(dt);
+		int lenConfig = env->GetStringLength(dateTimeString);		
+		String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
+		Console::WriteLine("Current time is " + strConfig);
+		DateTime dt = DateTime::Now; //DateTime::Parse(strConfig);
+		return ClrSystemOnStartHandler::OnStart(dt);
 	}
 	catch (System::Exception^ ex)
 	{
@@ -164,47 +91,17 @@ JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandle
 	return 0;
 }
 
-
-/*
- * Class:     javabridge_NativeInterop
- * Method:    CallClrSystemAllocatedEvaluatorHandlerOnNext
- * Signature: (J[B)V
- */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_CallClrSystemAllocatedEvaluatorHandlerOnNext
-  (JNIEnv *env, jclass cls, jlong handle, jobject jobjectEManager, jobject jobjectDriverManager, jobject jObjectLogger, jbyteArray bytes)
-{
-	try 
-	{
-		//InteropLogger^ logger = gcnew InteropLogger(env, jObjectLogger);
-		
-	
-	Clr2JavaImpl^ clr2JavaImpl = gcnew Clr2JavaImpl (env, jobjectEManager, jobjectDriverManager);		
-	array<byte>^  bytearray = ManagedByteArrayFromJavaByteArray (env, bytes);
-	ClrSystemAllocatedEvaluatorHandlerWrapper::CallMethod_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, clr2JavaImpl, bytearray);
-	}
-	catch (System::Exception^ ex)
-	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
-	}
-}
-
 /*
  * Class:     javabridge_NativeInterop
  * Method:    ClrSystemAllocatedEvaluatorHandlerOnNext
- * Signature: (JLcom/microsoft/reef/driver/evaluator/AllocatedEvaluator;Ljava/lang/String;Ljava/lang/String;Ljavabridge/InteropLogger;)V
+ * Signature: (JLjavabridge/AllocatedEvaluatorBridge;Ljavabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext
-  (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluator, jstring jcontextConfigString, jstring jtaskConfigString, jobject jlogger)
+  (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluatorBridge, jobject jlogger)
 {
-	
 	try{
-		AllocatedEvaluatorClr2Java^ jallocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluator, jcontextConfigString, jtaskConfigString);
-		String^ contextConfigStr = ManagedStringFromJavaString(env, jcontextConfigString);
-		String^ taskConfigStr = ManagedStringFromJavaString(env, jtaskConfigString);
-
-		ClrSystemAllocatedEvaluatorHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, jallocatedEval, contextConfigStr, taskConfigStr);
+		AllocatedEvaluatorClr2Java^ jallocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
+		ClrSystemAllocatedEvaluatorHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, jallocatedEval);
 	}
 	catch (System::Exception^ ex)
 	{

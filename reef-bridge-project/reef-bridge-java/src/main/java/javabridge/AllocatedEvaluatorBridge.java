@@ -18,13 +18,26 @@ package javabridge;
 
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 
-public class AllocatedEvaluatorBridge {
+public class AllocatedEvaluatorBridge implements AutoCloseable {
 
     private AllocatedEvaluator jallocatedEvaluator;
 
     public AllocatedEvaluatorBridge(AllocatedEvaluator allocatedEvaluator)
     {
             jallocatedEvaluator = allocatedEvaluator;
+    }
+
+    public void submitContextAndTaskString(final String contextConfigurationString, final String taskConfigurationString)
+    {
+        // TODO: deserailze into configuration and use jallocatedEvaluator submitContextAndTask  instead
+        // remove the  submitContextAndTaskString interface/impl from AllocatedEvaluator
+        jallocatedEvaluator.submitContextAndTaskString(contextConfigurationString, taskConfigurationString);
+    }
+
+    @Override
+    public void close()
+    {
+        jallocatedEvaluator.close();
     }
 
 }

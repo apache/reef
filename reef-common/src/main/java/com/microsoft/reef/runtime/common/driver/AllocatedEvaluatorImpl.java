@@ -94,7 +94,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   @Override
-  public void submitContextAndTasksString(final String contextConfigurationString,
+  public void submitContextAndTaskString(final String contextConfigurationString,
                                      final String taskConfigurationString) {
       try {
           final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
