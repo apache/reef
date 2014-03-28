@@ -32,14 +32,6 @@ public class NativeInterop {
             String dateTime
     );
 
-    public static native void CallClrSystemAllocatedEvaluatorHandlerOnNext (
-            long handle,
-            EManager eManager,
-            DriverManager driverManager,
-            InteropLogger interopLogger,
-            byte[] value
-    );
-
     public static native void ClrSystemAllocatedEvaluatorHandlerOnNext (
             long handle,
             AllocatedEvaluatorBridge javaEvaluatorBridge,

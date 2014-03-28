@@ -36,14 +36,6 @@ import java.util.Date;
             value[0] = (byte)0xcc;
             value[1] = (byte)0x10;
             value[2] = (byte)0xee;
-
-            EManager eManager = new EManager();
-            DriverManager driverManager = new DriverManager();
-            NativeInterop.CallClrSystemAllocatedEvaluatorHandlerOnNext(handle0, eManager, driverManager, interopLogger, value);
-
-
-
-
         }
     }
 
