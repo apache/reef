@@ -15,6 +15,8 @@
  */
 package com.microsoft.tang.formats;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -153,6 +155,27 @@ public class TestConfigurationModule {
     Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 12);
   }
+
+
+    @Test
+    public void smokeTestConfigFile() throws BindException, InjectionException, IOException  {
+        // Here we set some configuration values.  In true tang style,
+        // you won't be able to set them more than once ConfigurationModule's
+        // implementation is complete.
+        Configuration c = MyConfigurationModule.CONF
+                .set(MyConfigurationModule.THE_FOO, FooImpl.class)
+                .set(MyConfigurationModule.FOO_NESS, ""+12)
+                .build();
+        Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
+        Assert.assertEquals(f.getFooness(), 12);
+
+        final File tempFile = new java.io.File("TangTest.avroconf");
+        final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+        serializer.toFile(c, tempFile);
+        serializer.fromFile(tempFile);
+
+    }
+
   @Test
   public void omitOptionalTest() throws BindException, InjectionException {
     // Optional is optional.

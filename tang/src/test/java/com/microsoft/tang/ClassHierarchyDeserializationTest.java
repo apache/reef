@@ -55,4 +55,16 @@ public class ClassHierarchyDeserializationTest {
           throw new RuntimeException(message, e);
       }
   }
+
+    @Test
+    public void testDeserializationForEvent() {
+        try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("event.bin")) {
+            final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
+            final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
+        } catch (final IOException e) {
+            final String message = "Unable to load class hierarchy.";
+            throw new RuntimeException(message, e);
+        }
+    }
 }
