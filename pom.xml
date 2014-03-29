@@ -352,42 +352,8 @@
                 <version>${avro.version}</version>
             </dependency>
             <!-- End of AVRO -->
-
-
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.microsoft.tang</groupId>
-            <artifactId>tang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.microsoft.wake</groupId>
-            <artifactId>wake</artifactId>
-        </dependency>
-    </dependencies>
-
     <modules>
         <module>reef-annotations</module>
         <module>reef-checkpoint</module>
