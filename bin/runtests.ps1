@@ -1,9 +1,9 @@
 ﻿<#
- .SYNOPSIS
- Runs a given main class from a given JAR file on a YARN cluster.
- .DESCRIPTION
- Runs a given main class from a given JAR file on a YARN cluster. This assumes
- that JAVA_HOME and HADOOP_HOME are set.
+  .SYNOPSIS
+  Run given unit tests on YARN.
+  .DESCRIPTION
+  Take class names of JUnit tests to run and start them on the YARN cluster.
+  This assumes that JAVA_HOME and HADOOP_HOME are set.
 #>
 
 <#
@@ -26,15 +26,11 @@ param
     [Parameter(Mandatory=$True, HelpMessage="The JAR file to launch.", Position=1)]
     [string]$Jar,
 
-    # the main class to run
-    [Parameter(Mandatory=$True, HelpMessage="The main class to launch.", Position=2)]
-    [string]$Class,
-
     [Parameter(Mandatory=$False, HelpMessage="Options to be passed to java")]
     [string]$JavaOptions,
 
-    [Parameter(ValueFromRemainingArguments=$True)]
-    $Arguments
+    [Parameter(ValueFromRemainingArguments=$True, HelpMessage="Class names of unit tests to run")]
+    $Tests
   )
 
 function Get-YARN-Classpath {
@@ -50,10 +46,9 @@ function Get-YARN-Classpath {
 function Submit-YARN-Application {
   <#
   .SYNOPSIS
-  Runs a given main class from a given JAR file on a YARN cluster.
+  Run given unit tests on YARN.
   .DESCRIPTION
-  Runs a given main class from a given JAR file on a YARN cluster. This assumes
-  that $JAVA_HOME is set and that yarn is on the $PATH.
+  Take class names of JUnit tests to run and start them on the YARN cluster.
   #>
   param
   (
@@ -61,15 +56,11 @@ function Submit-YARN-Application {
     [Parameter(Mandatory=$True, HelpMessage="The JAR file to launch.", Position=1)]
     [string]$Jar,
 
-    # the main class to run
-    [Parameter(Mandatory=$True, HelpMessage="The main class to launch.", Position=2)]
-    [string]$Class,
-
     [Parameter(Mandatory=$False, HelpMessage="Options to be passed to java")]
     [string]$JavaOptions,
 
-    [Parameter(ValueFromRemainingArguments=$True)]
-    $Arguments
+    [Parameter(ValueFromRemainingArguments=$True, HelpMessage="Class names of unit tests to run")]
+    $Tests
   )
 
   # Check whether the file exists
@@ -82,15 +73,17 @@ function Submit-YARN-Application {
   $CLASSPATH = ((Get-YARN-Classpath) + $Jar) -join ";"
 
   # the logging command
-  $LOGGING = "-D`"java.util.logging.config.class`"=`"com.microsoft.reef.util.logging.Config`""
+  $LOGGING = "`"-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config`""
 
   # Assemble the command to run
   # Note: We need to put the classpath within "", as it contains ";"
-  $command = "$env:JAVA_HOME\bin\java.exe $LOGGING $JavaOptions -cp `"$CLASSPATH`" $Class $Arguments"
+  $command = "& `"$env:JAVA_HOME\bin\java.exe`" $LOGGING $JavaOptions -cp `"$CLASSPATH`" org.junit.runner.JUnitCore $Tests"
+  echo $command
+  $env:REEF_TEST_YARN = "true"
   Invoke-Expression -Command $command
 }
 
-if ((Split-Path -Leaf $MyInvocation.MyCommand.Definition).Equals("runreef.ps1")) {
-  Submit-YARN-Application -Jar $Jar -Class $Class -JavaOptions $JavaOptions -Arguments $Arguments
+if ((Split-Path -Leaf $MyInvocation.MyCommand.Definition).Equals("runtests.ps1")) {
+  Submit-YARN-Application -Jar $Jar -JavaOptions $JavaOptions -Tests $Tests
 }
 
