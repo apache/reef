@@ -35,7 +35,7 @@ public final class DriverRuntimeConfiguration extends ConfigurationModuleBuilder
       .bindImplementation(ResourceCatalog.class, ResourceCatalogImpl.class)
 
           // JobMessageObserver
-      .bindImplementation(EvaluatorRequestor.class, DriverManager.class) // requesting evaluators
+      .bindImplementation(EvaluatorRequestor.class, EvaluatorRequestorImpl.class) // requesting evaluators
       .bindImplementation(JobMessageObserver.class, ClientJobStatusHandler.class) // sending message to job client
 
           // JobMessageObserver Wake event handler bindings

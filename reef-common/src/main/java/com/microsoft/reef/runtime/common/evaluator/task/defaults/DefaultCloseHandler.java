@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.evaluator.context;
+package com.microsoft.reef.runtime.common.evaluator.task.defaults;
 
-import com.microsoft.reef.annotations.Optional;
-import com.microsoft.reef.annotations.audience.EvaluatorSide;
-import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.task.events.CloseEvent;
 import com.microsoft.wake.EventHandler;
 
-/**
- * Implement this interface to receive messages from the driver in a context.
- */
-@EvaluatorSide
-@Public
-@Optional
-public interface ContextMessageHandler extends EventHandler<byte[]> {
+import javax.inject.Inject;
 
-  /**
-   * @param message sent by the driver to this context
-   */
+/**
+ * Default implementation for EventHandler<CloseEvent>
+ */
+@Private
+public final class DefaultCloseHandler implements EventHandler<CloseEvent> {
+
+  @Inject
+  public DefaultCloseHandler() {
+  }
+
   @Override
-  public void onNext(final byte[] message);
+  public void onNext(final CloseEvent closeEvent) {
+    throw new RuntimeException("No EventHandler<CloseEvent> registered. Event received: " + closeEvent);
+  }
 }

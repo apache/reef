@@ -19,10 +19,10 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.client.RunningJob;
-import com.microsoft.reef.runtime.common.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.client.ClientManager;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -37,21 +37,8 @@ import com.microsoft.wake.remote.RemoteConfiguration;
 @Public
 @ClientSide
 public class YarnClientConfiguration extends ConfigurationModuleBuilder {
-  // TODO: This has only one user and should be moved there.
-  private final static String REEF_CLASSPATH = System.getenv("REEF_CLASSPATH");
-
-
-  @NamedParameter(doc = "The job priority.", default_value = "0", short_name = "yarn_priority")
-  public final static class JobPriority implements Name<Integer> {
-  }
-
-  @NamedParameter(doc = "The job queue.", default_value = "default", short_name = "yarn_queue")
-  public final static class JobQueue implements Name<String> {
-  }
-
   public static final OptionalParameter<String> YARN_QUEUE_NAME = new OptionalParameter<>();
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
-
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
       // Bind the common runtime
       .bindImplementation(REEF.class, ClientManager.class)
@@ -66,4 +53,14 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
       .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
       .build();
+  // TODO: This has only one user and should be moved there.
+  private final static String REEF_CLASSPATH = System.getenv("REEF_CLASSPATH");
+
+  @NamedParameter(doc = "The job priority.", default_value = "0", short_name = "yarn_priority")
+  public final static class JobPriority implements Name<Integer> {
+  }
+
+  @NamedParameter(doc = "The job queue.", default_value = "default", short_name = "yarn_queue")
+  public final static class JobQueue implements Name<String> {
+  }
 }

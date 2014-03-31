@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.evaluator.context;
+package com.microsoft.reef.runtime.common.evaluator.context.defaults;
 
-import com.microsoft.reef.annotations.Optional;
 import com.microsoft.reef.annotations.audience.EvaluatorSide;
-import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.wake.EventHandler;
 
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * Implement this interface to receive messages from the driver in a context.
+ * Default handler for ContextStart
  */
 @EvaluatorSide
-@Public
-@Optional
-public interface ContextMessageHandler extends EventHandler<byte[]> {
+public final class DefaultContextStartHandler implements EventHandler<ContextStart> {
 
-  /**
-   * @param message sent by the driver to this context
-   */
+  @Inject
+  DefaultContextStartHandler() {
+  }
+
   @Override
-  public void onNext(final byte[] message);
+  public void onNext(final ContextStart contextStart) {
+    Logger.getLogger(this.getClass().toString()).log(Level.INFO, "DefaultContextStartHandler received: " + contextStart);
+  }
 }
