@@ -23,6 +23,7 @@ import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfigurationModule;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.reef.util.logging.Config;
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
@@ -137,6 +138,81 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   public void addLibrary(final File file) {
     this.libraries.add(file);
   }
+
+    private final void launch(final Configuration contextConfiguration,
+                              final Optional<Configuration> serviceConfiguration,
+                              final Optional<Configuration> taskConfiguration,
+                              final Optional<ClassHierarchy> classHierarchy) {
+        try {
+            final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfigurationModule.CONF
+                    .set(EvaluatorConfigurationModule.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
+                    .set(EvaluatorConfigurationModule.EVALUATOR_IDENTIFIER, this.getId());
+
+            //final String encodedContextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
+            final String encodedContextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
+            // Add the (optional) service configuration
+            final ConfigurationModule contextConfigurationModule;
+            if (serviceConfiguration.isPresent()) {
+                // With service configuration
+                final String encodedServiceConfigurationString = this.configurationSerializer.toString(serviceConfiguration.get());
+                contextConfigurationModule = evaluatorConfigurationModule
+                        .set(EvaluatorConfigurationModule.ROOT_SERVICE_CONFIGURATION, encodedServiceConfigurationString)
+                        .set(EvaluatorConfigurationModule.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
+            } else {
+                // No service configuration
+                contextConfigurationModule = evaluatorConfigurationModule
+                        .set(EvaluatorConfigurationModule.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
+            }
+
+            // Add the (optional) task configuration
+            final Configuration evaluatorConfiguration;
+            if (taskConfiguration.isPresent()) {
+                final String encodedTaskConfigurationString = this.configurationSerializer.toString(taskConfiguration.get());
+                evaluatorConfiguration = contextConfigurationModule
+                        .set(EvaluatorConfigurationModule.TASK_CONFIGURATION, encodedTaskConfigurationString).build();
+            } else {
+                evaluatorConfiguration = contextConfigurationModule.build();
+            }
+
+            final DriverRuntimeProtocol.ResourceLaunchProto.Builder rbuilder =
+                    DriverRuntimeProtocol.ResourceLaunchProto.newBuilder()
+                            .setIdentifier(this.evaluatorManager.getId())
+                            .setRemoteId(this.remoteID)
+                            .setEvaluatorConf(configurationSerializer.toString(evaluatorConfiguration));
+
+            for (final File file : this.files) {
+                rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
+                        .setName(file.getName())
+                        .setPath(file.getPath())
+                        .setType(ReefServiceProtos.FileType.PLAIN)
+                        .build());
+            }
+
+            for (final File lib : this.libraries) {
+                rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
+                        .setName(lib.getName())
+                        .setPath(lib.getPath().toString())
+                        .setType(ReefServiceProtos.FileType.LIB)
+                        .build());
+            }
+
+            { // Set the type
+                switch (this.evaluatorManager.getEvaluatorDescriptor().getType()) {
+                    case CLR:
+                        rbuilder.setType(ReefServiceProtos.ProcessType.CLR);
+                        break;
+                    default:
+                        rbuilder.setType(ReefServiceProtos.ProcessType.JVM);
+                }
+            }
+
+            this.evaluatorManager.handle(rbuilder.build());
+
+        } catch (final BindException ex) {
+            LOG.log(Level.SEVERE, "Bad Evaluator configuration", ex);
+            throw new RuntimeException("Bad Evaluator configuration", ex);
+        }
+    }
 
   private final void launch(final String contextConfigurationStr,
                               final String taskConfigurationStr) {

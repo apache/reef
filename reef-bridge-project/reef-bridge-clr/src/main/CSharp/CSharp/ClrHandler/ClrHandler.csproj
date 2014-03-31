@@ -61,6 +61,14 @@
       <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="Microsoft.Reef.Common.ProtoBuf.CommonProtobuf">
+      <HintPath>externals\Microsoft.Reef.Common.ProtoBuf.CommonProtobuf.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Microsoft.Wake">
+      <HintPath>externals\Microsoft.Wake.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
