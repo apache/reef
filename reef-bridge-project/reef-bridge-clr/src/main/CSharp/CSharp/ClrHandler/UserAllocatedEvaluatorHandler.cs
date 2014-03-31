@@ -32,9 +32,9 @@ namespace ClrHandler
             const string ClassHierarchyBinFileName = "clrClassHierarchy.bin";
             Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 1");
             List<string> clrDlls = new List<string>();
+            clrDlls.Add(typeof(ContextConfigurationOptions).Assembly.GetName().Name);
             clrDlls.Add(typeof(ITask).Assembly.GetName().Name);
             clrDlls.Add(typeof(HelloTask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(ContextConfigurationOptions).Assembly.GetName().Name);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(clrDlls.ToArray());
             ProtocolBufferClassHierarchy.Serialize(ClassHierarchyBinFileName, ns);

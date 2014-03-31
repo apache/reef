@@ -49,8 +49,6 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
 
     public void submitContextAndTaskString(final String contextConfigurationString, final String taskConfigurationString)
     {
-        // TODO: deserailze into configuration and use jallocatedEvaluator submitContextAndTask  instead
-        // remove the  submitContextAndTaskString interface/impl from AllocatedEvaluator
         if(contextConfigurationString.isEmpty())
         {
             throw new RuntimeException("empty contextConfigurationString provided.");
@@ -62,11 +60,11 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         ClassHierarchy clrClassHierarchy = loadClassHierarchy(CLASS_HIERARCHY_FILENAME);
         Configuration contextConfiguration;
         Configuration taskConfiguration;
-        try (final InputStream chin = new FileInputStream(CLASS_HIERARCHY_FILENAME)) {
+        try {
             contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
             taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
         } catch (final Exception e) {
-            final String message = "Unable to de-serialize CLR context using class hierarchy.";
+            final String message = "Unable to de-serialize CLR context or task configurations using class hierarchy.";
             LOG.log(Level.SEVERE, message, e);
             throw new RuntimeException(message, e);
         }
@@ -81,7 +79,7 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
 
     private static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
         try (final InputStream chin = new FileInputStream(classHierarchyFile)) {
-            final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin); // A
+            final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
             final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
             return ch;
         } catch (final IOException e) {
