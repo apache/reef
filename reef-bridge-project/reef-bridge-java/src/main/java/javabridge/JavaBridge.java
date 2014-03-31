@@ -1,7 +1,5 @@
 package javabridge;
 import javabridge.NativeInterop;
-import org.apache.hadoop.yarn.webapp.hamlet.HamletSpec;
-
 import java.util.Date;
 
 /**

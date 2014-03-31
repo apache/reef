@@ -17,7 +17,6 @@
 package javabridge;
 
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.commons.io.FilenameUtils;
 import java.io.*;
 import java.util.Date;
 
@@ -72,7 +71,12 @@ public class NativeInterop {
         for (int i=0; i<files.length; i++)
         {
             try {
-                loadLib(path, FilenameUtils.getBaseName(files[i].getName()), true);
+                String fileName = files[i].getName();
+                String fileNameWithoutExtension =  fileName;
+                if (fileName.indexOf(".") > 0) {
+                    fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
+                }
+                loadLib(path, fileNameWithoutExtension, true);
             } catch (Exception e) {
                 System.out.println("exception " + e);
                 throw e;
