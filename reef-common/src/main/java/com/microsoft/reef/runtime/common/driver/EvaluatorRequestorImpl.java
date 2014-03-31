@@ -52,11 +52,18 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
   @Override
   public synchronized void submit(final EvaluatorRequest req) {
     LOG.log(Level.FINEST, "Got an EvaluatorRequest");
-    final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto.newBuilder();
-    request.setResourceCount(req.getNumber());
 
-    // Copy the requested memory size over.
-    request.setMemorySize(req.getMegaBytes());
+    if (req.getMegaBytes() <= 0) {
+      throw new IllegalArgumentException("Given an unsupported memory size: " + req.getMegaBytes());
+    }
+    if (req.getNumber() <= 0) {
+      throw new IllegalArgumentException("Given an unsupported number of evaluators: " + req.getNumber());
+    }
+
+    final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto
+        .newBuilder()
+        .setResourceCount(req.getNumber())
+        .setMemorySize(req.getMegaBytes());
 
     final ResourceCatalog.Descriptor descriptor = req.getDescriptor();
     if (descriptor != null) {
@@ -64,6 +71,8 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
         request.addRackName(descriptor.getName());
       } else if (descriptor instanceof NodeDescriptor) {
         request.addNodeName(descriptor.getName());
+      } else {
+        throw new IllegalArgumentException("Unable to operate on descriptors of type " + descriptor.getClass().getName());
       }
     }
 
