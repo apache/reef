@@ -1,9 +1,9 @@
-﻿<#
- .SYNOPSIS
- Runs a given main class from a given JAR file on a YARN cluster.
- .DESCRIPTION
- Runs a given main class from a given JAR file on a YARN cluster. This assumes
- that JAVA_HOME and HADOOP_HOME are set.
+<#
+.SYNOPSIS
+Runs a given main class from a given JAR file on a YARN cluster.
+.DESCRIPTION
+Runs a given main class from a given JAR file on a YARN cluster. This assumes
+that JAVA_HOME and HADOOP_HOME are set.
 #>
 
 <#
@@ -29,6 +29,9 @@ param
     # the main class to run
     [Parameter(Mandatory=$True, HelpMessage="The main class to launch.", Position=2)]
     [string]$Class,
+
+    [Parameter(Mandatory=$False, HelpMessage="Turn on detailed logging.")]
+    [bool]$Logging=$False,
 
     [Parameter(Mandatory=$False, HelpMessage="Options to be passed to java")]
     [string]$JavaOptions,
@@ -65,6 +68,9 @@ function Submit-YARN-Application {
     [Parameter(Mandatory=$True, HelpMessage="The main class to launch.", Position=2)]
     [string]$Class,
 
+    [Parameter(Mandatory=$False, HelpMessage="Turn on detailed logging.")]
+    [bool]$Logging=$False,
+
     [Parameter(Mandatory=$False, HelpMessage="Options to be passed to java")]
     [string]$JavaOptions,
 
@@ -82,7 +88,9 @@ function Submit-YARN-Application {
   $CLASSPATH = ((Get-YARN-Classpath) + $Jar) -join ";"
 
   # the logging command
-  $LOGGING = "-D`"java.util.logging.config.class`"=`"com.microsoft.reef.util.logging.Config`""
+  if ($Logging) {
+    $LOGGING = "`"-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config`""
+  }
 
   # Assemble the command to run
   # Note: We need to put the classpath within "", as it contains ";"
@@ -91,6 +99,6 @@ function Submit-YARN-Application {
 }
 
 if ((Split-Path -Leaf $MyInvocation.MyCommand.Definition).Equals("runreef.ps1")) {
-  Submit-YARN-Application -Jar $Jar -Class $Class -JavaOptions $JavaOptions -Arguments $Arguments
+  Submit-YARN-Application -Jar $Jar -Class $Class -Logging $Logging -JavaOptions $JavaOptions -Arguments $Arguments
 }
 

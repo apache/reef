@@ -1,4 +1,4 @@
-﻿<#
+<#
   .SYNOPSIS
   Run given unit tests on YARN.
   .DESCRIPTION
