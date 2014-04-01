@@ -19,19 +19,16 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
-import com.microsoft.reef.driver.catalog.RackDescriptor;
-import com.microsoft.reef.driver.catalog.ResourceCatalog;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
-import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorDescriptorImpl;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorHeartBeatSanityChecker;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.InjectionFuture;
@@ -58,7 +55,6 @@ import java.util.logging.Logger;
 /**
  * The DriverManager responsibilities include the following:
  * <p/>
- * - Implement the EvaluatorRequestor interface
  * - House all EvaluatorManager instances
  * - Monitor the runtime for errors (via RuntimeErrorProto)
  * - Manage the clockFuture; including idle checks and shutdown
@@ -78,14 +74,13 @@ import java.util.logging.Logger;
  */
 @Private
 @Unit
-final class DriverManager implements EvaluatorRequestor {
+public final class DriverManager {
 
   private final static Logger LOG = Logger.getLogger(DriverManager.class.getName());
 
   private final Injector injector;
   private final InjectionFuture<Clock> clockFuture;
   private final ResourceCatalogImpl resourceCatalog;
-  private final InjectionFuture<ResourceRequestHandler> futureResourceRequestHandler;
   private final Map<String, EvaluatorManager> evaluators = new HashMap<>();
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final ClientJobStatusHandler clientJobStatusHandler;
@@ -106,14 +101,12 @@ final class DriverManager implements EvaluatorRequestor {
       final ResourceCatalogImpl resourceCatalog,
       final RemoteManager remoteManager,
       final InjectionFuture<Clock> clockFuture,
-      final InjectionFuture<ResourceRequestHandler> futureResourceRequestHandler,
       final ClientJobStatusHandler clientJobStatusHandler,
       final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID) {
 
     this.injector = injector;
     this.clockFuture = clockFuture;
     this.resourceCatalog = resourceCatalog;
-    this.futureResourceRequestHandler = futureResourceRequestHandler;
 
     this.clientJobStatusHandler = clientJobStatusHandler;
 
@@ -148,38 +141,13 @@ final class DriverManager implements EvaluatorRequestor {
     LOG.log(Level.FINEST, "DriverManager instantiated");
   }
 
-  @Override
-  public void submit(final EvaluatorRequest req) {
-    LOG.log(Level.FINEST, "Got an EvaluatorRequest");
-    final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto.newBuilder();
-    request.setResourceCount(req.getNumber());
-
-    // Copy the requested memory size over.
-    request.setMemorySize(req.getMegaBytes());
-
-    final ResourceCatalog.Descriptor descriptor = req.getDescriptor();
-    if (descriptor != null) {
-      if (descriptor instanceof RackDescriptor) {
-        request.addRackName(descriptor.getName());
-      } else if (descriptor instanceof NodeDescriptor) {
-        request.addNodeName(descriptor.getName());
-      }
-    }
-
-    this.futureResourceRequestHandler.get().onNext(request.build());
-  }
-
-  @Override
-  public ResourceCatalog getResourceCatalog() {
-    return this.resourceCatalog;
-  }
 
   /**
    * Called from the EvaluatorManager to indicate its demise in some regard
    *
    * @param evaluatorManager calling me to say it is completely done.
    */
-  final void release(final EvaluatorManager evaluatorManager) {
+  public final void release(final EvaluatorManager evaluatorManager) {
     synchronized (this.evaluators) {
       if (this.evaluators.containsKey(evaluatorManager.getId())) {
         this.evaluators.remove(evaluatorManager.getId());

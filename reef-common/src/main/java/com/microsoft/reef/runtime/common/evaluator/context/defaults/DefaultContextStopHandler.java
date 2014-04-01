@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.evaluator.context;
+package com.microsoft.reef.runtime.common.evaluator.context.defaults;
 
-import com.microsoft.reef.annotations.Optional;
 import com.microsoft.reef.annotations.audience.EvaluatorSide;
-import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.evaluator.context.events.ContextStop;
 import com.microsoft.wake.EventHandler;
 
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * Implement this interface to receive messages from the driver in a context.
+ * Default event handler for ContextStop
  */
 @EvaluatorSide
-@Public
-@Optional
-public interface ContextMessageHandler extends EventHandler<byte[]> {
+public final class DefaultContextStopHandler implements EventHandler<ContextStop> {
 
-  /**
-   * @param message sent by the driver to this context
-   */
+  @Inject
+  DefaultContextStopHandler() {
+  }
+
   @Override
-  public void onNext(final byte[] message);
+  public void onNext(final ContextStop contextStop) {
+    Logger.getLogger(this.getClass().toString()).log(Level.INFO, "DefaultContextStopHandler received: " + contextStop);
+  }
 }
