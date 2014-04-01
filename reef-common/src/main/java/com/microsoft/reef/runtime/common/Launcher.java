@@ -15,6 +15,9 @@
  */
 package com.microsoft.reef.runtime.common;
 
+import com.microsoft.reef.runtime.common.launch.LaunchClass;
+import com.microsoft.reef.runtime.common.launch.REEFErrorHandler;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -34,32 +37,16 @@ import java.util.logging.Logger;
 public final class Launcher {
 
   public final static String EVALUATOR_CONFIGURATION_ARG = "runtime_configuration";
-
-  private Launcher() {
-  }
-
-  @NamedParameter(doc = "The path to evaluator configuration.", short_name = EVALUATOR_CONFIGURATION_ARG)
-  public final static class EvaluatorConfigurationFilePath implements Name<String> {
-  }
-
   public final static String ERROR_HANDLER_RID = "error_handler_rid";
-
-  @NamedParameter(doc = "The error handler remote identifier.", short_name = ERROR_HANDLER_RID)
-  public final static class ErrorHandlerRID implements Name<String> {
-  }
-
   public final static String LAUNCH_ID = "launch_id";
-
-  @NamedParameter(doc = "The launch identifier.", short_name = LAUNCH_ID)
-  public final static class LaunchID implements Name<String> {
-  }
-
   public final static String[] LOGGING_PROPERTIES = {
       "java.util.logging.config.file",
       "java.util.logging.config.class"
   };
-
   private final static Logger LOG = Logger.getLogger(Launcher.class.getName());
+
+  private Launcher() {
+  }
 
   /**
    * Logs the currently running threads.
@@ -100,7 +87,6 @@ public final class Launcher {
     commandLineBuilder.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
     return commandLineBuilder.build();
   }
-
 
   private static void fail(final String msg, final Throwable t) {
     LOG.log(Level.SEVERE, msg, t);
@@ -157,5 +143,17 @@ public final class Launcher {
         vargs.add(String.format("-D%s=%s", propName, propValue));
       }
     }
+  }
+
+  @NamedParameter(doc = "The path to evaluator configuration.", short_name = EVALUATOR_CONFIGURATION_ARG)
+  public final static class EvaluatorConfigurationFilePath implements Name<String> {
+  }
+
+  @NamedParameter(doc = "The error handler remote identifier.", short_name = ERROR_HANDLER_RID)
+  public final static class ErrorHandlerRID implements Name<String> {
+  }
+
+  @NamedParameter(doc = "The launch identifier.", short_name = LAUNCH_ID)
+  public final static class LaunchID implements Name<String> {
   }
 }

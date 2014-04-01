@@ -15,13 +15,17 @@
 # limitations under the License.
 #
 
+# EXAMPLE USAGE 
+# ./run.sh com.microsoft.reef.examples.retained_eval.Launch -num_eval 2 -local false
+
 # RUNTIME
 SELF_JAR=`echo $REEF_HOME/reef-examples/target/reef-examples-*-shaded.jar`
 
-# LOCAL_RUNTIME_TMP="-Dcom.microsoft.reef.runtime.local.folder=$REEF_HOME/reef-examples/REEF_RUNTIME_LOCAL/"
 LOGGING_CONFIG='-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config'
 
-CLASSPATH=$YARN_HOME/share/hadoop/hdfs/*:$YARN_HOME/share/hadoop/mapreduce/lib/*:$YARN_HOME/share/hadoop/mapreduce/*
+CLASSPATH=$YARN_HOME/share/hadoop/common/*:$YARN_HOME/share/hadoop/common/lib/*:$YARN_HOME/share/hadoop/yarn/*:$YARN_HOME/share/hadoop/hdfs/*:$YARN_HOME/share/hadoop/mapreduce/lib/*:$YARN_HOME/share/hadoop/mapreduce/*
+
+YARN_CONF_DIR=$YARN_HOME/etc/hadoop
 
 CMD="java -cp $YARN_CONF_DIR:$SELF_JAR:$CLASSPATH $LOCAL_RUNTIME_TMP $LOGGING_CONFIG $*"
 echo $CMD
