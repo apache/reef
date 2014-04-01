@@ -89,12 +89,13 @@ function Submit-YARN-Application {
 
   # the logging command
   if ($Logging) {
-    $LOGGING = "`"-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config`""
+    $LogParams = "`"-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config`""
   }
 
   # Assemble the command to run
   # Note: We need to put the classpath within "", as it contains ";"
-  $command = "$env:JAVA_HOME\bin\java.exe $LOGGING $JavaOptions -cp `"$CLASSPATH`" $Class $Arguments"
+  $command = "$env:JAVA_HOME\bin\java.exe $LogParams $JavaOptions -cp `"$CLASSPATH`" $Class $Arguments"
+
   Invoke-Expression -Command $command
 }
 
