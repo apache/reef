@@ -225,6 +225,18 @@
                     <linksource>true</linksource>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -243,6 +255,12 @@
             </dependency>
 
             <!-- Testing -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>test-jar</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

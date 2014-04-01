@@ -30,9 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Run Driver with different types of failures in the Task.
+ * Test message exchange between the Task and the Driver.
  */
-public final class TaskFailureTest {
+public final class TaskMessagingTest {
 
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
