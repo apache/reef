@@ -15,10 +15,10 @@
  */
 package com.microsoft.reef.driver.task;
 
-import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.util.Optional;
 
@@ -35,20 +35,58 @@ public final class FailedTask extends AbstractFailure {
    */
   private final Optional<ActiveContext> context;
 
-  public FailedTask(final String id, final Throwable cause) {
-    super(id, cause);
-    this.context = Optional.empty();
-  }
-
-  public FailedTask(final String id, final Throwable cause, final Optional<ActiveContext> context) {
-    super(id, cause);
+  /**
+   * @param id          Identifier of the entity that produced the error. Cannot be null.
+   * @param message     One-line error message. Cannot be null.
+   * @param description Long error description. Can be null.
+   * @param cause       Java Exception that caused the error. Can be null.
+   * @param data        byte array that contains serialized version of the error. Can be null.
+   * @param context     the Context the Task failed on.
+   */
+  public FailedTask(final String id,
+                    final String message,
+                    final Optional<String> description,
+                    final Optional<Throwable> cause,
+                    final Optional<byte[]> data,
+                    final Optional<ActiveContext> context) {
+    super(id, message, description, cause, data);
     this.context = context;
   }
 
-  public FailedTask(final String id, final String message, final Optional<ActiveContext> context) {
-    super(id, message);
-    this.context = context;
+  /**
+   * @param id    Identifier of the entity that produced the error. Cannot be null.
+   * @param cause Java Exception that caused the error. Can be null.
+   */
+  @Deprecated
+  public FailedTask(final String id,
+                    final Throwable cause) {
+    this(id, cause.getMessage(), Optional.<String>empty(), Optional.of(cause), Optional.<byte[]>empty(), Optional.<ActiveContext>empty());
   }
+
+  /**
+   * @param id      Identifier of the entity that produced the error. Cannot be null.
+   * @param message One-line error message. Cannot be null.
+   * @param context the Context the Task failed on.
+   */
+  @Deprecated
+  public FailedTask(final String id,
+                    final String message,
+                    final Optional<ActiveContext> context) {
+    this(id, message, Optional.<String>empty(), Optional.<Throwable>empty(), Optional.<byte[]>empty(), context);
+  }
+
+  /**
+   * @param id      Identifier of the entity that produced the error. Cannot be null.
+   * @param cause   Java Exception that caused the error. Can be null.
+   * @param context the Context the Task failed on.
+   */
+  @Deprecated
+  public FailedTask(final String id,
+                    final Throwable cause,
+                    final Optional<ActiveContext> context) {
+    this(id, cause.getMessage(), Optional.<String>empty(), Optional.of(cause), Optional.<byte[]>empty(), context);
+  }
+
 
   /**
    * Access the context the task ran (and crashed) on, if it could be recovered.
