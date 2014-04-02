@@ -16,20 +16,18 @@
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.context.ActiveContext;
-import com.microsoft.reef.driver.context.ClosedContext;
-import com.microsoft.reef.driver.context.ContextMessage;
 import com.microsoft.reef.driver.context.FailedContext;
-import com.microsoft.reef.driver.evaluator.*;
-import com.microsoft.reef.driver.task.*;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
+import com.microsoft.reef.driver.evaluator.EvaluatorType;
+import com.microsoft.reef.driver.task.FailedTask;
+import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.exception.EvaluatorException;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.driver.DispatchingEStage;
 import com.microsoft.reef.runtime.common.driver.DriverExceptionHandler;
 import com.microsoft.reef.runtime.common.driver.DriverManager;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
@@ -40,7 +38,6 @@ import com.microsoft.reef.runtime.common.driver.task.CompletedTaskImpl;
 import com.microsoft.reef.runtime.common.driver.task.RunningTaskImpl;
 import com.microsoft.reef.runtime.common.driver.task.SuspendedTaskImpl;
 import com.microsoft.reef.runtime.common.driver.task.TaskMessageImpl;
-import com.microsoft.reef.runtime.common.launch.REEFErrorHandler;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Name;
@@ -83,7 +80,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final EvaluatorDescriptorImpl evaluatorDescriptor;
   private final List<EvaluatorContext> activeContextList = new ArrayList<>();
   private final Set<String> activeContextIds = new HashSet<>();
-  private final DispatchingEStage dispatcher;
+  private final EvaluatorMessageDispatcher messageDispatcher;
   private final ConfigurationSerializer configurationSerializer;
   private State state = State.ALLOCATED;
   private RunningTask runningTask = null;
@@ -99,22 +96,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final DriverManager driverManager,
       final ResourceReleaseHandler resourceReleaseHandler,
       final ResourceLaunchHandler resourceLaunchHandler,
-      final REEFErrorHandler errorHandler,
       final @Parameter(EvaluatorIdentifier.class) String evaluatorId,
       final @Parameter(EvaluatorDescriptorName.class) EvaluatorDescriptorImpl evaluatorDescriptor,
-      final @Parameter(DriverConfigurationOptions.ActiveContextHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
-      final @Parameter(DriverConfigurationOptions.ClosedContextHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
-      final @Parameter(DriverConfigurationOptions.FailedContextHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
-      final @Parameter(DriverConfigurationOptions.ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
-      final @Parameter(DriverConfigurationOptions.RunningTaskHandlers.class) Set<EventHandler<RunningTask>> runningTaskEventHandlers,
-      final @Parameter(DriverConfigurationOptions.CompletedTaskHandlers.class) Set<EventHandler<CompletedTask>> completedTaskEventHandlers,
-      final @Parameter(DriverConfigurationOptions.SuspendedTaskHandlers.class) Set<EventHandler<SuspendedTask>> suspendedTaskEventHandlers,
-      final @Parameter(DriverConfigurationOptions.TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
-      final @Parameter(DriverConfigurationOptions.FailedTaskHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
-      final @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
-      final @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
-      final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
-      final DriverExceptionHandler driverExceptionHandler, final ConfigurationSerializer configurationSerializer) {
+      final DriverExceptionHandler driverExceptionHandler,
+      final ConfigurationSerializer configurationSerializer,
+      final EvaluatorMessageDispatcher messageDispatcher) {
 
     this.clock = clock;
     this.remoteManager = remoteManager;
@@ -125,25 +111,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorDescriptor = evaluatorDescriptor;
     this.configurationSerializer = configurationSerializer;
 
-    this.dispatcher = new DispatchingEStage(driverExceptionHandler, 16); // 16 threads
+    this.messageDispatcher = messageDispatcher;
 
-    this.dispatcher.register(ActiveContext.class, activeContextEventHandlers);
-    this.dispatcher.register(ClosedContext.class, closedContextEventHandlers);
-    this.dispatcher.register(FailedContext.class, failedContextEventHandlers);
-    this.dispatcher.register(ContextMessage.class, contextMessageHandlers);
-
-    this.dispatcher.register(RunningTask.class, runningTaskEventHandlers);
-    this.dispatcher.register(CompletedTask.class, completedTaskEventHandlers);
-    this.dispatcher.register(SuspendedTask.class, suspendedTaskEventHandlers);
-    this.dispatcher.register(TaskMessage.class, taskMessageEventHandlers);
-    this.dispatcher.register(FailedTask.class, taskExceptionEventHandlers);
-
-    this.dispatcher.register(FailedEvaluator.class, failedEvaluatorHandlers);
-    this.dispatcher.register(CompletedEvaluator.class, completedEvaluatorHandlers);
-    this.dispatcher.register(AllocatedEvaluator.class, allocatedEvaluatorEventHandlers);
-
-    this.dispatcher.onNext(AllocatedEvaluator.class,
-        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer));
+    this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer));
   }
 
   /**
@@ -226,7 +196,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * <em>and</em> there are no messages queued or in processing.
    */
   public boolean isClosed() {
-    return this.dispatcher.isEmpty() &&
+    return this.messageDispatcher.isEmpty() &&
         (this.state == State.DONE || this.state == State.FAILED || this.state == State.KILLED);
   }
 
@@ -275,8 +245,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
             Optional.of(new FailedTask(this.runningTask.getId(), exception)) :
             Optional.<FailedTask>empty();
 
-        this.dispatcher.onNext(FailedEvaluator.class, new FailedEvaluatorImpl(
-            exception, failedContextList, failedTaskOptional, this.evaluatorId));
+        this.messageDispatcher.onEvaluatorFailed(new FailedEvaluatorImpl(exception, failedContextList, failedTaskOptional, this.evaluatorId));
 
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);
@@ -329,8 +298,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
         this.state = State.DONE;
 
-        dispatcher.onNext(CompletedEvaluator.class, new CompletedEvaluatorImpl(this.evaluatorId));
-
+        this.messageDispatcher.onEvaluatorCompleted(new CompletedEvaluatorImpl(this.evaluatorId));
         close();
       }
 
@@ -401,15 +369,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         final EvaluatorContext context = new EvaluatorContext(this, contextID, parentID, configurationSerializer);
         addEvaluatorContext(context);
         if (notifyClientOnNewActiveContext) {
-          this.dispatcher.onNext(ActiveContext.class, context);
+          this.messageDispatcher.onContextActive(context);
         }
       }
 
       for (final ReefServiceProtos.ContextStatusProto.ContextMessageProto contextMessageProto : contextStatusProto.getContextMessageList()) {
         final byte[] theMessage = contextMessageProto.getMessage().toByteArray();
         final String sourceID = contextMessageProto.getSourceId();
-        this.dispatcher.onNext(ContextMessage.class,
-            new ContextMessageImpl(theMessage, contextID, sourceID));
+        this.messageDispatcher.onContextMessage(new ContextMessageImpl(theMessage, contextID, sourceID));
       }
     } else {
       if (!this.activeContextIds.contains(contextID)) {
@@ -431,11 +398,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         final Exception reason = codec.decode(contextStatusProto.getError().toByteArray());
         final Optional<ActiveContext> optionalParentContext = (null == parentContext) ?
             Optional.<ActiveContext>empty() : Optional.<ActiveContext>of(parentContext);
-        this.dispatcher.onNext(FailedContext.class,
-            context.getFailedContext(optionalParentContext, reason));
+        this.messageDispatcher.onContextFailed(context.getFailedContext(optionalParentContext, reason));
       } else if (ReefServiceProtos.ContextStatusProto.State.DONE == contextStatusProto.getContextState()) {
         if (null != parentContext) {
-          this.dispatcher.onNext(ClosedContext.class, context.getClosedContext(parentContext));
+          this.messageDispatcher.onContextClose(context.getClosedContext(parentContext));
         } else {
           LOG.info("Root context closed. Evaluator closed will trigger final shutdown.");
         }
@@ -463,19 +429,17 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     if (ReefServiceProtos.State.INIT == taskState) {
       final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
       this.runningTask = new RunningTaskImpl(this, taskId, evaluatorContext);
-      this.dispatcher.onNext(RunningTask.class, this.runningTask);
+      this.messageDispatcher.onTaskRunning(this.runningTask);
     } else if (ReefServiceProtos.State.SUSPEND == taskState) {
       final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
       this.runningTask = null;
       final byte[] message = taskStatusProto.hasResult() ? taskStatusProto.getResult().toByteArray() : null;
-      this.dispatcher.onNext(SuspendedTask.class,
-          new SuspendedTaskImpl(evaluatorContext, message, taskId));
+      this.messageDispatcher.onTaskSuspended(new SuspendedTaskImpl(evaluatorContext, message, taskId));
     } else if (ReefServiceProtos.State.DONE == taskState) {
       final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
       this.runningTask = null;
       final byte[] message = taskStatusProto.hasResult() ? taskStatusProto.getResult().toByteArray() : null;
-      this.dispatcher.onNext(CompletedTask.class,
-          new CompletedTaskImpl(evaluatorContext, message, taskId));
+      this.messageDispatcher.onTaskCompleted(new CompletedTaskImpl(evaluatorContext, message, taskId));
     } else if (ReefServiceProtos.State.FAILED == taskState) {
       this.runningTask = null;
       final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
@@ -486,11 +450,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           new FailedTask(taskId, codec.decode(taskStatusProto.getResult().toByteArray()), Optional.<ActiveContext>of(evaluatorContext)) :
           new FailedTask(taskId, "Failed Task: " + taskState, Optional.<ActiveContext>of(evaluatorContext));
 
-      this.dispatcher.onNext(FailedTask.class, taskException);
+      this.messageDispatcher.onTaskFailed(taskException);
     } else if (taskStatusProto.getTaskMessageCount() > 0) {
       assert (this.runningTask != null);
       for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto taskMessageProto : taskStatusProto.getTaskMessageList()) {
-        this.dispatcher.onNext(TaskMessage.class,
+        this.messageDispatcher.onTaskMessage(
             new TaskMessageImpl(taskMessageProto.getMessage().toByteArray(),
                 taskId, contextId, taskMessageProto.getSourceId())
         );
