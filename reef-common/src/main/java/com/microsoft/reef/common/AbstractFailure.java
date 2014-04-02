@@ -53,65 +53,29 @@ public abstract class AbstractFailure implements Failure {
   protected final Optional<byte[]> data;
 
   /**
-   * Minimal constructor: Build error message given the entity ID and the short error message.
-   *
-   * @param id Identifier of the entity that produced the error. Cannot be null.
-   * @param message One-line error message. Cannot be null.
-   */
-  public AbstractFailure(final String id, final String message) {
-    this(id, message, null, null, null);
-  }
-
-  /**
-   * Build error message given the entity ID plus short and long error message.
-   *
-   * @param id Identifier of the entity that produced the error. Cannot be null.
-   * @param message One-line error message. Cannot be null.
+   * @param id          Identifier of the entity that produced the error. Cannot be null.
+   * @param message     One-line error message. Cannot be null.
    * @param description Long error description. Can be null.
+   * @param cause       Java Exception that caused the error. Can be null.
+   * @param data        byte array that contains serialized version of the error. Can be null.
    */
-  public AbstractFailure(final String id, final String message, final String description) {
-    this(id, message, description, null, null);
-  }
-
-  /**
-   * Most detailed error message constructor that takes all parameters possible.
-   *
-   * @param id Identifier of the entity that produced the error. Cannot be null.
-   * @param message One-line error message. Cannot be null.
-   * @param description Long error description. Can be null.
-   * @param cause Java Exception that caused the error. Can be null.
-   * @param data byte array that contains serialized version of the error. Can be null.
-   */
-  public AbstractFailure(final String id, final String message, final String description,
-                         final Throwable cause, final byte[] data) {
-    assert (id != null);
-    assert (message != null);
+  protected AbstractFailure(final String id,
+                            final String message,
+                            final Optional<String> description,
+                            final Optional<Throwable> cause,
+                            final Optional<byte[]> data) {
     this.id = id;
     this.message = message;
-    this.description = Optional.ofNullable(description != null ? description : getStackTrace(cause));
-    this.cause = Optional.ofNullable(cause);
-    this.data = Optional.ofNullable(data);
+    this.description = description;
+    this.cause = cause;
+    this.data = data;
   }
 
-  /**
-   * Build error message given the failed entity ID and Java Exception.
-   * Populates the message with the Exception.getMessage() result, and stores
-   * the exception stack trace in the description.
-   * @param id Identifier of the entity that produced the error. Cannot be null.
-   * @param cause Java Exception that caused the error. Cannot be null.
-   */
-  public AbstractFailure(final String id, final Throwable cause) {
-    assert (id != null);
-    this.id = id;
-    this.cause = Optional.of(cause);
-    this.message = cause.getMessage();
-    this.description = Optional.of(getStackTrace(cause));
-    this.data = Optional.empty();
-  }
 
   /**
    * Helper function: produce the string that contains the given exception's stack trace.
    * Returns null if the argument is null.
+   *
    * @param cause Java Exception or null.
    * @return A string that contains the exception stack trace, or null.
    */
@@ -157,6 +121,11 @@ public abstract class AbstractFailure implements Failure {
     return this.cause.orElse(null);
   }
 
+  @Override
+  public Optional<Throwable> getReason() {
+    return this.cause;
+  }
+
   /**
    * @return Optional serialized version of the error message.
    */
@@ -169,6 +138,7 @@ public abstract class AbstractFailure implements Failure {
    * Return the original Java Exception, or generate a new one if it does not exists.
    * ALWAYS returns an exception.
    * FIXME: Replace RuntimeException with a better class.
+   *
    * @return A java exception. Never null.
    */
   @Override
