@@ -15,8 +15,8 @@
  */
 package com.microsoft.reef.examples.groupcomm.matmul;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.io.network.group.config.GroupOperators;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifier;
@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * TaskSubmitter is responsible for submitting tasks to running evaluators.
  * <p/>
  * This is an event handler for events containing an iterable of running
- * evaluators. onNext, it creates the necessary structures to create the group
+ * evaluators. send, it creates the necessary structures to create the group
  * communication operator configurations and first submits the compute tasks.
  * <p/>
  * When all the compute tasks start, the driver will signal start of

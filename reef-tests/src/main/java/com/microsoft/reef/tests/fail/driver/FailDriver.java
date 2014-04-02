@@ -366,7 +366,7 @@ public final class FailDriver {
       throw new DriverSideFailure("Event out of sequence: " + msgClassName);
     }
 
-    LOG.log(Level.INFO, "{0}: onNext: {1} got: {2}", new Object[]{
+    LOG.log(Level.INFO, "{0}: send: {1} got: {2}", new Object[]{
         this.state, EVENT_SEQUENCE[this.expectIdx], msgClassName});
 
     ++this.expectIdx;

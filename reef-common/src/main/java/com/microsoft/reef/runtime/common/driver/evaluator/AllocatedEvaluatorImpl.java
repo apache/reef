@@ -184,7 +184,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
         }
       }
 
-      this.evaluatorManager.handle(rbuilder.build());
+      this.evaluatorManager.onResourceLaunch(rbuilder.build());
 
     } catch (final BindException ex) {
       LOG.log(Level.SEVERE, "Bad Evaluator configuration", ex);

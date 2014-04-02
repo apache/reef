@@ -57,7 +57,7 @@ public final class FailDriverDelayedMsg {
   public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
-      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(AllocatedEvaluator): {0}", eval);
+      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(AllocatedEvaluator): {0}", eval);
       try {
         eval.submitContext(ContextConfiguration.CONF
             .set(ContextConfiguration.IDENTIFIER, "Context_" + eval.getId())
@@ -72,7 +72,7 @@ public final class FailDriverDelayedMsg {
   public final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
-      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(ActiveContext): {0}", context);
+      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(ActiveContext): {0}", context);
       try {
         context.submitTask(TaskConfiguration.CONF
             .set(TaskConfiguration.IDENTIFIER, "Task_" + context.getId())
@@ -94,11 +94,11 @@ public final class FailDriverDelayedMsg {
     @Override
     public void onNext(final RunningTask task) {
       FailDriverDelayedMsg.this.task = task;
-      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(TaskRuntime): {0}", task);
+      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(TaskRuntime): {0}", task);
       FailDriverDelayedMsg.this.clock.scheduleAlarm(2000, new EventHandler<Alarm>() {
         @Override
         public void onNext(final Alarm time) {
-          LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(Alarm): {0}", time);
+          LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(Alarm): {0}", time);
           task.onNext(HELLO_STR);
         }
       });
@@ -108,7 +108,7 @@ public final class FailDriverDelayedMsg {
   public final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
     public void onNext(final TaskMessage msg) {
-      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(TaskMessage): {0}", msg);
+      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(TaskMessage): {0}", msg);
       assert (Arrays.equals(HELLO_STR, msg.get()));
       FailDriverDelayedMsg.this.task.close();
     }
@@ -117,7 +117,7 @@ public final class FailDriverDelayedMsg {
   public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime time) {
-      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.onNext(StartTime): {0}", time);
+      LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(StartTime): {0}", time);
       FailDriverDelayedMsg.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1).setMemory(128).build());
     }
