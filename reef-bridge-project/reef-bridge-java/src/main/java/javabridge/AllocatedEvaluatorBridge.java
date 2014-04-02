@@ -19,14 +19,7 @@ package javabridge;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
-import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
-import com.microsoft.tang.proto.ClassHierarchyProto;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +50,7 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         {
             throw new RuntimeException("empty taskConfigurationString provided.");
         }
-        ClassHierarchy clrClassHierarchy = loadClassHierarchy(CLASS_HIERARCHY_FILENAME);
+        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(CLASS_HIERARCHY_FILENAME);
         Configuration contextConfiguration;
         Configuration taskConfiguration;
         try {
@@ -75,17 +68,5 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
     public void close()
     {
         jallocatedEvaluator.close();
-    }
-
-    private static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
-        try (final InputStream chin = new FileInputStream(classHierarchyFile)) {
-            final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
-            final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-            return ch;
-        } catch (final IOException e) {
-            final String message = "Unable to load class hierarchy from " + CLASS_HIERARCHY_FILENAME;
-            LOG.log(Level.SEVERE, message, e);
-            throw new RuntimeException(message, e);
-        }
     }
 }

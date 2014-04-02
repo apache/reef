@@ -37,12 +37,6 @@ import java.util.logging.Logger;
  */
 public final class HelloCLRBridge {
 
-  /**
-   * The name of the class hierarchy file.
-   */
-  // TODO: Make this a config option
-  public static final String CLASS_HIERARCHY_FILENAME = "HelloTask.bin";
-
   private static final Logger LOG = Logger.getLogger(HelloCLRBridge.class.getName());
 
   /**

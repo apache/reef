@@ -16,6 +16,7 @@
 
 package javabridge;
 
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import java.io.*;
 import java.util.Date;
@@ -34,6 +35,12 @@ public class NativeInterop {
     public static native void ClrSystemAllocatedEvaluatorHandlerOnNext (
             long handle,
             AllocatedEvaluatorBridge javaEvaluatorBridge,
+            InteropLogger interopLogger
+    );
+
+    public static native void ClrSystemActiveContextHandlerOnNext (
+            long handle,
+            ActiveContextBridge javaActiveContextBridge,
             InteropLogger interopLogger
     );
 

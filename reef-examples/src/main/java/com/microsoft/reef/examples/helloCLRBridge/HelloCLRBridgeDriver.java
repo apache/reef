@@ -53,10 +53,9 @@ public final class HelloCLRBridgeDriver {
   private static final Logger LOG = Logger.getLogger(HelloCLRBridgeDriver.class.getName());
 
   private final EvaluatorRequestor requestor;
-  private long  allocatedEvalatorHandler;
+  private long  clrHandle;
 
-
-    private int nJVMTasks = 0;  // guarded by this
+  private int nJVMTasks = 0;  // guarded by this
   private int nCLRTasks = 1;  // guarded by this
 
 
@@ -77,7 +76,7 @@ public final class HelloCLRBridgeDriver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: ", startTime);
-        allocatedEvalatorHandler = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+        clrHandle = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
         HelloCLRBridgeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(nCLRTasks + nJVMTasks)
           .setMemory(128)
@@ -113,7 +112,7 @@ public final class HelloCLRBridgeDriver {
       InteropLogger interopLogger = new InteropLogger();
       allocatedEvaluator.setType(EvaluatorType.CLR);
       AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(allocatedEvaluator);
-      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvalatorHandler, allocatedEvaluatorBridge,interopLogger);
+      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(clrHandle, allocatedEvaluatorBridge,interopLogger);
     } catch (final Exception ex) {
       final String message = "Unable to setup Task or Context configuration.";
       LOG.log(Level.SEVERE, message, ex);
