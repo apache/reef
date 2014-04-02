@@ -126,4 +126,8 @@ public final class DriverConfigurationOptions {
   @NamedParameter(doc = "The EventHandler that gets preemption events.")
   public static final class PreemptionHandler implements Name<PreemptionHandler> {
   }
+
+  @NamedParameter(doc = "Number of threads allocated per evaluator to dispatch events from this Evaluator", default_value = "4")
+  public static final class EvaluatorDispatcherThreads implements Name<Integer> {
+  }
 }

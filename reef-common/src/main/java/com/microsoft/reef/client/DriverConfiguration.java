@@ -168,6 +168,11 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<ContextMessage>> ON_CONTEXT_MESSAGE = new OptionalImpl<>();
 
   /**
+   * "Number of threads allocated per evaluator to dispatch events from this Evaluator.
+   */
+  public static final OptionalParameter<Integer> EVALUATOR_DISPATCHER_THREADS = new OptionalParameter<>();
+
+  /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
    */
   public static final ConfigurationModule CONF = new DriverConfiguration().merge(DriverRuntimeConfiguration.CONF)
@@ -206,5 +211,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(DriverConfigurationOptions.ClientCloseHandlers.class, ON_CLIENT_CLOSED)
       .bindSetEntry(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class, ON_CLIENT_CLOSED_MESSAGE)
 
+          // Various parameters
+      .bindNamedParameter(DriverConfigurationOptions.EvaluatorDispatcherThreads.class, EVALUATOR_DISPATCHER_THREADS)
       .build();
 }
