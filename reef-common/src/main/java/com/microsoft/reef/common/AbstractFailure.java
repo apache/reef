@@ -121,6 +121,11 @@ public abstract class AbstractFailure implements Failure {
     return this.cause.orElse(null);
   }
 
+  @Override
+  public Optional<Throwable> getReason() {
+    return this.cause;
+  }
+
   /**
    * @return Optional serialized version of the error message.
    */
