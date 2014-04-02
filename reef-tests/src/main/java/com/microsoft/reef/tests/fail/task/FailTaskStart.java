@@ -60,8 +60,8 @@ public final class FailTaskStart implements Task, EventHandler<TaskStart> {
     //   this.isRunning = false;
     //   this.notify();
     // }
-    final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskStart.onNext() invoked.");
-    LOG.log(Level.FINE, "FailTaskStart.onNext() invoked: {0}", ex);
+    final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskStart.send() invoked.");
+    LOG.log(Level.FINE, "FailTaskStart.send() invoked: {0}", ex);
     throw ex;
   }
 }

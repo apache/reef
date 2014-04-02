@@ -71,7 +71,7 @@ public final class RunningTaskImpl implements RunningTask {
         .setTaskMessage(ByteString.copyFrom(message))
         .build();
 
-    this.evaluatorManager.handle(contextControlProto);
+    this.evaluatorManager.sendContextControlMessage(contextControlProto);
   }
 
   @Override
@@ -81,7 +81,7 @@ public final class RunningTaskImpl implements RunningTask {
     final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setStopTask(StopTaskProto.newBuilder().build())
         .build();
-    this.evaluatorManager.handle(contextControlProto);
+    this.evaluatorManager.sendContextControlMessage(contextControlProto);
   }
 
   @Override
@@ -92,7 +92,7 @@ public final class RunningTaskImpl implements RunningTask {
         .setStopTask(StopTaskProto.newBuilder().build())
         .setTaskMessage(ByteString.copyFrom(message))
         .build();
-    this.evaluatorManager.handle(contextControlProto);
+    this.evaluatorManager.sendContextControlMessage(contextControlProto);
   }
 
   @Override
@@ -103,7 +103,7 @@ public final class RunningTaskImpl implements RunningTask {
         .setSuspendTask(SuspendTaskProto.newBuilder().build())
         .setTaskMessage(ByteString.copyFrom(message))
         .build();
-    this.evaluatorManager.handle(contextControlProto);
+    this.evaluatorManager.sendContextControlMessage(contextControlProto);
   }
 
   @Override
@@ -113,7 +113,7 @@ public final class RunningTaskImpl implements RunningTask {
     final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setSuspendTask(SuspendTaskProto.newBuilder().build())
         .build();
-    this.evaluatorManager.handle(contextControlProto);
+    this.evaluatorManager.sendContextControlMessage(contextControlProto);
   }
 
   @Override

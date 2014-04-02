@@ -303,7 +303,7 @@ class RcvExcHandler implements EventHandler<Exception> {
   }
 
   /* (non-Javadoc)
-   * @see com.microsoft.wake.EventHandler#onNext(java.lang.Object)
+   * @see com.microsoft.wake.EventHandler#send(java.lang.Object)
    */
   @Override
   public void onNext(Exception exc) {

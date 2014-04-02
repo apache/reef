@@ -60,8 +60,8 @@ public final class FailTaskStop implements Task, EventHandler<TaskStop> {
     //   this.isRunning = false;
     //   this.notify();
     // }
-    final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskStop.onNext() invoked.");
-    LOG.log(Level.FINE, "FailTaskStop.onNext() invoked: {0}", ex);
+    final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskStop.send() invoked.");
+    LOG.log(Level.FINE, "FailTaskStop.send() invoked: {0}", ex);
     throw ex;
   }
 }

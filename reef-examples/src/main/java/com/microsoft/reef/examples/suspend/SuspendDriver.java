@@ -48,7 +48,7 @@ import java.util.logging.Logger;
 
 /**
  * Suspend/resume example job driver. Execute a simple task in all evaluators,
- * and handle suspend/resume events properly.
+ * and sendEvaluatorControlMessage suspend/resume events properly.
  */
 @Unit
 public class SuspendDriver {
