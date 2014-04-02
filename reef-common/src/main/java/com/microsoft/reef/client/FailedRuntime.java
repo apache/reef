@@ -17,6 +17,7 @@ package com.microsoft.reef.client;
 
 import com.microsoft.reef.common.AbstractFailure;
 import com.microsoft.reef.proto.ReefServiceProtos.RuntimeErrorProto;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import java.util.logging.Level;
@@ -39,15 +40,17 @@ public final class FailedRuntime extends AbstractFailure {
 
   /**
    * Create a new Failure object out of protobuf data.
+   *
    * @param error Error message as a protocol buffers object.
    */
   public FailedRuntime(final RuntimeErrorProto error) {
-    super(error.getIdentifier(), error.getMessage(), null, getThrowable(error), getData(error));
+    super(error.getIdentifier(), error.getMessage(), Optional.<String>empty(), Optional.of(getThrowable(error)), Optional.<byte[]>empty());
   }
 
   /**
    * Retrieve Java exception from protobuf object, if possible. Otherwise, return null.
    * This is a utility method used in the FailedRuntime constructor.
+   *
    * @param error protobuf error message structure.
    * @return Java exception or null if exception is missing or cannot be decoded.
    */
@@ -57,7 +60,7 @@ public final class FailedRuntime extends AbstractFailure {
       try {
         return CODEC.decode(data);
       } catch (final Throwable ex) {
-        LOG.log(Level.FINE, "Could not decode exception {0}: {1}", new Object[] { error, ex });
+        LOG.log(Level.FINE, "Could not decode exception {0}: {1}", new Object[]{error, ex});
       }
     }
     return null;
@@ -66,6 +69,7 @@ public final class FailedRuntime extends AbstractFailure {
   /**
    * Get binary data for the exception, if it exists. Otherwise, return null.
    * This is a utility method used in the FailedRuntime constructor and getThrowable() method.
+   *
    * @param error protobuf error message structure.
    * @return byte array of the exception or null if exception is missing.
    */

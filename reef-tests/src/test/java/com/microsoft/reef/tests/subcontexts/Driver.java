@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.tests.subcontexts;
 
-
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
@@ -51,7 +50,6 @@ final class Driver {
     CONTEXT_1_SUBMITTED,
     CONTEXT_2_SUBMITTED,
     CONTEXT_2_CLOSED,
-
   }
 
   final class StartHandler implements EventHandler<StartTime> {
@@ -113,7 +111,6 @@ final class Driver {
         LOG.log(Level.INFO, "Received sub context. Closing");
         activeContext.close();
       }
-
     }
   }
 
@@ -136,5 +133,3 @@ final class Driver {
     }
   }
 }
-
-

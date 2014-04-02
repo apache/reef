@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Driver-Side Event Handlers to be implemented by a specific runtime
+ * Driver-Side Event Handlers to be implemented by a specific resource manager.
  */
 package com.microsoft.reef.runtime.common.driver.api;

@@ -17,10 +17,10 @@ package com.microsoft.reef.runtime.local.client;
 
 import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.client.RunningJob;
-import com.microsoft.reef.runtime.common.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.client.ClientManager;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -37,6 +37,36 @@ import java.util.concurrent.Executors;
  * A ConfigurationModule to configure the local runtime.
  */
 public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
+
+  /**
+   * The number of threads or processes available to the runtime. This is the upper limit on the number of
+   * Evaluators that the local runtime will hand out concurrently. This simulates the size of a physical cluster in
+   * terms of the number of slots available on it with one important caveat: The Driver is not counted against this
+   * number.
+   */
+  public static final OptionalParameter<Integer> NUMBER_OF_THREADS = new OptionalParameter<>();
+  /**
+   * The folder in which the sub-folders, one per Node, will be created. Those will contain one folder per
+   * Evaluator instantiated on the virtual node. Those inner folders will be named by the time when the Evaluator was
+   * launched.
+   * <p/>
+   * If none is given, the value is taken from the sytem property "com.microsoft.reef.runtime.local.folder". If that is
+   * not set, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
+   */
+  public static final OptionalParameter<String> RUNTIME_ROOT_FOLDER = new OptionalParameter<>();
+  /**
+   * The ConfigurationModule for the local runtime.
+   */
+  public static final ConfigurationModule CONF = new LocalRuntimeConfiguration()
+      .bindImplementation(REEF.class, ClientManager.class)
+      .bindImplementation(RunningJob.class, RunningJobImpl.class)
+      .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
+      .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
+          // Bind the message codec for REEF.
+      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+      .bindNamedParameter(NumberOfThreads.class, NUMBER_OF_THREADS)
+      .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
+      .build();
 
   public final static class ExecutorServiceConstructor implements ExternalConstructor<ExecutorService> {
 
@@ -61,39 +91,6 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   @NamedParameter(doc = "The size of the default container returned in MB", default_value = "512")
   public static class DefaultMemorySize implements Name<Integer> {
   }
-
-
-  /**
-   * The number of threads or processes available to the runtime. This is the upper limit on the number of
-   * Evaluators that the local runtime will hand out concurrently. This simulates the size of a physical cluster in
-   * terms of the number of slots available on it with one important caveat: The Driver is not counted against this
-   * number.
-   */
-  public static final OptionalParameter<Integer> NUMBER_OF_THREADS = new OptionalParameter<>();
-
-  /**
-   * The folder in which the sub-folders, one per Node, will be created. Those will contain one folder per
-   * Evaluator instantiated on the virtual node. Those inner folders will be named by the time when the Evaluator was
-   * launched.
-   * <p/>
-   * If none is given, the value is taken from the sytem property "com.microsoft.reef.runtime.local.folder". If that is
-   * not set, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
-   */
-  public static final OptionalParameter<String> RUNTIME_ROOT_FOLDER = new OptionalParameter<>();
-
-  /**
-   * The ConfigurationModule for the local runtime.
-   */
-  public static final ConfigurationModule CONF = new LocalRuntimeConfiguration()
-      .bindImplementation(REEF.class, ClientManager.class)
-      .bindImplementation(RunningJob.class, RunningJobImpl.class)
-      .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
-      .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
-          // Bind the message codec for REEF.
-      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-      .bindNamedParameter(NumberOfThreads.class, NUMBER_OF_THREADS)
-      .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
-      .build();
 
 
 }

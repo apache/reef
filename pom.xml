@@ -242,6 +242,18 @@
                     <linksource>true</linksource>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -260,6 +272,12 @@
             </dependency>
 
             <!-- Testing -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>test-jar</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -362,14 +380,6 @@
                 <version>1.2</version>
             </dependency>
             <!-- End of Apache Commons -->
-            <!-- AVRO -->
-            <dependency>
-                <groupId>org.apache.avro</groupId>
-                <artifactId>avro</artifactId>
-                <version>${avro.version}</version>
-            </dependency>
-            <!-- End of AVRO -->
-
             <!-- Apache Avro -->
             <dependency>
                 <groupId>org.apache.avro</groupId>
@@ -377,41 +387,8 @@
                 <version>${avro.version}</version>
             </dependency>
             <!-- End of Apache Avro -->
-
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.microsoft.tang</groupId>
-            <artifactId>tang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.microsoft.wake</groupId>
-            <artifactId>wake</artifactId>
-        </dependency>
-    </dependencies>
-
     <modules>
         <module>reef-annotations</module>
         <module>reef-bridge-project</module>
@@ -446,6 +423,7 @@
             </build>
         </profile>
       <profile>
+        <id>reef-bridge</id>
         <activation>
           <os>
             <name>Windows</name>

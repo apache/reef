@@ -15,14 +15,14 @@
  */
 package com.microsoft.reef.driver.task;
 
-import com.microsoft.reef.task.TaskMessageSource;
-import com.microsoft.reef.task.events.*;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.runtime.common.evaluator.task.DefaultCloseHandler;
-import com.microsoft.reef.runtime.common.evaluator.task.DefaultDriverMessageHandler;
-import com.microsoft.reef.runtime.common.evaluator.task.DefaultSuspendHandler;
+import com.microsoft.reef.runtime.common.evaluator.task.defaults.DefaultCloseHandler;
+import com.microsoft.reef.runtime.common.evaluator.task.defaults.DefaultDriverMessageHandler;
+import com.microsoft.reef.runtime.common.evaluator.task.defaults.DefaultSuspendHandler;
+import com.microsoft.reef.task.TaskMessageSource;
+import com.microsoft.reef.task.events.*;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;

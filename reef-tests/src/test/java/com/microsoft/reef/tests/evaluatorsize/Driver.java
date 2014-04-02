@@ -46,36 +46,38 @@ final class Driver {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
+
       final int evaluatorMemory = allocatedEvaluator.getEvaluatorDescriptor().getMemory();
+
       if (evaluatorMemory < Driver.this.memorySize) {
-        throw new DriverSideFailure("Got an Evaluator with too little RAM. Asked for " + Driver.this.memorySize
+        throw new DriverSideFailure(
+            "Got an Evaluator with too little RAM. Asked for " + Driver.this.memorySize
             + "MB, but got " + evaluatorMemory + "MB.");
-      } else { // ALL good on the Driver side. Let's move on to the Task
-        try {
-          final Configuration contextConfiguration = ContextConfiguration.CONF
-              .set(ContextConfiguration.IDENTIFIER, "EvaluatorSizeTest")
-              .build();
+      }
 
-          final Configuration taskConfiguration = TaskConfiguration.CONF
-              .set(TaskConfiguration.TASK, MemorySizeTask.class)
-              .set(TaskConfiguration.IDENTIFIER, "EvaluatorSizeTestTask")
-              .build();
+      // ALL good on the Driver side. Let's move on to the Task
+      try {
+        final Configuration contextConfiguration = ContextConfiguration.CONF
+            .set(ContextConfiguration.IDENTIFIER, "EvaluatorSizeTest")
+            .build();
 
-          final Configuration testConfiguration = EvaluatorSizeTestConfiguration.CONF
-              .set(EvaluatorSizeTestConfiguration.MEMORY_SIZE, Driver.this.memorySize)
-              .build();
+        final Configuration taskConfiguration = TaskConfiguration.CONF
+            .set(TaskConfiguration.TASK, MemorySizeTask.class)
+            .set(TaskConfiguration.IDENTIFIER, "EvaluatorSizeTestTask")
+            .build();
 
-          final Configuration mergedTaskConfiguration = Tang.Factory.getTang()
-              .newConfigurationBuilder(taskConfiguration, testConfiguration).build();
+        final Configuration testConfiguration = EvaluatorSizeTestConfiguration.CONF
+            .set(EvaluatorSizeTestConfiguration.MEMORY_SIZE, Driver.this.memorySize)
+            .build();
 
-          allocatedEvaluator.submitContextAndTask(contextConfiguration, mergedTaskConfiguration);
+        final Configuration mergedTaskConfiguration = Tang.Factory.getTang()
+            .newConfigurationBuilder(taskConfiguration, testConfiguration).build();
 
-        } catch (final BindException e) {
-          throw new DriverSideFailure("Unable to launch Task", e);
-        }
+        allocatedEvaluator.submitContextAndTask(contextConfiguration, mergedTaskConfiguration);
 
+      } catch (final BindException e) {
+        throw new DriverSideFailure("Unable to launch Task", e);
       }
     }
   }
-
 }

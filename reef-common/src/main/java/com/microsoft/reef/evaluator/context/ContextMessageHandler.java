@@ -15,8 +15,17 @@
  */
 package com.microsoft.reef.evaluator.context;
 
+import com.microsoft.reef.annotations.Optional;
+import com.microsoft.reef.annotations.audience.EvaluatorSide;
+import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.wake.EventHandler;
 
+/**
+ * Implement this interface to receive messages from the driver in a context.
+ */
+@EvaluatorSide
+@Public
+@Optional
 public interface ContextMessageHandler extends EventHandler<byte[]> {
 
   /**

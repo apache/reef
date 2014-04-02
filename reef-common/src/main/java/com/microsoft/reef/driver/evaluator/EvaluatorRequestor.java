@@ -35,10 +35,12 @@ public interface EvaluatorRequestor {
   public void submit(final EvaluatorRequest req);
 
   /**
-   * Access to the {@link ResourceCatalog} for the cluster this Factory has
+   * Access to the ResourceCatalog for the cluster this Factory has
    * access to.
    *
-   * @return the {@link ResourceCatalog} for the cluster.
+   * @return the ResourceCatalog for the cluster.
+   * @deprecated in 0.3. Instead, have a ResourceCatalog injected via Tang.
    */
+  @Deprecated
   public ResourceCatalog getResourceCatalog();
 }

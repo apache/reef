@@ -13,7 +13,7 @@ import javax.inject.Inject;
  */
 @Private
 @DriverSide
-final class DriverExceptionHandler implements EventHandler<Throwable> {
+public final class DriverExceptionHandler implements EventHandler<Throwable> {
 
   /**
    * We delegate the failures to this object.
