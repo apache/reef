@@ -53,7 +53,7 @@ public final class HelloCLRBridgeDriver {
   private static final Logger LOG = Logger.getLogger(HelloCLRBridgeDriver.class.getName());
 
   private final EvaluatorRequestor requestor;
-  private long  clrHandle;
+  private long  allocatedEvaluatorHandler;
 
   private int nJVMTasks = 0;  // guarded by this
   private int nCLRTasks = 1;  // guarded by this
@@ -76,7 +76,8 @@ public final class HelloCLRBridgeDriver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: ", startTime);
-        clrHandle = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+        long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+        allocatedEvaluatorHandler = handlers[0];
         HelloCLRBridgeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(nCLRTasks + nJVMTasks)
           .setMemory(128)
@@ -108,11 +109,15 @@ public final class HelloCLRBridgeDriver {
    * @param allocatedEvaluator
    */
   final void onNextCLR(final AllocatedEvaluator allocatedEvaluator) {
+    if(allocatedEvaluatorHandler == 0)
+    {
+        throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
+    }
     try {
       InteropLogger interopLogger = new InteropLogger();
       allocatedEvaluator.setType(EvaluatorType.CLR);
       AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(allocatedEvaluator);
-      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(clrHandle, allocatedEvaluatorBridge,interopLogger);
+      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvaluatorHandler, allocatedEvaluatorBridge,interopLogger);
     } catch (final Exception ex) {
       final String message = "Unable to setup Task or Context configuration.";
       LOG.log(Level.SEVERE, message, ex);

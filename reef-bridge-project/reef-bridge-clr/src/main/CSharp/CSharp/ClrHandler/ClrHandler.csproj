@@ -80,11 +80,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllocatedEvaluator.cs" />
-    <Compile Include="ClrHandler.cs" />
-    <Compile Include="ClrHandlerWrapper.cs" />
     <Compile Include="ClrSystemAllocatedEvaluatorHandler.cs" />
-    <Compile Include="ClrSystemAllocatedEvaluatorHandlerWrapper.cs" />
+    <Compile Include="ClrSystemHandlerWrapper.cs" />
     <Compile Include="ClrSystemOnStartHandler.cs" />
+    <Compile Include="HandlerHelper.cs" />
     <Compile Include="interface\IAllocatedEvaluaotrClr2Java.cs" />
     <Compile Include="interface\ILogger.cs" />
     <Compile Include="interface\IInteropReturnInfo.cs" />

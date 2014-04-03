@@ -68,7 +68,7 @@ public final class JobDriver {
   private static final int CHECK_UP_INTERVAL = 1000; // 1 sec.
   private static final String JVM_CONTEXT_SUFFIX = "_JVMContext";
   private static final String CLR_CONTEXT_SUFFIX = "_CLRContext";
-  private long  clrHandle;
+  private long  allocatedEvaluatorHandler;
 
   public static int totalEvaluators = 2;
   private int nCLREvaluator = 1;                  // guarded by this
@@ -203,26 +203,6 @@ public final class JobDriver {
   }
 
   /**
-   * Makes a task configuration for the CLR ShellTask.
-   *
-   * @param taskId
-   * @return task configuration for the CLR Task.
-   * @throws com.microsoft.tang.exceptions.BindException
-   */
-  private static final Configuration getCLRTaskConfiguration(
-      final String taskId, final String command) throws BindException {
-
-    final ConfigurationBuilder cb = Tang.Factory.getTang()
-        .newConfigurationBuilder(loadShellTaskClassHierarchy(SHELL_TASK_CLASS_HIERARCHY_FILENAME));
-
-    cb.bind("Microsoft.Reef.Tasks.ITask, Microsoft.Reef.Tasks.ITask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=69c3241e6f0468ca", "Microsoft.Reef.Tasks.ShellTask, Microsoft.Reef.Tasks.ShellTask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
-    cb.bind("Microsoft.Reef.Tasks.TaskConfigurationOptions+Identifier, Microsoft.Reef.Tasks.ITask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=69c3241e6f0468ca", taskId);
-    cb.bind("Microsoft.Reef.Tasks.ShellTask+Command, Microsoft.Reef.Tasks.ShellTask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", command);
-
-    return cb.build();
-  }
-
-  /**
    * Makes a task configuration for the JVM ShellTask..
    *
    * @param taskId
@@ -241,23 +221,6 @@ public final class JobDriver {
     );
     cb.bindNamedParameter(com.microsoft.reef.examples.retained_eval.Launch.Command.class, command);
     return cb.build();
-  }
-
-  /**
-   * Loads the class hierarchy.
-   *
-   * @return
-   */
-  private static ClassHierarchy loadShellTaskClassHierarchy(String binFile) {
-    try (final InputStream chin = new FileInputStream(binFile)) {
-      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
-      final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-      return ch;
-    } catch (final IOException e) {
-      final String message = "Unable to load class hierarchy " + binFile;
-      LOG.log(Level.SEVERE, message, e);
-      throw new RuntimeException(message, e);
-    }
   }
 
   /**
@@ -317,7 +280,7 @@ public final class JobDriver {
       } else {
         InteropLogger interopLogger = new InteropLogger();
         ActiveContextBridge activeContextBridge = new ActiveContextBridge(context);
-        NativeInterop.ClrSystemActiveContextHandlerOnNext(clrHandle, activeContextBridge, interopLogger);
+        //NativeInterop.ClrSystemActiveContextHandlerOnNext(clrHandle, activeContextBridge, interopLogger);
       }
     } catch (final BindException ex) {
       LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
@@ -448,7 +411,8 @@ public final class JobDriver {
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "{0} StartTime: {1}", new Object[]{state, startTime});
       assert (state == State.INIT);
-      clrHandle = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+        long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+        allocatedEvaluatorHandler = handlers[0];
       requestEvaluators();
     }
   }

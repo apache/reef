@@ -70,7 +70,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
  * Method:    CallClrSystemOnStartHandler
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandler
+JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandler
   (JNIEnv * env, jclass jclassx, jstring dateTimeString)
 {
 	try
@@ -79,12 +79,13 @@ JNIEXPORT jlong JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandle
 		int lenConfig = env->GetStringLength(dateTimeString);		
 		String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
 		Console::WriteLine("Current time is " + strConfig);
-		DateTime dt = DateTime::Now; //DateTime::Parse(strConfig);
-		return ClrSystemOnStartHandler::OnStart(dt);
+		DateTime dt = DateTime::Now; 
+		array<unsigned long long>^ handlers = ClrSystemOnStartHandler::OnStart(dt);
+		return JavaLongArrayFromManagedLongArray(env, handlers);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
+		Console::WriteLine("Exceptions in Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}
@@ -101,7 +102,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluator
 {
 	try{
 		AllocatedEvaluatorClr2Java^ jallocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
-		ClrSystemAllocatedEvaluatorHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, jallocatedEval);
+		ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, jallocatedEval);
 	}
 	catch (System::Exception^ ex)
 	{

@@ -28,7 +28,7 @@ public class NativeInterop {
             String filePath
     );
 
-    public static  native long CallClrSystemOnStartHandler (
+    public static  native long[] CallClrSystemOnStartHandler (
             String dateTime
     );
 

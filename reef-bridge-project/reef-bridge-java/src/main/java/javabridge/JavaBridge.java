@@ -26,7 +26,7 @@ import java.util.Date;
 
             String strDate = new Date().toString();
             System.out.println("java side date " + strDate);
-            long handle0 = NativeInterop.CallClrSystemOnStartHandler(new Date().toString());
+            long[] handle0 = NativeInterop.CallClrSystemOnStartHandler(new Date().toString());
 
             InteropLogger interopLogger = new InteropLogger();
 

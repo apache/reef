@@ -68,3 +68,13 @@ jbyteArray JavaByteArrayFromManagedByteArray(
 	env->SetByteArrayRegion(javaByteArray, 0, managedByteArray->Length, (jbyte*) p);
 	return javaByteArray;
 }
+
+jlongArray JavaLongArrayFromManagedLongArray(
+	JNIEnv *env,
+	array<unsigned long long>^ managedLongArray)
+{	
+	jlongArray javaLongArray = env->NewLongArray(managedLongArray->Length);
+	pin_ptr<unsigned long long> p = &managedLongArray[0];
+	env->SetLongArrayRegion(javaLongArray, 0, managedLongArray->Length, (jlong*) p);
+	return javaLongArray;
+}
