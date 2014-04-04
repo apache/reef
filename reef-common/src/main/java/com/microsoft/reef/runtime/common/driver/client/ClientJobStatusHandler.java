@@ -22,9 +22,9 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
 import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfigurationOptions;
+import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
@@ -55,6 +55,8 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   private final AutoCloseable jobControlChannel;
 
+  private final DriverShutdownManager driverShutdownManager;
+
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
   private boolean closed = false;
 
@@ -64,54 +66,17 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
       final RuntimeClock clock,
       final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<JobControlProto> jobControlHandler,
       final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobID,
-      final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID, ClientConnection clientConnection) {
+      final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
+      final ClientConnection clientConnection,
+      final DriverShutdownManager driverShutdownManager) {
 
     this.clock = clock;
     this.jobID = jobID;
     this.clientConnection = clientConnection;
+    this.driverShutdownManager = driverShutdownManager;
 
     // Get a handler for sending job status messages to the client
     this.jobControlChannel = remoteManager.registerHandler(clientRID, JobControlProto.class, jobControlHandler);
-  }
-
-  private synchronized void close(final Optional<Throwable> exception) {
-    if (!this.closed) {
-      this.clientConnection.send(getJobEndingProto(exception));
-      this.clock.close();
-      this.closed = true;
-    } else {
-      LOG.log(Level.WARNING, ".close() called twice. Ignoring the second call");
-    }
-  }
-
-
-  /**
-   * Call this to perform a clean shutdown of the Driver.
-   */
-  public synchronized void onComplete() {
-    LOG.log(Level.INFO, "Clean driver shutdown");
-    this.close(Optional.<Throwable>empty());
-  }
-
-  /**
-   * @param exception the exception that ended the Driver, if any.
-   * @return message to be sent to the client at the end of the job.
-   */
-  private synchronized JobStatusProto getJobEndingProto(final Optional<Throwable> exception) {
-    final JobStatusProto message;
-    if (exception.isPresent()) {
-      message = JobStatusProto.newBuilder()
-          .setIdentifier(this.jobID.toString())
-          .setState(ReefServiceProtos.State.FAILED)
-          .setException(ByteString.copyFrom(CODEC.encode(exception.get())))
-          .build();
-    } else {
-      message = JobStatusProto.newBuilder()
-          .setIdentifier(ClientJobStatusHandler.this.jobID.toString())
-          .setState(ReefServiceProtos.State.DONE)
-          .build();
-    }
-    return message;
   }
 
 
@@ -128,8 +93,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   @Override
   public synchronized void onError(final Throwable exception) {
-    LOG.log(Level.SEVERE, "Job exception", exception);
-    this.close(Optional.of(exception));
+    this.driverShutdownManager.onError(exception);
   }
 
 

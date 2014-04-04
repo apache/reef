@@ -17,8 +17,6 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.driver.client.ClientJobStatusHandler;
-import com.microsoft.reef.runtime.common.driver.evaluator.Evaluators;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
@@ -37,30 +35,28 @@ import java.util.logging.Logger;
 final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStopHandler.class.getName());
 
-  private final ClientJobStatusHandler clientJobStatusHandler;
+  private final DriverShutdownManager driverShutdownManager;
+
   private final RemoteManager remoteManager;
-  private final Evaluators evaluators;
 
   @Inject
-  DriverRuntimeStopHandler(final ClientJobStatusHandler clientJobStatusHandler,
-                           final RemoteManager remoteManager,
-                           final Evaluators evaluators) {
-    this.clientJobStatusHandler = clientJobStatusHandler;
+  DriverRuntimeStopHandler(final DriverShutdownManager driverShutdownManager,
+                           final RemoteManager remoteManager) {
+    this.driverShutdownManager = driverShutdownManager;
+
+
     this.remoteManager = remoteManager;
-    this.evaluators = evaluators;
   }
 
   @Override
   public synchronized void onNext(final RuntimeStop runtimeStop) {
     LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
-    this.evaluators.close();
-
     // Inform the client of the shutdown.
     final Optional<Throwable> exception = Optional.<Throwable>ofNullable(runtimeStop.getException());
     if (exception.isPresent()) {
-      this.clientJobStatusHandler.onError(exception.get());
+      this.driverShutdownManager.onError(exception.get());
     } else {
-      this.clientJobStatusHandler.onComplete();
+      this.driverShutdownManager.onComplete();
     }
     try {
       this.remoteManager.close();
