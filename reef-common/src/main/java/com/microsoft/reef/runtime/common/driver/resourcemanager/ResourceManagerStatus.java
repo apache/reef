@@ -19,8 +19,8 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -34,8 +34,8 @@ import java.util.logging.Logger;
 public final class ResourceManagerStatus implements EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> {
   private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
   private final String name = "REEF";
-  private final Clock clock;
   private final ResourceManagerErrorHandler resourceManagerErrorHandler;
+  private final DriverShutdownManager driverShutdownManager;
 
   // Mutable state.
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
@@ -43,9 +43,10 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
   private int containerAllocationCount = 0;
 
   @Inject
-  ResourceManagerStatus(final Clock clock, final ResourceManagerErrorHandler resourceManagerErrorHandler) {
-    this.clock = clock;
+  ResourceManagerStatus(final ResourceManagerErrorHandler resourceManagerErrorHandler,
+                        final DriverShutdownManager driverShutdownManager) {
     this.resourceManagerErrorHandler = resourceManagerErrorHandler;
+    this.driverShutdownManager = driverShutdownManager;
   }
 
   @Override
@@ -61,11 +62,11 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
         this.resourceManagerErrorHandler.onNext(runtimeStatusProto.getError());
         break;
       case DONE:
-        this.clock.close();
+        this.driverShutdownManager.onComplete();
         break;
       case RUNNING:
         if (this.isIdle()) {
-          this.clock.close();
+          this.driverShutdownManager.onComplete();
         }
         break;
     }
@@ -86,8 +87,7 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
   }
 
   private synchronized boolean isIdle() {
-    return this.clock.isIdle()
-        && this.hasNoOutstandingRequests()
+    return this.hasNoOutstandingRequests()
         && this.hasNoContainersAllocated();
   }
 

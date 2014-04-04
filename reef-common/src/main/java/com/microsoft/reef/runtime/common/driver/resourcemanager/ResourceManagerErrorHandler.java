@@ -16,11 +16,8 @@
 package com.microsoft.reef.runtime.common.driver.resourcemanager;
 
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
-import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
 
@@ -29,33 +26,16 @@ import javax.inject.Inject;
  */
 public final class ResourceManagerErrorHandler implements EventHandler<ReefServiceProtos.RuntimeErrorProto> {
 
-  /**
-   * A handle to the clock in the Driver. We will use this handle to .stop() the Clock.
-   */
-  private final Clock clock;
-  /**
-   * The RemoteManager used to communicate the error to the Client.
-   */
-  private final RemoteManager remoteManager;
-  /**
-   * The Client's remote ID.
-   */
-  private final String clientRemoteID;
+
+  private final DriverShutdownManager driverShutdownManager;
 
   @Inject
-  ResourceManagerErrorHandler(final Clock clock,
-                              final RemoteManager remoteManager,
-                              final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRemoteID) {
-    this.clock = clock;
-    this.remoteManager = remoteManager;
-    this.clientRemoteID = clientRemoteID;
+  ResourceManagerErrorHandler(final DriverShutdownManager driverShutdownManager) {
+    this.driverShutdownManager = driverShutdownManager;
   }
 
   @Override
   public synchronized void onNext(final ReefServiceProtos.RuntimeErrorProto runtimeErrorProto) {
-    final EventHandler<ReefServiceProtos.RuntimeErrorProto> remoteHandler =
-        this.remoteManager.getHandler(this.clientRemoteID, ReefServiceProtos.RuntimeErrorProto.class);
-    remoteHandler.onNext(runtimeErrorProto);
-    this.clock.close();
+    this.driverShutdownManager.onError(new Exception("Resource Manager failure"));
   }
 }

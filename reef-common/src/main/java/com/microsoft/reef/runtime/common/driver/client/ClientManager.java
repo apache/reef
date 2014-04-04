@@ -19,11 +19,11 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
+import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
 import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -39,7 +39,6 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
 
   private final static Logger LOG = Logger.getLogger(ClientManager.class.getName());
 
-  private final InjectionFuture<Clock> futureClock;
 
   private final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers;
 
@@ -47,18 +46,21 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
 
   private final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers;
 
+  private final DriverShutdownManager driverShutdownManager;
+
   private volatile EventHandler<Void> clientCloseDispatcher;
 
   private volatile EventHandler<byte[]> clientCloseWithMessageDispatcher;
 
   private volatile EventHandler<byte[]> clientMessageDispatcher;
 
+
   @Inject
-  ClientManager(final InjectionFuture<Clock> futureClock,
-                @Parameter(DriverConfigurationOptions.ClientCloseHandlers.class) final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
-                @Parameter(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
-                @Parameter(DriverConfigurationOptions.ClientMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers) {
-    this.futureClock = futureClock;
+  ClientManager(final @Parameter(DriverConfigurationOptions.ClientCloseHandlers.class) InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
+                final @Parameter(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
+                final @Parameter(DriverConfigurationOptions.ClientMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
+                final DriverShutdownManager driverShutdownManager) {
+    this.driverShutdownManager = driverShutdownManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.clientCloseWithMessageHandlers = clientCloseWithMessageHandlers;
     this.clientMessageHandlers = clientMessageHandlers;
@@ -82,7 +84,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
             getClientCloseDispatcher().onNext(null);
           }
         } finally {
-          this.futureClock.get().close();
+          this.driverShutdownManager.onComplete();
         }
       } else {
         LOG.log(Level.FINEST, "Unsupported signal: " + jobControlProto.getSignal());
