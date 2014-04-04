@@ -4,7 +4,6 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.runtime.common.driver.client.ClientJobStatusHandler;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
-import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.runtime.event.IdleClock;
 
@@ -33,7 +32,7 @@ public final class DriverIdleHandler implements EventHandler<IdleClock> {
   public synchronized void onNext(final IdleClock idleClock) {
     if (this.resourceManagerStatus.isRunningAndIdle()) {
       LOG.log(Level.FINEST, "Idle resourcemanager shutdown");
-      this.clientJobStatusHandler.close(Optional.<Throwable>empty());
+      this.clientJobStatusHandler.onComplete();
     }
   }
 }

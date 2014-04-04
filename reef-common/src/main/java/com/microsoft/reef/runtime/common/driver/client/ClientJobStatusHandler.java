@@ -51,7 +51,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   private final String jobID;
 
-  private final EventHandler<JobStatusProto> jobStatusHandler;
+  private final ClientConnection clientConnection;
 
   private final AutoCloseable jobControlChannel;
 
@@ -64,24 +64,33 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
       final RuntimeClock clock,
       final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<JobControlProto> jobControlHandler,
       final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobID,
-      final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID) {
+      final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID, ClientConnection clientConnection) {
 
     this.clock = clock;
     this.jobID = jobID;
+    this.clientConnection = clientConnection;
 
     // Get a handler for sending job status messages to the client
-    this.jobStatusHandler = remoteManager.getHandler(clientRID, JobStatusProto.class);
     this.jobControlChannel = remoteManager.registerHandler(clientRID, JobControlProto.class, jobControlHandler);
   }
 
-  public synchronized void close(final Optional<Throwable> exception) {
+  private synchronized void close(final Optional<Throwable> exception) {
     if (!this.closed) {
-      send(getJobEndingProto(exception));
+      this.clientConnection.send(getJobEndingProto(exception));
       this.clock.close();
       this.closed = true;
     } else {
-      LOG.log(Level.WARNING, "close called twice. Ignoring the second call");
+      LOG.log(Level.WARNING, ".close() called twice. Ignoring the second call");
     }
+  }
+
+
+  /**
+   * Call this to perform a clean shutdown of the Driver.
+   */
+  public synchronized void onComplete() {
+    LOG.log(Level.INFO, "Clean driver shutdown");
+    this.close(Optional.<Throwable>empty());
   }
 
   /**
@@ -110,7 +119,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   public synchronized void onNext(final byte[] message) {
     LOG.log(Level.FINEST, "Job message from {0}", this.jobID);
     this.sendInit();
-    this.send(JobStatusProto.newBuilder()
+    this.clientConnection.send(JobStatusProto.newBuilder()
         .setIdentifier(this.jobID.toString())
         .setState(ReefServiceProtos.State.RUNNING)
         .setMessage(ByteString.copyFrom(message))
@@ -123,20 +132,10 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
     this.close(Optional.of(exception));
   }
 
-  /**
-   * Send job status proto to the client via Wake
-   * based remote event handler
-   *
-   * @param status of the job
-   */
-  private synchronized void send(final JobStatusProto status) {
-    LOG.log(Level.FINEST, "Sending job status: {0}", status);
-    this.jobStatusHandler.onNext(status);
-  }
 
   private synchronized void sendInit() {
     if (state == ReefServiceProtos.State.INIT) {
-      this.send(JobStatusProto.newBuilder()
+      this.clientConnection.send(JobStatusProto.newBuilder()
           .setIdentifier(this.jobID.toString())
           .setState(ReefServiceProtos.State.INIT)
           .build());

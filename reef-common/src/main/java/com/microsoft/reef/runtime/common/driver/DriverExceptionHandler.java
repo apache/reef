@@ -18,7 +18,6 @@ package com.microsoft.reef.runtime.common.driver;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.runtime.common.driver.client.ClientJobStatusHandler;
-import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -44,6 +43,6 @@ public final class DriverExceptionHandler implements EventHandler<Throwable> {
 
   @Override
   public void onNext(final Throwable throwable) {
-    this.clientJobStatusHandler.close(Optional.of(throwable));
+    this.clientJobStatusHandler.onError(throwable);
   }
 }
