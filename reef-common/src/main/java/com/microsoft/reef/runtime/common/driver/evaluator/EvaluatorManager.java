@@ -29,7 +29,6 @@ import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.DriverExceptionHandler;
-import com.microsoft.reef.runtime.common.driver.DriverManager;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextControlHandler;
@@ -72,8 +71,10 @@ import java.util.logging.Logger;
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
+  private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
-  private final DriverManager driverManager;
+  //  private final DriverManager driverManager;
+  private final Evaluators evaluators;
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
   private final String evaluatorId;
@@ -95,7 +96,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   EvaluatorManager(
       final Clock clock,
       final RemoteManager remoteManager,
-      final DriverManager driverManager,
+      final Evaluators evaluators,
       final ResourceReleaseHandler resourceReleaseHandler,
       final ResourceLaunchHandler resourceLaunchHandler,
       final @Parameter(EvaluatorIdentifier.class) String evaluatorId,
@@ -108,7 +109,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorStateManager stateManager) {
 
     this.clock = clock;
-    this.driverManager = driverManager;
+    this.evaluators = evaluators;
     this.resourceReleaseHandler = resourceReleaseHandler;
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
@@ -193,7 +194,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
                 .setIdentifier(EvaluatorManager.this.evaluatorId).build()
         );
       } finally {
-        EvaluatorManager.this.driverManager.release(EvaluatorManager.this);
+        EvaluatorManager.this.evaluators.remove(EvaluatorManager.this);
       }
     }
   }
@@ -268,6 +269,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public void onEvaluatorHeartbeatMessage(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
     synchronized (this.evaluatorDescriptor) {
       final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
+      this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
 
       if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
         final ReefServiceProtos.EvaluatorStatusProto status = evaluatorHeartbeatProto.getEvaluatorStatus();

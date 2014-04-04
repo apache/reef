@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 /**
  * Sanity checks for evaluator heartbeats.
  */
-public final class EvaluatorHeartBeatSanityChecker {
+final class EvaluatorHeartBeatSanityChecker {
   private static final Logger LOG = Logger.getLogger(EvaluatorHeartBeatSanityChecker.class.getName());
   private final Map<String, Long> knownTimeStamps = new HashMap<>(); // guarded by this
 
@@ -32,7 +32,7 @@ public final class EvaluatorHeartBeatSanityChecker {
   public EvaluatorHeartBeatSanityChecker() {
   }
 
-  public final synchronized void check(final String id, final long timeStamp) {
+  final synchronized void check(final String id, final long timeStamp) {
     if (knownTimeStamps.containsKey(id)) {
       final long oldTimeStamp = this.knownTimeStamps.get(id);
       LOG.log(Level.FINEST, "TIMESTAMP CHECKER: id [ " + id + " ], old timestamp [ " + oldTimeStamp + " ], new timestamp [ " + timeStamp + " ]");

@@ -43,7 +43,7 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
   }
 
   @Override
-  public String toString() {
+  public synchronized String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("=== Resource Catalog ===");
     for (final RackDescriptor rack : racks.values()) {
@@ -53,20 +53,20 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
   }
 
   @Override
-  public Collection<NodeDescriptor> getNodes() {
+  public synchronized Collection<NodeDescriptor> getNodes() {
     return Collections.unmodifiableCollection(new ArrayList<NodeDescriptor>(this.nodes.values()));
   }
 
   @Override
-  public Collection<RackDescriptor> getRacks() {
+  public synchronized Collection<RackDescriptor> getRacks() {
     return Collections.unmodifiableCollection(new ArrayList<RackDescriptor>(this.racks.values()));
   }
 
-  public final NodeDescriptor getNode(final String id) {
+  public synchronized final NodeDescriptor getNode(final String id) {
     return this.nodes.get(id);
   }
 
-  public final void handle(final NodeDescriptorProto node) {
+  public synchronized final void handle(final NodeDescriptorProto node) {
     final String rack_name = (node.hasRackName() ? node.getRackName() : DEFAULT_RACK);
 
     LOG.log(Level.FINEST, "Catalog new node: id[{0}], rack[{1}], host[{2}], port[{3}], memory[{4}]",

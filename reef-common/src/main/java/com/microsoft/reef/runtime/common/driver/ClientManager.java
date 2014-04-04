@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.driver;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
@@ -29,10 +30,14 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Represents the Client in the Driver.
+ */
 @Private
-class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProto> {
+@DriverSide
+final class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProto> {
 
-  private final static Logger LOG = Logger.getLogger(DriverManager.class.getName());
+  private final static Logger LOG = Logger.getLogger(ClientManager.class.getName());
 
   private final InjectionFuture<Clock> futureClock;
 
@@ -67,7 +72,7 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
    * @param jobControlProto contains the client initiated control message
    */
   @Override
-  public void onNext(final ClientRuntimeProtocol.JobControlProto jobControlProto) {
+  public synchronized void onNext(final ClientRuntimeProtocol.JobControlProto jobControlProto) {
     if (jobControlProto.hasSignal()) {
       if (jobControlProto.getSignal() == ClientRuntimeProtocol.Signal.SIG_TERMINATE) {
         try {

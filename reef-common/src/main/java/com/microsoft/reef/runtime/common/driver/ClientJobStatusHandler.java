@@ -55,10 +55,12 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   private final AutoCloseable jobControlChannel;
 
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
+  private boolean closed = false;
 
   @Inject
   public ClientJobStatusHandler(
-      final RemoteManager remoteManager, final RuntimeClock clock,
+      final RemoteManager remoteManager,
+      final RuntimeClock clock,
       final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<JobControlProto> jobControlHandler,
       final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobID,
       final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID) {
@@ -72,26 +74,36 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   }
 
   public synchronized void close(final Optional<Throwable> exception) {
-    try {
-      if (exception.isPresent()) {
-        this.onError(exception.get());
-      } else {
-        // Note: Wake will throw an exception if the client has closed the channel; simply ignoring this fact is fine.
-        this.send(JobStatusProto.newBuilder()
-            .setIdentifier(ClientJobStatusHandler.this.jobID.toString())
-            .setState(ReefServiceProtos.State.DONE)
-            .build());
-      }
-    } catch (final Throwable t) {
-      LOG.log(Level.WARNING, "Error closing ClientJobStatusHandler", t);
-    }
-
-    try {
-      this.jobControlChannel.close();
-    } catch (final Exception e) {
-      LOG.log(Level.WARNING, "Error closing jobControlChannel", e);
+    if (!this.closed) {
+      send(getJobEndingProto(exception));
+      this.clock.close();
+      this.closed = true;
+    } else {
+      LOG.log(Level.WARNING, "close called twice. Ignoring the second call");
     }
   }
+
+  /**
+   * @param exception the exception that ended the Driver, if any.
+   * @return message to be sent to the client at the end of the job.
+   */
+  private synchronized JobStatusProto getJobEndingProto(final Optional<Throwable> exception) {
+    final JobStatusProto message;
+    if (exception.isPresent()) {
+      message = JobStatusProto.newBuilder()
+          .setIdentifier(this.jobID.toString())
+          .setState(ReefServiceProtos.State.FAILED)
+          .setException(ByteString.copyFrom(CODEC.encode(exception.get())))
+          .build();
+    } else {
+      message = JobStatusProto.newBuilder()
+          .setIdentifier(ClientJobStatusHandler.this.jobID.toString())
+          .setState(ReefServiceProtos.State.DONE)
+          .build();
+    }
+    return message;
+  }
+
 
   @Override
   public synchronized void onNext(final byte[] message) {
@@ -107,12 +119,7 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
   @Override
   public synchronized void onError(final Throwable exception) {
     LOG.log(Level.SEVERE, "Job exception", exception);
-    this.send(JobStatusProto.newBuilder()
-        .setIdentifier(this.jobID.toString())
-        .setState(ReefServiceProtos.State.FAILED)
-        .setException(ByteString.copyFrom(CODEC.encode(exception)))
-        .build());
-    this.clock.close();
+    this.close(Optional.of(exception));
   }
 
   /**
