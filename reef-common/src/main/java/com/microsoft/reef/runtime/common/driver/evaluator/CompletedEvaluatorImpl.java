@@ -1,10 +1,14 @@
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 
 /**
  * Implementation of CompletedEvaluator.
  */
+@DriverSide
+@Private
 final class CompletedEvaluatorImpl implements CompletedEvaluator {
 
   private final String id;

@@ -21,9 +21,12 @@ import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
 
+/**
+ * A simple all-data implementation of EvaluatorDescriptor
+ */
 @Private
 @DriverSide
-public final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
+final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
 
   private final NodeDescriptor nodeDescriptor;
   private EvaluatorType type;

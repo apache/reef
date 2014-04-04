@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
  * Receives heartbeats from all Evaluators and dispatches them to the right EvaluatorManager instance.
  */
 @Private
+@DriverSide
 public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto>> {
   private static final Logger LOG = Logger.getLogger(EvaluatorHeartbeatHandler.class.getName());
   private final Evaluators evaluators;
@@ -40,7 +42,7 @@ public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessa
   }
 
   @Override
-  public void onNext(RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatMessage) {
+  public void onNext(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatMessage) {
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeat = evaluatorHeartbeatMessage.getMessage();
     final ReefServiceProtos.EvaluatorStatusProto status = heartbeat.getEvaluatorStatus();
     final String evaluatorId = status.getEvaluatorId();
@@ -53,12 +55,13 @@ public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessa
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onEvaluatorHeartbeatMessage(evaluatorHeartbeatMessage);
     } else {
-      final StringBuilder message = new StringBuilder("Contact from unknown evaluator identifier ");
+      final StringBuilder message = new StringBuilder("Contact from unknown Evaluator with identifier '");
       message.append(evaluatorId);
       if (heartbeat.hasEvaluatorStatus()) {
-        message.append(" with state ");
+        message.append("' with state '");
         message.append(status.getState());
       }
+      message.append('\'');
       throw new RuntimeException(message.toString());
     }
     LOG.log(Level.FINEST, "TIME: End Heartbeat {0}", evaluatorId);

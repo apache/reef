@@ -32,13 +32,13 @@ import java.util.logging.Logger;
  * Its primary function is to dispatch these to the appropriate EvaluatorManager.
  */
 @Private
-public final class EvaluatorRuntimeErrorHandler implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
-  private static final Logger LOG = Logger.getLogger(EvaluatorRuntimeErrorHandler.class.toString());
+public final class EvaluatorResourceManagerErrorHandler implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
+  private static final Logger LOG = Logger.getLogger(EvaluatorResourceManagerErrorHandler.class.toString());
   private final Evaluators evaluators;
 
 
   @Inject
-  EvaluatorRuntimeErrorHandler(final Evaluators evaluators) {
+  EvaluatorResourceManagerErrorHandler(final Evaluators evaluators) {
     this.evaluators = evaluators;
   }
 
@@ -46,13 +46,13 @@ public final class EvaluatorRuntimeErrorHandler implements EventHandler<RemoteMe
   public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> runtimeErrorProtoRemoteMessage) {
     final ReefServiceProtos.RuntimeErrorProto runtimeErrorProto = runtimeErrorProtoRemoteMessage.getMessage();
     final FailedRuntime error = new FailedRuntime(runtimeErrorProto);
+    final String evaluatorId = error.getId();
     LOG.log(Level.WARNING, "Runtime error: " + error, error.getCause());
 
     final EvaluatorException evaluatorException = error.getCause() != null ?
-        new EvaluatorException(error.getId(), error.getCause()) :
-        new EvaluatorException(error.getId(), "Runtime error");
+        new EvaluatorException(evaluatorId, error.getCause()) :
+        new EvaluatorException(evaluatorId, "Runtime error");
 
-    final String evaluatorId = error.getId();
     final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(evaluatorId);
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onEvaluatorException(evaluatorException);

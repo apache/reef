@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.driver.resourcemanager;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.wake.EventHandler;
@@ -25,8 +27,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages the status of the Resource Manager
+ * Manages the status of the Resource Manager.
  */
+@DriverSide
+@Private
 public final class ResourceManagerStatus implements EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> {
   private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
   private final String name = "REEF";
@@ -44,9 +48,8 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
     this.resourceManagerErrorHandler = resourceManagerErrorHandler;
   }
 
-
   @Override
-  public synchronized void onNext(DriverRuntimeProtocol.RuntimeStatusProto runtimeStatusProto) {
+  public synchronized void onNext(final DriverRuntimeProtocol.RuntimeStatusProto runtimeStatusProto) {
     final ReefServiceProtos.State newState = runtimeStatusProto.getState();
     LOG.log(Level.FINEST, "Runtime status " + runtimeStatusProto);
     this.outstandingContainerRequests = runtimeStatusProto.getOutstandingContainerRequests();
@@ -68,22 +71,28 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
     }
   }
 
+  /**
+   * Change the state of the Resource Manager to be RUNNING.
+   */
   public synchronized void setRunning() {
     this.setState(ReefServiceProtos.State.RUNNING);
   }
 
-  public synchronized boolean isIdle() {
+  /**
+   * @return whether the resource manager is running and idle.
+   */
+  public synchronized boolean isRunningAndIdle() {
+    return isRunning() && isIdle();
+  }
+
+  private synchronized boolean isIdle() {
     return this.clock.isIdle()
         && this.hasNoOutstandingRequests()
         && this.hasNoContainersAllocated();
   }
 
-  public synchronized boolean isRunning() {
+  private synchronized boolean isRunning() {
     return ReefServiceProtos.State.RUNNING.equals(this.state);
-  }
-
-  public synchronized boolean isRunningAndIdle() {
-    return isRunning() && isIdle();
   }
 
 

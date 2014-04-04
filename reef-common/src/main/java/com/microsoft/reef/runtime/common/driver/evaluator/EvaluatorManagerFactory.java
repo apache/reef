@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
@@ -30,7 +32,9 @@ import java.util.logging.Logger;
 /**
  * Helper class that creates new EvaluatorManager instances from alloations.
  */
-final class EvaluatorManagerFactory {
+@Private
+@DriverSide
+public final class EvaluatorManagerFactory {
   private static final Logger LOG = Logger.getLogger(EvaluatorManagerFactory.class.getName());
 
   private final Injector injector;
@@ -67,7 +71,7 @@ final class EvaluatorManagerFactory {
    * @param resourceAllocationProto
    * @return
    */
-  final EvaluatorManager getNewEvaluatorManager(final DriverRuntimeProtocol.ResourceAllocationProto resourceAllocationProto) {
+  public final EvaluatorManager getNewEvaluatorManager(final DriverRuntimeProtocol.ResourceAllocationProto resourceAllocationProto) {
     final NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationProto.getNodeId());
 
     if (nodeDescriptor == null) {

@@ -85,12 +85,12 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ConfigurationSerializer configurationSerializer;
   private final EvaluatorControlHandler evaluatorControlHandler;
   private final ContextControlHandler contextControlHandler;
-  private final EvaluatorStateManager stateManager;
-  private RunningTask runningTask = null;
+  private final EvaluatorStatusManager stateManager;
 
-  private boolean isResourceReleased = false;
 
   // Mutable fields
+  private RunningTask runningTask = null;
+  private boolean isResourceReleased = false;
 
   @Inject
   EvaluatorManager(
@@ -106,7 +106,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorMessageDispatcher messageDispatcher,
       final EvaluatorControlHandler evaluatorControlHandler,
       final ContextControlHandler contextControlHandler,
-      final EvaluatorStateManager stateManager) {
+      final EvaluatorStatusManager stateManager) {
 
     this.clock = clock;
     this.evaluators = evaluators;

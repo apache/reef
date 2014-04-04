@@ -15,6 +15,9 @@
  */
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.annotations.audience.Private;
+
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,12 +27,14 @@ import java.util.logging.Logger;
 /**
  * Sanity checks for evaluator heartbeats.
  */
+@DriverSide
+@Private
 final class EvaluatorHeartBeatSanityChecker {
   private static final Logger LOG = Logger.getLogger(EvaluatorHeartBeatSanityChecker.class.getName());
   private final Map<String, Long> knownTimeStamps = new HashMap<>(); // guarded by this
 
   @Inject
-  public EvaluatorHeartBeatSanityChecker() {
+  EvaluatorHeartBeatSanityChecker() {
   }
 
   final synchronized void check(final String id, final long timeStamp) {
