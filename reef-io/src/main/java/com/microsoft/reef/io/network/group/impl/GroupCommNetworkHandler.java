@@ -172,7 +172,7 @@ public class GroupCommNetworkHandler implements EventHandler<Message<GroupCommMe
   /**
    * When a message arrives
    * Check which operator sent it and
-   * call onNext on the {@link Handler} for that operator
+   * call send on the {@link Handler} for that operator
    * <p/>
    * which will enque this message under the respective source
    */

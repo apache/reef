@@ -62,7 +62,7 @@ public final class TaskMsg implements Task, TaskMessageSource {
   @Override
   public synchronized Optional<TaskMessage> getMessage() {
     LOG.log(Level.INFO, "TaskMsg.getMessage() invoked: {0}",
-            CODEC.decode(this.message.orElse(INIT_MESSAGE).get()));
+        CODEC.decode(this.message.orElse(INIT_MESSAGE).get()));
     if (this.message.isPresent()) {
       this.isRunning = false;
       this.notify();
@@ -74,7 +74,7 @@ public final class TaskMsg implements Task, TaskMessageSource {
     @Override
     public void onNext(DriverMessage driverMessage) {
       final byte[] message = driverMessage.get().get();
-      LOG.log(Level.INFO, "TaskMsg.onNext() invoked: {0}", CODEC.decode(message));
+      LOG.log(Level.INFO, "TaskMsg.send() invoked: {0}", CODEC.decode(message));
       TaskMsg.this.message = Optional.of(TaskMessage.from(this.toString(), message));
     }
   }

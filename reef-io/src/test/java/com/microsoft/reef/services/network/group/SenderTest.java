@@ -125,7 +125,7 @@ public class SenderTest {
         BlockingQueue<GroupCommMessage> toQue = queues.get(j);
 
         for (Type type : Type.values()) {
-          if(TestUtils.controlMessage(type)) continue;
+          if (TestUtils.controlMessage(type)) continue;
           String msg = "Hello" + i + j + type;
           byte[] msgBytes = msg.getBytes();
           GroupCommMessage expected = TestUtils.bldGCM(type, from, to,
@@ -158,7 +158,7 @@ public class SenderTest {
         BlockingQueue<GroupCommMessage> toQue = queues.get(j);
 
         for (Type type : Type.values()) {
-          if(TestUtils.controlMessage(type)) continue;
+          if (TestUtils.controlMessage(type)) continue;
           List<String> msgs = new ArrayList<>();
           byte[][] msgsBytes = new byte[5][];
           for (int k = 0; k < 5; k++) {
@@ -199,7 +199,7 @@ public class SenderTest {
         BlockingQueue<GroupCommMessage> toQue = queues.get(j);
 
         for (Type type : Type.values()) {
-          if(TestUtils.controlMessage(type)) continue;
+          if (TestUtils.controlMessage(type)) continue;
           List<List<String>> msgss = new ArrayList<>(5);
           byte[][] msgsBytes = new byte[5][];
           for (int l = 0; l < 5; l++) {
@@ -242,7 +242,7 @@ public class SenderTest {
       }
 
       for (Type type : Type.values()) {
-        if(TestUtils.controlMessage(type)) continue;
+        if (TestUtils.controlMessage(type)) continue;
         final int numMsgs = r.nextInt(100) + 1;
         List<Integer> counts = genRndCounts(ids.size(), numMsgs, r);
         List<String> msgs = new ArrayList<>(numMsgs);
@@ -305,7 +305,7 @@ class RcvHandler implements EventHandler<Message<GroupCommMessage>> {
   }
 
   /* (non-Javadoc)
-   * @see com.microsoft.wake.EventHandler#onNext(java.lang.Object)
+   * @see com.microsoft.wake.EventHandler#send(java.lang.Object)
    */
   @Override
   public void onNext(Message<GroupCommMessage> msg) {
@@ -328,7 +328,7 @@ class SndExcHandler implements EventHandler<Exception> {
   }
 
   /* (non-Javadoc)
-   * @see com.microsoft.wake.EventHandler#onNext(java.lang.Object)
+   * @see com.microsoft.wake.EventHandler#send(java.lang.Object)
    */
   @Override
   public void onNext(Exception exc) {
