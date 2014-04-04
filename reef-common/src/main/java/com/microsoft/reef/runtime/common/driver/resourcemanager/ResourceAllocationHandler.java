@@ -1,4 +1,4 @@
-package com.microsoft.reef.runtime.common.driver;
+package com.microsoft.reef.runtime.common.driver.resourcemanager;
 
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;

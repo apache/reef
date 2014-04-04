@@ -27,8 +27,9 @@ public final class TestUtils {
 
   /**
    * Make sure the launcher status is FAILED and it has the specified exception in the stack.
+   *
    * @param status launcher status. Must be FAILED for test to pass.
-   * @param clazz runtime exception that should be in the stack of exceptions of the launcher status.
+   * @param clazz  resourcemanager exception that should be in the stack of exceptions of the launcher status.
    */
   public static void assertLauncherFailure(
       final LauncherStatus status, final Class<? extends Throwable> clazz) {
@@ -43,7 +44,8 @@ public final class TestUtils {
   /**
    * Return True if cause chain of exception ex contains
    * exception of class clazz (or one inherited from it).
-   * @param ex exception to analyze (can be null)
+   *
+   * @param ex    exception to analyze (can be null)
    * @param clazz class inherited from type Throwable.
    * @return True if ex or any other exception in its cause chain is instance of class clazz.
    */

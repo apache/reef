@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * client-side event handlers for the local runtime
+ * client-side event handlers for the local resourcemanager
  */
 package com.microsoft.reef.runtime.local.client;

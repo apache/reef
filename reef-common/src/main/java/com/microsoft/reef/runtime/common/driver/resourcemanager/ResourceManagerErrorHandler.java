@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.common.driver.runtime;
+package com.microsoft.reef.runtime.common.driver.resourcemanager;
 
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
@@ -25,10 +25,9 @@ import com.microsoft.wake.time.Clock;
 import javax.inject.Inject;
 
 /**
- * Informs the client and then shuts down the driver forcefully in case of REEF Runtime errors.
- * A REEF Runtime here is Local, Yarn, ...
+ * Informs the client and then shuts down the driver forcefully in case of Resource Manager errors.
  */
-public final class RuntimeErrorHandler implements EventHandler<ReefServiceProtos.RuntimeErrorProto> {
+public final class ResourceManagerErrorHandler implements EventHandler<ReefServiceProtos.RuntimeErrorProto> {
 
   /**
    * A handle to the clock in the Driver. We will use this handle to .stop() the Clock.
@@ -44,9 +43,9 @@ public final class RuntimeErrorHandler implements EventHandler<ReefServiceProtos
   private final String clientRemoteID;
 
   @Inject
-  RuntimeErrorHandler(final Clock clock,
-                      final RemoteManager remoteManager,
-                      final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRemoteID) {
+  ResourceManagerErrorHandler(final Clock clock,
+                              final RemoteManager remoteManager,
+                              final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRemoteID) {
     this.clock = clock;
     this.remoteManager = remoteManager;
     this.clientRemoteID = clientRemoteID;

@@ -18,13 +18,14 @@ package com.microsoft.reef.io.network.naming.exception;
 import com.microsoft.reef.io.network.exception.NetworkRuntimeException;
 
 /**
- * Naming runtime exception
+ * Naming resourcemanager exception
  */
 public class NamingRuntimeException extends NetworkRuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a new runtime naming exception with the specified detail message and cause
+   * Constructs a new resourcemanager naming exception with the specified detail message and cause
+   *
    * @param s the detailed message
    * @param e the cause
    */
@@ -33,7 +34,8 @@ public class NamingRuntimeException extends NetworkRuntimeException {
   }
 
   /**
-   * Constructs a new runtime naming exception with the specified detail message
+   * Constructs a new resourcemanager naming exception with the specified detail message
+   *
    * @param s the detailed message
    */
   public NamingRuntimeException(String s) {
@@ -41,7 +43,8 @@ public class NamingRuntimeException extends NetworkRuntimeException {
   }
 
   /**
-   * Constructs a new runtime naming exception with the specified cause
+   * Constructs a new resourcemanager naming exception with the specified cause
+   *
    * @param e the cause
    */
   public NamingRuntimeException(Throwable e) {

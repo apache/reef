@@ -17,7 +17,7 @@ package com.microsoft.reef.annotations;
 
 /**
  * Indicates that an implementation of the annotated class / interface will be
- * provided by REEF at runtime.
+ * provided by REEF at resourcemanager.
  */
 public @interface Provided {
 }

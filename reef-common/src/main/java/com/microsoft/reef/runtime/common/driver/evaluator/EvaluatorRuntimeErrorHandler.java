@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The error handler receives all runtime errors from all evaluators in the system.
+ * The error handler receives all resourcemanager errors from all evaluators in the system.
  * Its primary function is to dispatch these to the appropriate EvaluatorManager.
  */
 @Private

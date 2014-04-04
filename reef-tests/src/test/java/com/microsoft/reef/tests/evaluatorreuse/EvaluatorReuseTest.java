@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * EvaluatorReuseTest on the local runtime.
+ * EvaluatorReuseTest on the local resourcemanager.
  */
 public class EvaluatorReuseTest {
 

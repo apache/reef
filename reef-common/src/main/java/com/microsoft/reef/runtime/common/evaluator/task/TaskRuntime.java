@@ -15,15 +15,15 @@
  */
 package com.microsoft.reef.runtime.common.evaluator.task;
 
+import com.microsoft.reef.annotations.audience.EvaluatorSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.task.Task;
 import com.microsoft.reef.task.events.CloseEvent;
 import com.microsoft.reef.task.events.DriverMessage;
 import com.microsoft.reef.task.events.SuspendEvent;
-import com.microsoft.reef.annotations.audience.EvaluatorSide;
-import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.annotations.Parameter;
@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The runtime environment for a Task.
+ * The resourcemanager environment for a Task.
  */
 @Private
 @EvaluatorSide
@@ -113,7 +113,7 @@ public final class TaskRuntime extends Thread {
         result = this.task.call(null);
       }
 
-      synchronized(this.heartBeatManager) {
+      synchronized (this.heartBeatManager) {
         LOG.log(Level.FINEST, "task call finished");
         this.currentStatus.setResult(result);
       }

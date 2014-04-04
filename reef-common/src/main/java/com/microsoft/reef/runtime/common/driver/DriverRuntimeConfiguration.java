@@ -22,7 +22,12 @@ import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
-import com.microsoft.reef.runtime.common.driver.runtime.RuntimeStatusManager;
+import com.microsoft.reef.runtime.common.driver.client.ClientJobStatusHandler;
+import com.microsoft.reef.runtime.common.driver.client.ClientManager;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceAllocationHandler;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.wake.time.Clock;
@@ -46,11 +51,11 @@ public final class DriverRuntimeConfiguration extends ConfigurationModuleBuilder
           // Client manager
       .bindNamedParameter(DriverRuntimeConfigurationOptions.JobControlHandler.class, ClientManager.class)
 
-          // Bind the runtime parameters
+          // Bind the resourcemanager parameters
       .bindNamedParameter(RuntimeParameters.NodeDescriptorHandler.class, NodeDescriptorHandler.class)
       .bindNamedParameter(RuntimeParameters.ResourceAllocationHandler.class, ResourceAllocationHandler.class)
       .bindNamedParameter(RuntimeParameters.ResourceStatusHandler.class, ResourceStatusHandler.class)
-      .bindNamedParameter(RuntimeParameters.RuntimeStatusHandler.class, RuntimeStatusManager.class)
+      .bindNamedParameter(RuntimeParameters.RuntimeStatusHandler.class, ResourceManagerStatus.class)
 
           // Bind to the Clock
       .bindSetEntry(Clock.RuntimeStartHandler.class, DriverRuntimeStartHandler.class)

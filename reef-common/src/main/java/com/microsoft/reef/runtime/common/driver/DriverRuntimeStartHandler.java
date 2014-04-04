@@ -19,7 +19,7 @@ import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorHeartbeatHandler;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorRuntimeErrorHandler;
-import com.microsoft.reef.runtime.common.driver.runtime.RuntimeStatusManager;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
@@ -30,39 +30,43 @@ import java.util.logging.Logger;
 
 /**
  * The RuntimeStart handler of the Driver.
+ * <p/>
+ * This instantiates the DriverSingletons upon construction. Upon onNext(), it sets the resource manager status and
+ * wires up the remote event handler connections to the client and the evaluators.
  */
 final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStartHandler.class.getName());
   private final RemoteManager remoteManager;
   private final EvaluatorRuntimeErrorHandler evaluatorRuntimeErrorHandler;
   private final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler;
-  private final RuntimeStatusManager runtimeStatusManager;
+  private final ResourceManagerStatus resourceManagerStatus;
 
   /**
    * @param singletons                   the objects we want to be Singletons in the Driver
    * @param remoteManager                the remoteManager in the Driver.
    * @param evaluatorRuntimeErrorHandler This will be wired up to the remoteManager on onNext()
    * @param evaluatorHeartbeatHandler    This will be wired up to the remoteManager on onNext()
-   * @param runtimeStatusManager         will be set to RUNNING in onNext()
+   * @param resourceManagerStatus        will be set to RUNNING in onNext()
    */
   @Inject
-  private DriverRuntimeStartHandler(final DriverSingletons singletons,
-                                    final RemoteManager remoteManager,
-                                    final EvaluatorRuntimeErrorHandler evaluatorRuntimeErrorHandler,
-                                    final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
-                                    final RuntimeStatusManager runtimeStatusManager) {
+  DriverRuntimeStartHandler(final DriverSingletons singletons,
+                            final RemoteManager remoteManager,
+                            final EvaluatorRuntimeErrorHandler evaluatorRuntimeErrorHandler,
+                            final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
+                            final ResourceManagerStatus resourceManagerStatus) {
     this.remoteManager = remoteManager;
     this.evaluatorRuntimeErrorHandler = evaluatorRuntimeErrorHandler;
     this.evaluatorHeartbeatHandler = evaluatorHeartbeatHandler;
-    this.runtimeStatusManager = runtimeStatusManager;
+    this.resourceManagerStatus = resourceManagerStatus;
   }
 
   @Override
   public synchronized void onNext(final RuntimeStart runtimeStart) {
     LOG.log(Level.FINEST, "RuntimeStart: {0}", runtimeStart);
+
     this.remoteManager.registerHandler(EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.class, evaluatorHeartbeatHandler);
     this.remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, evaluatorRuntimeErrorHandler);
-    this.runtimeStatusManager.setRunning();
+    this.resourceManagerStatus.setRunning();
     LOG.log(Level.FINEST, "DriverRuntimeStartHandler complete.");
   }
 }

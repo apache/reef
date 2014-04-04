@@ -475,7 +475,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
         if (this.stateManager.isAllocatedOrSubmittedOrRunning()) {
 
-          // something is wrong, I think I'm alive but the resource manager runtime says I'm dead
+          // something is wrong, I think I'm alive but the resource manager resourcemanager says I'm dead
           final StringBuilder sb = new StringBuilder();
           sb.append("The resource manager informed me that Evaluator " + this.evaluatorId +
               " is in state " + resourceStatusProto.getState() + " but I think I'm in state " + this.stateManager);

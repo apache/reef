@@ -21,7 +21,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
 
 /**
- * Houses the Driver runtime configuration's NamedParameters
+ * Houses the Driver resourcemanager configuration's NamedParameters
  */
 public class DriverRuntimeConfigurationOptions {
   // JOB HANDLER BINDINGS

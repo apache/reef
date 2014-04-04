@@ -26,7 +26,7 @@ import com.microsoft.tang.formats.RequiredParameter;
 import java.util.Set;
 
 /**
- * ConfigurationModule for the Driver executed in the local runtime. This is meant to eventually replace
+ * ConfigurationModule for the Driver executed in the local resourcemanager. This is meant to eventually replace
  * LocalDriverRuntimeConfiguration.
  */
 public class LocalDriverConfiguration extends ConfigurationModuleBuilder {

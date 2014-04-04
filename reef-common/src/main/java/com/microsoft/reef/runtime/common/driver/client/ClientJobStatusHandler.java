@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.common.driver;
+package com.microsoft.reef.runtime.common.driver.client;
 
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.audience.DriverSide;
@@ -21,6 +21,7 @@ import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
+import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfigurationOptions;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;

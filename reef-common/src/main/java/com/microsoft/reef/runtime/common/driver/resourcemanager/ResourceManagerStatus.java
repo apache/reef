@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.common.driver.runtime;
+package com.microsoft.reef.runtime.common.driver.resourcemanager;
 
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -25,13 +25,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages the status of the Runtime (YARN, Local, ...)
+ * Manages the status of the Resource Manager
  */
-public final class RuntimeStatusManager implements EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> {
-  private static final Logger LOG = Logger.getLogger(RuntimeStatusManager.class.getName());
+public final class ResourceManagerStatus implements EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> {
+  private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
   private final String name = "REEF";
   private final Clock clock;
-  private final RuntimeErrorHandler runtimeErrorHandler;
+  private final ResourceManagerErrorHandler resourceManagerErrorHandler;
 
   // Mutable state.
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
@@ -39,9 +39,9 @@ public final class RuntimeStatusManager implements EventHandler<DriverRuntimePro
   private int containerAllocationCount = 0;
 
   @Inject
-  RuntimeStatusManager(final Clock clock, final RuntimeErrorHandler runtimeErrorHandler) {
+  ResourceManagerStatus(final Clock clock, final ResourceManagerErrorHandler resourceManagerErrorHandler) {
     this.clock = clock;
-    this.runtimeErrorHandler = runtimeErrorHandler;
+    this.resourceManagerErrorHandler = resourceManagerErrorHandler;
   }
 
 
@@ -55,7 +55,7 @@ public final class RuntimeStatusManager implements EventHandler<DriverRuntimePro
 
     switch (newState) {
       case FAILED:
-        this.runtimeErrorHandler.onNext(runtimeStatusProto.getError());
+        this.resourceManagerErrorHandler.onNext(runtimeStatusProto.getError());
         break;
       case DONE:
         this.clock.close();

@@ -20,7 +20,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 
 /**
- * A TestEnvironment for the local runtime.
+ * A TestEnvironment for the local resourcemanager.
  */
 public final class LocalTestEnvironment implements TestEnvironment {
 

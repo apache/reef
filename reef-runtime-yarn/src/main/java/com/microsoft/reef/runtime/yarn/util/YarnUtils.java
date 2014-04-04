@@ -55,7 +55,7 @@ public final class YarnUtils {
     }
     classPathBuilder.append(File.pathSeparatorChar).append("./log4j.properties");
 
-    // add the runtime classpath needed for tests to work
+    // add the resourcemanager classpath needed for tests to work
     if (yarnConfiguration.getBoolean(YarnConfiguration.IS_MINI_YARN_CLUSTER, false)) {
       classPathBuilder.append(File.pathSeparatorChar);
       classPathBuilder.append(System.getProperty("java.class.path"));
