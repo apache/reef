@@ -53,11 +53,13 @@ public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessa
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onEvaluatorHeartbeatMessage(evaluatorHeartbeatMessage);
     } else {
-      String msg = "Contact from unknown evaluator identifier " + evaluatorId;
+      final StringBuilder message = new StringBuilder("Contact from unknown evaluator identifier ");
+      message.append(evaluatorId);
       if (heartbeat.hasEvaluatorStatus()) {
-        msg += " with state " + status.getState();
+        message.append(" with state ");
+        message.append(status.getState());
       }
-      throw new RuntimeException(msg);
+      throw new RuntimeException(message.toString());
     }
     LOG.log(Level.FINEST, "TIME: End Heartbeat {0}", evaluatorId);
   }

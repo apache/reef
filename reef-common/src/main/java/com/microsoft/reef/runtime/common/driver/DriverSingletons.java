@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.driver;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
@@ -34,6 +36,8 @@ import java.util.Set;
  * A class that depends on all objects we want to enforce to be singletons in the Driver.
  * The DriverRuntimeStartHandler depends on an instance of this class, which instantiates its dependencies.
  */
+@DriverSide
+@Private
 final class DriverSingletons {
   @Inject
   DriverSingletons(final @Parameter(DriverConfigurationOptions.ActiveContextHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
