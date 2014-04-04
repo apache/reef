@@ -46,7 +46,11 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
    * @param runtimeStatusManager         will be set to RUNNING in onNext()
    */
   @Inject
-  private DriverRuntimeStartHandler(final DriverSingletons singletons, RemoteManager remoteManager, EvaluatorRuntimeErrorHandler evaluatorRuntimeErrorHandler, EvaluatorHeartbeatHandler evaluatorHeartbeatHandler, RuntimeStatusManager runtimeStatusManager) {
+  private DriverRuntimeStartHandler(final DriverSingletons singletons,
+                                    final RemoteManager remoteManager,
+                                    final EvaluatorRuntimeErrorHandler evaluatorRuntimeErrorHandler,
+                                    final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
+                                    final RuntimeStatusManager runtimeStatusManager) {
     this.remoteManager = remoteManager;
     this.evaluatorRuntimeErrorHandler = evaluatorRuntimeErrorHandler;
     this.evaluatorHeartbeatHandler = evaluatorHeartbeatHandler;
