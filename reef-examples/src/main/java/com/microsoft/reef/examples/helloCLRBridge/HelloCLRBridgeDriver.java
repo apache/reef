@@ -113,16 +113,10 @@ public final class HelloCLRBridgeDriver {
     {
         throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
     }
-    try {
-      InteropLogger interopLogger = new InteropLogger();
-      allocatedEvaluator.setType(EvaluatorType.CLR);
-      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(allocatedEvaluator);
-      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvaluatorHandler, allocatedEvaluatorBridge,interopLogger);
-    } catch (final Exception ex) {
-      final String message = "Unable to setup Task or Context configuration.";
-      LOG.log(Level.SEVERE, message, ex);
-      throw new RuntimeException(message, ex);
-    }
+    InteropLogger interopLogger = new InteropLogger();
+    allocatedEvaluator.setType(EvaluatorType.CLR);
+    AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(allocatedEvaluator);
+    NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvaluatorHandler, allocatedEvaluatorBridge,interopLogger);
   }
 
   /**

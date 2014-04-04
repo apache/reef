@@ -37,6 +37,7 @@ import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 import javabridge.ActiveContextBridge;
+import javabridge.AllocatedEvaluatorBridge;
 import javabridge.InteropLogger;
 import javabridge.NativeInterop;
 
@@ -67,14 +68,13 @@ public final class JobDriver {
    */
   private static final int CHECK_UP_INTERVAL = 1000; // 1 sec.
   private static final String JVM_CONTEXT_SUFFIX = "_JVMContext";
-  private static final String CLR_CONTEXT_SUFFIX = "_CLRContext";
-  private long  allocatedEvaluatorHandler;
+  private static final String CLR_TASK_ID = "bridgeCLR";
+  private long  allocatedEvaluatorHandler = 0;
+  private long  activeContextHandler = 0;
 
-  public static int totalEvaluators = 2;
+  public static int totalEvaluators = 1;
   private int nCLREvaluator = 1;                  // guarded by this
   private int nJVMEvaluator = totalEvaluators - nCLREvaluator;  // guarded by this
-
-  public static final String SHELL_TASK_CLASS_HIERARCHY_FILENAME = "ShellTask.bin";
 
   /**
    * String codec is used to encode the results
@@ -184,20 +184,29 @@ public final class JobDriver {
 
   private void submitEvaluator(final AllocatedEvaluator eval, EvaluatorType type) {
     synchronized (JobDriver.this) {
-
-      String contextIdSuffix = type.equals(EvaluatorType.JVM) ? JVM_CONTEXT_SUFFIX : CLR_CONTEXT_SUFFIX;
-      String contextId = eval.getId() + contextIdSuffix;
-
       eval.setType(type);
-
       LOG.log(Level.INFO, "Allocated Evaluator: {0} expect {1} running {2}",
-          new Object[]{eval.getId(), JobDriver.this.expectCount, JobDriver.this.contexts.size()});
+                new Object[]{eval.getId(), JobDriver.this.expectCount, JobDriver.this.contexts.size()});
       assert (JobDriver.this.state == State.WAIT_EVALUATORS);
-      try {
-        eval.submitContext(ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, contextId).build());
-      } catch (final BindException ex) {
-        LOG.log(Level.SEVERE, "Failed to submit context " + contextId, ex);
-        throw new RuntimeException(ex);
+      if (type.equals(EvaluatorType.JVM))
+      {
+          String contextId = eval.getId() + JVM_CONTEXT_SUFFIX;
+          try {
+              eval.submitContext(ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, contextId).build());
+          } catch (final BindException ex) {
+              LOG.log(Level.SEVERE, "Failed to submit context " + contextId, ex);
+              throw new RuntimeException(ex);
+          }
+      }
+      else
+      {
+          if(allocatedEvaluatorHandler == 0)
+          {
+              throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
+          }
+          InteropLogger interopLogger = new InteropLogger();
+          AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval);
+          NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvaluatorHandler, allocatedEvaluatorBridge,interopLogger);
       }
     }
   }
@@ -270,23 +279,27 @@ public final class JobDriver {
    * This method is called from <code>submitTask(cmd)</code>.
    */
   private void submit(final ActiveContext context, final String command) {
-    try {
       LOG.log(Level.INFO, "Sending command {0} to context: {1}", new Object[]{command, context});
       String taskId = context.getId() + "_task";
       final Configuration taskConfiguration;
       if (context.getId().endsWith(JVM_CONTEXT_SUFFIX)) {
-        taskConfiguration = getJVMTaskConfiguration(taskId, command);
-        context.submitTask(taskConfiguration);
+        try {
+            taskConfiguration = getJVMTaskConfiguration(taskId, command);
+            context.submitTask(taskConfiguration);
+        } catch (final BindException ex) {
+            LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
+            this.clock.close();
+            throw new RuntimeException(ex);
+        }
       } else {
+          if(activeContextHandler == 0)
+          {
+              throw new RuntimeException("Active Context Handler not initialized by CLR.");
+          }
         InteropLogger interopLogger = new InteropLogger();
         ActiveContextBridge activeContextBridge = new ActiveContextBridge(context);
-        //NativeInterop.ClrSystemActiveContextHandlerOnNext(clrHandle, activeContextBridge, interopLogger);
+        NativeInterop.ClrSystemActiveContextHandlerOnNext(activeContextHandler, activeContextBridge, interopLogger) ;
       }
-    } catch (final BindException ex) {
-      LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
-      this.clock.close();
-      throw new RuntimeException(ex);
-    }
   }
 
   /**
@@ -345,7 +358,7 @@ public final class JobDriver {
       // Take the message returned by the task and add it to the running result.
       String result = "default result";
       try {
-        if (task.getId().contains(CLR_CONTEXT_SUFFIX)) {
+        if (task.getId().contains(CLR_TASK_ID)) {
           result = new String(task.get());
         } else {
           result = JVM_CODEC.decode(task.get());
@@ -412,8 +425,18 @@ public final class JobDriver {
       LOG.log(Level.INFO, "{0} StartTime: {1}", new Object[]{state, startTime});
       assert (state == State.INIT);
         long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
-        allocatedEvaluatorHandler = handlers[0];
-      requestEvaluators();
+        if (handlers != null)
+        {
+            if(handlers.length > 0)
+            {
+                allocatedEvaluatorHandler = handlers[0];
+            }
+            if (handlers.length > 1)
+            {
+                activeContextHandler = handlers[1];
+            }
+        }
+        requestEvaluators();
     }
   }
 

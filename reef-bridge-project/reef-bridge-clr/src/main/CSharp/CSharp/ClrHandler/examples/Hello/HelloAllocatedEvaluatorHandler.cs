@@ -12,9 +12,9 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace ClrHandler
+namespace Microsoft.Reef.Interop.Examples.Hello
 {
-    public class UserAllocatedEvaluatorHandler : IObserver<AllocatedEvaluator>
+    public class HelloAllocatedEvaluatorHandler : IObserver<AllocatedEvaluator>
     {
 
         public void OnCompleted()
@@ -29,18 +29,8 @@ namespace ClrHandler
 
         public void OnNext(AllocatedEvaluator value)
         {
-            const string ClassHierarchyBinFileName = "clrClassHierarchy.bin";
-            Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 1");
-            List<string> clrDlls = new List<string>();
-            clrDlls.Add(typeof(ContextConfigurationOptions).Assembly.GetName().Name);
-            clrDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(HelloTask).Assembly.GetName().Name);
-
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(clrDlls.ToArray());
-            ProtocolBufferClassHierarchy.Serialize(ClassHierarchyBinFileName, ns);
-
-            Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Class hierarchy written to [{0}].", Path.Combine(Directory.GetCurrentDirectory(), ClassHierarchyBinFileName)));
-
+            Console.WriteLine("HelloAllocatedEvaluatorHandler OnNext 1");
+            
             string contextConfigurationString = string.Empty; 
             string taskConfigurationString = string.Empty;
 
@@ -63,7 +53,7 @@ namespace ClrHandler
 
             value.Clr2Java.SubmitContextAndTask(contextConfigurationString, taskConfigurationString);
 
-            Console.WriteLine("UserAllocatedEvaluatorHandler OnNext 2");
+            Console.WriteLine("HelloAllocatedEvaluatorHandler OnNext 2");
         }
     }
 }

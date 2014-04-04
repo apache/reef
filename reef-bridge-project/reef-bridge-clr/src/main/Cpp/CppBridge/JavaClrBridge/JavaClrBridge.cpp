@@ -80,7 +80,7 @@ JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartH
 		String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
 		Console::WriteLine("Current time is " + strConfig);
 		DateTime dt = DateTime::Now; 
-		array<unsigned long long>^ handlers = ClrSystemOnStartHandler::OnStart(dt);
+		array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt);
 		return JavaLongArrayFromManagedLongArray(env, handlers);
 	}
 	catch (System::Exception^ ex)
@@ -107,6 +107,26 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluator
 	catch (System::Exception^ ex)
 	{
 		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemActiveContextHandlerOnNext
+ * Signature: (JLjavabridge/ActiveContextBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext
+  (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge, jobject jlogger)
+{
+	try{
+		ActiveContextClr2Java^ jactiveContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
+		ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, jactiveContextBrdige);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}

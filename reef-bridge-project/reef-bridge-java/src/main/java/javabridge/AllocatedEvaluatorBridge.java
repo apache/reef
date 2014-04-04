@@ -64,6 +64,24 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         jallocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
     }
 
+    public void submitContextString(final String contextConfigurationString)
+    {
+        if(contextConfigurationString.isEmpty())
+        {
+            throw new RuntimeException("empty contextConfigurationString provided.");
+        }
+        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(CLASS_HIERARCHY_FILENAME);
+        Configuration contextConfiguration;
+        try {
+            contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
+        } catch (final Exception e) {
+            final String message = "Unable to de-serialize CLR context configurations using class hierarchy.";
+            LOG.log(Level.SEVERE, message, e);
+            throw new RuntimeException(message, e);
+        }
+        jallocatedEvaluator.submitContext(contextConfiguration);
+    }
+
     @Override
     public void close()
     {
