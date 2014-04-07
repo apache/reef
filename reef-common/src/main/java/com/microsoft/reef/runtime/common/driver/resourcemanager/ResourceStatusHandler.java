@@ -22,6 +22,8 @@ import com.microsoft.reef.runtime.common.driver.evaluator.Evaluators;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
 
+import javax.inject.Inject;
+
 /**
  * A ResourceStatusProto message comes from the ResourceManager layer to indicate what it thinks
  * about the current state of a given resource. Ideally, we should think the same thing.
@@ -31,6 +33,7 @@ public final class ResourceStatusHandler implements EventHandler<DriverRuntimePr
 
   private final Evaluators evaluators;
 
+  @Inject
   ResourceStatusHandler(final Evaluators evaluators) {
     this.evaluators = evaluators;
   }
