@@ -56,7 +56,6 @@
 
   </dependencies>
 
-
   <build>
     <plugins>
       <!--
@@ -93,17 +92,11 @@
             <artifactItems>
               <artifactItem>
                 <groupId>com.microsoft.reef</groupId>
-
                 <artifactId>reef-bridge-java</artifactId>
-
                 <version>${project.version}</version>
-
                 <type>jar</type>
-
                 <outputDirectory>${project.basedir}/lib</outputDirectory>
-
                 <overWrite>true</overWrite>
-
               </artifactItem>
             </artifactItems>
           </configuration>
@@ -114,81 +107,69 @@
 <plugin>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>exec-maven-plugin</artifactId>
-
     <configuration>
-
-        <executable>${FrameworkDir}/${FrameworkVersion}/msbuild.exe</executable>
-
+        <executable>msbuild.exe</executable>
     </configuration>
-
     <executions>
-
         <execution>
-
             <id>clean</id>
-
             <phase>clean</phase>
-
             <configuration>
-
                 <arguments>
                   <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
                   <!--
                     <argument>/p:Configuration=${foo.config}</argument>
-
                     <argument>/p:Platform=${foo.cpu}</argument>
                 -->
                     <argument>/t:Clean</argument>
-
                 </arguments>
-
             </configuration>
-
             <goals>
-
                 <goal>exec</goal>
-
             </goals>
-
         </execution>
-
         <execution>
-
             <id>build</id>
-
             <phase>compile</phase>
-
             <configuration>
-
                 <arguments>
-                  <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
+                    <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
               <!--
                     <argument>/p:Configuration=${foo.config}</argument>
-
                     <argument>/p:Platform=${foo.cpu}</argument>
-
                     <argument>/t:Build</argument>
             -->
                 </arguments>
-
             </configuration>
-
             <goals>
-
                 <goal>exec</goal>
-
             </goals>
-
         </execution>
-
     </executions>
-
 </plugin>
- 
 
+        <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>copy-external-dlls</id>
+                    <phase>process-resources</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+                        <overwrite>true</overwrite>
+                        <outputDirectory>${basedir}/target/classes</outputDirectory>
+                        <resources>
+                            <resource>
+                                <directory>src/main/CSharp/CSharp/ClrHandler/externals</directory>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
 
-
-    
     </plugins>
   </build>
 </project>

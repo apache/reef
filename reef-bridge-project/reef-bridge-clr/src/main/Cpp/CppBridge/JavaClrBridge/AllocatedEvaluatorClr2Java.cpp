@@ -4,9 +4,11 @@ namespace Microsoft
 {
 	namespace Reef
 	{
-		namespace Interop
+		namespace Driver
 		{
-			AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator)
+			namespace Bridge
+			{
+				AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator)
 			{
 				_env = env;
 				_jobjectAllocatedEvaluator = jallocatedEvaluator;
@@ -56,6 +58,7 @@ namespace Microsoft
 					_jobjectAllocatedEvaluator, 
 					_jmidSubmitContext, 
 					JavaStringFromManagedString(_env, contextConfigStr));
+			}
 			}
 		}
 	}

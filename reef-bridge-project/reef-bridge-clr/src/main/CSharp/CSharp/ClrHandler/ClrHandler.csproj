@@ -29,49 +29,20 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Hadoop.Avro">
-      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\Microsoft.Hadoop.Avro.1.1.0.16\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
     <Reference Include="Microsoft.Reef.Driver">
       <HintPath>externals\Microsoft.Reef.Driver.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="Microsoft.Reef.Common.Utils">
-      <HintPath>externals\Microsoft.Reef.Common.Utils.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Reef.Tasks.HelloTask">
-      <HintPath>externals\Microsoft.Reef.Tasks.HelloTask.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Reef.Tasks.ITask">
-      <HintPath>externals\Microsoft.Reef.Tasks.ITask.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Reef.Tasks.ShellTask">
-      <HintPath>externals\Microsoft.Reef.Tasks.ShellTask.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
     <Reference Include="Microsoft.Tang">
       <HintPath>externals\Microsoft.Tang.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>..\..\..\Cpp\CppBridge\JavaClrBridge\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Reef.Common.ProtoBuf.CommonProtobuf">
-      <HintPath>externals\Microsoft.Reef.Common.ProtoBuf.CommonProtobuf.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Microsoft.Wake">
-      <HintPath>externals\Microsoft.Wake.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="System" />
@@ -85,21 +56,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="examples\Hello\HelloStartHandler.cs" />
-    <Compile Include="examples\RetainedEval\RetainedEvalAllocatedEvaluatorHandler.cs" />
-    <Compile Include="examples\RetainedEval\RetainedEvalStartHandler.cs" />
-    <Compile Include="handlers\ActiveContext.cs" />
-    <Compile Include="handlers\AllocatedEvaluator.cs" />
-    <Compile Include="ClrSystemHandler.cs" />
     <Compile Include="ClrSystemHandlerWrapper.cs" />
-    <Compile Include="HandlerHelper.cs" />
-    <Compile Include="interface\IActiveContexClr2Java.cs" />
-    <Compile Include="interface\IAllocatedEvaluaotrClr2Java.cs" />
     <Compile Include="interface\ILogger.cs" />
     <Compile Include="interface\IInteropReturnInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="examples\RetainedEval\RetainedEvalActiveContextHandler.cs" />
-    <Compile Include="examples\Hello\HelloAllocatedEvaluatorHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -9,5 +9,6 @@ namespace Microsoft.Reef.Interop
     public class Constants
     {
         public const string ClassHierarachyBin = "clrClassHierarchy.bin";
+        public const string ClrRuntimeConfiguration = "clrRuntime.config";
     }
 }

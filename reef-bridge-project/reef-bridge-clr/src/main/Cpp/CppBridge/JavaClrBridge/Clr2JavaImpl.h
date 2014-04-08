@@ -3,21 +3,24 @@
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
 #using "clrhandler.dll" 
+#using "Microsoft.Reef.Driver.dll"
 
 using namespace System;
 using namespace System::IO;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
-using namespace Microsoft::Reef::Interop;
+using namespace Microsoft::Reef::Driver::Bridge;
 
 namespace Microsoft
 {
 	namespace Reef
 	{
-		namespace Interop
+		namespace Driver
 		{
-			public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluaotrClr2Java
+			namespace Bridge
+			{
+				public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluaotrClr2Java
 			{
 				jclass  _jclassAllocatedEvaluator;
 				jobject  _jobjectAllocatedEvaluator;
@@ -43,6 +46,7 @@ namespace Microsoft
 				ActiveContextClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 				virtual void SubmitTask(String^ taskConfigStr);
 			};
+			}
 		}
 	}
 }
