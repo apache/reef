@@ -7,6 +7,6 @@ public enum DriverStatus {
   PRE_INIT,
   INIT,
   RUNNING,
-  COMPLETED,
-  FAILED
+  SHUTTING_DOWN,
+  FAILING
 }

@@ -4,7 +4,6 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.driver.client.ClientConnection;
-import com.microsoft.reef.runtime.common.driver.evaluator.Evaluators;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
@@ -21,7 +20,6 @@ public final class DriverStatusManager {
   private static final ObjectSerializableCodec<Throwable> EXCEPTION_CODEC = new ObjectSerializableCodec<>();
   private static final Logger LOG = Logger.getLogger(DriverStatusManager.class.getName());
   private final Clock clock;
-  private final Evaluators evaluators;
   private final ClientConnection clientConnection;
   private final String jobIdentifier;
   private DriverStatus driverStatus = DriverStatus.PRE_INIT;
@@ -37,14 +35,11 @@ public final class DriverStatusManager {
    */
   @Inject
   public DriverStatusManager(final Clock clock,
-                             final Evaluators evaluators,
                              final ClientConnection clientConnection,
                              final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier) {
     this.clock = clock;
-    this.evaluators = evaluators;
     this.clientConnection = clientConnection;
     this.jobIdentifier = jobIdentifier;
-
   }
 
   /**
@@ -75,8 +70,8 @@ public final class DriverStatusManager {
   public synchronized void onError(final Throwable exception) {
     LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
     this.shutdownCause = Optional.of(exception);
-    this.closeClock();
-    this.setStatus(DriverStatus.FAILED);
+    this.clock.close();
+    this.setStatus(DriverStatus.FAILING);
   }
 
   /**
@@ -84,15 +79,9 @@ public final class DriverStatusManager {
    */
   public synchronized void onComplete() {
     LOG.log(Level.INFO, "Clean shutdown of the Driver.");
-    this.closeClock();
-    this.setStatus(DriverStatus.COMPLETED);
-  }
-
-
-  private synchronized void closeClock() {
     this.clock.close();
+    this.setStatus(DriverStatus.SHUTTING_DOWN);
   }
-
 
   /**
    * Sends the final message to the Driver. This is used by DriverRuntimeStopHandler.
@@ -100,9 +89,25 @@ public final class DriverStatusManager {
    * @param exception
    */
   public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {
-    if (!this.driverTerminationHasBeenCommunicatedToClient) {
-      this.evaluators.close();
+    if (this.isNotShuttingDownOrFailing()) {
+      LOG.log(Level.WARNING, "Sending message in a state different that SHUTTING_DOWN or FAILING. This is likely a illegal call to clock.close() at play. Current state: " + this.driverStatus);
+    }
+    if (this.driverTerminationHasBeenCommunicatedToClient) {
+      LOG.log(Level.WARNING, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
+    } else {
 
+
+      { // Log the shutdown situation
+        if (this.shutdownCause.isPresent()) {
+          LOG.log(Level.WARNING, "Sending message about an unclean driver shutdown.", this.shutdownCause.get());
+        }
+        if (exception.isPresent()) {
+          LOG.log(Level.WARNING, "There was an exception during clock.close().", exception.get());
+        }
+        if (this.shutdownCause.isPresent() && exception.isPresent()) {
+          LOG.log(Level.WARNING, "The driver is shutdown because of an exception (see above) and there was an exception during clock.close(). Only the first exception will be sent to the client");
+        }
+      }
       if (this.shutdownCause.isPresent()) {
         // Send the earlier exception, if there was one
         this.clientConnection.send(getJobEndingMessage(this.shutdownCause));
@@ -111,9 +116,16 @@ public final class DriverStatusManager {
         this.clientConnection.send(getJobEndingMessage(exception));
       }
       this.driverTerminationHasBeenCommunicatedToClient = true;
-    } else {
-      LOG.log(Level.WARNING, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
     }
+  }
+
+  private synchronized boolean isShuttingDownOrFailing() {
+    return DriverStatus.SHUTTING_DOWN.equals(this.driverStatus)
+        || DriverStatus.FAILING.equals(this.driverStatus);
+  }
+
+  private synchronized boolean isNotShuttingDownOrFailing() {
+    return !isShuttingDownOrFailing();
   }
 
   /**
@@ -197,14 +209,14 @@ public final class DriverStatusManager {
         }
       case RUNNING:
         switch (to) {
-          case COMPLETED:
-          case FAILED:
+          case SHUTTING_DOWN:
+          case FAILING:
             return true;
           default:
             return false;
         }
-      case FAILED:
-      case COMPLETED:
+      case FAILING:
+      case SHUTTING_DOWN:
         return false;
       default:
         throw new IllegalStateException("Unknown input state: " + from);

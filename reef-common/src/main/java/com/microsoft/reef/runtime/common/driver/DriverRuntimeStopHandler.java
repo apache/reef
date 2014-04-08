@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.runtime.common.driver.evaluator.Evaluators;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
@@ -36,29 +37,31 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStopHandler.class.getName());
 
   private final DriverStatusManager driverStatusManager;
-
   private final RemoteManager remoteManager;
+  private final Evaluators evaluators;
 
   @Inject
   DriverRuntimeStopHandler(final DriverStatusManager driverStatusManager,
-                           final RemoteManager remoteManager) {
+                           final RemoteManager remoteManager,
+                           final Evaluators evaluators) {
     this.driverStatusManager = driverStatusManager;
-
-
     this.remoteManager = remoteManager;
+    this.evaluators = evaluators;
   }
 
   @Override
   public synchronized void onNext(final RuntimeStop runtimeStop) {
     LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
+    // Shutdown the Evaluators.
+    this.evaluators.close();
     // Inform the client of the shutdown.
     final Optional<Throwable> exception = Optional.<Throwable>ofNullable(runtimeStop.getException());
     this.driverStatusManager.sendJobEndingMessageToClient(exception);
+    // Close the remoteManager.
     try {
       this.remoteManager.close();
-      LOG.log(Level.FINEST, "Driver shutdown complete");
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Unable to close the RemoteManager.", e);
+      LOG.log(Level.INFO, "Driver shutdown complete");
+    } catch (final Exception e) {
       throw new RuntimeException("Unable to close the RemoteManager.", e);
     }
   }
