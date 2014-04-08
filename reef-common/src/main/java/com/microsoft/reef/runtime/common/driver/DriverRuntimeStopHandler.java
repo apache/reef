@@ -53,11 +53,7 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
     LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
     // Inform the client of the shutdown.
     final Optional<Throwable> exception = Optional.<Throwable>ofNullable(runtimeStop.getException());
-    if (exception.isPresent()) {
-      this.driverStatusManager.onError(exception.get());
-    } else {
-      this.driverStatusManager.onComplete();
-    }
+    this.driverStatusManager.sendJobEndingMessageToClient(exception);
     try {
       this.remoteManager.close();
       LOG.log(Level.FINEST, "Driver shutdown complete");

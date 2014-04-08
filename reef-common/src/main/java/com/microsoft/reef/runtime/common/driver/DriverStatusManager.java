@@ -25,6 +25,8 @@ public final class DriverStatusManager {
   private final ClientConnection clientConnection;
   private final String jobIdentifier;
   private DriverStatus driverStatus = DriverStatus.PRE_INIT;
+  private Optional<Throwable> shutdownCause = Optional.empty();
+  private boolean driverTerminationHasBeenCommunicatedToClient = false;
 
   /**
    * @param clock
@@ -72,7 +74,8 @@ public final class DriverStatusManager {
    */
   public synchronized void onError(final Throwable exception) {
     LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
-    this.close(Optional.of(exception));
+    this.shutdownCause = Optional.of(exception);
+    this.closeClock();
     this.setStatus(DriverStatus.FAILED);
   }
 
@@ -81,30 +84,36 @@ public final class DriverStatusManager {
    */
   public synchronized void onComplete() {
     LOG.log(Level.INFO, "Clean shutdown of the Driver.");
-    this.close(Optional.<Throwable>empty());
+    this.closeClock();
     this.setStatus(DriverStatus.COMPLETED);
   }
 
+
+  private synchronized void closeClock() {
+    this.clock.close();
+  }
+
+
   /**
-   * Helper method used by onComplete() and onError() to end the Driver.
+   * Sends the final message to the Driver. This is used by DriverRuntimeStopHandler.
    *
    * @param exception
    */
-  private synchronized void close(final Optional<Throwable> exception) {
-    if (!this.isShutdown()) {
+  public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {
+    if (!this.driverTerminationHasBeenCommunicatedToClient) {
       this.evaluators.close();
-      this.clientConnection.send(getJobEndingMessage(exception));
-      this.clock.close();
-    } else {
-      LOG.log(Level.WARNING, ".close() called twice. Ignoring the second call");
-    }
-  }
 
-  /**
-   * @return true, if the Driver is in status COMPLETED or FAILED.
-   */
-  private boolean isShutdown() {
-    return this.driverStatus == DriverStatus.COMPLETED || this.driverStatus == DriverStatus.FAILED;
+      if (this.shutdownCause.isPresent()) {
+        // Send the earlier exception, if there was one
+        this.clientConnection.send(getJobEndingMessage(this.shutdownCause));
+      } else {
+        // Send the exception passed, if there was one.
+        this.clientConnection.send(getJobEndingMessage(exception));
+      }
+      this.driverTerminationHasBeenCommunicatedToClient = true;
+    } else {
+      LOG.log(Level.WARNING, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
+    }
   }
 
   /**
@@ -117,7 +126,7 @@ public final class DriverStatusManager {
     if (isLegalTransition(this.driverStatus, newStatus)) {
       this.driverStatus = newStatus;
     } else {
-      throw new RuntimeException("Illegal state transiton: '" + this.driverStatus + "'->'" + newStatus + "'");
+      LOG.log(Level.WARNING, "Illegal state transiton: '" + this.driverStatus + "'->'" + newStatus + "'");
     }
   }
 
