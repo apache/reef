@@ -22,15 +22,12 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
 import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfigurationOptions;
-import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-import com.microsoft.wake.time.event.StartTime;
-import com.microsoft.wake.time.runtime.RuntimeClock;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -45,45 +42,33 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   private final static Logger LOG = Logger.getLogger(ClientJobStatusHandler.class.getName());
 
-  private final static ObjectSerializableCodec<Throwable> CODEC = new ObjectSerializableCodec<>();
-
-  private final RuntimeClock clock;
-
   private final String jobID;
 
   private final ClientConnection clientConnection;
 
-  private final AutoCloseable jobControlChannel;
-
-  private final DriverShutdownManager driverShutdownManager;
-
-  private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
-  private boolean closed = false;
+  private final DriverStatusManager driverStatusManager;
 
   @Inject
   public ClientJobStatusHandler(
       final RemoteManager remoteManager,
-      final RuntimeClock clock,
       final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<JobControlProto> jobControlHandler,
       final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobID,
       final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
       final ClientConnection clientConnection,
-      final DriverShutdownManager driverShutdownManager) {
+      final DriverStatusManager driverStatusManager) {
 
-    this.clock = clock;
     this.jobID = jobID;
     this.clientConnection = clientConnection;
-    this.driverShutdownManager = driverShutdownManager;
+    this.driverStatusManager = driverStatusManager;
 
     // Get a handler for sending job status messages to the client
-    this.jobControlChannel = remoteManager.registerHandler(clientRID, JobControlProto.class, jobControlHandler);
+    remoteManager.registerHandler(clientRID, JobControlProto.class, jobControlHandler);
   }
 
 
   @Override
   public synchronized void onNext(final byte[] message) {
     LOG.log(Level.FINEST, "Job message from {0}", this.jobID);
-    this.sendInit();
     this.clientConnection.send(JobStatusProto.newBuilder()
         .setIdentifier(this.jobID.toString())
         .setState(ReefServiceProtos.State.RUNNING)
@@ -93,19 +78,9 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
 
   @Override
   public synchronized void onError(final Throwable exception) {
-    this.driverShutdownManager.onError(exception);
+    this.driverStatusManager.onError(exception);
   }
 
-
-  private synchronized void sendInit() {
-    if (state == ReefServiceProtos.State.INIT) {
-      this.clientConnection.send(JobStatusProto.newBuilder()
-          .setIdentifier(this.jobID.toString())
-          .setState(ReefServiceProtos.State.INIT)
-          .build());
-      this.state = ReefServiceProtos.State.RUNNING;
-    }
-  }
 
   /**
    * Wake based event handler for sending job messages to the client
@@ -124,14 +99,6 @@ public final class ClientJobStatusHandler implements JobMessageObserver {
     @Override
     public void onNext(final Exception exception) {
       ClientJobStatusHandler.this.onError(exception);
-    }
-  }
-
-  public final class StartHandler implements EventHandler<StartTime> {
-    @Override
-    public void onNext(final StartTime time) {
-      LOG.log(Level.FINEST, "StartTime: {0}", time);
-      ClientJobStatusHandler.this.sendInit();
     }
   }
 }

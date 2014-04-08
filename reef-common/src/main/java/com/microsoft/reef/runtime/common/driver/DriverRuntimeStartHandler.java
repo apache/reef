@@ -40,6 +40,7 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
   private final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler;
   private final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler;
   private final ResourceManagerStatus resourceManagerStatus;
+  private final DriverStatusManager driverStatusManager;
 
   /**
    * @param singletons                           the objects we want to be Singletons in the Driver
@@ -47,17 +48,20 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
    * @param evaluatorResourceManagerErrorHandler This will be wired up to the remoteManager on onNext()
    * @param evaluatorHeartbeatHandler            This will be wired up to the remoteManager on onNext()
    * @param resourceManagerStatus                will be set to RUNNING in onNext()
+   * @param driverStatusManager                  will be set to RUNNING in onNext()
    */
   @Inject
   DriverRuntimeStartHandler(final DriverSingletons singletons,
                             final RemoteManager remoteManager,
                             final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler,
                             final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
-                            final ResourceManagerStatus resourceManagerStatus) {
+                            final ResourceManagerStatus resourceManagerStatus,
+                            final DriverStatusManager driverStatusManager) {
     this.remoteManager = remoteManager;
     this.evaluatorResourceManagerErrorHandler = evaluatorResourceManagerErrorHandler;
     this.evaluatorHeartbeatHandler = evaluatorHeartbeatHandler;
     this.resourceManagerStatus = resourceManagerStatus;
+    this.driverStatusManager = driverStatusManager;
   }
 
   @Override
@@ -67,6 +71,7 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
     this.remoteManager.registerHandler(EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.class, evaluatorHeartbeatHandler);
     this.remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, evaluatorResourceManagerErrorHandler);
     this.resourceManagerStatus.setRunning();
+    this.driverStatusManager.onRunning();
     LOG.log(Level.FINEST, "DriverRuntimeStartHandler complete.");
   }
 }

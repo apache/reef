@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.driver.resourcemanager;
 
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -27,15 +27,15 @@ import javax.inject.Inject;
 public final class ResourceManagerErrorHandler implements EventHandler<ReefServiceProtos.RuntimeErrorProto> {
 
 
-  private final DriverShutdownManager driverShutdownManager;
+  private final DriverStatusManager driverStatusManager;
 
   @Inject
-  ResourceManagerErrorHandler(final DriverShutdownManager driverShutdownManager) {
-    this.driverShutdownManager = driverShutdownManager;
+  ResourceManagerErrorHandler(final DriverStatusManager driverStatusManager) {
+    this.driverStatusManager = driverStatusManager;
   }
 
   @Override
   public synchronized void onNext(final ReefServiceProtos.RuntimeErrorProto runtimeErrorProto) {
-    this.driverShutdownManager.onError(new Exception("Resource Manager failure"));
+    this.driverStatusManager.onError(new Exception("Resource Manager failure"));
   }
 }

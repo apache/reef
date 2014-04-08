@@ -18,20 +18,20 @@ import java.util.logging.Logger;
 public final class DriverIdleHandler implements EventHandler<IdleClock> {
   private static final Logger LOG = Logger.getLogger(DriverIdleHandler.class.getName());
   private final ResourceManagerStatus resourceManagerStatus;
-  private final DriverShutdownManager driverShutdownManager;
+  private final DriverStatusManager driverStatusManager;
 
   @Inject
   DriverIdleHandler(final ResourceManagerStatus resourceManagerStatus,
-                    final DriverShutdownManager driverShutdownManager) {
+                    final DriverStatusManager driverStatusManager) {
     this.resourceManagerStatus = resourceManagerStatus;
-    this.driverShutdownManager = driverShutdownManager;
+    this.driverStatusManager = driverStatusManager;
   }
 
   @Override
   public synchronized void onNext(final IdleClock idleClock) {
     if (this.resourceManagerStatus.isRunningAndIdle()) {
       LOG.log(Level.FINEST, "Idle resourcemanager shutdown");
-      this.driverShutdownManager.onComplete();
+      this.driverStatusManager.onComplete();
     }
   }
 }

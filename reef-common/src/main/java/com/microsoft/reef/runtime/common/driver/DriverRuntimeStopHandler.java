@@ -35,14 +35,14 @@ import java.util.logging.Logger;
 final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStopHandler.class.getName());
 
-  private final DriverShutdownManager driverShutdownManager;
+  private final DriverStatusManager driverStatusManager;
 
   private final RemoteManager remoteManager;
 
   @Inject
-  DriverRuntimeStopHandler(final DriverShutdownManager driverShutdownManager,
+  DriverRuntimeStopHandler(final DriverStatusManager driverStatusManager,
                            final RemoteManager remoteManager) {
-    this.driverShutdownManager = driverShutdownManager;
+    this.driverStatusManager = driverStatusManager;
 
 
     this.remoteManager = remoteManager;
@@ -54,9 +54,9 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
     // Inform the client of the shutdown.
     final Optional<Throwable> exception = Optional.<Throwable>ofNullable(runtimeStop.getException());
     if (exception.isPresent()) {
-      this.driverShutdownManager.onError(exception.get());
+      this.driverStatusManager.onError(exception.get());
     } else {
-      this.driverShutdownManager.onComplete();
+      this.driverStatusManager.onComplete();
     }
     try {
       this.remoteManager.close();

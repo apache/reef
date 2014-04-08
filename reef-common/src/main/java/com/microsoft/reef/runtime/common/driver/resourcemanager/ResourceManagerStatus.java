@@ -19,7 +19,7 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -35,7 +35,7 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
   private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
   private final String name = "REEF";
   private final ResourceManagerErrorHandler resourceManagerErrorHandler;
-  private final DriverShutdownManager driverShutdownManager;
+  private final DriverStatusManager driverStatusManager;
 
   // Mutable state.
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
@@ -44,9 +44,9 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
 
   @Inject
   ResourceManagerStatus(final ResourceManagerErrorHandler resourceManagerErrorHandler,
-                        final DriverShutdownManager driverShutdownManager) {
+                        final DriverStatusManager driverStatusManager) {
     this.resourceManagerErrorHandler = resourceManagerErrorHandler;
-    this.driverShutdownManager = driverShutdownManager;
+    this.driverStatusManager = driverStatusManager;
   }
 
   @Override
@@ -62,11 +62,11 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
         this.resourceManagerErrorHandler.onNext(runtimeStatusProto.getError());
         break;
       case DONE:
-        this.driverShutdownManager.onComplete();
+        this.driverStatusManager.onComplete();
         break;
       case RUNNING:
         if (this.isIdle()) {
-          this.driverShutdownManager.onComplete();
+          this.driverStatusManager.onComplete();
         }
         break;
     }

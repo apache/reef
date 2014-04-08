@@ -19,7 +19,7 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
-import com.microsoft.reef.runtime.common.driver.DriverShutdownManager;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.annotations.Parameter;
@@ -46,7 +46,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
 
   private final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers;
 
-  private final DriverShutdownManager driverShutdownManager;
+  private final DriverStatusManager driverStatusManager;
 
   private volatile EventHandler<Void> clientCloseDispatcher;
 
@@ -59,8 +59,8 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
   ClientManager(final @Parameter(DriverConfigurationOptions.ClientCloseHandlers.class) InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
                 final @Parameter(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
                 final @Parameter(DriverConfigurationOptions.ClientMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
-                final DriverShutdownManager driverShutdownManager) {
-    this.driverShutdownManager = driverShutdownManager;
+                final DriverStatusManager driverStatusManager) {
+    this.driverStatusManager = driverStatusManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.clientCloseWithMessageHandlers = clientCloseWithMessageHandlers;
     this.clientMessageHandlers = clientMessageHandlers;
@@ -84,7 +84,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
             getClientCloseDispatcher().onNext(null);
           }
         } finally {
-          this.driverShutdownManager.onComplete();
+          this.driverStatusManager.onComplete();
         }
       } else {
         LOG.log(Level.FINEST, "Unsupported signal: " + jobControlProto.getSignal());
