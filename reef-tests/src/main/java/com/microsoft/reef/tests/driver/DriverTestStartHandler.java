@@ -17,7 +17,6 @@ package com.microsoft.reef.tests.driver;
 
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
-import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
@@ -40,12 +39,5 @@ final class DriverTestStartHandler implements EventHandler<StartTime> {
   @Override
   public void onNext(final StartTime startTime) {
     LOG.log(Level.INFO, "StartTime: {0}", startTime);
-    // TODO: This has to go when #389 is fixed
-    clock.scheduleAlarm(100, new EventHandler<Alarm>() {
-      @Override
-      public void onNext(final Alarm alarm) {
-        LOG.log(Level.INFO, "Alarm fired: {0}", alarm);
-      }
-    });
   }
 }
