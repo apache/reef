@@ -50,8 +50,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
    * Evaluator instantiated on the virtual node. Those inner folders will be named by the time when the Evaluator was
    * launched.
    * <p/>
-   * If none is given, the value is taken from the sytem property "com.microsoft.reef.resourcemanager.local.folder". If that is
-   * not set, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
+   * If none is given, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
    */
   public static final OptionalParameter<String> RUNTIME_ROOT_FOLDER = new OptionalParameter<>();
   /**
@@ -84,7 +83,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final class NumberOfThreads implements Name<Integer> {
   }
 
-  @NamedParameter(doc = "The folder where logs etc. shall be stored.")
+  @NamedParameter(default_value = "REEF_LOCAL_RUNTIME", doc = "The folder where logs etc. shall be stored.")
   public static class RootFolder implements Name<String> {
   }
 
