@@ -18,6 +18,7 @@ package com.microsoft.wake.remote;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 /**
  * Configuration options and helper methods for Wake remoting.
@@ -29,17 +30,17 @@ public final class RemoteConfiguration {
     // Intentionally empty
   }
 
-  @NamedParameter(short_name = "rm_host", doc = "The host address to be used for messages.")
+  @NamedParameter(short_name = "rm_host", doc = "The host address to be used for messages.", default_value = "")
   public static final class HostAddress implements Name<String> {
     // Intentionally empty
   }
 
-  @NamedParameter(short_name = "rm_port", doc = "The port to be used for messages.")
+  @NamedParameter(short_name = "rm_port", doc = "The port to be used for messages.", default_value = "0")
   public static final class Port implements Name<Integer> {
     // Intentionally empty
   }
 
-  @NamedParameter(doc = "The codec to be used for messages.")
+  @NamedParameter(doc = "The codec to be used for messages.", default_class = ObjectSerializableCodec.class)
   public static final class MessageCodec implements Name<Codec<?>> {
     // Intentionally empty
   }
