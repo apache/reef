@@ -21,7 +21,7 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
 
 /**
- * Thrown by REEF's runtime code when it catches an exception thrown by user code.
+ * Thrown by REEF's resourcemanager code when it catches an exception thrown by user code.
  */
 public final class TaskClientCodeException extends Exception {
 
@@ -29,10 +29,10 @@ public final class TaskClientCodeException extends Exception {
   private final String contextId;
 
   /**
-   * @param taskId the id of the failed task.
-   * @param contextId  the ID of the context the failed Task was executing in.
-   * @param message    the error message.
-   * @param cause      the exception that caused the Task to fail.
+   * @param taskId    the id of the failed task.
+   * @param contextId the ID of the context the failed Task was executing in.
+   * @param message   the error message.
+   * @param cause     the exception that caused the Task to fail.
    */
   public TaskClientCodeException(final String taskId,
                                  final String contextId,

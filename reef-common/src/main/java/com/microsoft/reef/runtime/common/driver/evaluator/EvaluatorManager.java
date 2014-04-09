@@ -29,7 +29,6 @@ import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.DriverExceptionHandler;
-import com.microsoft.reef.runtime.common.driver.DriverManager;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextControlHandler;
@@ -72,8 +71,10 @@ import java.util.logging.Logger;
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
+  private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
-  private final DriverManager driverManager;
+  //  private final DriverManager driverManager;
+  private final Evaluators evaluators;
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
   private final String evaluatorId;
@@ -84,18 +85,18 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ConfigurationSerializer configurationSerializer;
   private final EvaluatorControlHandler evaluatorControlHandler;
   private final ContextControlHandler contextControlHandler;
-  private final EvaluatorStateManager stateManager;
-  private RunningTask runningTask = null;
+  private final EvaluatorStatusManager stateManager;
 
-  private boolean isResourceReleased = false;
 
   // Mutable fields
+  private RunningTask runningTask = null;
+  private boolean isResourceReleased = false;
 
   @Inject
   EvaluatorManager(
       final Clock clock,
       final RemoteManager remoteManager,
-      final DriverManager driverManager,
+      final Evaluators evaluators,
       final ResourceReleaseHandler resourceReleaseHandler,
       final ResourceLaunchHandler resourceLaunchHandler,
       final @Parameter(EvaluatorIdentifier.class) String evaluatorId,
@@ -105,10 +106,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorMessageDispatcher messageDispatcher,
       final EvaluatorControlHandler evaluatorControlHandler,
       final ContextControlHandler contextControlHandler,
-      final EvaluatorStateManager stateManager) {
+      final EvaluatorStatusManager stateManager) {
 
     this.clock = clock;
-    this.driverManager = driverManager;
+    this.evaluators = evaluators;
     this.resourceReleaseHandler = resourceReleaseHandler;
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
@@ -193,7 +194,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
                 .setIdentifier(EvaluatorManager.this.evaluatorId).build()
         );
       } finally {
-        EvaluatorManager.this.driverManager.release(EvaluatorManager.this);
+        EvaluatorManager.this.evaluators.remove(EvaluatorManager.this);
       }
     }
   }
@@ -268,6 +269,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public void onEvaluatorHeartbeatMessage(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
     synchronized (this.evaluatorDescriptor) {
       final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
+      this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
 
       if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
         final ReefServiceProtos.EvaluatorStatusProto status = evaluatorHeartbeatProto.getEvaluatorStatus();
@@ -473,7 +475,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
         if (this.stateManager.isAllocatedOrSubmittedOrRunning()) {
 
-          // something is wrong, I think I'm alive but the resource manager runtime says I'm dead
+          // something is wrong, I think I'm alive but the resource manager resourcemanager says I'm dead
           final StringBuilder sb = new StringBuilder();
           sb.append("The resource manager informed me that Evaluator " + this.evaluatorId +
               " is in state " + resourceStatusProto.getState() + " but I think I'm in state " + this.stateManager);

@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Represents a Container: A slice of a machine.
  * <p/>
- * In the case of the local runtime, this slice is always the one of the machine where the job was submitted.
+ * In the case of the local resourcemanager, this slice is always the one of the machine where the job was submitted.
  */
 @Private
 interface Container extends AutoCloseable {

@@ -36,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The evaluator side runtime for Contexts.
+ * The evaluator side resourcemanager for Contexts.
  */
 @Provided
 @Private

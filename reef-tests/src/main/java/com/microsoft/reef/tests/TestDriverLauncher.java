@@ -68,7 +68,7 @@ public final class TestDriverLauncher {
     @Override
     public void onNext(final FailedJob job) {
       final Throwable ex = job.getCause();
-      LOG.log(Level.INFO, "Received an error for job {0}: {1}", new Object[] { job.getId(), ex });
+      LOG.log(Level.INFO, "Received an error for job {0}: {1}", new Object[]{job.getId(), ex});
       launcher.setStatusAndNotify(LauncherStatus.FAILED(ex));
     }
   }
@@ -91,7 +91,7 @@ public final class TestDriverLauncher {
    * Run a job with a waiting timeout after which it will be killed, if it did not complete yet.
    *
    * @param driverConfig the configuration for the driver. See DriverConfiguration for details.
-   * @param timeOut timeout on the job.
+   * @param timeOut      timeout on the job.
    * @return the state of the job after execution.
    */
   public LauncherStatus run(final Configuration driverConfig, final long timeOut) {
@@ -106,8 +106,8 @@ public final class TestDriverLauncher {
   /**
    * Instantiate a launcher for the given Configuration.
    *
-   * @param runtimeConfiguration the runtime configuration to be used
-   * @return a DriverLauncher based on the given runtime configuration
+   * @param runtimeConfiguration the resourcemanager configuration to be used
+   * @return a DriverLauncher based on the given resourcemanager configuration
    * @throws com.microsoft.tang.exceptions.BindException      on configuration errors
    * @throws com.microsoft.tang.exceptions.InjectionException on configuration errors
    */

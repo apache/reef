@@ -80,7 +80,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
   }
 
   @Override
-  public ResourceCatalog getResourceCatalog() {
+  public synchronized ResourceCatalog getResourceCatalog() {
     return this.resourceCatalog;
   }
 }

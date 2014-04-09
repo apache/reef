@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-tests</artifactId>
     <name>REEF Tests</name>
@@ -32,11 +33,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -97,16 +93,26 @@
                             </systemPropertyVariables>
                             <additionalClasspathElements>
                                 <additionalClasspathElement>${env.YARN_CONF_DIR}</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/lib/*</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/*</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/contrib/capacity-scheduler/*.jar</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/lib/*</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/*</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/lib/*</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/*</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/lib/*</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/*</additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/contrib/capacity-scheduler/*.jar
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/*
+                                </additionalClasspathElement>
                             </additionalClasspathElements>
                         </configuration>
                     </plugin>

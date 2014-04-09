@@ -22,9 +22,9 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.DefaultImplementation;
 
 /**
- * The main entry point into the REEF runtime.
+ * The main entry point into the REEF resourcemanager.
  * <p/>
- * Every REEF runtime provides an implementation of this interface. That
+ * Every REEF resourcemanager provides an implementation of this interface. That
  * instance is used to submitTask the Driver class for execution to REEF. As with
  * all submissions in REEF, this is done in the form of a TANG Configuration
  * object.
@@ -37,7 +37,7 @@ public interface REEF extends AutoCloseable {
   static final String REEF_VERSION = "0.3-SNAPSHOT";
 
   /**
-   * Close the runtime instance. This forcefully kills all running jobs.
+   * Close the resourcemanager instance. This forcefully kills all running jobs.
    */
   @Override
   public void close();

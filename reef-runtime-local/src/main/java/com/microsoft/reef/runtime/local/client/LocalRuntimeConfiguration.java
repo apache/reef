@@ -34,13 +34,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A ConfigurationModule to configure the local runtime.
+ * A ConfigurationModule to configure the local resourcemanager.
  */
 public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * The number of threads or processes available to the runtime. This is the upper limit on the number of
-   * Evaluators that the local runtime will hand out concurrently. This simulates the size of a physical cluster in
+   * The number of threads or processes available to the resourcemanager. This is the upper limit on the number of
+   * Evaluators that the local resourcemanager will hand out concurrently. This simulates the size of a physical cluster in
    * terms of the number of slots available on it with one important caveat: The Driver is not counted against this
    * number.
    */
@@ -50,12 +50,11 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
    * Evaluator instantiated on the virtual node. Those inner folders will be named by the time when the Evaluator was
    * launched.
    * <p/>
-   * If none is given, the value is taken from the sytem property "com.microsoft.reef.runtime.local.folder". If that is
-   * not set, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
+   * If none is given, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
    */
   public static final OptionalParameter<String> RUNTIME_ROOT_FOLDER = new OptionalParameter<>();
   /**
-   * The ConfigurationModule for the local runtime.
+   * The ConfigurationModule for the local resourcemanager.
    */
   public static final ConfigurationModule CONF = new LocalRuntimeConfiguration()
       .bindImplementation(REEF.class, ClientManager.class)
@@ -84,7 +83,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final class NumberOfThreads implements Name<Integer> {
   }
 
-  @NamedParameter(doc = "The folder where logs etc. shall be stored.")
+  @NamedParameter(default_value = "REEF_LOCAL_RUNTIME", doc = "The folder where logs etc. shall be stored.")
   public static class RootFolder implements Name<String> {
   }
 

@@ -20,7 +20,7 @@ import com.microsoft.tang.Configuration;
 /**
  * Environment for REEF unit tests.
  * <p/>
- * The idea is to use an instance of this class to gain access to a REEF runtime environment in order to make the tests
+ * The idea is to use an instance of this class to gain access to a REEF resourcemanager environment in order to make the tests
  * portable amongst REEF runtimes (e.g. YARN, Local, ...)
  */
 public interface TestEnvironment {
@@ -31,7 +31,7 @@ public interface TestEnvironment {
   public void setUp();
 
   /**
-   * @return a Configuration used to obtain a REEF runtime for the tests. E.g. the local or YARN runtime.
+   * @return a Configuration used to obtain a REEF resourcemanager for the tests. E.g. the local or YARN resourcemanager.
    */
   public Configuration getRuntimeConfiguration();
 

@@ -22,22 +22,26 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
 
 /**
- * Driver runtime parameters that runtime implementations use to communicate with
+ * Driver resourcemanager parameters that resourcemanager implementations use to communicate with
  * the Driver.
  */
 @RuntimeAuthor
 public final class RuntimeParameters {
 
   @NamedParameter(doc = "The resource allocation handler that stub runtimes send along allocated resources e.g., containers.")
-  public final static class ResourceAllocationHandler implements Name<EventHandler<DriverRuntimeProtocol.ResourceAllocationProto>> { }
+  public final static class ResourceAllocationHandler implements Name<EventHandler<DriverRuntimeProtocol.ResourceAllocationProto>> {
+  }
 
   @NamedParameter(doc = "The node descriptor handler that stub runtimes send along node information.")
-  public final static class NodeDescriptorHandler implements Name<EventHandler<DriverRuntimeProtocol.NodeDescriptorProto>> { }
+  public final static class NodeDescriptorHandler implements Name<EventHandler<DriverRuntimeProtocol.NodeDescriptorProto>> {
+  }
 
   @NamedParameter(doc = "The resource status handler.")
-  public final static class ResourceStatusHandler implements Name<EventHandler<DriverRuntimeProtocol.ResourceStatusProto>> { }
+  public final static class ResourceStatusHandler implements Name<EventHandler<DriverRuntimeProtocol.ResourceStatusProto>> {
+  }
 
-  @NamedParameter(doc = "The runtime status handler.")
-  public final static class RuntimeStatusHandler implements Name<EventHandler<DriverRuntimeProtocol.RuntimeStatusProto>> { }
+  @NamedParameter(doc = "The resourcemanager status handler.")
+  public final static class RuntimeStatusHandler implements Name<EventHandler<DriverRuntimeProtocol.RuntimeStatusProto>> {
+  }
 
 }

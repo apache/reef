@@ -21,15 +21,18 @@ import com.microsoft.reef.annotations.audience.Private;
 import javax.inject.Inject;
 
 /**
- * Manages the evaluator state.
+ * Manages Status of a single Evaluator.
  */
 @DriverSide
 @Private
-final class EvaluatorStateManager {
+final class EvaluatorStatusManager {
+  /**
+   * The state managed.
+   */
   private EvaluatorManager.State state = EvaluatorManager.State.ALLOCATED;
 
   @Inject
-  private EvaluatorStateManager() {
+  private EvaluatorStatusManager() {
   }
 
   synchronized void setRunning() {

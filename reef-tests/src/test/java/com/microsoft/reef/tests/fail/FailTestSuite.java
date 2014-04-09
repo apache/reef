@@ -20,7 +20,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    FailTaskTest.class,
+//    FailTaskTest.class,
     FailDriverTest.class,
     FailDriverDelayedMsgTest.class,
     DriverFailOnFailTest.class

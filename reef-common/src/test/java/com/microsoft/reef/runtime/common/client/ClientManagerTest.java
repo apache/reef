@@ -82,7 +82,7 @@ public final class ClientManagerTest {
   }
 
   /**
-   * Test the creation of a ClientJobStatusHandler and its receipt of a message.
+   * Test the creation of a JobMessageObserverImpl and its receipt of a message.
    *
    * @throws Exception when something goes wrong
    */

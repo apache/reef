@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.common.driver;
+package com.microsoft.reef.runtime.common.driver.client;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Represents the Client in the Driver.
+ */
 @Private
-class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProto> {
+@DriverSide
+public final class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProto> {
 
-  private final static Logger LOG = Logger.getLogger(DriverManager.class.getName());
+  private final static Logger LOG = Logger.getLogger(ClientManager.class.getName());
 
-  private final InjectionFuture<Clock> futureClock;
 
   private final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers;
 
@@ -42,18 +46,21 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
 
   private final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers;
 
+  private final DriverStatusManager driverStatusManager;
+
   private volatile EventHandler<Void> clientCloseDispatcher;
 
   private volatile EventHandler<byte[]> clientCloseWithMessageDispatcher;
 
   private volatile EventHandler<byte[]> clientMessageDispatcher;
 
+
   @Inject
-  ClientManager(final InjectionFuture<Clock> futureClock,
-                @Parameter(DriverConfigurationOptions.ClientCloseHandlers.class) final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
-                @Parameter(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
-                @Parameter(DriverConfigurationOptions.ClientMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers) {
-    this.futureClock = futureClock;
+  ClientManager(final @Parameter(DriverConfigurationOptions.ClientCloseHandlers.class) InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
+                final @Parameter(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
+                final @Parameter(DriverConfigurationOptions.ClientMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
+                final DriverStatusManager driverStatusManager) {
+    this.driverStatusManager = driverStatusManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.clientCloseWithMessageHandlers = clientCloseWithMessageHandlers;
     this.clientMessageHandlers = clientMessageHandlers;
@@ -67,7 +74,7 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
    * @param jobControlProto contains the client initiated control message
    */
   @Override
-  public void onNext(final ClientRuntimeProtocol.JobControlProto jobControlProto) {
+  public synchronized void onNext(final ClientRuntimeProtocol.JobControlProto jobControlProto) {
     if (jobControlProto.hasSignal()) {
       if (jobControlProto.getSignal() == ClientRuntimeProtocol.Signal.SIG_TERMINATE) {
         try {
@@ -77,7 +84,7 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
             getClientCloseDispatcher().onNext(null);
           }
         } finally {
-          this.futureClock.get().close();
+          this.driverStatusManager.onComplete();
         }
       } else {
         LOG.log(Level.FINEST, "Unsupported signal: " + jobControlProto.getSignal());
@@ -87,7 +94,7 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
     }
   }
 
-  public EventHandler<Void> getClientCloseDispatcher() {
+  private synchronized EventHandler<Void> getClientCloseDispatcher() {
     if (clientCloseDispatcher != null) {
       return clientCloseDispatcher;
     } else {
@@ -99,7 +106,7 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
     }
   }
 
-  public EventHandler<byte[]> getClientCloseWithMessageDispatcher() {
+  private EventHandler<byte[]> getClientCloseWithMessageDispatcher() {
     if (clientCloseWithMessageDispatcher != null) {
       return clientCloseWithMessageDispatcher;
     } else {
@@ -111,7 +118,7 @@ class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProt
     }
   }
 
-  public EventHandler<byte[]> getClientMessageDispatcher() {
+  private EventHandler<byte[]> getClientMessageDispatcher() {
     if (clientMessageDispatcher != null) {
       return clientMessageDispatcher;
     } else {

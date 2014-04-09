@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Client-Side Event Handlers to be implemented by a specific runtime
+ * Client-Side Event Handlers to be implemented by a specific resourcemanager
  */
 package com.microsoft.reef.runtime.common.client.api;

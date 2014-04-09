@@ -22,6 +22,12 @@ import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
+import com.microsoft.reef.runtime.common.driver.client.ClientManager;
+import com.microsoft.reef.runtime.common.driver.client.JobMessageObserverImpl;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceAllocationHandler;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceStatusHandler;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.wake.time.Clock;
@@ -36,27 +42,21 @@ public final class DriverRuntimeConfiguration extends ConfigurationModuleBuilder
 
           // JobMessageObserver
       .bindImplementation(EvaluatorRequestor.class, EvaluatorRequestorImpl.class) // requesting evaluators
-      .bindImplementation(JobMessageObserver.class, ClientJobStatusHandler.class) // sending message to job client
-
-          // JobMessageObserver Wake event handler bindings
-      .bindNamedParameter(DriverRuntimeConfigurationOptions.JobMessageHandler.class, ClientJobStatusHandler.JobMessageHandler.class)
-      .bindNamedParameter(DriverRuntimeConfigurationOptions.JobExceptionHandler.class, ClientJobStatusHandler.JobExceptionHandler.class)
+      .bindImplementation(JobMessageObserver.class, JobMessageObserverImpl.class) // sending message to job client
 
           // Client manager
       .bindNamedParameter(DriverRuntimeConfigurationOptions.JobControlHandler.class, ClientManager.class)
 
-          // Bind the runtime parameters
-      .bindNamedParameter(RuntimeParameters.NodeDescriptorHandler.class, DriverManager.NodeDescriptorHandler.class)
-      .bindNamedParameter(RuntimeParameters.ResourceAllocationHandler.class, DriverManager.ResourceAllocationHandler.class)
-      .bindNamedParameter(RuntimeParameters.ResourceStatusHandler.class, DriverManager.ResourceStatusHandler.class)
-      .bindNamedParameter(RuntimeParameters.RuntimeStatusHandler.class, DriverManager.RuntimeStatusHandler.class)
+          // Bind the resourcemanager parameters
+      .bindNamedParameter(RuntimeParameters.NodeDescriptorHandler.class, NodeDescriptorHandler.class)
+      .bindNamedParameter(RuntimeParameters.ResourceAllocationHandler.class, ResourceAllocationHandler.class)
+      .bindNamedParameter(RuntimeParameters.ResourceStatusHandler.class, ResourceStatusHandler.class)
+      .bindNamedParameter(RuntimeParameters.RuntimeStatusHandler.class, ResourceManagerStatus.class)
 
           // Bind to the Clock
-      .bindSetEntry(Clock.RuntimeStartHandler.class, DriverManager.RuntimeStartHandler.class)
       .bindSetEntry(Clock.RuntimeStartHandler.class, DriverRuntimeStartHandler.class)
-      .bindSetEntry(Clock.StartHandler.class, ClientJobStatusHandler.StartHandler.class)
-      .bindSetEntry(Clock.RuntimeStopHandler.class, DriverManager.RuntimeStopHandler.class)
-      .bindSetEntry(Clock.IdleHandler.class, DriverManager.IdleHandler.class)
+      .bindSetEntry(Clock.RuntimeStopHandler.class, DriverRuntimeStopHandler.class)
+      .bindSetEntry(Clock.IdleHandler.class, DriverIdleHandler.class)
 
       .build();
 }

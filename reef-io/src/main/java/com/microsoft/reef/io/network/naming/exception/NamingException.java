@@ -24,7 +24,8 @@ public class NamingException extends NetworkException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a new runtime naming exception with the specified detail message and cause
+   * Constructs a new resourcemanager naming exception with the specified detail message and cause
+   *
    * @param s the detailed message
    * @param e the cause
    */
@@ -33,7 +34,8 @@ public class NamingException extends NetworkException {
   }
 
   /**
-   * Constructs a new runtime naming exception with the specified detail message
+   * Constructs a new resourcemanager naming exception with the specified detail message
+   *
    * @param s the detailed message
    */
   public NamingException(String s) {
@@ -41,7 +43,8 @@ public class NamingException extends NetworkException {
   }
 
   /**
-   * Constructs a new runtime naming exception with the specified cause
+   * Constructs a new resourcemanager naming exception with the specified cause
+   *
    * @param e the cause
    */
   public NamingException(Throwable e) {

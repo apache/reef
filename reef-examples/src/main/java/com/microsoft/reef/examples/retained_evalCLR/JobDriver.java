@@ -316,7 +316,6 @@ public final class JobDriver {
       context.submitTask(taskConfiguration);
     } catch (final BindException ex) {
       LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
-      this.clock.close();
       throw new RuntimeException(ex);
     }
   }

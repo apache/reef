@@ -16,6 +16,8 @@
 package com.microsoft.reef.runtime.common.client;
 
 import com.google.protobuf.ByteString;
+import com.microsoft.reef.annotations.audience.ClientSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.exception.JobException;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
@@ -31,20 +33,26 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> {
+/**
+ * Implementation of RunningJob.
+ */
+@ClientSide
+@Private
+public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> {
 
   private static final Logger LOG = Logger.getLogger(RunningJob.class.getName());
 
   private final String jobId;
-  private final EventHandler<JobControlProto> jobControlHandler;
 
+  private final EventHandler<JobControlProto> jobControlHandler;
   private final EventHandler<RunningJob> runningJobEventHandler;
   private final EventHandler<CompletedJob> completedJobEventHandler;
   private final EventHandler<FailedJob> failedJobEventHandler;
   private final EventHandler<JobMessage> jobMessageEventHandler;
 
   @Inject
-  RunningJobImpl(final RemoteManager remoteManager, final JobStatusProto status,
+  RunningJobImpl(final RemoteManager remoteManager,
+                 final JobStatusProto status,
                  final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
                  final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
                  final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
@@ -64,7 +72,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   }
 
   @Override
-  public void close() {
+  public synchronized void close() {
     this.jobControlHandler.onNext(
         JobControlProto.newBuilder()
             .setIdentifier(this.jobId)
@@ -74,7 +82,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   }
 
   @Override
-  public void close(final byte[] message) {
+  public synchronized void close(final byte[] message) {
     this.jobControlHandler.onNext(
         JobControlProto.newBuilder()
             .setIdentifier(this.jobId)
@@ -90,7 +98,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   }
 
   @Override
-  public void send(final byte[] message) {
+  public synchronized void send(final byte[] message) {
     this.jobControlHandler.onNext(
         JobControlProto.newBuilder()
             .setIdentifier(this.jobId)
@@ -100,7 +108,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
   }
 
   @Override
-  public void onNext(final JobStatusProto value) {
+  public synchronized void onNext(final JobStatusProto value) {
 
     final ReefServiceProtos.State state = value.getState();
     LOG.log(Level.FINEST, "Received job status: {0} from {1}",
@@ -113,18 +121,7 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
 
     if (state == ReefServiceProtos.State.DONE) {
 
-      this.completedJobEventHandler.onNext(new CompletedJob() {
-        @Override
-        public String getId() {
-          return RunningJobImpl.this.jobId;
-        }
-
-        @Override
-        public String toString() {
-          return "CompletedJob{" + "jobId=" + getId() + '}';
-        }
-      });
-
+      this.completedJobEventHandler.onNext(new CompletedJobImpl(this.getId()));
     } else if (state == ReefServiceProtos.State.FAILED) {
 
       final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
@@ -139,6 +136,6 @@ public class RunningJobImpl implements RunningJob, EventHandler<JobStatusProto> 
 
   @Override
   public String toString() {
-    return "RunningJobImpl{" + "jobId=" + this.jobId + '}';
+    return "RunningJob{'" + this.jobId + "'}";
   }
 }
