@@ -90,13 +90,11 @@ public final class DriverStatusManager {
    */
   public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {
     if (this.isNotShuttingDownOrFailing()) {
-      LOG.log(Level.WARNING, "Sending message in a state different that SHUTTING_DOWN or FAILING. This is likely a illegal call to clock.close() at play. Current state: " + this.driverStatus);
+      LOG.log(Level.SEVERE, "Sending message in a state different that SHUTTING_DOWN or FAILING. This is likely a illegal call to clock.close() at play. Current state: " + this.driverStatus);
     }
     if (this.driverTerminationHasBeenCommunicatedToClient) {
-      LOG.log(Level.WARNING, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
+      LOG.log(Level.SEVERE, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
     } else {
-
-
       { // Log the shutdown situation
         if (this.shutdownCause.isPresent()) {
           LOG.log(Level.WARNING, "Sending message about an unclean driver shutdown.", this.shutdownCause.get());
