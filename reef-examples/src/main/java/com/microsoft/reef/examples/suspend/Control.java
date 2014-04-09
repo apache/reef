@@ -66,7 +66,7 @@ public final class Control {
     LOG.log(Level.INFO, "command: {0} task: {1} port: {2}",
         new Object[]{this.command, this.taskId, this.port});
     final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
-    try (final RemoteManager rm = new DefaultRemoteManagerImplementation("localhost", 0, codec, new EventHandler<Throwable>() {
+    try (final RemoteManager rm = new DefaultRemoteManagerImplementation("Control", "localhost", 0, codec, new EventHandler<Throwable>() {
       @Override
       public void onNext(final Throwable throwable) {
         throw new RuntimeException(throwable);
