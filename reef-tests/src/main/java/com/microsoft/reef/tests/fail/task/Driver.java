@@ -20,6 +20,7 @@ import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.task.Task;
@@ -28,6 +29,7 @@ import com.microsoft.reef.task.events.SuspendEvent;
 import com.microsoft.reef.task.events.TaskStart;
 import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.exceptions.SimulatedTaskFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -177,6 +179,21 @@ public final class Driver {
       LOG.log(Level.INFO, "StartTime: {0}", time);
       Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1).setMemory(128).build());
+    }
+  }
+
+  final class OnTaskFailed implements EventHandler<FailedTask> {
+
+    @Override
+    public void onNext(final FailedTask failedTask) {
+      final Throwable cause = failedTask.getCause();
+      if (cause instanceof SimulatedTaskFailure) {
+        // expected. Just close the context
+        failedTask.getActiveContext().get().close();
+      } else {
+        throw new DriverSideFailure("Unexpected exception from the Task.", cause);
+      }
+
     }
   }
 }
