@@ -84,7 +84,7 @@ public final class DriverStatusManager {
   }
 
   /**
-   * Sends the final message to the Driver. This is used by DriverRuntimeStopHandler.
+   * Sends the final message to the Driver. This is used by DriverRuntimeStopHandler.onNext().
    *
    * @param exception
    */
