@@ -15,13 +15,13 @@
  */
 package com.microsoft.reef.tests.statepassing;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.context.ServiceConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
@@ -96,12 +96,10 @@ public class StatePassingDriver {
       if (message.length != pass) {
         final String msg = "Expected message of length " + pass + ", but got message of length " + message.length;
         final RuntimeException ex = new RuntimeException(msg);
-        client.onError(ex);
         throw ex;
       }
       if (!allEqual((byte) 1, message)) {
         final RuntimeException ex = new RuntimeException("Did not get the right message");
-        client.onError(ex);
         throw ex;
       }
 
