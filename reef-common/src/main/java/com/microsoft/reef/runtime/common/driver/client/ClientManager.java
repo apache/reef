@@ -94,7 +94,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
     }
   }
 
-  public EventHandler<Void> getClientCloseDispatcher() {
+  private synchronized EventHandler<Void> getClientCloseDispatcher() {
     if (clientCloseDispatcher != null) {
       return clientCloseDispatcher;
     } else {
@@ -106,7 +106,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
     }
   }
 
-  public EventHandler<byte[]> getClientCloseWithMessageDispatcher() {
+  private EventHandler<byte[]> getClientCloseWithMessageDispatcher() {
     if (clientCloseWithMessageDispatcher != null) {
       return clientCloseWithMessageDispatcher;
     } else {
@@ -118,7 +118,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
     }
   }
 
-  public EventHandler<byte[]> getClientMessageDispatcher() {
+  private EventHandler<byte[]> getClientMessageDispatcher() {
     if (clientMessageDispatcher != null) {
       return clientMessageDispatcher;
     } else {
