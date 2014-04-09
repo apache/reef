@@ -18,9 +18,7 @@ package com.microsoft.reef.tests.files;
 import com.microsoft.reef.task.Task;
 import com.microsoft.reef.tests.exceptions.TaskSideFailure;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
-import com.microsoft.wake.time.event.Alarm;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -49,31 +47,14 @@ final class TestTask implements Task {
       final File file = new File(fileName);
       LOG.log(Level.INFO, "Testing file: " + file.getAbsolutePath());
       if (!file.exists()) {
-        this.fail(new TaskSideFailure("Cannot find file: " + fileName));
+        throw new TaskSideFailure("Cannot find file: " + fileName);
       } else if (!file.isFile()) {
-        this.fail(new TaskSideFailure("Not a file: " + fileName));
+        throw new TaskSideFailure("Not a file: " + fileName);
       } else if (!file.canRead()) {
-        this.fail(new TaskSideFailure("Can't read: " + fileName));
+        throw new TaskSideFailure("Can't read: " + fileName);
       }
     }
-    // TODO: This has to go when #389 is fixed
-    clock.scheduleAlarm(100, new EventHandler<Alarm>() {
-      @Override
-      public void onNext(Alarm alarm) {
-        LOG.log(Level.INFO, "All good");
-      }
-    });
 
     return new byte[0];  //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  private void fail(final RuntimeException e) {
-    // TODO: This has to go when #389 is fixed
-    this.clock.scheduleAlarm(100, new EventHandler<Alarm>() {
-      @Override
-      public void onNext(final Alarm alarm) {
-        throw e;
-      }
-    });
   }
 }
