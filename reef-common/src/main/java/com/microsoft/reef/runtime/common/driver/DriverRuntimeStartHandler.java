@@ -15,12 +15,15 @@
  */
 package com.microsoft.reef.runtime.common.driver;
 
+import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorHeartbeatHandler;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorResourceManagerErrorHandler;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 
@@ -55,6 +58,8 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
                             final RemoteManager remoteManager,
                             final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler,
                             final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
+                            final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlHandler,
+                            final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
                             final ResourceManagerStatus resourceManagerStatus,
                             final DriverStatusManager driverStatusManager) {
     this.remoteManager = remoteManager;
@@ -62,6 +67,7 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
     this.evaluatorHeartbeatHandler = evaluatorHeartbeatHandler;
     this.resourceManagerStatus = resourceManagerStatus;
     this.driverStatusManager = driverStatusManager;
+    remoteManager.registerHandler(clientRID, ClientRuntimeProtocol.JobControlProto.class, jobControlHandler);
   }
 
   @Override

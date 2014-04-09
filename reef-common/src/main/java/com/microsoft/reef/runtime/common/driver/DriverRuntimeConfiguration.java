@@ -22,8 +22,8 @@ import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
-import com.microsoft.reef.runtime.common.driver.client.ClientJobStatusHandler;
 import com.microsoft.reef.runtime.common.driver.client.ClientManager;
+import com.microsoft.reef.runtime.common.driver.client.JobMessageObserverImpl;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceAllocationHandler;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
@@ -42,11 +42,7 @@ public final class DriverRuntimeConfiguration extends ConfigurationModuleBuilder
 
           // JobMessageObserver
       .bindImplementation(EvaluatorRequestor.class, EvaluatorRequestorImpl.class) // requesting evaluators
-      .bindImplementation(JobMessageObserver.class, ClientJobStatusHandler.class) // sending message to job client
-
-          // JobMessageObserver Wake event handler bindings
-      .bindNamedParameter(DriverRuntimeConfigurationOptions.JobMessageHandler.class, ClientJobStatusHandler.JobMessageHandler.class)
-      .bindNamedParameter(DriverRuntimeConfigurationOptions.JobExceptionHandler.class, ClientJobStatusHandler.JobExceptionHandler.class)
+      .bindImplementation(JobMessageObserver.class, JobMessageObserverImpl.class) // sending message to job client
 
           // Client manager
       .bindNamedParameter(DriverRuntimeConfigurationOptions.JobControlHandler.class, ClientManager.class)
