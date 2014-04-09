@@ -15,16 +15,20 @@
  */
 package com.microsoft.reef.driver.client;
 
+import com.microsoft.reef.annotations.Optional;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
 
 /**
  * The driver uses this interface to communicate with the job client.
+ * <p/>
+ * Note that as of REEF 0.4, the presence of a client is no longer guaranteed, depending on the deployment environment.
  */
 @Public
 @DriverSide
 @Provided
+@Optional
 public interface JobMessageObserver {
 
   /**
@@ -39,6 +43,8 @@ public interface JobMessageObserver {
    * An exception from the running job.
    *
    * @param exception
+   * @deprecated Just throw the exception instead. It will be caught by the Driver and sent to the client
    */
+  @Deprecated
   public void onError(final Throwable exception);
 }
