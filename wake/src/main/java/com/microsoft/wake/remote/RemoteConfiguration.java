@@ -30,7 +30,7 @@ public final class RemoteConfiguration {
     // Intentionally empty
   }
 
-  @NamedParameter(short_name = "rm_host", doc = "The host address to be used for messages.", default_value = "")
+  @NamedParameter(short_name = "rm_host", doc = "The host address to be used for messages.", default_value = "##UNKNOWN##")
   public static final class HostAddress implements Name<String> {
     // Intentionally empty
   }

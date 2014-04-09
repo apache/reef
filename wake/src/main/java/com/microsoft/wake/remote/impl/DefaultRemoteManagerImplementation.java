@@ -82,7 +82,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
         new RemoteReceiverStage(this.handlerContainer, errorHandler);
 
-    if ("".equals(hostAddress)) {
+    if ("##UNKNOWN##".equals(hostAddress)) {
       this.transport = new NettyMessagingTransport(
           NetUtils.getLocalAddress(), listeningPort, this.reRecvStage, this.reRecvStage);
     } else {
