@@ -25,7 +25,6 @@ import com.microsoft.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -83,9 +82,13 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
         new RemoteReceiverStage(this.handlerContainer, errorHandler);
 
-    this.transport = new NettyMessagingTransport(
-        hostAddress, listeningPort, this.reRecvStage, this.reRecvStage);
-
+    if ("##UNKNOWN##".equals(hostAddress)) {
+      this.transport = new NettyMessagingTransport(
+          NetUtils.getLocalAddress(), listeningPort, this.reRecvStage, this.reRecvStage);
+    } else {
+      this.transport = new NettyMessagingTransport(
+          hostAddress, listeningPort, this.reRecvStage, this.reRecvStage);
+    }
 
     this.handlerContainer.setTransport(this.transport);
 
@@ -101,48 +104,6 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
             this.transport.getLocalAddress().toString(),
             this.transport.getListeningPort()}
     );
-
-  }
-
-  @Inject
-  public <T> DefaultRemoteManagerImplementation(
-      final @Parameter(RemoteConfiguration.ManagerName.class) String name,
-      final @Parameter(RemoteConfiguration.Port.class) int listeningPort,
-      final @Parameter(RemoteConfiguration.MessageCodec.class) Codec<T> codec,
-      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
-      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee)
-      throws UnknownHostException {
-    this(name, NetUtils.getLocalAddress(), listeningPort, codec, errorHandler, orderingGuarantee);
-  }
-
-  @Inject
-  public <T> DefaultRemoteManagerImplementation(
-      final @Parameter(RemoteConfiguration.ManagerName.class) String name,
-      final @Parameter(RemoteConfiguration.MessageCodec.class) Codec<T> codec,
-      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
-      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee)
-      throws UnknownHostException {
-    this(name, NetUtils.getLocalAddress(), 0, codec, errorHandler, orderingGuarantee);
-  }
-
-  @Inject
-  public <T> DefaultRemoteManagerImplementation(
-      final @Parameter(RemoteConfiguration.ManagerName.class) String name,
-      final @Parameter(RemoteConfiguration.Port.class) int listeningPort,
-      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
-      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee)
-      throws UnknownHostException {
-    this(name, NetUtils.getLocalAddress(), listeningPort,
-        new ObjectSerializableCodec<>(), errorHandler, orderingGuarantee);
-  }
-
-  @Inject
-  public DefaultRemoteManagerImplementation(
-      final @Parameter(RemoteConfiguration.ManagerName.class) String name,
-      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
-      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee)
-      throws UnknownHostException {
-    this(name, new ObjectSerializableCodec<>(), errorHandler, orderingGuarantee);
   }
 
   /**

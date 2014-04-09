@@ -15,33 +15,28 @@
  */
 package com.microsoft.wake.test.remote;
 
-import java.net.UnknownHostException;
-
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.impl.LoggingEventHandler;
-import com.microsoft.wake.remote.Codec;
-import com.microsoft.wake.remote.NetUtils;
-import com.microsoft.wake.remote.RemoteIdentifier;
-import com.microsoft.wake.remote.RemoteIdentifierFactory;
-import com.microsoft.wake.remote.RemoteManager;
-import com.microsoft.wake.remote.RemoteMessage;
+import com.microsoft.wake.remote.*;
 import com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 import com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation;
 
+import java.net.UnknownHostException;
+
 public class TestRemote {
-	
-	public static void main(String[] args) {
-		String hostAddress = NetUtils.getLocalAddress();
-		int myPort = 10011;
-		int remotePort = 10001;
-		Codec<TestEvent> codec = new TestEventCodec();
-		try (RemoteManager rm = new DefaultRemoteManagerImplementation(hostAddress, 
-		    myPort, codec, new LoggingEventHandler<Throwable> (), false)) {
+
+  public static void main(String[] args) {
+    String hostAddress = NetUtils.getLocalAddress();
+    int myPort = 10011;
+    int remotePort = 10001;
+    Codec<TestEvent> codec = new TestEventCodec();
+    try (RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress,
+        myPort, codec, new LoggingEventHandler<Throwable>(), false)) {
       // proxy handler
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
       EventHandler<TestEvent> proxyHandler = rm.getHandler(remoteId, TestEvent.class);
-        
+
       proxyHandler.onNext(new TestEvent("hello", 1.0));
       // register a handler
       rm.registerHandler(TestEvent.class, new TestEventHandler(proxyHandler));
@@ -51,20 +46,20 @@ public class TestRemote {
     } catch (Exception e) {
       e.printStackTrace();
     }
-	}	
+  }
 }
 
 class TestEventHandler implements EventHandler<RemoteMessage<TestEvent>> {
 
-	private final EventHandler<TestEvent> proxy;
-	
-	public TestEventHandler(EventHandler<TestEvent> proxy) {
-		this.proxy = proxy;
-	}
-	
-	@Override
-	public void onNext(RemoteMessage<TestEvent> value) {
-		System.out.println(value.getMessage().getMessage() + " " + value.getMessage().getLoad());
-		proxy.onNext(value.getMessage());
-	}
+  private final EventHandler<TestEvent> proxy;
+
+  public TestEventHandler(EventHandler<TestEvent> proxy) {
+    this.proxy = proxy;
+  }
+
+  @Override
+  public void onNext(RemoteMessage<TestEvent> value) {
+    System.out.println(value.getMessage().getMessage() + " " + value.getMessage().getLoad());
+    proxy.onNext(value.getMessage());
+  }
 }
