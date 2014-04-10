@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Error message that REEF Client gets when there is an error in REEF runtime.
+ * Error message that REEF Client gets when there is an error in REEF resourcemanager.
  */
 public final class FailedRuntime extends AbstractFailure {
 

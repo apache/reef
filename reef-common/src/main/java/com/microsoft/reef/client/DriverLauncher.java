@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * A launcher for REEF Drivers.
  * <p/>
  * It can be instantiated using a configuration that can create a REEF instance.
- * For example, the local runtime and the YARN runtime can do this.
+ * For example, the local resourcemanager and the YARN resourcemanager can do this.
  * <p/>
  * {@see com.microsoft.reef.examples.hello.HelloREEF} for a demo use case.
  */
@@ -99,7 +99,7 @@ public final class DriverLauncher {
   public final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
     public void onNext(final FailedRuntime error) {
-      LOG.log(Level.SEVERE, "Received a runtime error", error.getCause());
+      LOG.log(Level.SEVERE, "Received a resourcemanager error", error.getCause());
       theJob = null;
       setStatusAndNotify(LauncherStatus.FAILED(error.getCause()));
     }
@@ -176,8 +176,8 @@ public final class DriverLauncher {
   /**
    * Instantiate a launcher for the given Configuration.
    *
-   * @param runtimeConfiguration the runtime configuration to be used
-   * @return a DriverLauncher based on the given runtime configuration
+   * @param runtimeConfiguration the resourcemanager configuration to be used
+   * @return a DriverLauncher based on the given resourcemanager configuration
    * @throws BindException      on configuration errors
    * @throws InjectionException on configuration errors
    */

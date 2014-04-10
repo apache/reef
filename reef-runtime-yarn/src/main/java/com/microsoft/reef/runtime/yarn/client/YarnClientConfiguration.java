@@ -32,7 +32,7 @@ import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.wake.remote.RemoteConfiguration;
 
 /**
- * A ConfigurationModule for the YARN runtime.
+ * A ConfigurationModule for the YARN resourcemanager.
  */
 @Public
 @ClientSide
@@ -40,7 +40,7 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> YARN_QUEUE_NAME = new OptionalParameter<>();
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
-      // Bind the common runtime
+      // Bind the common resourcemanager
       .bindImplementation(REEF.class, ClientManager.class)
       .bindImplementation(RunningJob.class, RunningJobImpl.class)
           // Bind the message codec for REEF.

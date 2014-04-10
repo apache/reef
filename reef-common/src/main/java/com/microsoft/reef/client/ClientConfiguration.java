@@ -52,7 +52,7 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<FailedJob>> ON_JOB_FAILED = new OptionalImpl<>();
 
   /**
-   * Receives fatal runtime errors. The presence of this error means that the
+   * Receives fatal resourcemanager errors. The presence of this error means that the
    * underlying REEF instance is no longer able to execute REEF jobs. The
    * actual Jobs may or may not still be running.
    * Default implementation logs an error and rethrows the exception in the client JVM.

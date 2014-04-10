@@ -31,7 +31,7 @@ import javax.inject.Inject;
 @Private
 public final class EvaluatorControlHandler {
 
-  private final EvaluatorStateManager stateManager;
+  private final EvaluatorStatusManager stateManager;
   private final RemoteManager remoteManager;
   private Optional<EventHandler<EvaluatorRuntimeProtocol.EvaluatorControlProto>> wrapped = Optional.empty();
 
@@ -40,7 +40,7 @@ public final class EvaluatorControlHandler {
    * @param remoteManager used to establish the communications link as soon as the remote ID has been set.
    */
   @Inject
-  EvaluatorControlHandler(final EvaluatorStateManager stateManager,
+  EvaluatorControlHandler(final EvaluatorStatusManager stateManager,
                           final RemoteManager remoteManager) {
     this.stateManager = stateManager;
     this.remoteManager = remoteManager;

@@ -278,8 +278,7 @@ public class SuspendDriver {
 
       final String[] split = commandStr.split("\\s+", 2);
       if (split.length != 2) {
-        SuspendDriver.this.jobMessageObserver.onError(
-            new IllegalArgumentException("Bad command: " + commandStr));
+        throw new IllegalArgumentException("Bad command: " + commandStr);
       } else {
 
         final String command = split[0].toLowerCase().intern();
@@ -292,8 +291,7 @@ public class SuspendDriver {
             if (task != null) {
               task.suspend();
             } else {
-              SuspendDriver.this.jobMessageObserver.onError(
-                  new IllegalArgumentException("Suspend: Task not found: " + taskId));
+              throw new IllegalArgumentException("Suspend: Task not found: " + taskId);
             }
             break;
           }
@@ -314,15 +312,13 @@ public class SuspendDriver {
                 throw new RuntimeException(e);
               }
             } else {
-              SuspendDriver.this.jobMessageObserver.onError(
-                  new IllegalArgumentException("Resume: Task not found: " + taskId));
+              throw new IllegalArgumentException("Resume: Task not found: " + taskId);
             }
             break;
           }
 
           default:
-            SuspendDriver.this.jobMessageObserver.onError(
-                new IllegalArgumentException("Bad command: " + command));
+            throw new IllegalArgumentException("Bad command: " + command);
         }
       }
     }
@@ -351,7 +347,6 @@ public class SuspendDriver {
                     " Evaluators; but only received " +
                     SuspendDriver.this.numberOfEvaluatorsReceived;
                 final RuntimeException ex = new RuntimeException(message);
-                SuspendDriver.this.jobMessageObserver.onError(ex);
                 throw ex;
               }
             }

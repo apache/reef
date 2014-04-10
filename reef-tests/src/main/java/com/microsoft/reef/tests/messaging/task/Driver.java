@@ -106,9 +106,9 @@ public final class Driver {
       LOG.log(Level.INFO, "TaskMessage: from {0}: {1}",
           new Object[]{msg.getId(), CODEC.decode(msg.get())});
       if (!Arrays.equals(msg.get(), HELLO_STR)) {
-        final Exception ex = new DriverSideFailure("Unexpected message: " + CODEC.decode(msg.get()));
+        final RuntimeException ex = new DriverSideFailure("Unexpected message: " + CODEC.decode(msg.get()));
         LOG.log(Level.SEVERE, "Bad message from " + msg.getId(), ex);
-        client.onError(ex);
+        throw ex;
       }
     }
   }

@@ -79,7 +79,7 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   }
 
   /**
-   * Loads the client and runtime configuration files from disk.
+   * Loads the client and resourcemanager configuration files from disk.
    */
   private Configuration getClockConfiguration() {
     final JavaConfigurationBuilder clockConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();

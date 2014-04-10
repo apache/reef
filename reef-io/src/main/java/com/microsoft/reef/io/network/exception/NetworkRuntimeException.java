@@ -16,13 +16,14 @@
 package com.microsoft.reef.io.network.exception;
 
 /**
- * Network service runtime exception
+ * Network service resourcemanager exception
  */
 public class NetworkRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a new network runtime exception with the specified detail message and cause
+   * Constructs a new network resourcemanager exception with the specified detail message and cause
+   *
    * @param s the detailed message
    * @param e the cause
    */
@@ -31,7 +32,8 @@ public class NetworkRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new network runtime exception with the specified detail message
+   * Constructs a new network resourcemanager exception with the specified detail message
+   *
    * @param s the detailed message
    */
   public NetworkRuntimeException(String s) {
@@ -39,7 +41,8 @@ public class NetworkRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new network runtime exception with the specified cause
+   * Constructs a new network resourcemanager exception with the specified cause
+   *
    * @param e the cause
    */
   public NetworkRuntimeException(Throwable e) {

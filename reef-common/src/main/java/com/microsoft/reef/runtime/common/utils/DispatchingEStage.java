@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.common.driver;
+package com.microsoft.reef.runtime.common.utils;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.runtime.common.utils.BroadCastEventHandler;
 import com.microsoft.reef.util.ExceptionHandlingEventHandler;
 import com.microsoft.tang.util.MonotonicHashMap;
 import com.microsoft.wake.EStage;

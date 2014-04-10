@@ -21,18 +21,9 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
 
 /**
- * Houses the Driver runtime configuration's NamedParameters
+ * Houses the Driver resourcemanager configuration's NamedParameters
  */
 public class DriverRuntimeConfigurationOptions {
-  // JOB HANDLER BINDINGS
-  @NamedParameter(doc = "Job message handler (see ClientJobStatusHandler).")
-  public final static class JobMessageHandler implements Name<EventHandler<byte[]>> {
-  }
-
-  @NamedParameter(doc = "Job exception handler (see ClientJobStatusHandler).")
-  public final static class JobExceptionHandler implements Name<EventHandler<Exception>> {
-  }
-
   @NamedParameter(doc = "Called when a job control message is received by the client.")
   public final static class JobControlHandler implements Name<EventHandler<ClientRuntimeProtocol.JobControlProto>> {
   }

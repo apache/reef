@@ -20,7 +20,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 
 /**
- * A TestEnvironment for the local runtime.
+ * A TestEnvironment for the local resourcemanager.
  */
 public final class LocalTestEnvironment implements TestEnvironment {
 
@@ -36,9 +36,18 @@ public final class LocalTestEnvironment implements TestEnvironment {
   public synchronized final Configuration getRuntimeConfiguration() {
     assert (this.ready);
     try {
-      return LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 16)
-          .build();
+      final String rootFolder = System.getProperty("com.microsoft.reef.runtime.local.folder");
+      if (null == rootFolder) {
+        return LocalRuntimeConfiguration.CONF
+            .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 16)
+            .build();
+      } else {
+        return LocalRuntimeConfiguration.CONF
+            .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 16)
+            .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, rootFolder)
+            .build();
+
+      }
     } catch (final BindException e) {
       throw new RuntimeException(e);
     }

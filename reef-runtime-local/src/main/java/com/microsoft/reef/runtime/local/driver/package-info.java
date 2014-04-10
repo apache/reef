@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * The resource manager for the local runtime
+ * The resource manager for the local resourcemanager
  */
 package com.microsoft.reef.runtime.local.driver;

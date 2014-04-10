@@ -15,8 +15,8 @@
  */
 package com.microsoft.reef.task;
 
-import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.annotations.audience.TaskSide;
 
 import java.util.concurrent.Callable;
 
@@ -34,7 +34,7 @@ import java.util.concurrent.Callable;
 public interface Task {
 
   /**
-   * Called by the runtime harness to execute the task.
+   * Called by the resourcemanager harness to execute the task.
    *
    * @param memento the memento objected passed down by the driver.
    * @return the user defined return value

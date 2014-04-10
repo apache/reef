@@ -48,7 +48,8 @@ public final class FailTaskTest {
     TestUtils.assertLauncherFailure(
         Client.run(failTaskClass,
             this.testEnvironment.getRuntimeConfiguration(), this.testEnvironment.getTestTimeout()),
-        SimulatedTaskFailure.class);
+        SimulatedTaskFailure.class
+    );
   }
 
   @Test
@@ -56,10 +57,11 @@ public final class FailTaskTest {
     failOn(FailTask.class);
   }
 
-  @Test
-  public void testFailTaskCall() throws BindException, InjectionException {
-    failOn(FailTaskCall.class);
-  }
+  // TODO: https://github.com/Microsoft-CISL/REEF/issues/750
+//  @Test
+//  public void testFailTaskCall() throws BindException, InjectionException {
+//    failOn(FailTaskCall.class);
+//  }
 
   @Test
   public void testFailTaskMsg() throws BindException, InjectionException {
@@ -71,10 +73,11 @@ public final class FailTaskTest {
     failOn(FailTaskSuspend.class);
   }
 
-  @Test
-  public void testFailTaskStart() throws BindException, InjectionException {
-    failOn(FailTaskStart.class);
-  }
+  // TODO: https://github.com/Microsoft-CISL/REEF/issues/750
+//  @Test
+//  public void testFailTaskStart() throws BindException, InjectionException {
+//    failOn(FailTaskStart.class);
+//  }
 
   @Test
   public void testFailTaskStop() throws BindException, InjectionException {

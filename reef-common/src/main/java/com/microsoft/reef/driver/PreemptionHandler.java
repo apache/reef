@@ -22,7 +22,7 @@ import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.wake.EventHandler;
 
 /**
- * This EventHandler will receive preemption events from the underlying runtime.
+ * This EventHandler will receive preemption events from the underlying resourcemanager.
  * NOTE: This currently not implemented. Consider it a preview of the API.
  */
 @DriverSide

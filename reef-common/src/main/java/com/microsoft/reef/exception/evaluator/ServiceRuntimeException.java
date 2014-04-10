@@ -17,7 +17,7 @@ package com.microsoft.reef.exception.evaluator;
 
 
 /**
- * The base class for runtime exceptions thrown by REEF services, such as
+ * The base class for resourcemanager exceptions thrown by REEF services, such as
  * storage and networking routines. SERVICES that throw exceptions that
  * applications may be able to cope with should subclass ServiceRuntimeException
  * or ServiceException.
