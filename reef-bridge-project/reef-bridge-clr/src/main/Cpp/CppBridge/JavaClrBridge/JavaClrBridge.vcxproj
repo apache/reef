@@ -146,6 +146,7 @@
     <ClCompile Include="AllocatedEvaluatorClr2Java.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
+    <ClCompile Include="EvaluatorRequestorClr2Java.cpp" />
     <ClCompile Include="InteropLogger.cpp" />
     <ClCompile Include="InteropReturnInfo.cpp" />
     <ClCompile Include="InteropUtil.cpp" />

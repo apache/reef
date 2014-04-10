@@ -32,6 +32,14 @@ namespace Microsoft.Reef.Interop
             obj.OnNext(new ActiveContext(clr2Java));
         }
 
+        public static void Call_ClrSystemEvaluatorRequestor_OnNext(ulong handle, IEvaluatorRequestorClr2Java clr2Java)
+        {
+            Console.WriteLine("Call_ClrSystemEvaluatorRequestor_OnNext");
+            GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
+            ClrSystemHandler<EvaluatorRequestor> obj = (ClrSystemHandler<EvaluatorRequestor>)gc.Target;
+            obj.OnNext(new EvaluatorRequestor(clr2Java));
+        }
+
         public static ulong[] Call_ClrSystemStartHandler_OnStart(DateTime startTime)
         {
             Console.WriteLine("*** Start time is " + startTime);

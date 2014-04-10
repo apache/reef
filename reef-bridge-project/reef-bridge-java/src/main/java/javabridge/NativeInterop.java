@@ -44,6 +44,12 @@ public class NativeInterop {
             InteropLogger interopLogger
     );
 
+    public static native void ClrSystemEvaluatorRequstorHandlerOnNext (
+            long handle,
+            EvaluatorRequstorBridge javaEvluatorRequstorBridge,
+            InteropLogger interopLogger
+    );
+
     private static final String LIB_BIN = "/";
     private static final String DLL_EXTENSION = ".dll";
     private final static String CPP_BRIDGE = "JavaClrBridge";

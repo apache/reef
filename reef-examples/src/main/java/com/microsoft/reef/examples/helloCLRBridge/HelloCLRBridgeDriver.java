@@ -34,6 +34,7 @@ import com.microsoft.tang.proto.ClassHierarchyProto;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 import javabridge.AllocatedEvaluatorBridge;
+import javabridge.EvaluatorRequstorBridge;
 import javabridge.InteropLogger;
 import javabridge.NativeInterop;
 
@@ -52,12 +53,11 @@ public final class HelloCLRBridgeDriver {
 
   private static final Logger LOG = Logger.getLogger(HelloCLRBridgeDriver.class.getName());
 
-  private final EvaluatorRequestor requestor;
+  private final EvaluatorRequstorBridge requstorBridge;
   private long  allocatedEvaluatorHandler;
+  private long  evaloatorReqeustorHandler;
 
-  private int nJVMTasks = 0;  // guarded by this
-  private int nCLRTasks = 1;  // guarded by this
-
+  private int nCLRTasks = 0;
 
   /**
    * Job driver constructor - instantiated via TANG.
@@ -66,7 +66,7 @@ public final class HelloCLRBridgeDriver {
    */
   @Inject
   public HelloCLRBridgeDriver(final EvaluatorRequestor requestor) {
-    this.requestor = requestor;
+     requstorBridge = new EvaluatorRequstorBridge(requestor);
   }
 
   /**
@@ -75,13 +75,32 @@ public final class HelloCLRBridgeDriver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, "StartTime: ", startTime);
-        long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
-        allocatedEvaluatorHandler = handlers[0];
-        HelloCLRBridgeDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(nCLRTasks + nJVMTasks)
-          .setMemory(128)
-          .build());
+        synchronized (HelloCLRBridgeDriver.this)
+        {
+            InteropLogger interopLogger = new InteropLogger();
+            LOG.log(Level.INFO, "StartTime: ", startTime);
+            long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+            if (handlers != null)
+            {
+                if(handlers.length > 0)
+                {
+                    allocatedEvaluatorHandler = handlers[0];
+                }
+                if (handlers.length > 2)
+                {
+                    evaloatorReqeustorHandler = handlers[2];
+                }
+            }
+            if(evaloatorReqeustorHandler == 0)
+            {
+                throw new RuntimeException("Evaluator Requestor Handler not initialized by CLR.");
+            }
+            NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(evaloatorReqeustorHandler, requstorBridge, interopLogger);
+
+            // get the evaluator numbers set by CLR handler
+            nCLRTasks =  requstorBridge.getEvaluaotrNumber();
+            LOG.log(Level.INFO, "evaluator requested: " + nCLRTasks);
+        }
     }
   }
 
@@ -92,10 +111,8 @@ public final class HelloCLRBridgeDriver {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       synchronized (HelloCLRBridgeDriver.this) {
-        if (HelloCLRBridgeDriver.this.nJVMTasks > 0) {
-            HelloCLRBridgeDriver.this.onNextJVM(allocatedEvaluator);
-            HelloCLRBridgeDriver.this.nJVMTasks -= 1;
-        } else if (HelloCLRBridgeDriver.this.nCLRTasks > 0) {
+          LOG.log(Level.INFO, "evaluator outstanding: " + nCLRTasks);
+          if (HelloCLRBridgeDriver.this.nCLRTasks > 0) {
             HelloCLRBridgeDriver.this.onNextCLR(allocatedEvaluator);
             HelloCLRBridgeDriver.this.nCLRTasks -= 1;
         }
@@ -117,31 +134,6 @@ public final class HelloCLRBridgeDriver {
     allocatedEvaluator.setType(EvaluatorType.CLR);
     AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(allocatedEvaluator);
     NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvaluatorHandler, allocatedEvaluatorBridge,interopLogger);
-  }
-
-  /**
-   * Uses the AllocatedEvaluator to launch a JVM task.
-   *
-   * @param allocatedEvaluator
-   */
-  final void onNextJVM(final AllocatedEvaluator allocatedEvaluator) {
-    try {
-      allocatedEvaluator.setType(EvaluatorType.JVM);
-      final Configuration contextConfiguration = ContextConfiguration.CONF
-          .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
-          .build();
-
-      final Configuration taskConfiguration = TaskConfiguration.CONF
-          .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
-          .set(TaskConfiguration.TASK, HelloTask.class)
-          .build();
-
-      allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
-    } catch (final BindException ex) {
-      final String message = "Unable to setup Task or Context configuration.";
-      LOG.log(Level.SEVERE, message, ex);
-      throw new RuntimeException(message, ex);
-    }
   }
 }
 

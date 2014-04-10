@@ -101,8 +101,8 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluator
   (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluatorBridge, jobject jlogger)
 {
 	try{
-		AllocatedEvaluatorClr2Java^ jallocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
-		ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, jallocatedEval);
+		AllocatedEvaluatorClr2Java^ allocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
+		ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, allocatedEval);
 	}
 	catch (System::Exception^ ex)
 	{
@@ -121,12 +121,32 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemActiveContextHandl
   (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge, jobject jlogger)
 {
 	try{
-		ActiveContextClr2Java^ jactiveContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
-		ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, jactiveContextBrdige);
+		ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
+		ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, activeContextBrdige);
 	}
 	catch (System::Exception^ ex)
 	{
 		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemEvaluatorRequstorHandlerOnNext
+ * Signature: (JLjavabridge/EvaluatorRequstorBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext
+  (JNIEnv *env, jclass cls, jlong handle, jobject jevaluatorRequestorBridge, jobject jlogger)
+{
+	try{
+		EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
+		ClrSystemHandlerWrapper::Call_ClrSystemEvaluatorRequestor_OnNext(handle, evaluatorRequestorBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}
