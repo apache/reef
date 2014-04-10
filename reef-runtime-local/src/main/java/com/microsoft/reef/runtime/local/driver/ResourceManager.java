@@ -96,7 +96,7 @@ public final class ResourceManager {
     }
 
 
-    LOG.log(Level.FINEST, "ResourceManager instantiated");
+    LOG.log(Level.INFO, "Instantiated 'ResourceManager'");
   }
 
   /**

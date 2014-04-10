@@ -19,6 +19,8 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Manages Status of a single Evaluator.
@@ -26,6 +28,7 @@ import javax.inject.Inject;
 @DriverSide
 @Private
 final class EvaluatorStatusManager {
+  private static final Logger LOG = Logger.getLogger(EvaluatorStatusManager.class.getName());
   /**
    * The state managed.
    */
@@ -33,6 +36,7 @@ final class EvaluatorStatusManager {
 
   @Inject
   private EvaluatorStatusManager() {
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorStatusManager'");
   }
 
   synchronized void setRunning() {

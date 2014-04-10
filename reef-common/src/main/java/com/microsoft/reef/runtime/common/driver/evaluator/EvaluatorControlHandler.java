@@ -23,6 +23,8 @@ import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class handles the sending of Evaluator control messages to the Evaluator.
@@ -33,6 +35,7 @@ public final class EvaluatorControlHandler {
 
   private final EvaluatorStatusManager stateManager;
   private final RemoteManager remoteManager;
+  private static Logger LOG = Logger.getLogger(EvaluatorControlHandler.class.getName());
   private Optional<EventHandler<EvaluatorRuntimeProtocol.EvaluatorControlProto>> wrapped = Optional.empty();
 
   /**
@@ -44,6 +47,7 @@ public final class EvaluatorControlHandler {
                           final RemoteManager remoteManager) {
     this.stateManager = stateManager;
     this.remoteManager = remoteManager;
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorControlHandler'");
   }
 
   /**

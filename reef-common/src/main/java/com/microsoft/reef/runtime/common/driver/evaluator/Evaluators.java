@@ -47,6 +47,8 @@ public final class Evaluators implements AutoCloseable {
   @Inject
   Evaluators(final ResourceCatalog resourceCatalog) {
     this.resourceCatalog = resourceCatalog;
+    LOG.log(Level.INFO, "Instantiated 'Evaluators'");
+
   }
 
   /**
@@ -98,6 +100,7 @@ public final class Evaluators implements AutoCloseable {
     if (this.evaluators.containsKey(evaluatorId)) {
       throw new IllegalArgumentException("Trying to re-add an Evaluator that is already known: " + evaluatorId);
     } else {
+      LOG.log(Level.INFO, "Adding: " + evaluatorId);
       this.evaluators.put(evaluatorId, evaluatorManager);
     }
   }
@@ -107,10 +110,12 @@ public final class Evaluators implements AutoCloseable {
    * @throws java.lang.RuntimeException if no such EvaluatorManager exists.
    */
   public synchronized void remove(final EvaluatorManager evaluatorManager) {
-    if (this.evaluators.containsKey(evaluatorManager.getId())) {
-      this.evaluators.remove(evaluatorManager.getId());
+    final String evaluatorId = evaluatorManager.getId();
+    if (this.evaluators.containsKey(evaluatorId)) {
+      LOG.log(Level.INFO, "Removing: " + evaluatorId);
+      this.evaluators.remove(evaluatorId);
     } else {
-      throw new RuntimeException("Trying t remove an unknown EvaluatorManager: " + evaluatorManager.getId());
+      throw new RuntimeException("Trying to remove an unknown EvaluatorManager: " + evaluatorId);
     }
   }
 
