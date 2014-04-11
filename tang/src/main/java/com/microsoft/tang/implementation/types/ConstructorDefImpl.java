@@ -101,8 +101,8 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
     }
     for (int i = 0; i < getArgs().length; i++) {
       boolean found = false;
-      for (int j = 0; j < getArgs().length; j++) {
-        if (getArgs()[i].getName().equals(getArgs()[j].getName())) {
+      for (int j = 0; j < def.getArgs().length; j++) {
+        if (getArgs()[i].getName().equals(def.getArgs()[j].getName())) {
           found = true;
         }
       }

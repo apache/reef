@@ -112,7 +112,7 @@ public class JavaNodeFactory {
         if (injectableConstructors.contains(def)) {
           throw new ClassHierarchyException(
               "Ambiguous boundConstructors detected in class " + clazz + ": "
-                  + def + " differs from some other " + " constructor only "
+                  + def + " differs from some other" + " constructor only "
                   + "by parameter order.");
         } else {
           injectableConstructors.add(def);
