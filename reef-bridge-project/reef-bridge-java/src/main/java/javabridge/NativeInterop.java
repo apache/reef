@@ -20,6 +20,7 @@ import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import java.io.*;
 import java.util.Date;
+import java.util.HashMap;
 
 
 public class NativeInterop {
@@ -58,7 +59,6 @@ public class NativeInterop {
             "ClrHandler",
     };
 
-
     static {
         try {
             System.loadLibrary(CPP_BRIDGE);
@@ -68,6 +68,18 @@ public class NativeInterop {
             loadFromJar();
         }
     }
+
+    public static String EvaluatorRequestorKey = "EvaluatorRequestor";
+    public static String AllocatedEvaluatorKey = "AllocatedEvaluator";
+    public static String ActiveContextKey = "ActiveContext";
+
+    public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
+        put(EvaluatorRequestorKey, 0);
+        put(AllocatedEvaluatorKey, 1);
+        put(ActiveContextKey, 2);
+    }};
+
+    public static int nHandlers = 3;
 
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir
