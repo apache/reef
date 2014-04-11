@@ -355,7 +355,18 @@ public class TestTang {
     // takes a float, but none that takes both.
     tang.newInjector(cb.build()).getInstance(ThreeConstructors.class);
   }
-  
+
+  @Test
+  public void testTwoConstructorsAmbiguous() throws BindException, InjectionException {
+            thrown.expect(InjectionException.class);
+            thrown.expectMessage("Cannot inject com.microsoft.tang.TwoConstructors: Multiple infeasible plans: com.microsoft.tang.TwoConstructors:");
+        final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+        cb.bindNamedParameter(TCString.class, "s");
+        cb.bindNamedParameter(TCInt.class, "1");
+
+       tang.newInjector(cb.build()).getInstance(TwoConstructors.class);
+  }
+
   @Test
   public void testDefaultImplementation() throws BindException, ClassHierarchyException, InjectionException {
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -893,6 +904,30 @@ class ThreeConstructors {
     this.s = "default";
     this.f = f;
   } 
+}
+
+class TwoConstructors {
+
+    final int i;
+    final String s;
+
+    @NamedParameter
+    static class TCInt implements Name<Integer> {}
+
+    @NamedParameter
+    static class TCString implements Name<String> {}
+
+    @Inject
+    TwoConstructors(@Parameter(TCInt.class) int i, @Parameter(TCString.class) String s) {
+        this.i = i;
+        this.s = s;
+    }
+
+    @Inject
+    TwoConstructors(@Parameter(TCString.class) String s, @Parameter(TCInt.class) int i) {
+        this.i = i;
+        this.s = s;
+    }
 }
 interface IfaceWithDefault {
 }
