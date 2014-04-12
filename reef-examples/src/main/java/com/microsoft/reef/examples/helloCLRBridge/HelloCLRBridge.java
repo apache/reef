@@ -64,13 +64,6 @@ public final class HelloCLRBridge {
 
     driverConf = EnvironmentUtils.addClasspath(driverConf, DriverConfiguration.GLOBAL_LIBRARIES);
 
-      final File dllsForCLRConfigurationFile = new File(clrFolder, "DllsForCLR.conf");
-      try (PrintWriter clientOut = new PrintWriter(dllsForCLRConfigurationFile)) {
-          clientOut.write("Microsoft.Reef.Tasks.ITask.dll,Microsoft.Reef.Tasks.HelloTask.dll");
-      } catch (final FileNotFoundException e) {
-          throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
-      }
-
     driverConf = addAll(driverConf, DriverConfiguration.GLOBAL_FILES, clrFolder);
 
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf.build(), timeOut);

@@ -143,13 +143,6 @@ public class JobClient {
     }
 
     private void addCLRFiles( final File folder) throws BindException{
-        final File DllsForCLRConfigurationFile = new File(folder, "DllsForCLR.conf");
-        try (PrintWriter clientOut = new PrintWriter(DllsForCLRConfigurationFile)) {
-            clientOut.write("Microsoft.Reef.Tasks.ITask.dll,Microsoft.Reef.Tasks.ShellTask.dll");
-        } catch (final FileNotFoundException e) {
-            throw new RuntimeException("Unable to write list of DLLs needed into file.", e);
-        }
-
         ConfigurationModule result = this.driverConfigModule;
         for (final File f : folder.listFiles()) {
             if (f.canRead() && f.exists() && f.isFile()) {
