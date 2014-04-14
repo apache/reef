@@ -15,18 +15,6 @@
  */
 package com.microsoft.tang.formats;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.junit.Assert;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.Injector;
@@ -37,6 +25,15 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.ClassHierarchyException;
 import com.microsoft.tang.exceptions.InjectionException;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 
 /*
  * Define a configuration module that explains how Foo should be injected.
@@ -78,53 +75,61 @@ import com.microsoft.tang.exceptions.InjectionException;
  * 
  */
 
-final class MyBadConfigurationModule extends ConfigurationModuleBuilder {    
+final class MyBadConfigurationModule extends ConfigurationModuleBuilder {
 
 }
 
-final class MyConfigurationModule extends ConfigurationModuleBuilder {    
+final class MyConfigurationModule extends ConfigurationModuleBuilder {
   // Tell us what implementation you want, or else!!    
   public static final RequiredImpl<TestConfigurationModule.Foo> THE_FOO = new RequiredImpl<>();
   // If you want, you can change the fooness.
   public static final OptionalParameter<Integer> FOO_NESS = new OptionalParameter<>();
-  
+
   public static final ConfigurationModule CONF = new MyConfigurationModule()
 
-    // This binds the above to tang configuration stuff.  You can use parameters more than
-    // once, but you'd better use them all at least once, or I'll throw exceptions at you.
+      // This binds the above to tang configuration stuff.  You can use parameters more than
+      // once, but you'd better use them all at least once, or I'll throw exceptions at you.
 
-    .bindImplementation(TestConfigurationModule.Foo.class, MyConfigurationModule.THE_FOO)
-    .bindNamedParameter(TestConfigurationModule.Fooness.class, MyConfigurationModule.FOO_NESS)
-    .build();
+      .bindImplementation(TestConfigurationModule.Foo.class, MyConfigurationModule.THE_FOO)
+      .bindNamedParameter(TestConfigurationModule.Fooness.class, MyConfigurationModule.FOO_NESS)
+      .build();
 }
-final class MyMissingBindConfigurationModule extends ConfigurationModuleBuilder {    
+
+final class MyMissingBindConfigurationModule extends ConfigurationModuleBuilder {
   // Tell us what implementation you want, or else!!    
   public static final RequiredImpl<TestConfigurationModule.Foo> THE_FOO = new RequiredImpl<>();
   // If you want, you can change the fooness.
   public static final OptionalParameter<Integer> FOO_NESS = new OptionalParameter<>();
-  
+
   // This conf doesn't use FOO_NESS.  Expect trouble below
   public static final ConfigurationModule BAD_CONF = new MyMissingBindConfigurationModule()
-    .bindImplementation(TestConfigurationModule.Foo.class, THE_FOO)
-    .build();
+      .bindImplementation(TestConfigurationModule.Foo.class, THE_FOO)
+      .build();
 
 }
+
 public class TestConfigurationModule {
   /*
    *  Toy class hierarchy: FooImpl implements Foo, has a Fooness named
    *  parameter that defaults to 42.
    */
-  
-  @NamedParameter(default_value = "42")
-  class Fooness implements Name<Integer> {} 
 
-  static interface Foo { public int getFooness(); }
+  @NamedParameter(default_value = "42")
+  class Fooness implements Name<Integer> {
+  }
+
+  static interface Foo {
+    public int getFooness();
+  }
 
   static class FooImpl implements Foo {
     private final int fooness;
+
     @Inject
-    FooImpl(@Parameter(Fooness.class) int fooness) { this.fooness = fooness;}
-    
+    FooImpl(@Parameter(Fooness.class) int fooness) {
+      this.fooness = fooness;
+    }
+
     public int getFooness() {
       return this.fooness;
     }
@@ -133,16 +138,20 @@ public class TestConfigurationModule {
   static class FooAltImpl implements Foo {
     @SuppressWarnings("unused")
     private final int fooness;
+
     @Inject
-    FooAltImpl(@Parameter(Fooness.class) int fooness) { this.fooness = fooness;}
-    
+    FooAltImpl(@Parameter(Fooness.class) int fooness) {
+      this.fooness = fooness;
+    }
+
     public int getFooness() {
       return 7;
     }
   }
 
-  @Rule public ExpectedException thrown = ExpectedException.none();
- 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void smokeTest() throws BindException, InjectionException {
     // Here we set some configuration values.  In true tang style,
@@ -150,31 +159,31 @@ public class TestConfigurationModule {
     // implementation is complete.
     Configuration c = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
-        .set(MyConfigurationModule.FOO_NESS, ""+12)
+        .set(MyConfigurationModule.FOO_NESS, "" + 12)
         .build();
     Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 12);
   }
 
 
-    @Test
-    public void smokeTestConfigFile() throws BindException, InjectionException, IOException  {
-        // Here we set some configuration values.  In true tang style,
-        // you won't be able to set them more than once ConfigurationModule's
-        // implementation is complete.
-        Configuration c = MyConfigurationModule.CONF
-                .set(MyConfigurationModule.THE_FOO, FooImpl.class)
-                .set(MyConfigurationModule.FOO_NESS, ""+12)
-                .build();
-        Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
-        Assert.assertEquals(f.getFooness(), 12);
+  @Test
+  public void smokeTestConfigFile() throws BindException, InjectionException, IOException {
+    // Here we set some configuration values.  In true tang style,
+    // you won't be able to set them more than once ConfigurationModule's
+    // implementation is complete.
+    Configuration c = MyConfigurationModule.CONF
+        .set(MyConfigurationModule.THE_FOO, FooImpl.class)
+        .set(MyConfigurationModule.FOO_NESS, "" + 12)
+        .build();
+    Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
+    Assert.assertEquals(f.getFooness(), 12);
 
-        final File tempFile = new java.io.File("TangTest.avroconf");
-        final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-        serializer.toFile(c, tempFile);
-        serializer.fromFile(tempFile);
+    final File tempFile = File.createTempFile("TangTest", ".avroconf");
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    serializer.toFile(c, tempFile);
+    serializer.fromFile(tempFile);
 
-    }
+  }
 
   @Test
   public void omitOptionalTest() throws BindException, InjectionException {
@@ -185,35 +194,39 @@ public class TestConfigurationModule {
     Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 42);
   }
+
   @Test
   public void omitRequiredTest() throws Throwable {
     thrown.expect(BindException.class);
     thrown.expectMessage("Attempt to build configuration before setting required option(s): { THE_FOO }");
     try {
       MyConfigurationModule.CONF
-        .set(MyConfigurationModule.FOO_NESS, ""+12)
-        .build();
+          .set(MyConfigurationModule.FOO_NESS, "" + 12)
+          .build();
     } catch (ExceptionInInitializerError e) {
       throw e.getCause();
     }
   }
+
   @Test
   public void badConfTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
     thrown.expectMessage("Found declared options that were not used in binds: { FOO_NESS }");
-      try {
-        // Java's classloader semantics cause it to load a class when executing the
-        // first line that references the class in question.
-        @SuppressWarnings("unused")
-        Object o = MyMissingBindConfigurationModule.BAD_CONF;
-      } catch (ExceptionInInitializerError e) {
-        throw e.getCause();
-      }
+    try {
+      // Java's classloader semantics cause it to load a class when executing the
+      // first line that references the class in question.
+      @SuppressWarnings("unused")
+      Object o = MyMissingBindConfigurationModule.BAD_CONF;
+    } catch (ExceptionInInitializerError e) {
+      throw e.getCause();
+    }
   }
+
   @Test
   public void nonExistentStringBindOK() throws BindException, InjectionException {
     new MyBadConfigurationModule().bindImplementation(Foo.class, "i.do.not.exist");
   }
+
   @Test
   public void nonExistentStringBindNotOK() throws BindException, InjectionException {
     thrown.expect(ClassHierarchyException.class);
@@ -222,23 +235,24 @@ public class TestConfigurationModule {
     new MyBadConfigurationModule().bindImplementation(Foo.class, "i.do.not.exist").build();
   }
 
-  public static final class MultiBindConfigurationModule extends ConfigurationModuleBuilder {    
+  public static final class MultiBindConfigurationModule extends ConfigurationModuleBuilder {
     // Tell us what implementation you want, or else!!    
     public static final RequiredImpl<Foo> THE_FOO = new RequiredImpl<>();
     // If you want, you can change the fooness.
     public static final OptionalParameter<Integer> FOO_NESS = new OptionalParameter<>();
-    
+
     public static final ConfigurationModule CONF = new MultiBindConfigurationModule()
 
-      // This binds the above to tang configuration stuff.  You can use parameters more than
-      // once, but you'd better use them all at least once, or I'll throw exceptions at you.
+        // This binds the above to tang configuration stuff.  You can use parameters more than
+        // once, but you'd better use them all at least once, or I'll throw exceptions at you.
 
-      .bindImplementation(Foo.class, THE_FOO)
-      .bindImplementation(Object.class, THE_FOO)
-      .bindNamedParameter(Fooness.class, FOO_NESS)
-      .build();
-    
+        .bindImplementation(Foo.class, THE_FOO)
+        .bindImplementation(Object.class, THE_FOO)
+        .bindNamedParameter(Fooness.class, FOO_NESS)
+        .build();
+
   }
+
   @Test
   public void multiBindTest() throws BindException, InjectionException {
     // Here we set some configuration values.  In true tang style,
@@ -246,14 +260,15 @@ public class TestConfigurationModule {
     // implementation is complete.
     Configuration c = MultiBindConfigurationModule.CONF
         .set(MultiBindConfigurationModule.THE_FOO, FooImpl.class)
-        .set(MultiBindConfigurationModule.FOO_NESS, ""+12)
+        .set(MultiBindConfigurationModule.FOO_NESS, "" + 12)
         .build();
     Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
-    Foo g = (Foo)Tang.Factory.getTang().newInjector(c).getInstance(Object.class);
+    Foo g = (Foo) Tang.Factory.getTang().newInjector(c).getInstance(Object.class);
     Assert.assertEquals(f.getFooness(), 12);
     Assert.assertEquals(g.getFooness(), 12);
     Assert.assertFalse(f == g);
   }
+
   @Test
   public void foreignSetTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
@@ -265,6 +280,7 @@ public class TestConfigurationModule {
       throw e.getCause();
     }
   }
+
   @Test
   public void foreignBindTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
@@ -276,26 +292,27 @@ public class TestConfigurationModule {
       throw e.getCause();
     }
   }
+
   @Test
   public void singletonTest() throws BindException, InjectionException {
     Configuration c = new MyConfigurationModule()
-      .bindImplementation(Foo.class, MyConfigurationModule.THE_FOO)
-      .bindNamedParameter(Fooness.class, MyConfigurationModule.FOO_NESS)
-      .build()
-      .set(MyConfigurationModule.THE_FOO, FooImpl.class)
-      .build();
+        .bindImplementation(Foo.class, MyConfigurationModule.THE_FOO)
+        .bindNamedParameter(Fooness.class, MyConfigurationModule.FOO_NESS)
+        .build()
+        .set(MyConfigurationModule.THE_FOO, FooImpl.class)
+        .build();
     Injector i = Tang.Factory.getTang().newInjector(c);
     Assert.assertTrue(i.getInstance(Foo.class) == i.getInstance(Foo.class));
   }
-  
+
   @Test
   public void immutablilityTest() throws BindException, InjectionException {
     // builder methods return copies; the original module is immutable
     ConfigurationModule builder1 = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class);
-    Assert.assertFalse(builder1 == MyConfigurationModule.CONF );
+    Assert.assertFalse(builder1 == MyConfigurationModule.CONF);
     Configuration config1 = builder1.build();
-  
+
     // reusable
     Configuration config2 = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooAltImpl.class)
@@ -307,8 +324,8 @@ public class TestConfigurationModule {
     Assert.assertEquals(42, i1.getInstance(Foo.class).getFooness());
     Assert.assertEquals(7, i2.getInstance(Foo.class).getFooness());
   }
-  
-  
+
+
   @Test
   public void setParamTest() throws BindException, InjectionException {
     Configuration c = SetConfigurationModule.CONF
@@ -320,19 +337,20 @@ public class TestConfigurationModule {
     Assert.assertTrue(s.contains("a"));
     Assert.assertTrue(s.contains("b"));
   }
+
   @Test
   public void setClassTest() throws BindException, InjectionException {
     Configuration c = SetClassConfigurationModule.CONF
-       .set(SetClassConfigurationModule.P, SubA.class)
-       .set(SetClassConfigurationModule.P, SubB.class)
-       .build();
+        .set(SetClassConfigurationModule.P, SubA.class)
+        .set(SetClassConfigurationModule.P, SubB.class)
+        .build();
     Set<Super> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetClass.class);
     Assert.assertEquals(2, s.size());
     boolean sawA = false, sawB = false;
-    for(Super sup : s) {
-      if(sup instanceof SubA) {
+    for (Super sup : s) {
+      if (sup instanceof SubA) {
         sawA = true;
-      } else if(sup instanceof SubB) {
+      } else if (sup instanceof SubB) {
         sawB = true;
       } else {
         Assert.fail();
@@ -340,21 +358,22 @@ public class TestConfigurationModule {
     }
     Assert.assertTrue(sawA && sawB);
   }
+
   @Test
   public void setClassRoundTripTest() throws BindException, InjectionException {
     Configuration c = SetClassConfigurationModule.CONF
-       .set(SetClassConfigurationModule.P, SubA.class)
-       .set(SetClassConfigurationModule.P, SubB.class)
-       .build();
+        .set(SetClassConfigurationModule.P, SubA.class)
+        .set(SetClassConfigurationModule.P, SubB.class)
+        .build();
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     ConfigurationFile.addConfiguration(cb, ConfigurationFile.toConfigurationString(c));
     Set<Super> s = Tang.Factory.getTang().newInjector(cb.build()).getNamedInstance(SetClass.class);
     Assert.assertEquals(2, s.size());
     boolean sawA = false, sawB = false;
-    for(Super sup : s) {
-      if(sup instanceof SubA) {
+    for (Super sup : s) {
+      if (sup instanceof SubA) {
         sawA = true;
-      } else if(sup instanceof SubB) {
+      } else if (sup instanceof SubB) {
         sawB = true;
       } else {
         Assert.fail();
@@ -362,48 +381,63 @@ public class TestConfigurationModule {
     }
     Assert.assertTrue(sawA && sawB);
   }
-  
-  @Test(expected=ClassHierarchyException.class)
+
+  @Test(expected = ClassHierarchyException.class)
   public void errorOnStaticTimeSet() throws BindException, InjectionException {
     StaticTimeSet.CONF.assertStaticClean();
   }
-  @Test(expected=ClassHierarchyException.class)
+
+  @Test(expected = ClassHierarchyException.class)
   public void errorOnSetMerge() throws BindException, InjectionException {
-    ConfigurationModuleBuilder b = new ConfigurationModuleBuilder() { };
+    ConfigurationModuleBuilder b = new ConfigurationModuleBuilder() {
+    };
     b.merge(StaticTimeSet.CONF);
   }
-  
+
 }
+
 @NamedParameter
-class SetName implements Name<Set<String>> { }
+class SetName implements Name<Set<String>> {
+}
 
 class SetConfigurationModule extends ConfigurationModuleBuilder {
   public final static RequiredParameter<String> P = new RequiredParameter<>();
-  
+
   public static final ConfigurationModule CONF = new SetConfigurationModule()
-    .bindSetEntry(SetName.class, SetConfigurationModule.P)
-    .build();
+      .bindSetEntry(SetName.class, SetConfigurationModule.P)
+      .build();
 }
+
 @NamedParameter
-class SetClass implements Name<Set<Super>> {}
+class SetClass implements Name<Set<Super>> {
+}
+
 class SetClassConfigurationModule extends ConfigurationModuleBuilder {
   public final static RequiredParameter<Super> P = new RequiredParameter<>();
   public static final ConfigurationModule CONF = new SetClassConfigurationModule()
-    .bindSetEntry(SetClass.class, SetClassConfigurationModule.P)
-    .build();
+      .bindSetEntry(SetClass.class, SetClassConfigurationModule.P)
+      .build();
 }
-interface Super { }
+
+interface Super {
+}
+
 class SubA implements Super {
-  @Inject public SubA() {}
+  @Inject
+  public SubA() {
+  }
 }
+
 class SubB implements Super {
-  @Inject public SubB() {}
+  @Inject
+  public SubB() {
+  }
 }
 
 class StaticTimeSet extends ConfigurationModuleBuilder {
-  public static final OptionalImpl<Super> X = new OptionalImpl<>(); 
+  public static final OptionalImpl<Super> X = new OptionalImpl<>();
   public static final ConfigurationModule CONF = new StaticTimeSet()
-    .bindImplementation(Super.class, X)
-    .build()
-    .set(X, SubA.class);
+      .bindImplementation(Super.class, X)
+      .build()
+      .set(X, SubA.class);
 }
