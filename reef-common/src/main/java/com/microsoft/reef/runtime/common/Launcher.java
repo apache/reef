@@ -18,12 +18,13 @@ package com.microsoft.reef.runtime.common;
 import com.microsoft.reef.runtime.common.launch.LaunchClass;
 import com.microsoft.reef.runtime.common.launch.REEFErrorHandler;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
+import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPath;
+import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
+import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.CommandLine;
@@ -35,10 +36,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Launcher {
-
-  public final static String EVALUATOR_CONFIGURATION_ARG = "runtime_configuration";
-  public final static String ERROR_HANDLER_RID = "error_handler_rid";
-  public final static String LAUNCH_ID = "launch_id";
   public final static String[] LOGGING_PROPERTIES = {
       "java.util.logging.config.file",
       "java.util.logging.config.class"
@@ -76,7 +73,7 @@ public final class Launcher {
   private static Configuration processCommandLine(final String[] args) throws BindException, IOException, InjectionException {
     final JavaConfigurationBuilder commandLineBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final CommandLine cl = new CommandLine(commandLineBuilder);
-    cl.registerShortNameOfClass(EvaluatorConfigurationFilePath.class);
+    cl.registerShortNameOfClass(ClockConfigurationPath.class);
     cl.registerShortNameOfClass(ErrorHandlerRID.class);
     cl.registerShortNameOfClass(LaunchID.class);
     cl.processCommandLine(args);
@@ -145,15 +142,4 @@ public final class Launcher {
     }
   }
 
-  @NamedParameter(doc = "The path to evaluator configuration.", short_name = EVALUATOR_CONFIGURATION_ARG)
-  public final static class EvaluatorConfigurationFilePath implements Name<String> {
-  }
-
-  @NamedParameter(doc = "The error handler remote identifier.", short_name = ERROR_HANDLER_RID)
-  public final static class ErrorHandlerRID implements Name<String> {
-  }
-
-  @NamedParameter(doc = "The launch identifier.", short_name = LAUNCH_ID)
-  public final static class LaunchID implements Name<String> {
-  }
 }

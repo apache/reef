@@ -117,7 +117,32 @@
         </profile>
 
         <profile>
-            <id>MatMult</id>
+            <id>HelloREEFNoClient</id>
+            <build>
+                <defaultGoal>exec:exec</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                </argument>
+                                <!-- <argument>-Dlog4j.debug=true</argument> -->
+                                <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
+                                </argument>
+                                <argument>com.microsoft.reef.examples.hello.HelloREEFNoClient</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+        <id>MatMult</id>
             <build>
                 <defaultGoal>exec:exec</defaultGoal>
                 <plugins>

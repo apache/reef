@@ -119,6 +119,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
       final RunnableProcess process = new RunnableProcess(command, "driver", driverFolder);
       this.executor.submit(process);
+      this.executor.shutdown();
     } catch (final Exception e) {
       LOG.log(Level.SEVERE, "Unable to setup driver.", e);
       throw new RuntimeException("Unable to setup driver.", e);

@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.launch;
 
-import com.microsoft.reef.runtime.common.Launcher;
+import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.profiler.WakeProfiler;
@@ -36,7 +36,7 @@ final class ProfilingStopHandler implements EventHandler<StopTime> {
   private final String launchID;
 
   @Inject
-  public ProfilingStopHandler(final @Parameter(Launcher.LaunchID.class) String launchID) {
+  public ProfilingStopHandler(final @Parameter(LaunchID.class) String launchID) {
     this.launchID = launchID;
   }
 

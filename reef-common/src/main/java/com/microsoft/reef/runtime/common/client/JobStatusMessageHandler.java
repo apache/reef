@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package com.microsoft.reef.runtime.common.client;
 
+import com.microsoft.reef.annotations.audience.ClientSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.tang.InjectionFuture;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteMessage;
 
@@ -25,24 +26,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Used in REEFImplementation.
+ * A Handler for JobStatus messages from running jobs
  */
-final class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
-
-  private final static Logger LOG = Logger.getLogger(RuntimeErrorProtoHandler.class.getName());
-
-  private final InjectionFuture<RunningJobs> runningJobs;
+@ClientSide
+@Private
+final class JobStatusMessageHandler implements EventHandler<RemoteMessage<ReefServiceProtos.JobStatusProto>> {
+  private final Logger LOG = Logger.getLogger(JobStatusMessageHandler.class.getName());
+  private final RunningJobs runningJobs;
 
   @Inject
-  RuntimeErrorProtoHandler(final InjectionFuture<RunningJobs> runningJobs) {
+  JobStatusMessageHandler(final RunningJobs runningJobs) {
     this.runningJobs = runningJobs;
+    LOG.log(Level.INFO, "Instantiated 'JobStatusMessageHandler'");
   }
 
-
   @Override
-  public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> error) {
-    LOG.log(Level.WARNING, "{0} Runtime Error: {1}", new Object[]{
-        error.getIdentifier(), error.getMessage().getMessage()});
-    this.runningJobs.get().onRuntimeErrorMessage(error);
+  public void onNext(RemoteMessage<ReefServiceProtos.JobStatusProto> jobStatusProtoRemoteMessage) {
+    this.runningJobs.onJobStatusMessage(jobStatusProtoRemoteMessage);
   }
 }

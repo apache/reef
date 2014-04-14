@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.client;
 
+import com.microsoft.reef.runtime.common.client.parameters.ClientPresent;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalImpl;
@@ -72,6 +73,7 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
       .bind(ClientConfigurationOptions.CompletedJobHandler.class, ON_JOB_COMPLETED)
       .bind(ClientConfigurationOptions.FailedJobHandler.class, ON_JOB_FAILED)
       .bind(ClientConfigurationOptions.RuntimeErrorHandler.class, ON_RUNTIME_ERROR)
+      .bindNamedParameter(ClientPresent.class, ClientPresent.YES)
       .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, ON_WAKE_ERROR)
       .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")
       .build();

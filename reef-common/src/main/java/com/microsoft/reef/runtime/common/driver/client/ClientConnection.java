@@ -9,6 +9,8 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents the communication channel to the client.
@@ -17,13 +19,19 @@ import javax.inject.Inject;
 public final class ClientConnection {
   private final EventHandler<ReefServiceProtos.JobStatusProto> jobStatusHandler;
   private final String jobIdentifier;
+  private static final Logger LOG = Logger.getLogger(ClientConnection.class.getName());
 
   @Inject
   public ClientConnection(final RemoteManager remoteManager,
                           final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
                           final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier) {
     this.jobIdentifier = jobIdentifier;
-    this.jobStatusHandler = remoteManager.getHandler(clientRID, ReefServiceProtos.JobStatusProto.class);
+    if (clientRID.equals(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)) {
+      LOG.log(Level.INFO, "Unable to establish a connection with the client");
+      this.jobStatusHandler = new LoggingJobStatusHandler();
+    } else {
+      this.jobStatusHandler = remoteManager.getHandler(clientRID, ReefServiceProtos.JobStatusProto.class);
+    }
   }
 
   /**

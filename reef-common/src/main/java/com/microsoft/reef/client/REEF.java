@@ -17,7 +17,7 @@ package com.microsoft.reef.client;
 
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.runtime.common.client.ClientManager;
+import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.DefaultImplementation;
 
@@ -31,14 +31,16 @@ import com.microsoft.tang.annotations.DefaultImplementation;
  */
 @Public
 @ClientSide
-@DefaultImplementation(ClientManager.class)
+@DefaultImplementation(REEFImplementation.class)
 public interface REEF extends AutoCloseable {
 
   static final String REEF_VERSION = "0.3-SNAPSHOT";
 
   /**
    * Close the resourcemanager instance. This forcefully kills all running jobs.
+   * @deprecated This API cannot always be supported, e.g. when we don't have a client.
    */
+  @Deprecated
   @Override
   public void close();
 
