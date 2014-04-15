@@ -340,13 +340,6 @@ public final class FailDriver {
     // Simulate failure at this step?
     if (this.failMsgClass.isInstance(msg)) {
       this.state = DriverState.FAILED;
-      if (msg instanceof StartTime) {
-        try {
-          Thread.sleep(200); // TODO #389 #420
-        } catch (final InterruptedException e) {
-
-        }
-      }
     }
 
     // Make sure events arrive in the right order (specified in EVENT_SEQUENCE):

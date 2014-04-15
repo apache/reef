@@ -27,7 +27,6 @@ import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
-import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
@@ -54,16 +53,6 @@ final class Driver {
     this.requestor = requestor;
   }
 
-  private void fail(final RuntimeException e) {
-    // TODO: This has to go when #389 is fixed
-    clock.scheduleAlarm(100, new EventHandler<Alarm>() {
-      @Override
-      public void onNext(final Alarm alarm) {
-        throw e;
-      }
-    });
-  }
-
   /**
    * Check that all given files are accesible.
    */
@@ -78,11 +67,11 @@ final class Driver {
         final File file = new File(fileName);
         LOG.log(Level.INFO, "Testing file: " + file.getAbsolutePath());
         if (!file.exists()) {
-          Driver.this.fail(new DriverSideFailure("Cannot find file: " + fileName));
+          throw new DriverSideFailure("Cannot find file: " + fileName);
         } else if (!file.isFile()) {
-          Driver.this.fail(new DriverSideFailure("Not a file: " + fileName));
+          throw new DriverSideFailure("Not a file: " + fileName);
         } else if (!file.canRead()) {
-          Driver.this.fail(new DriverSideFailure("Can't read: " + fileName));
+          throw new DriverSideFailure("Can't read: " + fileName);
         }
       }
 

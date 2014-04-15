@@ -54,6 +54,6 @@ public final class YarnTestEnvironment implements TestEnvironment {
 
   @Override
   public int getTestTimeout() {
-    return 120000; // 2 minutes
+    return 180000; // 3 minutes
   }
 }
