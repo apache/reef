@@ -22,6 +22,7 @@ import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
@@ -311,6 +312,13 @@ public final class JobDriver {
       for (final ActiveContext context : contexts.values()) {
         context.close();
       }
+    }
+  }
+
+  final class TaskMessageHandler implements EventHandler<TaskMessage> {
+    @Override
+    public void onNext(final TaskMessage taskMessage) {
+        LOG.log(Level.INFO, "Received TaskMessage: {0} from CLR", new String(taskMessage.get()));
     }
   }
 }
