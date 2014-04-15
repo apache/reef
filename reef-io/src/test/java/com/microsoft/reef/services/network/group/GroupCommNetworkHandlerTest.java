@@ -131,7 +131,7 @@ public class GroupCommNetworkHandlerTest {
    *
    * @throws Exception
    */
-  @Test(timeout = 2000)
+  @Test(timeout = 5000)
   public final void testOnNext() throws Exception {
     List<Identifier> ids = new ArrayList<>();
     ids.add(id1);
