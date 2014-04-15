@@ -28,7 +28,7 @@ import org.junit.Test;
  */
 public class HelloReefTest {
 
-  private static final int JOB_TIMEOUT = 10000; // 10 sec.
+  private static final int JOB_TIMEOUT = 20000; // 20 sec.
 
   /**
    * Run Hello world on REEF in local mode.
