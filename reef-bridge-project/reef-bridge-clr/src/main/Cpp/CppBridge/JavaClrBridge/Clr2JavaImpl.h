@@ -58,6 +58,15 @@ namespace Microsoft
 					EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor);
 					virtual void Submit(EvaluatorRequest^ request);
 				};
+
+				public ref class TaskMessageClr2Java : public ITaskMessageClr2Java
+				{
+					jclass  _jclassTaskMessage;
+					jobject  _jobjectTaskMessage;
+					JNIEnv* _env;
+				public:
+					TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage);
+				};
 			}
 		}
 	}

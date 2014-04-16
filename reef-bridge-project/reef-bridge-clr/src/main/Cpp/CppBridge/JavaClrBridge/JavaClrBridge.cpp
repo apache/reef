@@ -78,7 +78,6 @@ JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartH
 		const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
 		int lenConfig = env->GetStringLength(dateTimeString);		
 		String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
-		Console::WriteLine("Current time is " + strConfig);
 		DateTime dt = DateTime::Now; 
 		array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt);
 		return JavaLongArrayFromManagedLongArray(env, handlers);
@@ -147,6 +146,27 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorH
 	catch (System::Exception^ ex)
 	{
 		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemTaskMessageHandlerOnNext
+ * Signature: (J[BLjavabridge/TaskMessageBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext
+	(JNIEnv *env, jclass cls, jlong handle, jbyteArray jmessage, jobject jtaskMessageBridge, jobject jlogger)
+{
+	try{
+		TaskMessageClr2Java^ taskMesageBridge = gcnew TaskMessageClr2Java(env, jtaskMessageBridge);
+		array<byte>^ message = ManagedByteArrayFromJavaByteArray(env, jmessage);
+		ClrSystemHandlerWrapper::Call_ClrSystemTaskMessage_OnNext(handle, taskMesageBridge, message);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}

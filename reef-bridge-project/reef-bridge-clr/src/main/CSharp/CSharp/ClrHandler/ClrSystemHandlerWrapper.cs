@@ -40,6 +40,14 @@ namespace Microsoft.Reef.Interop
             obj.OnNext(new EvaluatorRequestor(clr2Java));
         }
 
+        public static void Call_ClrSystemTaskMessage_OnNext(ulong handle, ITaskMessageClr2Java clr2Java, byte[] message)
+        {
+            Console.WriteLine("Call_ClrSystemTaskMessage_OnNext");
+            GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
+            ClrSystemHandler<TaskMessage> obj = (ClrSystemHandler<TaskMessage>)gc.Target;
+            obj.OnNext(new TaskMessage(clr2Java, message));
+        }
+
         public static ulong[] Call_ClrSystemStartHandler_OnStart(DateTime startTime)
         {
             Console.WriteLine("*** Start time is " + startTime);

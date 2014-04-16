@@ -53,6 +53,7 @@ public final class JobDriver {
   private long  evaluatorRequestorHandler = 0;
   private long  allocatedEvaluatorHandler = 0;
   private long  activeContextHandler = 0;
+  private long  taskMessagetHandler = 0;
   private int nCLREvaluators;
   /**
    * String codec is used to encode the results
@@ -284,10 +285,11 @@ public final class JobDriver {
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null)
           {
-              assert (handlers.length == NativeInterop.nHandlers);
-              evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
-              allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
-              activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
+            assert (handlers.length == NativeInterop.nHandlers);
+            evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
+            allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
+            activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
+            taskMessagetHandler  = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
           }
 
           if(evaluatorRequestorHandler == 0)
@@ -318,7 +320,14 @@ public final class JobDriver {
   final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
     public void onNext(final TaskMessage taskMessage) {
-        LOG.log(Level.INFO, "Received TaskMessage: {0} from CLR", new String(taskMessage.get()));
+      LOG.log(Level.INFO, "Received TaskMessage: {0} from CLR", new String(taskMessage.get()));
+      if(taskMessagetHandler != 0)
+      {
+        InteropLogger interopLogger = new InteropLogger();
+        TaskMessageBridge taskMessageBridge = new TaskMessageBridge(taskMessage);
+        // if CLR implements the task message handler, handle the bytes in CLR handler
+        NativeInterop.ClrSystemTaskMessageHandlerOnNext(taskMessagetHandler, taskMessage.get(), taskMessageBridge,interopLogger);
+      }
     }
   }
 }

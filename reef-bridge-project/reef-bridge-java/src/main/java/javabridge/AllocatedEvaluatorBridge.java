@@ -31,9 +31,6 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
 
     private  AvroConfigurationSerializer serializer;
 
-
-    public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
-
     public AllocatedEvaluatorBridge(AllocatedEvaluator allocatedEvaluator)
     {
             jallocatedEvaluator = allocatedEvaluator;
@@ -50,7 +47,7 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         {
             throw new RuntimeException("empty taskConfigurationString provided.");
         }
-        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(CLASS_HIERARCHY_FILENAME);
+        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
         Configuration contextConfiguration;
         Configuration taskConfiguration;
         try {
@@ -70,7 +67,7 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         {
             throw new RuntimeException("empty contextConfigurationString provided.");
         }
-        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(CLASS_HIERARCHY_FILENAME);
+        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
         Configuration contextConfiguration;
         try {
             contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);

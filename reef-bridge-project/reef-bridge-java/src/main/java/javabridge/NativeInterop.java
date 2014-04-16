@@ -51,6 +51,14 @@ public class NativeInterop {
             InteropLogger interopLogger
     );
 
+    public static native void ClrSystemTaskMessageHandlerOnNext (
+            long handle,
+            byte[] mesage,
+            TaskMessageBridge javaTaskMessageBridge,
+            InteropLogger interopLogger
+    );
+
+    public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
     private static final String LIB_BIN = "/";
     private static final String DLL_EXTENSION = ".dll";
     private final static String CPP_BRIDGE = "JavaClrBridge";
@@ -72,14 +80,16 @@ public class NativeInterop {
     public static String EvaluatorRequestorKey = "EvaluatorRequestor";
     public static String AllocatedEvaluatorKey = "AllocatedEvaluator";
     public static String ActiveContextKey = "ActiveContext";
+    public static String TaskMessageKey = "TaskMessage";
 
     public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
         put(EvaluatorRequestorKey, 0);
         put(AllocatedEvaluatorKey, 1);
         put(ActiveContextKey, 2);
+        put(TaskMessageKey, 3);
     }};
 
-    public static int nHandlers = 3;
+    public static int nHandlers = 4;
 
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir

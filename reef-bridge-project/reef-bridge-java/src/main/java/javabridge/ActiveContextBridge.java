@@ -31,9 +31,6 @@ public class ActiveContextBridge implements AutoCloseable {
 
     private AvroConfigurationSerializer serializer;
 
-
-    public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
-
     public ActiveContextBridge(ActiveContext activeContext)
     {
         jactiveContext = activeContext;
@@ -47,7 +44,7 @@ public class ActiveContextBridge implements AutoCloseable {
         {
             throw new RuntimeException("empty taskConfigurationString provided.");
         }
-        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(CLASS_HIERARCHY_FILENAME);
+        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
         Configuration taskConfiguration;
         try {
             taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);

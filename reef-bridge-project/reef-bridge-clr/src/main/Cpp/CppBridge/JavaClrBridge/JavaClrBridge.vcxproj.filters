@@ -65,6 +65,9 @@
     <ClCompile Include="EvaluatorRequestorClr2Java.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TaskMessageClr2Java.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
