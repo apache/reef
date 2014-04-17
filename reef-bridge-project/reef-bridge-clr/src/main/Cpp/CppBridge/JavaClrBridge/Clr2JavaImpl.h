@@ -28,11 +28,15 @@ namespace Microsoft
 					jstring _taskConfigStr;
 					jmethodID _jmidSubmitContextAndTask;
 					jmethodID _jmidSubmitContext;
+					jmethodID _jmidSubmitContextAndService;
+					jmethodID _jmidSubmitContextAndServiceAndTask;
 					JNIEnv* _env;
 				public:
 					AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
 					virtual void SubmitContext(String^ contextConfigStr);
+					virtual void SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr);
+					virtual void SubmitContextAndServiceAndTask(String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr);
 				};
 
 				public ref class ActiveContextClr2Java : public IActiveContextClr2Java

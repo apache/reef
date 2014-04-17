@@ -28,14 +28,14 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
     private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
 
     private AllocatedEvaluator jallocatedEvaluator;
-
     private  AvroConfigurationSerializer serializer;
-
+    private   ClassHierarchy clrClassHierarchy;
     public AllocatedEvaluatorBridge(AllocatedEvaluator allocatedEvaluator)
-    {
-            jallocatedEvaluator = allocatedEvaluator;
-            serializer = new AvroConfigurationSerializer();
-    }
+      {
+        jallocatedEvaluator = allocatedEvaluator;
+        serializer = new AvroConfigurationSerializer();
+        clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
+      }
 
     public void submitContextAndTaskString(final String contextConfigurationString, final String taskConfigurationString)
     {
@@ -47,7 +47,6 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         {
             throw new RuntimeException("empty taskConfigurationString provided.");
         }
-        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
         Configuration contextConfiguration;
         Configuration taskConfiguration;
         try {
@@ -67,7 +66,6 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         {
             throw new RuntimeException("empty contextConfigurationString provided.");
         }
-        ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
         Configuration contextConfiguration;
         try {
             contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
@@ -78,6 +76,62 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
         }
         jallocatedEvaluator.submitContext(contextConfiguration);
     }
+
+  public void submitContextAndServiceString(final String contextConfigurationString, final String serviceConfigurationString)
+  {
+    if(contextConfigurationString.isEmpty())
+    {
+      throw new RuntimeException("empty contextConfigurationString provided.");
+    }
+    if(serviceConfigurationString.isEmpty())
+    {
+      throw new RuntimeException("empty serviceConfigurationString provided.");
+    }
+
+    Configuration contextConfiguration;
+    Configuration servicetConfiguration;
+    try {
+      contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
+      servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
+    } catch (final Exception e) {
+      final String message = "Unable to de-serialize CLR context or service  configurations using class hierarchy.";
+      LOG.log(Level.SEVERE, message, e);
+      throw new RuntimeException(message, e);
+    }
+    jallocatedEvaluator.submitContextAndService(contextConfiguration, servicetConfiguration);
+  }
+
+  public void submitContextAndServiceAndTaskString(
+          final String contextConfigurationString,
+          final String serviceConfigurationString,
+          final String taskConfigurationString)
+  {
+    if(contextConfigurationString.isEmpty())
+    {
+      throw new RuntimeException("empty contextConfigurationString provided.");
+    }
+    if(serviceConfigurationString.isEmpty())
+    {
+      throw new RuntimeException("empty serviceConfigurationString provided.");
+    }
+    if(taskConfigurationString.isEmpty())
+    {
+      throw new RuntimeException("empty taskConfigurationString provided.");
+    }
+    Configuration contextConfiguration;
+    Configuration servicetConfiguration;
+    Configuration taskConfiguration;
+    try {
+      contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
+      servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
+      taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
+    } catch (final Exception e) {
+      final String message = "Unable to de-serialize CLR context or service or task configurations using class hierarchy.";
+      LOG.log(Level.SEVERE, message, e);
+      throw new RuntimeException(message, e);
+    }
+    jallocatedEvaluator.submitContextAndServiceAndTask(contextConfiguration, servicetConfiguration, taskConfiguration);
+  }
 
     @Override
     public void close()
