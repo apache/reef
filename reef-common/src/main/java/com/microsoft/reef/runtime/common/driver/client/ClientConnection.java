@@ -44,6 +44,7 @@ public final class ClientConnection {
    * @param status
    */
   public synchronized void send(final ReefServiceProtos.JobStatusProto status) {
+    LOG.log(Level.FINEST, "Sending:\n" + status);
     this.jobStatusHandler.onNext(status);
   }
 
