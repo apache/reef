@@ -40,6 +40,7 @@ public final class DriverStatusManager {
     this.clock = clock;
     this.clientConnection = clientConnection;
     this.jobIdentifier = jobIdentifier;
+    LOG.log(Level.INFO, "Instantiated 'DriverStatusManager'");
   }
 
   /**

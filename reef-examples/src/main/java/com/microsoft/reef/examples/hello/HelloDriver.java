@@ -48,6 +48,7 @@ public final class HelloDriver {
   @Inject
   public HelloDriver(final EvaluatorRequestor requestor) {
     this.requestor = requestor;
+    LOG.log(Level.INFO, "Instantiated 'HelloDriver'");
   }
 
   /**
@@ -56,11 +57,11 @@ public final class HelloDriver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, "StartTime: ", startTime);
       HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1)
           .setMemory(64)
           .build());
+      LOG.log(Level.INFO, "Requested Evaluator.");
     }
   }
 

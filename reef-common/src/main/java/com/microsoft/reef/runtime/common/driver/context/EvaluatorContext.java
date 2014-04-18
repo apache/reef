@@ -55,6 +55,7 @@ public final class EvaluatorContext implements ActiveContext {
     this.parentID = parentID;
     this.configurationSerializer = configurationSerializer;
     this.contextControlHandler = contextControlHandler;
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorContext'");
   }
 
   @Override
@@ -167,6 +168,15 @@ public final class EvaluatorContext implements ActiveContext {
     return this.contextIdentifier;
   }
 
+
+  @Override
+  public String toString() {
+    return "EvaluatorContext{" +
+        "contextIdentifier='" + contextIdentifier + '\'' +
+        ", evaluatorIdentifier='" + evaluatorIdentifier + '\'' +
+        ", parentID=" + parentID +
+        '}';
+  }
 
   public final ClosedContext getClosedContext(final ActiveContext parentContext) {
     return new ClosedContextImpl(parentContext, this.getId(), this.getEvaluatorId(), this.getEvaluatorDescriptor());
