@@ -71,6 +71,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
     this.nThreads = nThreads;
     this.configurationSerializer = configurationSerializer;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
+    LOG.log(Level.INFO, "Instantiated 'LocalJobSubmissionHandler'");
   }
 
 

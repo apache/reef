@@ -73,7 +73,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
-  //  private final DriverManager driverManager;
   private final Evaluators evaluators;
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
@@ -122,6 +121,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.stateManager = stateManager;
 
     this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer));
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: " + this.getId());
   }
 
   /**
@@ -313,7 +313,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         close();
       }
 
-      LOG.info("DONE with evaluator heartbeat");
+      LOG.log(Level.INFO, "DONE with evaluator heartbeat from Evaluator " + this.getId());
     }
   }
 

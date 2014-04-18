@@ -20,9 +20,11 @@ import com.microsoft.wake.remote.RemoteIdentifierFactory;
 import com.microsoft.wake.remote.RemoteMessage;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RemoteManager {
-
+  private static final Logger LOG = Logger.getLogger(RemoteManager.class.getName());
   private final com.microsoft.wake.remote.RemoteManager raw;
 
   private final RemoteIdentifierFactory factory;
@@ -31,6 +33,7 @@ public class RemoteManager {
   public RemoteManager(final com.microsoft.wake.remote.RemoteManager raw, final RemoteIdentifierFactory factory) {
     this.raw = raw;
     this.factory = factory;
+    LOG.log(Level.INFO, "Instantiated 'RemoteManager'");
   }
 
   public final com.microsoft.wake.remote.RemoteManager raw() {

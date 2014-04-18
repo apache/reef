@@ -17,20 +17,24 @@ import java.util.logging.Logger;
  */
 @DriverSide
 public final class ClientConnection {
-  private final EventHandler<ReefServiceProtos.JobStatusProto> jobStatusHandler;
-  private final String jobIdentifier;
+
   private static final Logger LOG = Logger.getLogger(ClientConnection.class.getName());
 
+  private final EventHandler<ReefServiceProtos.JobStatusProto> jobStatusHandler;
+  private final String jobIdentifier;
+
   @Inject
-  public ClientConnection(final RemoteManager remoteManager,
-                          final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
-                          final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier) {
+  public ClientConnection(
+      final RemoteManager remoteManager,
+      final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
+      final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier) {
     this.jobIdentifier = jobIdentifier;
     if (clientRID.equals(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)) {
       LOG.log(Level.INFO, "Unable to establish a connection with the client");
       this.jobStatusHandler = new LoggingJobStatusHandler();
     } else {
       this.jobStatusHandler = remoteManager.getHandler(clientRID, ReefServiceProtos.JobStatusProto.class);
+      LOG.log(Level.INFO, "Instantiated 'ClientConnection'");
     }
   }
 
@@ -56,3 +60,4 @@ public final class ClientConnection {
         .build());
   }
 }
+

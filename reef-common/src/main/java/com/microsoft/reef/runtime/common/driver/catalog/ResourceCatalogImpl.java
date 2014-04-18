@@ -40,6 +40,7 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
 
   @Inject
   ResourceCatalogImpl() {
+    LOG.log(Level.INFO, "Instantiated 'ResourceCatalogImpl'");
   }
 
   @Override
