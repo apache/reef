@@ -37,10 +37,8 @@ public interface REEF extends AutoCloseable {
   static final String REEF_VERSION = "0.3-SNAPSHOT";
 
   /**
-   * Close the resourcemanager instance. This forcefully kills all running jobs.
-   * @deprecated This API cannot always be supported, e.g. when we don't have a client.
+   * Close the resourcemanager connection.
    */
-  @Deprecated
   @Override
   public void close();
 

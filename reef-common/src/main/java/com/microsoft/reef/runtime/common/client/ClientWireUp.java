@@ -72,15 +72,28 @@ final class ClientWireUp {
     this.isWired = true;
   }
 
-  boolean isClientPresent() {
+  synchronized boolean isClientPresent() {
     return this.isClientPresent;
   }
 
-  String getRemoteManagerIdentifier() {
+  synchronized String getRemoteManagerIdentifier() {
     if (!this.isClientPresent() || !this.remoteManager.isPresent()) {
       throw new RuntimeException("No need to setup the remote manager.");
     } else {
       return this.remoteManager.get().getMyIdentifier();
+    }
+  }
+
+  /**
+   * Closes the remote manager, if there was one.
+   */
+  synchronized void close() {
+    if (this.remoteManager.isPresent()) {
+      try {
+        this.remoteManager.get().close();
+      } catch (final Exception e) {
+        LOG.log(Level.WARNING, "Exception while shutting down the RemoteManager.", e);
+      }
     }
   }
 }
