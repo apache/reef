@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.driver.api;
 
+import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import com.microsoft.reef.util.Builder;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -49,8 +50,12 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
   public final static class JobIdentifier implements Name<String> {
   }
 
-  @NamedParameter(doc = "The client remote identifier.")
+  @NamedParameter(doc = "The client remote identifier.", default_value = ClientRemoteIdentifier.NONE)
   public final static class ClientRemoteIdentifier implements Name<String> {
+    /**
+     * Indicates that there is no Client.
+     */
+    public static final String NONE = ErrorHandlerRID.NONE;
   }
 
   @NamedParameter(doc = "The evaluator timeout (how long to wait before deciding an evaluator is dead.", default_value = "60000")

@@ -52,15 +52,14 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
 
   @Inject
   RunningJobImpl(final RemoteManager remoteManager,
-                 final JobStatusProto status,
-                 final @Parameter(ClientManager.DriverRemoteIdentifier.class) String driverRID,
+                 final @Parameter(DriverConfigurationOptions.DriverIdentifier.class) String driverIdentifier,
+                 final @Parameter(REEFImplementation.DriverRemoteIdentifier.class) String driverRID,
                  final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
                  final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
                  final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
                  final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler) {
 
-    this.jobId = status.getIdentifier();
-
+    this.jobId = driverIdentifier;
     this.runningJobEventHandler = runningJobEventHandler;
     this.completedJobEventHandler = completedJobEventHandler;
     this.failedJobEventHandler = failedJobEventHandler;
@@ -68,7 +67,7 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
     this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
 
     this.runningJobEventHandler.onNext(this);
-    this.onNext(status);
+    LOG.log(Level.INFO, "Instantiated 'RunningJobImpl'");
   }
 
   @Override
