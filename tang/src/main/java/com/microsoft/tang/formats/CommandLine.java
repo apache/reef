@@ -27,6 +27,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Parser;
 
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
@@ -40,6 +41,10 @@ public final class CommandLine {
 
   private final ConfigurationBuilder conf;
   private final Map<String,String> shortNames = new MonotonicTreeMap<>();
+
+  public CommandLine() {
+    this.conf = Tang.Factory.getTang().newConfigurationBuilder();
+  }
 
   public CommandLine(final ConfigurationBuilder conf) {
     this.conf = conf;
