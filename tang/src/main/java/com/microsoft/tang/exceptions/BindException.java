@@ -27,7 +27,7 @@ package com.microsoft.tang.exceptions;
  * @see NameResolutionException which covers the special case where an unknown
  *      configuration option or class is encountered.
  */
-public class BindException extends Exception {
+public class BindException extends RuntimeException {
   private static final long serialVersionUID = 1L;
   public BindException(String msg, Throwable cause) {
     super(msg,cause);
