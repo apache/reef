@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-//import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -28,6 +27,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Parser;
 
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.ConfigurationBuilder;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
@@ -37,119 +37,137 @@ import com.microsoft.tang.types.Node;
 import com.microsoft.tang.util.MonotonicTreeMap;
 import com.microsoft.tang.util.ReflectionUtilities;
 
-public class CommandLine {
+public final class CommandLine {
+
   private final ConfigurationBuilder conf;
   private final Map<String,String> shortNames = new MonotonicTreeMap<>();
 
-  public CommandLine(ConfigurationBuilder conf) {
+  public CommandLine() {
+    this.conf = Tang.Factory.getTang().newConfigurationBuilder();
+  }
+
+  public CommandLine(final ConfigurationBuilder conf) {
     this.conf = conf;
   }
-  public void registerShortNameOfClass(String s) throws BindException {
+
+  public ConfigurationBuilder getBuilder() {
+    return this.conf;
+  }
+
+  public CommandLine registerShortNameOfClass(final String s) throws BindException {
+
     final Node n;
     try {
       n = conf.getClassHierarchy().getNode(s);
-    } catch(NameResolutionException e) {
+    } catch (final NameResolutionException e) {
       throw new BindException("Problem loading class " + s, e);
     }
-    if(n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>)n;
-      String shortName = np.getShortName();
-      String longName = np.getFullName();
+
+    if (n instanceof NamedParameterNode) {
+      final NamedParameterNode<?> np = (NamedParameterNode<?>)n;
+      final String shortName = np.getShortName();
+      final String longName = np.getFullName();
       if(shortName == null) {
-        throw new BindException("Can't register non-existent short name of named parameter: " + longName);
+        throw new BindException(
+            "Can't register non-existent short name of named parameter: " + longName);
       }
       shortNames.put(shortName, longName);
     } else {
       throw new BindException("Can't register short name for non-NamedParameterNode: " + n);
     }
+
+    return this;
   }
-  public void registerShortNameOfClass(Class<? extends Name<?>> c) throws BindException {
-    registerShortNameOfClass(ReflectionUtilities.getFullName(c));
+
+  public CommandLine registerShortNameOfClass(
+      final Class<? extends Name<?>> c) throws BindException {
+    return registerShortNameOfClass(ReflectionUtilities.getFullName(c));
   }
-  /**
-   * @param option
-   * @param cb
-   */
+
   @SuppressWarnings("static-access")
   private Options getCommandLineOptions() {
-    Options opts = new Options();
-    // Collection<NamedParameterNode<?>> namedParameters = conf.getNamespace()
-    // .getNamedParameterNodes();
-    // for (NamedParameterNode<?> param : namedParameters) {
-    // String shortName = param.getShortName();
-    for (String shortName : shortNames.keySet()) {
-      String longName = shortNames.get(shortName);
+
+    final Options opts = new Options();
+    for (final String shortName : shortNames.keySet()) {
+      final String longName = shortNames.get(shortName);
       try {
         opts.addOption(OptionBuilder
             .withArgName(conf.classPrettyDefaultString(longName)).hasArg()
             .withDescription(conf.classPrettyDescriptionString(longName))
             .create(shortName));
-      } catch (BindException e) {
+      } catch (final BindException e) {
         throw new IllegalStateException(
             "Could not process " + shortName + " which is the short name of " + longName, e);
       }
     }
-    for (Option o : applicationOptions.keySet()) {
+
+    for (final Option o : applicationOptions.keySet()) {
       opts.addOption(o);
     }
+
     return opts;
   }
 
   public interface CommandLineCallback {
-    public void process(Option option);
+    public void process(final Option option);
   }
 
-  Map<Option, CommandLineCallback> applicationOptions = new HashMap<>();
+  final Map<Option, CommandLineCallback> applicationOptions = new HashMap<>();
 
-  public void addCommandLineOption(Option option, CommandLineCallback cb) {
+  public CommandLine addCommandLineOption(final Option option, final CommandLineCallback cb) {
     // TODO: Check for conflicting options.
     applicationOptions.put(option, cb);
+    return this;
   }
 
   /**
-   * @return true if the command line parsing succeeded, false (or exception)
-   *         otherwise.
+   * @return Selfie if the command line parsing succeeded, null (or exception) otherwise.
    * @param args
    * @throws IOException
    * @throws NumberFormatException
    * @throws ParseException
    */
   @SafeVarargs
-  final public <T> boolean processCommandLine(String[] args, Class<? extends Name<?>>...argClasses) throws IOException,
-      BindException {
-    for(Class<? extends Name<?>> c : argClasses) {
+  final public <T> CommandLine processCommandLine(
+      final String[] args, Class<? extends Name<?>>...argClasses)
+      throws IOException, BindException {
+
+    for (final Class<? extends Name<?>> c : argClasses) {
       registerShortNameOfClass(c);
     }
-    Options o = getCommandLineOptions();
-    Option helpFlag = new Option("?", "help");
-    o.addOption(helpFlag);
-    Parser g = new GnuParser();
-    org.apache.commons.cli.CommandLine cl;
+
+    final Options o = getCommandLineOptions();
+    o.addOption(new Option("?", "help"));
+    final Parser g = new GnuParser();
+
+    final org.apache.commons.cli.CommandLine cl;
     try {
       cl = g.parse(o, args);
-    } catch (ParseException e) {
+    } catch (final ParseException e) {
       throw new IOException("Could not parse config file", e);
     }
+
     if (cl.hasOption("?")) {
-      HelpFormatter help = new HelpFormatter();
-      help.printHelp("reef", o);
-      return false;
+      new HelpFormatter().printHelp("reef", o);
+      return null;
     }
-    for (Option option : cl.getOptions()) {
-      String shortName = option.getOpt();
-      String value = option.getValue();
+
+    for (final Option option : cl.getOptions()) {
+
+      final String shortName = option.getOpt();
+      final String value = option.getValue();
 
       if (applicationOptions.containsKey(option)) {
         applicationOptions.get(option).process(option);
       } else {
         try {
           conf.bind(shortNames.get(shortName), value);
-        } catch (BindException e) {
+        } catch (final BindException e) {
           throw new BindException("Could not bind shortName " + shortName + " to value " + value, e);
         }
       }
     }
-    return true;
-  }
 
+    return this;
+  }
 }
