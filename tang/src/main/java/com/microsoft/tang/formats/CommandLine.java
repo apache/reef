@@ -121,15 +121,14 @@ public final class CommandLine {
   }
 
   /**
-   * @return true if the command line parsing succeeded, false (or exception)
-   *         otherwise.
+   * @return Selfie if the command line parsing succeeded, null (or exception) otherwise.
    * @param args
    * @throws IOException
    * @throws NumberFormatException
    * @throws ParseException
    */
   @SafeVarargs
-  final public <T> boolean processCommandLine(
+  final public <T> CommandLine processCommandLine(
       final String[] args, Class<? extends Name<?>>...argClasses)
       throws IOException, BindException {
 
@@ -150,7 +149,7 @@ public final class CommandLine {
 
     if (cl.hasOption("?")) {
       new HelpFormatter().printHelp("reef", o);
-      return false;
+      return null;
     }
 
     for (final Option option : cl.getOptions()) {
@@ -169,6 +168,6 @@ public final class CommandLine {
       }
     }
 
-    return true;
+    return this;
   }
 }
