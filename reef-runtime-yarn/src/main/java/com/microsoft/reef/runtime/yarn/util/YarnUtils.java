@@ -38,6 +38,9 @@ import java.util.Map;
 @Private
 public final class YarnUtils {
 
+  private YarnUtils() {
+  }
+
   public static final StringBuilder getClassPathBuilder(final YarnConfiguration yarnConfiguration) {
     // Add AppMaster.jar location to classpath
     // At some point we should not be required to add

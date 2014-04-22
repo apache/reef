@@ -80,6 +80,9 @@ public final class DriverStatusManager {
    */
   public synchronized void onComplete() {
     LOG.log(Level.INFO, "Clean shutdown of the Driver.");
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Callstack: ", new Exception());
+    }
     this.clock.close();
     this.setStatus(DriverStatus.SHUTTING_DOWN);
   }
