@@ -20,12 +20,11 @@ import com.microsoft.reef.driver.context.ContextConfigurationOptions;
 import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.task.TaskMessage;
 import com.microsoft.reef.task.TaskMessageSource;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.wake.remote.Encoder;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -50,6 +49,7 @@ public final class TaskStatus {
   private final TaskLifeCycle taskLifeCycle;
   private final HeartBeatManager heartBeatManager;
   private final Set<TaskMessageSource> evaluatorMessageSources;
+  private final ExceptionCodec exceptionCodec;
 
 
   enum State {
@@ -68,12 +68,14 @@ public final class TaskStatus {
              final @Parameter(ContextConfigurationOptions.ContextIdentifier.class) String contextId,
              final @Parameter(TaskConfigurationOptions.TaskMessageSources.class) Set<TaskMessageSource> evaluatorMessageSources,
              final TaskLifeCycle taskLifeCycle,
-             final HeartBeatManager heartBeatManager) {
+             final HeartBeatManager heartBeatManager,
+             final ExceptionCodec exceptionCodec) {
     this.taskId = taskId;
     this.contextId = contextId;
     this.taskLifeCycle = taskLifeCycle;
     this.heartBeatManager = heartBeatManager;
     this.evaluatorMessageSources = evaluatorMessageSources;
+    this.exceptionCodec = exceptionCodec;
 
     this.setState(State.INIT);
   }
@@ -92,8 +94,7 @@ public final class TaskStatus {
     if (this.result.isPresent()) {
       result.setResult(ByteString.copyFrom(this.result.get()));
     } else if (this.lastException.isPresent()) {
-      final Encoder<Throwable> codec = new ObjectSerializableCodec<>();
-      final byte[] error = codec.encode(this.lastException.get());
+      final byte[] error = this.exceptionCodec.toBytes(this.lastException.get());
       result.setResult(ByteString.copyFrom(error));
     } else if (this.state == State.RUNNING) {
       for (final TaskMessage taskMessage : this.getMessages()) {

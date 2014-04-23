@@ -28,6 +28,7 @@ import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
 import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
@@ -37,7 +38,6 @@ import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.impl.ThreadPoolStage;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.runtime.RuntimeClock;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 import com.microsoft.wake.time.runtime.event.RuntimeStop;
@@ -104,6 +104,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private final Map<String, Container> allocatedContainers = new ConcurrentHashMap<>();
   private final ConfigurationSerializer configurationSerializer;
   private final TempFileCreator tempFileCreator;
+  private final ExceptionCodec exceptionCodec;
 
   private RegisterApplicationMasterResponse registration;
 
@@ -121,13 +122,15 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationHandler,
       final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandler,
       final ConfigurationSerializer configurationSerializer,
-      final TempFileCreator tempFileCreator)
+      final TempFileCreator tempFileCreator,
+      final ExceptionCodec exceptionCodec)
       throws IOException {
 
     this.globalClassPath = globalClassPath;
     this.clock = clock;
     this.configurationSerializer = configurationSerializer;
     this.tempFileCreator = tempFileCreator;
+    this.exceptionCodec = exceptionCodec;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.yarnConf = yarnConf;
     this.resourceAllocationHandler = new ThreadPoolStage<>(resourceAllocationHandler, 8);
@@ -554,11 +557,10 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
         .setName("YARN 2.1");
 
     if (throwable instanceof Serializable) {
-      final ObjectSerializableCodec<Throwable> codec = new ObjectSerializableCodec<>();
       runtimeStatusBuilder.setError(ReefServiceProtos.RuntimeErrorProto.newBuilder()
           .setName("YARN 2.1")
           .setMessage(throwable.getMessage())
-          .setException(ByteString.copyFrom(codec.encode(throwable)))
+          .setException(ByteString.copyFrom(this.exceptionCodec.toBytes(throwable)))
           .build())
           .build();
     } else {

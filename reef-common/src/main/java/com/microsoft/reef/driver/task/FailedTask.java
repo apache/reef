@@ -53,40 +53,6 @@ public final class FailedTask extends AbstractFailure {
     this.context = context;
   }
 
-  /**
-   * @param id    Identifier of the entity that produced the error. Cannot be null.
-   * @param cause Java Exception that caused the error. Can be null.
-   */
-  @Deprecated
-  public FailedTask(final String id,
-                    final Throwable cause) {
-    this(id, cause.getMessage(), Optional.<String>empty(), Optional.of(cause), Optional.<byte[]>empty(), Optional.<ActiveContext>empty());
-  }
-
-  /**
-   * @param id      Identifier of the entity that produced the error. Cannot be null.
-   * @param message One-line error message. Cannot be null.
-   * @param context the Context the Task failed on.
-   */
-  @Deprecated
-  public FailedTask(final String id,
-                    final String message,
-                    final Optional<ActiveContext> context) {
-    this(id, message, Optional.<String>empty(), Optional.<Throwable>empty(), Optional.<byte[]>empty(), context);
-  }
-
-  /**
-   * @param id      Identifier of the entity that produced the error. Cannot be null.
-   * @param cause   Java Exception that caused the error. Can be null.
-   * @param context the Context the Task failed on.
-   */
-  @Deprecated
-  public FailedTask(final String id,
-                    final Throwable cause,
-                    final Optional<ActiveContext> context) {
-    this(id, cause.getMessage(), Optional.<String>empty(), Optional.of(cause), Optional.<byte[]>empty(), context);
-  }
-
 
   /**
    * Access the context the task ran (and crashed) on, if it could be recovered.

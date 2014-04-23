@@ -24,10 +24,11 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.Signal;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.JobStatusProto;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -49,6 +50,7 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
   private final EventHandler<CompletedJob> completedJobEventHandler;
   private final EventHandler<FailedJob> failedJobEventHandler;
   private final EventHandler<JobMessage> jobMessageEventHandler;
+  private final ExceptionCodec exceptionCodec;
 
   @Inject
   RunningJobImpl(final RemoteManager remoteManager,
@@ -57,13 +59,15 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
                  final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
                  final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
                  final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
-                 final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler) {
+                 final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler,
+                 final ExceptionCodec exceptionCodec) {
 
     this.jobId = driverIdentifier;
     this.runningJobEventHandler = runningJobEventHandler;
     this.completedJobEventHandler = completedJobEventHandler;
     this.failedJobEventHandler = failedJobEventHandler;
     this.jobMessageEventHandler = jobMessageEventHandler;
+    this.exceptionCodec = exceptionCodec;
     this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
 
     this.runningJobEventHandler.onNext(this);
@@ -117,20 +121,32 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
       this.jobMessageEventHandler.onNext(
           new JobMessage(getId(), value.getMessage().toByteArray()));
     }
-
     if (state == ReefServiceProtos.State.DONE) {
-
       this.completedJobEventHandler.onNext(new CompletedJobImpl(this.getId()));
     } else if (state == ReefServiceProtos.State.FAILED) {
-
-      final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-
-      final JobException error = value.hasException() ?
-          new JobException(this.jobId, codec.decode(value.getException().toByteArray())) :
-          new JobException(this.jobId, "Unknown failure cause");
-
-      this.failedJobEventHandler.onNext(new FailedJob(this.jobId, error));
+      this.onJobFailure(value);
     }
+  }
+
+  /**
+   * Inform the client of a failed job.
+   *
+   * @param jobStatusProto
+   */
+  private synchronized void onJobFailure(final JobStatusProto jobStatusProto) {
+    assert (jobStatusProto.getState() == ReefServiceProtos.State.FAILED);
+    final JobException error;
+    if (jobStatusProto.hasException()) {
+      final Optional<Throwable> cause = this.exceptionCodec.fromBytes(jobStatusProto.getException().toByteArray());
+      if (cause.isPresent()) {
+        error = new JobException(this.jobId, cause.get());
+      } else {
+        error = new JobException(this.jobId, "Cause sent, but not serializable.");
+      }
+    } else {
+      error = new JobException(this.jobId, "Unknown failure cause");
+    }
+    this.failedJobEventHandler.onNext(new FailedJob(this.jobId, error));
   }
 
   @Override
