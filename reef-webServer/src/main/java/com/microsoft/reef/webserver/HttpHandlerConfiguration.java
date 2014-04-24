@@ -33,6 +33,6 @@ public final class HttpHandlerConfiguration extends ConfigurationModuleBuilder {
      * HttpHandlerConfiguration merged with HttpRuntimeConfiguration
      */
     public static final ConfigurationModule CONF = new HttpHandlerConfiguration().merge(HttpRuntimeConfiguration.CONF)
-            .bindSetEntry(HttpServerImpl.HttpEventHandlers.class, HTTP_HANDLERS)
+            .bindSetEntry(HttpEventHandlers.class, HTTP_HANDLERS)
             .build();
 }

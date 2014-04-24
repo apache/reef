@@ -31,14 +31,6 @@ public final class HttpServerImpl implements HttpServer {
     private final JettyHandler jettyHandler;
 
     /**
-     * Named parameter for HttpEventHanlders
-     */
-    @NamedParameter
-    public class HttpEventHandlers implements Name<Set<HttpHandler>>
-    {
-    }
-
-    /**
      * Constructor of HttpServer. It accepts a set of IHttpHandlers
      * @param httpEventHandlers
      */

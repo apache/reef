@@ -15,35 +15,38 @@
  */
 package com.microsoft.reef.webserver;
 
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Parameter;
 import javax.inject.Inject;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import com.microsoft.reef.runtime.yarn.driver.TrackingURLProvider;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.tang.annotations.Parameter;
 
 /**
- * Returns tracking URI
+ * Http TrackingURLProvider
  */
-public class TrackingUriImpl implements TrackingUri {
+public class HttpTrackingURLProvider implements TrackingURLProvider {
+    private static final Logger LOG = Logger.getLogger(HttpTrackingURLProvider.class.getName());
+    private final String port;
 
     @NamedParameter(default_value = "8080")
     public class PortNumber implements Name<String>
     {}
 
-    private String port;
-
     @Inject
-    public TrackingUriImpl(@Parameter(PortNumber.class) String port) {
+    public HttpTrackingURLProvider(@Parameter(PortNumber.class) String port) {
         this.port = port;
     }
 
     @Override
-    public String GetUri() {
+    public String getTrackingUrl() {
         try {
             return InetAddress.getLocalHost().getHostAddress() + ":" + port;
         } catch (UnknownHostException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            LOG.log(Level.WARNING, "Cannot get host address.", e);
             return null;
         }
     }
