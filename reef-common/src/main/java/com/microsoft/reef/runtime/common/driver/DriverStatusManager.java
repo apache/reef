@@ -4,9 +4,9 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.driver.client.ClientConnection;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
@@ -17,29 +17,31 @@ import java.util.logging.Logger;
  * Manages the Driver's status.
  */
 public final class DriverStatusManager {
-  private static final ObjectSerializableCodec<Throwable> EXCEPTION_CODEC = new ObjectSerializableCodec<>();
   private static final Logger LOG = Logger.getLogger(DriverStatusManager.class.getName());
   private final Clock clock;
   private final ClientConnection clientConnection;
   private final String jobIdentifier;
+  private final ExceptionCodec exceptionCodec;
   private DriverStatus driverStatus = DriverStatus.PRE_INIT;
   private Optional<Throwable> shutdownCause = Optional.empty();
   private boolean driverTerminationHasBeenCommunicatedToClient = false;
 
+
   /**
    * @param clock
-   * @param evaluators
    * @param clientConnection
    * @param jobIdentifier
-   * @param remoteManager
+   * @param exceptionCodec
    */
   @Inject
   public DriverStatusManager(final Clock clock,
                              final ClientConnection clientConnection,
-                             final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier) {
+                             final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
+                             final ExceptionCodec exceptionCodec) {
     this.clock = clock;
     this.clientConnection = clientConnection;
     this.jobIdentifier = jobIdentifier;
+    this.exceptionCodec = exceptionCodec;
     LOG.log(Level.INFO, "Instantiated 'DriverStatusManager'");
   }
 
@@ -155,7 +157,7 @@ public final class DriverStatusManager {
       message = ReefServiceProtos.JobStatusProto.newBuilder()
           .setIdentifier(this.jobIdentifier)
           .setState(ReefServiceProtos.State.FAILED)
-          .setException(ByteString.copyFrom(EXCEPTION_CODEC.encode(exception.get())))
+          .setException(ByteString.copyFrom(this.exceptionCodec.toBytes(exception.get())))
           .build();
     } else {
       message = ReefServiceProtos.JobStatusProto.newBuilder()

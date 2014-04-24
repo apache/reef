@@ -21,11 +21,11 @@ import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.EvaluatorControlProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.EvaluatorStatusProto;
 import com.microsoft.reef.runtime.common.evaluator.context.ContextManager;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 import com.microsoft.wake.time.runtime.event.RuntimeStop;
@@ -48,6 +48,7 @@ final class EvaluatorRuntime {
 
   private final AutoCloseable evaluatorControlChannel;
   private final Clock clock;
+  private final ExceptionCodec exceptionCodec;
 
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
 
@@ -57,13 +58,15 @@ final class EvaluatorRuntime {
                            final ContextManager contextManagerFuture,
                            final HeartBeatManager heartBeatManager,
                            final @Parameter(EvaluatorConfigurationModule.EvaluatorIdentifier.class) String evaluatorIdentifier,
-                           final @Parameter(EvaluatorConfigurationModule.DriverRemoteIdentifier.class) String driverRID) {
+                           final @Parameter(EvaluatorConfigurationModule.DriverRemoteIdentifier.class) String driverRID,
+                           final ExceptionCodec exceptionCodec) {
 
     this.heartBeatManager = heartBeatManager;
     this.contextManager = contextManagerFuture;
     this.clock = clock;
 
     this.evaluatorIdentifier = evaluatorIdentifier;
+    this.exceptionCodec = exceptionCodec;
     this.evaluatorControlChannel = remoteManager.registerHandler(driverRID, EvaluatorControlProto.class, new EventHandler<EvaluatorControlProto>() {
       @Override
       public void onNext(final EvaluatorControlProto value) {
@@ -119,10 +122,9 @@ final class EvaluatorRuntime {
     synchronized (this.heartBeatManager) {
       this.state = ReefServiceProtos.State.FAILED;
 
-      final ObjectSerializableCodec<Throwable> codec = new ObjectSerializableCodec<>();
       final EvaluatorStatusProto evaluatorStatusProto = EvaluatorStatusProto.newBuilder()
           .setEvaluatorId(this.evaluatorIdentifier.toString())
-          .setError(ByteString.copyFrom(codec.encode(exception)))
+          .setError(ByteString.copyFrom(this.exceptionCodec.toBytes(exception)))
           .setState(this.state)
           .build();
       this.heartBeatManager.onNext(evaluatorStatusProto);
