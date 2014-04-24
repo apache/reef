@@ -16,8 +16,8 @@
 package com.microsoft.reef.webserver;
 
 import java.util.Set;
-import org.junit.Test;
-import org.junit.Assert;
+
+import org.junit.*;
 import org.mortbay.jetty.Server;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
@@ -35,6 +35,22 @@ import com.microsoft.wake.time.runtime.event.RuntimeStop;
  */
 public class TestRuntimeStartHandler {
 
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+    }
+
+    @Before
+    public void setUp() throws Exception {
+    }
+
+
+    @After
+    public void tearDown() throws Exception {
+    }
     /**
      * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers, when inject RuntimeClock
      * all the nested objects including HeetServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler

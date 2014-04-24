@@ -39,7 +39,7 @@ public class HttpServer implements IHttpServer {
     }
 
     /**
-     * COostructor of HttpServer. It accepts a set of IHttpHandlers
+     * Coostructor of HttpServer. It accepts a set of IHttpHandlers
      * @param httpEventHandlers
      */
     @Inject
