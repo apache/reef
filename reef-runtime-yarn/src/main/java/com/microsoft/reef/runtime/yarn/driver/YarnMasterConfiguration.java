@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.yarn.master;
+package com.microsoft.reef.runtime.yarn.driver;
 
 import com.microsoft.reef.io.TempFileCreator;
 import com.microsoft.reef.io.WorkingDirectoryTempFileCreator;
@@ -30,15 +30,15 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
   public final static String GLOBAL_FILE_DIRECTORY = "global";
 
   public YarnMasterConfiguration() {
-    super(YarnContainerManager.ResourceLaunchHandlerImpl.class,
-        YarnContainerManager.ResourceReleaseHandlerImpl.class,
-        YarnContainerManager.ResourceRequestHandlerImpl.class);
+    super(YARNResourceLaunchHandler.class,
+        YARNResourceReleaseHandler.class,
+        YarnResourceRequestHandler.class);
     try {
       this.builder.bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class);
-      this.builder.bindSetEntry(Clock.RuntimeStartHandler.class, YarnContainerManager.RuntimeStartHander.class);
-      this.builder.bindSetEntry(Clock.RuntimeStopHandler.class, YarnContainerManager.RuntimeStopHandler.class);
+      this.builder.bindSetEntry(Clock.RuntimeStartHandler.class, YARNRuntimeStartHandler.class);
+      this.builder.bindSetEntry(Clock.RuntimeStopHandler.class, YARNRuntimeStopHandler.class);
       this.builder.bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -67,7 +67,7 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
     try {
       this.builder.bindNamedParameter(JobSubmissionDirectory.class, path);
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -76,7 +76,7 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
     try {
       this.builder.bindNamedParameter(YarnConfigurationFile.class, file);
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -85,7 +85,7 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
     try {
       this.builder.bindNamedParameter(YarnHeartbeatPeriod.class, Long.toString(period));
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }
@@ -94,7 +94,7 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
     try {
       this.builder.bindNamedParameter(GlobalFileClassPath.class, classpath);
       return this;
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException(e);
     }
   }

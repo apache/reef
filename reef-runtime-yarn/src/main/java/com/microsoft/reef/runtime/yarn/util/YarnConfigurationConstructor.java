@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.yarn.util;
 
-import com.microsoft.reef.runtime.yarn.master.YarnMasterConfiguration;
+import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Parameter;
 import org.apache.hadoop.fs.Path;

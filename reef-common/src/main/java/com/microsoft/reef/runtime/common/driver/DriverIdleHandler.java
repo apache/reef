@@ -30,7 +30,7 @@ public final class DriverIdleHandler implements EventHandler<IdleClock> {
   @Override
   public synchronized void onNext(final IdleClock idleClock) {
     if (this.resourceManagerStatus.isRunningAndIdle()) {
-      LOG.log(Level.FINEST, "Idle resourcemanager shutdown");
+      LOG.log(Level.INFO, "Idle resourcemanager shutdown");
       this.driverStatusManager.onComplete();
     }
   }
