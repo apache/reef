@@ -15,10 +15,12 @@
  */
 package com.microsoft.reef.webserver;
 
+import com.microsoft.tang.annotations.Parameter;
 import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.AbstractHandler;
 
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,11 +40,11 @@ class JettyHandler extends AbstractHandler {
     private final Map<String, HttpHandler> eventHandlers = new HashMap<>();
 
     /**
-     * Jetty Event Handler
+     * Jetty Event Handler. It accepts a set of IHttpHandlers
      * @param httpEventHandlers
      */
-    public JettyHandler(Set<HttpHandler> httpEventHandlers)
-    {
+    @Inject
+    JettyHandler(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
         //TODO handle duplicated case
         for (HttpHandler h : httpEventHandlers) {
             eventHandlers.put(h.getUriSpecification(), h);
@@ -58,6 +60,7 @@ class JettyHandler extends AbstractHandler {
      * @throws IOException
      * @throws ServletException
      */
+    @Override
     public void handle(
             String target,
             HttpServletRequest request,
@@ -69,10 +72,12 @@ class JettyHandler extends AbstractHandler {
                 HttpConnection.getCurrentConnection().getRequest();
 
         //call corresponding HttpHandler
-        HttpHandler h = eventHandlers.get(target);
-        ReefHttpRequest req = new ReefHttpRequest();  //convert from request
-        ReefHttpResponse res = new ReefHttpResponse();  //convert from response
-        h.onHttpRequest(req, res);
+        final HttpHandler h = eventHandlers.get(target);
+        if (h != null) {
+            final ReefHttpRequest req = new ReefHttpRequest();  //convert from request
+            final ReefHttpResponse res = new ReefHttpResponse();  //convert from response
+            h.onHttpRequest(req, res);
+        }
 
         //sample response
         response.setContentType("text/html;charset=utf-8");

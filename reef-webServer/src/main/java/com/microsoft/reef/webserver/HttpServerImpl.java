@@ -26,28 +26,16 @@ import com.microsoft.tang.annotations.Parameter;
  * HttpServer. It manages Jetty Server and Event Handlers
  */
 public final class HttpServerImpl implements HttpServer {
-    private final Set<HttpHandler> httpEventHandlers;
     private final Server server;
-    private final JettyHandler jettyHandler;
 
     /**
-     * Constructor of HttpServer. It accepts a set of IHttpHandlers
-     * @param httpEventHandlers
+     * Constructor of HttpServer that wraps Jetty Server
+     * @param jettyHandler
      */
     @Inject
-    public HttpServerImpl(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers)      {
-        this.httpEventHandlers = httpEventHandlers;
-        this.jettyHandler = new JettyHandler(httpEventHandlers);
+    HttpServerImpl(JettyHandler jettyHandler) {
         this.server = new Server(8080); //Jetty server
         this.server.setHandler(jettyHandler); //register handler
-    }
-
-    /**
-     * GetHttpEventHandlers
-     * @return
-     */
-    public Set<HttpHandler> GetHttpEventHandlers() {
-        return httpEventHandlers;
     }
 
     /**

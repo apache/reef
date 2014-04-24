@@ -16,6 +16,8 @@
 package com.microsoft.reef.webserver;
 
 import com.microsoft.reef.runtime.yarn.driver.TrackingURLProvider;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
@@ -71,4 +73,13 @@ public class TestTrackingUri {
         String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8080";
         Assert.assertEquals(trackingId, uri);
     }
-}
+
+    @Test
+    public void HttpTrackingUriDefaultBindingTest () throws InjectionException, UnknownHostException, BindException {
+        Injector injector = Tang.Factory.getTang().newInjector(HttpHandlerConfiguration.CONF.build());
+        String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+
+        String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8080";
+        Assert.assertEquals(trackingId, uri);
+    }
+ }

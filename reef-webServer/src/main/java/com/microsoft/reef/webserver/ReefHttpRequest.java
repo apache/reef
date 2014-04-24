@@ -18,7 +18,7 @@ package com.microsoft.reef.webserver;
 /**
  * ReefHttpRequest
  */
-public class ReefHttpRequest implements HttpRequest {
+public final class ReefHttpRequest implements HttpRequest {
 
     /**
      *  ReefHttpRequest

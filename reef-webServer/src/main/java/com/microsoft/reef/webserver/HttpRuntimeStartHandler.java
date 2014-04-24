@@ -34,7 +34,7 @@ final class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
      * @param httpServer
      */
     @Inject
-    public HttpRuntimeStartHandler(HttpServerImpl httpServer)
+    HttpRuntimeStartHandler(HttpServerImpl httpServer)
     {
         this.httpServer = httpServer;
     }

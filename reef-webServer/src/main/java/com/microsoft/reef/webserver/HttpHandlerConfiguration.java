@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.yarn.driver.TrackingURLProvider;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
@@ -34,5 +35,6 @@ public final class HttpHandlerConfiguration extends ConfigurationModuleBuilder {
      */
     public static final ConfigurationModule CONF = new HttpHandlerConfiguration().merge(HttpRuntimeConfiguration.CONF)
             .bindSetEntry(HttpEventHandlers.class, HTTP_HANDLERS)
+            .bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class)
             .build();
 }

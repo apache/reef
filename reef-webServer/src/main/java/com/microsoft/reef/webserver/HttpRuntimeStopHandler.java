@@ -34,7 +34,7 @@ final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
      * @param httpServer
      */
     @Inject
-    public HttpRuntimeStopHandler(HttpServerImpl httpServer)
+    HttpRuntimeStopHandler(HttpServerImpl httpServer)
     {
         this.httpServer = httpServer;
     }
