@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,21 +30,22 @@ import java.util.Set;
 /**
  * Jetty Event Handler
  */
-public class JettyHandler extends AbstractHandler {
+class JettyHandler extends AbstractHandler {
 
     /**
      * a map that contains eventHandler's specification and the reference
      */
-    private Map<String, IHttpHandler> eventHandlers = new HashMap<>();
+    private final Map<String, HttpHandler> eventHandlers = new HashMap<>();
 
     /**
      * Jetty Event Handler
      * @param httpEventHandlers
      */
-    public JettyHandler(Set<IHttpHandler> httpEventHandlers)
+    public JettyHandler(Set<HttpHandler> httpEventHandlers)
     {
-        for (IHttpHandler h : httpEventHandlers) {
-            eventHandlers.put(h.getUriSpecification(), h)    ;
+        //TODO handle duplicated case
+        for (HttpHandler h : httpEventHandlers) {
+            eventHandlers.put(h.getUriSpecification(), h);
         }
     }
 
@@ -59,7 +60,6 @@ public class JettyHandler extends AbstractHandler {
      */
     public void handle(
             String target,
-            //Request baseRequest,
             HttpServletRequest request,
             HttpServletResponse response,
             int i)
@@ -69,9 +69,9 @@ public class JettyHandler extends AbstractHandler {
                 HttpConnection.getCurrentConnection().getRequest();
 
         //call corresponding HttpHandler
-        IHttpHandler h = eventHandlers.get(target);
-        JobDriverHttpRequest req = new JobDriverHttpRequest();  //convert from   request
-        JobDriverHttpResponse res = new JobDriverHttpResponse();  //convert from response
+        HttpHandler h = eventHandlers.get(target);
+        ReefHttpRequest req = new ReefHttpRequest();  //convert from request
+        ReefHttpResponse res = new ReefHttpResponse();  //convert from response
         h.onHttpRequest(req, res);
 
         //sample response

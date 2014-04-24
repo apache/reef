@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ import com.microsoft.wake.time.runtime.event.RuntimeStop;
 /**
  * Http Runtime Stop Handler
  */
-public class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
+final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
     private static final Logger LOG = Logger.getLogger(HttpRuntimeStopHandler.class.getName());
 
-    private IHttpServer httpServer;
+    private final HttpServer httpServer;
 
     /**
      * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
      * @param httpServer
      */
     @Inject
-    public HttpRuntimeStopHandler(HttpServer httpServer)
+    public HttpRuntimeStopHandler(HttpServerImpl httpServer)
     {
         this.httpServer = httpServer;
     }
@@ -49,8 +49,8 @@ public class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
         try {
             httpServer.stop();
             LOG.log(Level.FINEST, "HttpRuntimeStopHandler complete.");
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "HttpRuntimeStopHandler cannot stop the Server." + e);
+        } catch (final Exception e) {
+            LOG.log(Level.SEVERE, "HttpRuntimeStopHandler cannot stop the Server.", e);
         }
     }
 }

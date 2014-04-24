@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import javax.inject.Inject;
 /**
  * HttpServerReefEventHandler
  */
-public class HttpServerReefEventHandler implements IHttpHandler {
+public final class HttpServerReefEventHandler implements HttpHandler {
 
     /**
      *  HttpServerReefEventHandler constructor.
@@ -44,7 +44,7 @@ public class HttpServerReefEventHandler implements IHttpHandler {
      * @param response
      */
     @Override
-    public void onHttpRequest(JobDriverHttpRequest request, JobDriverHttpResponse response) {
+    public void onHttpRequest(HttpRequest request, HttpResponse response) {
         //TODO
     }
 }

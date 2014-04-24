@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,65 +15,20 @@
  */
 package com.microsoft.reef.webserver;
 
-import org.mortbay.jetty.Server;
-import javax.inject.Inject;
-import java.util.Set;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Parameter;
-
 /**
- * HttpServer. It manages Jetty Server and Event Handlers
+ *  HttpServer interface
  */
-public class HttpServer implements IHttpServer {
-    private Set<IHttpHandler> httpEventHandlers;
-    private Server server = null;
-    private JettyHandler jettyHandler;
+public interface HttpServer {
 
     /**
-     * Named parameter for HttpEventHanlders
-     */
-    @NamedParameter
-    public class HttpEventHanlders implements Name<Set<IHttpHandler>>
-    {
-    }
-
-    /**
-     * Coostructor of HttpServer. It accepts a set of IHttpHandlers
-     * @param httpEventHandlers
-     */
-    @Inject
-    public HttpServer(@Parameter(HttpEventHanlders.class) Set<IHttpHandler> httpEventHandlers)  {
-        this.httpEventHandlers = httpEventHandlers;
-        jettyHandler = new JettyHandler(httpEventHandlers);
-        server = new Server(8080); //Jetty server
-        server.setHandler(jettyHandler); //register handler
-    }
-
-    /**
-     * GetHttpEventHandlers
-     * @return
-     */
-    public Set<IHttpHandler> GetHttpEventHandlers() {
-        return  httpEventHandlers;
-    }
-
-    /**
-     * start Jetty Server. It will be called from RuntimeStartHandler
+     * start the server
      * @throws Exception
      */
-    @Override
-    public void start() throws Exception {
-        server.start();
-        server.join();
-    }
+    public void start() throws Exception;
 
     /**
-     * stop Jetty Server. It will be called from RuntimeStopHandler
+     * stop the server
      * @throws Exception
      */
-    @Override
-    public void stop() throws Exception {
-        server.stop();
-    }
+    public void stop() throws Exception;
 }

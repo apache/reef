@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ import com.microsoft.wake.time.runtime.event.RuntimeStart;
 /**
  *  RuntimeStartHandler for Http server
  */
-public class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
+final class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
     private static final Logger LOG = Logger.getLogger(HttpRuntimeStartHandler.class.getName());
 
-    private IHttpServer httpServer;
+    private final HttpServer httpServer;
 
     /**
      * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
      * @param httpServer
      */
     @Inject
-    public HttpRuntimeStartHandler(HttpServer httpServer)
+    public HttpRuntimeStartHandler(HttpServerImpl httpServer)
     {
         this.httpServer = httpServer;
     }
@@ -49,8 +49,9 @@ public class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
         try {
             httpServer.start();
             LOG.log(Level.FINEST, "HttpRuntimeStartHandler complete.");
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "HttpRuntimeStartHandler cannot start the Server." + e);
+        } catch (final Exception e) {
+            LOG.log(Level.SEVERE, "HttpRuntimeStartHandler cannot start the Server.", e);
+            throw new RuntimeException("HttpRuntimeStartHandler cannot start the Server.", e);
         }
     }
 }

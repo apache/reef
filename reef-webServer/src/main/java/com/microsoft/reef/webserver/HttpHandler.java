@@ -16,19 +16,19 @@
 package com.microsoft.reef.webserver;
 
 /**
- *  HttpServer interface
+ * HeepHandler interface
  */
-public interface IHttpServer {
+public interface HttpHandler {
+    /**
+     * return specification of the handler. e.g /Reef/
+     * @return
+     */
+    String getUriSpecification();
 
     /**
-     * start the server
-     * @throws Exception
+     * Will be called when request comes
+     * @param request
+     * @param response
      */
-    public void start() throws Exception;
-
-    /**
-     * stop the server
-     * @throws Exception
-     */
-    public void stop() throws Exception;
+    void onHttpRequest(HttpRequest request, HttpResponse response);
 }

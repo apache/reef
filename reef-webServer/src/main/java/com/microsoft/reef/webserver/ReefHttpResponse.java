@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,13 @@
 package com.microsoft.reef.webserver;
 
 /**
- * HeepHandler interface
+ * ReefHttpResponse
  */
-public interface IHttpHandler {
+public class ReefHttpResponse implements HttpResponse {
     /**
-     * return specification of the handler. e.g /Reef/
-     * @return
+     *  ReefHttpResponse
      */
-    String getUriSpecification();
-
-    /**
-     * Will be called when request comes
-     * @param request
-     * @param response
-     */
-    void onHttpRequest(JobDriverHttpRequest request, JobDriverHttpResponse response);
+    public ReefHttpResponse() {
+        //TODO
+    }
 }

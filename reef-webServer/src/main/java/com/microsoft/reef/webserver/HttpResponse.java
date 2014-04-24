@@ -15,20 +15,8 @@
  */
 package com.microsoft.reef.webserver;
 
-import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder;
-import com.microsoft.wake.time.Clock;
-
 /**
- * Configuration Module Builder for HttpRuntime
+ * interface for HTTP Response
  */
-public final class HttpRuntimeConfiguration extends ConfigurationModuleBuilder {
-
-    /**
-     *  HttpRuntimeConfiguration
-     */
-    public static final ConfigurationModule CONF = new HttpRuntimeConfiguration()
-        .bindSetEntry(Clock.RuntimeStartHandler.class, HttpRuntimeStartHandler.class)
-        .bindSetEntry(Clock.RuntimeStopHandler.class, HttpRuntimeStopHandler.class)
-        .build();
+public interface HttpResponse {
 }

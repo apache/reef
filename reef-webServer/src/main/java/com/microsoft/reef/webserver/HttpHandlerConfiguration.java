@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,17 @@ import com.microsoft.tang.formats.OptionalParameter;
 /**
  * Configuration Module Builder for Http Handler
  */
-public class HttpHandlerConfiguration extends ConfigurationModuleBuilder {
+public final class HttpHandlerConfiguration extends ConfigurationModuleBuilder {
 
     /**
-     * Specify optional parameter for HttpEventHanlders
+     * Specify optional parameter for HttpEventHandlers
      */
-    public static final OptionalParameter<IHttpHandler> HTTP_HANDLERS = new OptionalParameter<>();
+    public static final OptionalParameter<HttpHandler> HTTP_HANDLERS = new OptionalParameter<>();
 
     /**
      * HttpHandlerConfiguration merged with HttpRuntimeConfiguration
      */
     public static final ConfigurationModule CONF = new HttpHandlerConfiguration().merge(HttpRuntimeConfiguration.CONF)
-            .bindSetEntry(HttpServer.HttpEventHanlders.class, HTTP_HANDLERS)
+            .bindSetEntry(HttpServerImpl.HttpEventHandlers.class, HTTP_HANDLERS)
             .build();
 }

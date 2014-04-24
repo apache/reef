@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,7 @@
 package com.microsoft.reef.webserver;
 
 /**
- * JobDriverHttpResponse
+ * interface for HttpRequest
  */
-public class JobDriverHttpResponse {
-    /**
-     *  JobDriverHttpResponse
-     */
-    public JobDriverHttpResponse() {
-        //TODO
-    }
+public interface HttpRequest {
 }
