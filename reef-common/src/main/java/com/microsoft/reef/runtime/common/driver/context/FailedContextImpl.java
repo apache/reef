@@ -59,24 +59,6 @@ public final class FailedContextImpl extends AbstractFailure implements FailedCo
     this.evaluatorID = evaluatorID;
   }
 
-  /**
-   * @param cause               Java Exception that caused the error.
-   * @param id                  Identifier of the entity that produced the error.
-   * @param parentContext       the parent context, if there is one
-   * @param evaluatorID         the id of the Evaluator this context failed on.
-   * @param evaluatorDescriptor the descriptor of the Evaluator this context failed on.
-   * @deprecated in 0.3. Use the full constructor instead
-   */
-  @Deprecated
-  public FailedContextImpl(final Throwable cause,
-                           final String id,
-                           final Optional<ActiveContext> parentContext,
-                           final String evaluatorID,
-                           final EvaluatorDescriptor evaluatorDescriptor) {
-    this(id, "", Optional.<String>empty(), Optional.of(cause), Optional.<byte[]>empty(), parentContext, evaluatorDescriptor, evaluatorID);
-
-  }
-
 
   @Override
   public Optional<ActiveContext> getParentContext() {
