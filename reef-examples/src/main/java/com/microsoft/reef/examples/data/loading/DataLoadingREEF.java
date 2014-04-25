@@ -58,13 +58,17 @@ public class DataLoadingREEF {
   /**
    * Number of milliseconds to wait for the job to complete.
    */
-  private static final int JOB_TIMEOUT = 10 * 60 * 1000;
+  private static int JOB_TIMEOUT;
 
   /**
    * Command line parameter = true to run locally, or false to run on YARN.
    */
   @NamedParameter(doc = "Whether or not to run on the local runtime", short_name = "local", default_value = "true")
   public static final class Local implements Name<Boolean> {
+  }
+  
+  @NamedParameter(doc="Number of minutes before timeout", short_name="timeout",default_value="2")
+  public static final class TimeOut implements Name<Integer>{
   }
 
   @NamedParameter(short_name = "input")
@@ -79,6 +83,7 @@ public class DataLoadingREEF {
     try {
       final CommandLine cl = new CommandLine(cb);
       cl.registerShortNameOfClass(Local.class);
+      cl.registerShortNameOfClass(TimeOut.class);
       cl.registerShortNameOfClass(DataLoadingREEF.InputDir.class);
       cl.processCommandLine(aArgs);
     } catch (final BindException | IOException ex) {
@@ -96,6 +101,7 @@ public class DataLoadingREEF {
       throws InjectionException, BindException {
     final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
     local = injector.getNamedInstance(Local.class);
+    JOB_TIMEOUT = injector.getNamedInstance(TimeOut.class) * 60 * 1000;
     input = injector.getNamedInstance(DataLoadingREEF.InputDir.class);
   }
 
@@ -132,8 +138,8 @@ public class DataLoadingREEF {
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
         .setMemoryMB(4096)
         .setJobConf(jobConf)
-        .setNumberOfDesiredSplits(12)
-        .setComputeRequest(computeRequest)
+//        .setNumberOfDesiredSplits(12)
+//        .setComputeRequest(computeRequest)
         .setDriverConfigurationModule(EnvironmentUtils
             .addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, LineCounter.ContextActiveHandler.class)

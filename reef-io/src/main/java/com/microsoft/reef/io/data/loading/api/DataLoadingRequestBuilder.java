@@ -19,6 +19,7 @@ import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.JobConf;
 
 import com.microsoft.reef.client.DriverConfiguration;
+import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.io.data.loading.impl.EvaluatorRequestSerializer;
 import com.microsoft.reef.io.data.loading.impl.InputFormatExternalConstructor;
@@ -32,6 +33,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationModule;
+import com.microsoft.wake.time.Clock;
 
 /**
  * Builder to create a request to the DataLoadingService.
@@ -117,6 +119,7 @@ public final class DataLoadingRequestBuilder implements com.microsoft.reef.util.
       final Configuration driverConfiguration = driverConfigurationModule
           .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
+          .set(DriverConfiguration.ON_EVALUATOR_FAILED, DataLoader.FailedEvaluatorHandler.class)
           .build();
 
       JavaConfigurationBuilder jcb = Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration);
