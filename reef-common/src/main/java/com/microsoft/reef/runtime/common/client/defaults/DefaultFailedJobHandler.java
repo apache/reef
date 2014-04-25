@@ -19,6 +19,7 @@ import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.FailedJob;
 import com.microsoft.wake.EventHandler;
+
 import javax.inject.Inject;
 
 /**
@@ -34,6 +35,6 @@ public final class DefaultFailedJobHandler implements EventHandler<FailedJob> {
 
   @Override
   public void onNext(final FailedJob job) {
-    throw new RuntimeException("REEF job failed: " + job.getId(), job.getCause());
+    throw new RuntimeException("REEF job failed: " + job.getId(), job.getReason().orElse(null));
   }
 }

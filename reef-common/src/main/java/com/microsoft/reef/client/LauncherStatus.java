@@ -32,6 +32,10 @@ public final class LauncherStatus {
     return new LauncherStatus(State.FAILED, ex);
   }
 
+  public static final LauncherStatus FAILED(final Optional<Throwable> ex) {
+    return new LauncherStatus(State.FAILED, ex.orElse(null));
+  }
+
   /**
    * The state the computation could be in.
    */
