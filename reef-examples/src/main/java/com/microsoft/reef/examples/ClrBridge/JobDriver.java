@@ -299,6 +299,8 @@ public final class JobDriver {
           NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(evaluatorRequestorHandler, evaluatorRequestorBridge, interopLogger);
           // get the evaluator numbers set by CLR handler
           nCLREvaluators =  evaluatorRequestorBridge.getEvaluaotrNumber();
+          JobDriver.this.state = State.WAIT_EVALUATORS;
+          JobDriver.this.expectCount = nCLREvaluators;
           LOG.log(Level.INFO, "evaluator requested: " + nCLREvaluators);
        }
     }

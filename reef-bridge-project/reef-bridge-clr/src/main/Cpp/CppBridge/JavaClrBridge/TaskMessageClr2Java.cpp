@@ -14,9 +14,9 @@ namespace Microsoft
 					_jobjectTaskMessage = jtaskMessage;
 					_jclassTaskMessage = _env->GetObjectClass (_jobjectTaskMessage);
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _env %p\n", _env); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jobjectTaskMessage %p\n", _jobjectTaskMessage); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jclassTaskMessage %p\n", _jclassTaskMessage); fflush (stdout);
+					fprintf(stdout, "TaskMessageClr2Java _env %p\n", _env); fflush (stdout);
+					fprintf(stdout, "TaskMessageClr2Java _jobjectTaskMessage %p\n", _jobjectTaskMessage); fflush (stdout);
+					fprintf(stdout, "TaskMessageClr2Java _jclassTaskMessage %p\n", _jclassTaskMessage); fflush (stdout);
 				}
 			}
 		}

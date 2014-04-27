@@ -11,6 +11,7 @@ using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
 using namespace Microsoft::Reef::Driver::Bridge;
+using namespace Microsoft::Reef::Driver::Evaluator;
 
 namespace Microsoft
 {
@@ -30,6 +31,7 @@ namespace Microsoft
 					jmethodID _jmidSubmitContext;
 					jmethodID _jmidSubmitContextAndService;
 					jmethodID _jmidSubmitContextAndServiceAndTask;
+					jmethodID _jmidGetEvaluatorDescriptor;
 					JNIEnv* _env;
 				public:
 					AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
@@ -37,6 +39,7 @@ namespace Microsoft
 					virtual void SubmitContext(String^ contextConfigStr);
 					virtual void SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr);
 					virtual void SubmitContextAndServiceAndTask(String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr);
+					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
 				};
 
 				public ref class ActiveContextClr2Java : public IActiveContextClr2Java

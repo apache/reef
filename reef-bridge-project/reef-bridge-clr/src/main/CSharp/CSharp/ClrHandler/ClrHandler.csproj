@@ -55,7 +55,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constants.cs" />
     <Compile Include="ClrSystemHandlerWrapper.cs" />
     <Compile Include="interface\ILogger.cs" />
     <Compile Include="interface\IInteropReturnInfo.cs" />

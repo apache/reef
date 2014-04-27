@@ -15,10 +15,10 @@ namespace Microsoft
 					_jclassActiveContext = _env->GetObjectClass (_jobjectActiveContext);
 					_jmidSubmitTask = _env->GetMethodID(_jclassActiveContext, "submitTaskString", "(Ljava/lang/String;)V");
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _env %p\n", _env); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jobjectActiveContext %p\n", _jobjectActiveContext); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jclassActiveContext %p\n", _jclassActiveContext); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jmidSubmitTask %p\n", _jmidSubmitTask); fflush (stdout);
+					fprintf(stdout, "ActiveContextClr2Java _env %p\n", _env); fflush (stdout);
+					fprintf(stdout, "ActiveContextClr2Java _jobjectActiveContext %p\n", _jobjectActiveContext); fflush (stdout);
+					fprintf(stdout, "ActiveContextClr2Java _jclassActiveContext %p\n", _jclassActiveContext); fflush (stdout);
+					fprintf(stdout, "ActiveContextClr2Java _jmidSubmitTask %p\n", _jmidSubmitTask); fflush (stdout);
 				}
 
 				void ActiveContextClr2Java::SubmitTask( String^ taskConfigStr)
