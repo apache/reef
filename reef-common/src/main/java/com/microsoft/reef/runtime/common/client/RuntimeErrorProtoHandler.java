@@ -15,39 +15,34 @@
  */
 package com.microsoft.reef.runtime.common.client;
 
-import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteMessage;
 
-import java.util.Map;
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Used in ClientManager.
+ * Used in REEFImplementation.
  */
-final class RuntimeErrorProtoHandler
-    implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
+final class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
 
   private final static Logger LOG = Logger.getLogger(RuntimeErrorProtoHandler.class.getName());
 
-  private final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture;
-  private final Map<String, RunningJobImpl> runningJobMap;
+  private final InjectionFuture<RunningJobs> runningJobs;
 
-  RuntimeErrorProtoHandler(
-      final InjectionFuture<EventHandler<FailedRuntime>> runtimeErrorHandlerFuture,
-      final Map<String, RunningJobImpl> runningJobMap) {
-    this.runtimeErrorHandlerFuture = runtimeErrorHandlerFuture;
-    this.runningJobMap = runningJobMap;
+  @Inject
+  RuntimeErrorProtoHandler(final InjectionFuture<RunningJobs> runningJobs) {
+    this.runningJobs = runningJobs;
   }
+
 
   @Override
   public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> error) {
-    LOG.log(Level.WARNING, "{0} Runtime Error: {1}", new Object[] {
-        error.getIdentifier(), error.getMessage().getMessage() });
-    this.runningJobMap.remove(error.getIdentifier().toString());
-    this.runtimeErrorHandlerFuture.get().onNext(new FailedRuntime(error.getMessage()));
+    LOG.log(Level.WARNING, "{0} Runtime Error: {1}", new Object[]{
+        error.getIdentifier(), error.getMessage().getMessage()});
+    this.runningJobs.get().onRuntimeErrorMessage(error);
   }
 }

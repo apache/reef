@@ -23,7 +23,7 @@ import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import com.microsoft.reef.runtime.yarn.master.YarnMasterConfiguration;
+import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
@@ -77,7 +77,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   @Override
-  public void onNext(ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+  public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
     try {
       // Get a new application id
       final YarnClientApplication yarnClientApplication = yarnClient.createApplication();
@@ -135,7 +135,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
       final StringBuilder localClassPath = new StringBuilder();
 
-      for (ReefServiceProtos.FileResourceProto file : jobSubmissionProto.getLocalFileList()) {
+      for (final ReefServiceProtos.FileResourceProto file : jobSubmissionProto.getLocalFileList()) {
         final Path src = new Path(file.getPath());
         final Path dst = new Path(job_dir, file.getName());
         switch (file.getType()) {
@@ -230,12 +230,12 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // Check app status every 1 second.
       try {
         Thread.sleep(1000);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         LOG.warning("Thread sleep in monitoring loop interrupted");
       }
 
       // Get application report for the appId we are interested in
-      ApplicationReport report = yarnClient.getApplicationReport(appId);
+      final ApplicationReport report = yarnClient.getApplicationReport(appId);
 
       LOG.log(Level.INFO,
           "Got application report from ASM for"

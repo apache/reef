@@ -17,12 +17,13 @@ package com.microsoft.reef.runtime.common.launch;
 
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.Launcher;
+import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
+import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -40,14 +41,17 @@ public final class REEFErrorHandler implements EventHandler<Throwable> {
   private final InjectionFuture<RemoteManager> remoteManager;
   private final String launchID;
   private final String errorHandlerRID;
+  private final ExceptionCodec exceptionCodec;
 
   @Inject
   REEFErrorHandler(final InjectionFuture<RemoteManager> remoteManager,
-                   final @Parameter(Launcher.ErrorHandlerRID.class) String errorHandlerRID,
-                   final @Parameter(Launcher.LaunchID.class) String launchID) {
+                   final @Parameter(ErrorHandlerRID.class) String errorHandlerRID,
+                   final @Parameter(LaunchID.class) String launchID,
+                   final ExceptionCodec exceptionCodec) {
     this.errorHandlerRID = errorHandlerRID;
     this.remoteManager = remoteManager;
     this.launchID = launchID;
+    this.exceptionCodec = exceptionCodec;
   }
 
   @Override
@@ -56,19 +60,22 @@ public final class REEFErrorHandler implements EventHandler<Throwable> {
     // TODO: This gets a new EventHandler each time an exception is caught. It would be better to cache the handler. But
     // that introduces threading issues and isn't really worth it, as the JVM typically will be killed once we catch an
     // Exception in here.
-    final EventHandler<ReefServiceProtos.RuntimeErrorProto> runtimeErrorHandler = this.remoteManager.get()
-        .getHandler(errorHandlerRID, ReefServiceProtos.RuntimeErrorProto.class);
-    final ObjectSerializableCodec<Throwable> codec = new ObjectSerializableCodec<>();
-    final ReefServiceProtos.RuntimeErrorProto message = ReefServiceProtos.RuntimeErrorProto.newBuilder()
-        .setName("reef")
-        .setIdentifier(launchID)
-        .setMessage(e.getMessage())
-        .setException(ByteString.copyFrom(codec.encode(e)))
-        .build();
-    try {
-      runtimeErrorHandler.onNext(message);
-    } catch (final Throwable t) {
-      LOG.log(Level.SEVERE, "Unable to send the error upstream", t);
+    if (!this.errorHandlerRID.equals(ErrorHandlerRID.NONE)) {
+      final EventHandler<ReefServiceProtos.RuntimeErrorProto> runtimeErrorHandler = this.remoteManager.get()
+          .getHandler(errorHandlerRID, ReefServiceProtos.RuntimeErrorProto.class);
+      final ReefServiceProtos.RuntimeErrorProto message = ReefServiceProtos.RuntimeErrorProto.newBuilder()
+          .setName("reef")
+          .setIdentifier(launchID)
+          .setMessage(e.getMessage())
+          .setException(ByteString.copyFrom(this.exceptionCodec.toBytes(e)))
+          .build();
+      try {
+        runtimeErrorHandler.onNext(message);
+      } catch (final Throwable t) {
+        LOG.log(Level.SEVERE, "Unable to send the error upstream", t);
+      }
+    } else {
+      LOG.log(Level.SEVERE, "Caught an exception from Wake we cannot send upstream because there is no upstream");
     }
   }
 

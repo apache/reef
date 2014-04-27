@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
+import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.context.ActiveContext;
@@ -38,6 +39,7 @@ import com.microsoft.reef.runtime.common.driver.task.CompletedTaskImpl;
 import com.microsoft.reef.runtime.common.driver.task.RunningTaskImpl;
 import com.microsoft.reef.runtime.common.driver.task.SuspendedTaskImpl;
 import com.microsoft.reef.runtime.common.driver.task.TaskMessageImpl;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Name;
@@ -46,7 +48,6 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.RemoteMessage;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.Alarm;
 
@@ -68,12 +69,12 @@ import java.util.logging.Logger;
  * control information (e.g., shutdown, suspend).
  */
 @Private
+@DriverSide
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
-  //  private final DriverManager driverManager;
   private final Evaluators evaluators;
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
@@ -86,6 +87,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final EvaluatorControlHandler evaluatorControlHandler;
   private final ContextControlHandler contextControlHandler;
   private final EvaluatorStatusManager stateManager;
+  private final ExceptionCodec exceptionCodec;
 
 
   // Mutable fields
@@ -106,7 +108,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorMessageDispatcher messageDispatcher,
       final EvaluatorControlHandler evaluatorControlHandler,
       final ContextControlHandler contextControlHandler,
-      final EvaluatorStatusManager stateManager) {
+      final EvaluatorStatusManager stateManager, ExceptionCodec exceptionCodec) {
 
     this.clock = clock;
     this.evaluators = evaluators;
@@ -120,8 +122,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorControlHandler = evaluatorControlHandler;
     this.contextControlHandler = contextControlHandler;
     this.stateManager = stateManager;
+    this.exceptionCodec = exceptionCodec;
 
     this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer));
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: " + this.getId());
   }
 
   /**
@@ -208,7 +212,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         (this.stateManager.isDoneOrFailedOrKilled());
   }
 
-  private EvaluatorContext getEvaluatorContext(final String id) {
+  public EvaluatorContext getEvaluatorContext(final String id) {
     for (final EvaluatorContext context : this.activeContextList) {
       if (context.getId().equals(id)) return context;
     }
@@ -245,15 +249,23 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         Collections.reverse(activeContexts);
 
         for (final EvaluatorContext context : activeContexts) {
-          final Optional<ActiveContext> parentContext = context.getParentId().isPresent() ?
-              Optional.<ActiveContext>of(getEvaluatorContext(context.getParentId().get())) :
-              Optional.<ActiveContext>empty();
-          failedContextList.add(context.getFailedContext(parentContext, exception));
+          failedContextList.add(context.getFailedContextForEvaluatorFailure());
         }
 
-        final Optional<FailedTask> failedTaskOptional = this.runningTask != null ?
-            Optional.of(new FailedTask(this.runningTask.getId(), exception)) :
-            Optional.<FailedTask>empty();
+        final Optional<FailedTask> failedTaskOptional;
+        if (null != this.runningTask) {
+          final String taskId = this.runningTask.getId();
+          final Optional<ActiveContext> evaluatorContext = Optional.<ActiveContext>empty();
+          final Optional<byte[]> bytes = Optional.<byte[]>empty();
+          final Optional<Throwable> taskException = Optional.<Throwable>of(new Exception("Evaluator crash"));
+          final String message = "Evaluator crash";
+          final Optional<String> description = Optional.empty();
+          final FailedTask failedTask = new FailedTask(taskId, message, description, taskException, bytes, evaluatorContext);
+          failedTaskOptional = Optional.of(failedTask);
+        } else {
+          failedTaskOptional = Optional.empty();
+        }
+
 
         this.messageDispatcher.onEvaluatorFailed(new FailedEvaluatorImpl(exception, failedContextList, failedTaskOptional, this.evaluatorId));
 
@@ -266,55 +278,97 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
-  public void onEvaluatorHeartbeatMessage(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
-    synchronized (this.evaluatorDescriptor) {
-      final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
-      this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
+  public synchronized void onEvaluatorHeartbeatMessage(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
+    final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
+    LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
+    this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
 
-      if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
-        final ReefServiceProtos.EvaluatorStatusProto status = evaluatorHeartbeatProto.getEvaluatorStatus();
-        if (status.hasError()) {
-          final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-          onEvaluatorException(new EvaluatorException(getId(), codec.decode(status.getError().toByteArray())));
-          return;
-        } else if (this.stateManager.isSubmitted()) {
-          final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
-          this.evaluatorControlHandler.setRemoteID(evaluatorRID);
-          this.stateManager.setRunning();
-          LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
-        }
-      }
-
-      LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
-
-      final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto = evaluatorHeartbeatProto.getEvaluatorStatus();
-
-      for (final ReefServiceProtos.ContextStatusProto contextStatusProto : evaluatorHeartbeatProto.getContextStatusList()) {
-        onContextStatusMessage(contextStatusProto, !evaluatorHeartbeatProto.hasTaskStatus());
-      }
-
-      if (evaluatorHeartbeatProto.hasTaskStatus()) {
-        onTaskStatusMessage(evaluatorHeartbeatProto.getTaskStatus());
-      }
-
-      if (ReefServiceProtos.State.FAILED == evaluatorStatusProto.getState()) {
-        this.stateManager.setFailed();
-        final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-        final EvaluatorException evaluatorException = evaluatorStatusProto.hasError() ?
-            new EvaluatorException(this.evaluatorId, codec.decode(evaluatorStatusProto.getError().toByteArray()), this.runningTask) :
-            new EvaluatorException(this.evaluatorId, "unknown cause");
-        LOG.log(Level.WARNING, "Failed evaluator: " + getId(), evaluatorException);
-        this.onEvaluatorException(evaluatorException);
-      } else if (ReefServiceProtos.State.DONE == evaluatorStatusProto.getState()) {
-        LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
-        this.stateManager.setDone();
-
-        this.messageDispatcher.onEvaluatorCompleted(new CompletedEvaluatorImpl(this.evaluatorId));
-        close();
-      }
-
-      LOG.info("DONE with evaluator heartbeat");
+    // If this is the first message from this Evaluator, register it.
+    if (this.stateManager.isSubmitted()) {
+      final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
+      this.evaluatorControlHandler.setRemoteID(evaluatorRID);
+      this.stateManager.setRunning();
+      LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
     }
+
+    // Process the Evaluator status message
+    if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
+      this.onEvaluatorStatusMessage(evaluatorHeartbeatProto.getEvaluatorStatus());
+    }
+
+    // Process the Context status message(s)
+    for (final ReefServiceProtos.ContextStatusProto contextStatusProto : evaluatorHeartbeatProto.getContextStatusList()) {
+      this.onContextStatusMessage(contextStatusProto, !evaluatorHeartbeatProto.hasTaskStatus());
+    }
+
+    // Process the Task status message
+    if (evaluatorHeartbeatProto.hasTaskStatus()) {
+      this.onTaskStatusMessage(evaluatorHeartbeatProto.getTaskStatus());
+    }
+    LOG.log(Level.INFO, "DONE with evaluator heartbeat from Evaluator " + this.getId());
+  }
+
+  /**
+   * Process a evaluator status message.
+   *
+   * @param message
+   */
+  private synchronized void onEvaluatorStatusMessage(final ReefServiceProtos.EvaluatorStatusProto message) {
+    switch (message.getState()) {
+      case DONE:
+        this.onEvaluatorDone(message);
+        break;
+      case FAILED:
+        this.onEvaluatorFailed(message);
+        break;
+      case INIT:
+        break;
+      case KILLED:
+        break;
+      case RUNNING:
+        break;
+      case SUSPEND:
+        break;
+    }
+
+    if (message.getState() == ReefServiceProtos.State.FAILED) {
+      this.onEvaluatorFailed(message);
+      return;
+    }
+  }
+
+  /**
+   * Process an evaluator message that indicates that the evaluator shut down cleanly.
+   *
+   * @param message
+   */
+  private synchronized void onEvaluatorDone(final ReefServiceProtos.EvaluatorStatusProto message) {
+    assert (message.getState() == ReefServiceProtos.State.DONE);
+    LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
+    this.stateManager.setDone();
+    this.messageDispatcher.onEvaluatorCompleted(new CompletedEvaluatorImpl(this.evaluatorId));
+    close();
+  }
+
+  /**
+   * Process an evaluator message that indicates a crash.
+   *
+   * @param evaluatorStatusProto
+   */
+  private synchronized void onEvaluatorFailed(final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto) {
+    assert (evaluatorStatusProto.getState() == ReefServiceProtos.State.FAILED);
+    final EvaluatorException evaluatorException;
+    if (evaluatorStatusProto.hasError()) {
+      final Optional<Throwable> exception = this.exceptionCodec.fromBytes(evaluatorStatusProto.getError().toByteArray());
+      if (exception.isPresent()) {
+        evaluatorException = new EvaluatorException(getId(), exception.get());
+      } else {
+        evaluatorException = new EvaluatorException(getId(), new Exception("Exception sent, but can't be deserialized"));
+      }
+    } else {
+      evaluatorException = new EvaluatorException(getId(), new Exception("No exception sent"));
+    }
+    onEvaluatorException(evaluatorException);
   }
 
   public void onResourceLaunch(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) {
@@ -357,8 +411,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param contextStatusProto indicating the current status of the context
    */
-
-  private void onContextStatusMessage(final ReefServiceProtos.ContextStatusProto contextStatusProto,
+  private synchronized void onContextStatusMessage(final ReefServiceProtos.ContextStatusProto contextStatusProto,
                                       final boolean notifyClientOnNewActiveContext) {
 
     final String contextID = contextStatusProto.getContextId();
@@ -367,7 +420,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
     if (ReefServiceProtos.ContextStatusProto.State.READY == contextStatusProto.getContextState()) {
       if (!this.activeContextIds.contains(contextID)) {
-        final EvaluatorContext context = new EvaluatorContext(contextID, evaluatorId, this.evaluatorDescriptor, parentID, configurationSerializer, contextControlHandler);
+        final EvaluatorContext context = new EvaluatorContext(contextID, this.evaluatorId, this.evaluatorDescriptor, parentID, configurationSerializer, contextControlHandler, this, this.messageDispatcher, this.exceptionCodec);
         addEvaluatorContext(context);
         if (notifyClientOnNewActiveContext) {
           this.messageDispatcher.onContextActive(context);
@@ -383,7 +436,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       if (!this.activeContextIds.contains(contextID)) {
         if (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState()) {
           // It failed right away
-          addEvaluatorContext(new EvaluatorContext(contextID, this.evaluatorId, this.evaluatorDescriptor, parentID, configurationSerializer, contextControlHandler));
+          addEvaluatorContext(new EvaluatorContext(contextID, this.evaluatorId, this.evaluatorDescriptor, parentID, configurationSerializer, contextControlHandler, this, this.messageDispatcher, this.exceptionCodec));
         } else {
           throw new RuntimeException("unknown context signaling state " + contextStatusProto.getContextState());
         }
@@ -395,11 +448,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       removeEvaluatorContext(context);
 
       if (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState()) {
-        final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-        final Exception reason = codec.decode(contextStatusProto.getError().toByteArray());
-        final Optional<ActiveContext> optionalParentContext = (null == parentContext) ?
-            Optional.<ActiveContext>empty() : Optional.<ActiveContext>of(parentContext);
-        this.messageDispatcher.onContextFailed(context.getFailedContext(optionalParentContext, reason));
+        context.onContextFailure(contextStatusProto);
       } else if (ReefServiceProtos.ContextStatusProto.State.DONE == contextStatusProto.getContextState()) {
         if (null != parentContext) {
           this.messageDispatcher.onContextClose(context.getClosedContext(parentContext));
@@ -442,16 +491,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final byte[] message = taskStatusProto.hasResult() ? taskStatusProto.getResult().toByteArray() : null;
       this.messageDispatcher.onTaskCompleted(new CompletedTaskImpl(evaluatorContext, message, taskId));
     } else if (ReefServiceProtos.State.FAILED == taskState) {
-      this.runningTask = null;
-      final ObjectSerializableCodec<Exception> codec = new ObjectSerializableCodec<>();
-      /* Assuming nothing went wrong with the context:
-       * The failed task could have corrupted it, but I can't make this call.  */
-      final EvaluatorContext evaluatorContext = getEvaluatorContext(contextId);
-      final FailedTask taskException = taskStatusProto.hasResult() ?
-          new FailedTask(taskId, codec.decode(taskStatusProto.getResult().toByteArray()), Optional.<ActiveContext>of(evaluatorContext)) :
-          new FailedTask(taskId, "Failed Task: " + taskState, Optional.<ActiveContext>of(evaluatorContext));
-
-      this.messageDispatcher.onTaskFailed(taskException);
+      this.onTaskFailure(taskStatusProto);
     } else if (taskStatusProto.getTaskMessageCount() > 0) {
       assert (this.runningTask != null);
       for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto taskMessageProto : taskStatusProto.getTaskMessageList()) {
@@ -461,6 +501,28 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         );
       }
     }
+  }
+
+  /**
+   * Helper method called in case of Task failure message.
+   */
+  private void onTaskFailure(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
+    assert (ReefServiceProtos.State.FAILED == taskStatusProto.getState());
+
+    this.runningTask = null;
+
+    final String taskId = taskStatusProto.getTaskId();
+    final String contextId = taskStatusProto.getContextId();
+
+      /* Assuming nothing went wrong with the context:
+       * The failed task could have corrupted it, but I can't make this call.  */
+    final Optional<ActiveContext> evaluatorContext = Optional.<ActiveContext>of(getEvaluatorContext(contextId));
+    final Optional<byte[]> bytes = taskStatusProto.hasResult() ? Optional.of(taskStatusProto.getResult().toByteArray()) : Optional.<byte[]>empty();
+    final Optional<Throwable> exception = this.exceptionCodec.fromBytes(bytes);
+    final String message = exception.isPresent() ? exception.get().getMessage() : "No message given";
+    final Optional<String> description = Optional.empty();
+    final FailedTask failedTask = new FailedTask(taskId, message, description, exception, bytes, evaluatorContext);
+    this.messageDispatcher.onTaskFailed(failedTask);
   }
 
   /**

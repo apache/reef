@@ -96,7 +96,7 @@ public final class ResourceManager {
     }
 
 
-    LOG.log(Level.FINEST, "ResourceManager instantiated");
+    LOG.log(Level.INFO, "Instantiated 'ResourceManager'");
   }
 
   /**
@@ -106,10 +106,10 @@ public final class ResourceManager {
    *
    * @param resourceRequest the resource request to be handled.
    */
-  final void onNext(final DriverRuntimeProtocol.ResourceRequestProto resourceRequest) {
+  final void onResourceRequest(final DriverRuntimeProtocol.ResourceRequestProto resourceRequest) {
     synchronized (this.theContainers) {
       this.requestQueue.add(new ResourceRequest(resourceRequest));
-      this.checkQ();
+      this.checkRequestQueue();
     }
   }
 
@@ -118,11 +118,11 @@ public final class ResourceManager {
    *
    * @param releaseRequest the release request to be processed
    */
-  final void onNext(final DriverRuntimeProtocol.ResourceReleaseProto releaseRequest) {
+  final void onResourceReleaseRequest(final DriverRuntimeProtocol.ResourceReleaseProto releaseRequest) {
     synchronized (this.theContainers) {
       LOG.log(Level.FINEST, "Release container " + releaseRequest.getIdentifier());
       this.theContainers.release(releaseRequest.getIdentifier());
-      this.checkQ();
+      this.checkRequestQueue();
     }
   }
 
@@ -131,7 +131,7 @@ public final class ResourceManager {
    *
    * @param launchRequest the launch request to be processed.
    */
-  final void onNext(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+  final void onResourceLaunchRequest(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     synchronized (this.theContainers) {
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
@@ -180,7 +180,7 @@ public final class ResourceManager {
    * Checks the allocation queue for new allocations and if there are any
    * satisfies them.
    */
-  private void checkQ() {
+  private void checkRequestQueue() {
     if (this.theContainers.hasContainerAvailable() && this.requestQueue.hasOutStandingRequests()) {
       // Record the satisfaction of one request and get its details.
       final DriverRuntimeProtocol.ResourceRequestProto requestProto = this.requestQueue.satisfyOne();
@@ -208,7 +208,7 @@ public final class ResourceManager {
       // update REEF
       this.sendRuntimeStatus();
       // Check whether we can satisfy another one.
-      this.checkQ();
+      this.checkRequestQueue();
     } else {
       this.sendRuntimeStatus();
     }
@@ -278,7 +278,7 @@ public final class ResourceManager {
   public class LocalResourceLaunchHandler implements ResourceLaunchHandler {
     @Override
     public void onNext(final DriverRuntimeProtocol.ResourceLaunchProto t) {
-      ResourceManager.this.onNext(t);
+      ResourceManager.this.onResourceLaunchRequest(t);
     }
   }
 
@@ -291,7 +291,7 @@ public final class ResourceManager {
   public class LocalResourceReleaseHandler implements ResourceReleaseHandler {
     @Override
     public void onNext(final DriverRuntimeProtocol.ResourceReleaseProto t) {
-      ResourceManager.this.onNext(t);
+      ResourceManager.this.onResourceReleaseRequest(t);
     }
   }
 
@@ -304,7 +304,7 @@ public final class ResourceManager {
   public class LocalResourceRequestHandler implements ResourceRequestHandler {
     @Override
     public void onNext(final DriverRuntimeProtocol.ResourceRequestProto t) {
-      ResourceManager.this.onNext(t);
+      ResourceManager.this.onResourceRequest(t);
     }
   }
 }

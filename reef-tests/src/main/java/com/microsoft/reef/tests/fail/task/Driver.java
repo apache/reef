@@ -30,6 +30,7 @@ import com.microsoft.reef.task.events.TaskStart;
 import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.reef.tests.exceptions.SimulatedTaskFailure;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -186,14 +187,18 @@ public final class Driver {
 
     @Override
     public void onNext(final FailedTask failedTask) {
-      final Throwable cause = failedTask.getCause();
-      if (cause instanceof SimulatedTaskFailure) {
-        // expected. Just close the context
-        failedTask.getActiveContext().get().close();
+      final Optional<Throwable> cause = failedTask.getReason();
+      if (cause.isPresent()) {
+        final Throwable throwable = cause.get();
+        if (throwable instanceof SimulatedTaskFailure) {
+          // expected. Just close the context
+          failedTask.getActiveContext().get().close();
+        } else {
+          throw new DriverSideFailure("Unexpected exception type from the Task: " + throwable.getClass().getName(), throwable);
+        }
       } else {
-        throw new DriverSideFailure("Unexpected exception from the Task.", cause);
+        throw new DriverSideFailure("Task failed with no exception passed along.");
       }
-
     }
   }
 }

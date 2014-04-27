@@ -23,6 +23,8 @@ import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.tang.annotations.Parameter;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Handles context control messages.
@@ -30,7 +32,7 @@ import javax.inject.Inject;
 @DriverSide
 @Private
 public class ContextControlHandler {
-
+  private static final Logger LOG = Logger.getLogger(ContextControlHandler.class.getName());
   private final EvaluatorControlHandler evaluatorControlHandler;
   private final String evaluatorId;
 
@@ -43,6 +45,7 @@ public class ContextControlHandler {
                         final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorId) {
     this.evaluatorControlHandler = evaluatorControlHandler;
     this.evaluatorId = evaluatorId;
+    LOG.log(Level.INFO, "Instantiated 'ContextControlHandler'");
   }
 
   public synchronized void send(final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto) {

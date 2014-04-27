@@ -23,12 +23,12 @@ import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException;
+import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationSerializer;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -65,19 +65,24 @@ public final class ContextManager implements AutoCloseable {
    */
   private final ConfigurationSerializer configurationSerializer;
 
+  private final ExceptionCodec exceptionCodec;
+
 
   /**
    * @param launchContext           to instantiate the root context.
    * @param heartBeatManager        for status reporting to the Driver.
    * @param configurationSerializer
+   * @param exceptionCodec
    */
   @Inject
   ContextManager(final InjectionFuture<RootContextLauncher> launchContext,
                  final HeartBeatManager heartBeatManager,
-                 final ConfigurationSerializer configurationSerializer) {
+                 final ConfigurationSerializer configurationSerializer,
+                 final ExceptionCodec exceptionCodec) {
     this.launchContext = launchContext;
     this.heartBeatManager = heartBeatManager;
     this.configurationSerializer = configurationSerializer;
+    this.exceptionCodec = exceptionCodec;
   }
 
   /**
@@ -305,7 +310,7 @@ public final class ContextManager implements AutoCloseable {
    */
   private void handleTaskException(final TaskClientCodeException e) {
     LOG.log(Level.SEVERE, "TaskClientCodeException", e);
-    final ByteString exception = ByteString.copyFrom(new ObjectSerializableCodec<Throwable>().encode(e.getCause()));
+    final ByteString exception = ByteString.copyFrom(this.exceptionCodec.toBytes(e.getCause()));
     final ReefServiceProtos.TaskStatusProto taskStatus = ReefServiceProtos.TaskStatusProto.newBuilder()
         .setContextId(e.getContextId())
         .setTaskId(e.getTaskId())
@@ -324,7 +329,7 @@ public final class ContextManager implements AutoCloseable {
   private void handleContextException(final ContextClientCodeException e) {
     LOG.log(Level.SEVERE, "ContextClientCodeException", e);
 
-    final ByteString exception = ByteString.copyFrom(new ObjectSerializableCodec<Throwable>().encode(e.getCause()));
+    final ByteString exception = ByteString.copyFrom(this.exceptionCodec.toBytes(e.getCause()));
     final ReefServiceProtos.ContextStatusProto.Builder contextStatusBuilder = ReefServiceProtos.ContextStatusProto.newBuilder()
         .setContextId(e.getContextID())
         .setContextState(ReefServiceProtos.ContextStatusProto.State.FAIL)

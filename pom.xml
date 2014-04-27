@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.reef</groupId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
@@ -42,8 +42,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.2.0</hadoop.version>
         <avro.version>1.7.6</avro.version>
-        <tang.version>0.3-SNAPSHOT</tang.version>
-        <wake.version>0.3-SNAPSHOT</wake.version>
+        <tang.version>0.4-SNAPSHOT</tang.version>
+        <wake.version>0.4-SNAPSHOT</wake.version>
     </properties>
 
 
@@ -396,6 +396,7 @@
         <module>reef-common</module>
         <module>reef-examples</module>
         <module>reef-io</module>
+        <module>reef-poison</module>
         <module>reef-runtime-local</module>
         <module>reef-runtime-yarn</module>
         <module>reef-tests</module>

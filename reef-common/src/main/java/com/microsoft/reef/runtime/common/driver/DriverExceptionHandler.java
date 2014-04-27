@@ -20,6 +20,8 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Exception handler for exceptions thrown by client code in the Driver.
@@ -28,7 +30,7 @@ import javax.inject.Inject;
 @Private
 @DriverSide
 public final class DriverExceptionHandler implements EventHandler<Throwable> {
-
+  private static final Logger LOG = Logger.getLogger(DriverExceptionHandler.class.getName());
   /**
    * We delegate the failures to this object.
    */
@@ -37,6 +39,7 @@ public final class DriverExceptionHandler implements EventHandler<Throwable> {
   @Inject
   public DriverExceptionHandler(final DriverStatusManager driverStatusManager) {
     this.driverStatusManager = driverStatusManager;
+    LOG.log(Level.INFO, "Instantiated 'DriverExceptionHandler'");
   }
 
 

@@ -31,11 +31,14 @@ import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Central dispatcher for all Evaluator related events. This exists once per Evaluator.
  */
-final class EvaluatorMessageDispatcher {
+public final class EvaluatorMessageDispatcher {
+  private static final Logger LOG = Logger.getLogger(EvaluatorMessageDispatcher.class.getName());
   /**
    * The actual dispatcher used.
    */
@@ -72,41 +75,42 @@ final class EvaluatorMessageDispatcher {
     this.dispatcher.register(FailedEvaluator.class, failedEvaluatorHandlers);
     this.dispatcher.register(CompletedEvaluator.class, completedEvaluatorHandlers);
     this.dispatcher.register(AllocatedEvaluator.class, allocatedEvaluatorEventHandlers);
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
-  void onEvaluatorAllocated(final AllocatedEvaluator allocatedEvaluator) {
+  public void onEvaluatorAllocated(final AllocatedEvaluator allocatedEvaluator) {
     this.dispatcher.onNext(AllocatedEvaluator.class, allocatedEvaluator);
   }
 
-  void onEvaluatorFailed(final FailedEvaluator failedEvaluator) {
+  public void onEvaluatorFailed(final FailedEvaluator failedEvaluator) {
     this.dispatcher.onNext(FailedEvaluator.class, failedEvaluator);
   }
 
-  void onEvaluatorCompleted(final CompletedEvaluator completedEvaluator) {
+  public void onEvaluatorCompleted(final CompletedEvaluator completedEvaluator) {
     this.dispatcher.onNext(CompletedEvaluator.class, completedEvaluator);
   }
 
-  void onTaskRunning(final RunningTask runningTask) {
+  public void onTaskRunning(final RunningTask runningTask) {
     this.dispatcher.onNext(RunningTask.class, runningTask);
   }
 
-  void onTaskCompleted(final CompletedTask completedTask) {
+  public void onTaskCompleted(final CompletedTask completedTask) {
     this.dispatcher.onNext(CompletedTask.class, completedTask);
   }
 
-  void onTaskSuspended(final SuspendedTask suspendedTask) {
+  public void onTaskSuspended(final SuspendedTask suspendedTask) {
     this.dispatcher.onNext(SuspendedTask.class, suspendedTask);
   }
 
-  void onTaskMessage(final TaskMessage taskMessage) {
+  public void onTaskMessage(final TaskMessage taskMessage) {
     this.dispatcher.onNext(TaskMessage.class, taskMessage);
   }
 
-  void onTaskFailed(final FailedTask failedTask) {
+  public void onTaskFailed(final FailedTask failedTask) {
     this.dispatcher.onNext(FailedTask.class, failedTask);
   }
 
-  void onContextActive(final ActiveContext activeContext) {
+  public void onContextActive(final ActiveContext activeContext) {
     this.dispatcher.onNext(ActiveContext.class, activeContext);
   }
 
@@ -114,11 +118,11 @@ final class EvaluatorMessageDispatcher {
     this.dispatcher.onNext(ClosedContext.class, closedContext);
   }
 
-  void onContextFailed(final FailedContext failedContext) {
+  public void onContextFailed(final FailedContext failedContext) {
     this.dispatcher.onNext(FailedContext.class, failedContext);
   }
 
-  void onContextMessage(final ContextMessage contextMessage) {
+  public void onContextMessage(final ContextMessage contextMessage) {
     this.dispatcher.onNext(ContextMessage.class, contextMessage);
   }
 
