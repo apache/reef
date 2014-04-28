@@ -3,20 +3,22 @@ package com.microsoft.reef.examples.hello;
 import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
+import com.microsoft.reef.webserver.HttpHandlerConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
-import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 
 /**
- * Created by mweimer on 2014-04-28.
+ * Example to run HelloREEF with a webserver.
  */
 public final class HelloREEFHttp {
 
+  /**
+   * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
+   */
   public static Configuration getHTTPConfiguration() {
-    // TODO
-    return Tang.Factory.getTang().newConfigurationBuilder().build();
+    return HttpHandlerConfiguration.CONF.build();
   }
 
   public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)

@@ -42,6 +42,11 @@
             <artifactId>reef-checkpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.reef</groupId>
+            <artifactId>reef-webServer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- End of REEF -->
 
         <!-- HADOOP -->
