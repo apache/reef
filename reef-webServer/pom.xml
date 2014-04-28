@@ -8,7 +8,7 @@
         <version>0.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>reef-webServer</artifactId>
+    <artifactId>reef-webserver</artifactId>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
