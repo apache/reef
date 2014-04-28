@@ -37,18 +37,22 @@ public final class HelloREEF {
   /**
    * Number of milliseconds to wait for the job to complete.
    */
-  private static final int JOB_TIMEOUT = 10000; // 10 sec.
+  public static final int JOB_TIMEOUT = 10000; // 10 sec.
+
+  /**
+   * @return the configuration of the HelloREEF driver.
+   */
+  public static Configuration getDriverConfiguration() {
+    return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+        .build();
+  }
 
   public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)
       throws BindException, InjectionException {
-
-    final Configuration driverConf =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
-          .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
-        .build();
-
+    final Configuration driverConf = getDriverConfiguration();
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
   }
 
