@@ -16,11 +16,14 @@
 package com.microsoft.reef.webserver;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * HttpServerReefEventHandler
  */
 public final class HttpServerReefEventHandler implements HttpHandler {
+    private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
 
     /**
      *  HttpServerReefEventHandler constructor.
@@ -46,5 +49,6 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     @Override
     public void onHttpRequest(HttpRequest request, HttpResponse response) {
         //TODO
+        LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called");
     }
 }

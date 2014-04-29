@@ -28,12 +28,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Jetty Event Handler
  */
 class JettyHandler extends AbstractHandler {
-
+    private static final Logger LOG = Logger.getLogger(JettyHandler.class.getName());
     /**
      * a map that contains eventHandler's specification and the reference
      */
@@ -68,6 +70,7 @@ class JettyHandler extends AbstractHandler {
             int i)
             throws IOException, ServletException
     {
+        LOG.log(Level.INFO, "JettyHandler handle is entered with target: " + target);
         Request baseRequest = (request instanceof Request) ? (Request) request :
                 HttpConnection.getCurrentConnection().getRequest();
 
@@ -76,6 +79,7 @@ class JettyHandler extends AbstractHandler {
         if (h != null) {
             final ReefHttpRequest req = new ReefHttpRequest();  //convert from request
             final ReefHttpResponse res = new ReefHttpResponse();  //convert from response
+            LOG.log(Level.INFO, "calling onHttpRequest from JettyHandler.handle().");
             h.onHttpRequest(req, res);
         }
 
@@ -84,5 +88,6 @@ class JettyHandler extends AbstractHandler {
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);
         response.getWriter().println("<h1>Hello World Julia Wang</h1>");
+        LOG.log(Level.INFO, "JettyHandler handle exists");
     }
 }

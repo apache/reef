@@ -45,7 +45,7 @@ public final class HttpServerImpl implements HttpServer {
     @Override
     public void start() throws Exception {
         server.start();
-        server.join();
+        //server.join();
     }
 
     /**
