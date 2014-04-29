@@ -8,11 +8,11 @@ namespace Microsoft
 		{
 			namespace Bridge
 			{
-				ActiveContextClr2Java::ActiveContextClr2Java(JNIEnv *env, jobject jallocatedEvaluator)
+				ActiveContextClr2Java::ActiveContextClr2Java(JNIEnv *env, jobject jobjectActiveContext)
 				{
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
-					_jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(_jobjectActiveContext));
+					_jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectActiveContext));
 
 					fprintf(stdout, "ActiveContextClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "ActiveContextClr2Java _jvm %p\n", _jvm); fflush (stdout);
