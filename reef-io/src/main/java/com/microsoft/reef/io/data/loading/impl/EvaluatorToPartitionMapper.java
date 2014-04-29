@@ -22,6 +22,7 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.io.data.loading.api.DataLoadingService;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -73,7 +74,9 @@ public class EvaluatorToPartitionMapper<V extends InputSplit> {
           newSplitQue.add(numberedSplit);
         }
       }
-      LOG.log(Level.FINE,locationToSplits.toString());
+      for (Map.Entry<String, BlockingQueue<NumberedSplit<V>>> locSplit : locationToSplits.entrySet()) {
+        LOG.log(Level.FINE,locSplit.getKey() + ": " + locSplit.getValue().toString());
+      }
     } catch (IOException e) {
       throw new RuntimeException(
           "Unable to get InputSplits using the specified InputFormat", e);
@@ -88,7 +91,7 @@ public class EvaluatorToPartitionMapper<V extends InputSplit> {
    * @param evaluatorId
    * @return
    */
-  public NumberedSplit<V> getInputSplit(final String evaluatorId) {
+  public NumberedSplit<V> getInputSplit(final String hostName, final String evaluatorId) {
     synchronized (evaluatorToSplits) {
       if (evaluatorToSplits.containsKey(evaluatorId)) {
         LOG.log(Level.FINE,"Found an already allocated partition");
@@ -97,16 +100,19 @@ public class EvaluatorToPartitionMapper<V extends InputSplit> {
       }
     }
     LOG.log(Level.FINE,"allocated partition not found");
-    if (locationToSplits.containsKey(evaluatorId)) {
-      LOG.log(Level.FINE,"Found partitions possibly hosted for " + evaluatorId);
-      final NumberedSplit<V> split = allocateSplit(evaluatorId, locationToSplits.get(evaluatorId));
+    if (locationToSplits.containsKey(hostName)) {
+      LOG.log(Level.FINE,"Found partitions possibly hosted for " + evaluatorId + " at " + hostName);
+      final NumberedSplit<V> split = allocateSplit(evaluatorId, locationToSplits.get(hostName));
       LOG.log(Level.FINE,evaluatorToSplits.toString());
       if (split != null) {
         return split;
       }
     }
     //pick random
-    LOG.log(Level.FINE,evaluatorId + " does not host any partitions. Picking a random one");
+    LOG.log(
+        Level.FINE,
+        hostName
+            + " does not host any partitions or someone else took partitions hosted here. Picking a random one");
     final NumberedSplit<V> split = allocateSplit(evaluatorId, unallocatedSplits);
     LOG.log(Level.FINE,evaluatorToSplits.toString());
     if (split != null) {
@@ -121,20 +127,23 @@ public class EvaluatorToPartitionMapper<V extends InputSplit> {
       LOG.log(Level.FINE,"Queue of splits can't be empty. Returning null");
       return null;
     }
-    final NumberedSplit<V> split = value.poll();
-    if (split != null && (value == unallocatedSplits || unallocatedSplits.remove(split))) {
-      LOG.log(Level.FINE,"Found split-" + split.getIndex() + " in the queue");
-      final NumberedSplit<V> old = evaluatorToSplits.putIfAbsent(evaluatorId, split);
-      if (old != null) {
-        final String msg = "Trying to assign different partitions to the same evaluator " +
-            "is not supported";
-        LOG.severe(msg);
-        throw new RuntimeException(msg);
-      } else {
-        LOG.log(Level.FINE,"Returning " + split.getIndex());
-        return split;
+    while(true){
+      final NumberedSplit<V> split = value.poll();
+      if(split==null)
+        return null;
+      if (value == unallocatedSplits || unallocatedSplits.remove(split)) {
+        LOG.log(Level.FINE,"Found split-" + split.getIndex() + " in the queue");
+        final NumberedSplit<V> old = evaluatorToSplits.putIfAbsent(evaluatorId, split);
+        if (old != null) {
+          final String msg = "Trying to assign different partitions to the same evaluator " +
+              "is not supported";
+          LOG.severe(msg);
+          throw new RuntimeException(msg);
+        } else {
+          LOG.log(Level.FINE,"Returning " + split.getIndex());
+          return split;
+        }
       }
     }
-    return null;
   }
 }

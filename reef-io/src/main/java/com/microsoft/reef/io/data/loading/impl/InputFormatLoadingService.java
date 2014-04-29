@@ -87,7 +87,9 @@ public class InputFormatLoadingService<K,V> implements DataLoadingService {
   @Override
   public Configuration getConfiguration(AllocatedEvaluator allocatedEvaluator) {
     try {
-      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper.getInputSplit(allocatedEvaluator.getId());
+      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper
+          .getInputSplit(allocatedEvaluator.getEvaluatorDescriptor()
+              .getNodeDescriptor().getName(), allocatedEvaluator.getId());
       final Configuration contextIdConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "DataLoadContext-" + numberedSplit.getIndex())
           .build();
