@@ -78,3 +78,18 @@ jlongArray JavaLongArrayFromManagedLongArray(
 	env->SetLongArrayRegion(javaLongArray, 0, managedLongArray->Length, (jlong*) p);
 	return javaLongArray;
 }
+
+JNIEnv* RetrieveEnv(JavaVM* jvm)
+{
+	JNIEnv *env;
+	int getEnv = jvm->GetEnv((void **)&env, JNI_VERSION_1_6);
+	if(getEnv == JNI_OK)
+	{
+		fprintf(stdout, "Successfully get env from JVM %p\n", env); fflush (stdout);
+	}
+	else{
+		fprintf(stdout, "Cannot get enve from JVM"); fflush (stdout);
+		throw;		
+	}
+	return env;
+}

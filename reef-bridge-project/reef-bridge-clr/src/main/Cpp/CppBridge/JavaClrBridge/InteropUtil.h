@@ -38,3 +38,5 @@ jbyteArray JavaByteArrayFromManagedByteArray(
 jlongArray JavaLongArrayFromManagedLongArray(
 	JNIEnv *env,
 	array<unsigned long long>^ managedLongArray);
+
+JNIEnv* RetrieveEnv(JavaVM* jvm);

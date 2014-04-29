@@ -10,117 +10,122 @@ namespace Microsoft
 			{
 				AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator)
 				{
-					_env = env;
+					pin_ptr<JavaVM*> pJavaVm = &_jvm;
+					int gotVm = env -> GetJavaVM(pJavaVm);
 					_jobjectAllocatedEvaluator = jallocatedEvaluator;
-					_jclassAllocatedEvaluator = _env->GetObjectClass (_jobjectAllocatedEvaluator);
-					_jmidSubmitContextAndTask = _env->GetMethodID(_jclassAllocatedEvaluator, "submitContextAndTaskString", "(Ljava/lang/String;Ljava/lang/String;)V");	
-					_jmidSubmitContext = _env->GetMethodID(_jclassAllocatedEvaluator, "submitContextString", "(Ljava/lang/String;)V");
-					_jmidSubmitContextAndService = _env->GetMethodID(_jclassAllocatedEvaluator, "submitContextAndServiceString", "(Ljava/lang/String;Ljava/lang/String;)V");	
-					_jmidSubmitContextAndServiceAndTask = _env->GetMethodID(_jclassAllocatedEvaluator, "submitContextAndServiceAndTaskString", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");	
-					_jmidGetEvaluatorDescriptor= _env->GetMethodID(_jclassAllocatedEvaluator, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");	
-
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _env %p\n", _env); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jclassAllocatedEvaluator %p\n", _jclassAllocatedEvaluator); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jobjectAllocatedEvaluator %p\n", _jobjectAllocatedEvaluator); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jmidSubmitContextAndTask %p\n", _jmidSubmitContextAndTask); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jmidSubmitContext %p\n", _jmidSubmitContextAndTask); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jmidSubmitContextAndService %p\n", _jmidSubmitContextAndService); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jmidSubmitContextAndServiceAndTask %p\n", _jmidSubmitContextAndServiceAndTask); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jmidGetEvaluatorDescriptor %p\n", _jmidGetEvaluatorDescriptor); fflush (stdout);					
-				}
-
-				void AllocatedEvaluatorClr2Java::SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr)
-				{
-					if(_jobjectAllocatedEvaluator == NULL)
-					{
-						fprintf(stdout, " _jobjectAllocatedEvaluator is NULL\n"); fflush (stdout);
-						return;
-					}
-					if(_jmidSubmitContextAndTask == NULL)
-					{
-						fprintf(stdout, " _jmidSubmitContextAndTask is NULL\n"); fflush (stdout);
-						return;
-					}
-					_env -> CallObjectMethod(
-						_jobjectAllocatedEvaluator, 
-						_jmidSubmitContextAndTask, 
-						JavaStringFromManagedString(_env, contextConfigStr), 
-						JavaStringFromManagedString(_env, taskConfigStr));
+					
+					fprintf(stdout, "AllocatedEvaluatorClr2Java env %p\n", env); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java _jvm %p\n", _jvm); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java _jobjectAllocatedEvaluator %p\n", _jobjectAllocatedEvaluator); fflush (stdout);				
 				}
 
 				void AllocatedEvaluatorClr2Java::SubmitContext(String^ contextConfigStr)
 				{
-					if(_jobjectAllocatedEvaluator == NULL)
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::SubmitContext"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);
+					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
+					jmethodID jmidSubmitContext = env->GetMethodID(jclassAllocatedEvaluator, "submitContextString", "(Ljava/lang/String;)V");
+
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContext %p\n", jmidSubmitContext); fflush (stdout);
+
+					if(jmidSubmitContext == NULL)
 					{
-						fprintf(stdout, " _jobjectAllocatedEvaluator is NULL\n"); fflush (stdout);
+						fprintf(stdout, " jmidSubmitContext is NULL\n"); fflush (stdout);
 						return;
 					}
-					if(_jmidSubmitContext == NULL)
-					{
-						fprintf(stdout, " _jmidSubmitContext is NULL\n"); fflush (stdout);
-						return;
-					}
-					_env -> CallObjectMethod(
+					env -> CallObjectMethod(
 						_jobjectAllocatedEvaluator, 
-						_jmidSubmitContext, 
-						JavaStringFromManagedString(_env, contextConfigStr));
+						jmidSubmitContext, 
+						JavaStringFromManagedString(env, contextConfigStr));
+				}
+
+				void AllocatedEvaluatorClr2Java::SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr)
+				{
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::SubmitContextAndTask"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
+					jmethodID jmidSubmitContextAndTask = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndTaskString", "(Ljava/lang/String;Ljava/lang/String;)V");
+
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContextAndTask %p\n", jmidSubmitContextAndTask); fflush (stdout);
+
+					if(jmidSubmitContextAndTask == NULL)
+					{
+						fprintf(stdout, " jmidSubmitContextAndTask is NULL\n"); fflush (stdout);
+						return;
+					}
+					env -> CallObjectMethod(
+						_jobjectAllocatedEvaluator, 
+						jmidSubmitContextAndTask, 
+						JavaStringFromManagedString(env, contextConfigStr), 
+						JavaStringFromManagedString(env, taskConfigStr));
 				}
 
 				void AllocatedEvaluatorClr2Java::SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr)
 				{
-					if(_jobjectAllocatedEvaluator == NULL)
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::SubmitContextAndService"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
+					jmethodID jmidSubmitContextAndService = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndServiceString", "(Ljava/lang/String;Ljava/lang/String;)V");	
+
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContextAndService %p\n", jmidSubmitContextAndService); fflush (stdout);
+
+					if(jmidSubmitContextAndService == NULL)
 					{
-						fprintf(stdout, " _jobjectAllocatedEvaluator is NULL\n"); fflush (stdout);
+						fprintf(stdout, " jmidSubmitContextAndService is NULL\n"); fflush (stdout);
 						return;
 					}
-					if(_jmidSubmitContextAndService == NULL)
-					{
-						fprintf(stdout, " _jmidSubmitContextAndService is NULL\n"); fflush (stdout);
-						return;
-					}
-					_env -> CallObjectMethod(
+					env -> CallObjectMethod(
 						_jobjectAllocatedEvaluator, 
-						_jmidSubmitContextAndService, 
-						JavaStringFromManagedString(_env, contextConfigStr), 
-						JavaStringFromManagedString(_env, serviceConfigStr));
+						jmidSubmitContextAndService, 
+						JavaStringFromManagedString(env, contextConfigStr), 
+						JavaStringFromManagedString(env, serviceConfigStr));
 				}
 
 				void AllocatedEvaluatorClr2Java::SubmitContextAndServiceAndTask(String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr)
 				{
-					if(_jobjectAllocatedEvaluator == NULL)
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::SubmitContextAndServiceAndTask"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
+					jmethodID jmidSubmitContextAndServiceAndTask = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndServiceAndTaskString", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");	
+
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContextAndServiceAndTask %p\n", jmidSubmitContextAndServiceAndTask); fflush (stdout);
+
+					if(jmidSubmitContextAndServiceAndTask == NULL)
 					{
-						fprintf(stdout, " _jobjectAllocatedEvaluator is NULL\n"); fflush (stdout);
+						fprintf(stdout, " jmidSubmitContextAndServiceAndTask is NULL\n"); fflush (stdout);
 						return;
 					}
-					if(_jmidSubmitContextAndServiceAndTask == NULL)
-					{
-						fprintf(stdout, " _jmidSubmitContextAndServiceAndTask is NULL\n"); fflush (stdout);
-						return;
-					}
-					_env -> CallObjectMethod(
+					env -> CallObjectMethod(
 						_jobjectAllocatedEvaluator, 
-						_jmidSubmitContextAndServiceAndTask, 
-						JavaStringFromManagedString(_env, contextConfigStr), 
-						JavaStringFromManagedString(_env, serviceConfigStr),
-						JavaStringFromManagedString(_env, taskConfigStr));
+						jmidSubmitContextAndServiceAndTask, 
+						JavaStringFromManagedString(env, contextConfigStr), 
+						JavaStringFromManagedString(env, serviceConfigStr),
+						JavaStringFromManagedString(env, taskConfigStr));
 				}
 
 				IEvaluatorDescriptor^ AllocatedEvaluatorClr2Java::GetEvaluatorDescriptor()
 				{
-					if(_jobjectAllocatedEvaluator == NULL)
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::GetEvaluatorDescriptor"); fflush (stdout);															
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
+					jmethodID jmidGetEvaluatorDescriptor= env->GetMethodID(jclassAllocatedEvaluator, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");	
+
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidGetEvaluatorDescriptor %p\n", jmidGetEvaluatorDescriptor); fflush (stdout);
+
+					if(jmidGetEvaluatorDescriptor == NULL)
 					{
-						fprintf(stdout, " _jobjectAllocatedEvaluator is NULL\n"); fflush (stdout);
+						fprintf(stdout, " jmidGetEvaluatorDescriptor is NULL\n"); fflush (stdout);
 						return nullptr;
 					}
-					if(_jmidSubmitContextAndServiceAndTask == NULL)
-					{
-						fprintf(stdout, " _jmidGetEvaluatorDescriptor is NULL\n"); fflush (stdout);
-						return nullptr;
-					}
-					jstring jevaluatorDescriptorString = (jstring)_env -> CallObjectMethod(
+					jstring jevaluatorDescriptorString = (jstring)env -> CallObjectMethod(
 						_jobjectAllocatedEvaluator, 
-						_jmidGetEvaluatorDescriptor);
-					String^ evaluatorDescriptorString = ManagedStringFromJavaString(_env, jevaluatorDescriptorString);
+						jmidGetEvaluatorDescriptor);
+					String^ evaluatorDescriptorString = ManagedStringFromJavaString(env, jevaluatorDescriptorString);
 					EvaluatorDescriptorImpl^ descriptor = gcnew EvaluatorDescriptorImpl(evaluatorDescriptorString);
 					return descriptor;
 				}

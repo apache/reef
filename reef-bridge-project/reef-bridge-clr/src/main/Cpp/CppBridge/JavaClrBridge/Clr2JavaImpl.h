@@ -23,16 +23,8 @@ namespace Microsoft
 			{
 				public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluaotrClr2Java
 				{
-					jclass  _jclassAllocatedEvaluator;
 					jobject  _jobjectAllocatedEvaluator;
-					jstring _contextConfigStr;
-					jstring _taskConfigStr;
-					jmethodID _jmidSubmitContextAndTask;
-					jmethodID _jmidSubmitContext;
-					jmethodID _jmidSubmitContextAndService;
-					jmethodID _jmidSubmitContextAndServiceAndTask;
-					jmethodID _jmidGetEvaluatorDescriptor;
-					JNIEnv* _env;
+					JavaVM* _jvm;
 				public:
 					AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
@@ -44,11 +36,8 @@ namespace Microsoft
 
 				public ref class ActiveContextClr2Java : public IActiveContextClr2Java
 				{
-					jclass  _jclassActiveContext;
 					jobject  _jobjectActiveContext;
-					jstring _taskConfigStr;
-					jmethodID _jmidSubmitTask;
-					JNIEnv* _env;
+					JavaVM* _jvm;
 				public:
 					ActiveContextClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitTask(String^ taskConfigStr);
@@ -56,11 +45,8 @@ namespace Microsoft
 
 				public ref class EvaluatorRequestorClr2Java : public IEvaluatorRequestorClr2Java
 				{
-					jclass  _jclassEvaluatorRequestor;
 					jobject  _jobjectEvaluatorRequestor;
-					EvaluatorRequest _request;
-					jmethodID _jmidSubmit;
-					JNIEnv* _env;
+					JavaVM* _jvm;
 				public:
 					EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor);
 					virtual void Submit(EvaluatorRequest^ request);
@@ -68,9 +54,8 @@ namespace Microsoft
 
 				public ref class TaskMessageClr2Java : public ITaskMessageClr2Java
 				{
-					jclass  _jclassTaskMessage;
 					jobject  _jobjectTaskMessage;
-					JNIEnv* _env;
+					JavaVM* _jvm;
 				public:
 					TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage);
 				};
