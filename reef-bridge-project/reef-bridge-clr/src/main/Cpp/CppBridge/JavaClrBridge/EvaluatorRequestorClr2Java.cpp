@@ -12,7 +12,7 @@ namespace Microsoft
 				{
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
-					_jobjectEvaluatorRequestor = jevaluatorRequestor;
+					_jobjectEvaluatorRequestor = reinterpret_cast<jobject>(env->NewGlobalRef(jevaluatorRequestor));
 
 					fprintf(stdout, "EvaluatorRequestorClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "EvaluatorRequestorClr2Java _jobjectEvaluatorRequestor %p\n", _jobjectEvaluatorRequestor); fflush (stdout);

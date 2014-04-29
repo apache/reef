@@ -7,12 +7,12 @@ namespace Microsoft
 		namespace Driver
 		{
 			namespace Bridge
-			{
+			{				
 				AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator)
 				{
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
-					_jobjectAllocatedEvaluator = jallocatedEvaluator;
+					_jobjectAllocatedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jallocatedEvaluator));
 					
 					fprintf(stdout, "AllocatedEvaluatorClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java _jvm %p\n", _jvm); fflush (stdout);

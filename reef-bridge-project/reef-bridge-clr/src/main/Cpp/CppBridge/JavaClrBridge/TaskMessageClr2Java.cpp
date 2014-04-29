@@ -12,7 +12,7 @@ namespace Microsoft
 				{
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
-					_jobjectTaskMessage = jtaskMessage;
+					_jobjectTaskMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jtaskMessage));
 
 					fprintf(stdout, "TaskMessageClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "TaskMessageClr2Java _jvm %p\n", _jvm); fflush (stdout);

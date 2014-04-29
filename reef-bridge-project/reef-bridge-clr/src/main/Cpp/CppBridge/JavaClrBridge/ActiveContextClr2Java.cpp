@@ -12,7 +12,7 @@ namespace Microsoft
 				{
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
-					_jobjectActiveContext = jallocatedEvaluator;
+					_jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(_jobjectActiveContext));
 
 					fprintf(stdout, "ActiveContextClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "ActiveContextClr2Java _jvm %p\n", _jvm); fflush (stdout);
