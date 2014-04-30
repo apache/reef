@@ -19,34 +19,34 @@ package javabridge;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
+
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EvaluatorRequstorBridge{
     private static final Logger LOG = Logger.getLogger(EvaluatorRequstorBridge.class.getName());
 
-    private int clrEvaluatorsNumber = 0;
+    private static int clrEvaluatorsNumber = 0;
 
     private EvaluatorRequestor jevaluatorRequestor;
-
-    private AvroConfigurationSerializer serializer;
 
     public EvaluatorRequstorBridge(EvaluatorRequestor evaluatorRequestor)
     {
         jevaluatorRequestor = evaluatorRequestor;
-        serializer = new AvroConfigurationSerializer();
     }
 
     public void submit( final int evaluatorsNumber, final int memory)
     {
-        clrEvaluatorsNumber = evaluatorsNumber;
-        EvaluatorRequest request = EvaluatorRequest.newBuilder()
+      clrEvaluatorsNumber += evaluatorsNumber;
+       EvaluatorRequest request = EvaluatorRequest.newBuilder()
                 .setNumber(evaluatorsNumber)
                 .setMemory(memory)
                 .build();
+        LOG.log(Level.INFO, "========= submitting " + evaluatorsNumber);
         jevaluatorRequestor.submit(request);
     }
 
     public int getEvaluaotrNumber() {
-        return this.clrEvaluatorsNumber;
+        return clrEvaluatorsNumber;
     }
 }

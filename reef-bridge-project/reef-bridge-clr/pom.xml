@@ -134,6 +134,7 @@
             <configuration>
                 <arguments>
                     <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
+                    <argument>/p:buildmode=release</argument>
               <!--
                     <argument>/p:Configuration=${foo.config}</argument>
                     <argument>/p:Platform=${foo.cpu}</argument>
