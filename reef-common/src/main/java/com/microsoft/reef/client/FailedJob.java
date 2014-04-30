@@ -42,16 +42,4 @@ public final class FailedJob extends AbstractFailure {
                    final Optional<byte[]> data) {
     super(id, message, description, cause, data);
   }
-
-  /**
-   * Create an error message given the entity ID and Java Exception.
-   * All accessor methods are provided by the base class.
-   *
-   * @param id    ID of the entity (e.g. the Evaluator) that caused the error. Cannot be null.
-   * @param cause Java exception that caused the error. Cannot be null.
-   */
-  @Deprecated
-  public FailedJob(final String id, final Throwable cause) {
-    super(id, "FailedJob", Optional.<String>empty(), Optional.<Throwable>of(cause), Optional.<byte[]>empty());
-  }
 }

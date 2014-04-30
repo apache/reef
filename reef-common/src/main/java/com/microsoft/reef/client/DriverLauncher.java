@@ -18,6 +18,7 @@ package com.microsoft.reef.client;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
@@ -74,7 +75,7 @@ public final class DriverLauncher {
   public final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      final Throwable ex = job.getCause();
+      final Optional<Throwable> ex = job.getReason();
       LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), ex);
       theJob = null;
       setStatusAndNotify(LauncherStatus.FAILED(ex));
@@ -99,9 +100,9 @@ public final class DriverLauncher {
   public final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
     public void onNext(final FailedRuntime error) {
-      LOG.log(Level.SEVERE, "Received a resourcemanager error", error.getCause());
+      LOG.log(Level.SEVERE, "Received a resourcemanager error", error.getReason());
       theJob = null;
-      setStatusAndNotify(LauncherStatus.FAILED(error.getCause()));
+      setStatusAndNotify(LauncherStatus.FAILED(error.getReason()));
     }
   }
 

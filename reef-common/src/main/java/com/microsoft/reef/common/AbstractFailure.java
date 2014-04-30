@@ -113,14 +113,6 @@ public abstract class AbstractFailure implements Failure {
     return this.description;
   }
 
-  /**
-   * @return Java Exception that caused the error, or null.
-   */
-  @Override
-  public Throwable getCause() {
-    return this.cause.orElse(null);
-  }
-
   @Override
   public Optional<Throwable> getReason() {
     return this.cause;

@@ -5,7 +5,7 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
