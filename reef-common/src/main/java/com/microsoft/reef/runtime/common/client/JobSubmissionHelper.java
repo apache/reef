@@ -1,7 +1,7 @@
 package com.microsoft.reef.runtime.common.client;
 
-import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.client.REEF;
+import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.util.JARFileMaker;
@@ -59,28 +59,28 @@ final class JobSubmissionHelper {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
     final ClientRuntimeProtocol.JobSubmissionProto.Builder jbuilder = ClientRuntimeProtocol.JobSubmissionProto.newBuilder()
-        .setIdentifier(injector.getNamedInstance(DriverConfigurationOptions.DriverIdentifier.class))
-        .setDriverMemory(injector.getNamedInstance(DriverConfigurationOptions.DriverMemory.class))
+        .setIdentifier(injector.getNamedInstance(DriverIdentifier.class))
+        .setDriverMemory(injector.getNamedInstance(DriverMemory.class))
         .setUserName(System.getProperty("user.name"))
         .setConfiguration(configurationSerializer.toString(driverConfiguration));
 
 
-    for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
+    for (final String globalFileName : injector.getNamedInstance(JobGlobalFiles.class)) {
       LOG.log(Level.FINEST, "Adding global file: {0}", globalFileName);
       jbuilder.addGlobalFile(getFileResourceProto(globalFileName, ReefServiceProtos.FileType.PLAIN));
     }
 
-    for (final String globalLibraryName : injector.getNamedInstance(DriverConfigurationOptions.GlobalLibraries.class)) {
+    for (final String globalLibraryName : injector.getNamedInstance(JobGlobalLibraries.class)) {
       LOG.log(Level.FINEST, "Adding global library: {0}", globalLibraryName);
       jbuilder.addGlobalFile(getFileResourceProto(globalLibraryName, ReefServiceProtos.FileType.LIB));
     }
 
-    for (final String localFileName : injector.getNamedInstance(DriverConfigurationOptions.LocalFiles.class)) {
+    for (final String localFileName : injector.getNamedInstance(DriverLocalFiles.class)) {
       LOG.log(Level.FINEST, "Adding local file: {0}", localFileName);
       jbuilder.addLocalFile(getFileResourceProto(localFileName, ReefServiceProtos.FileType.PLAIN));
     }
 
-    for (final String localLibraryName : injector.getNamedInstance(DriverConfigurationOptions.LocalLibraries.class)) {
+    for (final String localLibraryName : injector.getNamedInstance(DriverLocalLibraries.class)) {
       LOG.log(Level.FINEST, "Adding local library: {0}", localLibraryName);
       jbuilder.addLocalFile(getFileResourceProto(localLibraryName, ReefServiceProtos.FileType.LIB));
     }

@@ -17,7 +17,9 @@ package com.microsoft.reef.runtime.common.driver.client;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.client.DriverConfigurationOptions;
+import com.microsoft.reef.driver.parameters.ClientCloseHandlers;
+import com.microsoft.reef.driver.parameters.ClientCloseWithMessageHandlers;
+import com.microsoft.reef.driver.parameters.ClientMessageHandlers;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
@@ -58,9 +60,9 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
 
 
   @Inject
-  ClientManager(final @Parameter(DriverConfigurationOptions.ClientCloseHandlers.class) InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
-                final @Parameter(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
-                final @Parameter(DriverConfigurationOptions.ClientMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
+  ClientManager(final @Parameter(ClientCloseHandlers.class) InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
+                final @Parameter(ClientCloseWithMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
+                final @Parameter(ClientMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
                 final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
                 final RemoteManager remoteManager,
                 final DriverStatusManager driverStatusManager) {

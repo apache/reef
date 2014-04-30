@@ -18,7 +18,15 @@ package com.microsoft.reef.runtime.common.client;
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.client.*;
+import com.microsoft.reef.client.CompletedJob;
+import com.microsoft.reef.client.FailedJob;
+import com.microsoft.reef.client.JobMessage;
+import com.microsoft.reef.client.RunningJob;
+import com.microsoft.reef.client.parameters.JobCompletedHandler;
+import com.microsoft.reef.client.parameters.JobFailedHandler;
+import com.microsoft.reef.client.parameters.JobMessageHandler;
+import com.microsoft.reef.client.parameters.JobRunningHandler;
+import com.microsoft.reef.driver.parameters.DriverIdentifier;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.Signal;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -53,12 +61,12 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
 
   @Inject
   RunningJobImpl(final RemoteManager remoteManager,
-                 final @Parameter(DriverConfigurationOptions.DriverIdentifier.class) String driverIdentifier,
+                 final @Parameter(DriverIdentifier.class) String driverIdentifier,
                  final @Parameter(REEFImplementation.DriverRemoteIdentifier.class) String driverRID,
-                 final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
-                 final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
-                 final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
-                 final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler,
+                 final @Parameter(JobRunningHandler.class) EventHandler<RunningJob> runningJobEventHandler,
+                 final @Parameter(JobCompletedHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
+                 final @Parameter(JobFailedHandler.class) EventHandler<FailedJob> failedJobEventHandler,
+                 final @Parameter(JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler,
                  final ExceptionCodec exceptionCodec) {
 
     this.jobId = driverIdentifier;
