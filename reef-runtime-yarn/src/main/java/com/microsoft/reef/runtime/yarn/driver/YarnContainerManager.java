@@ -336,6 +336,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       this.containerRequestCounter.incrementBy(containerRequests.length);
     }
     for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
+      LOG.log(Level.FINEST, "Adding container request: " + containerRequest);
       this.resourceManager.addContainerRequest(containerRequest);
     }
     this.updateRuntimeStatus();
