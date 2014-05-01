@@ -29,5 +29,6 @@ public final class HttpRuntimeConfiguration extends ConfigurationModuleBuilder {
     public static final ConfigurationModule CONF = new HttpRuntimeConfiguration()
         .bindSetEntry(Clock.RuntimeStartHandler.class, HttpRuntimeStartHandler.class)
         .bindSetEntry(Clock.RuntimeStopHandler.class, HttpRuntimeStopHandler.class)
+        .bindImplementation(HttpServer.class, HttpServerImpl.class)
         .build();
 }

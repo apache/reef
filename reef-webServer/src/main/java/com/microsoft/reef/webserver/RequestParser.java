@@ -29,13 +29,13 @@ class RequestParser {
     private final HttpServletRequest request;
     private final String pathInfo;
     private final String method;
-    private final String quesryString;
+    private final String queryString;
     private final String requestUri;
     private final String serveletPath;
     private final Map<String, String> headers = new HashMap();
     private final byte[] inputStream;
-    private final String specification;
-    private String targetEntity;
+    private final String targetSpecification;
+    private final String targetEntity;
 
     /**
      * parse HttpServletRequest
@@ -48,7 +48,7 @@ class RequestParser {
 
         pathInfo = request.getPathInfo();
         method = request.getMethod();
-        quesryString = request.getQueryString();
+        queryString = request.getQueryString();
         requestUri = request.getRequestURI();
         serveletPath = request.getServletPath();
 
@@ -72,9 +72,9 @@ class RequestParser {
             String[] parts = requestUri.split("/") ;
 
             if (parts != null && parts.length > 1) {
-                specification = parts[1];
+                targetSpecification = parts[1];
             } else {
-                specification = null;
+                targetSpecification = null;
             }
 
             if (parts != null && parts.length > 2){
@@ -83,7 +83,7 @@ class RequestParser {
                 targetEntity = null;
             }
         } else {
-            specification = null;
+            targetSpecification = null;
             targetEntity = null;
         }
     }
@@ -92,16 +92,16 @@ class RequestParser {
      * get target to match specification like "Reef"
      * @return specification
      */
-    public String getSpecification() {
-        return specification;
+    public String getTargetSpecification() {
+        return targetSpecification;
     }
 
     /**
      * get query string like "id=12345"
      * @return
      */
-    public String getQuesryString() {
-        return quesryString;
+    public String getQueryString() {
+        return queryString;
     }
 
     /**
@@ -113,10 +113,26 @@ class RequestParser {
     }
 
     /**
-     * get http request mathod like "Get"
+     * get http request method like "Get"
      * @return
      */
     public String getMethod() {
         return method;
+    }
+
+    /**
+     * get input Stream
+     * @return
+     */
+    public byte[] getInputStream() {
+        return inputStream;
+    }
+
+    /**
+     * get request headers
+     * @return
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 }

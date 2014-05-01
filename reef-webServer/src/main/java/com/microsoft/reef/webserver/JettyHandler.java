@@ -79,12 +79,12 @@ class JettyHandler extends AbstractHandler {
 
         RequestParser requestParser = new RequestParser(request);
         //call corresponding HttpHandler
-        final HttpHandler h = eventHandlers.get(requestParser.getSpecification().toLowerCase());
+        final HttpHandler h = eventHandlers.get(requestParser.getTargetSpecification().toLowerCase());
         if (h != null) {
             LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for " + h.getUriSpecification());
             h.onHttpRequest(request, response);
         } else {
-            response.getWriter().println("HttpHandler is not provided for " + requestParser.getSpecification());
+            response.getWriter().println("HttpHandler is not provided for " + requestParser.getTargetSpecification());
         }
 
         baseRequest.setHandled(true);

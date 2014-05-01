@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.webserver;
 
+import com.microsoft.tang.annotations.DefaultImplementation;
+
 /**
  *  HttpServer interface
  */

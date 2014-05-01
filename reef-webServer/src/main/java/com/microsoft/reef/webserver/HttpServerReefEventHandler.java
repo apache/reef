@@ -68,7 +68,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: " + request.getRequestURI());
         RequestParser requestParser = new RequestParser(request);
         if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators"))  {
-            String queryStr = requestParser.getQuesryString();
+            String queryStr = requestParser.getQueryString();
             if (queryStr == null || queryStr.length() == 0) {
                 getEvaluators(response);
             } else {
