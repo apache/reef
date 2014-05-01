@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.examples.ClrBridge;
 
+import com.microsoft.reef.annotations.Optional;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
@@ -248,7 +249,10 @@ public final class JobDriver {
         synchronized (JobDriver.this) {
           JobDriver.this.contexts.remove(context.getId());
         }
-        JobDriver.this.jobMessageObserver.onError(context.asError());
+          com.microsoft.reef.util.Optional<byte[]> err = context.getData();
+          if (err.isPresent()) {
+              JobDriver.this.jobMessageObserver.onNext(err.get());
+          }
       }
     }
 
@@ -264,7 +268,7 @@ public final class JobDriver {
           for (final FailedContext failedContext : eval.getFailedContextList()) {
             JobDriver.this.contexts.remove(failedContext.getId());
           }
-          JobDriver.this.jobMessageObserver.onError(eval.getEvaluatorException());
+          JobDriver.this.jobMessageObserver.onNext(eval.getEvaluatorException().getMessage().getBytes());
         }
       }
     }

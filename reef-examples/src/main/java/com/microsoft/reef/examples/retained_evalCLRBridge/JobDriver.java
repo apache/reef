@@ -327,7 +327,7 @@ public final class JobDriver {
       synchronized (JobDriver.this) {
         JobDriver.this.contexts.remove(context.getId());
       }
-      JobDriver.this.jobMessageObserver.onError(context.asError());
+      JobDriver.this.jobMessageObserver.onNext(context.getMessage().getBytes());
     }
   }
 
@@ -343,7 +343,7 @@ public final class JobDriver {
         for (final FailedContext failedContext : eval.getFailedContextList()) {
           JobDriver.this.contexts.remove(failedContext.getId());
         }
-        JobDriver.this.jobMessageObserver.onError(eval.getEvaluatorException());
+        JobDriver.this.jobMessageObserver.onNext(eval.getEvaluatorException().getMessage().getBytes());
       }
     }
   }

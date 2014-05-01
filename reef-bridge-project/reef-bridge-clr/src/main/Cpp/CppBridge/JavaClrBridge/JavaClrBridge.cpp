@@ -57,12 +57,23 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 	jclass  tobj, 
 	jstring jfileName)
 {
+	try
+	{
+		Console::WriteLine("+Java_javabridge_NativeInterop_loadClrAssembly");
 	const wchar_t* charAsmName = UnicodeCppStringFromJavaString (env, jfileName);
 	int len = env->GetStringLength(jfileName);	
 	
 	String^  asmName = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charAsmName, len);	
 	System::Reflection::Assembly^ asm1 = Assembly::LoadFrom(asmName);
 	AssemblyUtil::Add(asm1);
+		}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exceptions in Java_javabridge_NativeInterop_loadClrAssembly");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+
 }
 
 /*
@@ -75,6 +86,7 @@ JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartH
 {
 	try
 	{
+		Console::WriteLine("+Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
 		const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
 		int lenConfig = env->GetStringLength(dateTimeString);		
 		String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
@@ -100,6 +112,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluator
   (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluatorBridge, jobject jlogger)
 {
 	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
 		AllocatedEvaluatorClr2Java^ allocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
 		ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, allocatedEval);
 	}
@@ -120,6 +133,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemActiveContextHandl
   (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge, jobject jlogger)
 {
 	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
 		ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
 		ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, activeContextBrdige);
 	}
@@ -140,6 +154,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorH
   (JNIEnv *env, jclass cls, jlong handle, jobject jevaluatorRequestorBridge, jobject jlogger)
 {
 	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
 		EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
 		ClrSystemHandlerWrapper::Call_ClrSystemEvaluatorRequestor_OnNext(handle, evaluatorRequestorBridge);
 	}
@@ -160,6 +175,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemTaskMessageHandler
 	(JNIEnv *env, jclass cls, jlong handle, jbyteArray jmessage, jobject jtaskMessageBridge, jobject jlogger)
 {
 	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext");
 		TaskMessageClr2Java^ taskMesageBridge = gcnew TaskMessageClr2Java(env, jtaskMessageBridge);
 		array<byte>^ message = ManagedByteArrayFromJavaByteArray(env, jmessage);
 		ClrSystemHandlerWrapper::Call_ClrSystemTaskMessage_OnNext(handle, taskMesageBridge, message);

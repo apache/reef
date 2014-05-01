@@ -117,10 +117,9 @@
             <configuration>
                 <arguments>
                   <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
-                  <!--
-                    <argument>/p:Configuration=${foo.config}</argument>
-                    <argument>/p:Platform=${foo.cpu}</argument>
-                -->
+
+                    <argument>/p:Configuration="Release"</argument>
+                    <argument>/p:Platform="x64"</argument>
                     <argument>/t:Clean</argument>
                 </arguments>
             </configuration>
@@ -134,7 +133,8 @@
             <configuration>
                 <arguments>
                     <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
-                    <argument>/p:buildmode=release</argument>
+                    <argument>/p:Configuration="Release"</argument>
+                    <argument>/p:Platform="x64"</argument>
               <!--
                     <argument>/p:Configuration=${foo.config}</argument>
                     <argument>/p:Platform=${foo.cpu}</argument>
