@@ -81,7 +81,7 @@ public class TestRuntimeStartHandler {
         for (EventHandler<RuntimeStart> i : rStart) {
             HttpRuntimeStartHandler h = (HttpRuntimeStartHandler)i;
             try {
-               //h.onNext(null);
+               h.onNext(null);
             }catch(Exception e) {
             }
         }
@@ -90,7 +90,7 @@ public class TestRuntimeStartHandler {
         for (EventHandler<RuntimeStop> i : rStop) {
             HttpRuntimeStopHandler h = (HttpRuntimeStopHandler)i;
             try {
-            //    h.onNext(null);
+                h.onNext(null);
             }catch(Exception e) {
             }
         }

@@ -25,8 +25,14 @@ import com.microsoft.wake.time.runtime.event.RuntimeStop;
  * Http Runtime Stop Handler
  */
 final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
+    /**
+     * Standard Java logger.
+     */
     private static final Logger LOG = Logger.getLogger(HttpRuntimeStopHandler.class.getName());
 
+    /**
+     * HttpServer
+     */
     private final HttpServer httpServer;
 
     /**
@@ -41,11 +47,11 @@ final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
 
     /**
      * Override EventHandler<RuntimeStop>
-     * @param runtimeStart
+     * @param runtimeStop
      */
     @Override
-    public synchronized void onNext(final RuntimeStop runtimeStart) {
-        LOG.log(Level.FINEST, "HttpRuntimeStopHandler: {0}", runtimeStart);
+    public synchronized void onNext(final RuntimeStop runtimeStop) {
+        LOG.log(Level.FINEST, "HttpRuntimeStopHandler:" + runtimeStop.toString());
         try {
             httpServer.stop();
             LOG.log(Level.FINEST, "HttpRuntimeStopHandler complete.");

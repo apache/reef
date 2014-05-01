@@ -49,7 +49,7 @@ class JettyHandler extends AbstractHandler {
     JettyHandler(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
         //TODO handle duplicated case
         for (HttpHandler h : httpEventHandlers) {
-            eventHandlers.put(h.getUriSpecification(), h);
+            eventHandlers.put(h.getUriSpecification().toLowerCase(), h);
         }
     }
 
@@ -74,20 +74,20 @@ class JettyHandler extends AbstractHandler {
         Request baseRequest = (request instanceof Request) ? (Request) request :
                 HttpConnection.getCurrentConnection().getRequest();
 
-        //call corresponding HttpHandler
-        final HttpHandler h = eventHandlers.get(target);
-        if (h != null) {
-            final ReefHttpRequest req = new ReefHttpRequest();  //convert from request
-            final ReefHttpResponse res = new ReefHttpResponse();  //convert from response
-            LOG.log(Level.INFO, "calling onHttpRequest from JettyHandler.handle().");
-            h.onHttpRequest(req, res);
-        }
-
-        //sample response
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
+
+        RequestParser requestParser = new RequestParser(request);
+        //call corresponding HttpHandler
+        final HttpHandler h = eventHandlers.get(requestParser.getSpecification().toLowerCase());
+        if (h != null) {
+            LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for " + h.getUriSpecification());
+            h.onHttpRequest(request, response);
+        } else {
+            response.getWriter().println("HttpHandler is not provided for " + requestParser.getSpecification());
+        }
+
         baseRequest.setHandled(true);
-        response.getWriter().println("<h1>Hello World Julia Wang</h1>");
         LOG.log(Level.INFO, "JettyHandler handle exists");
     }
 }

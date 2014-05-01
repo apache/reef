@@ -29,18 +29,33 @@ import com.microsoft.tang.annotations.Parameter;
  * Http TrackingURLProvider
  */
 public class HttpTrackingURLProvider implements TrackingURLProvider {
+    /**
+     * Standard Java logger.
+     */
     private static final Logger LOG = Logger.getLogger(HttpTrackingURLProvider.class.getName());
+
+    /**
+     * port number
+     */
     private final String port;
 
     @NamedParameter(default_value = "8080")
     public class PortNumber implements Name<String>
     {}
 
+    /**
+     *  HttpTrackingURLProvider
+     * @param port
+     */
     @Inject
     public HttpTrackingURLProvider(@Parameter(PortNumber.class) String port) {
         this.port = port;
     }
 
+    /**
+     * get tracking URI
+     * @return
+     */
     @Override
     public String getTrackingUrl() {
         try {

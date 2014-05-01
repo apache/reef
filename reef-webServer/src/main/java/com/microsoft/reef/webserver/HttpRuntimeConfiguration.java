@@ -23,7 +23,6 @@ import com.microsoft.wake.time.Clock;
  * Configuration Module Builder for HttpRuntime
  */
 public final class HttpRuntimeConfiguration extends ConfigurationModuleBuilder {
-
     /**
      *  HttpRuntimeConfiguration
      */

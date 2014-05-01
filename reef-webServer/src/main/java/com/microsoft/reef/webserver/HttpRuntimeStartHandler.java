@@ -25,8 +25,14 @@ import com.microsoft.wake.time.runtime.event.RuntimeStart;
  *  RuntimeStartHandler for Http server
  */
 final class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
+    /**
+     * Standard Java logger.
+     */
     private static final Logger LOG = Logger.getLogger(HttpRuntimeStartHandler.class.getName());
 
+    /**
+     * HttpServer
+     */
     private final HttpServer httpServer;
 
     /**

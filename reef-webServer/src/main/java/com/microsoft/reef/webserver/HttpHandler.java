@@ -15,6 +15,11 @@
  */
 package com.microsoft.reef.webserver;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
  * HeepHandler interface
  */
@@ -30,5 +35,5 @@ public interface HttpHandler {
      * @param request
      * @param response
      */
-    void onHttpRequest(HttpRequest request, HttpResponse response);
+    void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
 }

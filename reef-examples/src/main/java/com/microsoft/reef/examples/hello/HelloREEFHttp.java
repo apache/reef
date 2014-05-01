@@ -1,9 +1,12 @@
 package com.microsoft.reef.examples.hello;
 
+import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
+import com.microsoft.reef.runtime.common.driver.defaults.DefaultContextActiveHandler;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
+import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.webserver.*;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
@@ -35,9 +38,31 @@ public final class HelloREEFHttp {
         .build();
   }
 
+    /**
+     * @return the configuration of the HelloREEF driver.
+     */
+    public static Configuration getDriverConfiguration() {
+        return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+                .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+                .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+//                .set(DriverConfiguration.ON_EVALUATOR_FAILED, ReefEventStateManager.FailedEvaluatorStateHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, DefaultContextActiveHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+//                .set(DriverConfiguration.ON_CONTEXT_CLOSED, ReefEventStateManager.ClosedContextStateHandler.class)
+//                .set(DriverConfiguration.ON_CONTEXT_FAILED, ReefEventStateManager.FailedContextStateHandler.class)
+//                .set(DriverConfiguration.ON_TASK_COMPLETED, ReefEventStateManager.CompletedTaskStateHandler.class)
+                .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
+                .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+                .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+                .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+                .build();
+    }
+
   public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)
       throws BindException, InjectionException {
-    final Configuration driverConf = Configurations.merge(HelloREEF.getDriverConfiguration(), getHTTPConfiguration());
+    final Configuration driverConf = Configurations.merge(HelloREEFHttp.getDriverConfiguration(), getHTTPConfiguration());
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
   }
 
