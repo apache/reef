@@ -74,6 +74,12 @@ public class TestTrackingUri {
         Assert.assertEquals(trackingId, uri);
     }
 
+    /** Http Tracking URI using default binding test
+     *
+     * @throws InjectionException
+     * @throws UnknownHostException
+     * @throws BindException
+     */
     @Test
     public void HttpTrackingUriDefaultBindingTest () throws InjectionException, UnknownHostException, BindException {
         Injector injector = Tang.Factory.getTang().newInjector(HttpHandlerConfiguration.CONF.build());
