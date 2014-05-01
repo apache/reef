@@ -37,7 +37,7 @@ public final class HelloREEF {
   /**
    * Number of milliseconds to wait for the job to complete.
    */
-  public static final int JOB_TIMEOUT = 10000; // 10 sec.
+  private static final int JOB_TIMEOUT = 10000; // 10 sec.
 
   /**
    * @return the configuration of the HelloREEF driver.

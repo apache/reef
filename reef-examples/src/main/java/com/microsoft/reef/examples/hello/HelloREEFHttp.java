@@ -40,7 +40,7 @@ public final class HelloREEFHttp {
     /**
      * Number of milliseconds to wait for the job to complete.
      */
-    public static final int JOB_TIMEOUT = 1000000; // 1000 sec.
+    public static final int JOB_TIMEOUT = 300000; // 300 sec.
 
 
   /**
@@ -91,7 +91,7 @@ public final class HelloREEFHttp {
      */
   public static void main(final String[] args) throws InjectionException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
+        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 3)
         .build();
     final LauncherStatus status = runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
   }

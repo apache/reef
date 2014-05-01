@@ -22,11 +22,6 @@ public class HelloREEFHttpYarn {
     private static final Logger LOG = Logger.getLogger(HelloReefYarn.class.getName());
 
     /**
-     * Number of milliseconds to wait for the job to complete.
-     */
-    private static final int JOB_TIMEOUT = 300000; // 300 sec.
-
-    /**
      * Start Hello REEF job. Runs method runHelloReef().
      *
      * @param args command line parameters.
@@ -37,7 +32,7 @@ public class HelloREEFHttpYarn {
 
         final Configuration runtimeConfiguration = YarnClientConfiguration.CONF.build();
 
-        final LauncherStatus status = HelloREEFHttp.runHelloReef(runtimeConfiguration, JOB_TIMEOUT);
+        final LauncherStatus status = HelloREEFHttp.runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
         LOG.log(Level.INFO, "REEF job completed: {0}", status);
     }
 }
