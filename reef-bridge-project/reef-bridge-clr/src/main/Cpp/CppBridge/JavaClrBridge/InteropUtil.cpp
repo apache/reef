@@ -78,3 +78,13 @@ jlongArray JavaLongArrayFromManagedLongArray(
 	env->SetLongArrayRegion(javaLongArray, 0, managedLongArray->Length, (jlong*) p);
 	return javaLongArray;
 }
+
+JNIEnv* RetrieveEnv(JavaVM* jvm)
+{
+	JNIEnv *env;
+	if (jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
+		fprintf(stdout, "cannot attach jni env to current jvm thread.\n"); fflush (stdout);
+		throw;
+    }
+	return env;
+}

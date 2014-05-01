@@ -10,8 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-//using ClrHandler;
-
 namespace Microsoft.Reef.Interop
 {
     public class ClrSystemHandlerWrapper
@@ -59,9 +57,9 @@ namespace Microsoft.Reef.Interop
             }         
             try
             {
-                IConfiguration startHandlerConfiguration = new AvroConfigurationSerializer().FromFile(Constants.ClrRuntimeConfiguration);
-                IInjector injector = TangFactory.GetTang().NewInjector(startHandlerConfiguration);
-                startHandler = (IStartHandler)injector.GetInstance(typeof(IStartHandler));
+                IConfiguration clrRuntimeConfiguration = new AvroConfigurationSerializer().FromFile(Constants.ClrRuntimeConfiguration);
+                IInjector injector = TangFactory.GetTang().NewInjector(clrRuntimeConfiguration);
+                startHandler = injector.GetInstance<IStartHandler>();
             }
             catch (Exception e)
             {

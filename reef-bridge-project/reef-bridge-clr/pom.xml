@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.microsoft.reef</groupId>
     <artifactId>reef-bridge-project</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.4-SNAPSHOT</version>
   </parent>
 
 
@@ -134,6 +134,7 @@
             <configuration>
                 <arguments>
                     <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
+                    <argument>/p:buildmode=release</argument>
               <!--
                     <argument>/p:Configuration=${foo.config}</argument>
                     <argument>/p:Platform=${foo.cpu}</argument>

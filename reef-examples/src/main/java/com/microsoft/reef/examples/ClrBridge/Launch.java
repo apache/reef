@@ -159,6 +159,10 @@ public final class Launch {
    */
   public static void main(final String[] args) {
     try {
+      if(args == null || args.length ==0)
+      {
+        throw new IllegalArgumentException("No arguments provided, at least a clrFolder should be supplied.")   ;
+      }
       final File dotNetFolder = new File(args[0]).getAbsoluteFile();
       String[] removedArgs = Arrays.copyOfRange(args, 1, args.length);
 

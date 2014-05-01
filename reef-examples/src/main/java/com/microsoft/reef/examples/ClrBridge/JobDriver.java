@@ -136,6 +136,7 @@ public final class JobDriver {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       synchronized (JobDriver.this) {
+        LOG.log(Level.INFO, "AllocatedEvaluatorHandler.OnNext");
         if (JobDriver.this.nCLREvaluators > 0) {
           JobDriver.this.submitEvaluator(allocatedEvaluator, EvaluatorType.CLR);
           JobDriver.this.nCLREvaluators -= 1;
@@ -182,18 +183,15 @@ public final class JobDriver {
     public void onNext(final ActiveContext context) {
       synchronized (JobDriver.this) {
         LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0} expect {1} state {2}",
-            new Object[]{context.getId(), JobDriver.this.expectCount, JobDriver.this.state});
+                new Object[]{context.getId(), JobDriver.this.expectCount, JobDriver.this.state});
         assert (JobDriver.this.state == State.WAIT_EVALUATORS);
         JobDriver.this.contexts.put(context.getId(), context);
         if (--JobDriver.this.expectCount <= 0) {
           JobDriver.this.state = State.READY;
-          if(activeContextHandler == 0)
-          {
-              throw new RuntimeException("Active Context Handler not initialized by CLR.");
+          JobDriver.this.expectCount = JobDriver.this.contexts.size();
+          for (final ActiveContext activeContext : JobDriver.this.contexts.values()) {
+            JobDriver.this.submit(activeContext);
           }
-          InteropLogger interopLogger = new InteropLogger();
-          ActiveContextBridge activeContextBridge = new ActiveContextBridge(context);
-          NativeInterop.ClrSystemActiveContextHandlerOnNext(activeContextHandler, activeContextBridge, interopLogger) ;
         }
       }
     }
@@ -203,132 +201,151 @@ public final class JobDriver {
      * Receive notification that the Task has completed successfully.
      */
     final class CompletedTaskHandler implements EventHandler<CompletedTask> {
-        @Override
-        public void onNext(final CompletedTask task) {
-            LOG.log(Level.INFO, "Completed task: {0}", task.getId());
-            // Take the message returned by the task and add it to the running result.
-            String result = "default result";
-            try {
-                result = new String(task.get());
-            } catch (final Exception e) {
-                LOG.log(Level.WARNING, "failed to decode task outcome");
-            }
-            synchronized (JobDriver.this) {
-                JobDriver.this.results.add(task.getId() + " :: " + result);
-                LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[]{
-                        task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state});
-                if (--JobDriver.this.expectCount <= 0) {
-                    JobDriver.this.returnResults();
-                    JobDriver.this.state = State.READY;
-                }
-            }
+      @Override
+      public void onNext(final CompletedTask task) {
+        LOG.log(Level.INFO, "Completed task: {0}", task.getId());
+        // Take the message returned by the task and add it to the running result.
+        String result = "default result";
+        try {
+          result = new String(task.get());
+        } catch (final Exception e) {
+          LOG.log(Level.WARNING, "failed to decode task outcome");
         }
-    }
-
-  /**
-   * Receive notification that the Context had completed.
-   * Remove context from the list of active context.
-   */
-  final class ClosedContextHandler implements EventHandler<ClosedContext> {
-    @Override
-    public void onNext(final ClosedContext context) {
-      LOG.log(Level.INFO, "Completed Context: {0}", context.getId());
-      synchronized (JobDriver.this) {
-        JobDriver.this.contexts.remove(context.getId());
-      }
-    }
-  }
-
-  /**
-   * Receive notification that the Context had failed.
-   * Remove context from the list of active context and notify the client.
-   */
-  final class FailedContextHandler implements EventHandler<FailedContext> {
-    @Override
-    public void onNext(final FailedContext context) {
-      LOG.log(Level.SEVERE, "FailedContext", context);
-      synchronized (JobDriver.this) {
-        JobDriver.this.contexts.remove(context.getId());
-      }
-      JobDriver.this.jobMessageObserver.onError(context.asError());
-    }
-  }
-
-  /**
-   * Receive notification that the entire Evaluator had failed.
-   * Stop other jobs and pass this error to the job observer on the client.
-   */
-  final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
-    @Override
-    public void onNext(final FailedEvaluator eval) {
-      synchronized (JobDriver.this) {
-        LOG.log(Level.SEVERE, "FailedEvaluator", eval);
-        for (final FailedContext failedContext : eval.getFailedContextList()) {
-          JobDriver.this.contexts.remove(failedContext.getId());
+        synchronized (JobDriver.this) {
+          JobDriver.this.results.add(task.getId() + " :: " + result);
+          LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[]{
+                  task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state});
+          if (--JobDriver.this.expectCount <= 0) {
+            JobDriver.this.returnResults();
+            JobDriver.this.state = State.READY;
+          }
         }
-        JobDriver.this.jobMessageObserver.onError(eval.getEvaluatorException());
       }
     }
-  }
 
-  /**
-   * Job Driver is ready and the clock is set up: request the evaluators.
-   */
-  final class StartHandler implements EventHandler<StartTime> {
-    @Override
-    public void onNext(final StartTime startTime) {
-      synchronized (JobDriver.this)
-      {
+    /**
+     * Receive notification that the Context had completed.
+     * Remove context from the list of active context.
+     */
+    final class ClosedContextHandler implements EventHandler<ClosedContext> {
+      @Override
+      public void onNext(final ClosedContext context) {
+        LOG.log(Level.INFO, "Completed Context: {0}", context.getId());
+        synchronized (JobDriver.this) {
+          JobDriver.this.contexts.remove(context.getId());
+        }
+      }
+    }
+
+    /**
+     * Receive notification that the Context had failed.
+     * Remove context from the list of active context and notify the client.
+     */
+    final class FailedContextHandler implements EventHandler<FailedContext> {
+      @Override
+      public void onNext(final FailedContext context) {
+        LOG.log(Level.SEVERE, "FailedContext", context);
+        synchronized (JobDriver.this) {
+          JobDriver.this.contexts.remove(context.getId());
+        }
+        JobDriver.this.jobMessageObserver.onError(context.asError());
+      }
+    }
+
+    /**
+     * Receive notification that the entire Evaluator had failed.
+     * Stop other jobs and pass this error to the job observer on the client.
+     */
+    final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
+      @Override
+      public void onNext(final FailedEvaluator eval) {
+        synchronized (JobDriver.this) {
+          LOG.log(Level.SEVERE, "FailedEvaluator", eval);
+          for (final FailedContext failedContext : eval.getFailedContextList()) {
+            JobDriver.this.contexts.remove(failedContext.getId());
+          }
+          JobDriver.this.jobMessageObserver.onError(eval.getEvaluatorException());
+        }
+      }
+    }
+
+
+    /**
+     * Submit a Task to a single Evaluator.
+     * This method is called from <code>submitTask(cmd)</code>.
+     */
+    private void submit(final ActiveContext context) {
+      try {
+        LOG.log(Level.INFO, "Send task to context: {0}", new Object[]{context});
+        if (activeContextHandler == 0) {
+          throw new RuntimeException("Active Context Handler not initialized by CLR.");
+        }
+        InteropLogger interopLogger = new InteropLogger();
+        ActiveContextBridge activeContextBridge = new ActiveContextBridge(context);
+        NativeInterop.ClrSystemActiveContextHandlerOnNext(activeContextHandler, activeContextBridge, interopLogger);
+      } catch (final Exception ex) {
+        LOG.log(Level.SEVERE, "Fail to submit task to active context");
+        context.close();
+        throw new RuntimeException(ex);
+      }
+    }
+
+    /**
+     * Job Driver is ready and the clock is set up: request the evaluators.
+     */
+    final class StartHandler implements EventHandler<StartTime> {
+      @Override
+      public void onNext(final StartTime startTime) {
+        synchronized (JobDriver.this) {
           InteropLogger interopLogger = new InteropLogger();
           LOG.log(Level.INFO, "{0} StartTime: {1}", new Object[]{state, startTime});
           assert (state == State.INIT);
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
-          if (handlers != null)
-          {
+          if (handlers != null) {
             assert (handlers.length == NativeInterop.nHandlers);
             evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
             allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
             activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
-            taskMessagetHandler  = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
+            taskMessagetHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
           }
 
-          if(evaluatorRequestorHandler == 0)
-          {
-                throw new RuntimeException("Evaluator Requestor Handler not initialized by CLR.");
+          if (evaluatorRequestorHandler == 0) {
+            throw new RuntimeException("Evaluator Requestor Handler not initialized by CLR.");
           }
           NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(evaluatorRequestorHandler, evaluatorRequestorBridge, interopLogger);
           // get the evaluator numbers set by CLR handler
-          nCLREvaluators =  evaluatorRequestorBridge.getEvaluaotrNumber();
+          nCLREvaluators = evaluatorRequestorBridge.getEvaluaotrNumber();
+          JobDriver.this.state = State.WAIT_EVALUATORS;
+          JobDriver.this.expectCount = nCLREvaluators;
           LOG.log(Level.INFO, "evaluator requested: " + nCLREvaluators);
-       }
-    }
-  }
-
-  /**
-   * Shutting down the job driver: close the evaluators.
-   */
-  final class StopHandler implements EventHandler<StopTime> {
-    @Override
-    public void onNext(final StopTime time) {
-      LOG.log(Level.INFO, "{0} StopTime: {1}", new Object[]{state, time});
-      for (final ActiveContext context : contexts.values()) {
-        context.close();
+        }
       }
     }
-  }
 
-  final class TaskMessageHandler implements EventHandler<TaskMessage> {
-    @Override
-    public void onNext(final TaskMessage taskMessage) {
-      LOG.log(Level.INFO, "Received TaskMessage: {0} from CLR", new String(taskMessage.get()));
-      if(taskMessagetHandler != 0)
-      {
-        InteropLogger interopLogger = new InteropLogger();
-        TaskMessageBridge taskMessageBridge = new TaskMessageBridge(taskMessage);
-        // if CLR implements the task message handler, handle the bytes in CLR handler
-        NativeInterop.ClrSystemTaskMessageHandlerOnNext(taskMessagetHandler, taskMessage.get(), taskMessageBridge,interopLogger);
+    /**
+     * Shutting down the job driver: close the evaluators.
+     */
+    final class StopHandler implements EventHandler<StopTime> {
+      @Override
+      public void onNext(final StopTime time) {
+        LOG.log(Level.INFO, "{0} StopTime: {1}", new Object[]{state, time});
+        for (final ActiveContext context : contexts.values()) {
+          context.close();
+        }
       }
     }
-  }
+
+    final class TaskMessageHandler implements EventHandler<TaskMessage> {
+      @Override
+      public void onNext(final TaskMessage taskMessage) {
+        LOG.log(Level.INFO, "Received TaskMessage: {0} from CLR", new String(taskMessage.get()));
+        if (taskMessagetHandler != 0) {
+          InteropLogger interopLogger = new InteropLogger();
+          TaskMessageBridge taskMessageBridge = new TaskMessageBridge(taskMessage);
+          // if CLR implements the task message handler, handle the bytes in CLR handler
+          NativeInterop.ClrSystemTaskMessageHandlerOnNext(taskMessagetHandler, taskMessage.get(), taskMessageBridge, interopLogger);
+        }
+      }
+    }
 }
 

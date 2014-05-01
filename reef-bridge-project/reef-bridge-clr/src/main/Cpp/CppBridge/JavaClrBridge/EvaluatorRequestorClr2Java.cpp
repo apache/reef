@@ -10,32 +10,31 @@ namespace Microsoft
 			{
 				EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor)
 				{
-					_env = env;
-					_jobjectEvaluatorRequestor = jevaluatorRequestor;
-					_jclassEvaluatorRequestor = _env->GetObjectClass (_jobjectEvaluatorRequestor);
-					_jmidSubmit = _env->GetMethodID(_jclassEvaluatorRequestor, "submit", "(II)V");
+					pin_ptr<JavaVM*> pJavaVm = &_jvm;
+					int gotVm = env -> GetJavaVM(pJavaVm);
+					_jobjectEvaluatorRequestor = reinterpret_cast<jobject>(env->NewGlobalRef(jevaluatorRequestor));
 
-					fprintf(stdout, "EvaluatorRequestorClr2Java _env %p\n", _env); fflush (stdout);
+					fprintf(stdout, "EvaluatorRequestorClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "EvaluatorRequestorClr2Java _jobjectEvaluatorRequestor %p\n", _jobjectEvaluatorRequestor); fflush (stdout);
-					fprintf(stdout, "EvaluatorRequestorClr2Java _jclassEvaluatorRequestor %p\n", _jclassEvaluatorRequestor); fflush (stdout);
-					fprintf(stdout, "EvaluatorRequestorClr2Java _jmidSubmit %p\n", _jmidSubmit); fflush (stdout);
 				}
 
 				void EvaluatorRequestorClr2Java::Submit(EvaluatorRequest^ request)
 				{
-					if(_jobjectEvaluatorRequestor == NULL)
+					JNIEnv *env = RetrieveEnv(_jvm);
+					jclass jclassEvaluatorRequestor = env->GetObjectClass (_jobjectEvaluatorRequestor);
+					jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(II)V");
+
+					fprintf(stdout, "EvaluatorRequestorClr2Java jclassEvaluatorRequestor %p\n", jclassEvaluatorRequestor); fflush (stdout);
+					fprintf(stdout, "EvaluatorRequestorClr2Java jmidSubmit %p\n", jmidSubmit); fflush (stdout);
+
+					if(jmidSubmit == NULL)
 					{
-						fprintf(stdout, " _jobjectEvaluatorRequestor is NULL\n"); fflush (stdout);
+						fprintf(stdout, " jmidSubmit is NULL\n"); fflush (stdout);
 						return;
 					}
-					if(_jmidSubmit == NULL)
-					{
-						fprintf(stdout, " _jmidSubmit is NULL\n"); fflush (stdout);
-						return;
-					}
-					_env -> CallObjectMethod(
+					env -> CallObjectMethod(
 						_jobjectEvaluatorRequestor, 
-						_jmidSubmit, 
+						jmidSubmit, 
 						request -> Number,
 						request -> MemoryMegaBytes);
 				}
