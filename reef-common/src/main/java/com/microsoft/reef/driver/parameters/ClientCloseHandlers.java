@@ -13,10 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.webserver;
+package com.microsoft.reef.driver.parameters;
+
+import com.microsoft.reef.runtime.common.driver.defaults.DefaultClientCloseHandler;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.wake.EventHandler;
+
+import java.util.Set;
 
 /**
- * interface for HTTP Response
+ * Handles close requests from the client.
  */
-public interface HttpResponse {
+@NamedParameter(doc = "Handles close requests from the client.", default_classes = DefaultClientCloseHandler.class)
+public final class ClientCloseHandlers implements Name<Set<EventHandler<Void>>> {
+  private ClientCloseHandlers() {
+  }
 }

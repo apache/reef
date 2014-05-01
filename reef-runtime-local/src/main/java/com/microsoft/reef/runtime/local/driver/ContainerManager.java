@@ -81,7 +81,7 @@ final class ContainerManager implements AutoCloseable {
       @Override
       public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
         final FailedRuntime error = new FailedRuntime(value.getMessage());
-        LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getCause());
+        LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getReason().orElse(null));
         release(error.getId());
       }
     });

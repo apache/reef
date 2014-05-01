@@ -13,10 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.webserver;
+package com.microsoft.reef.client.parameters;
+
+import com.microsoft.reef.client.JobMessage;
+import com.microsoft.reef.runtime.common.client.defaults.DefaultJobMessageHandler;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.wake.EventHandler;
 
 /**
- * interface for HttpRequest
+ * Client EventHandler that gets messages from the Driver.
  */
-public interface HttpRequest {
+@NamedParameter(doc = "Client EventHandler that gets messages from the Driver.",
+    default_classes = DefaultJobMessageHandler.class)
+public final class JobMessageHandler implements Name<EventHandler<JobMessage>> {
+  private JobMessageHandler() {
+  }
 }

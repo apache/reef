@@ -17,7 +17,6 @@ package com.microsoft.reef.runtime.common.driver.client;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.client.JobMessageObserver;
-import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 
 import javax.inject.Inject;
 
@@ -28,25 +27,16 @@ import javax.inject.Inject;
 public final class JobMessageObserverImpl implements JobMessageObserver {
 
   private final ClientConnection clientConnection;
-  private final DriverStatusManager driverStatusManager;
 
   @Inject
-  public JobMessageObserverImpl(final ClientConnection clientConnection,
-                                final DriverStatusManager driverStatusManager) {
-
+  public JobMessageObserverImpl(final ClientConnection clientConnection) {
     this.clientConnection = clientConnection;
-    this.driverStatusManager = driverStatusManager;
   }
 
 
   @Override
   public synchronized void onNext(final byte[] message) {
     this.clientConnection.sendMessage(message);
-  }
-
-  @Override
-  public synchronized void onError(final Throwable exception) {
-    this.driverStatusManager.onError(exception);
   }
 
 }

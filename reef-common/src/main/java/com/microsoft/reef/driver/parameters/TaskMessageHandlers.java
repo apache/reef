@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.webserver;
+package com.microsoft.reef.driver.parameters;
+
+import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.runtime.common.driver.defaults.DefaultTaskMessageHandler;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.wake.EventHandler;
+
+import java.util.Set;
 
 /**
- * ReefHttpRequest
+ * Task message handler.
  */
-public final class ReefHttpRequest implements HttpRequest {
-
-    /**
-     *  ReefHttpRequest
-     */
-    public ReefHttpRequest() {
-        //TODO
-    }
+@NamedParameter(doc = "Task message handler.", default_classes = DefaultTaskMessageHandler.class)
+public final class TaskMessageHandlers implements Name<Set<EventHandler<TaskMessage>>> {
+  private TaskMessageHandlers() {
+  }
 }

@@ -28,6 +28,7 @@ function Get-YARN-Classpath {
   (Invoke-Expression -Command "$env:HADOOP_HOME\bin\yarn.cmd classpath").split(";") | Where-Object {$_ -ne ""} | Unique
 }
 
+
 function Submit-YARN-Application {
   <#
   .SYNOPSIS
@@ -65,7 +66,11 @@ function Submit-YARN-Application {
   }
 
   # Assemble the classpath for the job
-  $CLASSPATH = (Get-YARN-Classpath) + $Jars -join ";"
+  if($env:HADOOP_HOME){
+    $CLASSPATH = (Get-YARN-Classpath) + $Jars -join ";"
+  }else{
+    $CLASSPATH = $Jars -join ";"
+  }
 
   # the logging command
   if ($VerboseLog) {
@@ -74,7 +79,9 @@ function Submit-YARN-Application {
 
   # Assemble the command to run
   # Note: We need to put the classpath within "", as it contains ";"
-  $command = "$env:JAVA_HOME\bin\java.exe $JavaOptions -cp `"$CLASSPATH`" $LogParams $Class $Arguments"
-  echo $command
+  $command = "& `"$env:JAVA_HOME\bin\java.exe`" $JavaOptions -cp `"$CLASSPATH`" $LogParams $Class $Arguments"
+  if ($VerboseLog) {
+    echo $command
+  }
   Invoke-Expression -Command $command
 }

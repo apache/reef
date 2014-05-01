@@ -397,6 +397,7 @@
         <module>reef-runtime-yarn</module>
         <module>reef-tests</module>
         <module>reef-webserver</module>
+        <module>reef-utils-hadoop</module>
     </modules>
 
     <profiles>

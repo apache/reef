@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.webserver;
+package com.microsoft.reef.client.parameters;
+
+import com.microsoft.reef.client.FailedJob;
+import com.microsoft.reef.runtime.common.client.defaults.DefaultFailedJobHandler;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.wake.EventHandler;
 
 /**
- * ReefHttpResponse
+ * Client EventHandler triggered on remote job failure.
  */
-public final class ReefHttpResponse implements HttpResponse {
-    /**
-     *  ReefHttpResponse
-     */
-    public ReefHttpResponse() {
-        //TODO
-    }
+@NamedParameter(doc = "Client EventHandler triggered on remote job failure.",
+    default_classes = DefaultFailedJobHandler.class)
+public final class JobFailedHandler implements Name<EventHandler<FailedJob>> {
+  private JobFailedHandler() {
+  }
 }

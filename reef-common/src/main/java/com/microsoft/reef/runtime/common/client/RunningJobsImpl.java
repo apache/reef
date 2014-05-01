@@ -17,9 +17,9 @@ package com.microsoft.reef.runtime.common.client;
 
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.client.ClientConfigurationOptions;
-import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.client.FailedRuntime;
+import com.microsoft.reef.client.parameters.ResourceManagerErrorHandler;
+import com.microsoft.reef.driver.parameters.DriverIdentifier;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Injector;
@@ -45,7 +45,7 @@ final class RunningJobsImpl implements RunningJobs {
 
   @Inject
   RunningJobsImpl(final Injector injector,
-                  final @Parameter(ClientConfigurationOptions.RuntimeErrorHandler.class) InjectionFuture<EventHandler<FailedRuntime>> failedRuntimeEventHandler) {
+                  final @Parameter(ResourceManagerErrorHandler.class) InjectionFuture<EventHandler<FailedRuntime>> failedRuntimeEventHandler) {
     this.injector = injector;
     this.failedRuntimeEventHandler = failedRuntimeEventHandler;
     LOG.log(Level.INFO, "Instantiated 'RunningJobImpl'");
@@ -130,7 +130,6 @@ final class RunningJobsImpl implements RunningJobs {
   }
 
   /**
-   *
    * @param jobIdentifier
    * @param remoteIdentifier
    * @return
@@ -140,7 +139,7 @@ final class RunningJobsImpl implements RunningJobs {
   private synchronized RunningJobImpl newRunningJob(final String jobIdentifier, final String remoteIdentifier) throws BindException, InjectionException {
     final Injector child = this.injector.forkInjector();
     child.bindVolatileParameter(REEFImplementation.DriverRemoteIdentifier.class, remoteIdentifier);
-    child.bindVolatileParameter(DriverConfigurationOptions.DriverIdentifier.class, jobIdentifier);
+    child.bindVolatileParameter(DriverIdentifier.class, jobIdentifier);
     return child.getInstance(RunningJobImpl.class);
   }
 }
