@@ -31,7 +31,6 @@ public final class DefaultTaskFailureHandler implements EventHandler<FailedTask>
 
   @Override
   public void onNext(final FailedTask failedTask) {
-    throw new RuntimeException(
-        "No handler bound for FailedTask: " + failedTask, failedTask.getCause());
+    throw new RuntimeException("No handler bound for FailedTask: " + failedTask, failedTask.getReason().orElse(null));
   }
 }

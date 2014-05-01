@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.microsoft.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
     <groupId>com.microsoft.reef</groupId>
     <name>REEF Runtime for YARN</name>
@@ -28,6 +28,10 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
         </dependency>
     </dependencies>
 

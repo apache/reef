@@ -17,6 +17,9 @@ package com.microsoft.reef.runtime.common.launch;
 
 
 import com.microsoft.reef.runtime.common.Launcher;
+import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPath;
+import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
+import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
 import com.microsoft.reef.runtime.common.utils.JavaUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -59,11 +62,11 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
       add(Launcher.class.getName());
 
-      add("-" + Launcher.ERROR_HANDLER_RID);
+      add("-" + ErrorHandlerRID.SHORT_NAME);
       add(errorHandlerRID);
-      add("-" + Launcher.LAUNCH_ID);
+      add("-" + LaunchID.SHORT_NAME);
       add(launchID);
-      add("-" + Launcher.EVALUATOR_CONFIGURATION_ARG);
+      add("-" + ClockConfigurationPath.SHORT_NAME);
       add(evaluatorConfigurationPath);
 
       if (stdout_path != null && !stdout_path.isEmpty()) {

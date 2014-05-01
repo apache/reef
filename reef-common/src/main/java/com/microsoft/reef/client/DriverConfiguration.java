@@ -26,6 +26,7 @@ import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfiguration;
 import com.microsoft.tang.formats.*;
@@ -177,41 +178,41 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final ConfigurationModule CONF = new DriverConfiguration().merge(DriverRuntimeConfiguration.CONF)
 
-      .bindNamedParameter(DriverConfigurationOptions.DriverIdentifier.class, DRIVER_IDENTIFIER)
-      .bindNamedParameter(DriverConfigurationOptions.DriverMemory.class, DRIVER_MEMORY)
-      .bindSetEntry(DriverConfigurationOptions.GlobalFiles.class, GLOBAL_FILES)
-      .bindSetEntry(DriverConfigurationOptions.GlobalLibraries.class, GLOBAL_LIBRARIES)
-      .bindSetEntry(DriverConfigurationOptions.LocalFiles.class, LOCAL_FILES)
-      .bindSetEntry(DriverConfigurationOptions.LocalLibraries.class, LOCAL_LIBRARIES)
+      .bindNamedParameter(DriverIdentifier.class, DRIVER_IDENTIFIER)
+      .bindNamedParameter(DriverMemory.class, DRIVER_MEMORY)
+      .bindSetEntry(JobGlobalFiles.class, GLOBAL_FILES)
+      .bindSetEntry(JobGlobalLibraries.class, GLOBAL_LIBRARIES)
+      .bindSetEntry(DriverLocalFiles.class, LOCAL_FILES)
+      .bindSetEntry(DriverLocalLibraries.class, LOCAL_LIBRARIES)
 
           // Driver start/stop handlers
       .bindSetEntry(Clock.StartHandler.class, ON_DRIVER_STARTED)
       .bindSetEntry(Clock.StopHandler.class, ON_DRIVER_STOP)
 
           // Evaluator handlers
-      .bindSetEntry(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class, ON_EVALUATOR_ALLOCATED)
-      .bindSetEntry(DriverConfigurationOptions.CompletedEvaluatorHandlers.class, ON_EVALUATOR_COMPLETED)
-      .bindSetEntry(DriverConfigurationOptions.FailedEvaluatorHandlers.class, ON_EVALUATOR_FAILED)
+      .bindSetEntry(EvaluatorAllocatedHandlers.class, ON_EVALUATOR_ALLOCATED)
+      .bindSetEntry(EvaluatorCompletedHandlers.class, ON_EVALUATOR_COMPLETED)
+      .bindSetEntry(EvaluatorFailedHandlers.class, ON_EVALUATOR_FAILED)
 
           // Task handlers
-      .bindSetEntry(DriverConfigurationOptions.RunningTaskHandlers.class, ON_TASK_RUNNING)
-      .bindSetEntry(DriverConfigurationOptions.FailedTaskHandlers.class, ON_TASK_FAILED)
-      .bindSetEntry(DriverConfigurationOptions.TaskMessageHandlers.class, ON_TASK_MESSAGE)
-      .bindSetEntry(DriverConfigurationOptions.CompletedTaskHandlers.class, ON_TASK_COMPLETED)
-      .bindSetEntry(DriverConfigurationOptions.SuspendedTaskHandlers.class, ON_TASK_SUSPENDED)
+      .bindSetEntry(TaskRunningHandlers.class, ON_TASK_RUNNING)
+      .bindSetEntry(TaskFailedHandlers.class, ON_TASK_FAILED)
+      .bindSetEntry(TaskMessageHandlers.class, ON_TASK_MESSAGE)
+      .bindSetEntry(TaskCompletedHandlers.class, ON_TASK_COMPLETED)
+      .bindSetEntry(TaskSuspendedHandlers.class, ON_TASK_SUSPENDED)
 
           // Context handlers
-      .bindSetEntry(DriverConfigurationOptions.ActiveContextHandlers.class, ON_CONTEXT_ACTIVE)
-      .bindSetEntry(DriverConfigurationOptions.ClosedContextHandlers.class, ON_CONTEXT_CLOSED)
-      .bindSetEntry(DriverConfigurationOptions.ContextMessageHandlers.class, ON_CONTEXT_MESSAGE)
-      .bindSetEntry(DriverConfigurationOptions.FailedContextHandlers.class, ON_CONTEXT_FAILED)
+      .bindSetEntry(ContextActiveHandlers.class, ON_CONTEXT_ACTIVE)
+      .bindSetEntry(ContextClosedHandlers.class, ON_CONTEXT_CLOSED)
+      .bindSetEntry(ContextMessageHandlers.class, ON_CONTEXT_MESSAGE)
+      .bindSetEntry(ContextFailedHandlers.class, ON_CONTEXT_FAILED)
 
           // Client handlers
-      .bindSetEntry(DriverConfigurationOptions.ClientMessageHandlers.class, ON_CLIENT_MESSAGE)
-      .bindSetEntry(DriverConfigurationOptions.ClientCloseHandlers.class, ON_CLIENT_CLOSED)
-      .bindSetEntry(DriverConfigurationOptions.ClientCloseWithMessageHandlers.class, ON_CLIENT_CLOSED_MESSAGE)
+      .bindSetEntry(ClientMessageHandlers.class, ON_CLIENT_MESSAGE)
+      .bindSetEntry(ClientCloseHandlers.class, ON_CLIENT_CLOSED)
+      .bindSetEntry(ClientCloseWithMessageHandlers.class, ON_CLIENT_CLOSED_MESSAGE)
 
           // Various parameters
-      .bindNamedParameter(DriverConfigurationOptions.EvaluatorDispatcherThreads.class, EVALUATOR_DISPATCHER_THREADS)
+      .bindNamedParameter(EvaluatorDispatcherThreads.class, EVALUATOR_DISPATCHER_THREADS)
       .build();
 }

@@ -62,12 +62,10 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
         this.resourceManagerErrorHandler.onNext(runtimeStatusProto.getError());
         break;
       case DONE:
+        LOG.log(Level.INFO, "Resource Manager shutdown happened. Triggering Driver shutdown.");
         this.driverStatusManager.onComplete();
         break;
       case RUNNING:
-        if (this.isIdle()) {
-          this.driverStatusManager.onComplete();
-        }
         break;
     }
   }

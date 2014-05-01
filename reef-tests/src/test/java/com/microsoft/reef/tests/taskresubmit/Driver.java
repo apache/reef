@@ -95,7 +95,7 @@ public class Driver {
 
       LOG.log(Level.INFO, "FailedTask: {0}", failedTask);
 
-      final Throwable ex = failedTask.getCause();
+      final Throwable ex = failedTask.getReason().get();
       if (!TestUtils.hasCause(ex, SimulatedTaskFailure.class)) {
         final String msg = "Expected SimulatedTaskFailure from " + failedTask.getId();
         LOG.log(Level.SEVERE, msg, ex);

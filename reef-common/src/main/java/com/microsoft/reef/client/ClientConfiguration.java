@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.client;
 
+import com.microsoft.reef.client.parameters.*;
+import com.microsoft.reef.runtime.common.client.parameters.ClientPresent;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalImpl;
@@ -24,7 +26,7 @@ import com.microsoft.wake.remote.RemoteConfiguration;
 /**
  * A ConfigurationModule to fill out for the client configuration.
  */
-public class ClientConfiguration extends ConfigurationModuleBuilder {
+public final class ClientConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * Event handler for messages from the running job.
@@ -67,11 +69,12 @@ public class ClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<Throwable>> ON_WAKE_ERROR = new OptionalImpl<>();
 
   public static final ConfigurationModule CONF = new ClientConfiguration()
-      .bind(ClientConfigurationOptions.JobMessageHandler.class, ON_JOB_MESSAGE)
-      .bind(ClientConfigurationOptions.RunningJobHandler.class, ON_JOB_RUNNING)
-      .bind(ClientConfigurationOptions.CompletedJobHandler.class, ON_JOB_COMPLETED)
-      .bind(ClientConfigurationOptions.FailedJobHandler.class, ON_JOB_FAILED)
-      .bind(ClientConfigurationOptions.RuntimeErrorHandler.class, ON_RUNTIME_ERROR)
+      .bind(JobMessageHandler.class, ON_JOB_MESSAGE)
+      .bind(JobRunningHandler.class, ON_JOB_RUNNING)
+      .bind(JobCompletedHandler.class, ON_JOB_COMPLETED)
+      .bind(JobFailedHandler.class, ON_JOB_FAILED)
+      .bind(ResourceManagerErrorHandler.class, ON_RUNTIME_ERROR)
+      .bindNamedParameter(ClientPresent.class, ClientPresent.YES)
       .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, ON_WAKE_ERROR)
       .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")
       .build();

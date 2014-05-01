@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
-import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextMessage;
@@ -23,6 +22,7 @@ import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.runtime.common.driver.DriverExceptionHandler;
 import com.microsoft.reef.runtime.common.utils.DispatchingEStage;
@@ -31,30 +31,33 @@ import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Central dispatcher for all Evaluator related events. This exists once per Evaluator.
  */
-final class EvaluatorMessageDispatcher {
+public final class EvaluatorMessageDispatcher {
+  private static final Logger LOG = Logger.getLogger(EvaluatorMessageDispatcher.class.getName());
   /**
    * The actual dispatcher used.
    */
   private final DispatchingEStage dispatcher;
 
   @Inject
-  EvaluatorMessageDispatcher(final @Parameter(DriverConfigurationOptions.ActiveContextHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.ClosedContextHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.FailedContextHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
-                             final @Parameter(DriverConfigurationOptions.RunningTaskHandlers.class) Set<EventHandler<RunningTask>> runningTaskEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.CompletedTaskHandlers.class) Set<EventHandler<CompletedTask>> completedTaskEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.SuspendedTaskHandlers.class) Set<EventHandler<SuspendedTask>> suspendedTaskEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.FailedTaskHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
-                             final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
-                             final @Parameter(DriverConfigurationOptions.EvaluatorDispatcherThreads.class) int numberOfThreads,
+  EvaluatorMessageDispatcher(final @Parameter(ContextActiveHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
+                             final @Parameter(ContextClosedHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
+                             final @Parameter(ContextFailedHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
+                             final @Parameter(ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
+                             final @Parameter(TaskRunningHandlers.class) Set<EventHandler<RunningTask>> runningTaskEventHandlers,
+                             final @Parameter(TaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> completedTaskEventHandlers,
+                             final @Parameter(TaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> suspendedTaskEventHandlers,
+                             final @Parameter(TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
+                             final @Parameter(TaskFailedHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
+                             final @Parameter(EvaluatorAllocatedHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
+                             final @Parameter(EvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
+                             final @Parameter(EvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
+                             final @Parameter(EvaluatorDispatcherThreads.class) int numberOfThreads,
                              final DriverExceptionHandler driverExceptionHandler) {
     this.dispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads);
 
@@ -72,41 +75,42 @@ final class EvaluatorMessageDispatcher {
     this.dispatcher.register(FailedEvaluator.class, failedEvaluatorHandlers);
     this.dispatcher.register(CompletedEvaluator.class, completedEvaluatorHandlers);
     this.dispatcher.register(AllocatedEvaluator.class, allocatedEvaluatorEventHandlers);
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
-  void onEvaluatorAllocated(final AllocatedEvaluator allocatedEvaluator) {
+  public void onEvaluatorAllocated(final AllocatedEvaluator allocatedEvaluator) {
     this.dispatcher.onNext(AllocatedEvaluator.class, allocatedEvaluator);
   }
 
-  void onEvaluatorFailed(final FailedEvaluator failedEvaluator) {
+  public void onEvaluatorFailed(final FailedEvaluator failedEvaluator) {
     this.dispatcher.onNext(FailedEvaluator.class, failedEvaluator);
   }
 
-  void onEvaluatorCompleted(final CompletedEvaluator completedEvaluator) {
+  public void onEvaluatorCompleted(final CompletedEvaluator completedEvaluator) {
     this.dispatcher.onNext(CompletedEvaluator.class, completedEvaluator);
   }
 
-  void onTaskRunning(final RunningTask runningTask) {
+  public void onTaskRunning(final RunningTask runningTask) {
     this.dispatcher.onNext(RunningTask.class, runningTask);
   }
 
-  void onTaskCompleted(final CompletedTask completedTask) {
+  public void onTaskCompleted(final CompletedTask completedTask) {
     this.dispatcher.onNext(CompletedTask.class, completedTask);
   }
 
-  void onTaskSuspended(final SuspendedTask suspendedTask) {
+  public void onTaskSuspended(final SuspendedTask suspendedTask) {
     this.dispatcher.onNext(SuspendedTask.class, suspendedTask);
   }
 
-  void onTaskMessage(final TaskMessage taskMessage) {
+  public void onTaskMessage(final TaskMessage taskMessage) {
     this.dispatcher.onNext(TaskMessage.class, taskMessage);
   }
 
-  void onTaskFailed(final FailedTask failedTask) {
+  public void onTaskFailed(final FailedTask failedTask) {
     this.dispatcher.onNext(FailedTask.class, failedTask);
   }
 
-  void onContextActive(final ActiveContext activeContext) {
+  public void onContextActive(final ActiveContext activeContext) {
     this.dispatcher.onNext(ActiveContext.class, activeContext);
   }
 
@@ -114,11 +118,11 @@ final class EvaluatorMessageDispatcher {
     this.dispatcher.onNext(ClosedContext.class, closedContext);
   }
 
-  void onContextFailed(final FailedContext failedContext) {
+  public void onContextFailed(final FailedContext failedContext) {
     this.dispatcher.onNext(FailedContext.class, failedContext);
   }
 
-  void onContextMessage(final ContextMessage contextMessage) {
+  public void onContextMessage(final ContextMessage contextMessage) {
     this.dispatcher.onNext(ContextMessage.class, contextMessage);
   }
 

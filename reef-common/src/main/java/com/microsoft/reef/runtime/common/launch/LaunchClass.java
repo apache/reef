@@ -15,8 +15,10 @@
  */
 package com.microsoft.reef.runtime.common.launch;
 
-import com.microsoft.reef.runtime.common.Launcher;
 import com.microsoft.reef.runtime.common.evaluator.PIDStoreStartHandler;
+import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPath;
+import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
+import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
@@ -54,9 +56,9 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   LaunchClass(final RemoteManager remoteManager,
               final REEFUncaughtExceptionHandler uncaughtExceptionHandler,
               final REEFErrorHandler errorHandler,
-              final @Parameter(Launcher.LaunchID.class) String launchID,
-              final @Parameter(Launcher.ErrorHandlerRID.class) String errorHandlerID,
-              final @Parameter(Launcher.EvaluatorConfigurationFilePath.class) String evaluatorConfigurationPath,
+              final @Parameter(LaunchID.class) String launchID,
+              final @Parameter(ErrorHandlerRID.class) String errorHandlerID,
+              final @Parameter(ClockConfigurationPath.class) String evaluatorConfigurationPath,
               final @Parameter(ProfilingEnabled.class) boolean enableProfiling,
               final ConfigurationSerializer configurationSerializer) {
     this.remoteManager = remoteManager;
@@ -88,8 +90,8 @@ public final class LaunchClass implements AutoCloseable, Runnable {
     final File evaluatorConfigFile = new File(this.evaluatorConfigurationPath);
     try {
       clockConfigurationBuilder.addConfiguration(configurationSerializer.fromFile(evaluatorConfigFile));
-      clockConfigurationBuilder.bindNamedParameter(Launcher.LaunchID.class, this.launchID);
-      clockConfigurationBuilder.bindNamedParameter(Launcher.ErrorHandlerRID.class, this.errorHandlerID);
+      clockConfigurationBuilder.bindNamedParameter(LaunchID.class, this.launchID);
+      clockConfigurationBuilder.bindNamedParameter(ErrorHandlerRID.class, this.errorHandlerID);
       clockConfigurationBuilder.bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class);
       clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class);
       clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER");

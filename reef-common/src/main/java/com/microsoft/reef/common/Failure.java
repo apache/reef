@@ -35,13 +35,6 @@ public interface Failure extends Identifiable {
   Optional<String> getDescription();
 
   /**
-   * @return Java Exception that caused the error, or null.
-   * @deprecated in 0.3, use getReason instead
-   */
-  @Deprecated
-  Throwable getCause();
-
-  /**
    * @return Java Exception that caused the error, if any.
    */
   Optional<Throwable> getReason();

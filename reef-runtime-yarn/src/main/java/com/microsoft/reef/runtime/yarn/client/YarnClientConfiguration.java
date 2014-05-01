@@ -19,7 +19,7 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.client.REEF;
 import com.microsoft.reef.client.RunningJob;
-import com.microsoft.reef.runtime.common.client.ClientManager;
+import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
@@ -41,7 +41,7 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
       // Bind the common resourcemanager
-      .bindImplementation(REEF.class, ClientManager.class)
+      .bindImplementation(REEF.class, REEFImplementation.class)
       .bindImplementation(RunningJob.class, RunningJobImpl.class)
           // Bind the message codec for REEF.
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)

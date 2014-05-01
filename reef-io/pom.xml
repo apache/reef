@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.microsoft.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
     <artifactId>reef-io</artifactId>
     <name>REEF IO</name>
+
+    <properties>
+	<hadoop.version>2.2.0</hadoop.version>
+    </properties>
 
     <build>
         <plugins>
@@ -20,12 +23,12 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="target/generated-sources/proto"/>
+                                <mkdir dir="target/generated-sources/proto" />
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/"/>
-                                    <arg value="--java_out=target/generated-sources/proto"/>
-                                    <arg value="src/main/proto/group_comm_protocol.proto"/>
-                                    <arg value="src/main/proto/ns_protocol.proto"/>
+                                    <arg value="--proto_path=src/main/proto/" />
+                                    <arg value="--java_out=target/generated-sources/proto" />
+                                    <arg value="src/main/proto/group_comm_protocol.proto" />
+                                    <arg value="src/main/proto/ns_protocol.proto" />
                                 </exec>
                             </tasks>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
@@ -87,7 +90,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore/>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
@@ -106,7 +109,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore/>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -131,5 +134,60 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+            <!-- HADOOP -->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-mapreduce-client-core</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-mapreduce-examples</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-yarn-common</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-yarn</artifactId>
+                <version>${hadoop.version}</version>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-yarn-client</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-minicluster</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <!-- END OF HADOOP -->
     </dependencies>
 </project>

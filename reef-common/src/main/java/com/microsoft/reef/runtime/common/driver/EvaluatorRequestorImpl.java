@@ -43,8 +43,8 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
    * @param resourceRequestHandler
    */
   @Inject
-  EvaluatorRequestorImpl(final ResourceCatalog resourceCatalog,
-                         final ResourceRequestHandler resourceRequestHandler) {
+  public EvaluatorRequestorImpl(final ResourceCatalog resourceCatalog,
+                                final ResourceRequestHandler resourceRequestHandler) {
     this.resourceCatalog = resourceCatalog;
     this.resourceRequestHandler = resourceRequestHandler;
   }

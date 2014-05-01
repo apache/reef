@@ -39,12 +39,4 @@ public interface JobMessageObserver {
    */
   public void onNext(final byte[] message);
 
-  /**
-   * An exception from the running job.
-   *
-   * @param exception
-   * @deprecated Just throw the exception instead. It will be caught by the Driver and sent to the client
-   */
-  @Deprecated
-  public void onError(final Throwable exception);
 }
