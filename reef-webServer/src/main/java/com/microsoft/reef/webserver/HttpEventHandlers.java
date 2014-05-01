@@ -6,10 +6,9 @@ import com.microsoft.tang.annotations.NamedParameter;
 import java.util.Set;
 
 /**
- * HttpEventHandlers. A NamedParameter used in HttpServerImpl
+ * HttpEventHandlers
  */
-
-@NamedParameter
+@NamedParameter(doc="Http Event Handlers")
 public class HttpEventHandlers implements Name<Set<HttpHandler>>
 {
 }

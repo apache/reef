@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class TestTrackingUri {
     @Test
     public void HttpTrackingUriTest () throws InjectionException, UnknownHostException, BindException {
         JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-        cb.bindNamedParameter(HttpTrackingURLProvider.PortNumber.class, "8888");
+        cb.bindNamedParameter(PortNumber.class, "8888");
         cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
         String uri = Tang.Factory.getTang().newInjector(cb.build()).getInstance(TrackingURLProvider.class).getTrackingUrl();
 

@@ -1,10 +1,24 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.microsoft.reef.examples.hello;
 
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.common.driver.defaults.DefaultContextActiveHandler;
-import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.webserver.*;
@@ -38,78 +52,47 @@ public final class HelloREEFHttp {
         .build();
   }
 
-    /**
-     * @return the configuration of the HelloREEF driver.
-     */
-    public static Configuration getDriverConfiguration() {
-        return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-                .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
-                .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
-//                .set(DriverConfiguration.ON_EVALUATOR_FAILED, ReefEventStateManager.FailedEvaluatorStateHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, DefaultContextActiveHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-//                .set(DriverConfiguration.ON_CONTEXT_CLOSED, ReefEventStateManager.ClosedContextStateHandler.class)
-//                .set(DriverConfiguration.ON_CONTEXT_FAILED, ReefEventStateManager.FailedContextStateHandler.class)
-//                .set(DriverConfiguration.ON_TASK_COMPLETED, ReefEventStateManager.CompletedTaskStateHandler.class)
-                .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
-                .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-                .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
-                .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
-                .build();
-    }
+  /**
+   * @return the configuration of the HelloREEF driver.
+   */
+  public static Configuration getDriverConfiguration() {
+      return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, DefaultContextActiveHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+        .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
+        .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+        .build();
+  }
 
+    /**
+     * Run Hello Reef with merged configuration
+     * @param runtimeConf
+     * @param timeOut
+     * @return
+     * @throws BindException
+     * @throws InjectionException
+     */
   public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)
       throws BindException, InjectionException {
     final Configuration driverConf = Configurations.merge(HelloREEFHttp.getDriverConfiguration(), getHTTPConfiguration());
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
   }
 
+    /**
+     * main program
+     * @param args
+     * @throws InjectionException
+     */
   public static void main(final String[] args) throws InjectionException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
         .build();
     final LauncherStatus status = runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
-
   }
 }
-
-/**
- * HttpServerReefEventHandler
- */
-//final class HttpServerReefEventHandler implements HttpHandler {
-//    private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
-//    /**
-//     *  HttpServerReefEventHandler constructor.
-//     */
-//    @Inject
-//    public HttpServerReefEventHandler(EvaluatorManager evaluatorManager ) {
-//        LOG.log(Level.INFO, "HttpServerReefEventHandler is instantiated. evaluatorManager: " + evaluatorManager.toString());
-//    }
-//
-//    @Inject
-//    public HttpServerReefEventHandler() {
-//        LOG.log(Level.INFO, "HttpServerReefEventHandler is instantiated.");
-//    }
-//
-//    /**
-//     * returns URI specification for the handler
-//     * @return
-//     */
-//    @Override
-//    public String getUriSpecification() {
-//        return "/Reef/";
-//    }
-//
-//    /**
-//     * it is called when receiving a http request
-//     * @param request
-//     * @param response
-//     */
-//    @Override
-//    public void onHttpRequest(HttpRequest request, HttpResponse response) {
-//        //TODO
-//        LOG.log(Level.INFO, "HttpServerReefEventHandler onHttpRequest is called");
-//    }
-//}

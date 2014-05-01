@@ -25,7 +25,7 @@ import com.microsoft.tang.annotations.Parameter;
 /**
  * HttpServer. It manages Jetty Server and Event Handlers
  */
-public final class HttpServerImpl implements HttpServer {
+final class HttpServerImpl implements HttpServer {
     private final Server server;
 
     /**
@@ -45,7 +45,6 @@ public final class HttpServerImpl implements HttpServer {
     @Override
     public void start() throws Exception {
         server.start();
-        //server.join();
     }
 
     /**

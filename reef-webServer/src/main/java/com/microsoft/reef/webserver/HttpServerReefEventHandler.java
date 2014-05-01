@@ -39,7 +39,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     /**
      *  reference of ReefEventStateManager
      */
-    private ReefEventStateManager reefStateManager;
+    private final ReefEventStateManager reefStateManager;
 
     /**
      *  HttpServerReefEventHandler constructor.

@@ -39,10 +39,6 @@ public class HttpTrackingURLProvider implements TrackingURLProvider {
      */
     private final String port;
 
-    @NamedParameter(default_value = "8080")
-    public class PortNumber implements Name<String>
-    {}
-
     /**
      *  HttpTrackingURLProvider
      * @param port

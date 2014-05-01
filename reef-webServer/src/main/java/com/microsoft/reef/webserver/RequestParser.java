@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Parse HttpServletRequest
  */
-public class RequestParser {
+class RequestParser {
     private final HttpServletRequest request;
     private final String pathInfo;
     private final String method;
