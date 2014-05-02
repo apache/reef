@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.driver.context;
 
+import com.microsoft.reef.evaluator.context.parameters.*;
 import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.task.events.TaskStart;
 import com.microsoft.reef.task.events.TaskStop;
@@ -29,7 +30,7 @@ import com.microsoft.tang.formats.*;
 import com.microsoft.wake.EventHandler;
 
 /**
- * A ConfigurationModule for EvaluatorContext Configuration.
+ * A ConfigurationModule for Context Configuration.
  */
 @Public
 @DriverSide
@@ -37,7 +38,7 @@ import com.microsoft.wake.EventHandler;
 public class ContextConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * The identifier of the context.
+   * The identifier of the Context.
    */
   public static final RequiredParameter<String> IDENTIFIER = new RequiredParameter<>();
 
@@ -76,11 +77,11 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
    * A ConfigurationModule for context.
    */
   public static final ConfigurationModule CONF = new ContextConfiguration()
-      .bindNamedParameter(ContextConfigurationOptions.ContextIdentifier.class, IDENTIFIER)
-      .bindSetEntry(ContextConfigurationOptions.StartHandlers.class, ON_CONTEXT_STARTED)
-      .bindSetEntry(ContextConfigurationOptions.StopHandlers.class, ON_CONTEXT_STOP)
-      .bindSetEntry(ContextConfigurationOptions.ContextMessageSources.class, ON_SEND_MESSAGE)
-      .bindSetEntry(ContextConfigurationOptions.ContextMessageHandlers.class, ON_MESSAGE)
+      .bindNamedParameter(ContextIdentifier.class, IDENTIFIER)
+      .bindSetEntry(ContextStartHandlers.class, ON_CONTEXT_STARTED)
+      .bindSetEntry(ContextStopHandlers.class, ON_CONTEXT_STOP)
+      .bindSetEntry(ContextMessageSources.class, ON_SEND_MESSAGE)
+      .bindSetEntry(ContextMessageHandlers.class, ON_MESSAGE)
       .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, ON_TASK_STARTED)
       .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
       .build();

@@ -39,4 +39,9 @@ public final class JobMessageObserverImpl implements JobMessageObserver {
     this.clientConnection.sendMessage(message);
   }
 
+  @Override
+  public void sendMessageToClient(final byte[] message) {
+    this.clientConnection.sendMessage(message);
+  }
+
 }
