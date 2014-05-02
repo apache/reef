@@ -22,6 +22,7 @@ import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
@@ -268,6 +269,13 @@ public final class JobDriver {
         }
       }
     }
+
+  final class FailedTaskHandler implements EventHandler<FailedTask> {
+    @Override
+    public void onNext(final FailedTask task) throws RuntimeException {
+      throw new RuntimeException(String.format("task %s failed with error %s",task.getId(),task.getMessage()));
+    }
+  }
 
 
     /**

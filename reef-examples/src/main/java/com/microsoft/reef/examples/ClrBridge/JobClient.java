@@ -28,6 +28,7 @@ import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.sql.Driver;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,6 +91,7 @@ public class JobClient {
                         .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
                         .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
                         .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
+                        .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
                         //.set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
                         .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class) ;
                         //.set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class);
