@@ -16,7 +16,6 @@
 package com.microsoft.reef.examples.retained_evalCLR;
 
 import com.microsoft.reef.client.*;
-import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -28,7 +27,10 @@ import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -267,7 +269,7 @@ public class JobClient {
     final class FailedJobHandler implements EventHandler<FailedJob> {
         @Override
         public void onNext(final FailedJob job) {
-            LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getCause());
+          LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getReason().orElse(null));
             stopAndNotify();
         }
     }
@@ -289,7 +291,7 @@ public class JobClient {
     final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
         @Override
         public void onNext(final FailedRuntime error) {
-            LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getCause());
+          LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getReason().orElse(null));
             stopAndNotify();
         }
     }

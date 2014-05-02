@@ -93,7 +93,7 @@
       <AdditionalIncludeDirectories>..\..\..\..\..\lib;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <OutputFile>..\..\..\..\..\target\classes\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -123,7 +123,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -133,6 +133,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryUtil.h" />
     <ClInclude Include="Clr2JavaImpl.h" />
     <ClInclude Include="ILogger.h" />
     <ClInclude Include="InteropAssemblies.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="AllocatedEvaluatorClr2Java.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
+    <ClCompile Include="BinaryUtil.cpp" />
     <ClCompile Include="EvaluatorRequestorClr2Java.cpp" />
     <ClCompile Include="InteropLogger.cpp" />
     <ClCompile Include="InteropReturnInfo.cpp" />

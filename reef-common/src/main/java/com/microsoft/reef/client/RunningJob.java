@@ -51,6 +51,8 @@ public interface RunningJob extends Identifiable, AutoCloseable {
   public String getId();
 
   /**
+   * Send a message to the Driver.
+   *
    * @param message to send to the running driver
    */
   public void send(final byte[] message);
