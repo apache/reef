@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.evaluator.context;
 
 import com.google.common.collect.ImmutableSet;
-import com.microsoft.reef.driver.context.ContextConfigurationOptions;
+import com.microsoft.reef.evaluator.context.parameters.*;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;
@@ -39,11 +39,11 @@ final class ContextLifeCycle {
   private final EventHandler<byte[]> contextMessageHandler;
 
   @Inject
-  ContextLifeCycle(final @Parameter(ContextConfigurationOptions.ContextIdentifier.class) String identifier,
-                   final @Parameter(ContextConfigurationOptions.ContextMessageHandlers.class) Set<EventHandler<byte[]>> contextMessageHandlers,
-                   final @Parameter(ContextConfigurationOptions.StartHandlers.class) Set<EventHandler<ContextStart>> contextStartHandlers,
-                   final @Parameter(ContextConfigurationOptions.StopHandlers.class) Set<EventHandler<ContextStop>> contextStopHandlers,
-                   final @Parameter(ContextConfigurationOptions.ContextMessageSources.class) Set<ContextMessageSource> contextMessageSources) {
+  ContextLifeCycle(final @Parameter(ContextIdentifier.class) String identifier,
+                   final @Parameter(ContextMessageHandlers.class) Set<EventHandler<byte[]>> contextMessageHandlers,
+                   final @Parameter(ContextStartHandlers.class) Set<EventHandler<ContextStart>> contextStartHandlers,
+                   final @Parameter(ContextStopHandlers.class) Set<EventHandler<ContextStop>> contextStopHandlers,
+                   final @Parameter(ContextMessageSources.class) Set<ContextMessageSource> contextMessageSources) {
     this.identifier = identifier;
     this.contextStartHandlers = contextStartHandlers;
     this.contextStopHandlers = contextStopHandlers;

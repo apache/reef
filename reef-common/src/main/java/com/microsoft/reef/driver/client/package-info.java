@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 /**
- * Client APIs for REEF in terms of Rx.
+ * Representations of the Client (i.e. the job submitter) to a Driver.
+ * Note that as of REEF 0.3, the client is optional and may not be available to a driver.
  */
-package com.microsoft.reef.driver.client;
+@DriverSide package com.microsoft.reef.driver.client;
+
+import com.microsoft.reef.annotations.audience.DriverSide;
