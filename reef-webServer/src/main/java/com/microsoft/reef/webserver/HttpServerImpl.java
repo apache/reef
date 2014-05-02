@@ -33,8 +33,8 @@ final class HttpServerImpl implements HttpServer {
      * @param jettyHandler
      */
     @Inject
-    HttpServerImpl(JettyHandler jettyHandler) {
-        this.server = new Server(8080); //Jetty server
+    HttpServerImpl(JettyHandler jettyHandler, @Parameter(PortNumber.class) int port) {
+        this.server = new Server(port); //Jetty server
         this.server.setHandler(jettyHandler); //register handler
     }
 

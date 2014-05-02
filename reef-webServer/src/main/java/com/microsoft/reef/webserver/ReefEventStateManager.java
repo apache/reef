@@ -102,6 +102,24 @@ public final class ReefEventStateManager {
     }
 
     /**
+     * pus a entry to evaluators
+     * @param key
+     * @param value
+     */
+    public void put(String key, EvaluatorDescriptor value) {
+        evaluators.put(key, value);
+    }
+
+    /**
+     * get a value from evaluators by key
+     * @param key
+     * @return
+     */
+    public EvaluatorDescriptor get(String key) {
+        return evaluators.get(key);
+    }
+
+    /**
      * getEvaluatorDescriptor
      * @param evaluatorId
      * @return
@@ -148,10 +166,7 @@ public final class ReefEventStateManager {
         @Override
         public void onNext(final AllocatedEvaluator eval) {
             synchronized (ReefEventStateManager.this) {
-                LOG.log(Level.INFO, "AllocatedEvaluatorStateHandler. EvalId: " + eval.getId());
-                LOG.log(Level.INFO, "AllocatedEvaluatorStateHandler. NodeIp:" + eval.getEvaluatorDescriptor().getNodeDescriptor().getInetSocketAddress());
-                LOG.log(Level.INFO, "AllocatedEvaluatorStateHandler. NodeName:" + eval.getEvaluatorDescriptor().getNodeDescriptor().getName());
-                ReefEventStateManager.this.evaluators.put(eval.getId(), eval.getEvaluatorDescriptor());
+                ReefEventStateManager.this.put(eval.getId(), eval.getEvaluatorDescriptor());
             }
         }
     }

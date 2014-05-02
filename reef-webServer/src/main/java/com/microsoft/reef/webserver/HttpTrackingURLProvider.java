@@ -37,14 +37,14 @@ public class HttpTrackingURLProvider implements TrackingURLProvider {
     /**
      * port number
      */
-    private final String port;
+    private final int port;
 
     /**
      *  HttpTrackingURLProvider
      * @param port
      */
     @Inject
-    public HttpTrackingURLProvider(@Parameter(PortNumber.class) String port) {
+    public HttpTrackingURLProvider(@Parameter(PortNumber.class) int port) {
         this.port = port;
     }
 

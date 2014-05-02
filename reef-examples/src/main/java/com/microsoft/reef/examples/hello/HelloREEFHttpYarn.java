@@ -11,11 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created with IntelliJ IDEA.
- * User: juwang
- * Date: 4/29/14
- * Time: 10:31 AM
- * To change this template use File | Settings | File Templates.
+ * HelloREEFHttp for running on Yarn
  */
 public class HelloREEFHttpYarn {
 
