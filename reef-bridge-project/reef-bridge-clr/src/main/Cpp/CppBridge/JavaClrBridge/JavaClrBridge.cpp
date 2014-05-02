@@ -5,6 +5,8 @@
 #include "InteropReturnInfo.h"
 #include "Clr2JavaImpl.h"
 #include "InteropLogger.h"
+#include "BinaryUtil.h"
+#include "malloc.h"
 
 using namespace System;
 using namespace System::IO;
@@ -60,13 +62,23 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 	try
 	{
 		Console::WriteLine("+Java_javabridge_NativeInterop_loadClrAssembly");
-	const wchar_t* charAsmName = UnicodeCppStringFromJavaString (env, jfileName);
-	int len = env->GetStringLength(jfileName);	
-	
-	String^  asmName = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charAsmName, len);	
-	System::Reflection::Assembly^ asm1 = Assembly::LoadFrom(asmName);
-	AssemblyUtil::Add(asm1);
+		const wchar_t* charAsmName = UnicodeCppStringFromJavaString (env, jfileName);
+		int len = env->GetStringLength(jfileName);	
+		wchar_t* fileName = (wchar_t* )_alloca((len+2)* sizeof(wchar_t));
+		memcpy(fileName, charAsmName, (len+2)* sizeof(wchar_t));
+		fileName[len] = 0;
+		BINARY_TYPE binaryType = IsManagedBinary(fileName);
+		if (binaryType == BINARY_TYPE_CLR)
+		{
+			String^  asmName = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charAsmName, len);		
+			System::Reflection::Assembly^ asm1 = Assembly::LoadFrom(asmName);
+			AssemblyUtil::Add(asm1);
 		}
+		else if (binaryType == BINARY_TYPE_NATIVE)
+		{
+			HANDLE handle = LoadLibraryW(fileName);
+		}
+	}
 	catch (System::Exception^ ex)
 	{
 		Console::WriteLine("Exceptions in Java_javabridge_NativeInterop_loadClrAssembly");

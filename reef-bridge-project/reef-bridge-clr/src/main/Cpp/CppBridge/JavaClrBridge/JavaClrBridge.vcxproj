@@ -133,6 +133,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryUtil.h" />
     <ClInclude Include="Clr2JavaImpl.h" />
     <ClInclude Include="ILogger.h" />
     <ClInclude Include="InteropAssemblies.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="AllocatedEvaluatorClr2Java.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
+    <ClCompile Include="BinaryUtil.cpp" />
     <ClCompile Include="EvaluatorRequestorClr2Java.cpp" />
     <ClCompile Include="InteropLogger.cpp" />
     <ClCompile Include="InteropReturnInfo.cpp" />
