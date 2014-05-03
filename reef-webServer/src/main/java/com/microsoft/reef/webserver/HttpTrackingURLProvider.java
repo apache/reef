@@ -28,7 +28,7 @@ import com.microsoft.tang.annotations.Parameter;
 /**
  * Http TrackingURLProvider
  */
-public class HttpTrackingURLProvider implements TrackingURLProvider {
+public final class HttpTrackingURLProvider implements TrackingURLProvider {
     /**
      * Standard Java logger.
      */
