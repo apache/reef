@@ -24,13 +24,13 @@ import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
+
 import javax.inject.Inject;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,7 +60,7 @@ public final class ReefEventStateManager {
     private StopTime stopTime;
 
     /**
-     *  ReefEventStateManager that keeps the states of Reef components
+     * ReefEventStateManager that keeps the states of Reef components
      */
     @Inject
     public ReefEventStateManager() {
@@ -68,6 +68,7 @@ public final class ReefEventStateManager {
 
     /**
      * get start time
+     *
      * @return
      */
     public String getStartTime() {
@@ -76,6 +77,7 @@ public final class ReefEventStateManager {
 
     /**
      * get stop time
+     *
      * @return
      */
     public String getStopTime() {
@@ -84,10 +86,11 @@ public final class ReefEventStateManager {
 
     /**
      * convert time from long to formatted string
+     *
      * @param time
      * @return
      */
-    private String convertTime(long time){
+    private String convertTime(long time) {
         Date date = new Date(time);
         Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
         return format.format(date).toString();
@@ -95,6 +98,7 @@ public final class ReefEventStateManager {
 
     /**
      * get evaluator map
+     *
      * @return
      */
     public Map<String, EvaluatorDescriptor> getEvaluators() {
@@ -103,6 +107,7 @@ public final class ReefEventStateManager {
 
     /**
      * pus a entry to evaluators
+     *
      * @param key
      * @param value
      */
@@ -112,6 +117,7 @@ public final class ReefEventStateManager {
 
     /**
      * get a value from evaluators by key
+     *
      * @param key
      * @return
      */
@@ -121,6 +127,7 @@ public final class ReefEventStateManager {
 
     /**
      * getEvaluatorDescriptor
+     *
      * @param evaluatorId
      * @return
      */
@@ -130,6 +137,7 @@ public final class ReefEventStateManager {
 
     /**
      * get Evaluator NodeDescriptor
+     *
      * @param evaluatorId
      * @return
      */
@@ -202,7 +210,7 @@ public final class ReefEventStateManager {
         @Override
         public void onNext(final byte[] message) {
             synchronized (ReefEventStateManager.this) {
-                LOG.log(Level.INFO, "ClientMessageStateHandler"+  message.toString());
+                LOG.log(Level.INFO, "ClientMessageStateHandler" + message.toString());
             }
         }
     }

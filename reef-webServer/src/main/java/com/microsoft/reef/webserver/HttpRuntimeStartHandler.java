@@ -15,14 +15,15 @@
  */
 package com.microsoft.reef.webserver;
 
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- *  RuntimeStartHandler for Http server
+ * RuntimeStartHandler for Http server
  */
 final class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
     /**
@@ -37,16 +38,17 @@ final class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
 
     /**
      * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
+     *
      * @param httpServer
      */
     @Inject
-    HttpRuntimeStartHandler(HttpServer httpServer)
-    {
+    HttpRuntimeStartHandler(HttpServer httpServer) {
         this.httpServer = httpServer;
     }
 
     /**
      * Override EventHandler<RuntimeStart>
+     *
      * @param runtimeStart
      */
     @Override

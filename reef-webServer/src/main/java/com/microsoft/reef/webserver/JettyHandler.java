@@ -43,6 +43,7 @@ class JettyHandler extends AbstractHandler {
 
     /**
      * Jetty Event Handler. It accepts a set of IHttpHandlers
+     *
      * @param httpEventHandlers
      */
     @Inject
@@ -55,6 +56,7 @@ class JettyHandler extends AbstractHandler {
 
     /**
      * handle http request
+     *
      * @param target
      * @param request
      * @param response
@@ -68,8 +70,7 @@ class JettyHandler extends AbstractHandler {
             HttpServletRequest request,
             HttpServletResponse response,
             int i)
-            throws IOException, ServletException
-    {
+            throws IOException, ServletException {
         LOG.log(Level.INFO, "JettyHandler handle is entered with target: " + target);
         Request baseRequest = (request instanceof Request) ? (Request) request :
                 HttpConnection.getCurrentConnection().getRequest();

@@ -22,5 +22,5 @@ import com.microsoft.tang.annotations.NamedParameter;
  * port number for the Http Server
  */
 @NamedParameter(doc = "Port number for Jetty Server", default_value = "8080")
-class PortNumber implements Name<Integer>
-{}
+class PortNumber implements Name<Integer> {
+}

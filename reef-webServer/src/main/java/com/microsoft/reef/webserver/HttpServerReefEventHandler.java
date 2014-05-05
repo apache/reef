@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -39,12 +38,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
 
     /**
-     *  reference of ReefEventStateManager
+     * reference of ReefEventStateManager
      */
     private final ReefEventStateManager reefStateManager;
 
     /**
-     *  HttpServerReefEventHandler constructor.
+     * HttpServerReefEventHandler constructor.
      */
     @Inject
     public HttpServerReefEventHandler(ReefEventStateManager reefStateManager) {
@@ -53,6 +52,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
     /**
      * returns URI specification for the handler
+     *
      * @return
      */
     @Override
@@ -62,6 +62,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
     /**
      * it is called when receiving a http request
+     *
      * @param request
      * @param response
      */
@@ -69,7 +70,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: " + request.getRequestURI());
         final RequestParser requestParser = new RequestParser(request);
-        if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators"))  {
+        if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators")) {
             final String queryStr = requestParser.getQueryString();
             if (queryStr == null || queryStr.length() == 0) {
                 getEvaluators(response);
@@ -83,6 +84,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
     /**
      * handle evaluator queries
+     *
      * @param response
      * @param queryStr
      * @throws IOException
@@ -91,23 +93,22 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         final Map<String, String> queries = new HashMap<>();
         final String[] questions = queryStr.split("&");
         for (String s : questions) {
-            final String [] pair = s.split("=");
+            final String[] pair = s.split("=");
             if (pair != null && pair.length == 2) {
                 queries.put(pair[0], pair[1]);
-            }
-            else {
+            } else {
                 response.getWriter().println("Incomplete query string " + s);
             }
         }
 
-        for (Map.Entry<String, String> entry : queries.entrySet())  {
+        for (Map.Entry<String, String> entry : queries.entrySet()) {
             final String key = entry.getKey();
             final String val = entry.getValue();
             if (key.equalsIgnoreCase("Id")) {
                 EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
                 if (evaluatorDescriptor != null) {
                     final String id = evaluatorDescriptor.getNodeDescriptor().getId();
-                    final String name =  evaluatorDescriptor.getNodeDescriptor().getName();
+                    final String name = evaluatorDescriptor.getNodeDescriptor().getName();
                     InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
                     response.getWriter().println("Evaluator Id: " + val);
                     response.getWriter().write("<br/>");
@@ -132,6 +133,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
     /**
      * Get all evaluator ids and send it back to response
+     *
      * @param response
      * @throws IOException
      */

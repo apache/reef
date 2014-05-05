@@ -15,12 +15,10 @@
  */
 package com.microsoft.reef.webserver;
 
-import org.mortbay.jetty.Server;
-import javax.inject.Inject;
-import java.util.Set;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import org.mortbay.jetty.Server;
+
+import javax.inject.Inject;
 
 /**
  * HttpServer. It manages Jetty Server and Event Handlers
@@ -30,6 +28,7 @@ final class HttpServerImpl implements HttpServer {
 
     /**
      * Constructor of HttpServer that wraps Jetty Server
+     *
      * @param jettyHandler
      */
     @Inject
@@ -40,6 +39,7 @@ final class HttpServerImpl implements HttpServer {
 
     /**
      * start Jetty Server. It will be called from RuntimeStartHandler
+     *
      * @throws Exception
      */
     @Override
@@ -49,6 +49,7 @@ final class HttpServerImpl implements HttpServer {
 
     /**
      * stop Jetty Server. It will be called from RuntimeStopHandler
+     *
      * @throws Exception
      */
     @Override

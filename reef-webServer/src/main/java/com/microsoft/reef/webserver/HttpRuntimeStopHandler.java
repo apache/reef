@@ -15,11 +15,12 @@
  */
 package com.microsoft.reef.webserver;
 
+import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.time.runtime.event.RuntimeStop;
+
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.runtime.event.RuntimeStop;
 
 /**
  * Http Runtime Stop Handler
@@ -37,16 +38,17 @@ final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
 
     /**
      * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
+     *
      * @param httpServer
      */
     @Inject
-    HttpRuntimeStopHandler(HttpServer httpServer)
-    {
+    HttpRuntimeStopHandler(HttpServer httpServer) {
         this.httpServer = httpServer;
     }
 
     /**
      * Override EventHandler<RuntimeStop>
+     *
      * @param runtimeStop
      */
     @Override

@@ -15,15 +15,14 @@
  */
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.yarn.driver.TrackingURLProvider;
+import com.microsoft.tang.annotations.Parameter;
+
 import javax.inject.Inject;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.microsoft.reef.runtime.yarn.driver.TrackingURLProvider;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Parameter;
 
 /**
  * Http TrackingURLProvider
@@ -40,7 +39,8 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
     private final int port;
 
     /**
-     *  HttpTrackingURLProvider
+     * HttpTrackingURLProvider
+     *
      * @param port
      */
     @Inject
@@ -50,6 +50,7 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
 
     /**
      * get tracking URI
+     *
      * @return
      */
     @Override

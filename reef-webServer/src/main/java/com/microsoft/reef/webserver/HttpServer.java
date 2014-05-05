@@ -15,21 +15,21 @@
  */
 package com.microsoft.reef.webserver;
 
-import com.microsoft.tang.annotations.DefaultImplementation;
-
 /**
- *  HttpServer interface
+ * HttpServer interface
  */
 public interface HttpServer {
 
     /**
      * start the server
+     *
      * @throws Exception
      */
     public void start() throws Exception;
 
     /**
      * stop the server
+     *
      * @throws Exception
      */
     public void stop() throws Exception;

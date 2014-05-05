@@ -1,7 +1,5 @@
 package com.microsoft.reef.webserver;
 
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,7 +13,7 @@ public class CommandUtility {
         final StringBuilder sb = new StringBuilder();
         try {
             // Execute the command
-            String cmd = isWindows()  ? "cmd.exe /c " + command : command;
+            String cmd = isWindows() ? "cmd.exe /c " + command : command;
             final Process proc = Runtime.getRuntime().exec(cmd);
             final BufferedReader input =
                     new BufferedReader(new InputStreamReader(proc.getInputStream()));

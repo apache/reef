@@ -39,11 +39,12 @@ class RequestParser {
 
     /**
      * parse HttpServletRequest
+     *
      * @param request
      * @throws IOException
      * @throws ServletException
      */
-    public  RequestParser(HttpServletRequest request) throws IOException, ServletException {
+    public RequestParser(HttpServletRequest request) throws IOException, ServletException {
         this.request = request;
 
         pathInfo = request.getPathInfo();
@@ -53,15 +54,14 @@ class RequestParser {
         serveletPath = request.getServletPath();
 
         Enumeration hn = request.getHeaderNames();
-        while (hn.hasMoreElements()){
-            String s = (String)hn.nextElement();
+        while (hn.hasMoreElements()) {
+            String s = (String) hn.nextElement();
             String header = request.getHeader(s);
             headers.put(s, header);
         }
 
         int len = request.getContentLength();
-        if (len > 0)
-        {
+        if (len > 0) {
             inputStream = new byte[len];
             request.getInputStream().read(inputStream);
         } else {
@@ -69,7 +69,7 @@ class RequestParser {
         }
 
         if (requestUri != null) {
-            String[] parts = requestUri.split("/") ;
+            String[] parts = requestUri.split("/");
 
             if (parts != null && parts.length > 1) {
                 targetSpecification = parts[1];
@@ -77,7 +77,7 @@ class RequestParser {
                 targetSpecification = null;
             }
 
-            if (parts != null && parts.length > 2){
+            if (parts != null && parts.length > 2) {
                 targetEntity = parts[2];
             } else {
                 targetEntity = null;
@@ -90,6 +90,7 @@ class RequestParser {
 
     /**
      * get target to match specification like "Reef"
+     *
      * @return specification
      */
     public String getTargetSpecification() {
@@ -98,6 +99,7 @@ class RequestParser {
 
     /**
      * get query string like "id=12345"
+     *
      * @return
      */
     public String getQueryString() {
@@ -106,6 +108,7 @@ class RequestParser {
 
     /**
      * get target target entity like "Evaluators"
+     *
      * @return
      */
     public String getTargetEntity() {
@@ -114,6 +117,7 @@ class RequestParser {
 
     /**
      * get http request method like "Get"
+     *
      * @return
      */
     public String getMethod() {
@@ -122,6 +126,7 @@ class RequestParser {
 
     /**
      * get input Stream
+     *
      * @return
      */
     public byte[] getInputStream() {
@@ -130,6 +135,7 @@ class RequestParser {
 
     /**
      * get request headers
+     *
      * @return
      */
     public Map<String, String> getHeaders() {
