@@ -68,7 +68,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      */
     @Override
     public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: " + request.getRequestURI());
+        LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
         final RequestParser requestParser = new RequestParser(request);
         if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators")) {
             final String queryStr = requestParser.getQueryString();

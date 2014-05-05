@@ -44,6 +44,7 @@ public final class ReefEventStateManager {
      */
     private static final Logger LOG = Logger.getLogger(ReefEventStateManager.class.getName());
 
+    private static final Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
     /**
      * Map of evaluators
      */
@@ -92,7 +93,6 @@ public final class ReefEventStateManager {
      */
     private String convertTime(long time) {
         Date date = new Date(time);
-        Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
         return format.format(date).toString();
     }
 
@@ -151,7 +151,7 @@ public final class ReefEventStateManager {
     public final class StartStateHandler implements EventHandler<StartTime> {
         @Override
         public void onNext(final StartTime startTime) {
-            LOG.log(Level.INFO, "StartStateHandler called. StartTime:" + startTime);
+            LOG.log(Level.INFO, "StartStateHandler called. StartTime: {0}", startTime);
             ReefEventStateManager.this.startTime = startTime;
         }
     }
@@ -162,7 +162,7 @@ public final class ReefEventStateManager {
     public final class StopStateHandler implements EventHandler<StopTime> {
         @Override
         public void onNext(final StopTime stopTime) {
-            LOG.log(Level.INFO, "StopStateHandler called. StopTime:" + stopTime);
+            LOG.log(Level.INFO, "StopStateHandler called. StopTime: {0}", stopTime);
             ReefEventStateManager.this.stopTime = stopTime;
         }
     }
@@ -198,7 +198,7 @@ public final class ReefEventStateManager {
         @Override
         public void onNext(final ActiveContext context) {
             synchronized (ReefEventStateManager.this) {
-                LOG.log(Level.INFO, "ActiveContextStateHandler called." + context.toString());
+                LOG.log(Level.INFO, "ActiveContextStateHandler called: {0}.", context);
             }
         }
     }
@@ -210,7 +210,7 @@ public final class ReefEventStateManager {
         @Override
         public void onNext(final byte[] message) {
             synchronized (ReefEventStateManager.this) {
-                LOG.log(Level.INFO, "ClientMessageStateHandler" + message.toString());
+                LOG.log(Level.INFO, "ClientMessageStateHandler OnNext called");
             }
         }
     }

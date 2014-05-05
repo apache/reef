@@ -58,7 +58,7 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
         try {
             return InetAddress.getLocalHost().getHostAddress() + ":" + port;
         } catch (UnknownHostException e) {
-            LOG.log(Level.WARNING, "Cannot get host address.", e);
+            LOG.log(Level.WARNING, "Cannot get host address. {0}", e);
             throw new RuntimeException("Cannot get host address.", e);
         }
     }

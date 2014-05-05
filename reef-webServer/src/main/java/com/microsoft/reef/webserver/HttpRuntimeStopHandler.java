@@ -53,12 +53,12 @@ final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
      */
     @Override
     public synchronized void onNext(final RuntimeStop runtimeStop) {
-        LOG.log(Level.FINEST, "HttpRuntimeStopHandler:" + runtimeStop.toString());
+        LOG.log(Level.FINEST, "HttpRuntimeStopHandler: {0}", runtimeStop);
         try {
             httpServer.stop();
             LOG.log(Level.FINEST, "HttpRuntimeStopHandler complete.");
         } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "HttpRuntimeStopHandler cannot stop the Server.", e);
+            LOG.log(Level.SEVERE, "HttpRuntimeStopHandler cannot stop the Server. {0}", e);
         }
     }
 }

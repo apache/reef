@@ -71,7 +71,7 @@ class JettyHandler extends AbstractHandler {
             HttpServletResponse response,
             int i)
             throws IOException, ServletException {
-        LOG.log(Level.INFO, "JettyHandler handle is entered with target: " + target);
+        LOG.log(Level.INFO, "JettyHandler handle is entered with target: {0} ", target);
         Request baseRequest = (request instanceof Request) ? (Request) request :
                 HttpConnection.getCurrentConnection().getRequest();
 
@@ -82,10 +82,10 @@ class JettyHandler extends AbstractHandler {
         //call corresponding HttpHandler
         final HttpHandler h = eventHandlers.get(requestParser.getTargetSpecification().toLowerCase());
         if (h != null) {
-            LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for " + h.getUriSpecification());
+            LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", h.getUriSpecification());
             h.onHttpRequest(request, response);
         } else {
-            response.getWriter().println("HttpHandler is not provided for " + requestParser.getTargetSpecification());
+            response.getWriter().println("HttpHandler is not provided for" + requestParser.getTargetSpecification());
         }
 
         baseRequest.setHandled(true);

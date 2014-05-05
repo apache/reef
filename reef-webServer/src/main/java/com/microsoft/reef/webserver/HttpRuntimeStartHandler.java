@@ -58,7 +58,7 @@ final class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
             httpServer.start();
             LOG.log(Level.FINEST, "HttpRuntimeStartHandler complete.");
         } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "HttpRuntimeStartHandler cannot start the Server.", e);
+            LOG.log(Level.SEVERE, "HttpRuntimeStartHandler cannot start the Server. {0}", e);
             throw new RuntimeException("HttpRuntimeStartHandler cannot start the Server.", e);
         }
     }
