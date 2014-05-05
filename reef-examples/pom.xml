@@ -191,7 +191,7 @@
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>com.microsoft.reef.examples.hello.HelloREEFHttp</argument>
+                                <argument>com.microsoft.reef.examples.hellohttp.HelloREEFHttp</argument>
                             </arguments>
                         </configuration>
                     </plugin>

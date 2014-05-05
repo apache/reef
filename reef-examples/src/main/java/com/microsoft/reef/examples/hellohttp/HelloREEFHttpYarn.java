@@ -1,4 +1,4 @@
-package com.microsoft.reef.examples.hello;
+package com.microsoft.reef.examples.hellohttp;
 
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class HelloREEFHttpYarn {
 
-    private static final Logger LOG = Logger.getLogger(HelloReefYarn.class.getName());
+    private static final Logger LOG = Logger.getLogger(HelloREEFHttpYarn.class.getName());
 
     /**
      * Start Hello REEF job. Runs method runHelloReef().
