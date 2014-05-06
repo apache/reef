@@ -32,11 +32,20 @@ import com.microsoft.reef.annotations.audience.Public;
 public interface JobMessageObserver {
 
   /**
-   * A message from the running job containing status and a client defined
-   * message payload.
+   * Send a message to the client.
    *
-   * @param message
+   * @param message a message to be sent to the client
+   * @deprecated use sendMessageToClient instead.
    */
+  @Deprecated
   public void onNext(final byte[] message);
+
+
+  /**
+   * Send a message to the client.
+   *
+   * @param message a message to be sent to the client
+   */
+  public void sendMessageToClient(final byte[] message);
 
 }

@@ -23,7 +23,7 @@ import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.util.Optional;
 
 /**
- * A common base interface for Contexts, available or failed.
+ * A common base interface for all Driver-side representations of Contexts.
  */
 @Public
 @DriverSide
@@ -31,23 +31,23 @@ import com.microsoft.reef.util.Optional;
 public interface ContextBase extends Identifiable {
 
   /**
-   * @return the ID of this EvaluatorContext.
+   * @return the ID of the Context.
    */
   @Override
   String getId();
 
   /**
-   * @return the identifier of the Evaluator this EvaluatorContext is instantiated on.
+   * @return the identifier of the Evaluator this Context is instantiated on.
    */
   String getEvaluatorId();
 
   /**
-   * @return the ID of the parent context, if there is any.
+   * @return the ID of the parent context, if there is one.
    */
   Optional<String> getParentId();
 
   /**
    * @return the descriptor of the Evaluator this Context is on.
    */
-  public EvaluatorDescriptor getEvaluatorDescriptor();
+  EvaluatorDescriptor getEvaluatorDescriptor();
 }
