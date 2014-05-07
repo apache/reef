@@ -20,7 +20,7 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
 
 /**
- * A Context that has been closed succesfully.
+ * Represents a Context that has been closed succesfully.
  */
 @Public
 @DriverSide

@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.poison.context;
 
-import com.microsoft.reef.driver.context.ContextConfigurationOptions;
+import com.microsoft.reef.evaluator.context.parameters.ContextStartHandlers;
 import com.microsoft.reef.poison.context.params.CrashProbability;
 import com.microsoft.reef.poison.context.params.CrashTimeout;
 import com.microsoft.tang.formats.ConfigurationModule;
@@ -40,7 +40,7 @@ public final class PoisonedContextConfiguration extends ConfigurationModuleBuild
   public static final ConfigurationModule CONF = new PoisonedContextConfiguration()
       .bindNamedParameter(CrashTimeout.class, CRASH_TIMEOUT)
       .bindNamedParameter(CrashProbability.class, CRASH_PROBABILITY)
-      .bindSetEntry(ContextConfigurationOptions.StartHandlers.class, PoisonedStartHandler.class)
+      .bindSetEntry(ContextStartHandlers.class, PoisonedStartHandler.class)
       .build();
 
 

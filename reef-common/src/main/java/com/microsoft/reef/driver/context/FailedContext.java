@@ -22,10 +22,12 @@ import com.microsoft.reef.common.Failure;
 import com.microsoft.reef.util.Optional;
 
 /**
- * Represents an EvaluatorContext that failed.
- * A typical case would be that its StartHandler threw an exception.
+ * Represents Context that failed.
+ * A typical case would be that its ContextStartHandler threw an exception.
  * <p/>
- * The underlying Evaluator is still accessible and a new context can be established.
+ * The underlying Evaluator is still accessible and a new context can be established. Note that REEF can't guarantee
+ * consistency of the Evaluator for all applications. It is up to the application to decide whether it is safe to keep
+ * using the Evaluator.
  */
 @Public
 @Provided
@@ -35,5 +37,5 @@ public interface FailedContext extends Failure, ContextBase {
   /**
    * @return the new top of the stack of context if there is one.
    */
-  public abstract Optional<ActiveContext> getParentContext();
+  Optional<ActiveContext> getParentContext();
 }

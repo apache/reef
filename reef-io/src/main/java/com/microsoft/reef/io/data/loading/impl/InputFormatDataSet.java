@@ -87,8 +87,9 @@ public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writab
 
     @Override
     public Pair<K, V> next() {
+      Pair<K,V> retPair = new Pair<K, V>(key, value);
       fetchRecord();
-      return new Pair<K, V>(key, value);
+      return retPair;
     }
 
     @Override
