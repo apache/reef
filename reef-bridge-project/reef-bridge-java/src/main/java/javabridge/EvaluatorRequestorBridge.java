@@ -18,21 +18,23 @@ package javabridge;
 
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
-import com.microsoft.tang.formats.AvroConfigurationSerializer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class EvaluatorRequstorBridge{
-    private static final Logger LOG = Logger.getLogger(EvaluatorRequstorBridge.class.getName());
+public class EvaluatorRequestorBridge {
+    private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
 
-    private static int clrEvaluatorsNumber = 0;
+    // accumulate how many evaluators have been submitted through this instance
+    // of EvaluatorRequestorBridge
+    private int clrEvaluatorsNumber;
 
     private EvaluatorRequestor jevaluatorRequestor;
 
-    public EvaluatorRequstorBridge(EvaluatorRequestor evaluatorRequestor)
+    public EvaluatorRequestorBridge(EvaluatorRequestor evaluatorRequestor)
     {
         jevaluatorRequestor = evaluatorRequestor;
+        clrEvaluatorsNumber = 0;
     }
 
     public void submit( final int evaluatorsNumber, final int memory)
