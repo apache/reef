@@ -15,33 +15,18 @@
  */
 package com.microsoft.reef.examples.helloCLRBridge;
 
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
-import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.examples.hello.HelloTask;
-import com.microsoft.tang.ClassHierarchy;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ConfigurationBuilder;
-import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
-import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.formats.AvroConfigurationSerializer;
-import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
-import com.microsoft.tang.proto.ClassHierarchyProto;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 import javabridge.AllocatedEvaluatorBridge;
-import javabridge.EvaluatorRequstorBridge;
+import javabridge.EvaluatorRequestorBridge;
 import javabridge.InteropLogger;
 import javabridge.NativeInterop;
 
 import javax.inject.Inject;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +38,7 @@ public final class HelloCLRBridgeDriver {
 
   private static final Logger LOG = Logger.getLogger(HelloCLRBridgeDriver.class.getName());
 
-  private final EvaluatorRequstorBridge requstorBridge;
+  private final EvaluatorRequestorBridge requstorBridge;
   private long  allocatedEvaluatorHandler;
   private long  evaloatorReqeustorHandler;
 
@@ -66,7 +51,7 @@ public final class HelloCLRBridgeDriver {
    */
   @Inject
   public HelloCLRBridgeDriver(final EvaluatorRequestor requestor) {
-     requstorBridge = new EvaluatorRequstorBridge(requestor);
+     requstorBridge = new EvaluatorRequestorBridge(requestor);
   }
 
   /**
@@ -98,7 +83,7 @@ public final class HelloCLRBridgeDriver {
             NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(evaloatorReqeustorHandler, requstorBridge, interopLogger);
 
             // get the evaluator numbers set by CLR handler
-            nCLRTasks =  requstorBridge.getEvaluaotrNumber();
+            nCLRTasks =  requstorBridge.getEvaluatorNumber();
             LOG.log(Level.INFO, "evaluator requested: " + nCLRTasks);
         }
     }

@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ActiveContextBridge implements AutoCloseable {
-    private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
+    private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 
     private ActiveContext jactiveContext;
 

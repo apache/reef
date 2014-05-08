@@ -41,9 +41,12 @@
       <HintPath>externals\Microsoft.Reef.Driver.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="Microsoft.Tang">
+    <Reference Include="Microsoft.Reef.Utilities">
+      <HintPath>externals\Microsoft.Reef.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Tang, Version=1.0.0.0, Culture=neutral, PublicKeyToken=69c3241e6f0468ca, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>externals\Microsoft.Tang.dll</HintPath>
-      <Private>true</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

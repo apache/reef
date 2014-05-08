@@ -200,3 +200,44 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemTaskMessageHandler
 	}
 }
 
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSysteFailedTaskHandlerOnNext
+ * Signature: (JLjavabridge/FailedTaskBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jfailedTask, jobject jlogger)
+{
+	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext");
+		FailedTaskClr2Java^ failedTaskBridge = gcnew FailedTaskClr2Java(env, jfailedTask);
+		ClrSystemHandlerWrapper::Call_ClrSystemFailedTask_OnNext(handler, failedTaskBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSysteFailedTaskHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemFailedEvaluatorHandlerOnNext
+ * Signature: (JLjavabridge/FailedEvaluatorBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jfailedEvaluator, jobject jlogger)
+{
+	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext");
+		FailedEvaluatorClr2Java^ failedEvaluatorBridge = gcnew FailedEvaluatorClr2Java(env, jfailedEvaluator);
+		ClrSystemHandlerWrapper::Call_ClrSystemFailedEvaluator_OnNext(handler, failedEvaluatorBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSysteFailedTaskHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}

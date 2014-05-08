@@ -16,8 +16,6 @@
 
 package javabridge;
 
-import com.microsoft.reef.driver.context.ActiveContext;
-import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,7 +45,7 @@ public class NativeInterop {
 
     public static native void ClrSystemEvaluatorRequstorHandlerOnNext (
             long handle,
-            EvaluatorRequstorBridge javaEvluatorRequstorBridge,
+            EvaluatorRequestorBridge javaEvluatorRequstorBridge,
             InteropLogger interopLogger
     );
 
@@ -55,6 +53,18 @@ public class NativeInterop {
             long handle,
             byte[] mesage,
             TaskMessageBridge javaTaskMessageBridge,
+            InteropLogger interopLogger
+    );
+
+    public static native void ClrSystemFailedTaskHandlerOnNext (
+          long handle,
+          FailedTaskBridge failedTaskBridge,
+          InteropLogger interopLogger
+    );
+
+    public static native void ClrSystemFailedEvaluatorHandlerOnNext (
+            long handle,
+            FailedEvaluatorBridge failedEvaluatorBridge,
             InteropLogger interopLogger
     );
 
@@ -81,15 +91,19 @@ public class NativeInterop {
     public static String AllocatedEvaluatorKey = "AllocatedEvaluator";
     public static String ActiveContextKey = "ActiveContext";
     public static String TaskMessageKey = "TaskMessage";
+    public static String FailedTaskKey = "FailedTask";
+    public static String FailedEvaluatorKey = "FailedEvaluator";
 
     public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
         put(EvaluatorRequestorKey, 0);
         put(AllocatedEvaluatorKey, 1);
         put(ActiveContextKey, 2);
         put(TaskMessageKey, 3);
+        put(FailedTaskKey,4);
+        put(FailedEvaluatorKey, 5);
     }};
 
-    public static int nHandlers = 4;
+    public static int nHandlers = 6;
 
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir

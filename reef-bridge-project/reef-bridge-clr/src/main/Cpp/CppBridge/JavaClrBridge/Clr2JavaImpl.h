@@ -41,6 +41,7 @@ namespace Microsoft
 				public:
 					ActiveContextClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitTask(String^ taskConfigStr);
+					virtual void Close();
 				};
 
 				public ref class EvaluatorRequestorClr2Java : public IEvaluatorRequestorClr2Java
@@ -58,6 +59,25 @@ namespace Microsoft
 					JavaVM* _jvm;
 				public:
 					TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage);
+				};
+
+				public ref class FailedTaskClr2Java : public IFailedTaskClr2Java
+				{
+					jobject  _jobjectFailedTask;
+					JavaVM* _jvm;
+				public:
+					FailedTaskClr2Java(JNIEnv *env, jobject jfailedTask);
+					virtual IActiveContextClr2Java^ GetActiveContext();
+					virtual String^ GetString();
+				};
+
+				public ref class FailedEvaluatorClr2Java : public IFailedEvaluatorClr2Java
+				{
+					jobject  _jobjectFailedEvaluator;
+					JavaVM* _jvm;
+				public:
+					FailedEvaluatorClr2Java(JNIEnv *env, jobject jfailedEvaluator);
+					virtual IEvaluatorRequestorClr2Java^ GetEvaluatorRequestor();
 				};
 			}
 		}

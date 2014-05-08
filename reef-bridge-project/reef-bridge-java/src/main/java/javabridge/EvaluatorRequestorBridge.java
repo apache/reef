@@ -48,7 +48,7 @@ public class EvaluatorRequestorBridge {
         jevaluatorRequestor.submit(request);
     }
 
-    public int getEvaluaotrNumber() {
+    public int getEvaluatorNumber() {
         return clrEvaluatorsNumber;
     }
 }

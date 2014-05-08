@@ -46,6 +46,22 @@ namespace Microsoft.Reef.Interop
             obj.OnNext(new TaskMessage(clr2Java, message));
         }
 
+        public static void Call_ClrSystemFailedTask_OnNext(ulong handle, IFailedTaskClr2Java clr2Java)
+        {
+            Console.WriteLine("Call_ClrSystemFailedTask_OnNext");
+            GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
+            ClrSystemHandler<FailedTask> obj = (ClrSystemHandler<FailedTask>)gc.Target;
+            obj.OnNext(new FailedTask(clr2Java));
+        }
+
+        public static void Call_ClrSystemFailedEvaluator_OnNext(ulong handle, IFailedEvaluatorClr2Java clr2Java)
+        {
+            Console.WriteLine("Call_ClrSystemFailedEvaluator_OnNext");
+            GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
+            ClrSystemHandler<FailedEvaluator> obj = (ClrSystemHandler<FailedEvaluator>)gc.Target;
+            obj.OnNext(new FailedEvaluator(clr2Java));
+        }
+
         public static ulong[] Call_ClrSystemStartHandler_OnStart(DateTime startTime)
         {
             Console.WriteLine("*** Start time is " + startTime);

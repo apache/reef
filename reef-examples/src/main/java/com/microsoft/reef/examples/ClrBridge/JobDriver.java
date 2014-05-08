@@ -15,8 +15,6 @@
  */
 package com.microsoft.reef.examples.ClrBridge;
 
-import com.microsoft.reef.annotations.Optional;
-import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
@@ -55,8 +53,13 @@ public final class JobDriver {
   private long  evaluatorRequestorHandler = 0;
   private long  allocatedEvaluatorHandler = 0;
   private long  activeContextHandler = 0;
-  private long  taskMessagetHandler = 0;
-  private int nCLREvaluators;
+  private long  taskMessageHandler = 0;
+  private long  failedTaskHandler = 0;
+  private long  failedEvaluatorHandler = 0;
+
+  private int nCLREvaluators = 0;
+
+
   /**
    * String codec is used to encode the results
    * before passing them back to the client.
@@ -97,7 +100,7 @@ public final class JobDriver {
    * Job driver uses EvaluatorRequestor
    * to request Evaluators that will run the Tasks.
    */
-  private final EvaluatorRequstorBridge evaluatorRequestorBridge;
+  private EvaluatorRequestor evaluatorRequestor;
 
   /**
    * Shell execution results from each Evaluator.
@@ -128,7 +131,7 @@ public final class JobDriver {
             final EvaluatorRequestor evaluatorRequestor) {
     this.clock = clock;
     this.jobMessageObserver = jobMessageObserver;
-    this.evaluatorRequestorBridge = new EvaluatorRequstorBridge(evaluatorRequestor);
+    this.evaluatorRequestor = evaluatorRequestor;
   }
 
   /**
@@ -178,7 +181,6 @@ public final class JobDriver {
 
   /**
    * Receive notification that a new Context is available.
-   * Submit a new Distributed Shell Task to that Context.
    */
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
@@ -259,7 +261,6 @@ public final class JobDriver {
 
     /**
      * Receive notification that the entire Evaluator had failed.
-     * Stop other jobs and pass this error to the job observer on the client.
      */
     final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
       @Override
@@ -267,9 +268,37 @@ public final class JobDriver {
         synchronized (JobDriver.this) {
           LOG.log(Level.SEVERE, "FailedEvaluator", eval);
           for (final FailedContext failedContext : eval.getFailedContextList()) {
-            JobDriver.this.contexts.remove(failedContext.getId());
+            String failedContextId = failedContext.getId();
+            LOG.log(Level.INFO, "removing context " + failedContextId + " from job driver contexts.");
+            JobDriver.this.contexts.remove(failedContextId);
           }
-          JobDriver.this.jobMessageObserver.onNext(eval.getEvaluatorException().getMessage().getBytes());
+          String message = "Evaluator " + eval.getId() + " failed with message: "
+                  + eval.getEvaluatorException().getMessage();
+          JobDriver.this.jobMessageObserver.onNext(message.getBytes());
+
+          if(failedEvaluatorHandler == 0)
+          {
+            message =  "No CLR FailedEvaluator handler was set, exiting now";
+            LOG.log(Level.WARNING, message);
+          }
+          else
+          {
+            message =  "CLR FailedEvaluator handler set, handling things with CLR handler.";
+            LOG.log(Level.INFO, message);
+            InteropLogger interopLogger = new InteropLogger();
+            FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor);
+            NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(failedEvaluatorHandler, failedEvaluatorBridge, interopLogger);
+
+            int additionalRequestedEvaluatorNumber  = failedEvaluatorBridge.getNewlyRequestedEvaluatorNumber();
+            if(additionalRequestedEvaluatorNumber > 0)
+            {
+              nCLREvaluators += additionalRequestedEvaluatorNumber;
+              JobDriver.this.state = State.WAIT_EVALUATORS;
+              JobDriver.this.expectCount = nCLREvaluators;
+              LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " + additionalRequestedEvaluatorNumber);
+            }
+          }
+          JobDriver.this.jobMessageObserver.onNext(message.getBytes());
         }
       }
     }
@@ -277,10 +306,21 @@ public final class JobDriver {
   final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
     public void onNext(final FailedTask task) throws RuntimeException {
-      throw new RuntimeException(String.format("task %s failed with error %s",task.getId(),task.getMessage()));
+        LOG.log(Level.SEVERE, "FailedTask received, will be handle in CLR handler, if set.");
+        if (activeContextHandler == 0) {
+          LOG.log(Level.SEVERE, "Failed Task Handler not initialized by CLR, fail for real.");
+          throw new RuntimeException("Failed Task Handler not initialized by CLR.");
+        }
+        try {
+          InteropLogger interopLogger = new InteropLogger();
+          FailedTaskBridge failedTaskBridge = new FailedTaskBridge(task);
+          NativeInterop.ClrSystemFailedTaskHandlerOnNext(failedTaskHandler, failedTaskBridge, interopLogger);
+        } catch (final Exception ex) {
+          LOG.log(Level.SEVERE, "Fail to invoke CLR failed task handler");
+          throw new RuntimeException(ex);
+        }
     }
   }
-
 
     /**
      * Submit a Task to a single Evaluator.
@@ -318,15 +358,18 @@ public final class JobDriver {
             evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
             allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
             activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
-            taskMessagetHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
+            taskMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
+            failedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedTaskKey)];
+            failedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedEvaluatorKey)];
           }
 
           if (evaluatorRequestorHandler == 0) {
             throw new RuntimeException("Evaluator Requestor Handler not initialized by CLR.");
           }
+          EvaluatorRequestorBridge evaluatorRequestorBridge  = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor);
           NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(evaluatorRequestorHandler, evaluatorRequestorBridge, interopLogger);
           // get the evaluator numbers set by CLR handler
-          nCLREvaluators = evaluatorRequestorBridge.getEvaluaotrNumber();
+          nCLREvaluators += evaluatorRequestorBridge.getEvaluatorNumber();
           JobDriver.this.state = State.WAIT_EVALUATORS;
           JobDriver.this.expectCount = nCLREvaluators;
           LOG.log(Level.INFO, "evaluator requested: " + nCLREvaluators);
@@ -351,11 +394,11 @@ public final class JobDriver {
       @Override
       public void onNext(final TaskMessage taskMessage) {
         LOG.log(Level.INFO, "Received TaskMessage: {0} from CLR", new String(taskMessage.get()));
-        if (taskMessagetHandler != 0) {
+        if (taskMessageHandler != 0) {
           InteropLogger interopLogger = new InteropLogger();
           TaskMessageBridge taskMessageBridge = new TaskMessageBridge(taskMessage);
           // if CLR implements the task message handler, handle the bytes in CLR handler
-          NativeInterop.ClrSystemTaskMessageHandlerOnNext(taskMessagetHandler, taskMessage.get(), taskMessageBridge, interopLogger);
+          NativeInterop.ClrSystemTaskMessageHandlerOnNext(taskMessageHandler, taskMessage.get(), taskMessageBridge, interopLogger);
         }
       }
     }

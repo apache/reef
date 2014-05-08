@@ -149,6 +149,8 @@
     <ClCompile Include="AssemblyUtil.cpp" />
     <ClCompile Include="BinaryUtil.cpp" />
     <ClCompile Include="EvaluatorRequestorClr2Java.cpp" />
+    <ClCompile Include="FailedEvaluatorClr2Java.cpp" />
+    <ClCompile Include="FailedTaskClr2Java.cpp" />
     <ClCompile Include="InteropLogger.cpp" />
     <ClCompile Include="InteropReturnInfo.cpp" />
     <ClCompile Include="InteropUtil.cpp" />

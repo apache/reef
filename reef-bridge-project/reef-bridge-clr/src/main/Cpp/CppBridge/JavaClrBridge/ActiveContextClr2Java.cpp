@@ -39,6 +39,26 @@ namespace Microsoft
 						jmidSubmitTask, 
 						JavaStringFromManagedString(env, taskConfigStr));
 				}
+
+				void ActiveContextClr2Java::Close()
+				{
+					fprintf(stdout, "ActiveContextClr2Java::Close"); fflush (stdout);					
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					jclass jclassActiveContext = env->GetObjectClass (_jobjectActiveContext);
+					jmethodID jmidClose = env->GetMethodID(jclassActiveContext, "close", "()V");
+
+					fprintf(stdout, "ActiveContextClr2Java jclassActiveContext %p\n", jclassActiveContext); fflush (stdout);
+					fprintf(stdout, "ActiveContextClr2Java jmidClose %p\n", jmidClose); fflush (stdout);
+
+					if(jmidClose == NULL)
+					{
+						fprintf(stdout, " jmidClose is NULL\n"); fflush (stdout);
+						return;
+					}
+					env -> CallObjectMethod(
+						_jobjectActiveContext, 
+						jmidClose);
+				}
 			}
 		}
 	}
