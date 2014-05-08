@@ -52,10 +52,9 @@ public class TestTrackingUri {
         JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
         cb.bindNamedParameter(PortNumber.class, "8888");
         cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
+        cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
         String uri = Tang.Factory.getTang().newInjector(cb.build()).getInstance(TrackingURLProvider.class).getTrackingUrl();
-
-        String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8888";
-        Assert.assertEquals(trackingId, uri);
+        verifyUri(uri);
     }
 
     /**
@@ -67,11 +66,10 @@ public class TestTrackingUri {
     @Test
     public void HttpTrackingUriDefaultPortTest () throws InjectionException, UnknownHostException, BindException {
         JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+        cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
         cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
         String uri = Tang.Factory.getTang().newInjector(cb.build()).getInstance(TrackingURLProvider.class).getTrackingUrl();
-
-        String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8080";
-        Assert.assertEquals(trackingId, uri);
+        verifyUri(uri);
     }
 
     /** Http Tracking URI using default binding test
@@ -84,8 +82,17 @@ public class TestTrackingUri {
     public void HttpTrackingUriDefaultBindingTest () throws InjectionException, UnknownHostException, BindException {
         Injector injector = Tang.Factory.getTang().newInjector(HttpHandlerConfiguration.CONF.build());
         String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+        verifyUri(uri);
+    }
 
-        String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8080";
-        Assert.assertEquals(trackingId, uri);
+    private void verifyUri(final String uri){
+        String[] parts = uri.split(":");
+        if (parts.length == 2) {
+            int port = Integer.parseInt(parts[1]);
+            Assert.assertTrue(port > 0);
+            Assert.assertTrue(port < 9999);
+        } else {
+            Assert.assertTrue(false);
+        }
     }
  }

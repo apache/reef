@@ -33,4 +33,10 @@ public interface HttpServer {
      * @throws Exception
      */
     public void stop() throws Exception;
+
+    /**
+     * get port number of the server
+     * @return
+     */
+    public int getPort();
 }
