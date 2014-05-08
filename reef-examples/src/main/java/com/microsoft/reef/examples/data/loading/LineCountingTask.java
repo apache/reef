@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
+import java.util.logging.Logger;
+
 import javax.inject.Inject;
 
 import com.microsoft.reef.annotations.audience.TaskSide;
@@ -30,6 +32,8 @@ import com.microsoft.reef.task.Task;
  */
 @TaskSide
 public class LineCountingTask implements Task {
+  private static final Logger LOG = Logger.getLogger(LineCountingTask.class.getName());
+  
   private final DataSet<?,?> dataSet;
   
   @Inject
@@ -41,6 +45,7 @@ public class LineCountingTask implements Task {
   public byte[] call(final byte[] arg0) throws Exception {
     int numEx = 0;
     for (final Pair<?,?> keyValue : dataSet) {
+      LOG.finest(keyValue.toString());
       ++numEx;
     }
     return Integer.toString(numEx).getBytes();
