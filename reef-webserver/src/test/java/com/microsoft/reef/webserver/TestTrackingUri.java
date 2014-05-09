@@ -87,12 +87,9 @@ public class TestTrackingUri {
 
     private void verifyUri(final String uri){
         String[] parts = uri.split(":");
-        if (parts.length == 2) {
-            int port = Integer.parseInt(parts[1]);
-            Assert.assertTrue(port > 0);
-            Assert.assertTrue(port < 9999);
-        } else {
-            Assert.assertTrue(false);
-        }
+        Assert.assertTrue(parts.length == 2);
+        int port = Integer.parseInt(parts[1]);
+        Assert.assertTrue(port >= HttpServerImpl.MIN_PORT);
+        Assert.assertTrue(port <= HttpServerImpl.MAX_PORT);
     }
  }

@@ -35,12 +35,17 @@ final class HttpServerImpl implements HttpServer {
     /**
      * maximum port number range
      */
-    private static final int MAX_PORT = 9999;
+    static final int MAX_PORT = 49151;
 
     /**
      * minimum port number range
      */
-    private static final int MIN_PORT = 1000;
+    static final int MIN_PORT = 1024;
+
+    /**
+     * max attempts for prot numbers
+     */
+    private static int maxAttempts = 100;
 
     /**
      * Jetty server.
@@ -53,36 +58,40 @@ final class HttpServerImpl implements HttpServer {
     private int port;
 
     /**
-     * Jetty Handler
+     * port number passed in is the default that will be tried first
      */
-    private final JettyHandler jettyHandler;
+    private boolean useDefaultPort = true;
 
     /**
      * Constructor of HttpServer that wraps Jetty Server
-     *
      * @param jettyHandler
-     */
-    @Inject
-    HttpServerImpl(final JettyHandler jettyHandler, @Parameter(PortNumber.class) int port) throws Exception{
-        this.jettyHandler = jettyHandler;
-        initialize(port);
-    }
-
-    /**
-     * Ctraete Jetty Server and start it. If the port has conflict, try another randomly generated port number
-     * @param p
+     * @param portNumber
      * @throws Exception
      */
-    private void initialize(final int p) throws Exception {
-        this.server = new Server(p); //Jetty server
-        this.port = p;
-        this.server.setHandler(jettyHandler); //register handler
-        try {
-            server.start();
-            LOG.log(Level.INFO, "Jetty server is running on port {0}", port);
-        } catch (BindException e){
-            initialize(getNextPort());
+    @Inject
+    HttpServerImpl(final JettyHandler jettyHandler, @Parameter(PortNumber.class) int portNumber) throws Exception{
+        for (int attempt = 1; attempt < maxAttempts; ++attempt) {
+            final int port;
+            if (useDefaultPort) {
+                useDefaultPort = false;
+                port = portNumber;
+            } else {
+                port = getNextPort();
+            }
+            final Server srv = new Server(port);
+            try {
+                srv.start();
+                synchronized (this) {
+                    this.server = srv;
+                    this.port = port;
+                    LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
+                    break;
+                }
+            } catch (final BindException ex) {
+                LOG.log(Level.WARNING, "Cannot use port: {0}. Will try another", port);
+            }
         }
+        this.server.setHandler(jettyHandler); //register handler
     }
 
     /**

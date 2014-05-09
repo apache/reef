@@ -52,11 +52,11 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
      * @return
      */
     @Override
-    public String getTrackingUrl() {
+    public final String getTrackingUrl() {
         try {
             return InetAddress.getLocalHost().getHostAddress() + ":" + httpServer.getPort();
         } catch (UnknownHostException e) {
-            LOG.log(Level.WARNING, "Cannot get host address. {0}", e);
+            LOG.log(Level.WARNING, "Cannot get host address.", e);
             throw new RuntimeException("Cannot get host address.", e);
         }
     }
