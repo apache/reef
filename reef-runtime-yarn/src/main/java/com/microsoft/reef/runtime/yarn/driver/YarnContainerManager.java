@@ -41,8 +41,8 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +62,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private final ContainerRequestCounter containerRequestCounter;
   private final DriverStatusManager driverStatusManager;
   private final TrackingURLProvider trackingURLProvider;
+  private final  ConcurrentLinkedQueue<AMRMClient.ContainerRequest> outstandingContainerRequests;
 
   @Inject
   YarnContainerManager(final RuntimeClock clock,
@@ -85,9 +86,10 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.yarnClient = YarnClient.createYarnClient();
     this.yarnClient.init(this.yarnConf);
 
-
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
+    this.outstandingContainerRequests = new  ConcurrentLinkedQueue<>();
+
     LOG.log(Level.FINEST, "Instantiated 'YarnContainerManager'");
   }
 
@@ -286,6 +288,20 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       this.containers.add(container);
       this.containerRequestCounter.decrement();
     }
+
+    if(!outstandingContainerRequests.isEmpty())
+    {
+      // we need to make sure that the previous request is no longer in RM request queue
+      resourceManager.removeContainerRequest(outstandingContainerRequests.remove());
+
+      AMRMClient.ContainerRequest requestToBeSubmitted = outstandingContainerRequests.peek();
+      if(requestToBeSubmitted != null)
+      {
+        LOG.log(Level.FINEST, "Requesting 1 additional container from YARN: " + requestToBeSubmitted);
+        resourceManager.addContainerRequest(requestToBeSubmitted);
+      }
+    }
+
     this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
         .setIdentifier(container.getId().toString())
         .setNodeId(container.getNodeId().toString())
@@ -335,12 +351,19 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     synchronized (this.containers) {
       this.containerRequestCounter.incrementBy(containerRequests.length);
     }
+    boolean queueWasEmpty = outstandingContainerRequests.isEmpty();
     for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
-      LOG.log(Level.FINEST, "Adding container request: " + containerRequest);
-      this.resourceManager.addContainerRequest(containerRequest);
+      LOG.log(Level.FINEST, "Adding container request to queue: " + containerRequest);
+      outstandingContainerRequests.add(containerRequest);
+      if(queueWasEmpty)
+      {
+        LOG.log(Level.FINEST, "Requesting first container from YARN: " + containerRequest);
+        resourceManager.addContainerRequest(containerRequest);
+        queueWasEmpty = false;
+      }
+      LOG.log(Level.INFO, "Done adding container requests to local request queue.");
     }
     this.updateRuntimeStatus();
-    LOG.log(Level.INFO, "Done adding container requests to YARN");
   }
 
 
