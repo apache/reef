@@ -67,6 +67,7 @@ final class HttpServerImpl implements HttpServer {
     HttpServerImpl(final JettyHandler jettyHandler, @Parameter(PortNumber.class) int portNumber) throws Exception{
         int port = portNumber;
         Server srv = null;
+        boolean found = false;
         for (int attempt = 1; attempt < maxAttempts; ++attempt) {
             if (attempt > 1) {
                 port = getNextPort();
@@ -74,15 +75,21 @@ final class HttpServerImpl implements HttpServer {
             srv = new Server(port);
             try {
                 srv.start();
+                found = true;
                 break;
             } catch (final BindException ex) {
                 LOG.log(Level.WARNING, "Cannot use port: {0}. Will try another", port);
             }
         }
-        this.server = srv;
-        this.port = port;
-        this.server.setHandler(jettyHandler);
+
+        if (found) {
+            this.server = srv;
+            this.port = port;
+            this.server.setHandler(jettyHandler);
         LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
+        } else {
+            throw new RuntimeException("Could not find available port in " + maxAttempts + " attempts");
+        }
     }
 
     /**
