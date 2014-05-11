@@ -45,22 +45,17 @@ final class HttpServerImpl implements HttpServer {
     /**
      * max attempts for prot numbers
      */
-    private static int maxAttempts = 100;
+    private final static int maxAttempts = 100;
 
     /**
      * Jetty server.
      */
-    private Server server;
+    private final Server server;
 
     /**
      * port number used in Jetty Server
      */
-    private int port;
-
-    /**
-     * port number passed in is the default that will be tried first
-     */
-    private boolean useDefaultPort = true;
+    private final int port;
 
     /**
      * Constructor of HttpServer that wraps Jetty Server
@@ -70,28 +65,24 @@ final class HttpServerImpl implements HttpServer {
      */
     @Inject
     HttpServerImpl(final JettyHandler jettyHandler, @Parameter(PortNumber.class) int portNumber) throws Exception{
+        int port = portNumber;
+        Server srv = null;
         for (int attempt = 1; attempt < maxAttempts; ++attempt) {
-            final int port;
-            if (useDefaultPort) {
-                useDefaultPort = false;
-                port = portNumber;
-            } else {
+            if (attempt > 1) {
                 port = getNextPort();
             }
-            final Server srv = new Server(port);
+            srv = new Server(port);
             try {
                 srv.start();
-                synchronized (this) {
-                    this.server = srv;
-                    this.port = port;
-                    LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
-                    break;
-                }
+                break;
             } catch (final BindException ex) {
                 LOG.log(Level.WARNING, "Cannot use port: {0}. Will try another", port);
             }
         }
-        this.server.setHandler(jettyHandler); //register handler
+        this.server = srv;
+        this.port = port;
+        this.server.setHandler(jettyHandler);
+        LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
     }
 
     /**
