@@ -67,24 +67,6 @@ public final class JobDriver {
   private static final ObjectSerializableCodec<String> JVM_CODEC = new ObjectSerializableCodec<>();
 
 
-    /**
-   * Possible states of the job driver. Can be one of:
-   * <dl>
-   * <du><code>INIT</code></du><dd>initial state, ready to request the evaluators.</dd>
-   * <du><code>WAIT_EVALUATORS</code></du><dd>Wait for requested evaluators to initialize.</dd>
-   * <du><code>READY</code></du><dd>Ready to submitTask a new task.</dd>
-   * <du><code>WAIT_TASKS</code></du><dd>Wait for tasks to complete.</dd>
-   * </dl>
-   */
-  private enum State {
-    INIT, WAIT_EVALUATORS, READY, WAIT_TASKS
-  }
-
-  /**
-   * Job driver state.
-   */
-  private State state = State.INIT;
-
   /**
    * Wake clock is used to schedule periodical job check-ups.
    */
@@ -155,7 +137,6 @@ public final class JobDriver {
         eval.setType(type);
         LOG.log(Level.INFO, "Allocated Evaluator: {0} expect {1} running {2}",
                 new Object[]{eval.getId(), JobDriver.this.expectCount, JobDriver.this.contexts.size()});
-        assert (JobDriver.this.state == State.WAIT_EVALUATORS);
         if(allocatedEvaluatorHandler == 0)
         {
             throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
@@ -186,17 +167,10 @@ public final class JobDriver {
     @Override
     public void onNext(final ActiveContext context) {
       synchronized (JobDriver.this) {
-        LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0} expect {1} state {2}",
-                new Object[]{context.getId(), JobDriver.this.expectCount, JobDriver.this.state});
-        assert (JobDriver.this.state == State.WAIT_EVALUATORS);
+        LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0} expect {1}",
+                new Object[]{context.getId(), JobDriver.this.expectCount});
         JobDriver.this.contexts.put(context.getId(), context);
-        if (--JobDriver.this.expectCount <= 0) {
-          JobDriver.this.state = State.READY;
-          JobDriver.this.expectCount = JobDriver.this.contexts.size();
-          for (final ActiveContext activeContext : JobDriver.this.contexts.values()) {
-            JobDriver.this.submit(activeContext);
-          }
-        }
+        JobDriver.this.submit(context);
       }
     }
   }
@@ -217,11 +191,10 @@ public final class JobDriver {
         }
         synchronized (JobDriver.this) {
           JobDriver.this.results.add(task.getId() + " :: " + result);
-          LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[]{
-                  task.getId(), JobDriver.this.results.size(), result, JobDriver.this.state});
+          LOG.log(Level.INFO, "Task {0} result {1}: {2}", new Object[]{
+                  task.getId(), JobDriver.this.results.size(), result});
           if (--JobDriver.this.expectCount <= 0) {
             JobDriver.this.returnResults();
-            JobDriver.this.state = State.READY;
           }
         }
       }
@@ -293,7 +266,6 @@ public final class JobDriver {
             if(additionalRequestedEvaluatorNumber > 0)
             {
               nCLREvaluators += additionalRequestedEvaluatorNumber;
-              JobDriver.this.state = State.WAIT_EVALUATORS;
               JobDriver.this.expectCount = nCLREvaluators;
               LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " + additionalRequestedEvaluatorNumber);
             }
@@ -350,8 +322,7 @@ public final class JobDriver {
       public void onNext(final StartTime startTime) {
         synchronized (JobDriver.this) {
           InteropLogger interopLogger = new InteropLogger();
-          LOG.log(Level.INFO, "{0} StartTime: {1}", new Object[]{state, startTime});
-          assert (state == State.INIT);
+          LOG.log(Level.INFO, "StartTime: {1}", new Object[]{ startTime});
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null) {
             assert (handlers.length == NativeInterop.nHandlers);
@@ -370,7 +341,6 @@ public final class JobDriver {
           NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(evaluatorRequestorHandler, evaluatorRequestorBridge, interopLogger);
           // get the evaluator numbers set by CLR handler
           nCLREvaluators += evaluatorRequestorBridge.getEvaluatorNumber();
-          JobDriver.this.state = State.WAIT_EVALUATORS;
           JobDriver.this.expectCount = nCLREvaluators;
           LOG.log(Level.INFO, "evaluator requested: " + nCLREvaluators);
         }
@@ -383,7 +353,7 @@ public final class JobDriver {
     final class StopHandler implements EventHandler<StopTime> {
       @Override
       public void onNext(final StopTime time) {
-        LOG.log(Level.INFO, "{0} StopTime: {1}", new Object[]{state, time});
+        LOG.log(Level.INFO, " StopTime: {0}", new Object[]{time});
         for (final ActiveContext context : contexts.values()) {
           context.close();
         }

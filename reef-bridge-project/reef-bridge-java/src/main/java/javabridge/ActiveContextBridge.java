@@ -17,10 +17,12 @@
 package javabridge;
 
 import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
 
+import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,10 +33,16 @@ public class ActiveContextBridge implements AutoCloseable {
 
     private AvroConfigurationSerializer serializer;
 
+    private String contextId;
+
+    private String evaluatorId;
+
     public ActiveContextBridge(ActiveContext activeContext)
     {
         jactiveContext = activeContext;
         serializer = new AvroConfigurationSerializer();
+        contextId = activeContext.getId();
+        evaluatorId = activeContext.getEvaluatorId();
     }
 
     public void submitTaskString( final String taskConfigurationString)
@@ -54,6 +62,15 @@ public class ActiveContextBridge implements AutoCloseable {
             throw new RuntimeException(message, e);
         }
         jactiveContext.submitTask(taskConfiguration);
+    }
+
+    public String getEvaluatorDescriptorSring()
+    {
+      EvaluatorDescriptor evaluatorDescriptor = jactiveContext.getEvaluatorDescriptor();
+      InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+      String poorString = "IP=" + socketAddress.getAddress() + ", Port=" +  socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory();
+      LOG.log(Level.INFO, "active context - serialized evaluator descriptor: " + poorString);
+      return poorString;
     }
 
     @Override

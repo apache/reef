@@ -36,12 +36,17 @@ namespace Microsoft
 
 				public ref class ActiveContextClr2Java : public IActiveContextClr2Java
 				{
-					jobject  _jobjectActiveContext;
+					jobject _jobjectActiveContext;
+					jstring _jstringId;
+					jstring _jstringEvaluatorId;
 					JavaVM* _jvm;
 				public:
 					ActiveContextClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitTask(String^ taskConfigStr);
 					virtual void Close();
+					virtual String^ GetId();
+					virtual String^ GetEvaluatorId();
+					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
 				};
 
 				public ref class EvaluatorRequestorClr2Java : public IEvaluatorRequestorClr2Java
