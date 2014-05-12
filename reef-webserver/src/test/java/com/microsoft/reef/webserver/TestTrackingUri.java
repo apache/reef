@@ -53,8 +53,10 @@ public class TestTrackingUri {
         cb.bindNamedParameter(PortNumber.class, "8888");
         cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
         cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
-        String uri = Tang.Factory.getTang().newInjector(cb.build()).getInstance(TrackingURLProvider.class).getTrackingUrl();
-        verifyUri(uri);
+        Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+        String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+        int port = injector.getInstance(HttpServer.class).getPort();
+        verifyUri(uri, port);
     }
 
     /**
@@ -68,8 +70,10 @@ public class TestTrackingUri {
         JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
         cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
         cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
-        String uri = Tang.Factory.getTang().newInjector(cb.build()).getInstance(TrackingURLProvider.class).getTrackingUrl();
-        verifyUri(uri);
+        Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+        String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+        int port = injector.getInstance(HttpServer.class).getPort();
+        verifyUri(uri, port);
     }
 
     /** Http Tracking URI using default binding test
@@ -82,14 +86,13 @@ public class TestTrackingUri {
     public void HttpTrackingUriDefaultBindingTest () throws InjectionException, UnknownHostException, BindException {
         Injector injector = Tang.Factory.getTang().newInjector(HttpHandlerConfiguration.CONF.build());
         String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
-        verifyUri(uri);
+        int port = injector.getInstance(HttpServer.class).getPort();
+        verifyUri(uri, port);
     }
 
-    private void verifyUri(final String uri){
+    private void verifyUri(final String uri, final int port){
         String[] parts = uri.split(":");
         Assert.assertTrue(parts.length == 2);
-        int port = Integer.parseInt(parts[1]);
-        Assert.assertTrue(port >= HttpServerImpl.MIN_PORT);
-        Assert.assertTrue(port <= HttpServerImpl.MAX_PORT);
+        Assert.assertEquals(port, Integer.parseInt(parts[1]));
     }
  }

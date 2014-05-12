@@ -33,26 +33,11 @@ final class HttpServerImpl implements HttpServer {
     private static final Logger LOG = Logger.getLogger(HttpServerImpl.class.getName());
 
     /**
-     * maximum port number range
-     */
-    static final int MAX_PORT = 49151;
-
-    /**
-     * minimum port number range
-     */
-    static final int MIN_PORT = 1024;
-
-    /**
-     * max attempts for prot numbers
-     */
-    private final static int maxAttempts = 100;
-
-    /**
      * Jetty server.
      */
-    private final Server server;
+     private final Server server;
 
-    /**
+     /**
      * port number used in Jetty Server
      */
     private final int port;
@@ -64,13 +49,18 @@ final class HttpServerImpl implements HttpServer {
      * @throws Exception
      */
     @Inject
-    HttpServerImpl(final JettyHandler jettyHandler, @Parameter(PortNumber.class) int portNumber) throws Exception{
+    HttpServerImpl(final JettyHandler jettyHandler,
+                   final @Parameter(PortNumber.class) int portNumber,
+                   final @Parameter(MaxPortNumber.class) int maxPortNumber,
+                   final @Parameter(MinPortNumber.class) int minPortNumber,
+                   final @Parameter(MaxRetryAttempts.class) int maxRetryAttempts) throws Exception{
+
         int port = portNumber;
         Server srv = null;
         boolean found = false;
-        for (int attempt = 1; attempt < maxAttempts; ++attempt) {
+        for (int attempt = 1; attempt < maxRetryAttempts; ++attempt) {
             if (attempt > 1) {
-                port = getNextPort();
+                port = getNextPort(maxPortNumber, minPortNumber);
             }
             srv = new Server(port);
             try {
@@ -78,7 +68,7 @@ final class HttpServerImpl implements HttpServer {
                 found = true;
                 break;
             } catch (final BindException ex) {
-                LOG.log(Level.WARNING, "Cannot use port: {0}. Will try another", port);
+                LOG.log(Level.FINEST, "Cannot use port: {0}. Will try another", port);
             }
         }
 
@@ -88,7 +78,7 @@ final class HttpServerImpl implements HttpServer {
             this.server.setHandler(jettyHandler);
         LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
         } else {
-            throw new RuntimeException("Could not find available port in " + maxAttempts + " attempts");
+            throw new RuntimeException("Could not find available port in " + maxRetryAttempts + " attempts");
         }
     }
 
@@ -96,9 +86,9 @@ final class HttpServerImpl implements HttpServer {
      * get a random port number in min and max range
      * @return
      */
-    private int getNextPort()
+    private int getNextPort(final int maxPort, final int minPort)
     {
-        return MIN_PORT + (int)(Math.random() * ((MAX_PORT - MIN_PORT) + 1));
+        return minPort + (int)(Math.random() * ((maxPort - minPort) + 1));
     }
 
     /**
