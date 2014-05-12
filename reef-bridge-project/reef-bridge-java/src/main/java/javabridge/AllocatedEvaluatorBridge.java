@@ -141,7 +141,7 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
     EvaluatorDescriptor evaluatorDescriptor = jallocatedEvaluator.getEvaluatorDescriptor();
     InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
     String poorString = "IP=" + socketAddress.getAddress() + ", Port=" +  socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory();
-    LOG.log(Level.INFO, "serialized evaluator descriptor: " + poorString);
+    LOG.log(Level.INFO, "allocated evaluator - serialized evaluator descriptor: " + poorString);
     return poorString;
   }
 
