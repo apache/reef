@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.retained_evalCLR;
+package com.microsoft.reef.examples.com.microsoft.reef.examples.retained_evalCLR;
 
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.util.EnvironmentUtils;
