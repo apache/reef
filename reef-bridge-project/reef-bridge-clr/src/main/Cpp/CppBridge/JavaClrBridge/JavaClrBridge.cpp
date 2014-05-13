@@ -13,7 +13,7 @@ using namespace System::IO;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
-using namespace Microsoft::Reef::Interop;
+using namespace Microsoft::Reef::Driver::Bridge;
 
 static void ManagedLog (String^ fname, String^ msg)
 {		

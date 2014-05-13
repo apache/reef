@@ -41,13 +41,6 @@
       <HintPath>externals\Microsoft.Reef.Driver.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="Microsoft.Reef.Utilities">
-      <HintPath>externals\Microsoft.Reef.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Tang, Version=1.0.0.0, Culture=neutral, PublicKeyToken=69c3241e6f0468ca, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>externals\Microsoft.Tang.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -58,7 +51,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClrSystemHandlerWrapper.cs" />
     <Compile Include="interface\ILogger.cs" />
     <Compile Include="interface\IInteropReturnInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
