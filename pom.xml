@@ -408,6 +408,7 @@
         <module>reef-checkpoint</module>
         <module>reef-common</module>
         <module>reef-examples</module>
+        <module>reef-examples-clr</module>
         <module>reef-io</module>
         <module>reef-poison</module>
         <module>reef-runtime-local</module>

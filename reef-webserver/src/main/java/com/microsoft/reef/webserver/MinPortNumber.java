@@ -15,31 +15,12 @@
  */
 package com.microsoft.reef.webserver;
 
-import com.microsoft.tang.annotations.DefaultImplementation;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * HttpServer interface
+ * port number for the Http Server
  */
-@DefaultImplementation(HttpServerImpl.class)
-public interface HttpServer {
-
-    /**
-     * start the server
-     *
-     * @throws Exception
-     */
-    public void start() throws Exception;
-
-    /**
-     * stop the server
-     *
-     * @throws Exception
-     */
-    public void stop() throws Exception;
-
-    /**
-     * get port number of the server
-     * @return
-     */
-    public int getPort();
+@NamedParameter(doc = "Minimum p.Port number for Jetty Server", default_value = "1024")
+class MinPortNumber implements Name<Integer> {
 }

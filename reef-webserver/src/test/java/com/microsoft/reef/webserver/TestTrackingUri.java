@@ -52,10 +52,11 @@ public class TestTrackingUri {
         JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
         cb.bindNamedParameter(PortNumber.class, "8888");
         cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
-        String uri = Tang.Factory.getTang().newInjector(cb.build()).getInstance(TrackingURLProvider.class).getTrackingUrl();
-
-        String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8888";
-        Assert.assertEquals(trackingId, uri);
+        cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
+        Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+        String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+        int port = injector.getInstance(HttpServer.class).getPort();
+        verifyUri(uri, port);
     }
 
     /**
@@ -67,11 +68,12 @@ public class TestTrackingUri {
     @Test
     public void HttpTrackingUriDefaultPortTest () throws InjectionException, UnknownHostException, BindException {
         JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+        cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
         cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
-        String uri = Tang.Factory.getTang().newInjector(cb.build()).getInstance(TrackingURLProvider.class).getTrackingUrl();
-
-        String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8080";
-        Assert.assertEquals(trackingId, uri);
+        Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+        String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+        int port = injector.getInstance(HttpServer.class).getPort();
+        verifyUri(uri, port);
     }
 
     /** Http Tracking URI using default binding test
@@ -84,8 +86,13 @@ public class TestTrackingUri {
     public void HttpTrackingUriDefaultBindingTest () throws InjectionException, UnknownHostException, BindException {
         Injector injector = Tang.Factory.getTang().newInjector(HttpHandlerConfiguration.CONF.build());
         String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+        int port = injector.getInstance(HttpServer.class).getPort();
+        verifyUri(uri, port);
+    }
 
-        String trackingId = InetAddress.getLocalHost().getHostAddress() + ":8080";
-        Assert.assertEquals(trackingId, uri);
+    private void verifyUri(final String uri, final int port){
+        String[] parts = uri.split(":");
+        Assert.assertTrue(parts.length == 2);
+        Assert.assertEquals(port, Integer.parseInt(parts[1]));
     }
  }
