@@ -49,6 +49,7 @@ public final class HelloREEFHttp {
     public static Configuration getHTTPConfiguration() {
         return HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+                .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServeShellCmdtHandler.class)
                 .build();
     }
 
@@ -59,14 +60,23 @@ public final class HelloREEFHttp {
         return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
                 .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
                 .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+                //.set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
                 .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, DefaultContextActiveHandler.class)
                 .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
                 .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
                 .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
                 .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
                 .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+
+                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.AllocatedEvaluatorHandler.class)
+                .set(DriverConfiguration.ON_EVALUATOR_FAILED, HelloDriver.FailedEvaluatorHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, HelloDriver.ActiveContextHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_CLOSED, HelloDriver.ClosedContextHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_FAILED, HelloDriver.FailedContextHandler.class)
+                .set(DriverConfiguration.ON_TASK_COMPLETED, HelloDriver.CompletedTaskHandler.class)
+                .set(DriverConfiguration.ON_CLIENT_MESSAGE, HelloDriver.ClientMessageHandler.class)
+                //.set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+                .set(DriverConfiguration.ON_DRIVER_STOP, HelloDriver.StopHandler.class)
                 .build();
     }
 

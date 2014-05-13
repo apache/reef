@@ -76,7 +76,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
             if (queryStr == null || queryStr.length() == 0) {
                 getEvaluators(response);
             } else {
-                handleQueries(response, queryStr);
+                handleQueries(response, requestParser.getQueryMap());
             }
         } else {
             response.getWriter().println("Unsupported query for entity: " + requestParser.getTargetEntity());
@@ -84,24 +84,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     }
 
     /**
-     * handle evaluator queries
-     *
+     * handle queries
      * @param response
-     * @param queryStr
+     * @param queries
      * @throws IOException
      */
-    private void handleQueries(HttpServletResponse response, String queryStr) throws IOException {
-        final Map<String, String> queries = new HashMap<>();
-        final String[] questions = queryStr.split("&");
-        for (String s : questions) {
-            final String[] pair = s.split("=");
-            if (pair != null && pair.length == 2) {
-                queries.put(pair[0], pair[1]);
-            } else {
-                response.getWriter().println("Incomplete query string " + s);
-            }
-        }
-
+    private void handleQueries(HttpServletResponse response, Map<String, String> queries) throws IOException {
         for (Map.Entry<String, String> entry : queries.entrySet()) {
             final String key = entry.getKey();
             final String val = entry.getValue();
@@ -122,10 +110,6 @@ public final class HttpServerReefEventHandler implements HttpHandler {
                 } else {
                     response.getWriter().println("Incorrect Evaluator Id: " + val);
                 }
-            } else if (key.equalsIgnoreCase("cmd")) {
-                String cmdOutput = CommandUtility.runCommand(val);
-                response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
-
             } else {
                 response.getWriter().println("Not supported query string: " + key + "=" + val);
             }

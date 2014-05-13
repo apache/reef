@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Parse HttpServletRequest
  */
-class RequestParser {
+public class RequestParser {
     private final HttpServletRequest request;
     private final String pathInfo;
     private final String method;
@@ -140,5 +140,17 @@ class RequestParser {
      */
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public Map<String, String> getQueryMap() {
+        final Map<String, String> queries = new HashMap<>();
+        final String[] questions = queryString.split("&");
+        for (String s : questions) {
+            final String[] pair = s.split("=");
+            if (pair != null && pair.length == 2) {
+                queries.put(pair[0], pair[1]);
+            }
+        }
+        return queries;
     }
 }

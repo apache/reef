@@ -38,4 +38,6 @@ public interface HttpHandler {
      * @param response
      */
     void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+
+    //void onHttpCallback(byte[] b);
 }
