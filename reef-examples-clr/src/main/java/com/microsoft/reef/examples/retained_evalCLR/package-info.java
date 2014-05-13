@@ -16,4 +16,4 @@
 /**
  * The Retained Evaluators CLR example.
  */
-package com.microsoft.reef.examples.com.microsoft.reef.examples.retained_evalCLR;
+package com.microsoft.reef.examples.retained_evalCLR;
