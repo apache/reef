@@ -9,6 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-webserver</artifactId>
+    <name>REEF HTTP Server</name>
+    <description>HTTP Server component to implement a REST API for the Driver or Evaluators.</description>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
