@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -122,8 +123,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
                     response.getWriter().println("Incorrect Evaluator Id: " + val);
                 }
             } else if (key.equalsIgnoreCase("cmd")) {
-                byte[] outputBody = CommandUtility.runCommand(val);
-                response.getOutputStream().write(outputBody);
+                String cmdOutput = CommandUtility.runCommand(val);
+                response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
 
             } else {
                 response.getWriter().println("Not supported query string: " + key + "=" + val);
