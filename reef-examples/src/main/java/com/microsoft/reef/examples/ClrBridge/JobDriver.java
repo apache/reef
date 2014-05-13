@@ -23,6 +23,8 @@ import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.webserver.HttpHandler;
+import com.microsoft.reef.webserver.RequestParser;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
@@ -32,6 +34,10 @@ import com.microsoft.wake.time.event.StopTime;
 import javabridge.*;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +62,8 @@ public final class JobDriver {
   private long  taskMessageHandler = 0;
   private long  failedTaskHandler = 0;
   private long  failedEvaluatorHandler = 0;
+  private long  httpServerNRTEventHandler = 0;
+
 
   private int nCLREvaluators = 0;
 
@@ -275,6 +283,39 @@ public final class JobDriver {
       }
     }
 
+    final class HttpServerNRTEventHandler implements HttpHandler {
+        /**
+         * returns URI specification for the handler
+         *
+         * @return
+         */
+        @Override
+        public String getUriSpecification() {
+            return "NRT";
+        }
+
+        /**
+         * it is called when receiving a http request
+         *
+         * @param request
+         * @param response
+         */
+        @Override
+        public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+            LOG.log(Level.INFO, "HttpServerNRTEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
+            final RequestParser requestParser = new RequestParser(request);
+            final String queryStr = requestParser.getQueryString();
+            try {
+                InteropLogger interopLogger = new InteropLogger();
+                HttpServerNRTEventBridge httpServerNRTEventBridge = new HttpServerNRTEventBridge(queryStr);
+                NativeInterop.ClrSystemHttpServerNRTEventHandlerOnHttpRequest(httpServerNRTEventHandler, httpServerNRTEventBridge, interopLogger);
+            } catch (final Exception ex) {
+                LOG.log(Level.SEVERE, "Fail to invoke CLR failed task handler");
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
   final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
     public void onNext(final FailedTask task) throws RuntimeException {
@@ -332,6 +373,7 @@ public final class JobDriver {
             taskMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
             failedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedTaskKey)];
             failedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedEvaluatorKey)];
+            httpServerNRTEventHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedTaskKey)];
           }
 
           if (evaluatorRequestorHandler == 0) {

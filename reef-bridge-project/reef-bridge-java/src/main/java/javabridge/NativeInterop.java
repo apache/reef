@@ -57,9 +57,15 @@ public class NativeInterop {
     );
 
     public static native void ClrSystemFailedTaskHandlerOnNext (
-          long handle,
-          FailedTaskBridge failedTaskBridge,
-          InteropLogger interopLogger
+            long handle,
+            FailedTaskBridge failedTaskBridge,
+            InteropLogger interopLogger
+    );
+
+    public static native void ClrSystemHttpServerNRTEventHandlerOnHttpRequest (
+            long handle,
+            HttpServerNRTEventBridge httpServerNRTEventBridge,
+            InteropLogger interopLogger
     );
 
     public static native void ClrSystemFailedEvaluatorHandlerOnNext (
@@ -93,6 +99,7 @@ public class NativeInterop {
     public static String TaskMessageKey = "TaskMessage";
     public static String FailedTaskKey = "FailedTask";
     public static String FailedEvaluatorKey = "FailedEvaluator";
+    public static String HttpServerNRTKey = "HttpServerNRTKey";
 
     public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
         put(EvaluatorRequestorKey, 0);
@@ -101,9 +108,10 @@ public class NativeInterop {
         put(TaskMessageKey, 3);
         put(FailedTaskKey,4);
         put(FailedEvaluatorKey, 5);
+        put(HttpServerNRTKey, 6);
     }};
 
-    public static int nHandlers = 6;
+    public static int nHandlers = 7;
 
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir
