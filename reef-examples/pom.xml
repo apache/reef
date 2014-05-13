@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-examples</artifactId>
     <name>REEF Examples</name>
@@ -47,6 +48,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -101,7 +103,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
@@ -126,7 +128,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
@@ -151,7 +153,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
@@ -165,7 +167,7 @@
             </build>
         </profile>
         <profile>
-        <id>MatMult</id>
+            <id>MatMult</id>
             <build>
                 <defaultGoal>exec:exec</defaultGoal>
                 <plugins>
@@ -176,7 +178,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
@@ -201,7 +203,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
@@ -219,39 +221,6 @@
                 </plugins>
             </build>
         </profile>
-
-        <profile>
-            <id>RetainedEvalCLR</id>
-            <build>
-                <defaultGoal>exec:exec</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
-                                </argument>
-                                <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
-                                </argument>
-                                <argument>com.microsoft.reef.examples.retained_evalCLR.Launch</argument>
-                                <argument>dotnetDistributedShell</argument>
-                                <!-- <argument>-cmd</argument>
-                                <argument>date</argument>
-                                <argument>-num_runs</argument>
-                                <argument>20</argument>
-                                <argument>-local</argument>
-                                <argument>true</argument> -->
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
         <profile>
             <id>RetainedEval_yarn</id>
             <build>
@@ -264,7 +233,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <argument>com.microsoft.reef.examples.retained_eval.Launch</argument>
@@ -293,7 +262,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
@@ -324,7 +293,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
@@ -344,36 +313,6 @@
                 </plugins>
             </build>
         </profile>
-
-        <profile>
-            <id>HelloCLR</id>
-            <build>
-                <defaultGoal>exec:exec</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.2.1</version>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
-                                </argument>
-                                <!-- <argument>-Dlog4j.debug=true</argument> -->
-                                <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
-                                </argument>
-                                <argument>com.microsoft.reef.examples.helloCLR.HelloCLR</argument>
-                                <argument>dotnetHello</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-
     </profiles>
 
 </project>

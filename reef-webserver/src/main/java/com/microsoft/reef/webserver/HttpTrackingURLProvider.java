@@ -34,31 +34,29 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
     private static final Logger LOG = Logger.getLogger(HttpTrackingURLProvider.class.getName());
 
     /**
-     * port number
+     * HttpServer
      */
-    private final int port;
+    private final HttpServer httpServer;
 
     /**
-     * HttpTrackingURLProvider
-     *
-     * @param port
+     * Constructor of HttpTrackingURLProvider
+     * @param httpServer
      */
     @Inject
-    public HttpTrackingURLProvider(@Parameter(PortNumber.class) int port) {
-        this.port = port;
+    public HttpTrackingURLProvider(final HttpServer httpServer) {
+        this.httpServer = httpServer;
     }
 
     /**
      * get tracking URI
-     *
      * @return
      */
     @Override
-    public String getTrackingUrl() {
+    public final String getTrackingUrl() {
         try {
-            return InetAddress.getLocalHost().getHostAddress() + ":" + port;
+            return InetAddress.getLocalHost().getHostAddress() + ":" + httpServer.getPort();
         } catch (UnknownHostException e) {
-            LOG.log(Level.WARNING, "Cannot get host address. {0}", e);
+            LOG.log(Level.WARNING, "Cannot get host address.", e);
             throw new RuntimeException("Cannot get host address.", e);
         }
     }
