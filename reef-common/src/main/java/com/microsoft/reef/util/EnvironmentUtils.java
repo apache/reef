@@ -38,7 +38,8 @@ public final class EnvironmentUtils {
    * @return A set of classpath entries as strings.
    */
   public static Set<String> getAllClasspathJars() {
-    return getAllClasspathJars("JAVA_HOME", "YARN_HOME", "HADOOP_HOME");
+    return getAllClasspathJars("JAVA_HOME", "YARN_HOME", "HADOOP_HOME",
+        "HADOOP_YARN_HOME", "HADOOP_COMMON_HOME", "HADOOP_MAPRED_HOME", "HADOOP_HDFS_HOME");
   }
 
   /**
