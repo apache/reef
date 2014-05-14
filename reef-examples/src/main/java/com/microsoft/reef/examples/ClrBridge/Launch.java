@@ -141,19 +141,8 @@ public final class Launch {
         .build();
   }
 
-  private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final File folder) {
-    ConfigurationModule result = conf;
-    for (final File f : folder.listFiles()) {
-      if (f.canRead() && f.exists() && f.isFile()) {
-        result = result.set(param, f.getAbsolutePath());
-      }
-    }
-    return result;
-  }
-
-
   /**
-   * Main method that starts the Retained Evaluators job.
+   * Main method that starts the CLR Bridge from Java
    *
    * @param args command line parameters.
    */

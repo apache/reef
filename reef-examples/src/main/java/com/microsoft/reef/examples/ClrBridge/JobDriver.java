@@ -40,8 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Retained Evaluator example job driver. Execute shell command on all evaluators,
- * capture stdout, and return concatenated results back to the client.
+ * Generic job driver for CLRBridge.
  */
 @Unit
 public final class JobDriver {
@@ -275,6 +274,9 @@ public final class JobDriver {
       }
     }
 
+  /**
+   * Handle failed task.
+   */
   final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
     public void onNext(final FailedTask task) throws RuntimeException {
@@ -296,7 +298,6 @@ public final class JobDriver {
 
     /**
      * Submit a Task to a single Evaluator.
-     * This method is called from <code>submitTask(cmd)</code>.
      */
     private void submit(final ActiveContext context) {
       try {

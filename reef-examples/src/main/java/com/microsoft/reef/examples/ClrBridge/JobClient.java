@@ -44,11 +44,6 @@ public class JobClient {
     private static final Logger LOG = Logger.getLogger(JobClient.class.getName());
 
     /**
-     * Codec to translate messages to and from the job driver
-     */
-    private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
-
-    /**
      * Reference to the REEF framework.
      * This variable is injected automatically in the constructor.
      */
