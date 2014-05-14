@@ -289,16 +289,16 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       this.containerRequestCounter.decrement();
     }
 
-    if(!outstandingContainerRequests.isEmpty())
+    if(!this.outstandingContainerRequests.isEmpty())
     {
       // we need to make sure that the previous request is no longer in RM request queue
-      resourceManager.removeContainerRequest(outstandingContainerRequests.remove());
+      this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
 
-      AMRMClient.ContainerRequest requestToBeSubmitted = outstandingContainerRequests.peek();
+      AMRMClient.ContainerRequest requestToBeSubmitted = this.outstandingContainerRequests.peek();
       if(requestToBeSubmitted != null)
       {
         LOG.log(Level.FINEST, "Requesting 1 additional container from YARN: " + requestToBeSubmitted);
-        resourceManager.addContainerRequest(requestToBeSubmitted);
+        this.resourceManager.addContainerRequest(requestToBeSubmitted);
       }
     }
 
@@ -351,14 +351,14 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     synchronized (this.containers) {
       this.containerRequestCounter.incrementBy(containerRequests.length);
     }
-    boolean queueWasEmpty = outstandingContainerRequests.isEmpty();
+    boolean queueWasEmpty = this.outstandingContainerRequests.isEmpty();
     for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
       LOG.log(Level.FINEST, "Adding container request to queue: " + containerRequest);
-      outstandingContainerRequests.add(containerRequest);
+      this.outstandingContainerRequests.add(containerRequest);
       if(queueWasEmpty)
       {
         LOG.log(Level.FINEST, "Requesting first container from YARN: " + containerRequest);
-        resourceManager.addContainerRequest(containerRequest);
+        this.resourceManager.addContainerRequest(containerRequest);
         queueWasEmpty = false;
       }
       LOG.log(Level.INFO, "Done adding container requests to local request queue.");
