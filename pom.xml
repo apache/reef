@@ -44,6 +44,7 @@
         <avro.version>1.7.6</avro.version>
         <tang.version>0.4-SNAPSHOT</tang.version>
         <wake.version>0.4-SNAPSHOT</wake.version>
+        <jetty.version>6.0.2</jetty.version>
     </properties>
 
 
@@ -370,6 +371,19 @@
                 <version>${avro.version}</version>
             </dependency>
             <!-- End of AVRO -->
+
+            <!-- JETTY -->
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <!-- End of JETTY -->
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -377,11 +391,13 @@
         <module>reef-checkpoint</module>
         <module>reef-common</module>
         <module>reef-examples</module>
+        <module>reef-examples-clr</module>
         <module>reef-io</module>
         <module>reef-poison</module>
         <module>reef-runtime-local</module>
         <module>reef-runtime-yarn</module>
         <module>reef-tests</module>
+        <module>reef-webserver</module>
         <module>reef-utils-hadoop</module>
     </modules>
 

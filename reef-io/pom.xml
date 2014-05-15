@@ -9,10 +9,6 @@
     <artifactId>reef-io</artifactId>
     <name>REEF IO</name>
 
-    <properties>
-	<hadoop.version>2.2.0</hadoop.version>
-    </properties>
-
     <build>
         <plugins>
             <plugin>

@@ -136,7 +136,7 @@ final class JobSubmissionHelper {
    */
   private File toJar(final File file) throws IOException {
     final File tempFolder = Files.createTempDirectory("reef-tmp-tempFolder").toFile();
-    final File jarFile = File.createTempFile(file.getName(), ".jar", tempFolder);
+    final File jarFile = File.createTempFile(file.getCanonicalFile().getName(), ".jar", tempFolder);
     LOG.log(Level.FINEST, "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});
     try (final JARFileMaker jarMaker = new JARFileMaker(jarFile)) {
       jarMaker.addChildren(file);
