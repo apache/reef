@@ -25,10 +25,12 @@ public class FailedEvaluatorBridge {
   private static final Logger LOG = Logger.getLogger(FailedEvaluatorBridge.class.getName());
   private FailedEvaluator jfailedEvaluator;
   private EvaluatorRequestorBridge evaluatorRequestorBridge;
+  private String evaluatorId;
 
   public FailedEvaluatorBridge(FailedEvaluator failedEvaluator, EvaluatorRequestor evaluatorRequestor)
   {
     jfailedEvaluator = failedEvaluator;
+    evaluatorId = failedEvaluator.getId();
     evaluatorRequestorBridge = new EvaluatorRequestorBridge(evaluatorRequestor);
   }
 

@@ -33,11 +33,14 @@ public class AllocatedEvaluatorBridge implements AutoCloseable {
     private AllocatedEvaluator jallocatedEvaluator;
     private  AvroConfigurationSerializer serializer;
     private   ClassHierarchy clrClassHierarchy;
+    private String evaluatorId;
+
     public AllocatedEvaluatorBridge(AllocatedEvaluator allocatedEvaluator)
       {
         jallocatedEvaluator = allocatedEvaluator;
         serializer = new AvroConfigurationSerializer();
         clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
+        evaluatorId = allocatedEvaluator.getId();
       }
 
     public void submitContextAndTaskString(final String contextConfigurationString, final String taskConfigurationString)

@@ -16,7 +16,12 @@ namespace Microsoft
 					
 					fprintf(stdout, "AllocatedEvaluatorClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java _jvm %p\n", _jvm); fflush (stdout);
-					fprintf(stdout, "AllocatedEvaluatorClr2Java _jobjectAllocatedEvaluator %p\n", _jobjectAllocatedEvaluator); fflush (stdout);				
+					fprintf(stdout, "AllocatedEvaluatorClr2Java _jobjectAllocatedEvaluator %p\n", _jobjectAllocatedEvaluator); fflush (stdout);	
+
+					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
+					jfieldID jidEvaluatorId = env->GetFieldID(jclassAllocatedEvaluator, "evaluatorId", "Ljava/lang/String;");
+					_jstringId = (jstring)env->GetObjectField(_jobjectAllocatedEvaluator, jidEvaluatorId);
+					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
 				}
 
 				void AllocatedEvaluatorClr2Java::SubmitContext(String^ contextConfigStr)
@@ -105,6 +110,34 @@ namespace Microsoft
 						JavaStringFromManagedString(env, contextConfigStr), 
 						JavaStringFromManagedString(env, serviceConfigStr),
 						JavaStringFromManagedString(env, taskConfigStr));
+				}
+
+				void AllocatedEvaluatorClr2Java::Close()
+				{
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::Close"); fflush (stdout);					
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
+					jmethodID jmidClose = env->GetMethodID(jclassAllocatedEvaluator, "close", "()V");
+
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
+					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidClose %p\n", jmidClose); fflush (stdout);
+
+					if(jmidClose == NULL)
+					{
+						fprintf(stdout, " jmidClose is NULL\n"); fflush (stdout);
+						return;
+					}
+					env -> CallObjectMethod(
+						_jobjectAllocatedEvaluator, 
+						jmidClose);
+				}
+
+				String^ AllocatedEvaluatorClr2Java::GetId()
+				{
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::GetId\n"); fflush (stdout);															
+					
+					JNIEnv *env = RetrieveEnv(_jvm);
+					return ManagedStringFromJavaString(env, _jstringId);
 				}
 
 				IEvaluatorDescriptor^ AllocatedEvaluatorClr2Java::GetEvaluatorDescriptor()
