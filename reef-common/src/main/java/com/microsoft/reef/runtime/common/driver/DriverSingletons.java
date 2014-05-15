@@ -41,18 +41,20 @@ import java.util.Set;
 @Private
 final class DriverSingletons {
   @Inject
-  DriverSingletons(final @Parameter(ContextActiveHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
-                   final @Parameter(ContextClosedHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
-                   final @Parameter(ContextFailedHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
-                   final @Parameter(ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
-                   final @Parameter(TaskRunningHandlers.class) Set<EventHandler<RunningTask>> runningTaskEventHandlers,
-                   final @Parameter(TaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> completedTaskEventHandlers,
-                   final @Parameter(TaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> suspendedTaskEventHandlers,
-                   final @Parameter(TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
-                   final @Parameter(TaskFailedHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
-                   final @Parameter(EvaluatorAllocatedHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
-                   final @Parameter(EvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
-                   final @Parameter(EvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
-                   final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlHandler) {
+  DriverSingletons(
+      final @Parameter(ContextActiveHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
+      final @Parameter(ContextClosedHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
+      final @Parameter(ContextFailedHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
+      final @Parameter(ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
+      final @Parameter(TaskRunningHandlers.class) Set<EventHandler<RunningTask>> runningTaskEventHandlers,
+      final @Parameter(TaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> completedTaskEventHandlers,
+      final @Parameter(TaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> suspendedTaskEventHandlers,
+      final @Parameter(TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
+      final @Parameter(TaskFailedHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
+      final @Parameter(EvaluatorAllocatedHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
+      final @Parameter(EvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
+      final @Parameter(EvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
+      final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlHandler,
+      final @Parameter(com.microsoft.reef.driver.parameters.DriverSingletons.class) Set<Object> singletons) {
   }
 }
