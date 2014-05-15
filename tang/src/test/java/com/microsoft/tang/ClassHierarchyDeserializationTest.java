@@ -59,7 +59,7 @@ public class ClassHierarchyDeserializationTest {
     @Test
     public void testDeserializationForEvent() {
         try (final InputStream chin = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("event.bin")) {
+                .getResourceAsStream("Event.bin")) {
             final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
             final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
         } catch (final IOException e) {

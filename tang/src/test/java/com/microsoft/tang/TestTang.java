@@ -305,6 +305,7 @@ public class TestTang {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter((Class)NamedImpl.AImplName.class, (Class)NamedImpl.Cimpl.class);
   }
+
   @Test
   public void testUnit() throws BindException, InjectionException {
     Injector inj = tang.newInjector();
@@ -312,7 +313,24 @@ public class TestTang {
     OuterUnit.InB b = inj.getInstance(OuterUnit.InB.class);
     Assert.assertEquals(a.slf, b.slf);
   }
-  @Test
+
+    @Test
+    public void testMissedUnit() throws BindException, InjectionException {
+        thrown.expect(InjectionException.class);
+        thrown.expectMessage("Cannot inject com.microsoft.tang.MissOuterUnit$InA: No known implementations / injectable constructors for com.microsoft.tang.MissOuterUnit$InA");
+        Injector inj = tang.newInjector();
+        MissOuterUnit.InA a = inj.getInstance(MissOuterUnit.InA.class);
+    }
+
+    @Test
+    public void testMissedUnitButWithInjectInnerClass() throws BindException, InjectionException {
+        thrown.expect(ClassHierarchyException.class);
+        thrown.expectMessage("Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:com.microsoft.tang.MissOuterUnit$InB");
+        Injector inj = tang.newInjector();
+        MissOuterUnit.InB b = inj.getInstance(MissOuterUnit.InB.class);
+    }
+
+    @Test
   public void testThreeConstructors() throws BindException, InjectionException {
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(TCInt.class, "1");
@@ -866,6 +884,24 @@ class OuterUnit {
   }
 }
 
+
+class MissOuterUnit {
+
+    final MissOuterUnit self;
+
+    @Inject
+    MissOuterUnit() { self = this; }
+
+    class InA {
+        MissOuterUnit slf = self;
+    }
+
+    class InB {
+        @Inject
+        InB() {}
+        MissOuterUnit slf = self;
+    }
+}
 class ThreeConstructors {
 
   final int i;
