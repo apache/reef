@@ -241,3 +241,23 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHan
 		Console::WriteLine(ex->StackTrace);
 	}
 }
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemHttpServerNRTEventHandlerOnHttpRequest
+ * Signature: (JLjavabridge/HttpServerNRTEventBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerNRTEventHandlerOnHttpRequest
+  (JNIEnv *env , jclass cls, jlong handle, jobject jhttpServerNRTEventBridge, jobject jlogger)
+ {
+	try{
+		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, handle, jhttpServerNRTEventBridge, jlogger);
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerNRTEventHandlerOnHttpRequest");
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemHttpServerNRTEventHandlerOnHttpRequest");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
