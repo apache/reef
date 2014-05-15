@@ -153,7 +153,7 @@ public final class Driver {
       switch (failTask.getSimpleName()) {
         case "FailTaskMsg":
           LOG.log(Level.INFO, "TaskRuntime: Send message: {0}", task);
-          task.onNext(new byte[0]);
+          task.send(new byte[0]);
           break;
         case "FailTaskSuspend":
           LOG.log(Level.INFO, "TaskRuntime: Suspend: {0}", task);
