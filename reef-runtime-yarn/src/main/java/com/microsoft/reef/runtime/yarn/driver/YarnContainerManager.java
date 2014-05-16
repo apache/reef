@@ -289,18 +289,22 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
       this.containerRequestCounter.decrement();
     }
 
-    if(!this.outstandingContainerRequests.isEmpty())
+    synchronized (this.outstandingContainerRequests)
     {
-      // we need to make sure that the previous request is no longer in RM request queue
-      this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
-
-      AMRMClient.ContainerRequest requestToBeSubmitted = this.outstandingContainerRequests.peek();
-      if(requestToBeSubmitted != null)
+      if(!this.outstandingContainerRequests.isEmpty())
       {
-        LOG.log(Level.FINEST, "Requesting 1 additional container from YARN: " + requestToBeSubmitted);
-        this.resourceManager.addContainerRequest(requestToBeSubmitted);
+        // we need to make sure that the previous request is no longer in RM request queue
+        this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
+
+        AMRMClient.ContainerRequest requestToBeSubmitted = this.outstandingContainerRequests.peek();
+        if(requestToBeSubmitted != null)
+        {
+          LOG.log(Level.FINEST, "Requesting 1 additional container from YARN: " + requestToBeSubmitted);
+          this.resourceManager.addContainerRequest(requestToBeSubmitted);
+        }
       }
     }
+
 
     this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
         .setIdentifier(container.getId().toString())
@@ -351,17 +355,19 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     synchronized (this.containers) {
       this.containerRequestCounter.incrementBy(containerRequests.length);
     }
-    boolean queueWasEmpty = this.outstandingContainerRequests.isEmpty();
-    for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
-      LOG.log(Level.FINEST, "Adding container request to queue: " + containerRequest);
-      this.outstandingContainerRequests.add(containerRequest);
-      if(queueWasEmpty)
-      {
-        LOG.log(Level.FINEST, "Requesting first container from YARN: " + containerRequest);
-        this.resourceManager.addContainerRequest(containerRequest);
-        queueWasEmpty = false;
+    synchronized (this.outstandingContainerRequests) {
+      boolean queueWasEmpty = this.outstandingContainerRequests.isEmpty();
+      for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
+        LOG.log(Level.FINEST, "Adding container request to queue: " + containerRequest);
+        this.outstandingContainerRequests.add(containerRequest);
+        if(queueWasEmpty)
+        {
+          LOG.log(Level.FINEST, "Requesting first container from YARN: " + containerRequest);
+          this.resourceManager.addContainerRequest(containerRequest);
+          queueWasEmpty = false;
+        }
+        LOG.log(Level.INFO, "Done adding container requests to local request queue.");
       }
-      LOG.log(Level.INFO, "Done adding container requests to local request queue.");
     }
     this.updateRuntimeStatus();
   }
