@@ -16,6 +16,8 @@
 
 package javabridge;
 
+import org.codehaus.plexus.util.FileUtils;
+
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,13 +80,15 @@ public class NativeInterop {
     };
 
     static {
-        try {
+      System.out.println("============== Driver Bridge initiated, loading DLLs ============== ");
+      try {
             System.loadLibrary(CPP_BRIDGE);
             System.out.println("DLL is loaded from memory");
             loadFromJar();
         } catch (UnsatisfiedLinkError e) {
             loadFromJar();
         }
+      System.out.println("================== Done loading dlls for Driver  ================== \n");
     }
 
     public static String EvaluatorRequestorKey = "EvaluatorRequestor";
@@ -107,10 +111,7 @@ public class NativeInterop {
 
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir
-        //System.out.println("loadFromJar 1");
-        String path = "Reef_" + new Date().getTime();
-        loadLib(path, CPP_BRIDGE, false);
-        //logger.info("loadFromJar 2");
+        loadLib(CPP_BRIDGE, false);
         File[]  files =  new File(System.getProperty("user.dir")).listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(DLL_EXTENSION);
@@ -125,7 +126,7 @@ public class NativeInterop {
                 if (fileName.indexOf(".") > 0) {
                     fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
                 }
-                loadLib(path, fileNameWithoutExtension, true);
+                loadLib(fileNameWithoutExtension, true);
             } catch (Exception e) {
                 System.out.println("exception " + e);
                 throw e;
@@ -134,8 +135,7 @@ public class NativeInterop {
 
         for (int i=0; i<managedDlls.length; i++)
         {
-            //System.out.println("xload " + managedDlls[i]);
-            loadLib(path, managedDlls[i], true);
+            loadLib(managedDlls[i], true);
         }
     }
 
@@ -143,23 +143,18 @@ public class NativeInterop {
      * Puts library to temp dir and loads to memory
      */
 
-    private static void loadLib(String path, String name, boolean copyOnly) {
+    private static void loadLib(String name, boolean copyOnly) {
         name = name + DLL_EXTENSION;
         try {
-            //System.out.println("class loader [" + NativeInterop.class.toString() + "]");
-            // have to use a stream
-            InputStream in = NativeInterop.class.getResourceAsStream(LIB_BIN + name);
+            InputStream in = NativeInterop.class.getResourceAsStream("/ReefDriverAppDlls/" + name);
             // always write to different location
-            //File fileOut = new File(System.getProperty("java.io.tmpdir") + "/" + path + LIB_BIN + name);
-            String directory = System.getProperty("java.io.tmpdir") + "/" + path;
+            String directory = System.getProperty("java.io.tmpdir");
             boolean status = new File(directory).mkdir();
             File fileOut = new File(directory + LIB_BIN + name);
-            //System.out.println("Writing dll to:<" + fileOut.getAbsolutePath() +">");
             OutputStream out = new FileOutputStream(fileOut);
             //System.out.println("after new FileOutputStream(fileOut)");
             if (null == in)
             {
-                System.out.println(name + " cannot be found to be loaded, skipped.");
                 return;
             }
             if (out == null)
@@ -171,7 +166,6 @@ public class NativeInterop {
             while ((tmp = in.read()) != -1) {
                 out.write(tmp);
             }
-            //IOUtils.copy(in, out);
 
             in.close();
 

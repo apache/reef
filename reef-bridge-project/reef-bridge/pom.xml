@@ -68,7 +68,7 @@
             <configuration>              
               <includeArtifactIds>reef-bridge-java,reef-bridge-clr</includeArtifactIds>
               <outputDirectory>
-                ${project.build.directory}/classes                
+                ${project.build.directory}/classes/ReefDriverAppDlls
               </outputDirectory>
             </configuration>
           </execution>
