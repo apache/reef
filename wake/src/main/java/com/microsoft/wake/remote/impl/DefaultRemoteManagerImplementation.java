@@ -75,6 +75,20 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
       final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee) {
 
+      this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, 3, 2000);
+  }
+
+  @Inject 
+  public <T> DefaultRemoteManagerImplementation(
+      final @Parameter(RemoteConfiguration.ManagerName.class) String name,
+      final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
+      final @Parameter(RemoteConfiguration.Port.class) int listeningPort,
+      final @Parameter(RemoteConfiguration.MessageCodec.class) Codec<T> codec,
+      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
+      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee,
+      final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
+      final @Parameter(RemoteConfiguration.RetryTimeout.class)int retryTimeout) {
+
     this.name = name;
     this.handlerContainer = new HandlerContainer<>(name, codec);
 
@@ -84,10 +98,10 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
     if ("##UNKNOWN##".equals(hostAddress)) {
       this.transport = new NettyMessagingTransport(
-          NetUtils.getLocalAddress(), listeningPort, this.reRecvStage, this.reRecvStage);
+          NetUtils.getLocalAddress(), listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
     } else {
       this.transport = new NettyMessagingTransport(
-          hostAddress, listeningPort, this.reRecvStage, this.reRecvStage);
+          hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
     }
 
     this.handlerContainer.setTransport(this.transport);

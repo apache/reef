@@ -55,4 +55,14 @@ public final class RemoteConfiguration {
   public static final class OrderingGuarantee implements Name<Boolean> {
     // Intentionally empty
   }
+  
+  @NamedParameter(doc = "The number of tries", default_value = "3")
+  public final static class NumberOfTries implements Name<Integer> {
+    // Intentionally empty
+  }
+  
+  @NamedParameter(doc = "The timeout of connection retrying", default_value = "2000")
+  public final static class RetryTimeout implements Name<Integer> {
+    // Intentionally empty
+  }
 }
