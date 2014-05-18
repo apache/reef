@@ -59,14 +59,17 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   private final RemoteSeqNumGenerator seqGen = new RemoteSeqNumGenerator();
 
   /**
-   * Constructs a remote manager
-   *
+   * 
+   * @param name
    * @param hostAddress
    * @param listeningPort
    * @param codec
    * @param errorHandler
+   * @param orderingGuarantee
+   * @deprecated in 0.4. Please use the other constructor instead or rely on Tang for defaults.
    */
   @Inject
+  @Deprecated
   public <T> DefaultRemoteManagerImplementation(
       final @Parameter(RemoteConfiguration.ManagerName.class) String name,
       final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
@@ -75,9 +78,21 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
       final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee) {
 
-      this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, 3, 2000);
+      this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, 3, 10000);
   }
 
+  /**
+   * Constructs a remote manager
+   *
+   * @param name
+   * @param hostAddress
+   * @param listeningPort
+   * @param codec
+   * @param errorHandler
+   * @param orderingGuarantee
+   * @param numberOfTries
+   * @param retryTimeout
+   */
   @Inject 
   public <T> DefaultRemoteManagerImplementation(
       final @Parameter(RemoteConfiguration.ManagerName.class) String name,

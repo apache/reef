@@ -72,7 +72,7 @@ public class RemoteManagerTest {
 
     String hostAddress = NetUtils.getLocalAddress();
 
-    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false);
+    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000);
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
     Assert.assertTrue(rm.getMyIdentifier().equals(remoteId));
@@ -141,7 +141,7 @@ public class RemoteManagerTest {
 
     String hostAddress = NetUtils.getLocalAddress();
 
-    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true);
+    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true, 1, 10000);
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
 
@@ -182,7 +182,7 @@ public class RemoteManagerTest {
 
     String hostAddress = NetUtils.getLocalAddress();
 
-    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false);
+    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -219,7 +219,7 @@ public class RemoteManagerTest {
     String hostAddress = NetUtils.getLocalAddress();
 
     ExceptionHandler errorHandler = new ExceptionHandler(monitor);
-    try (RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, errorHandler, false)) {
+    try (RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, errorHandler, false, 1, 10000)) {
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
 

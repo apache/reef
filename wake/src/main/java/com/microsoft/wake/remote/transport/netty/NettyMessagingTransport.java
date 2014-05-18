@@ -80,14 +80,25 @@ public class NettyMessagingTransport implements Transport {
    * @param port  the server listening port; when it is 0, randomly assign a port number
    * @param clientStage the client-side stage that handles transport events
    * @param serverStage the server-side stage that handles transport events
+   * @deprecated in 0.4. Please use the other constructor instead.
    */
+  @Deprecated
   public NettyMessagingTransport(final String hostAddress, int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage) {
 
-    this(hostAddress, port, clientStage, serverStage, 3, 2000);
+    this(hostAddress, port, clientStage, serverStage, 3, 10000);
   }
 
+  /**
+   * Constructs a messaging transport 
+   * @param hostAddress the server host address
+   * @param port  the server listening port; when it is 0, randomly assign a port number
+   * @param clientStage the client-side stage that handles transport events
+   * @param serverStage the server-side stage that handles transport events
+   * @param numberOfTries the number of tries of reconnection 
+   * @param retryTimeout the timeout of reconnection 
+   */
   public NettyMessagingTransport(final String hostAddress, int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage,

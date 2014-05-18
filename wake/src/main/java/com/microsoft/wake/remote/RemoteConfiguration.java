@@ -61,7 +61,7 @@ public final class RemoteConfiguration {
     // Intentionally empty
   }
   
-  @NamedParameter(doc = "The timeout of connection retrying", default_value = "2000")
+  @NamedParameter(doc = "The timeout of connection retrying", default_value = "10000")
   public final static class RetryTimeout implements Name<Integer> {
     // Intentionally empty
   }

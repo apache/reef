@@ -67,7 +67,7 @@ public class RemoteIdentifierFactoryTest {
     String hostAddress = NetUtils.getLocalAddress();
     
     RemoteManager rm = new DefaultRemoteManagerImplementation("TestRemoteManager", 
-        hostAddress, port, codec, new LoggingEventHandler<Throwable> (), false);
+        hostAddress, port, codec, new LoggingEventHandler<Throwable> (), false, 1, 10000);
     RemoteIdentifier id = rm.getMyIdentifier();
     System.out.println(id.toString());
     
