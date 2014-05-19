@@ -18,23 +18,35 @@ package javabridge;
 /**
  *  HttpServerNRTEventBridge
  */
-public class HttpServerNRTEventBridge {
-    private final String queryString;
+public final class HttpServerEventBridge {
+    private String queryString;
     private String queryResult;
+    private String uriSpecification;
 
-    public HttpServerNRTEventBridge(String queryStr) {
+    public HttpServerEventBridge() {
+    }
+
+    public HttpServerEventBridge(String queryStr) {
        this.queryString = queryStr;
     }
 
-    public String getQueryString() {
+    public final String getQueryString() {
         return queryString;
     }
 
-    public String getQueryResult() {
+    public final String getQueryResult() {
         return queryResult;
     }
 
-    public void setQueryResult(final String queryResult) {
+    public final void setQueryResult(final String queryResult) {
         this.queryResult = queryResult;
+    }
+
+    public final String getUriSpecification() {
+        return uriSpecification;
+    }
+
+    public final void setUriSpecification(final String uriSpecification) {
+        this.uriSpecification = uriSpecification;
     }
 }

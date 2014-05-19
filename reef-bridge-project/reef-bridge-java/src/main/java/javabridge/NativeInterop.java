@@ -62,9 +62,15 @@ public class NativeInterop {
             InteropLogger interopLogger
     );
 
-    public static native void ClrSystemHttpServerNRTEventHandlerOnHttpRequest (
+    public static native void ClrSystemHttpServerHandlerOnNext(
             long handle,
-            HttpServerNRTEventBridge httpServerNRTEventBridge,
+            HttpServerEventBridge httpServerEventBridge,
+            InteropLogger interopLogger
+    );
+
+    public static native void ClrSystemHttpServerHandlerGetSpec(
+            long handle,
+            HttpServerEventBridge httpServerEventBridge,
             InteropLogger interopLogger
     );
 
@@ -99,7 +105,7 @@ public class NativeInterop {
     public static String TaskMessageKey = "TaskMessage";
     public static String FailedTaskKey = "FailedTask";
     public static String FailedEvaluatorKey = "FailedEvaluator";
-    public static String HttpServerNRTKey = "HttpServerNRTKey";
+    public static String HttpServerKey = "HttpServerKey";
 
     public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
         put(EvaluatorRequestorKey, 0);
@@ -108,7 +114,7 @@ public class NativeInterop {
         put(TaskMessageKey, 3);
         put(FailedTaskKey,4);
         put(FailedEvaluatorKey, 5);
-        put(HttpServerNRTKey, 6);
+        put(HttpServerKey, 6);
     }};
 
     public static int nHandlers = 7;

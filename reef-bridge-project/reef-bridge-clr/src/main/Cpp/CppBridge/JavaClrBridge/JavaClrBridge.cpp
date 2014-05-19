@@ -245,18 +245,40 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHan
 /*
  * Class:     javabridge_NativeInterop
  * Method:    ClrSystemHttpServerNRTEventHandlerOnHttpRequest
- * Signature: (JLjavabridge/HttpServerNRTEventBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLjavabridge/HttpServerEventBridge;Ljavabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerNRTEventHandlerOnHttpRequest
-  (JNIEnv *env , jclass cls, jlong handle, jobject jhttpServerNRTEventBridge, jobject jlogger)
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jhttpServerEventBridge, jobject jlogger)
  {
 	try{
-		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, handle, jhttpServerNRTEventBridge, jlogger);
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerNRTEventHandlerOnHttpRequest");
+		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, handler, jhttpServerEventBridge, jlogger);
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
+		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_OnNext(handler, httpServerClr2Java);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemHttpServerNRTEventHandlerOnHttpRequest");
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemHttpServerNRTEventHandlerOnHttpRequest
+ * Signature: (JLjavabridge/HttpServerEventBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerGetSpec
+  (JNIEnv *env , jclass cls, jlong handler, jobject jhttpServerEventBridge, jobject jlogger)
+ {
+	try{
+		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, handler, jhttpServerEventBridge, jlogger);
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnStart");
+		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_GetSpec(handler, httpServerClr2Java);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnStart");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}

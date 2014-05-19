@@ -26,11 +26,13 @@ import java.util.logging.Logger;
 /**
  * HttpServer. It manages Jetty Server and Event Handlers
  */
-final class HttpServerImpl implements HttpServer {
+public final class HttpServerImpl implements HttpServer {
     /**
      * Standard Java logger.
      */
     private static final Logger LOG = Logger.getLogger(HttpServerImpl.class.getName());
+
+    private static JettyHandler jettyHandler;
 
     /**
      * Jetty server.
@@ -54,7 +56,7 @@ final class HttpServerImpl implements HttpServer {
                    final @Parameter(MaxPortNumber.class) int maxPortNumber,
                    final @Parameter(MinPortNumber.class) int minPortNumber,
                    final @Parameter(MaxRetryAttempts.class) int maxRetryAttempts) throws Exception{
-
+        HttpServerImpl.jettyHandler = jettyHandler;
         int port = portNumber;
         Server srv = null;
         boolean found = false;
@@ -113,5 +115,13 @@ final class HttpServerImpl implements HttpServer {
     @Override
     public int getPort() {
         return port;
+    }
+
+    /**
+     * Add a HttpHandler to Jetty Handler
+     * @param httpHandler
+     */
+    static public void addHttpHandler(HttpHandler httpHandler) {
+        jettyHandler.AddHandler(httpHandler);
     }
 }

@@ -38,6 +38,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +63,7 @@ public final class JobDriver {
   private long  taskMessageHandler = 0;
   private long  failedTaskHandler = 0;
   private long  failedEvaluatorHandler = 0;
-  private long  httpServerNRTEventHandler = 0;
+  private long httpServerEventHandler = 0;
 
 
   private int nCLREvaluators = 0;
@@ -283,7 +284,17 @@ public final class JobDriver {
       }
     }
 
-    final class HttpServerNRTEventHandler implements HttpHandler {
+    final class HttpServerBridgeEventHandler implements HttpHandler {
+        private final String uriSpecification;
+
+        /**
+         * The instance of the class will be created explicitly instead of through injection
+         * @param spec
+         */
+        public HttpServerBridgeEventHandler(final String spec) {
+            uriSpecification = spec;
+        }
+
         /**
          * returns URI specification for the handler
          *
@@ -291,8 +302,16 @@ public final class JobDriver {
          */
         @Override
         public String getUriSpecification() {
-            return "NRT";
+            return uriSpecification;
         }
+
+//        /**
+//         * set URI specification after the instance is created
+//         * @param spec
+//         */
+//        public void setUriSpecificatin(String spec) {
+//            uriSpecification = spec;
+//        }
 
         /**
          * it is called when receiving a http request
@@ -307,8 +326,11 @@ public final class JobDriver {
             final String queryStr = requestParser.getQueryString();
             try {
                 InteropLogger interopLogger = new InteropLogger();
-                HttpServerNRTEventBridge httpServerNRTEventBridge = new HttpServerNRTEventBridge(queryStr);
-                NativeInterop.ClrSystemHttpServerNRTEventHandlerOnHttpRequest(httpServerNRTEventHandler, httpServerNRTEventBridge, interopLogger);
+                HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(queryStr);
+                NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
+                String result = httpServerEventBridge.getQueryResult();
+                response.getWriter().println("Calling back from bridge: " + result);
+                response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
             } catch (final Exception ex) {
                 LOG.log(Level.SEVERE, "Fail to invoke CLR failed task handler");
                 throw new RuntimeException(ex);
@@ -373,7 +395,16 @@ public final class JobDriver {
             taskMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
             failedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedTaskKey)];
             failedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedEvaluatorKey)];
-            httpServerNRTEventHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedTaskKey)];
+            httpServerEventHandler = handlers[NativeInterop.Handlers.get(NativeInterop.HttpServerKey)];
+          }
+
+          HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
+          NativeInterop.ClrSystemHttpServerHandlerGetSpec(httpServerEventHandler, httpServerEventBridge, interopLogger);
+          String specList = httpServerEventBridge.getUriSpecification();
+          String[] specs = specList.split(":");
+          for (String s : specs) {
+              HttpHandler h = new HttpServerBridgeEventHandler(s);
+              com.microsoft.reef.webserver.HttpServerImpl.addHttpHandler(h);
           }
 
           if (evaluatorRequestorHandler == 0) {
