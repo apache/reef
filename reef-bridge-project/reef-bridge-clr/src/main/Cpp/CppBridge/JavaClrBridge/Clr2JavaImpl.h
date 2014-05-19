@@ -89,6 +89,18 @@ namespace Microsoft
 					virtual IEvaluatorRequestorClr2Java^ GetEvaluatorRequestor();
 					virtual String^ GetId();
 				};
+
+				public ref class CompletedTaskClr2Java : public ICompletedTaskClr2Java
+				{
+					jobject  _jobjectCompletedTask;
+					JavaVM* _jvm;
+					jstring _jstringId;
+					jobject _jobjectActiveContext;
+				public:
+					CompletedTaskClr2Java(JNIEnv *env, jobject jcompletedTask);
+					virtual IActiveContextClr2Java^ GetActiveContext();
+					virtual String^ GetId();
+				};
 			}
 		}
 	}

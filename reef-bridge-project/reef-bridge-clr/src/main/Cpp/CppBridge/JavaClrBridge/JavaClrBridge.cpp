@@ -243,3 +243,24 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHan
 		Console::WriteLine(ex->StackTrace);
 	}
 }
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemCompletedTaskHandlerOnNext
+ * Signature: (JLjavabridge/CompletedTaskBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jcompletedTask, jobject jlogger)
+{
+	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext");
+		CompletedTaskClr2Java^ completedTaskBridge = gcnew CompletedTaskClr2Java(env, jcompletedTask);
+		ClrSystemHandlerWrapper::Call_ClrSystemCompletedTask_OnNext(handler, completedTaskBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}

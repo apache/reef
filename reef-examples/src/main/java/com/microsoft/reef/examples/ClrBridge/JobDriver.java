@@ -55,6 +55,7 @@ public final class JobDriver {
   private long  taskMessageHandler = 0;
   private long  failedTaskHandler = 0;
   private long  failedEvaluatorHandler = 0;
+  private long  completedTaskHandler = 0;
 
   private int nCLREvaluators = 0;
 
@@ -188,13 +189,18 @@ public final class JobDriver {
         } catch (final Exception e) {
           LOG.log(Level.WARNING, "failed to decode task outcome");
         }
-        synchronized (JobDriver.this) {
-          JobDriver.this.results.add(task.getId() + " :: " + result);
-          LOG.log(Level.INFO, "Task {0} result {1}: {2}", new Object[]{
-                  task.getId(), JobDriver.this.results.size(), result});
-          if (--JobDriver.this.expectCount <= 0) {
-            JobDriver.this.returnResults();
-          }
+        LOG.log(Level.INFO, "Return results to the client:\n{0}", result);
+       JobDriver.this.jobMessageObserver.sendMessageToClient(JVM_CODEC.encode(result));
+        if(completedTaskHandler == 0)
+        {
+          LOG.log(Level.INFO, "No CLR handler bound to handle completed task.");
+        }
+        else
+        {
+          LOG.log(Level.INFO, "CLR CompletedTaskHandler handler set, handling things with CLR handler.");
+          InteropLogger interopLogger = new InteropLogger();
+          CompletedTaskBridge completedTaskBridge = new CompletedTaskBridge(task);
+          NativeInterop.ClrSystemCompletedTaskHandlerOnNext(completedTaskHandler, completedTaskBridge, interopLogger);
         }
       }
     }
@@ -333,6 +339,7 @@ public final class JobDriver {
             taskMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
             failedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedTaskKey)];
             failedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedEvaluatorKey)];
+            completedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.CompletedTaskKey)];
           }
 
           if (evaluatorRequestorHandler == 0) {

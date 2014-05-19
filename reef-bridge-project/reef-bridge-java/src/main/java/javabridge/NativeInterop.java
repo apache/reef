@@ -16,6 +16,7 @@
 
 package javabridge;
 
+import com.microsoft.reef.driver.task.CompletedTask;
 import org.codehaus.plexus.util.FileUtils;
 
 import java.io.*;
@@ -70,6 +71,12 @@ public class NativeInterop {
             InteropLogger interopLogger
     );
 
+    public static native void ClrSystemCompletedTaskHandlerOnNext (
+            long handle,
+            CompletedTaskBridge completedTaskBridge,
+            InteropLogger interopLogger
+    );
+
     public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
     private static final String LIB_BIN = "/";
     private static final String DLL_EXTENSION = ".dll";
@@ -97,17 +104,20 @@ public class NativeInterop {
     public static String TaskMessageKey = "TaskMessage";
     public static String FailedTaskKey = "FailedTask";
     public static String FailedEvaluatorKey = "FailedEvaluator";
+    public static String CompletedTaskKey = "CompletedTask";
 
-    public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
+
+  public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
         put(EvaluatorRequestorKey, 0);
         put(AllocatedEvaluatorKey, 1);
         put(ActiveContextKey, 2);
         put(TaskMessageKey, 3);
         put(FailedTaskKey,4);
         put(FailedEvaluatorKey, 5);
+        put(CompletedTaskKey, 7); // skip number 6 reserved for httphandler
     }};
 
-    public static int nHandlers = 6;
+    public static int nHandlers = 8;
 
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir
