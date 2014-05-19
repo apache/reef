@@ -149,27 +149,6 @@
     </executions>
 </plugin>
 
-        <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-                <execution>
-                    <id>copy-external-dlls</id>
-                    <phase>process-resources</phase>
-                    <goals>
-                        <goal>copy-resources</goal>
-                    </goals>
-                    <configuration>
-                        <overwrite>true</overwrite>
-                        <outputDirectory>${basedir}/target/classes</outputDirectory>
-                        <resources>
-                            <resource>
-                                <directory>src/main/CSharp/CSharp/ClrHandler/externals</directory>
-                            </resource>
-                        </resources>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
 
     </plugins>
   </build>

@@ -76,6 +76,15 @@ public final class Launch {
   }
 
   /**
+   * Command line parameter = true to wait till driver finishes ,
+   * or false to exit without waiting for driver
+   */
+  @NamedParameter(doc = "Whether or not to wait for driver to finish",
+          short_name = "wait_for_driver", default_value = "true")
+  public static final class WaitForDriver implements Name<Boolean> {
+  }
+
+  /**
    * Parse the command line arguments.
    *
    * @param args command line arguments, as passed to main()
@@ -89,6 +98,7 @@ public final class Launch {
     final CommandLine cl = new CommandLine(confBuilder);
     cl.registerShortNameOfClass(Local.class);
     cl.registerShortNameOfClass(NumRuns.class);
+    cl.registerShortNameOfClass(WaitForDriver.class);
     cl.processCommandLine(args);
     return confBuilder.build();
   }
@@ -119,6 +129,7 @@ public final class Launch {
         .set(ClientConfiguration.ON_JOB_COMPLETED, JobClient.CompletedJobHandler.class)
         .set(ClientConfiguration.ON_JOB_FAILED, JobClient.FailedJobHandler.class)
         .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
+        //.set(ClientConfiguration.ON_WAKE_ERROR, JobClient.WakeErrorHandler.class )
         .build();
 
     // TODO: Remove the injector, have stuff injected.
@@ -141,25 +152,14 @@ public final class Launch {
         .build();
   }
 
-  private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final File folder) {
-    ConfigurationModule result = conf;
-    for (final File f : folder.listFiles()) {
-      if (f.canRead() && f.exists() && f.isFile()) {
-        result = result.set(param, f.getAbsolutePath());
-      }
-    }
-    return result;
-  }
-
-
   /**
-   * Main method that starts the Retained Evaluators job.
+   * Main method that starts the CLR Bridge from Java
    *
    * @param args command line parameters.
    */
   public static void main(final String[] args) {
     try {
-      if(args == null || args.length ==0)
+      if(args == null || args.length == 0)
       {
         throw new IllegalArgumentException("No arguments provided, at least a clrFolder should be supplied.")   ;
       }
@@ -170,7 +170,7 @@ public final class Launch {
       final Injector injector = Tang.Factory.getTang().newInjector(config);
       final JobClient client = injector.getInstance(JobClient.class);
       client.submit(dotNetFolder);
-      client.waitForCompletion();
+      client.waitForCompletion();      // client.close();
       LOG.info("Done!");
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);

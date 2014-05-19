@@ -44,11 +44,6 @@ public class JobClient {
     private static final Logger LOG = Logger.getLogger(JobClient.class.getName());
 
     /**
-     * Codec to translate messages to and from the job driver
-     */
-    private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
-
-    /**
      * Reference to the REEF framework.
      * This variable is injected automatically in the constructor.
      */
@@ -159,6 +154,15 @@ public class JobClient {
         }
     }
 
+    final class WakeErrorHandler implements EventHandler<Throwable> {
+      @Override
+      public void onNext(Throwable error) {
+        LOG.log(Level.SEVERE, "Error communicating with job driver, exiting... ", error);
+        stopAndNotify();
+      }
+    }
+
+
     /**
      * Notify the process in waitForCompletion() method that the main process has finished.
      */
@@ -183,5 +187,11 @@ public class JobClient {
             }
         }
         this.reef.close();
+    }
+
+    public void close()
+    {
+      LOG.log(Level.WARNING, "Closing without waiting for driver to complete.");
+      this.reef.close();
     }
 }

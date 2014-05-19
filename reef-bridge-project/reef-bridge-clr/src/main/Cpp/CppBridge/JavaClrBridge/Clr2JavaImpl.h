@@ -25,12 +25,15 @@ namespace Microsoft
 				{
 					jobject  _jobjectAllocatedEvaluator;
 					JavaVM* _jvm;
+					jstring _jstringId;
 				public:
 					AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
 					virtual void SubmitContext(String^ contextConfigStr);
 					virtual void SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr);
 					virtual void SubmitContextAndServiceAndTask(String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr);
+					virtual void Close();
+					virtual String^ GetId();
 					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
 				};
 
@@ -80,9 +83,11 @@ namespace Microsoft
 				{
 					jobject  _jobjectFailedEvaluator;
 					JavaVM* _jvm;
+					jstring _jstringId;
 				public:
 					FailedEvaluatorClr2Java(JNIEnv *env, jobject jfailedEvaluator);
 					virtual IEvaluatorRequestorClr2Java^ GetEvaluatorRequestor();
+					virtual String^ GetId();
 				};
 				public ref class HttpServerClr2Java : public IHttpServerBridgeClr2Java
 				{

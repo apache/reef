@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.microsoft.reef.driver.parameters;
+
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+
+import java.util.Set;
+
 /**
- * The Hello REEF example for the CLR.
+ * Classes named here will be instantiated on the root injector of the driver process, thereby declaring them
+ * Driver-wide singletons.
  */
-package com.microsoft.reef.examples.helloCLRBridge;
+@NamedParameter(doc = "Classes to be instantiated only once in the Driver.")
+public final class DriverSingletons implements Name<Set<Object>> {
+  private DriverSingletons() {
+  }
+}
