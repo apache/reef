@@ -156,7 +156,7 @@ public final class JobDriver {
         }
         this.results.clear();
         LOG.log(Level.INFO, "Return results to the client:\n{0}", sb);
-        this.jobMessageObserver.onNext(JVM_CODEC.encode(sb.toString()));
+        this.jobMessageObserver.sendMessageToClient(JVM_CODEC.encode(sb.toString()));
     }
 
   /**
@@ -226,7 +226,7 @@ public final class JobDriver {
         }
           com.microsoft.reef.util.Optional<byte[]> err = context.getData();
           if (err.isPresent()) {
-              JobDriver.this.jobMessageObserver.onNext(err.get());
+              JobDriver.this.jobMessageObserver.sendMessageToClient(err.get());
           }
       }
     }
@@ -246,7 +246,7 @@ public final class JobDriver {
           }
           String message = "Evaluator " + eval.getId() + " failed with message: "
                   + eval.getEvaluatorException().getMessage();
-          JobDriver.this.jobMessageObserver.onNext(message.getBytes());
+          JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
 
           if(failedEvaluatorHandler == 0)
           {
@@ -269,7 +269,7 @@ public final class JobDriver {
               LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " + additionalRequestedEvaluatorNumber);
             }
           }
-          JobDriver.this.jobMessageObserver.onNext(message.getBytes());
+          JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
         }
       }
     }

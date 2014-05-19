@@ -154,6 +154,15 @@ public class JobClient {
         }
     }
 
+    final class WakeErrorHandler implements EventHandler<Throwable> {
+      @Override
+      public void onNext(Throwable error) {
+        LOG.log(Level.SEVERE, "Error communicating with job driver, exiting... ", error);
+        stopAndNotify();
+      }
+    }
+
+
     /**
      * Notify the process in waitForCompletion() method that the main process has finished.
      */
@@ -178,5 +187,11 @@ public class JobClient {
             }
         }
         this.reef.close();
+    }
+
+    public void close()
+    {
+      LOG.log(Level.WARNING, "Closing without waiting for driver to complete.");
+      this.reef.close();
     }
 }
