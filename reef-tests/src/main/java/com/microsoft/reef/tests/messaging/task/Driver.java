@@ -94,7 +94,7 @@ public final class Driver {
       clock.scheduleAlarm(DELAY, new EventHandler<Alarm>() {
         @Override
         public void onNext(final Alarm alarm) {
-          task.onNext(HELLO_STR);
+          task.send(HELLO_STR);
         }
       });
     }

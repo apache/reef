@@ -295,7 +295,7 @@ public final class FailDriver {
       FailDriver.this.checkMsgOrder(time);
       switch (FailDriver.this.state) {
         case SEND_MSG:
-          FailDriver.this.task.onNext(HELLO_STR);
+          FailDriver.this.task.send(HELLO_STR);
           break;
         case SUSPEND:
           FailDriver.this.task.suspend();
