@@ -246,7 +246,7 @@ public class NettyMessagingTransport implements Transport {
       }
 
       ChannelFuture connectFuture = null;
-      try{
+      try {
         connectFuture = this.clientBootstrap.connect(remoteAddr);
         connectFuture.syncUninterruptibly();
         link = new NettyLink<>(connectFuture.getChannel(), encoder, listener);
@@ -257,22 +257,22 @@ public class NettyMessagingTransport implements Transport {
           flag.notifyAll();
         }
         break;
-      }catch(Exception e){
-        if(e.getCause().getClass().getSimpleName().compareTo("ConnectException") == 0){
+      } catch (Exception e) {
+        if (e.getCause().getClass().getSimpleName().compareTo("ConnectException") == 0) {
           LOG.log(Level.WARNING, "Connection Refused... Retrying {0} of {1}", new Object[] {i+1, this.numberOfTries});
           synchronized (flag) {
             flag.compareAndSet(true, false);
             flag.notifyAll();
           }
 
-          if(i < this.numberOfTries){
+          if (i < this.numberOfTries) {
             try {
               Thread.sleep(retryTimeout);
             } catch (InterruptedException e1) {
               e1.printStackTrace();
             }
           }
-        }else{
+        } else {
           throw e;
         }
       }

@@ -136,7 +136,7 @@ public class RemoteManagerTest {
     
     RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 5000);
 
-    for(int i = 0; i < numOfSenderThreads; i++){
+    for (int i = 0; i < numOfSenderThreads; i++) {
       smFutures.add(smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000)));
     }
     
@@ -146,7 +146,7 @@ public class RemoteManagerTest {
     Future<Integer> receivingFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, numOfSenderThreads, 2));
     
     // waiting sending remote manager.
-    for(Future<Integer> future : smFutures){
+    for (Future<Integer> future : smFutures) {
       future.get();
     }
     
@@ -355,7 +355,7 @@ public class RemoteManagerTest {
       int finalSize = numOfConnection * numOfEvent;
       rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
       
-      for(int i = 0; i < numOfConnection; i++){
+      for (int i = 0; i < numOfConnection; i++) {
         monitor.mwait();
       }
       monitor.mwait();
