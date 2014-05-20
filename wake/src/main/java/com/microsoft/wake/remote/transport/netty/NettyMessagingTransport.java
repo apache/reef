@@ -256,26 +256,26 @@ public class NettyMessagingTransport implements Transport {
           flag.compareAndSet(true, false);
           flag.notifyAll();
         }
-
         break;
-
       }catch(Exception e){
-        LOG.log(Level.WARNING, "Connection Refused... Retrying {0} of {1}", new Object[] {i+1, this.numberOfTries});
-        synchronized (flag) {
-          flag.compareAndSet(true, false);
-          flag.notifyAll();
-        }
-
-        if(i < this.numberOfTries){
-          try {
-            Thread.sleep(retryTimeout);
-          } catch (InterruptedException e1) {
-            e1.printStackTrace();
+        if(e.getCause().getClass().getSimpleName().compareTo("ConnectException") == 0){
+          LOG.log(Level.WARNING, "Connection Refused... Retrying {0} of {1}", new Object[] {i+1, this.numberOfTries});
+          synchronized (flag) {
+            flag.compareAndSet(true, false);
+            flag.notifyAll();
           }
+
+          if(i < this.numberOfTries){
+            try {
+              Thread.sleep(retryTimeout);
+            } catch (InterruptedException e1) {
+              e1.printStackTrace();
+            }
+          }
+        }else{
+          throw e;
         }
-
       }
-
     }
 
     return link;
