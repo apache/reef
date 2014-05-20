@@ -16,6 +16,7 @@
 package com.microsoft.wake.test.remote;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -105,24 +106,60 @@ public class RemoteManagerTest {
   public void testRemoteManagerConnectionRetryTest() throws Exception {
     ExecutorService smExecutor = Executors.newFixedThreadPool(1);
     ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
-    Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(9000, 9010, 6000, 3, 2000));
+    
+    RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 2000);
+    
+    Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000));
     Thread.sleep(1000);
-    Future<Integer> rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(9010, 10000, 1, 2000));
+    
+    RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
+    Future<Integer> rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, 1, 2));
 
     int smCnt = smFuture.get();
     int rmCnt = rmFuture.get();
 
+    receivingManager.close();
+    sendingManager.close();
+    
     Assert.assertEquals(0, smCnt);
     Assert.assertEquals(2, rmCnt);
-
-    smFuture = smExecutor.submit(new SendingRemoteManagerThread(9000, 9010, 8000, 3, 2000));
-    Thread.sleep(3000);
-    rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(9010, 12000, 1, 2000));
-    smCnt = smFuture.get();
-    rmCnt = rmFuture.get();
-    Assert.assertEquals(0, smCnt);
-    Assert.assertEquals(2, rmCnt);
+    
   }
+
+  
+  @Test
+  public void testRemoteManagerConnectionRetryWithMultipleSenderTest() throws Exception {
+    int numOfSenderThreads = 5;
+    ExecutorService smExecutor = Executors.newFixedThreadPool(numOfSenderThreads);
+    ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
+    ArrayList<Future<Integer>> smFutures = new ArrayList<Future<Integer>>(numOfSenderThreads);
+    
+    RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 5000);
+
+    for(int i = 0; i < numOfSenderThreads; i++){
+      smFutures.add(smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000)));
+    }
+    
+    Thread.sleep(2000);
+    
+    RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
+    Future<Integer> receivingFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, numOfSenderThreads, 2));
+    
+    // waiting sending remote manager.
+    for(Future<Integer> future : smFutures){
+      future.get();
+    }
+    
+    // waiting receiving remote manager
+    int rmCnt = receivingFuture.get();
+    
+    sendingManager.close();
+    receivingManager.close();
+    
+    // get the result
+    Assert.assertEquals(2 * numOfSenderThreads, rmCnt);
+  }
+  
 
   @Test
   public void testRemoteManagerOrderingGuaranteeTest() throws Exception {
@@ -236,42 +273,39 @@ public class RemoteManagerTest {
       e.printStackTrace();
     }
   }
-
   
+  private RemoteManager getTestRemoteManager(String name, int localPort, int retry, int retryTimeout){
+    Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
+    clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
+    clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent1>());
+    Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
+
+    String hostAddress = NetUtils.getLocalAddress();
+    return new DefaultRemoteManagerImplementation(name, hostAddress, localPort, codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout);
+
+  }
+
   private class SendingRemoteManagerThread implements Callable<Integer> {
 
-    private final int localPort;
     private final int remotePort;
     private final int timeout;
-    private final int retry;
-    private final int retryTimeout;
+    private RemoteManager rm;
 
-    public SendingRemoteManagerThread(int localPort, int remotePort, int timeout, int retry, int retryTimeout){
-      this.localPort = localPort;
+    
+    public SendingRemoteManagerThread(RemoteManager rm, int remotePort, int timeout){
       this.remotePort = remotePort;
       this.timeout = timeout;
-      this.retry = retry;
-      this.retryTimeout = retryTimeout;
+      this.rm = rm;
     }
-
+    
     @Override
     public Integer call() throws Exception {
-
-      System.out.println(logPrefix + name.getMethodName());
-      LoggingUtils.setLoggingLevel(Level.INFO);
 
       Monitor monitor = new Monitor();
       TimerStage timer = new TimerStage(new TimeoutHandler(monitor), timeout, timeout);
 
-      Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
-      clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
-      clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
-      clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent1>());
-      Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
-
       String hostAddress = NetUtils.getLocalAddress();
-
-      RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, localPort, codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout);
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
 
@@ -284,62 +318,51 @@ public class RemoteManagerTest {
       rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
 
       proxyConnection.onNext(new StartEvent());
+
       monitor.mwait();
+
       proxyHandler1.onNext(new TestEvent1("hello1", 0.0));// registration after send expected to fail
       proxyHandler2.onNext(new TestEvent2("hello2", 0.0));// registration after send expected to fail
-
-      rm.close();
       timer.close();	 
 
       return counter.get();
     }
-  };
+  }
 
   private class ReceivingRemoteManagerThread implements Callable<Integer> {
 
-    private final int localPort;
     private final int timeout;
-    private final int retry;
-    private final int retryTimeout;
+    private final int numOfConnection;
+    private final int numOfEvent;
+    private RemoteManager rm;
 
-    public ReceivingRemoteManagerThread(int localPort, int timeout, int retry, int retryTimeout){
-      this.localPort = localPort;
+
+    public ReceivingRemoteManagerThread(RemoteManager rm, int timeout, int numOfConnection, int numOfEvent){
+      this.rm = rm;
       this.timeout = timeout;
-      this.retry = retry;
-      this.retryTimeout = retryTimeout;
+      this.numOfConnection = numOfConnection;
+      this.numOfEvent = numOfEvent;
     }
-
+    
+    
     @Override
     public Integer call() throws Exception {
-
-      System.out.println(logPrefix + name.getMethodName());
-      LoggingUtils.setLoggingLevel(Level.INFO);
 
       Monitor monitor = new Monitor();
       TimerStage timer = new TimerStage(new TimeoutHandler(monitor), timeout, timeout);
 
-      Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
-      clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
-      clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
-      clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent1>());
-      Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
-
-      String hostAddress = NetUtils.getLocalAddress();
-
-      RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, localPort, codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout);
-
       AtomicInteger counter = new AtomicInteger(0);
-      int finalSize = 2;
+      int finalSize = numOfConnection * numOfEvent;
       rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
-
+      
+      for(int i = 0; i < numOfConnection; i++){
+        monitor.mwait();
+      }
       monitor.mwait();
-      monitor.mwait();
-      rm.close();
       timer.close();	 
-
       return counter.get();
     }
-  };
+  }
 
  
   class MessageTypeEventHandler<T> implements EventHandler<RemoteMessage<T>> {
