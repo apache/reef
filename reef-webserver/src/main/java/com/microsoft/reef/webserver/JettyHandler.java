@@ -96,7 +96,7 @@ class JettyHandler extends AbstractHandler {
      * Add a handler explicitly instead of through injection. This is for handlers created on the fly.
      * @param handler
      */
-    final void AddHandler(final HttpHandler handler)
+    final void addHandler(final HttpHandler handler)
     {
         eventHandlers.put(handler.getUriSpecification(), handler);
     }
