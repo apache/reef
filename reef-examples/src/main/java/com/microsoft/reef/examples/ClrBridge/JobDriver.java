@@ -284,14 +284,15 @@ public final class JobDriver {
     }
 
     final class HttpServerBridgeEventHandler implements HttpHandler {
-        private final String uriSpecification;
+
+        private String uriSpecification;
 
         /**
-         * The instance of the class will be created explicitly instead of through injection
-         * @param spec
+         * set URI specification
+         * @param s
          */
-        public HttpServerBridgeEventHandler(final String spec) {
-            uriSpecification = spec;
+        public void setUriSpecification(String s) {
+            uriSpecification = s;
         }
 
         /**
@@ -320,16 +321,20 @@ public final class JobDriver {
          */
         @Override
         public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-            LOG.log(Level.INFO, "HttpServerNRTEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
+            LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest is called: {0}", request.getRequestURI());
             final RequestParser requestParser = new RequestParser(request);
-            final String queryStr = requestParser.getQueryString();
+            StringBuffer sb = new StringBuffer();
+            sb.append(requestParser.getTargetSpecification()).append(":").append(requestParser.getQueryString());
+            final String requestStr = sb.toString(); //requestParser.getQueryString();
             try {
                 InteropLogger interopLogger = new InteropLogger();
-                HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(queryStr);
+                HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestStr);
+                LOG.log(Level.INFO, "Calling NativeInterop.ClrSystemHttpServerHandlerOnNext with query string: {0}", requestStr);
                 NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
+                LOG.log(Level.INFO, "returned from NativeInterop.ClrSystemHttpServerHandlerOnNext with result : {0}", httpServerEventBridge.getQueryResult());
                 String result = httpServerEventBridge.getQueryResult();
                 response.getWriter().println("Calling back from bridge: " + result);
-                response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
+                //response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
             } catch (final Exception ex) {
                 LOG.log(Level.SEVERE, "Fail to invoke CLR failed task handler");
                 throw new RuntimeException(ex);
@@ -386,7 +391,7 @@ public final class JobDriver {
       public void onNext(final StartTime startTime) {
         synchronized (JobDriver.this) {
           InteropLogger interopLogger = new InteropLogger();
-          LOG.log(Level.INFO, "StartTime: {1}", new Object[]{ startTime});
+          LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null) {
             assert (handlers.length == NativeInterop.nHandlers);
@@ -402,10 +407,14 @@ public final class JobDriver {
           HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
           NativeInterop.ClrSystemHttpServerHandlerGetSpec(httpServerEventHandler, httpServerEventBridge, interopLogger);
           String specList = httpServerEventBridge.getUriSpecification();
-          String[] specs = specList.split(":");
-          for (String s : specs) {
-              HttpHandler h = new HttpServerBridgeEventHandler(s);
+          LOG.log(Level.INFO, "getUriSpecification: {0}", specList);
+          if (specList != null) {
+            String[] specs = specList.split(":");
+            for (String s : specs) {
+              HttpHandler h = new HttpServerBridgeEventHandler();
+              h.setUriSpecification(s);
               com.microsoft.reef.webserver.HttpServerImpl.addHttpHandler(h);
+            }
           }
 
           if (evaluatorRequestorHandler == 0) {

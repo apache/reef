@@ -122,6 +122,7 @@ public final class HttpServerImpl implements HttpServer {
      * @param httpHandler
      */
     static public void addHttpHandler(HttpHandler httpHandler) {
+        LOG.log(Level.INFO, "addHttpHandler: {0}", httpHandler.getUriSpecification());
         jettyHandler.AddHandler(httpHandler);
     }
 }

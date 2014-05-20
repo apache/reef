@@ -17,7 +17,11 @@ package com.microsoft.reef.examples.ClrBridge;
 
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.util.EnvironmentUtils;
+import com.microsoft.reef.webserver.HttpHandlerConfiguration;
+import com.microsoft.reef.webserver.HttpServerReefEventHandler;
+import com.microsoft.reef.webserver.ReefEventStateManager;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
@@ -88,8 +92,15 @@ public class JobClient {
                         .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
                         .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
                         //.set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
-                        .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class) ;
-                        //.set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class);
+                        .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
+                        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+                        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+                        .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
+                        .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+                        .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+                        .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class);
+
+        //.set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class);
     }
 
     private void addCLRFiles( final File folder) throws BindException{
@@ -101,9 +112,17 @@ public class JobClient {
         }
 
         this.driverConfigModule  = result;
-        this.driverConfiguration = this.driverConfigModule.build();
+        this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration());
     }
 
+    /**
+     * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
+     */
+    public static Configuration getHTTPConfiguration() {
+        return HttpHandlerConfiguration.CONF
+                .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+                .build();
+    }
     /**
      * Launch the job driver.
      *

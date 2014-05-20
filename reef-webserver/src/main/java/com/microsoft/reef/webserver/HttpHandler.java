@@ -29,7 +29,14 @@ public interface HttpHandler {
      *
      * @return
      */
-    String getUriSpecification();
+    public String getUriSpecification();
+
+    /**
+     * return specification of the handler. e.g Reef
+     *
+     * @return
+     */
+    public void setUriSpecification(String s);
 
     /**
      * Will be called when request comes
@@ -37,5 +44,5 @@ public interface HttpHandler {
      * @param request
      * @param response
      */
-    void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+    public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
 }
