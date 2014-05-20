@@ -89,6 +89,7 @@ namespace Microsoft
 					virtual IEvaluatorRequestorClr2Java^ GetEvaluatorRequestor();
 					virtual String^ GetId();
 				};
+
 				public ref class HttpServerClr2Java : public IHttpServerBridgeClr2Java
 				{
 					jlong _handle;
@@ -99,8 +100,19 @@ namespace Microsoft
 					HttpServerClr2Java(JNIEnv *env, jlong handle, jobject jhttpServerNRTEventBridge, jobject jlogger);
 					virtual String^ GetQueryString();
 					virtual void SetUriSpecification(String^ uriSpecification);
-//					virtual String^ GetQueryResult();
 					virtual void SetQueryResult(String^ queryResult);
+				};
+
+				public ref class CompletedTaskClr2Java : public ICompletedTaskClr2Java
+				{
+					jobject  _jobjectCompletedTask;
+					JavaVM* _jvm;
+					jstring _jstringId;
+					jobject _jobjectActiveContext;
+				public:
+					CompletedTaskClr2Java(JNIEnv *env, jobject jcompletedTask);
+					virtual IActiveContextClr2Java^ GetActiveContext();
+					virtual String^ GetId();
 				};
 			}
 		}

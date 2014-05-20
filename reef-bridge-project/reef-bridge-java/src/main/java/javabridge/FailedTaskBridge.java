@@ -27,13 +27,13 @@ public class FailedTaskBridge {
   private static final Logger LOG = Logger.getLogger(FailedTaskBridge.class.getName());
 
   private FailedTask jfailedTask;
-  private ActiveContext jactiveContext;
+  private ActiveContextBridge jactiveContext;
 
   public FailedTaskBridge(FailedTask failedTask)
   {
     jfailedTask = failedTask;
     Optional<ActiveContext> activeContext = failedTask.getActiveContext();
-    jactiveContext = activeContext.isPresent() ? activeContext.get() : null;
+    jactiveContext = activeContext.isPresent() ? new ActiveContextBridge(activeContext.get()) : null;
   }
 
   public String getFailedTaskString()

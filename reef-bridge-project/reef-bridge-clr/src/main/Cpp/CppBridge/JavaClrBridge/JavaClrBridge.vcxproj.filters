@@ -80,7 +80,11 @@
     <ClCompile Include="FailedEvaluatorClr2Java.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="HttpServerClr2Java.cpp">
+=======
+    <ClCompile Include="CompletedTaskClr2Java.cpp">
+>>>>>>> ee8908ba966a94b01cb8e10b8aa202c4444b2f1e
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
