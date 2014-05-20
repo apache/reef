@@ -15,6 +15,9 @@
  */
 package com.microsoft.reef.util;
 
+import net.jcip.annotations.Immutable;
+import net.jcip.annotations.ThreadSafe;
+
 import java.io.Serializable;
 
 /**
@@ -24,6 +27,8 @@ import java.io.Serializable;
  *
  * @param <T>
  */
+@Immutable
+@ThreadSafe
 public final class Optional<T> implements Serializable {
 
   private static final long serialVersionUID = 42L;
