@@ -23,9 +23,6 @@ public final class HttpServerEventBridge {
     private String queryResult;
     private String uriSpecification;
 
-    public HttpServerEventBridge() {
-    }
-
     public HttpServerEventBridge(String queryStr) {
        this.queryString = queryStr;
     }

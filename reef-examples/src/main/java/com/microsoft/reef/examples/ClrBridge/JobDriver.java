@@ -310,14 +310,6 @@ public final class JobDriver {
             return uriSpecification;
         }
 
-//        /**
-//         * set URI specification after the instance is created
-//         * @param spec
-//         */
-//        public void setUriSpecificatin(String spec) {
-//            uriSpecification = spec;
-//        }
-
         /**
          * it is called when receiving a http request
          *
@@ -341,7 +333,7 @@ public final class JobDriver {
                 response.getWriter().println("Calling back from bridge: " + result);
                 //response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
             } catch (final Exception ex) {
-                LOG.log(Level.SEVERE, "Fail to invoke CLR failed task handler");
+                LOG.log(Level.SEVERE, "Fail to invoke CLR Http Server handler");
                 throw new RuntimeException(ex);
             }
         }
