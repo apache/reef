@@ -79,7 +79,7 @@ public class LargeMsgTest {
 
     String hostAddress = NetUtils.getLocalAddress();
     int port = 7001;
-    NettyMessagingTransport transport = new NettyMessagingTransport(hostAddress, port, clientStage, serverStage);
+    NettyMessagingTransport transport = new NettyMessagingTransport(hostAddress, port, clientStage, serverStage, 1, 10000);
     final Link<byte[]> link = transport.open(new InetSocketAddress(hostAddress, port), new PassThroughEncoder(), null);
     EStage<byte[]> writeSubmitter = new ThreadPoolStage<>("Submitter", new EventHandler<byte[]>() {
 

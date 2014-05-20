@@ -54,7 +54,7 @@ public class TransportRaceTest {
     String hostAddress = NetUtils.getLocalAddress();
     int port = 7001;
     NettyMessagingTransport transport = new NettyMessagingTransport(
-        hostAddress, port, clientStage, serverStage);
+        hostAddress, port, clientStage, serverStage, 1, 10000);
 
     String value = "Test Race";
 
