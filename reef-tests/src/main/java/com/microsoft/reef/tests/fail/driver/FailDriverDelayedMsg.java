@@ -99,7 +99,7 @@ public final class FailDriverDelayedMsg {
         @Override
         public void onNext(final Alarm time) {
           LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(Alarm): {0}", time);
-          task.onNext(HELLO_STR);
+          task.send(HELLO_STR);
         }
       });
     }
