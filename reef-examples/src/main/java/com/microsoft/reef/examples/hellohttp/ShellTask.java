@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.microsoft.reef.examples.hellohttp;
 
 import com.microsoft.reef.task.Task;
@@ -41,13 +42,6 @@ public class ShellTask implements Task {
     /** A command to execute. */
     private final String command;
 
-    /**
-     * Command line parameter: a command to run. e.g. "echo Hello REEF"
-     */
-    @NamedParameter(doc = "The shell command", short_name = "cmd", default_value = "*INTERACTIVE*")
-    public static final class Command implements Name<String> {
-
-    }
     /**
      * Task constructor. Parameters are injected automatically by TANG.
      * @param command a command to execute.

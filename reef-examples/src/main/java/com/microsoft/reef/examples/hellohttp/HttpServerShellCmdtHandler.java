@@ -36,16 +36,16 @@ import java.util.logging.Logger;
  * Http Event handler for Shell Command
  */
 @Unit
-public class HttpServeShellCmdtHandler implements HttpHandler {
+class HttpServerShellCmdtHandler implements HttpHandler {
     /**
      * Standard Java logger.
      */
-    private static final Logger LOG = Logger.getLogger(HttpServeShellCmdtHandler.class.getName());
+    private static final Logger LOG = Logger.getLogger(HttpServerShellCmdtHandler.class.getName());
 
     /**
      *  ClientMessageHandler
      */
-    private final InjectionFuture<HelloDriver.ClientMessageHandler> messageHandler;
+    private final InjectionFuture<HttpShellJobDriver.ClientMessageHandler> messageHandler;
 
     /**
      * uri specification
@@ -61,7 +61,7 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
      * HttpServerDistributedShellEventHandler constructor.
      */
     @Inject
-    public HttpServeShellCmdtHandler(final InjectionFuture<HelloDriver.ClientMessageHandler> messageHandler) {
+    public HttpServerShellCmdtHandler(final InjectionFuture<HttpShellJobDriver.ClientMessageHandler> messageHandler) {
         this.messageHandler = messageHandler;
     }
 
@@ -97,7 +97,7 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
         final String queryStr = requestParser.getQueryString();
 
         if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators")) {
-            byte[] b = HelloDriver.CODEC.encode(queryStr);
+            byte[] b = HttpShellJobDriver.CODEC.encode(queryStr);
             LOG.log(Level.INFO, "HttpServeShellCmdtHandler call HelloDriver onCommand(): {0}", queryStr);
             messageHandler.get().onNext(b);
 
@@ -130,8 +130,8 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
 
             }
         }
-        LOG.log(Level.INFO, "HttpServeShellCmdtHandler OnCallback: {0}", HelloDriver.CODEC.decode(message));
-        cmdOutput = HelloDriver.CODEC.decode(message);
+        LOG.log(Level.INFO, "HttpServeShellCmdtHandler OnCallback: {0}", HttpShellJobDriver.CODEC.decode(message));
+        cmdOutput = HttpShellJobDriver.CODEC.decode(message);
 
         notify();
     }
@@ -142,7 +142,7 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
     final class ClientCallBackHandler implements EventHandler<byte[]> {
         @Override
         public void onNext(final byte[] message) {
-            HttpServeShellCmdtHandler.this.onHttpCallback(message);
+            HttpServerShellCmdtHandler.this.onHttpCallback(message);
         }
     }
 }

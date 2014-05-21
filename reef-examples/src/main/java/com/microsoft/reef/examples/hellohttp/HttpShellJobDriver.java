@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.microsoft.reef.examples.hellohttp;
 
 import com.microsoft.reef.driver.context.ActiveContext;
@@ -45,9 +46,9 @@ import java.util.logging.Logger;
  * The Driver code for the Hello REEF Http Distributed Shell Application
  */
 @Unit
-public final class HelloDriver {
+public final class HttpShellJobDriver {
 
-    private static final Logger LOG = Logger.getLogger(HelloDriver.class.getName());
+    private static final Logger LOG = Logger.getLogger(HttpShellJobDriver.class.getName());
 
     /**
      * Possible states of the job driver. Can be one of:
@@ -79,6 +80,9 @@ public final class HelloDriver {
      */
     private String cmd;
 
+    /**
+     *  Evaluator Requester
+     */
     private final EvaluatorRequestor evaluatorRequestor;
 
     /**
@@ -104,7 +108,7 @@ public final class HelloDriver {
     /**
      * Callback handler for http return message
      */
-    private HttpServeShellCmdtHandler.ClientCallBackHandler httpCallbackHandler;
+    private HttpServerShellCmdtHandler.ClientCallBackHandler httpCallbackHandler;
 
     /**
      * Job Driver Constructor
@@ -112,7 +116,7 @@ public final class HelloDriver {
      * @param clientCallBackHandler
      */
     @Inject
-    public HelloDriver(final EvaluatorRequestor requestor, final HttpServeShellCmdtHandler.ClientCallBackHandler clientCallBackHandler) {
+    public HttpShellJobDriver(final EvaluatorRequestor requestor, final HttpServerShellCmdtHandler.ClientCallBackHandler clientCallBackHandler) {
         this.evaluatorRequestor = requestor;
         this.httpCallbackHandler = clientCallBackHandler;
         LOG.log(Level.INFO, "Instantiated 'HelloDriver'");
@@ -125,10 +129,10 @@ public final class HelloDriver {
     final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
         @Override
         public void onNext(final AllocatedEvaluator eval) {
-            synchronized (HelloDriver.this) {
+            synchronized (HttpShellJobDriver.this) {
                 LOG.log(Level.INFO, "Allocated Evaluator: {0} expect {1} running {2}",
-                        new Object[]{eval.getId(), HelloDriver.this.expectCount, HelloDriver.this.contexts.size()});
-                assert (HelloDriver.this.state == State.WAIT_EVALUATORS);
+                        new Object[]{eval.getId(), HttpShellJobDriver.this.expectCount, HttpShellJobDriver.this.contexts.size()});
+                assert (HttpShellJobDriver.this.state == State.WAIT_EVALUATORS);
                 try {
                     eval.submitContext(ContextConfiguration.CONF.set(
                             ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build());
@@ -147,10 +151,10 @@ public final class HelloDriver {
     final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
         @Override
         public void onNext(final FailedEvaluator eval) {
-            synchronized (HelloDriver.this) {
+            synchronized (HttpShellJobDriver.this) {
                 LOG.log(Level.SEVERE, "FailedEvaluator", eval);
                 for (final FailedContext failedContext : eval.getFailedContextList()) {
-                    HelloDriver.this.contexts.remove(failedContext.getId());
+                    HttpShellJobDriver.this.contexts.remove(failedContext.getId());
                 }
                 throw new RuntimeException("Failed Evaluator: ", eval.getEvaluatorException());
             }
@@ -164,18 +168,18 @@ public final class HelloDriver {
     final class ActiveContextHandler implements EventHandler<ActiveContext> {
         @Override
         public void onNext(final ActiveContext context) {
-            synchronized (HelloDriver.this) {
+            synchronized (HttpShellJobDriver.this) {
                 LOG.log(Level.INFO, "Context available: {0} expect {1} state {2}",
-                        new Object[]{context.getId(), HelloDriver.this.expectCount, HelloDriver.this.state});
-                assert (HelloDriver.this.state == State.WAIT_EVALUATORS);
-                HelloDriver.this.contexts.put(context.getId(), context);
-                if (--HelloDriver.this.expectCount <= 0) {
-                    HelloDriver.this.state = State.READY;
-                    if (HelloDriver.this.cmd == null) {
+                        new Object[]{context.getId(), HttpShellJobDriver.this.expectCount, HttpShellJobDriver.this.state});
+                assert (HttpShellJobDriver.this.state == State.WAIT_EVALUATORS);
+                HttpShellJobDriver.this.contexts.put(context.getId(), context);
+                if (--HttpShellJobDriver.this.expectCount <= 0) {
+                    HttpShellJobDriver.this.state = State.READY;
+                    if (HttpShellJobDriver.this.cmd == null) {
                         LOG.log(Level.INFO, "All evaluators ready; waiting for command. State: {0}",
-                                HelloDriver.this.state);
+                                HttpShellJobDriver.this.state);
                     } else {
-                        HelloDriver.this.submit(HelloDriver.this.cmd);
+                        HttpShellJobDriver.this.submit(HttpShellJobDriver.this.cmd);
                     }
                 }
             }
@@ -190,8 +194,8 @@ public final class HelloDriver {
         @Override
         public void onNext(final ClosedContext context) {
             LOG.log(Level.INFO, "Completed Context: {0}", context.getId());
-            synchronized (HelloDriver.this) {
-                HelloDriver.this.contexts.remove(context.getId());
+            synchronized (HttpShellJobDriver.this) {
+                HttpShellJobDriver.this.contexts.remove(context.getId());
             }
         }
     }
@@ -204,8 +208,8 @@ public final class HelloDriver {
         @Override
         public void onNext(final FailedContext context) {
             LOG.log(Level.SEVERE, "FailedContext", context);
-            synchronized (HelloDriver.this) {
-                HelloDriver.this.contexts.remove(context.getId());
+            synchronized (HttpShellJobDriver.this) {
+                HttpShellJobDriver.this.contexts.remove(context.getId());
             }
             throw new RuntimeException("Failed context: ", context.asError());
         }
@@ -220,15 +224,15 @@ public final class HelloDriver {
             LOG.log(Level.INFO, "Completed task: {0}", task.getId());
             // Take the message returned by the task and add it to the running result.
             final String result = CODEC.decode(task.get());
-            synchronized (HelloDriver.this) {
-                HelloDriver.this.results.add(task.getId() + " :: " + result);
+            synchronized (HttpShellJobDriver.this) {
+                HttpShellJobDriver.this.results.add(task.getId() + " :: " + result);
                 LOG.log(Level.INFO, "Task {0} result {1}: {2} state: {3}", new Object[]{
-                        task.getId(), HelloDriver.this.results.size(), result, HelloDriver.this.state});
-                if (--HelloDriver.this.expectCount <= 0) {
-                    HelloDriver.this.returnResults();
-                    HelloDriver.this.state = State.READY;
-                    if (HelloDriver.this.cmd != null) {
-                        HelloDriver.this.submit(HelloDriver.this.cmd);
+                        task.getId(), HttpShellJobDriver.this.results.size(), result, HttpShellJobDriver.this.state});
+                if (--HttpShellJobDriver.this.expectCount <= 0) {
+                    HttpShellJobDriver.this.returnResults();
+                    HttpShellJobDriver.this.state = State.READY;
+                    if (HttpShellJobDriver.this.cmd != null) {
+                        HttpShellJobDriver.this.submit(HttpShellJobDriver.this.cmd);
                     }
                 }
             }
@@ -254,17 +258,17 @@ public final class HelloDriver {
     final class ClientMessageHandler implements EventHandler<byte[]> {
         @Override
         public void onNext(final byte[] message) {
-            synchronized (HelloDriver.this) {
+            synchronized (HttpShellJobDriver.this) {
                 final String command = CODEC.decode(message);
                 LOG.log(Level.INFO, "Client message: {0} state: {1}",
-                        new Object[]{command, HelloDriver.this.state});
-                assert (HelloDriver.this.cmd == null);
-                if (HelloDriver.this.state == State.READY) {
-                    HelloDriver.this.submit(command);
+                        new Object[]{command, HttpShellJobDriver.this.state});
+                assert (HttpShellJobDriver.this.cmd == null);
+                if (HttpShellJobDriver.this.state == State.READY) {
+                    HttpShellJobDriver.this.submit(command);
                 } else {
                     // not ready yet - save the command for better times.
-                    assert (HelloDriver.this.state == State.WAIT_EVALUATORS);
-                    HelloDriver.this.cmd = command;
+                    assert (HttpShellJobDriver.this.state == State.WAIT_EVALUATORS);
+                    HttpShellJobDriver.this.cmd = command;
                 }
             }
         }
@@ -301,7 +305,7 @@ public final class HelloDriver {
                             .set(TaskConfiguration.TASK, ShellTask.class)
                             .build()
             );
-            cb.bindNamedParameter(com.microsoft.reef.examples.hellohttp.ShellTask.Command.class, command);
+            cb.bindNamedParameter(com.microsoft.reef.examples.hellohttp.Command.class, command);
             context.submitTask(cb.build());
         } catch (final BindException ex) {
             LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
@@ -309,6 +313,7 @@ public final class HelloDriver {
             throw new RuntimeException(ex);
         }
     }
+
     /**
      * Job Driver is ready and the clock is set up: request the evaluators.
      */

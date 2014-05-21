@@ -67,7 +67,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      * set URI specification
      * @param s
      */
-    public void setUriSpecification(String s) {
+    public void setUriSpecification(final String s) {
         uriSpecification = s;
     }
     /**

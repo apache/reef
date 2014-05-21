@@ -36,7 +36,7 @@ public interface HttpHandler {
      *
      * @return
      */
-    public void setUriSpecification(String s);
+    public void setUriSpecification(final String s);
 
     /**
      * Will be called when request comes
