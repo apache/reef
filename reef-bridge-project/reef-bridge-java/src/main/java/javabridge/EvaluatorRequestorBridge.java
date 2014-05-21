@@ -16,8 +16,17 @@
 
 package javabridge;
 
+import com.microsoft.reef.driver.catalog.RackDescriptor;
+import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.proto.DriverRuntimeProtocol;
+import com.microsoft.reef.runtime.common.driver.catalog.RackDescriptorImpl;
+import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
+import com.microsoft.tang.Injector;
+import com.microsoft.tang.JavaConfigurationBuilder;
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.exceptions.InjectionException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,14 +46,45 @@ public class EvaluatorRequestorBridge {
         clrEvaluatorsNumber = 0;
     }
 
-    public void submit( final int evaluatorsNumber, final int memory)
+    public void submit( final int evaluatorsNumber, final int memory,  String rack)
     {
-      clrEvaluatorsNumber += evaluatorsNumber;
-       EvaluatorRequest request = EvaluatorRequest.newBuilder()
-                .setNumber(evaluatorsNumber)
-                .setMemory(memory)
-                .build();
-        LOG.log(Level.INFO, "========= submitting " + evaluatorsNumber);
+        clrEvaluatorsNumber += evaluatorsNumber;
+        final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+        cb.bindImplementation(ResourceCatalog.class, ResourceCatalogImpl.class);
+        Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+        ResourceCatalog resourceCatalog;
+        try {
+          resourceCatalog = injector.getInstance(ResourceCatalog.class);
+        } catch (final InjectionException e) {
+          LOG.log(Level.SEVERE, "Cannot inject resource catalog", e);
+          throw new RuntimeException("Cannot inject resource catalog");
+        }
+
+        ResourceCatalogImpl catalog;
+        try {
+          catalog = (ResourceCatalogImpl) resourceCatalog;
+        } catch (final ClassCastException e) {
+          LOG.log(Level.SEVERE, "Failed to cast to ResourceCatalogImpl.", e);
+          throw e;
+        }
+        if(rack == null || rack.isEmpty())
+        {
+          rack = "/default-rack";
+        }
+        catalog.handle(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
+                .setRackName(rack)
+                .setHostName("HostName")
+                .setPort(0)
+                .setMemorySize(memory)
+                .setIdentifier("clrBridgeRackCatalog")
+                .build());
+         RackDescriptor rackDescriptor = (RackDescriptor)(catalog.getRacks().toArray())[0];
+         EvaluatorRequest request = EvaluatorRequest.newBuilder().fromDescriptor(rackDescriptor)
+                  .setNumber(evaluatorsNumber)
+                  .setMemory(memory)
+                  .build();
+
+        LOG.log(Level.INFO, String.format("submitting %s evaluator to rack %s", evaluatorsNumber, rack) );
         jevaluatorRequestor.submit(request);
     }
 

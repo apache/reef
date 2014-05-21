@@ -150,8 +150,7 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
   /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
    */
-  public static final ConfigurationModule CONF = new DriverServiceConfiguration().merge(DriverRuntimeConfiguration.CONF)
-
+  public static final ConfigurationModule CONF = new DriverServiceConfiguration()
       // Files use the very same named parameters as the DriverConfiguration
       .bindSetEntry(JobGlobalFiles.class, GLOBAL_FILES)
       .bindSetEntry(JobGlobalLibraries.class, GLOBAL_LIBRARIES)
@@ -160,39 +159,25 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
 
           // Start and stop events are the same handlers for applications and services.
       .bindSetEntry(Clock.StartHandler.class, ON_DRIVER_STARTED)
-      .bindSetEntry(DriverSingletons.class, ON_DRIVER_STARTED)
       .bindSetEntry(Clock.StopHandler.class, ON_DRIVER_STOP)
-      .bindSetEntry(DriverSingletons.class, ON_DRIVER_STOP)
 
           // Evaluator handlers
       .bindSetEntry(ServiceEvaluatorAllocatedHandlers.class, ON_EVALUATOR_ALLOCATED)
-      .bindSetEntry(DriverSingletons.class, ON_EVALUATOR_ALLOCATED)
       .bindSetEntry(ServiceEvaluatorCompletedHandlers.class, ON_EVALUATOR_COMPLETED)
-      .bindSetEntry(DriverSingletons.class, ON_EVALUATOR_COMPLETED)
       .bindSetEntry(ServiceEvaluatorFailedHandlers.class, ON_EVALUATOR_FAILED)
-      .bindSetEntry(DriverSingletons.class, ON_EVALUATOR_FAILED)
 
           // Task handlers
       .bindSetEntry(ServiceTaskRunningHandlers.class, ON_TASK_RUNNING)
-      .bindSetEntry(DriverSingletons.class, ON_TASK_RUNNING)
       .bindSetEntry(ServiceTaskFailedHandlers.class, ON_TASK_FAILED)
-      .bindSetEntry(DriverSingletons.class, ON_TASK_FAILED)
       .bindSetEntry(ServiceTaskMessageHandlers.class, ON_TASK_MESSAGE)
-      .bindSetEntry(DriverSingletons.class, ON_TASK_MESSAGE)
       .bindSetEntry(ServiceTaskCompletedHandlers.class, ON_TASK_COMPLETED)
-      .bindSetEntry(DriverSingletons.class, ON_TASK_COMPLETED)
       .bindSetEntry(ServiceTaskSuspendedHandlers.class, ON_TASK_SUSPENDED)
-      .bindSetEntry(DriverSingletons.class, ON_TASK_SUSPENDED)
 
           // Context handlers
       .bindSetEntry(ServiceContextActiveHandlers.class, ON_CONTEXT_ACTIVE)
-      .bindSetEntry(DriverSingletons.class, ON_CONTEXT_ACTIVE)
       .bindSetEntry(ServiceContextClosedHandlers.class, ON_CONTEXT_CLOSED)
-      .bindSetEntry(DriverSingletons.class, ON_CONTEXT_CLOSED)
       .bindSetEntry(ServiceContextMessageHandlers.class, ON_CONTEXT_MESSAGE)
-      .bindSetEntry(DriverSingletons.class, ON_CONTEXT_MESSAGE)
       .bindSetEntry(ServiceContextFailedHandlers.class, ON_CONTEXT_FAILED)
-      .bindSetEntry(DriverSingletons.class, ON_CONTEXT_FAILED)
 
       .build();
 }

@@ -92,13 +92,7 @@ public class JobClient {
                         .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
                         .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
                         .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
-                        .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
-                        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
-                        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-                        .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
-                        .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-                        .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
-                        .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class);
+                        .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class);
                         //.set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class);
     }
 
@@ -118,10 +112,19 @@ public class JobClient {
      * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
      */
     public static Configuration getHTTPConfiguration() {
-        return HttpHandlerConfiguration.CONF
+        Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
                 .build();
+        Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
+                .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+                .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+                .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+                .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+                .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+                .build();
+        return Configurations.merge(httpHandlerConfiguration, driverConfigurationForHttpServer);
     }
+
     /**
      * Launch the job driver.
      *

@@ -22,7 +22,7 @@ namespace Microsoft
 				{
 					JNIEnv *env = RetrieveEnv(_jvm);
 					jclass jclassEvaluatorRequestor = env->GetObjectClass (_jobjectEvaluatorRequestor);
-					jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(II)V");
+					jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(IILjava/lang/String;)V");
 
 					fprintf(stdout, "EvaluatorRequestorClr2Java jclassEvaluatorRequestor %p\n", jclassEvaluatorRequestor); fflush (stdout);
 					fprintf(stdout, "EvaluatorRequestorClr2Java jmidSubmit %p\n", jmidSubmit); fflush (stdout);
@@ -36,7 +36,8 @@ namespace Microsoft
 						_jobjectEvaluatorRequestor, 
 						jmidSubmit, 
 						request -> Number,
-						request -> MemoryMegaBytes);
+						request -> MemoryMegaBytes,
+						JavaStringFromManagedString(env, request -> Rack));
 				}
 			}
 		}
