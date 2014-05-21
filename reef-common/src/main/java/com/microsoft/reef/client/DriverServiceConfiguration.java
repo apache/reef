@@ -150,8 +150,7 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
   /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
    */
-  public static final ConfigurationModule CONF = new DriverServiceConfiguration().merge(DriverRuntimeConfiguration.CONF)
-
+  public static final ConfigurationModule CONF = new DriverServiceConfiguration()
       // Files use the very same named parameters as the DriverConfiguration
       .bindSetEntry(JobGlobalFiles.class, GLOBAL_FILES)
       .bindSetEntry(JobGlobalLibraries.class, GLOBAL_LIBRARIES)
