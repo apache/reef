@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ public final class Driver {
       switch (failTask.getSimpleName()) {
         case "FailTaskMsg":
           LOG.log(Level.INFO, "TaskRuntime: Send message: {0}", task);
-          task.onNext(new byte[0]);
+          task.send(new byte[0]);
           break;
         case "FailTaskSuspend":
           LOG.log(Level.INFO, "TaskRuntime: Suspend: {0}", task);

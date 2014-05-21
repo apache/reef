@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.microsoft.reef.runtime.common.evaluator.context;
 
-import com.microsoft.reef.driver.context.ContextConfigurationOptions;
+import com.microsoft.reef.evaluator.context.parameters.ContextIdentifier;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
@@ -67,7 +67,7 @@ public final class ContextClientCodeException extends Exception {
   public static String getIdentifier(final Configuration c) {
     try {
       return Tang.Factory.getTang().newInjector(c).getNamedInstance(
-          ContextConfigurationOptions.ContextIdentifier.class);
+          ContextIdentifier.class);
     } catch (final InjectionException e) {
       throw new RuntimeException("Unable to determine context identifier. Giving up.", e);
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.FailedJob;
 import com.microsoft.wake.EventHandler;
+
 import javax.inject.Inject;
 
 /**
@@ -34,6 +35,6 @@ public final class DefaultFailedJobHandler implements EventHandler<FailedJob> {
 
   @Override
   public void onNext(final FailedJob job) {
-    throw new RuntimeException("REEF job failed: " + job.getId(), job.getCause());
+    throw new RuntimeException("REEF job failed: " + job.getId(), job.getReason().orElse(null));
   }
 }

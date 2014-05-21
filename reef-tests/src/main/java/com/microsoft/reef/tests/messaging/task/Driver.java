@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ public final class Driver {
       clock.scheduleAlarm(DELAY, new EventHandler<Alarm>() {
         @Override
         public void onNext(final Alarm alarm) {
-          task.onNext(HELLO_STR);
+          task.send(HELLO_STR);
         }
       });
     }

@@ -20,6 +20,7 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ public final class EvaluatorControlHandler {
 
   private final EvaluatorStatusManager stateManager;
   private final RemoteManager remoteManager;
+  private final String evaluatorId;
   private static Logger LOG = Logger.getLogger(EvaluatorControlHandler.class.getName());
   private Optional<EventHandler<EvaluatorRuntimeProtocol.EvaluatorControlProto>> wrapped = Optional.empty();
 
@@ -44,9 +46,11 @@ public final class EvaluatorControlHandler {
    */
   @Inject
   EvaluatorControlHandler(final EvaluatorStatusManager stateManager,
-                          final RemoteManager remoteManager) {
+                          final RemoteManager remoteManager,
+                          final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorId) {
     this.stateManager = stateManager;
     this.remoteManager = remoteManager;
+    this.evaluatorId = evaluatorId;
     LOG.log(Level.INFO, "Instantiated 'EvaluatorControlHandler'");
   }
 
@@ -77,6 +81,7 @@ public final class EvaluatorControlHandler {
     if (this.wrapped.isPresent()) {
       throw new IllegalStateException("Trying to reset the evaluator ID. This isn't supported.");
     } else {
+      LOG.log(Level.INFO, "Registering remoteId [{0}] for Evaluator [{1}]", new Object[]{evaluatorRID, evaluatorId});
       this.wrapped = Optional.of(remoteManager.getHandler(evaluatorRID, EvaluatorRuntimeProtocol.EvaluatorControlProto.class));
     }
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@ public final class LauncherStatus {
 
   public static final LauncherStatus FAILED(final Throwable ex) {
     return new LauncherStatus(State.FAILED, ex);
+  }
+
+  public static final LauncherStatus FAILED(final Optional<Throwable> ex) {
+    return new LauncherStatus(State.FAILED, ex.orElse(null));
   }
 
   /**

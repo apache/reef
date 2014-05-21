@@ -15,35 +15,15 @@
  */
 package com.microsoft.reef.runtime.yarn.driver;
 
+import com.microsoft.tang.annotations.DefaultImplementation;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-/**
- * Side-channel to request containers from YARN using AMRMClient.ContainerRequest requests.
- */
-public final class YarnContainerRequestHandler {
-  private static final Logger LOG = Logger.getLogger(YarnContainerRequestHandler.class.getName());
-
-  private final YarnContainerManager containerManager;
-
-
-  @Inject
-  YarnContainerRequestHandler(final YarnContainerManager containerManager) {
-    this.containerManager = containerManager;
-    LOG.log(Level.FINEST, "Instantiated 'YarnContainerRequestHandler'");
-  }
-
+@DefaultImplementation(YarnContainerRequestHandlerImpl.class)
+public interface YarnContainerRequestHandler {
   /**
    * Enqueue a set of container requests with YARN.
    *
    * @param containerRequests
    */
-  public void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests) {
-    LOG.log(Level.FINEST, "Sending container requests to YarnContainerManager.");
-    this.containerManager.onContainerRequest(containerRequests);
-  }
-
+  void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests);
 }

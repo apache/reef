@@ -1,11 +1,11 @@
-/*
- * Copyright 2013 Microsoft.
+/**
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,14 +15,9 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
-
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 
 import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.io.data.loading.api.DataSet;
@@ -38,23 +33,19 @@ import com.microsoft.reef.task.Task;
 @TaskSide
 public class LineCountingTask implements Task {
   private static final Logger LOG = Logger.getLogger(LineCountingTask.class.getName());
-  private final DataSet<LongWritable,Text> dataSet;
+  
+  private final DataSet<?,?> dataSet;
   
   @Inject
-  public LineCountingTask(final DataSet<LongWritable,Text> dataSet) {
+  public LineCountingTask(final DataSet<?,?> dataSet) {
     this.dataSet = dataSet;
   }
 
   @Override
   public byte[] call(final byte[] arg0) throws Exception {
     int numEx = 0;
-    List<Example> examples = new ArrayList<>();
-    Parser<String> parser = new SVMLightParser();
-    for (final Pair<LongWritable,Text> keyValue : dataSet) {
-      final String value = keyValue.second.toString();
-      if(value.isEmpty())
-        continue;
-      examples.add(parser.parse(value));
+    for (final Pair<?,?> keyValue : dataSet) {
+      LOG.finest(keyValue.toString());
       ++numEx;
     }
     return Integer.toString(numEx).getBytes();

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,19 +32,20 @@ import com.microsoft.reef.annotations.audience.Public;
 public interface JobMessageObserver {
 
   /**
-   * A message from the running job containing status and a client defined
-   * message payload.
+   * Send a message to the client.
    *
-   * @param message
-   */
-  public void onNext(final byte[] message);
-
-  /**
-   * An exception from the running job.
-   *
-   * @param exception
-   * @deprecated Just throw the exception instead. It will be caught by the Driver and sent to the client
+   * @param message a message to be sent to the client
+   * @deprecated use sendMessageToClient instead.
    */
   @Deprecated
-  public void onError(final Throwable exception);
+  public void onNext(final byte[] message);
+
+
+  /**
+   * Send a message to the client.
+   *
+   * @param message a message to be sent to the client
+   */
+  public void sendMessageToClient(final byte[] message);
+
 }

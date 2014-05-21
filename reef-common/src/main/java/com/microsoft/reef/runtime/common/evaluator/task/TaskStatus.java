@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.evaluator.task;
 
 import com.google.protobuf.ByteString;
-import com.microsoft.reef.driver.context.ContextConfigurationOptions;
+import com.microsoft.reef.evaluator.context.parameters.ContextIdentifier;
 import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
@@ -65,7 +65,7 @@ public final class TaskStatus {
 
   @Inject
   TaskStatus(final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
-             final @Parameter(ContextConfigurationOptions.ContextIdentifier.class) String contextId,
+             final @Parameter(ContextIdentifier.class) String contextId,
              final @Parameter(TaskConfigurationOptions.TaskMessageSources.class) Set<TaskMessageSource> evaluatorMessageSources,
              final TaskLifeCycle taskLifeCycle,
              final HeartBeatManager heartBeatManager,

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,7 +172,7 @@ public final class JobDriver {
         for (final FailedContext failedContext : eval.getFailedContextList()) {
           JobDriver.this.contexts.remove(failedContext.getId());
         }
-        JobDriver.this.jobMessageObserver.onError(eval.getEvaluatorException());
+        throw new RuntimeException("Failed Evaluator: ", eval.getEvaluatorException());
       }
     }
   }
@@ -227,7 +227,7 @@ public final class JobDriver {
       synchronized (JobDriver.this) {
         JobDriver.this.contexts.remove(context.getId());
       }
-      JobDriver.this.jobMessageObserver.onError(context.asError());
+      throw new RuntimeException("Failed context: ", context.asError());
     }
   }
 

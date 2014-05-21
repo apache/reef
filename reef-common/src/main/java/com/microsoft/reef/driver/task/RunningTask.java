@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,18 @@ public interface RunningTask extends Identifiable, AutoCloseable {
    * Sends the message to the running task.
    *
    * @param message to be sent to the running task
+   * @deprecated in 0.4. use send() instead
    */
+  @DriverSide
   public void onNext(final byte[] message);
+
+
+  /**
+   * Sends the message to the running task.
+   *
+   * @param message to be sent to the running task
+   */
+  public void send(final byte[] message);
 
   /**
    * Signal the task to suspend.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,11 @@ public final class DefaultRuntimeErrorHandler implements EventHandler<FailedRunt
 
   @Override
   public void onNext(final FailedRuntime error) {
-    LOG.log(Level.SEVERE, "Runtime error: " + error, error.getCause());
+    if (error.getReason().isPresent()) {
+      LOG.log(Level.SEVERE, "Runtime error: " + error, error.getReason().get());
+    } else {
+      LOG.log(Level.SEVERE, "Runtime error: " + error);
+    }
     throw new RuntimeException("REEF runtime error: " + error, error.asError());
   }
 }

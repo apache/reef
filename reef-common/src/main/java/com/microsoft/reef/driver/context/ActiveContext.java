@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +33,12 @@ import com.microsoft.tang.Configuration;
  * </ol>
  * <p/>
  * Contexts have identifiers. A context is instantiated on a single Evaluator. Contexts are either created on an
- * AllocatedEvaluator (for the root context) or by forming sub-Contexts.
+ * AllocatedEvaluator (for what is called the "root Context") or by forming sub-Contexts.
  * <p/>
- * Contexts form a stack. Only the topmost context is active. Child context or tasks can be submitted to the
- * active context. Contexts can be closed, in which case their parent becomes active.
+ * Contexts form a stack. Only the topmost context is active. Child Contexts or Tasks can be submitted to the
+ * active Context. Contexts can be closed, in which case their parent becomes active.
  * In the case of the root context, closing is equivalent to releasing the Evaluator. A child context "sees" all
- * Configuration in its parent Contexts. Tasks are submitted to and executed in a context.
+ * Configuration in its parent Contexts.
  */
 @Public
 @DriverSide

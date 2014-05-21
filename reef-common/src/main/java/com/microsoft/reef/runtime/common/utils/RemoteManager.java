@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RemoteManager {
-  private static final Logger LOG = Logger.getLogger(RemoteManager.class.getName());
-  private final com.microsoft.wake.remote.RemoteManager raw;
 
+  private static final Logger LOG = Logger.getLogger(RemoteManager.class.getName());
+
+  private final com.microsoft.wake.remote.RemoteManager raw;
   private final RemoteIdentifierFactory factory;
 
   @Inject
-  public RemoteManager(final com.microsoft.wake.remote.RemoteManager raw, final RemoteIdentifierFactory factory) {
+  public RemoteManager(final com.microsoft.wake.remote.RemoteManager raw,
+                       final RemoteIdentifierFactory factory) {
     this.raw = raw;
     this.factory = factory;
-    LOG.log(Level.INFO, "Instantiated 'RemoteManager'");
+    LOG.log(Level.INFO, "Instantiated 'RemoteManager' with remoteId: {0}", this.getMyIdentifier());
   }
 
   public final com.microsoft.wake.remote.RemoteManager raw() {
@@ -45,8 +47,7 @@ public class RemoteManager {
   }
 
   public <T> EventHandler<T> getHandler(
-      final String destinationIdentifier,
-      final Class<? extends T> messageType) {
+      final String destinationIdentifier, final Class<? extends T> messageType) {
     return this.raw.getHandler(factory.getNewInstance(destinationIdentifier), messageType);
   }
 
@@ -56,7 +57,8 @@ public class RemoteManager {
     return this.raw.registerHandler(factory.getNewInstance(sourceIdentifier), messageType, theHandler);
   }
 
-  public <T, U extends T> AutoCloseable registerHandler(final Class<U> messageType, final EventHandler<RemoteMessage<T>> theHandler) {
+  public <T, U extends T> AutoCloseable registerHandler(
+      final Class<U> messageType, final EventHandler<RemoteMessage<T>> theHandler) {
     return this.raw.registerHandler(messageType, theHandler);
   }
 
@@ -67,5 +69,5 @@ public class RemoteManager {
   public String getMyIdentifier() {
     return this.raw.getMyIdentifier().toString();
   }
-
 }
+

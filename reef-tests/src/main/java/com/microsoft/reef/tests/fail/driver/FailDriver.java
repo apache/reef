@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,7 +196,7 @@ public final class FailDriver {
   final class FailedContextHandler implements EventHandler<FailedContext> {
     @Override
     public void onNext(final FailedContext context) {
-      LOG.log(Level.WARNING, "Context failed: " + context.getId(), context.getCause());
+      LOG.log(Level.WARNING, "Context failed: " + context.getId(), context.getReason().orElse(null));
       checkMsgOrder(context);
       // TODO: notify client?
 
@@ -264,7 +264,7 @@ public final class FailDriver {
   final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
     public void onNext(final FailedTask task) {
-      LOG.log(Level.WARNING, "Task failed: " + task.getId(), task.getCause());
+      LOG.log(Level.WARNING, "Task failed: " + task.getId(), task.getReason().orElse(null));
       checkMsgOrder(task);
       if (task.getActiveContext().isPresent()) {
         task.getActiveContext().get().close();
@@ -295,7 +295,7 @@ public final class FailDriver {
       FailDriver.this.checkMsgOrder(time);
       switch (FailDriver.this.state) {
         case SEND_MSG:
-          FailDriver.this.task.onNext(HELLO_STR);
+          FailDriver.this.task.send(HELLO_STR);
           break;
         case SUSPEND:
           FailDriver.this.task.suspend();

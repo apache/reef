@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ final class ContainerManager implements AutoCloseable {
       @Override
       public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
         final FailedRuntime error = new FailedRuntime(value.getMessage());
-        LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getCause());
+        LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getReason().orElse(null));
         release(error.getId());
       }
     });

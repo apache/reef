@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.microsoft.reef.runtime.common.driver.client;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.client.JobMessageObserver;
-import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 
 import javax.inject.Inject;
 
@@ -28,14 +27,10 @@ import javax.inject.Inject;
 public final class JobMessageObserverImpl implements JobMessageObserver {
 
   private final ClientConnection clientConnection;
-  private final DriverStatusManager driverStatusManager;
 
   @Inject
-  public JobMessageObserverImpl(final ClientConnection clientConnection,
-                                final DriverStatusManager driverStatusManager) {
-
+  public JobMessageObserverImpl(final ClientConnection clientConnection) {
     this.clientConnection = clientConnection;
-    this.driverStatusManager = driverStatusManager;
   }
 
 
@@ -45,8 +40,8 @@ public final class JobMessageObserverImpl implements JobMessageObserver {
   }
 
   @Override
-  public synchronized void onError(final Throwable exception) {
-    this.driverStatusManager.onError(exception);
+  public void sendMessageToClient(final byte[] message) {
+    this.clientConnection.sendMessage(message);
   }
 
 }

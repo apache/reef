@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.runtime.common.driver.evaluator;
 
-import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextMessage;
@@ -23,6 +22,7 @@ import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
+import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.runtime.common.driver.DriverExceptionHandler;
 import com.microsoft.reef.runtime.common.utils.DispatchingEStage;
@@ -44,89 +44,142 @@ public final class EvaluatorMessageDispatcher {
    */
   private final DispatchingEStage dispatcher;
 
+  private final DispatchingEStage serviceDispatcher;
+
   @Inject
-  EvaluatorMessageDispatcher(final @Parameter(DriverConfigurationOptions.ActiveContextHandlers.class) Set<EventHandler<ActiveContext>> activeContextEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.ClosedContextHandlers.class) Set<EventHandler<ClosedContext>> closedContextEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.FailedContextHandlers.class) Set<EventHandler<FailedContext>> failedContextEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
-                             final @Parameter(DriverConfigurationOptions.RunningTaskHandlers.class) Set<EventHandler<RunningTask>> runningTaskEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.CompletedTaskHandlers.class) Set<EventHandler<CompletedTask>> completedTaskEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.SuspendedTaskHandlers.class) Set<EventHandler<SuspendedTask>> suspendedTaskEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.FailedTaskHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.AllocatedEvaluatorHandlers.class) Set<EventHandler<AllocatedEvaluator>> allocatedEvaluatorEventHandlers,
-                             final @Parameter(DriverConfigurationOptions.FailedEvaluatorHandlers.class) Set<EventHandler<FailedEvaluator>> failedEvaluatorHandlers,
-                             final @Parameter(DriverConfigurationOptions.CompletedEvaluatorHandlers.class) Set<EventHandler<CompletedEvaluator>> completedEvaluatorHandlers,
-                             final @Parameter(DriverConfigurationOptions.EvaluatorDispatcherThreads.class) int numberOfThreads,
-                             final DriverExceptionHandler driverExceptionHandler) {
+  EvaluatorMessageDispatcher(
+      // Application-provided Context event handlers
+      final @Parameter(ContextActiveHandlers.class) Set<EventHandler<ActiveContext>> contextActiveHandlers,
+      final @Parameter(ContextClosedHandlers.class) Set<EventHandler<ClosedContext>> contextClosedHandlers,
+      final @Parameter(ContextFailedHandlers.class) Set<EventHandler<FailedContext>> contextFailedHandlers,
+      final @Parameter(ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
+      // Service-provided Context event handlers
+      final @Parameter(ServiceContextActiveHandlers.class) Set<EventHandler<ActiveContext>> serviceContextActiveHandlers,
+      final @Parameter(ServiceContextClosedHandlers.class) Set<EventHandler<ClosedContext>> serviceContextClosedHandlers,
+      final @Parameter(ServiceContextFailedHandlers.class) Set<EventHandler<FailedContext>> serviceContextFailedHandlers,
+      final @Parameter(ServiceContextMessageHandlers.class) Set<EventHandler<ContextMessage>> serviceContextMessageHandlers,
+      // Application-rpovided Task event handlers
+      final @Parameter(TaskRunningHandlers.class) Set<EventHandler<RunningTask>> taskRunningHandlers,
+      final @Parameter(TaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> taskCompletedHandlers,
+      final @Parameter(TaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> taskSuspendedHandlers,
+      final @Parameter(TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
+      final @Parameter(TaskFailedHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
+      // Service-provided Task event handlers
+      final @Parameter(ServiceTaskRunningHandlers.class) Set<EventHandler<RunningTask>> serviceTaskRunningEventHandlers,
+      final @Parameter(ServiceTaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> serviceTaskCompletedEventHandlers,
+      final @Parameter(ServiceTaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> serviceTaskSuspendedEventHandlers,
+      final @Parameter(ServiceTaskMessageHandlers.class) Set<EventHandler<TaskMessage>> serviceTaskMessageEventHandlers,
+      final @Parameter(ServiceTaskFailedHandlers.class) Set<EventHandler<FailedTask>> serviceTaskExceptionEventHandlers,
+      // Application-provided Evaluator event handlers
+      final @Parameter(EvaluatorAllocatedHandlers.class) Set<EventHandler<AllocatedEvaluator>> evaluatorAllocatedHandlers,
+      final @Parameter(EvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> evaluatorFailedHandlers,
+      final @Parameter(EvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> evaluatorCompletedHandlers,
+      // Service-provided Evaluator event handlers
+      final @Parameter(ServiceEvaluatorAllocatedHandlers.class) Set<EventHandler<AllocatedEvaluator>> serviceEvaluatorAllocatedEventHandlers,
+      final @Parameter(ServiceEvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
+      final @Parameter(ServiceEvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
+
+      final @Parameter(EvaluatorDispatcherThreads.class) int numberOfThreads,
+      final DriverExceptionHandler driverExceptionHandler) {
     this.dispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads);
+    this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads);
 
-    this.dispatcher.register(ActiveContext.class, activeContextEventHandlers);
-    this.dispatcher.register(ClosedContext.class, closedContextEventHandlers);
-    this.dispatcher.register(FailedContext.class, failedContextEventHandlers);
-    this.dispatcher.register(ContextMessage.class, contextMessageHandlers);
+    { // Application Context event handlers
+      this.dispatcher.register(ActiveContext.class, contextActiveHandlers);
+      this.dispatcher.register(ClosedContext.class, contextClosedHandlers);
+      this.dispatcher.register(FailedContext.class, contextFailedHandlers);
+      this.dispatcher.register(ContextMessage.class, contextMessageHandlers);
+    }
+    { // Service Context event handlers
+      this.serviceDispatcher.register(ActiveContext.class, serviceContextActiveHandlers);
+      this.serviceDispatcher.register(ClosedContext.class, serviceContextClosedHandlers);
+      this.serviceDispatcher.register(FailedContext.class, serviceContextFailedHandlers);
+      this.serviceDispatcher.register(ContextMessage.class, serviceContextMessageHandlers);
 
-    this.dispatcher.register(RunningTask.class, runningTaskEventHandlers);
-    this.dispatcher.register(CompletedTask.class, completedTaskEventHandlers);
-    this.dispatcher.register(SuspendedTask.class, suspendedTaskEventHandlers);
-    this.dispatcher.register(TaskMessage.class, taskMessageEventHandlers);
-    this.dispatcher.register(FailedTask.class, taskExceptionEventHandlers);
+    }
+    { // Application Task event handlers.
+      this.dispatcher.register(RunningTask.class, taskRunningHandlers);
+      this.dispatcher.register(CompletedTask.class, taskCompletedHandlers);
+      this.dispatcher.register(SuspendedTask.class, taskSuspendedHandlers);
+      this.dispatcher.register(TaskMessage.class, taskMessageEventHandlers);
+      this.dispatcher.register(FailedTask.class, taskExceptionEventHandlers);
+    }
+    { // Service Task event handlers
+      this.serviceDispatcher.register(RunningTask.class, serviceTaskRunningEventHandlers);
+      this.serviceDispatcher.register(CompletedTask.class, serviceTaskCompletedEventHandlers);
+      this.serviceDispatcher.register(SuspendedTask.class, serviceTaskSuspendedEventHandlers);
+      this.serviceDispatcher.register(TaskMessage.class, serviceTaskMessageEventHandlers);
+      this.serviceDispatcher.register(FailedTask.class, serviceTaskExceptionEventHandlers);
+    }
 
-    this.dispatcher.register(FailedEvaluator.class, failedEvaluatorHandlers);
-    this.dispatcher.register(CompletedEvaluator.class, completedEvaluatorHandlers);
-    this.dispatcher.register(AllocatedEvaluator.class, allocatedEvaluatorEventHandlers);
+    { // Application Evaluator event handlers
+      this.dispatcher.register(FailedEvaluator.class, evaluatorFailedHandlers);
+      this.dispatcher.register(CompletedEvaluator.class, evaluatorCompletedHandlers);
+      this.dispatcher.register(AllocatedEvaluator.class, evaluatorAllocatedHandlers);
+    }
+
+    { // Service Evaluator event handlers
+      this.serviceDispatcher.register(FailedEvaluator.class, serviceEvaluatorFailedHandlers);
+      this.serviceDispatcher.register(CompletedEvaluator.class, serviceEvaluatorCompletedHandlers);
+      this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
+    }
     LOG.log(Level.INFO, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
   public void onEvaluatorAllocated(final AllocatedEvaluator allocatedEvaluator) {
-    this.dispatcher.onNext(AllocatedEvaluator.class, allocatedEvaluator);
+    this.dispatch(AllocatedEvaluator.class, allocatedEvaluator);
   }
 
   public void onEvaluatorFailed(final FailedEvaluator failedEvaluator) {
-    this.dispatcher.onNext(FailedEvaluator.class, failedEvaluator);
+    this.dispatch(FailedEvaluator.class, failedEvaluator);
   }
 
   public void onEvaluatorCompleted(final CompletedEvaluator completedEvaluator) {
-    this.dispatcher.onNext(CompletedEvaluator.class, completedEvaluator);
+    this.dispatch(CompletedEvaluator.class, completedEvaluator);
   }
 
   public void onTaskRunning(final RunningTask runningTask) {
-    this.dispatcher.onNext(RunningTask.class, runningTask);
+    this.dispatch(RunningTask.class, runningTask);
   }
 
   public void onTaskCompleted(final CompletedTask completedTask) {
-    this.dispatcher.onNext(CompletedTask.class, completedTask);
+    this.dispatch(CompletedTask.class, completedTask);
   }
 
   public void onTaskSuspended(final SuspendedTask suspendedTask) {
-    this.dispatcher.onNext(SuspendedTask.class, suspendedTask);
+    this.dispatch(SuspendedTask.class, suspendedTask);
   }
 
   public void onTaskMessage(final TaskMessage taskMessage) {
-    this.dispatcher.onNext(TaskMessage.class, taskMessage);
+    this.dispatch(TaskMessage.class, taskMessage);
   }
 
   public void onTaskFailed(final FailedTask failedTask) {
-    this.dispatcher.onNext(FailedTask.class, failedTask);
+    this.dispatch(FailedTask.class, failedTask);
   }
 
   public void onContextActive(final ActiveContext activeContext) {
-    this.dispatcher.onNext(ActiveContext.class, activeContext);
+    this.dispatch(ActiveContext.class, activeContext);
   }
 
   public void onContextClose(final ClosedContext closedContext) {
-    this.dispatcher.onNext(ClosedContext.class, closedContext);
+    this.dispatch(ClosedContext.class, closedContext);
   }
 
   public void onContextFailed(final FailedContext failedContext) {
-    this.dispatcher.onNext(FailedContext.class, failedContext);
+    this.dispatch(FailedContext.class, failedContext);
   }
 
   public void onContextMessage(final ContextMessage contextMessage) {
-    this.dispatcher.onNext(ContextMessage.class, contextMessage);
+    this.dispatch(ContextMessage.class, contextMessage);
   }
 
   boolean isEmpty() {
     return this.dispatcher.isEmpty();
+  }
+
+  private <T, U extends T> void dispatch(final Class<T> type, final U message) {
+    this.dispatcher.onNext(type, message);
+    this.serviceDispatcher.onNext(type, message);
   }
 }

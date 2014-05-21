@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package com.microsoft.reef.util;
 
+import net.jcip.annotations.Immutable;
+import net.jcip.annotations.ThreadSafe;
+
 import java.io.Serializable;
 
 /**
@@ -24,6 +27,8 @@ import java.io.Serializable;
  *
  * @param <T>
  */
+@Immutable
+@ThreadSafe
 public final class Optional<T> implements Serializable {
 
   private static final long serialVersionUID = 42L;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -412,7 +412,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param contextStatusProto indicating the current status of the context
    */
   private synchronized void onContextStatusMessage(final ReefServiceProtos.ContextStatusProto contextStatusProto,
-                                      final boolean notifyClientOnNewActiveContext) {
+                                                   final boolean notifyClientOnNewActiveContext) {
 
     final String contextID = contextStatusProto.getContextId();
     final Optional<String> parentID = contextStatusProto.hasParentId() ?
@@ -532,28 +532,38 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     synchronized (this.evaluatorDescriptor) {
       LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusProto.getState());
 
-      if (resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
-          resourceStatusProto.getState() == ReefServiceProtos.State.FAILED) {
-
-        if (this.stateManager.isAllocatedOrSubmittedOrRunning()) {
-
-          // something is wrong, I think I'm alive but the resource manager resourcemanager says I'm dead
-          final StringBuilder sb = new StringBuilder();
-          sb.append("The resource manager informed me that Evaluator " + this.evaluatorId +
-              " is in state " + resourceStatusProto.getState() + " but I think I'm in state " + this.stateManager);
-          if (resourceStatusProto.getDiagnostics() != null && "".equals(resourceStatusProto.getDiagnostics())) {
-            sb.append("Cause: " + resourceStatusProto.getDiagnostics());
-          }
-
-          if (runningTask != null) {
-            sb.append("TaskRuntime " + runningTask.getId() + " did not complete before this evaluator died. ");
-          }
-
-          // RM is telling me its DONE/FAILED - assuming it has already released the resources
-          this.isResourceReleased = true;
-          onEvaluatorException(new EvaluatorException(this.evaluatorId, sb.toString(), runningTask));
-          this.stateManager.setKilled();
+      if ((resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
+          resourceStatusProto.getState() == ReefServiceProtos.State.FAILED) &&
+          this.stateManager.isAllocatedOrSubmittedOrRunning()) {
+        // something is wrong. The resource manager reports that the Evaluator is done or failed, but the Driver assumes
+        // it to be alive.
+        final StringBuilder messageBuilder = new StringBuilder();
+        if (this.stateManager.isSubmitted()) {
+          messageBuilder.append("Evaluator [")
+              .append(this.evaluatorId)
+              .append("] was submitted for execution, but the resource manager informs me that it is ")
+              .append(resourceStatusProto.getState())
+              .append(". This most likely means that the Evaluator suffered a failure before establishing a communications link to the driver. ");
+        } else if (this.stateManager.isAllocated()) {
+          messageBuilder.append("Evaluator [")
+              .append(this.evaluatorId)
+              .append("] was submitted for execution, but the resource manager informs me that it is ")
+              .append(resourceStatusProto.getState())
+              .append(". This most likely means that the Evaluator suffered a failure before being used. ");
+        } else if (this.stateManager.isRunning()) {
+          messageBuilder.append("Evaluator [")
+              .append(this.evaluatorId)
+              .append("] was running, but the resource manager informs me that it is ")
+              .append(resourceStatusProto.getState())
+              .append(". This means that the Evaluator failed but wasn't able to send error message back to the driver. ");
         }
+        if (null != this.runningTask) {
+          messageBuilder.append("Task [")
+              .append(this.runningTask.getId())
+              .append("] was running when the Evaluator crashed.");
+        }
+        this.isResourceReleased = true;
+        onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString(), this.runningTask));
       }
     }
   }

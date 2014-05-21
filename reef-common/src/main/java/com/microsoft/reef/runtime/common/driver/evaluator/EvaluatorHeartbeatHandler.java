@@ -48,8 +48,8 @@ public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessa
     final String evaluatorId = status.getEvaluatorId();
 
     LOG.log(Level.FINEST, "TIME: Begin Heartbeat {0}", evaluatorId);
-    LOG.log(Level.FINEST, "Heartbeat from Evaluator {0} with state {1} timestamp {2}",
-        new Object[]{evaluatorId, status.getState(), heartbeat.getTimestamp()});
+    LOG.log(Level.FINEST, "Heartbeat from Evaluator {0} with state {1} timestamp {2} from remoteId {3}",
+        new Object[]{evaluatorId, status.getState(), heartbeat.getTimestamp(), evaluatorHeartbeatMessage.getIdentifier()});
 
     final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(evaluatorId);
     if (evaluatorManager.isPresent()) {

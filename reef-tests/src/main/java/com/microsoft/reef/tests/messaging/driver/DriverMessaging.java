@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 package com.microsoft.reef.tests.messaging.driver;
 
 import com.microsoft.reef.client.*;
-import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.util.EnvironmentUtils;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
@@ -88,9 +87,9 @@ public final class DriverMessaging {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), job.getCause());
+      LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), job.getReason().orElse(null));
       synchronized (DriverMessaging.this) {
-        DriverMessaging.this.status = LauncherStatus.FAILED(job.getCause());
+        DriverMessaging.this.status = LauncherStatus.FAILED(job.getReason());
         DriverMessaging.this.notify();
       }
     }
@@ -99,9 +98,9 @@ public final class DriverMessaging {
   final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
     public void onNext(final FailedRuntime error) {
-      LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getCause());
+      LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getReason().orElse(null));
       synchronized (DriverMessaging.this) {
-        DriverMessaging.this.status = LauncherStatus.FAILED(error.getCause());
+        DriverMessaging.this.status = LauncherStatus.FAILED(error.getReason());
         DriverMessaging.this.notify();
       }
     }

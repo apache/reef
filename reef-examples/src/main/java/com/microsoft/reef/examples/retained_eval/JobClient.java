@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.microsoft.reef.examples.retained_eval;
 
 import com.microsoft.reef.client.*;
-import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -139,17 +138,18 @@ public class JobClient {
     final JavaConfigurationBuilder configBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     configBuilder.addConfiguration(
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "eval-" + System.currentTimeMillis())
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
-          .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
-          .set(DriverConfiguration.ON_CLIENT_MESSAGE, JobDriver.ClientMessageHandler.class)
-          .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
-          .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
-        .build());
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "eval-" + System.currentTimeMillis())
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
+            .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
+            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
+            .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
+            .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
+            .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
+            .set(DriverConfiguration.ON_CLIENT_MESSAGE, JobDriver.ClientMessageHandler.class)
+            .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
+            .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
+            .build()
+    );
     configBuilder.bindNamedParameter(Launch.NumEval.class, "" + numEvaluators);
     this.driverConfiguration = configBuilder.build();
   }
@@ -233,7 +233,7 @@ public class JobClient {
         ++numRuns;
 
         LOG.log(Level.INFO, "TIME: Task {0} completed in {1} msec.:\n{2}",
-                new Object[] { "" + numRuns, "" + jobTime, lastResult });
+            new Object[]{"" + numRuns, "" + jobTime, lastResult});
 
         System.out.println(lastResult);
 
@@ -243,7 +243,7 @@ public class JobClient {
           } else {
             LOG.log(Level.INFO,
                 "All {0} tasks complete; Average task time: {1}. Closing the job driver.",
-                new Object[] { maxRuns, totalTime / (double)maxRuns });
+                new Object[]{maxRuns, totalTime / (double) maxRuns});
             runningJob.close();
             stopAndNotify();
           }
@@ -258,7 +258,7 @@ public class JobClient {
   final class FailedJobHandler implements EventHandler<FailedJob> {
     @Override
     public void onNext(final FailedJob job) {
-      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getCause());
+      LOG.log(Level.SEVERE, "Failed job: " + job.getId(), job.getReason().orElse(null));
       stopAndNotify();
     }
   }
@@ -280,7 +280,7 @@ public class JobClient {
   final class RuntimeErrorHandler implements EventHandler<FailedRuntime> {
     @Override
     public void onNext(final FailedRuntime error) {
-      LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getCause());
+      LOG.log(Level.SEVERE, "Error in job driver: " + error, error.getReason().orElse(null));
       stopAndNotify();
     }
   }

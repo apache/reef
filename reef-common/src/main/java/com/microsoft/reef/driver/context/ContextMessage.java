@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.microsoft.reef.io.Message;
 import com.microsoft.reef.io.naming.Identifiable;
 
 /**
- * Driver-side representation of a message sent by a context to a driver.
+ * Driver-side representation of a message sent by a Context to the Driver.
  */
 @Public
 @DriverSide
@@ -30,7 +30,7 @@ import com.microsoft.reef.io.naming.Identifiable;
 public interface ContextMessage extends Message, Identifiable {
 
   /**
-   * @return the message.
+   * @return the message sent by the Context.
    */
   @Override
   public byte[] get();
@@ -42,7 +42,7 @@ public interface ContextMessage extends Message, Identifiable {
   public String getId();
 
   /**
-   * @return the ID of the ContextMessageSource
+   * @return the ID of the ContextMessageSource that sent the message on the Context.
    */
   public String getMessageSourceID();
 

@@ -1,7 +1,22 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.microsoft.reef.runtime.common.client;
 
-import com.microsoft.reef.client.DriverConfigurationOptions;
 import com.microsoft.reef.client.REEF;
+import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.util.JARFileMaker;
@@ -59,28 +74,28 @@ final class JobSubmissionHelper {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
     final ClientRuntimeProtocol.JobSubmissionProto.Builder jbuilder = ClientRuntimeProtocol.JobSubmissionProto.newBuilder()
-        .setIdentifier(injector.getNamedInstance(DriverConfigurationOptions.DriverIdentifier.class))
-        .setDriverMemory(injector.getNamedInstance(DriverConfigurationOptions.DriverMemory.class))
+        .setIdentifier(injector.getNamedInstance(DriverIdentifier.class))
+        .setDriverMemory(injector.getNamedInstance(DriverMemory.class))
         .setUserName(System.getProperty("user.name"))
         .setConfiguration(configurationSerializer.toString(driverConfiguration));
 
 
-    for (final String globalFileName : injector.getNamedInstance(DriverConfigurationOptions.GlobalFiles.class)) {
+    for (final String globalFileName : injector.getNamedInstance(JobGlobalFiles.class)) {
       LOG.log(Level.FINEST, "Adding global file: {0}", globalFileName);
       jbuilder.addGlobalFile(getFileResourceProto(globalFileName, ReefServiceProtos.FileType.PLAIN));
     }
 
-    for (final String globalLibraryName : injector.getNamedInstance(DriverConfigurationOptions.GlobalLibraries.class)) {
+    for (final String globalLibraryName : injector.getNamedInstance(JobGlobalLibraries.class)) {
       LOG.log(Level.FINEST, "Adding global library: {0}", globalLibraryName);
       jbuilder.addGlobalFile(getFileResourceProto(globalLibraryName, ReefServiceProtos.FileType.LIB));
     }
 
-    for (final String localFileName : injector.getNamedInstance(DriverConfigurationOptions.LocalFiles.class)) {
+    for (final String localFileName : injector.getNamedInstance(DriverLocalFiles.class)) {
       LOG.log(Level.FINEST, "Adding local file: {0}", localFileName);
       jbuilder.addLocalFile(getFileResourceProto(localFileName, ReefServiceProtos.FileType.PLAIN));
     }
 
-    for (final String localLibraryName : injector.getNamedInstance(DriverConfigurationOptions.LocalLibraries.class)) {
+    for (final String localLibraryName : injector.getNamedInstance(DriverLocalLibraries.class)) {
       LOG.log(Level.FINEST, "Adding local library: {0}", localLibraryName);
       jbuilder.addLocalFile(getFileResourceProto(localLibraryName, ReefServiceProtos.FileType.LIB));
     }
@@ -136,7 +151,7 @@ final class JobSubmissionHelper {
    */
   private File toJar(final File file) throws IOException {
     final File tempFolder = Files.createTempDirectory("reef-tmp-tempFolder").toFile();
-    final File jarFile = File.createTempFile(file.getName(), ".jar", tempFolder);
+    final File jarFile = File.createTempFile(file.getCanonicalFile().getName(), ".jar", tempFolder);
     LOG.log(Level.FINEST, "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});
     try (final JARFileMaker jarMaker = new JARFileMaker(jarFile)) {
       jarMaker.addChildren(file);

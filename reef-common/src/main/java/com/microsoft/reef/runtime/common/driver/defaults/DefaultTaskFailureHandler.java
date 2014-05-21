@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ public final class DefaultTaskFailureHandler implements EventHandler<FailedTask>
 
   @Override
   public void onNext(final FailedTask failedTask) {
-    throw new RuntimeException(
-        "No handler bound for FailedTask: " + failedTask, failedTask.getCause());
+    throw new RuntimeException("No handler bound for FailedTask: " + failedTask, failedTask.getReason().orElse(null));
   }
 }

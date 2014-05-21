@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.EvaluatorSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.context.ServiceConfiguration;
+import com.microsoft.reef.evaluator.context.parameters.Services;
 import com.microsoft.reef.evaluator.context.ContextMessage;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -84,7 +84,7 @@ public final class ContextRuntime {
     this.parentContext = parentContext;
     // Trigger the instantiation of the services
     try {
-      final Set<Object> services = serviceInjector.getNamedInstance(ServiceConfiguration.Services.class);
+      final Set<Object> services = serviceInjector.getNamedInstance(Services.class);
       this.contextInjector = serviceInjector.forkInjector(contextConfiguration);
 
       this.contextLifeCycle = this.contextInjector.getInstance(ContextLifeCycle.class);

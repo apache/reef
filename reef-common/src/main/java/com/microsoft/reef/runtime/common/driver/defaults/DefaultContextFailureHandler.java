@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,11 @@ public final class DefaultContextFailureHandler implements EventHandler<FailedCo
 
   @Override
   public void onNext(final FailedContext failedContext) {
-    throw new RuntimeException(
-        "No handler bound for FailedContext:" + failedContext, failedContext.getCause());
+    if (failedContext.getReason().isPresent()) {
+      throw new RuntimeException(
+          "No handler bound for FailedContext:" + failedContext, failedContext.getReason().get());
+    } else {
+      throw new RuntimeException("No handler bound for FailedContext:" + failedContext);
+    }
   }
 }

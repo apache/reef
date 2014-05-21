@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 201 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,17 +48,17 @@ public final class EvaluatorResourceManagerErrorHandler implements EventHandler<
     final ReefServiceProtos.RuntimeErrorProto runtimeErrorProto = runtimeErrorProtoRemoteMessage.getMessage();
     final FailedRuntime error = new FailedRuntime(runtimeErrorProto);
     final String evaluatorId = error.getId();
-    LOG.log(Level.WARNING, "Runtime error: " + error, error.getCause());
+    LOG.log(Level.WARNING, "Runtime error: " + error);
 
-    final EvaluatorException evaluatorException = error.getCause() != null ?
-        new EvaluatorException(evaluatorId, error.getCause()) :
+    final EvaluatorException evaluatorException = error.getReason().isPresent() ?
+        new EvaluatorException(evaluatorId, error.getReason().get()) :
         new EvaluatorException(evaluatorId, "Runtime error");
 
     final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(evaluatorId);
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onEvaluatorException(evaluatorException);
     } else {
-      LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error, error.getCause());
+      LOG.log(Level.WARNING, "Unknown evaluator runtime error: " + error);
     }
   }
 }

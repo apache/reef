@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@ package com.microsoft.reef.runtime.common.client;
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.client.*;
-import com.microsoft.reef.exception.JobException;
+import com.microsoft.reef.client.CompletedJob;
+import com.microsoft.reef.client.FailedJob;
+import com.microsoft.reef.client.JobMessage;
+import com.microsoft.reef.client.RunningJob;
+import com.microsoft.reef.client.parameters.JobCompletedHandler;
+import com.microsoft.reef.client.parameters.JobFailedHandler;
+import com.microsoft.reef.client.parameters.JobMessageHandler;
+import com.microsoft.reef.client.parameters.JobRunningHandler;
+import com.microsoft.reef.driver.parameters.DriverIdentifier;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.JobControlProto;
 import com.microsoft.reef.proto.ClientRuntimeProtocol.Signal;
 import com.microsoft.reef.proto.ReefServiceProtos;
@@ -54,12 +61,12 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
 
   @Inject
   RunningJobImpl(final RemoteManager remoteManager,
-                 final @Parameter(DriverConfigurationOptions.DriverIdentifier.class) String driverIdentifier,
+                 final @Parameter(DriverIdentifier.class) String driverIdentifier,
                  final @Parameter(REEFImplementation.DriverRemoteIdentifier.class) String driverRID,
-                 final @Parameter(ClientConfigurationOptions.RunningJobHandler.class) EventHandler<RunningJob> runningJobEventHandler,
-                 final @Parameter(ClientConfigurationOptions.CompletedJobHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
-                 final @Parameter(ClientConfigurationOptions.FailedJobHandler.class) EventHandler<FailedJob> failedJobEventHandler,
-                 final @Parameter(ClientConfigurationOptions.JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler,
+                 final @Parameter(JobRunningHandler.class) EventHandler<RunningJob> runningJobEventHandler,
+                 final @Parameter(JobCompletedHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
+                 final @Parameter(JobFailedHandler.class) EventHandler<FailedJob> failedJobEventHandler,
+                 final @Parameter(JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler,
                  final ExceptionCodec exceptionCodec) {
 
     this.jobId = driverIdentifier;
@@ -135,18 +142,20 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
    */
   private synchronized void onJobFailure(final JobStatusProto jobStatusProto) {
     assert (jobStatusProto.getState() == ReefServiceProtos.State.FAILED);
-    final JobException error;
-    if (jobStatusProto.hasException()) {
-      final Optional<Throwable> cause = this.exceptionCodec.fromBytes(jobStatusProto.getException().toByteArray());
-      if (cause.isPresent()) {
-        error = new JobException(this.jobId, cause.get());
-      } else {
-        error = new JobException(this.jobId, "Cause sent, but not serializable.");
-      }
-    } else {
-      error = new JobException(this.jobId, "Unknown failure cause");
-    }
-    this.failedJobEventHandler.onNext(new FailedJob(this.jobId, error));
+
+    final String id = this.jobId;
+    final Optional<byte[]> data = jobStatusProto.hasException() ?
+        Optional.of(jobStatusProto.getException().toByteArray()) :
+        Optional.<byte[]>empty();
+    final Optional<Throwable> cause = this.exceptionCodec.fromBytes(data);
+
+    final String message = cause.isPresent() ?
+        cause.get().getMessage() :
+        "No Message sent by the Job";
+    final Optional<String> description = Optional.of(message);
+
+    final FailedJob failedJob = new FailedJob(id, message, description, cause, data);
+    this.failedJobEventHandler.onNext(failedJob);
   }
 
   @Override

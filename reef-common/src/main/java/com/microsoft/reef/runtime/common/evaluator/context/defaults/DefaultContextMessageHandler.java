@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.microsoft.reef.runtime.common.evaluator.context.defaults;
 
 import com.microsoft.reef.annotations.audience.EvaluatorSide;
-import com.microsoft.reef.driver.context.ContextConfigurationOptions;
+import com.microsoft.reef.evaluator.context.parameters.ContextIdentifier;
 import com.microsoft.reef.evaluator.context.ContextMessageHandler;
 import com.microsoft.tang.annotations.Parameter;
 
@@ -31,7 +31,7 @@ public final class DefaultContextMessageHandler implements ContextMessageHandler
   private final String contextID;
 
   @Inject
-  DefaultContextMessageHandler(final @Parameter(ContextConfigurationOptions.ContextIdentifier.class) String contextID) {
+  DefaultContextMessageHandler(final @Parameter(ContextIdentifier.class) String contextID) {
     this.contextID = contextID;
   }
 

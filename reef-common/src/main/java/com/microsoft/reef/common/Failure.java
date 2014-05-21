@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,6 @@ public interface Failure extends Identifiable {
    * @return Optional long error description.
    */
   Optional<String> getDescription();
-
-  /**
-   * @return Java Exception that caused the error, or null.
-   * @deprecated in 0.3, use getReason instead
-   */
-  @Deprecated
-  Throwable getCause();
 
   /**
    * @return Java Exception that caused the error, if any.
