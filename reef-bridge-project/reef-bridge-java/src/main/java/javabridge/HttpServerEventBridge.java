@@ -16,7 +16,7 @@
 package javabridge;
 
 /**
- *  HttpServerNRTEventBridge
+ *  HttpServerEventBridge
  */
 public final class HttpServerEventBridge {
     private String queryString;

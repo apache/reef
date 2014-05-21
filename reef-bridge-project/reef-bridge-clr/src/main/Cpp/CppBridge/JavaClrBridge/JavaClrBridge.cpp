@@ -246,7 +246,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHan
 
 /*
  * Class:     javabridge_NativeInterop
- * Method:    ClrSystemHttpServerNRTEventHandlerOnHttpRequest
+ * Method:    ClrSystemHttpServerEventHandlerOnHttpRequest
  * Signature: (JLjavabridge/HttpServerEventBridge;Ljavabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext
@@ -254,7 +254,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerO
  {
 	try{
 		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
-		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, handler, jhttpServerEventBridge, jlogger);
+		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, jhttpServerEventBridge);
 		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_OnNext(handler, httpServerClr2Java);
 	}
 	catch (System::Exception^ ex)
@@ -267,7 +267,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerO
 
 /*
  * Class:     javabridge_NativeInterop
- * Method:    ClrSystemHttpServerNRTEventHandlerOnHttpRequest
+ * Method:    ClrSystemHttpServerEventHandlerOnHttpRequest
  * Signature: (JLjavabridge/HttpServerEventBridge;Ljavabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerGetSpec
@@ -275,7 +275,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerG
  {
 	try{
 		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerGetSpec");
-		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, handler, jhttpServerEventBridge, jlogger);
+		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, jhttpServerEventBridge);
 		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_GetSpec(handler, httpServerClr2Java);
 	}
 	catch (System::Exception^ ex)

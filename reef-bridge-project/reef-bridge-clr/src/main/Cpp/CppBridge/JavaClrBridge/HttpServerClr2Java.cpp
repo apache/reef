@@ -8,27 +8,24 @@ namespace Microsoft
 		{
 			namespace Bridge
 			{
-				HttpServerClr2Java::HttpServerClr2Java(JNIEnv *env, jlong handle, jobject jhttpServerEventBridge, jobject jlogger)
+				HttpServerClr2Java::HttpServerClr2Java(JNIEnv *env, jobject jhttpServerEventBridge)
 				{
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
-					_handle = handle;
 					_jhttpServerEventBridge = reinterpret_cast<jobject>(env->NewGlobalRef(jhttpServerEventBridge));
-					_jlogger = reinterpret_cast<jobject>(env->NewGlobalRef(jlogger));
 
 					fprintf(stdout, "HttpServerClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "HttpServerClr2Java _jvm %p\n", _jvm); fflush (stdout);
-					fprintf(stdout, "HttpServerClr2Java _jhttpServerEventBridge %p\n", _jhttpServerEventBridge); fflush (stdout);
-					
+					fprintf(stdout, "HttpServerClr2Java _jhttpServerEventBridge %p\n", _jhttpServerEventBridge); fflush (stdout);					
 				}
 
 				String^ HttpServerClr2Java::GetQueryString()				
 				{					
 					JNIEnv *env = RetrieveEnv(_jvm);
-					jclass jclasshttpServerNRTEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
-					jmethodID jmidgetQueryString = env->GetMethodID(jclasshttpServerNRTEventBridge, "getQueryString", "()Ljava/lang/String;");
+					jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
+					jmethodID jmidgetQueryString = env->GetMethodID(jclasshttpServerEventBridge, "getQueryString", "()Ljava/lang/String;");
 
-					fprintf(stdout, "HttpServerClr2Java jclasshttpServerNRTEventBridge %p\n", jclasshttpServerNRTEventBridge); fflush (stdout);
+					fprintf(stdout, "HttpServerClr2Java jclasshttpServerEventBridge %p\n", jclasshttpServerEventBridge); fflush (stdout);
 					fprintf(stdout, "HttpServerClr2Java jmidgetQueryString %p\n", jmidgetQueryString); fflush (stdout);
 
 					if(jmidgetQueryString == NULL)
@@ -84,7 +81,6 @@ namespace Microsoft
 						_jhttpServerEventBridge, 
 						jmidsetUriSpecification,
 						JavaStringFromManagedString(env, uriSpecification));					
-
 				}				
 			}
 		}

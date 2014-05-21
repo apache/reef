@@ -92,12 +92,10 @@ namespace Microsoft
 
 				public ref class HttpServerClr2Java : public IHttpServerBridgeClr2Java
 				{
-					jlong _handle;
 					jobject _jhttpServerEventBridge;
-					jobject _jlogger;
 					JavaVM* _jvm;
 				public:
-					HttpServerClr2Java(JNIEnv *env, jlong handle, jobject jhttpServerNRTEventBridge, jobject jlogger);
+					HttpServerClr2Java(JNIEnv *env, jobject jhttpServerEventBridge);
 					virtual String^ GetQueryString();
 					virtual void SetUriSpecification(String^ uriSpecification);
 					virtual void SetQueryResult(String^ queryResult);
