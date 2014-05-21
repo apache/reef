@@ -22,6 +22,10 @@ namespace Microsoft
 					jfieldID jidEvaluatorId = env->GetFieldID(jclassAllocatedEvaluator, "evaluatorId", "Ljava/lang/String;");
 					_jstringId = (jstring)env->GetObjectField(_jobjectAllocatedEvaluator, jidEvaluatorId);
 					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+
+					jfieldID jidNameServerInfo = env->GetFieldID(jclassAllocatedEvaluator, "nameServerInfo", "Ljava/lang/String;");
+					_jstringNameServerInfo = (jstring)env->GetObjectField(_jobjectAllocatedEvaluator, jidNameServerInfo);
+					_jstringNameServerInfo = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringNameServerInfo));
 				}
 
 				void AllocatedEvaluatorClr2Java::SubmitContext(String^ contextConfigStr)
@@ -138,6 +142,14 @@ namespace Microsoft
 					
 					JNIEnv *env = RetrieveEnv(_jvm);
 					return ManagedStringFromJavaString(env, _jstringId);
+				}
+
+				String^ AllocatedEvaluatorClr2Java::GetNameServerInfo()
+				{
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::GetNameServerInfo\n"); fflush (stdout);															
+					
+					JNIEnv *env = RetrieveEnv(_jvm);
+					return ManagedStringFromJavaString(env, _jstringNameServerInfo);
 				}
 
 				IEvaluatorDescriptor^ AllocatedEvaluatorClr2Java::GetEvaluatorDescriptor()

@@ -26,6 +26,7 @@ namespace Microsoft
 					jobject  _jobjectAllocatedEvaluator;
 					JavaVM* _jvm;
 					jstring _jstringId;
+					jstring _jstringNameServerInfo;
 				public:
 					AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
@@ -34,6 +35,7 @@ namespace Microsoft
 					virtual void SubmitContextAndServiceAndTask(String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr);
 					virtual void Close();
 					virtual String^ GetId();
+					virtual String^ GetNameServerInfo();
 					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
 				};
 

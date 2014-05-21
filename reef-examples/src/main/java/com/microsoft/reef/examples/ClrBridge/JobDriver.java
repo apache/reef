@@ -158,7 +158,7 @@ public final class JobDriver {
             throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
         }
         InteropLogger interopLogger = new InteropLogger();
-        AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval);
+        AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, JobDriver.this.nameServerInfo);
         NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvaluatorHandler, allocatedEvaluatorBridge,interopLogger);
     }
   }
