@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
@@ -91,7 +90,9 @@ public class InputFormatLoadingService<K,V> implements DataLoadingService {
   @Override
   public Configuration getConfiguration(AllocatedEvaluator allocatedEvaluator) {
     try {
-      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper.getInputSplit(allocatedEvaluator.getId());
+      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper
+          .getInputSplit(allocatedEvaluator.getEvaluatorDescriptor()
+              .getNodeDescriptor().getName(), allocatedEvaluator.getId());
       final Configuration contextIdConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "DataLoadContext-" + numberedSplit.getIndex())
           .build();
