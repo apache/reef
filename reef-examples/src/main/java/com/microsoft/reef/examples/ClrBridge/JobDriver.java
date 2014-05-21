@@ -23,6 +23,8 @@ import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.webserver.HttpHandler;
+import com.microsoft.reef.webserver.RequestParser;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
@@ -32,6 +34,11 @@ import com.microsoft.wake.time.event.StopTime;
 import javabridge.*;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +62,7 @@ public final class JobDriver {
   private long  taskMessageHandler = 0;
   private long  failedTaskHandler = 0;
   private long  failedEvaluatorHandler = 0;
+  private long httpServerEventHandler = 0;
   private long  completedTaskHandler = 0;
 
   private int nCLREvaluators = 0;
@@ -280,6 +288,57 @@ public final class JobDriver {
       }
     }
 
+    final class HttpServerBridgeEventHandler implements HttpHandler {
+
+        private String uriSpecification;
+
+        /**
+         * set URI specification
+         * @param s
+         */
+        public void setUriSpecification(String s) {
+            uriSpecification = s;
+        }
+
+        /**
+         * returns URI specification for the handler
+         *
+         * @return
+         */
+        @Override
+        public String getUriSpecification() {
+            return uriSpecification;
+        }
+
+        /**
+         * it is called when receiving a http request
+         *
+         * @param request
+         * @param response
+         */
+        @Override
+        public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+            LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest is called: {0}", request.getRequestURI());
+            final RequestParser requestParser = new RequestParser(request);
+            StringBuffer sb = new StringBuffer();
+            sb.append(requestParser.getTargetSpecification()).append(":").append(requestParser.getQueryString());
+            final String requestStr = sb.toString(); //requestParser.getQueryString();
+            try {
+                InteropLogger interopLogger = new InteropLogger();
+                HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestStr);
+                LOG.log(Level.INFO, "Calling NativeInterop.ClrSystemHttpServerHandlerOnNext with query string: {0}", requestStr);
+                NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
+                LOG.log(Level.INFO, "returned from NativeInterop.ClrSystemHttpServerHandlerOnNext with result : {0}", httpServerEventBridge.getQueryResult());
+                String result = httpServerEventBridge.getQueryResult();
+                response.getWriter().println("Calling back from bridge: " + result);
+                //response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
+            } catch (final Exception ex) {
+                LOG.log(Level.SEVERE, "Fail to invoke CLR Http Server handler");
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
   /**
    * Handle failed task.
    */
@@ -329,7 +388,7 @@ public final class JobDriver {
       public void onNext(final StartTime startTime) {
         synchronized (JobDriver.this) {
           InteropLogger interopLogger = new InteropLogger();
-          LOG.log(Level.INFO, "StartTime: {1}", new Object[]{ startTime});
+          LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null) {
             assert (handlers.length == NativeInterop.nHandlers);
@@ -339,7 +398,21 @@ public final class JobDriver {
             taskMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
             failedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedTaskKey)];
             failedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedEvaluatorKey)];
+            httpServerEventHandler = handlers[NativeInterop.Handlers.get(NativeInterop.HttpServerKey)];
             completedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.CompletedTaskKey)];
+          }
+
+          HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
+          NativeInterop.ClrSystemHttpServerHandlerGetSpec(httpServerEventHandler, httpServerEventBridge, interopLogger);
+          String specList = httpServerEventBridge.getUriSpecification();
+          LOG.log(Level.INFO, "getUriSpecification: {0}", specList);
+          if (specList != null) {
+            String[] specs = specList.split(":");
+            for (String s : specs) {
+              HttpHandler h = new HttpServerBridgeEventHandler();
+              h.setUriSpecification(s);
+              com.microsoft.reef.webserver.HttpServerImpl.addHttpHandler(h);
+            }
           }
 
           if (evaluatorRequestorHandler == 0) {

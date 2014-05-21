@@ -60,9 +60,21 @@ public class NativeInterop {
     );
 
     public static native void ClrSystemFailedTaskHandlerOnNext (
-          long handle,
-          FailedTaskBridge failedTaskBridge,
-          InteropLogger interopLogger
+            long handle,
+            FailedTaskBridge failedTaskBridge,
+            InteropLogger interopLogger
+    );
+
+    public static native void ClrSystemHttpServerHandlerOnNext(
+            long handle,
+            HttpServerEventBridge httpServerEventBridge,
+            InteropLogger interopLogger
+    );
+
+    public static native void ClrSystemHttpServerHandlerGetSpec(
+            long handle,
+            HttpServerEventBridge httpServerEventBridge,
+            InteropLogger interopLogger
     );
 
     public static native void ClrSystemFailedEvaluatorHandlerOnNext (
@@ -104,8 +116,8 @@ public class NativeInterop {
     public static String TaskMessageKey = "TaskMessage";
     public static String FailedTaskKey = "FailedTask";
     public static String FailedEvaluatorKey = "FailedEvaluator";
+    public static String HttpServerKey = "HttpServerKey";
     public static String CompletedTaskKey = "CompletedTask";
-
 
   public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
         put(EvaluatorRequestorKey, 0);
@@ -114,7 +126,8 @@ public class NativeInterop {
         put(TaskMessageKey, 3);
         put(FailedTaskKey,4);
         put(FailedEvaluatorKey, 5);
-        put(CompletedTaskKey, 7); // skip number 6 reserved for httphandler
+        put(HttpServerKey, 6);
+        put(CompletedTaskKey, 7);
     }};
 
     public static int nHandlers = 8;

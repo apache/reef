@@ -246,6 +246,48 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHan
 
 /*
  * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemHttpServerEventHandlerOnHttpRequest
+ * Signature: (JLjavabridge/HttpServerEventBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jhttpServerEventBridge, jobject jlogger)
+ {
+	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
+		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, jhttpServerEventBridge);
+		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_OnNext(handler, httpServerClr2Java);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrSystemHttpServerEventHandlerOnHttpRequest
+ * Signature: (JLjavabridge/HttpServerEventBridge;Ljavabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerGetSpec
+  (JNIEnv *env , jclass cls, jlong handler, jobject jhttpServerEventBridge, jobject jlogger)
+ {
+	try{
+		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerGetSpec");
+		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, jhttpServerEventBridge);
+		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_GetSpec(handler, httpServerClr2Java);
+	}
+	catch (System::Exception^ ex)
+	{
+		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerGetSpec");
+		Console::WriteLine(ex->Message);
+		Console::WriteLine(ex->StackTrace);
+	}
+}
+
+/*
+ * Class:     javabridge_NativeInterop
  * Method:    ClrSystemCompletedTaskHandlerOnNext
  * Signature: (JLjavabridge/CompletedTaskBridge;Ljavabridge/InteropLogger;)V
  */
