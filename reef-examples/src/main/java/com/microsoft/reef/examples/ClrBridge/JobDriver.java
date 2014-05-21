@@ -23,10 +23,13 @@ import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.io.network.naming.NameServer;
+import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.webserver.HttpHandler;
 import com.microsoft.reef.webserver.RequestParser;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.remote.NetUtils;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.StartTime;
@@ -66,6 +69,9 @@ public final class JobDriver {
   private long  completedTaskHandler = 0;
 
   private int nCLREvaluators = 0;
+
+  private NameServer nameServer;
+  private String nameServerInfo;
 
 
   /**
@@ -122,6 +128,8 @@ public final class JobDriver {
     this.clock = clock;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = new NameServer(0, new StringIdentifierFactory());
+    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + nameServer.getPort();
   }
 
   /**
@@ -454,4 +462,3 @@ public final class JobDriver {
       }
     }
 }
-
