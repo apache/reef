@@ -14,6 +14,7 @@ using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
 using namespace Microsoft::Reef::Driver::Bridge;
+using namespace Microsoft::Reef::Utilities::Logging;
 
 static void ManagedLog (String^ fname, String^ msg)
 {		
@@ -306,3 +307,34 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandl
 		Console::WriteLine(ex->StackTrace);
 	}
 }
+
+/*
+ * Class:     javabridge_NativeInterop
+ * Method:    ClrBufferedLog
+ * Signature: (ILjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrBufferedLog
+  (JNIEnv *env, jclass cls, jint logLevel, jstring message)
+{
+    try {
+        Logger^ logger = gcnew Logger("JavaClrBridge");
+        Level level;
+        switch (logLevel) {
+            case 0: level = Level.Off;     break;
+            case 1: level = Level.Error;   break;
+            case 2: level = Level.Warning; break;
+            case 3: level = Level.Info;    break;
+            case 4: level = Level.Verbose; break;
+        }
+
+        String^ logMessage = ManagedStringFromJavaString(env, jfileName);
+        logger::Log(level, logMessage);
+    }
+    catch (System::Exception^ ex) {
+        Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrBufferedLog");
+        Console::WriteLine(ex->Message);
+        Console::WriteLine(ex->StackTrace);
+    }
+}
+
+

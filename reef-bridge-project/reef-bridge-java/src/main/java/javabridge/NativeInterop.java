@@ -89,6 +89,8 @@ public class NativeInterop {
             InteropLogger interopLogger
     );
 
+    public static native void ClrBufferedLog(int level, String message);
+
     public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
     private static final String LIB_BIN = "/";
     private static final String DLL_EXTENSION = ".dll";
