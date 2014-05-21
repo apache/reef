@@ -17,6 +17,7 @@ package com.microsoft.reef.examples.hellohttp;
 
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
+import com.microsoft.reef.client.DriverServiceConfiguration;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.common.driver.defaults.DefaultContextActiveHandler;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
@@ -47,10 +48,22 @@ public final class HelloREEFHttp {
      * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
      */
     public static Configuration getHTTPConfiguration() {
-        return HttpHandlerConfiguration.CONF
+//        return HttpHandlerConfiguration.CONF
+//                .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+//                .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServeShellCmdtHandler.class)
+//                .build();
+        Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServeShellCmdtHandler.class)
                 .build();
+        Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
+                .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+                .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+                .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+                .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+                .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+                .build();
+        return Configurations.merge(httpHandlerConfiguration, driverConfigurationForHttpServer);
     }
 
     /**
@@ -61,12 +74,12 @@ public final class HelloREEFHttp {
                 .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
                 .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
                 //.set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-                .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
-                .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-                .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
-                .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+//                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+//                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+//                .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
+//                .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+//                .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+//                .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
 
                 .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.AllocatedEvaluatorHandler.class)
                 .set(DriverConfiguration.ON_EVALUATOR_FAILED, HelloDriver.FailedEvaluatorHandler.class)
