@@ -3,27 +3,26 @@ package com.microsoft.reef.util.logging;
 import java.util.logging.*;
 import java.io.PrintWriter;
 import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import javax.inject.Inject;
+
 
 public class CLRHandler extends Handler
 {
-    private PrintWriter pw;
-
-    public CLRHandler() throws Exception
+    @Inject
+    public CLRHandler()
     {
         super();
-        pw = new PrintWriter(new FileOutputStream("mylogfile.txt"));
     }
 
     @Override
     public void close() throws SecurityException
     {
-        pw.close();
     }
 
     @Override
     public void flush()
     {
-        pw.flush();
     }
 
     @Override
@@ -32,6 +31,9 @@ public class CLRHandler extends Handler
         if (!isLoggable(record))
             return;
 
-        pw.println(getFormatter().format(record));
+        if (record == null)
+            return;
+
+        System.err.println("                   [LOGGING RECORD: " + record);
     }
 }
