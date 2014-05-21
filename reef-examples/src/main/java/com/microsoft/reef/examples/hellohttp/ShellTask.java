@@ -16,6 +16,7 @@
 package com.microsoft.reef.examples.hellohttp;
 
 import com.microsoft.reef.task.Task;
+import com.microsoft.reef.util.CommandUtils;
 import com.microsoft.reef.util.OSUtils;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -64,26 +65,7 @@ public class ShellTask implements Task {
      */
     @Override
     public byte[] call(final byte[] memento) {
-//        final StringBuilder sb = new StringBuilder();
-//        try {
-//            // Execute the command
-//            String cmd = OSUtils.isWindows()  ? "cmd.exe /c " + this.command : this.command;
-//            LOG.log(Level.INFO, "Call: {0} with: {1}", new Object[] {this.command, memento});
-//            final Process proc = Runtime.getRuntime().exec(cmd);
-//            try (final BufferedReader input =
-//                         new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
-//                String line;
-//                while ((line = input.readLine()) != null) {
-//                    sb.append(line).append('\n');
-//                }
-//            }
-//        } catch (IOException ex) {
-//            LOG.log(Level.SEVERE, "Error in call: " + this.command, ex);
-//            sb.append(ex);
-//        }
-        // Return the result
-
-        String result = CommandUtility.runCommand(this.command);
+        String result = CommandUtils.runCommand(this.command);
         final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
         return codec.encode(result);
     }

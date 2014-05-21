@@ -38,6 +38,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      */
     private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
 
+    private String uriSpecification = "Reef";
+
     /**
      * reference of ReefEventStateManager
      */
@@ -58,9 +60,16 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      */
     @Override
     public String getUriSpecification() {
-        return "Reef";
+        return uriSpecification;
     }
 
+    /**
+     * set URI specification
+     * @param s
+     */
+    public void setUriSpecification(String s) {
+        uriSpecification = s;
+    }
     /**
      * it is called when receiving a http request
      *

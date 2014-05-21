@@ -16,14 +16,12 @@
 
 package com.microsoft.reef.examples.hellohttp;
 
-import com.microsoft.reef.driver.parameters.ClientMessageHandlers;
+import com.microsoft.reef.util.CommandUtils;
 import com.microsoft.reef.webserver.HttpHandler;
 import com.microsoft.reef.webserver.RequestParser;
 import com.microsoft.tang.InjectionFuture;
-import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
-
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,12 +29,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Event handler for Shell Command
+ * Http Event handler for Shell Command
  */
 @Unit
 public class HttpServeShellCmdtHandler implements HttpHandler {
@@ -45,14 +42,26 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
      */
     private static final Logger LOG = Logger.getLogger(HttpServeShellCmdtHandler.class.getName());
 
-    //private final HelloDriver helloDriver;
+    /**
+     *  ClientMessageHandler
+     */
     private final InjectionFuture<HelloDriver.ClientMessageHandler> messageHandler;
+
+    /**
+     * uri specification
+     */
+    private String uriSpecification = "Command";
+
+    /**
+     * output for command
+     */
+    private String cmdOutput = null;
 
     /**
      * HttpServerDistributedShellEventHandler constructor.
      */
     @Inject
-    public HttpServeShellCmdtHandler(InjectionFuture<HelloDriver.ClientMessageHandler> messageHandler) {
+    public HttpServeShellCmdtHandler(final InjectionFuture<HelloDriver.ClientMessageHandler> messageHandler) {
         this.messageHandler = messageHandler;
     }
 
@@ -63,10 +72,17 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
      */
     @Override
     public String getUriSpecification() {
-        return "Command";
+        return uriSpecification;
     }
 
-    private String cmdOutput = null;
+    /**
+     * set URI specification
+     * @param s
+     */
+    public void setUriSpecification(final String s) {
+        uriSpecification = s;
+    }
+
     /**
      * it is called when receiving a http request
      *
@@ -97,11 +113,15 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
             response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
             cmdOutput = null;
         } else if (requestParser.getTargetEntity().equalsIgnoreCase("Driver")) {
-            String cmdOutput = CommandUtility.runCommand(queryStr);
+            String cmdOutput = CommandUtils.runCommand(queryStr);
             response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
         }
     }
 
+    /**
+     * called after shell command is completed
+     * @param message
+     */
     public synchronized void onHttpCallback(byte[] message) {
         while (cmdOutput != null) {
             try {
@@ -116,6 +136,9 @@ public class HttpServeShellCmdtHandler implements HttpHandler {
         notify();
     }
 
+    /**
+     * Handler for client to call back
+     */
     final class ClientCallBackHandler implements EventHandler<byte[]> {
         @Override
         public void onNext(final byte[] message) {
