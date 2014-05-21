@@ -90,6 +90,17 @@ namespace Microsoft
 					virtual String^ GetId();
 				};
 
+				public ref class HttpServerClr2Java : public IHttpServerBridgeClr2Java
+				{
+					jobject _jhttpServerEventBridge;
+					JavaVM* _jvm;
+				public:
+					HttpServerClr2Java(JNIEnv *env, jobject jhttpServerEventBridge);
+					virtual String^ GetQueryString();
+					virtual void SetUriSpecification(String^ uriSpecification);
+					virtual void SetQueryResult(String^ queryResult);
+				};
+
 				public ref class CompletedTaskClr2Java : public ICompletedTaskClr2Java
 				{
 					jobject  _jobjectCompletedTask;
