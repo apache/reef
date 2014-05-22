@@ -1,11 +1,11 @@
-/*
- * Copyright 2013 Microsoft.
+/**
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
@@ -91,7 +90,9 @@ public class InputFormatLoadingService<K,V> implements DataLoadingService {
   @Override
   public Configuration getConfiguration(AllocatedEvaluator allocatedEvaluator) {
     try {
-      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper.getInputSplit(allocatedEvaluator.getId());
+      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper
+          .getInputSplit(allocatedEvaluator.getEvaluatorDescriptor()
+              .getNodeDescriptor().getName(), allocatedEvaluator.getId());
       final Configuration contextIdConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "DataLoadContext-" + numberedSplit.getIndex())
           .build();
