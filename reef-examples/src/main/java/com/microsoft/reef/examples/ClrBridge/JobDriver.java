@@ -411,7 +411,7 @@ public final class JobDriver {
           }
 
           HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-          NativeInterop.ClrSystemHttpServerHandlerGetSpec(httpServerEventHandler, httpServerEventBridge, interopLogger);
+          NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
           String specList = httpServerEventBridge.getUriSpecification();
           LOG.log(Level.INFO, "getUriSpecification: {0}", specList);
           if (specList != null) {

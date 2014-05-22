@@ -71,12 +71,6 @@ public class NativeInterop {
             InteropLogger interopLogger
     );
 
-    public static native void ClrSystemHttpServerHandlerGetSpec(
-            long handle,
-            HttpServerEventBridge httpServerEventBridge,
-            InteropLogger interopLogger
-    );
-
     public static native void ClrSystemFailedEvaluatorHandlerOnNext (
             long handle,
             FailedEvaluatorBridge failedEvaluatorBridge,
