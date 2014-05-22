@@ -16,20 +16,9 @@
 
 package javabridge;
 
-import com.microsoft.reef.driver.task.CompletedTask;
+public abstract class NativeBridge implements AutoCloseable {
 
-public class CompletedTaskBridge {
-
-  private CompletedTask jcompletedTask;
-
-  private String taskId;
-
-  private ActiveContextBridge jactiveContext;
-
-  public CompletedTaskBridge(CompletedTask completedTask)
+  public void OnBridgeFailure(String errorMessage)
   {
-      jcompletedTask = completedTask;
-      taskId = completedTask.getId();
-      jactiveContext = new ActiveContextBridge(completedTask.getActiveContext());
   }
 }
