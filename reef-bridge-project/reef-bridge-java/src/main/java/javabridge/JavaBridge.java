@@ -1,39 +1,29 @@
-package javabridge;
-import javabridge.NativeInterop;
-import java.util.Date;
-
 /**
- * Created by beysims on 3/10/14.
+ * Copyright (C) 2013 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+package javabridge;
+
     public class JavaBridge {
-        private final static String CPP_BRIDGE = "JavaClrBridge";
+  private final static String CPP_BRIDGE = "JavaClrBridge";
 
-        static {
-            //logger.info("Loading DLL");
-            try {
-                //System.out.println("before load cppbridge");
-                System.loadLibrary(CPP_BRIDGE);
-                //System.out.println("after load cppbridge");
-                //logger.info("DLL is loaded from memory");
-                //loadFromJar();
-            } catch (UnsatisfiedLinkError e) {
-                //loadFromJar();
-            }
-        }
-
-    public static Object[] roots = new Object[2];
-        public static void main (String[] args){
-
-            String strDate = new Date().toString();
-            System.out.println("java side date " + strDate);
-            long[] handle0 = NativeInterop.CallClrSystemOnStartHandler(new Date().toString());
-
-            InteropLogger interopLogger = new InteropLogger();
-
-            byte[] value = new byte[3];
-            value[0] = (byte)0xcc;
-            value[1] = (byte)0x10;
-            value[2] = (byte)0xee;
-        }
+  static {
+    try {
+      System.loadLibrary(CPP_BRIDGE);
+    } catch (UnsatisfiedLinkError e) {
     }
+  }
+}
 

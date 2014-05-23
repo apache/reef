@@ -16,11 +16,7 @@
 
 package javabridge;
 
-import com.microsoft.reef.driver.task.CompletedTask;
-import org.codehaus.plexus.util.FileUtils;
-
 import java.io.*;
-import java.util.Date;
 import java.util.HashMap;
 
 

@@ -18,7 +18,7 @@ package javabridge;
 /**
  *  HttpServerEventBridge
  */
-public final class HttpServerEventBridge {
+public final class HttpServerEventBridge extends NativeBridge{
     private String queryString;
     private String queryResult;
     private String uriSpecification;
@@ -45,5 +45,10 @@ public final class HttpServerEventBridge {
 
     public final void setUriSpecification(final String uriSpecification) {
         this.uriSpecification = uriSpecification;
+    }
+
+    @Override
+    public void close()
+    {
     }
 }

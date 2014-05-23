@@ -31,7 +31,7 @@ import com.microsoft.tang.exceptions.InjectionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class EvaluatorRequestorBridge {
+public class EvaluatorRequestorBridge extends NativeBridge {
     private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
 
     // accumulate how many evaluators have been submitted through this instance
@@ -90,5 +90,10 @@ public class EvaluatorRequestorBridge {
 
     public int getEvaluatorNumber() {
         return clrEvaluatorsNumber;
+    }
+
+    @Override
+    public void close()
+    {
     }
 }

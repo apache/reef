@@ -23,7 +23,7 @@ import com.microsoft.reef.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FailedTaskBridge {
+public class FailedTaskBridge extends NativeBridge{
   private static final Logger LOG = Logger.getLogger(FailedTaskBridge.class.getName());
 
   private FailedTask jfailedTask;
@@ -46,6 +46,11 @@ public class FailedTaskBridge {
               + ", Cause=" + cause;
     LOG.log(Level.INFO, "serialized failed task " + poorString);
     return  poorString;
+  }
+
+  @Override
+  public void close()
+  {
   }
 }
 

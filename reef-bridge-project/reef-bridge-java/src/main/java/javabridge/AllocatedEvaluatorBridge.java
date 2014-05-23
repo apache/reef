@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AllocatedEvaluatorBridge implements AutoCloseable {
+public class AllocatedEvaluatorBridge extends NativeBridge {
 
     private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
 

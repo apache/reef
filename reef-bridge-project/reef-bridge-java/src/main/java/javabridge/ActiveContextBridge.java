@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ActiveContextBridge implements AutoCloseable {
+public class ActiveContextBridge extends NativeBridge {
     private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 
     private ActiveContext jactiveContext;

@@ -46,6 +46,13 @@ namespace Microsoft
 					JNIEnv *env = RetrieveEnv(_jvm);
 					return ManagedStringFromJavaString(env, _jstringId);
 				}
+
+				void FailedEvaluatorClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "FailedEvaluatorClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectFailedEvaluator);
+				}
 			}
 		}
 	}

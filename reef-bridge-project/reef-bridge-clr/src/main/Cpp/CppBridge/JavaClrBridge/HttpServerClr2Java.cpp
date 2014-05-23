@@ -81,7 +81,14 @@ namespace Microsoft
 						_jhttpServerEventBridge, 
 						jmidsetUriSpecification,
 						JavaStringFromManagedString(env, uriSpecification));					
-				}				
+				}	
+
+				void HttpServerClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "HttpServerClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jhttpServerEventBridge);
+				}
 			}
 		}
 	}

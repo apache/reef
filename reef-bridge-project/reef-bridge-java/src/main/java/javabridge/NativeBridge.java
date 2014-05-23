@@ -16,9 +16,16 @@
 
 package javabridge;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public abstract class NativeBridge implements AutoCloseable {
 
-  public void OnBridgeFailure(String errorMessage)
+  private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
+
+  public void onError(String errorMessage)
   {
+    LOG.log(Level.SEVERE, "Bridge received error from CLR: " + errorMessage );
+    throw new RuntimeException("Bridge received error from CLR: " + errorMessage);
   }
 }

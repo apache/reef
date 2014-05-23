@@ -44,6 +44,27 @@ jstring JavaStringFromManagedString(
 	return env->NewString((const jchar*)wch, managedString->Length);
 }
 
+void HandleClr2JavaError(
+	JNIEnv *env,
+	String^ errorMessage,
+	jobject javaObject)
+{
+	jclass javaClass = env->GetObjectClass (javaObject);
+	jmethodID jmidOnError = env->GetMethodID(javaClass, "onError", "(Ljava/lang/String;)V");	
+
+	fprintf(stdout, "AllocatedEvaluatorClr2Java jmidOnError %p\n", jmidOnError); fflush (stdout);
+
+	if(jmidOnError == NULL)
+	{
+		fprintf(stdout, " jmidOnError is NULL\n"); fflush (stdout);
+		return;
+	}
+	env -> CallObjectMethod(
+		javaObject, 
+		jmidOnError, 
+		JavaStringFromManagedString(env, errorMessage));
+}
+
 array<byte>^ ManagedByteArrayFromJavaByteArray(
 	JNIEnv *env,
 	jbyteArray javaByteArray)

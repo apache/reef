@@ -83,6 +83,8 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 	}
 	catch (System::Exception^ ex)
 	{
+		// We do not propagate the exception back to Java to stop driver here 
+		// since failure to load an assembly is not necesary devastating
 		Console::WriteLine("Exceptions in Java_javabridge_NativeInterop_loadClrAssembly");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
@@ -110,11 +112,11 @@ JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartH
 	}
 	catch (System::Exception^ ex)
 	{
+		// we cannot get error back to java here since we don't have an object to call back (although we idealy should...)
 		Console::WriteLine("Exceptions in Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}
-	return 0;
 }
 
 /*
@@ -125,16 +127,16 @@ JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartH
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluatorBridge, jobject jlogger)
 {
-	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
-		AllocatedEvaluatorClr2Java^ allocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
+	AllocatedEvaluatorClr2Java^ allocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
+	try{		
 		ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, allocatedEval);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemAllocatedEvaluatorHandler_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		allocatedEval -> OnError(errorMessage);
 	}
 }
 
@@ -146,16 +148,16 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluator
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge, jobject jlogger)
 {
-	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
-		ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
+	ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
+	try{	
 		ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, activeContextBrdige);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemActiveContextHandler_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		activeContextBrdige -> OnError(errorMessage);
 	}
 }
 
@@ -167,16 +169,16 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemActiveContextHandl
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jevaluatorRequestorBridge, jobject jlogger)
 {
-	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
-		EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
+	EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
+	try{		
 		ClrSystemHandlerWrapper::Call_ClrSystemEvaluatorRequestor_OnNext(handle, evaluatorRequestorBridge);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemEvaluatorRequestor_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		evaluatorRequestorBridge -> OnError(errorMessage);
 	}
 }
 
@@ -188,17 +190,17 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorH
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext
 	(JNIEnv *env, jclass cls, jlong handle, jbyteArray jmessage, jobject jtaskMessageBridge, jobject jlogger)
 {
-	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext");
-		TaskMessageClr2Java^ taskMesageBridge = gcnew TaskMessageClr2Java(env, jtaskMessageBridge);
-		array<byte>^ message = ManagedByteArrayFromJavaByteArray(env, jmessage);
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext");
+	TaskMessageClr2Java^ taskMesageBridge = gcnew TaskMessageClr2Java(env, jtaskMessageBridge);
+	array<byte>^ message = ManagedByteArrayFromJavaByteArray(env, jmessage);
+	try{		
 		ClrSystemHandlerWrapper::Call_ClrSystemTaskMessage_OnNext(handle, taskMesageBridge, message);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemTaskMessage_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		taskMesageBridge -> OnError(errorMessage);
 	}
 }
 
@@ -210,16 +212,16 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemTaskMessageHandler
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jfailedTask, jobject jlogger)
 {
-	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext");
-		FailedTaskClr2Java^ failedTaskBridge = gcnew FailedTaskClr2Java(env, jfailedTask);
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext");
+	FailedTaskClr2Java^ failedTaskBridge = gcnew FailedTaskClr2Java(env, jfailedTask);
+	try{		
 		ClrSystemHandlerWrapper::Call_ClrSystemFailedTask_OnNext(handler, failedTaskBridge);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSysteFailedTaskHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemTaskMessage_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		failedTaskBridge -> OnError(errorMessage);
 	}
 }
 
@@ -231,16 +233,16 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerO
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jfailedEvaluator, jobject jlogger)
 {
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext");
+	FailedEvaluatorClr2Java^ failedEvaluatorBridge = gcnew FailedEvaluatorClr2Java(env, jfailedEvaluator);
 	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext");
-		FailedEvaluatorClr2Java^ failedEvaluatorBridge = gcnew FailedEvaluatorClr2Java(env, jfailedEvaluator);
 		ClrSystemHandlerWrapper::Call_ClrSystemFailedEvaluator_OnNext(handler, failedEvaluatorBridge);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSysteFailedTaskHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemFailedEvaluator_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		failedEvaluatorBridge -> OnError(errorMessage);
 	}
 }
 
@@ -252,16 +254,16 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHan
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jhttpServerEventBridge, jobject jlogger)
  {
-	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
-		HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, jhttpServerEventBridge);
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
+	HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, jhttpServerEventBridge);	
+	 try{
 		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_OnNext(handler, httpServerClr2Java);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemHttpServer_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		httpServerClr2Java -> OnError(errorMessage);
 	}
 }
 
@@ -273,15 +275,15 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerO
 JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jcompletedTask, jobject jlogger)
 {
+	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext");
+	CompletedTaskClr2Java^ completedTaskBridge = gcnew CompletedTaskClr2Java(env, jcompletedTask);
 	try{
-		Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext");
-		CompletedTaskClr2Java^ completedTaskBridge = gcnew CompletedTaskClr2Java(env, jcompletedTask);
 		ClrSystemHandlerWrapper::Call_ClrSystemCompletedTask_OnNext(handler, completedTaskBridge);
 	}
 	catch (System::Exception^ ex)
 	{
-		Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext");
-		Console::WriteLine(ex->Message);
-		Console::WriteLine(ex->StackTrace);
+		String^ errorMessage = "Exception in Call_ClrSystemCompletedTask_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		completedTaskBridge -> OnError(errorMessage);
 	}
 }

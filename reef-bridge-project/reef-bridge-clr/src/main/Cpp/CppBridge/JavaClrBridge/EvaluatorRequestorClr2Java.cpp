@@ -39,6 +39,13 @@ namespace Microsoft
 						request -> MemoryMegaBytes,
 						JavaStringFromManagedString(env, request -> Rack));
 				}
+
+				void EvaluatorRequestorClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "EvaluatorRequestorClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectEvaluatorRequestor);
+				}
 			}
 		}
 	}
