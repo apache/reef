@@ -36,5 +36,9 @@ public final class DefaultContextClosureHandler implements EventHandler<ClosedCo
   @Override
   public void onNext(final ClosedContext closedContext) {
     LOG.log(Level.INFO, "Received ClosedContext: {0}", closedContext);
+    if (closedContext.getParentContext() != null) {
+      LOG.log(Level.INFO, "Closing parent context: {0}", closedContext.getParentContext().getId());
+      closedContext.getParentContext().close();
+    }
   }
 }
