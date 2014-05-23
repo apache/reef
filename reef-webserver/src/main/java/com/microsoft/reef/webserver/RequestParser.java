@@ -18,6 +18,7 @@ package com.microsoft.reef.webserver;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class RequestParser {
     private final String method;
     private final String queryString;
     private final String requestUri;
+    private final String requestUrl;
     private final String serveletPath;
     private final Map<String, String> headers = new HashMap();
     private final byte[] inputStream;
@@ -48,11 +50,12 @@ public class RequestParser {
     public RequestParser(HttpServletRequest request) throws IOException, ServletException {
         this.request = request;
 
-        pathInfo = request.getPathInfo();
-        method = request.getMethod();
-        queryString = request.getQueryString();
-        requestUri = request.getRequestURI();
-        serveletPath = request.getServletPath();
+        pathInfo = getRequestData(request.getPathInfo());
+        method = getRequestData(request.getMethod());
+        queryString = getRequestData(request.getQueryString());
+        requestUri = getRequestData(request.getRequestURI());
+        serveletPath = getRequestData(request.getServletPath());
+        requestUrl = getRequestData(request.getRequestURL().toString());
 
         Enumeration hn = request.getHeaderNames();
         while (hn.hasMoreElements()) {
@@ -96,6 +99,14 @@ public class RequestParser {
                     querieMap.put(pair[0], pair[1]);
                 }
             }
+        }
+    }
+
+    private String getRequestData(String requestStr) throws UnsupportedEncodingException {
+        if (requestStr != null) {
+            return java.net.URLDecoder.decode(requestStr, "UTF-8");
+        } else {
+            return null;
         }
     }
 
@@ -155,5 +166,9 @@ public class RequestParser {
 
     public Map<String, String> getQueryMap() {
         return querieMap;
+    }
+
+    public String getRequestUrl() {
+        return requestUrl;
     }
 }
