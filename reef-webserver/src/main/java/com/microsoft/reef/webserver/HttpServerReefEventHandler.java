@@ -99,6 +99,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      * @throws IOException
      */
     private void handleQueries(HttpServletResponse response, Map<String, String> queries) throws IOException {
+        LOG.log(Level.INFO, "HttpServerReefEventHandler handleQueries is called");
         for (Map.Entry<String, String> entry : queries.entrySet()) {
             final String key = entry.getKey();
             final String val = entry.getValue();
@@ -132,6 +133,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      * @throws IOException
      */
     private void getEvaluators(HttpServletResponse response) throws IOException {
+        LOG.log(Level.INFO, "HttpServerReefEventHandler getEvaluators is called");
         response.getWriter().println("<h1>Evaluators:</h1>");
 
         for (Map.Entry<String, EvaluatorDescriptor> entry : reefStateManager.getEvaluators().entrySet()) {

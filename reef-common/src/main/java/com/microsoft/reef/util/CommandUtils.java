@@ -24,14 +24,14 @@ import java.util.logging.Logger;
 /**
  * run given command and return the result as string
  */
-public class CommandUtils {
+final public class CommandUtils {
     /** Standard java logger. */
     private static final Logger LOG = Logger.getLogger(CommandUtils.class.getName());
 
-    public static String runCommand(final String command) {
+    public final static String runCommand(final String command) {
         final StringBuilder sb = new StringBuilder();
         try {
-            String cmd = OSUtils.isWindows() ? "cmd.exe /c " + command : command;
+            final String cmd = OSUtils.isWindows() ? "cmd.exe /c " + command : command;
             final Process proc = Runtime.getRuntime().exec(cmd);
 
             try (final BufferedReader input =
@@ -41,7 +41,7 @@ public class CommandUtils {
                     sb.append(line).append('\n');
                 }
             }
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LOG.log(Level.SEVERE, "Error in call: " + command, ex);
             sb.append(ex);
         }

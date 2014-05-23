@@ -78,8 +78,8 @@ class JettyHandler extends AbstractHandler {
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        RequestParser requestParser = new RequestParser(request);
-        String specification = requestParser.getTargetSpecification();
+        final RequestParser requestParser = new RequestParser(request);
+        final String specification = requestParser.getTargetSpecification();
 
         if (specification != null) {
             final HttpHandler h = eventHandlers.get(requestParser.getTargetSpecification().toLowerCase());

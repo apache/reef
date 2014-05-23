@@ -42,6 +42,10 @@ class HttpServerShellCmdtHandler implements HttpHandler {
      */
     private static final Logger LOG = Logger.getLogger(HttpServerShellCmdtHandler.class.getName());
 
+    private static final int WAIT_TIMEOUT = 10 * 1000;
+
+    private static final int WAIT_TIME = 50;
+
     /**
      *  ClientMessageHandler
      */
@@ -90,30 +94,36 @@ class HttpServerShellCmdtHandler implements HttpHandler {
      * @param response
      */
     @Override
-    public synchronized void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public final synchronized void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOG.log(Level.INFO, "HttpServeShellCmdtHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
         final RequestParser requestParser = new RequestParser(request);
-        Map<String,String> queries = requestParser.getQueryMap();
+        final Map<String,String> queries = requestParser.getQueryMap();
         final String queryStr = requestParser.getQueryString();
 
         if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators")) {
-            byte[] b = HttpShellJobDriver.CODEC.encode(queryStr);
+            final byte[] b = HttpShellJobDriver.CODEC.encode(queryStr);
             LOG.log(Level.INFO, "HttpServeShellCmdtHandler call HelloDriver onCommand(): {0}", queryStr);
             messageHandler.get().onNext(b);
 
             notify();
 
+            final long endTime = System.currentTimeMillis() + WAIT_TIMEOUT;
             while (cmdOutput == null) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
+                final long waitTime = endTime - System.currentTimeMillis();
+                if (waitTime <= 0) {
+                    break;
+                }
 
+                try {
+                    wait(WAIT_TIME);
+                } catch (final InterruptedException e) {
+                    LOG.log(Level.WARNING, "HttpServeShellCmdtHandler onHttpRequest InterruptedException: {0}", e);
                 }
             }
             response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
             cmdOutput = null;
         } else if (requestParser.getTargetEntity().equalsIgnoreCase("Driver")) {
-            String cmdOutput = CommandUtils.runCommand(queryStr);
+            final String cmdOutput = CommandUtils.runCommand(queryStr);
             response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
         }
     }
@@ -122,12 +132,18 @@ class HttpServerShellCmdtHandler implements HttpHandler {
      * called after shell command is completed
      * @param message
      */
-    public synchronized void onHttpCallback(byte[] message) {
+    public final synchronized void onHttpCallback(byte[] message) {
+        final long endTime = System.currentTimeMillis() + WAIT_TIMEOUT;
         while (cmdOutput != null) {
-            try {
-                wait();
-            } catch(InterruptedException e) {
+            final long waitTime = endTime - System.currentTimeMillis();
+            if (waitTime <= 0) {
+                break;
+            }
 
+            try {
+                wait(WAIT_TIME);
+            } catch(final InterruptedException e) {
+                LOG.log(Level.WARNING, "HttpServeShellCmdtHandler onHttpCallback InterruptedException: {0}", e);
             }
         }
         LOG.log(Level.INFO, "HttpServeShellCmdtHandler OnCallback: {0}", HttpShellJobDriver.CODEC.decode(message));

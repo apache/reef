@@ -36,6 +36,7 @@ public class RequestParser {
     private final byte[] inputStream;
     private final String targetSpecification;
     private final String targetEntity;
+    private final Map<String, String> querieMap = new HashMap<>();
 
     /**
      * parse HttpServletRequest
@@ -85,6 +86,16 @@ public class RequestParser {
         } else {
             targetSpecification = null;
             targetEntity = null;
+        }
+
+        if (queryString != null) {
+            final String[] questions = queryString.split("&");
+            for (final String s : questions) {
+                final String[] pair = s.split("=");
+                if (pair != null && pair.length == 2) {
+                    querieMap.put(pair[0], pair[1]);
+                }
+            }
         }
     }
 
@@ -143,14 +154,6 @@ public class RequestParser {
     }
 
     public Map<String, String> getQueryMap() {
-        final Map<String, String> queries = new HashMap<>();
-        final String[] questions = queryString.split("&");
-        for (String s : questions) {
-            final String[] pair = s.split("=");
-            if (pair != null && pair.length == 2) {
-                queries.put(pair[0], pair[1]);
-            }
-        }
-        return queries;
+        return querieMap;
     }
 }

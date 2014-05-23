@@ -42,6 +42,8 @@ public class ShellTask implements Task {
     /** A command to execute. */
     private final String command;
 
+    /** Object Serializable Codec */
+    private final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
     /**
      * Task constructor. Parameters are injected automatically by TANG.
      * @param command a command to execute.
@@ -60,7 +62,6 @@ public class ShellTask implements Task {
     @Override
     public byte[] call(final byte[] memento) {
         String result = CommandUtils.runCommand(this.command);
-        final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
         return codec.encode(result);
     }
 }
