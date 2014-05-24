@@ -18,9 +18,9 @@ package com.microsoft.reef.webserver;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.*;
 
 /**
  * Parse HttpServletRequest
@@ -31,11 +31,13 @@ public class RequestParser {
     private final String method;
     private final String queryString;
     private final String requestUri;
+    private final String requestUrl;
     private final String serveletPath;
     private final Map<String, String> headers = new HashMap();
     private final byte[] inputStream;
     private final String targetSpecification;
     private final String targetEntity;
+    private final Map<String, List<String>> queryPairs = new LinkedHashMap<String, List<String>>();
 
     /**
      * parse HttpServletRequest
@@ -44,7 +46,7 @@ public class RequestParser {
      * @throws IOException
      * @throws ServletException
      */
-    public RequestParser(HttpServletRequest request) throws IOException, ServletException {
+    public RequestParser(final HttpServletRequest request) throws IOException, ServletException {
         this.request = request;
 
         pathInfo = request.getPathInfo();
@@ -52,6 +54,7 @@ public class RequestParser {
         queryString = request.getQueryString();
         requestUri = request.getRequestURI();
         serveletPath = request.getServletPath();
+        requestUrl = request.getRequestURL().toString();
 
         Enumeration hn = request.getHeaderNames();
         while (hn.hasMoreElements()) {
@@ -85,6 +88,25 @@ public class RequestParser {
         } else {
             targetSpecification = null;
             targetEntity = null;
+        }
+
+        if (queryString != null) {
+            String[] pairs = queryString.split("&");
+            for (String pair : pairs) {
+                int idx = pair.indexOf("=");
+                if (idx != -1) {
+                    String rKey = pair.substring(0, idx);
+                    String rValue = pair.substring(idx + 1);
+                    if(rKey != null && rValue != null) {
+                        String key = URLDecoder.decode(rKey, "UTF-8");
+                        String value = URLDecoder.decode(rValue, "UTF-8");
+                        if(!queryPairs.containsKey(key)) {
+                            queryPairs.put(key, new ArrayList<String>());
+                        }
+                        queryPairs.get(key).add(value);
+                    }
+                }
+            }
         }
     }
 
@@ -140,5 +162,13 @@ public class RequestParser {
      */
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public Map<String, List<String>> getQueryMap() {
+        return queryPairs;
+    }
+
+    public String getRequestUrl() {
+        return requestUrl;
     }
 }

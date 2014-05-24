@@ -108,6 +108,8 @@ namespace Microsoft
 					virtual String^ GetQueryString();
 					virtual void SetUriSpecification(String^ uriSpecification);
 					virtual void SetQueryResult(String^ queryResult);
+					virtual array<byte>^ GetQueryRequestData();
+					virtual void SetQueryResponseData(array<byte>^ responseData);
 				};
 
 				public ref class CompletedTaskClr2Java : public ICompletedTaskClr2Java

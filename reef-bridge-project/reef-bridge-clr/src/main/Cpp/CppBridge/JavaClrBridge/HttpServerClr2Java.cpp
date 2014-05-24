@@ -42,6 +42,29 @@ namespace Microsoft
 					return queryString;
 				}
 
+				array<byte>^ HttpServerClr2Java::GetQueryRequestData()				
+				{					
+					JNIEnv *env = RetrieveEnv(_jvm);
+					jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
+					jmethodID jmidgetQueryBytes = env->GetMethodID(jclasshttpServerEventBridge, "getQueryRequestData", "()[B");
+
+					fprintf(stdout, "HttpServerClr2Java jclasshttpServerEventBridge %p\n", jclasshttpServerEventBridge); fflush (stdout);
+					fprintf(stdout, "HttpServerClr2Java jmidgetQueryString %p\n", jmidgetQueryBytes); fflush (stdout);
+					fprintf(stdout, "HttpServerClr2Java _jhttpServerEventBridge %p\n", _jhttpServerEventBridge); fflush (stdout);
+
+					if(jmidgetQueryBytes == NULL)
+					{
+						fprintf(stdout, " jmidgetQueryString is NULL\n"); fflush (stdout);
+						return nullptr;
+					}
+					jbyteArray jQueryBytes = (jbyteArray) env->CallObjectMethod(
+						_jhttpServerEventBridge, 
+						jmidgetQueryBytes);
+
+					array<byte>^ queryData = ManagedByteArrayFromJavaByteArray(env, jQueryBytes);
+					return queryData;
+				}
+
 				void HttpServerClr2Java::SetQueryResult(String^ queryResult)
 				{					
 					JNIEnv *env = RetrieveEnv(_jvm);
@@ -62,6 +85,27 @@ namespace Microsoft
 						JavaStringFromManagedString(env, queryResult));					
 
 				}	
+
+				void HttpServerClr2Java::SetQueryResponseData(array<byte>^ queryResponseData)
+				{					
+					JNIEnv *env = RetrieveEnv(_jvm);
+					jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
+					jmethodID jmidsetQueryResult = env->GetMethodID(jclasshttpServerEventBridge, "setQueryResponseData", "([B)V");
+
+					fprintf(stdout, "HttpServerClr2Java jclasshttpServerEventBridge %p\n", jclasshttpServerEventBridge); fflush (stdout);
+					fprintf(stdout, "HttpServerClr2Java jmidsetQueryResult %p\n", jmidsetQueryResult); fflush (stdout);
+
+					if(jmidsetQueryResult == NULL)
+					{
+						fprintf(stdout, " jmidsetQueryResult is NULL\n"); fflush (stdout);
+						return;
+					}
+					env->CallObjectMethod(
+						_jhttpServerEventBridge, 
+						jmidsetQueryResult,
+						JavaByteArrayFromManagedByteArray(env, queryResponseData));					
+
+				}
 
 				void HttpServerClr2Java::SetUriSpecification(String^ uriSpecification)
 				{					
