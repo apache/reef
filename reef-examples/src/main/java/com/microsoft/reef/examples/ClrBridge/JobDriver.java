@@ -334,11 +334,15 @@ public final class JobDriver {
             try {
                 InteropLogger interopLogger = new InteropLogger();
                 HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestStr);
+                httpServerEventBridge.setQueryRequestData(requestStr.getBytes(Charset.forName("UTF-8")));
+
                 LOG.log(Level.INFO, "Calling NativeInterop.ClrSystemHttpServerHandlerOnNext with query string: {0}", requestStr);
                 NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
                 LOG.log(Level.INFO, "returned from NativeInterop.ClrSystemHttpServerHandlerOnNext with result : {0}", httpServerEventBridge.getQueryResult());
                 String result = httpServerEventBridge.getQueryResult();
                 response.getWriter().println("Calling back from bridge: " + result);
+                String byteData = new String(httpServerEventBridge.getQueryResponseData(), "UTF-8");
+                response.getWriter().println("byte data: " + byteData);
                 //response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
             } catch (final Exception ex) {
                 LOG.log(Level.SEVERE, "Fail to invoke CLR Http Server handler");
@@ -411,6 +415,7 @@ public final class JobDriver {
           }
 
           HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
+          httpServerEventBridge.setQueryRequestData((new String("SPEC")).getBytes(Charset.forName("UTF-8")));
           NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
           String specList = httpServerEventBridge.getUriSpecification();
           LOG.log(Level.INFO, "getUriSpecification: {0}", specList);
