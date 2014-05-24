@@ -78,9 +78,4 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
 
     this.resourceRequestHandler.onNext(request.build());
   }
-
-  @Override
-  public synchronized ResourceCatalog getResourceCatalog() {
-    return this.resourceCatalog;
-  }
 }

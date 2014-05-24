@@ -35,16 +35,6 @@ public interface JobMessageObserver {
    * Send a message to the client.
    *
    * @param message a message to be sent to the client
-   * @deprecated use sendMessageToClient instead.
-   */
-  @Deprecated
-  public void onNext(final byte[] message);
-
-
-  /**
-   * Send a message to the client.
-   *
-   * @param message a message to be sent to the client
    */
   public void sendMessageToClient(final byte[] message);
 

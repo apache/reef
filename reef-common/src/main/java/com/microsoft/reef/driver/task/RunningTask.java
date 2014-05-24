@@ -35,15 +35,6 @@ public interface RunningTask extends Identifiable, AutoCloseable {
    */
   public ActiveContext getActiveContext();
 
-  /**
-   * Sends the message to the running task.
-   *
-   * @param message to be sent to the running task
-   * @deprecated in 0.4. use send() instead
-   */
-  @DriverSide
-  public void onNext(final byte[] message);
-
 
   /**
    * Sends the message to the running task.
