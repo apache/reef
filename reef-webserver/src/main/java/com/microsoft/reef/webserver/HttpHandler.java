@@ -36,7 +36,7 @@ public interface HttpHandler {
      *
      * @return
      */
-    public void setUriSpecification(String s);
+    public void setUriSpecification(final String s);
 
     /**
      * Will be called when request comes
@@ -44,5 +44,5 @@ public interface HttpHandler {
      * @param request
      * @param response
      */
-    public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+    void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
 }

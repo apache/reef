@@ -44,11 +44,20 @@ public final class ReefEventStateManager {
      */
     private static final Logger LOG = Logger.getLogger(ReefEventStateManager.class.getName());
 
+    /**
+     * date format
+     */
     private static final Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
+
     /**
      * Map of evaluators
      */
     private final Map<String, EvaluatorDescriptor> evaluators = new HashMap<>();
+
+    /**
+     * Map from context ID to running evaluator context.
+     */
+    private final Map<String, ActiveContext> contexts = new HashMap<>();
 
     /**
      * Evaluator start time
@@ -199,6 +208,7 @@ public final class ReefEventStateManager {
         public void onNext(final ActiveContext context) {
             synchronized (ReefEventStateManager.this) {
                 LOG.log(Level.INFO, "ActiveContextStateHandler called: {0}.", context);
+                contexts.put(context.getId(), context);
             }
         }
     }
