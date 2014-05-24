@@ -63,7 +63,7 @@ namespace Microsoft
 				public:
 					EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor);
 					virtual void OnError(String^ message);
-					virtual void Submit(EvaluatorRequest^ request);
+					virtual void Submit(IEvaluatorRequest^ request);
 				};
 
 				public ref class TaskMessageClr2Java : public ITaskMessageClr2Java
