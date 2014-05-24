@@ -16,7 +16,6 @@
 package com.microsoft.reef.webserver;
 
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
-import org.omg.CORBA.portable.ApplicationException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,7 +68,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      * set URI specification
      * @param s
      */
-    public void setUriSpecification(String s) {
+    public void setUriSpecification(final String s) {
         uriSpecification = s;
     }
     /**
@@ -86,7 +86,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
             if (queryStr == null || queryStr.length() == 0) {
                 getEvaluators(response);
             } else {
-                handleQueries(response, queryStr);
+                handleQueries(response, requestParser.getQueryMap());
             }
         } else {
             response.getWriter().println("Unsupported query for entity: " + requestParser.getTargetEntity());
@@ -94,50 +94,37 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     }
 
     /**
-     * handle evaluator queries
-     *
+     * handle queries
      * @param response
-     * @param queryStr
+     * @param queries
      * @throws IOException
      */
-    private void handleQueries(HttpServletResponse response, String queryStr) throws IOException {
-        final Map<String, String> queries = new HashMap<>();
-        final String[] questions = queryStr.split("&");
-        for (String s : questions) {
-            final String[] pair = s.split("=");
-            if (pair != null && pair.length == 2) {
-                queries.put(pair[0], pair[1]);
-            } else {
-                response.getWriter().println("Incomplete query string " + s);
-            }
-        }
-
-        for (Map.Entry<String, String> entry : queries.entrySet()) {
+    private void handleQueries(HttpServletResponse response, Map<String, List<String>> queries) throws IOException {
+        LOG.log(Level.INFO, "HttpServerReefEventHandler handleQueries is called");
+        for (Map.Entry<String, List<String>> entry : queries.entrySet()) {
             final String key = entry.getKey();
-            final String val = entry.getValue();
+            final List<String> values = entry.getValue();
             if (key.equalsIgnoreCase("Id")) {
-                EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
-                if (evaluatorDescriptor != null) {
-                    final String id = evaluatorDescriptor.getNodeDescriptor().getId();
-                    final String name = evaluatorDescriptor.getNodeDescriptor().getName();
-                    InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
-                    response.getWriter().println("Evaluator Id: " + val);
-                    response.getWriter().write("<br/>");
-                    response.getWriter().println("Evaluator Node Id: " + id);
-                    response.getWriter().write("<br/>");
-                    response.getWriter().println("Evaluator Node Name: " + name);
-                    response.getWriter().write("<br/>");
-                    response.getWriter().println("Evaluator InternetAddress: " + address);
-                    response.getWriter().write("<br/>");
-                } else {
-                    response.getWriter().println("Incorrect Evaluator Id: " + val);
+                for (String val : values) {
+                    EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
+                    if (evaluatorDescriptor != null) {
+                        final String id = evaluatorDescriptor.getNodeDescriptor().getId();
+                        final String name = evaluatorDescriptor.getNodeDescriptor().getName();
+                        InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+                        response.getWriter().println("Evaluator Id: " + val);
+                        response.getWriter().write("<br/>");
+                        response.getWriter().println("Evaluator Node Id: " + id);
+                        response.getWriter().write("<br/>");
+                        response.getWriter().println("Evaluator Node Name: " + name);
+                        response.getWriter().write("<br/>");
+                        response.getWriter().println("Evaluator InternetAddress: " + address);
+                        response.getWriter().write("<br/>");
+                    } else {
+                        response.getWriter().println("Incorrect Evaluator Id: " + val);
+                    }
                 }
-            } else if (key.equalsIgnoreCase("cmd")) {
-                String cmdOutput = CommandUtility.runCommand(val);
-                response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
-
             } else {
-                response.getWriter().println("Not supported query string: " + key + "=" + val);
+                response.getWriter().println("Not supported query : " + key);
             }
         }
     }
@@ -149,6 +136,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      * @throws IOException
      */
     private void getEvaluators(HttpServletResponse response) throws IOException {
+        LOG.log(Level.INFO, "HttpServerReefEventHandler getEvaluators is called");
         response.getWriter().println("<h1>Evaluators:</h1>");
 
         for (Map.Entry<String, EvaluatorDescriptor> entry : reefStateManager.getEvaluators().entrySet()) {
