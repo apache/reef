@@ -15,12 +15,12 @@
  */
 package com.microsoft.reef.tests.evaluatorreuse;
 
-import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.tests.exceptions.UnexpectedTaskReturnValue;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
@@ -61,7 +61,7 @@ final class Driver {
     public void onNext(final CompletedTask completed) {
       final String returned = new String(completed.get());
       final String msg = "CompletedTask returned: \"" + returned + "\"";
-      client.onNext(msg.getBytes());
+      client.sendMessageToClient(msg.getBytes());
       if (!returned.equals(lastMessage)) {
         throw new UnexpectedTaskReturnValue(lastMessage, returned);
       } else {
@@ -94,7 +94,7 @@ final class Driver {
     if (counter < numberOfIterations) {
       try {
         this.lastMessage = "ECHO-" + counter;
-        client.onNext(("Submitting iteration " + counter).getBytes());
+        client.sendMessageToClient(("Submitting iteration " + counter).getBytes());
         final String memento = DatatypeConverter.printBase64Binary(this.lastMessage.getBytes());
         context.submitTask(TaskConfiguration.CONF
             .set(TaskConfiguration.IDENTIFIER, this.lastMessage)
@@ -107,7 +107,7 @@ final class Driver {
         throw new RuntimeException(e);
       }
     } else {
-      client.onNext("Done. Closing the Context".getBytes());
+      client.sendMessageToClient("Done. Closing the Context".getBytes());
       context.close();
     }
   }

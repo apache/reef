@@ -18,7 +18,7 @@ namespace Microsoft
 					fprintf(stdout, "EvaluatorRequestorClr2Java _jobjectEvaluatorRequestor %p\n", _jobjectEvaluatorRequestor); fflush (stdout);
 				}
 
-				void EvaluatorRequestorClr2Java::Submit(EvaluatorRequest^ request)
+				void EvaluatorRequestorClr2Java::Submit(IEvaluatorRequest^ request)
 				{
 					JNIEnv *env = RetrieveEnv(_jvm);
 					jclass jclassEvaluatorRequestor = env->GetObjectClass (_jobjectEvaluatorRequestor);
