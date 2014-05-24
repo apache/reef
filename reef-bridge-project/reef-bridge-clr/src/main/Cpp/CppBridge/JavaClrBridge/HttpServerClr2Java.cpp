@@ -46,25 +46,22 @@ namespace Microsoft
 				{					
 					JNIEnv *env = RetrieveEnv(_jvm);
 					jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
-					jmethodID jmidgetQueryString = env->GetMethodID(jclasshttpServerEventBridge, "getQueryRequestData", "()[B");
+					jmethodID jmidgetQueryBytes = env->GetMethodID(jclasshttpServerEventBridge, "getQueryRequestData", "()[B");
 
 					fprintf(stdout, "HttpServerClr2Java jclasshttpServerEventBridge %p\n", jclasshttpServerEventBridge); fflush (stdout);
-					fprintf(stdout, "HttpServerClr2Java jmidgetQueryString %p\n", jmidgetQueryString); fflush (stdout);
+					fprintf(stdout, "HttpServerClr2Java jmidgetQueryString %p\n", jmidgetQueryBytes); fflush (stdout);
 					fprintf(stdout, "HttpServerClr2Java _jhttpServerEventBridge %p\n", _jhttpServerEventBridge); fflush (stdout);
 
-					if(jmidgetQueryString == NULL)
+					if(jmidgetQueryBytes == NULL)
 					{
 						fprintf(stdout, " jmidgetQueryString is NULL\n"); fflush (stdout);
 						return nullptr;
 					}
-					fprintf(stdout, " before CallObjectMethod\n"); fflush (stdout);
 					jbyteArray jQueryBytes = (jbyteArray) env->CallObjectMethod(
 						_jhttpServerEventBridge, 
-						jmidgetQueryString);
-					fprintf(stdout, " after CallObjectMethod ...\n"); fflush (stdout);
+						jmidgetQueryBytes);
 
 					array<byte>^ queryData = ManagedByteArrayFromJavaByteArray(env, jQueryBytes);
-					fprintf(stdout, " after ManagedByteArrayFromJavaByteArray\n"); fflush (stdout);
 					return queryData;
 				}
 

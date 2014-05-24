@@ -108,14 +108,14 @@ public final class HttpServerReefEventHandler implements HttpHandler {
                 for (String val : values) {
                     EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
                     if (evaluatorDescriptor != null) {
-                        final String id = evaluatorDescriptor.getNodeDescriptor().getId();
-                        final String name = evaluatorDescriptor.getNodeDescriptor().getName();
+                        final String NodeId = evaluatorDescriptor.getNodeDescriptor().getId();
+                        final String NodeName = evaluatorDescriptor.getNodeDescriptor().getName();
                         InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
                         response.getWriter().println("Evaluator Id: " + val);
                         response.getWriter().write("<br/>");
-                        response.getWriter().println("Evaluator Node Id: " + id);
+                        response.getWriter().println("Evaluator Node Id: " + NodeId);
                         response.getWriter().write("<br/>");
-                        response.getWriter().println("Evaluator Node Name: " + name);
+                        response.getWriter().println("Evaluator Node Name: " + NodeName);
                         response.getWriter().write("<br/>");
                         response.getWriter().println("Evaluator InternetAddress: " + address);
                         response.getWriter().write("<br/>");
