@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -98,30 +99,32 @@ public final class HttpServerReefEventHandler implements HttpHandler {
      * @param queries
      * @throws IOException
      */
-    private void handleQueries(HttpServletResponse response, Map<String, String> queries) throws IOException {
+    private void handleQueries(HttpServletResponse response, Map<String, List<String>> queries) throws IOException {
         LOG.log(Level.INFO, "HttpServerReefEventHandler handleQueries is called");
-        for (Map.Entry<String, String> entry : queries.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : queries.entrySet()) {
             final String key = entry.getKey();
-            final String val = entry.getValue();
+            final List<String> values = entry.getValue();
             if (key.equalsIgnoreCase("Id")) {
-                EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
-                if (evaluatorDescriptor != null) {
-                    final String id = evaluatorDescriptor.getNodeDescriptor().getId();
-                    final String name = evaluatorDescriptor.getNodeDescriptor().getName();
-                    InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
-                    response.getWriter().println("Evaluator Id: " + val);
-                    response.getWriter().write("<br/>");
-                    response.getWriter().println("Evaluator Node Id: " + id);
-                    response.getWriter().write("<br/>");
-                    response.getWriter().println("Evaluator Node Name: " + name);
-                    response.getWriter().write("<br/>");
-                    response.getWriter().println("Evaluator InternetAddress: " + address);
-                    response.getWriter().write("<br/>");
-                } else {
-                    response.getWriter().println("Incorrect Evaluator Id: " + val);
+                for (String val : values) {
+                    EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
+                    if (evaluatorDescriptor != null) {
+                        final String id = evaluatorDescriptor.getNodeDescriptor().getId();
+                        final String name = evaluatorDescriptor.getNodeDescriptor().getName();
+                        InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+                        response.getWriter().println("Evaluator Id: " + val);
+                        response.getWriter().write("<br/>");
+                        response.getWriter().println("Evaluator Node Id: " + id);
+                        response.getWriter().write("<br/>");
+                        response.getWriter().println("Evaluator Node Name: " + name);
+                        response.getWriter().write("<br/>");
+                        response.getWriter().println("Evaluator InternetAddress: " + address);
+                        response.getWriter().write("<br/>");
+                    } else {
+                        response.getWriter().println("Incorrect Evaluator Id: " + val);
+                    }
                 }
             } else {
-                response.getWriter().println("Not supported query string: " + key + "=" + val);
+                response.getWriter().println("Not supported query : " + key);
             }
         }
     }

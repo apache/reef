@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,7 +98,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
     public final synchronized void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOG.log(Level.INFO, "HttpServeShellCmdtHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
         final RequestParser requestParser = new RequestParser(request);
-        final Map<String,String> queries = requestParser.getQueryMap();
+        final Map<String, List<String>> queries = requestParser.getQueryMap();
         final String queryStr = requestParser.getQueryString();
 
         if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators")) {

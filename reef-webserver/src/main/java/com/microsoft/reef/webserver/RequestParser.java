@@ -19,9 +19,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URLDecoder;
+import java.util.*;
 
 /**
  * Parse HttpServletRequest
@@ -38,7 +37,7 @@ public class RequestParser {
     private final byte[] inputStream;
     private final String targetSpecification;
     private final String targetEntity;
-    private final Map<String, String> querieMap = new HashMap<>();
+    private final Map<String, List<String>> queryPairs = new LinkedHashMap<String, List<String>>();
 
     /**
      * parse HttpServletRequest
@@ -47,15 +46,15 @@ public class RequestParser {
      * @throws IOException
      * @throws ServletException
      */
-    public RequestParser(HttpServletRequest request) throws IOException, ServletException {
+    public RequestParser(final HttpServletRequest request) throws IOException, ServletException {
         this.request = request;
 
-        pathInfo = getRequestData(request.getPathInfo());
-        method = getRequestData(request.getMethod());
-        queryString = getRequestData(request.getQueryString());
-        requestUri = getRequestData(request.getRequestURI());
-        serveletPath = getRequestData(request.getServletPath());
-        requestUrl = getRequestData(request.getRequestURL().toString());
+        pathInfo = request.getPathInfo();
+        method = request.getMethod();
+        queryString = request.getQueryString();
+        requestUri = request.getRequestURI();
+        serveletPath = request.getServletPath();
+        requestUrl = request.getRequestURL().toString();
 
         Enumeration hn = request.getHeaderNames();
         while (hn.hasMoreElements()) {
@@ -92,21 +91,22 @@ public class RequestParser {
         }
 
         if (queryString != null) {
-            final String[] questions = queryString.split("&");
-            for (final String s : questions) {
-                final String[] pair = s.split("=");
-                if (pair != null && pair.length == 2) {
-                    querieMap.put(pair[0], pair[1]);
+            String[] pairs = queryString.split("&");
+            for (String pair : pairs) {
+                int idx = pair.indexOf("=");
+                if (idx != -1) {
+                    String rKey = pair.substring(0, idx);
+                    String rValue = pair.substring(idx + 1);
+                    if(rKey != null && rValue != null) {
+                        String key = URLDecoder.decode(rKey, "UTF-8");
+                        String value = URLDecoder.decode(rValue, "UTF-8");
+                        if(!queryPairs.containsKey(key)) {
+                            queryPairs.put(key, new ArrayList<String>());
+                        }
+                        queryPairs.get(key).add(value);
+                    }
                 }
             }
-        }
-    }
-
-    private String getRequestData(String requestStr) throws UnsupportedEncodingException {
-        if (requestStr != null) {
-            return java.net.URLDecoder.decode(requestStr, "UTF-8");
-        } else {
-            return null;
         }
     }
 
@@ -164,8 +164,8 @@ public class RequestParser {
         return headers;
     }
 
-    public Map<String, String> getQueryMap() {
-        return querieMap;
+    public Map<String, List<String>> getQueryMap() {
+        return queryPairs;
     }
 
     public String getRequestUrl() {
