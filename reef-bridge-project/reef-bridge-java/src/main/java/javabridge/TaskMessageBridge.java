@@ -18,12 +18,17 @@ package javabridge;
 
 import com.microsoft.reef.driver.task.TaskMessage;
 
-public class TaskMessageBridge {
+public class TaskMessageBridge extends NativeBridge{
     private TaskMessage jtaskMessage;
 
     // we don't really need to pass this around, just have this as place holder for future.
     public TaskMessageBridge(TaskMessage taskMessage)
     {
         jtaskMessage = taskMessage;
+    }
+
+    @Override
+    public void close()
+    {
     }
 }

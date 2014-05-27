@@ -26,14 +26,17 @@ namespace Microsoft
 					jobject  _jobjectAllocatedEvaluator;
 					JavaVM* _jvm;
 					jstring _jstringId;
+					jstring _jstringNameServerInfo;
 				public:
 					AllocatedEvaluatorClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitContextAndTask(String^ contextConfigStr, String^ taskConfigStr);
 					virtual void SubmitContext(String^ contextConfigStr);
 					virtual void SubmitContextAndService(String^ contextConfigStr, String^ serviceConfigStr);
 					virtual void SubmitContextAndServiceAndTask(String^ contextConfigStr, String^ serviceConfigStr, String^ taskConfigStr);
+					virtual void OnError(String^ message);
 					virtual void Close();
 					virtual String^ GetId();
+					virtual String^ GetNameServerInfo();
 					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
 				};
 
@@ -47,6 +50,7 @@ namespace Microsoft
 					ActiveContextClr2Java(JNIEnv *env, jobject jallocatedEvaluator);
 					virtual void SubmitTask(String^ taskConfigStr);
 					virtual void Close();
+					virtual void OnError(String^ message);
 					virtual String^ GetId();
 					virtual String^ GetEvaluatorId();
 					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
@@ -58,7 +62,8 @@ namespace Microsoft
 					JavaVM* _jvm;
 				public:
 					EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor);
-					virtual void Submit(EvaluatorRequest^ request);
+					virtual void OnError(String^ message);
+					virtual void Submit(IEvaluatorRequest^ request);
 				};
 
 				public ref class TaskMessageClr2Java : public ITaskMessageClr2Java
@@ -67,6 +72,7 @@ namespace Microsoft
 					JavaVM* _jvm;
 				public:
 					TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage);
+					virtual void OnError(String^ message);
 				};
 
 				public ref class FailedTaskClr2Java : public IFailedTaskClr2Java
@@ -75,6 +81,7 @@ namespace Microsoft
 					JavaVM* _jvm;
 				public:
 					FailedTaskClr2Java(JNIEnv *env, jobject jfailedTask);
+					virtual void OnError(String^ message);
 					virtual IActiveContextClr2Java^ GetActiveContext();
 					virtual String^ GetString();
 				};
@@ -86,6 +93,7 @@ namespace Microsoft
 					jstring _jstringId;
 				public:
 					FailedEvaluatorClr2Java(JNIEnv *env, jobject jfailedEvaluator);
+					virtual void OnError(String^ message);
 					virtual IEvaluatorRequestorClr2Java^ GetEvaluatorRequestor();
 					virtual String^ GetId();
 				};
@@ -96,9 +104,12 @@ namespace Microsoft
 					JavaVM* _jvm;
 				public:
 					HttpServerClr2Java(JNIEnv *env, jobject jhttpServerEventBridge);
+					virtual void OnError(String^ message);
 					virtual String^ GetQueryString();
 					virtual void SetUriSpecification(String^ uriSpecification);
 					virtual void SetQueryResult(String^ queryResult);
+					virtual array<byte>^ GetQueryRequestData();
+					virtual void SetQueryResponseData(array<byte>^ responseData);
 				};
 
 				public ref class CompletedTaskClr2Java : public ICompletedTaskClr2Java
@@ -109,6 +120,7 @@ namespace Microsoft
 					jobject _jobjectActiveContext;
 				public:
 					CompletedTaskClr2Java(JNIEnv *env, jobject jcompletedTask);
+					virtual void OnError(String^ message);
 					virtual IActiveContextClr2Java^ GetActiveContext();
 					virtual String^ GetId();
 				};

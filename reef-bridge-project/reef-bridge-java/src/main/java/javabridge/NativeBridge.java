@@ -13,7 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * The Retained Evaluators CLR example.
- */
-package com.microsoft.reef.examples.retained_evalCLRBridge;
+
+package javabridge;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public abstract class NativeBridge implements AutoCloseable {
+
+  private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
+
+  public void onError(String errorMessage)
+  {
+    LOG.log(Level.SEVERE, "Bridge received error from CLR: " + errorMessage );
+    throw new RuntimeException("Bridge received error from CLR: " + errorMessage);
+  }
+}

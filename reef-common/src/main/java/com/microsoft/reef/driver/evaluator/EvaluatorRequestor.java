@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.microsoft.reef.driver.evaluator;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
-import com.microsoft.reef.driver.catalog.ResourceCatalog;
 
 /**
  * Interface through which Evaluators can be requested.
@@ -33,14 +32,4 @@ public interface EvaluatorRequestor {
    * The response will surface in the AllocatedEvaluator message handler.
    */
   public void submit(final EvaluatorRequest req);
-
-  /**
-   * Access to the ResourceCatalog for the cluster this Factory has
-   * access to.
-   *
-   * @return the ResourceCatalog for the cluster.
-   * @deprecated in 0.3. Instead, have a ResourceCatalog injected via Tang.
-   */
-  @Deprecated
-  public ResourceCatalog getResourceCatalog();
 }

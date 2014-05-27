@@ -55,6 +55,13 @@ namespace Microsoft
 						jmidGetFailedTaskString);
 					return ManagedStringFromJavaString(env, jFailedTaskString);
 				}
+
+				void FailedTaskClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "FailedTaskClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectFailedTask);
+				}
 			}
 		}
 	}

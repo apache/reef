@@ -23,10 +23,13 @@ import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.io.network.naming.NameServer;
+import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.webserver.HttpHandler;
 import com.microsoft.reef.webserver.RequestParser;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.remote.NetUtils;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.StartTime;
@@ -66,6 +69,9 @@ public final class JobDriver {
   private long  completedTaskHandler = 0;
 
   private int nCLREvaluators = 0;
+
+  private NameServer nameServer;
+  private String nameServerInfo;
 
 
   /**
@@ -122,6 +128,8 @@ public final class JobDriver {
     this.clock = clock;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = new NameServer(0, new StringIdentifierFactory());
+    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + nameServer.getPort();
   }
 
   /**
@@ -150,7 +158,7 @@ public final class JobDriver {
             throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
         }
         InteropLogger interopLogger = new InteropLogger();
-        AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval);
+        AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, JobDriver.this.nameServerInfo);
         NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(allocatedEvaluatorHandler, allocatedEvaluatorBridge,interopLogger);
     }
   }
@@ -326,11 +334,15 @@ public final class JobDriver {
             try {
                 InteropLogger interopLogger = new InteropLogger();
                 HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestStr);
+                httpServerEventBridge.setQueryRequestData(requestStr.getBytes(Charset.forName("UTF-8")));
+
                 LOG.log(Level.INFO, "Calling NativeInterop.ClrSystemHttpServerHandlerOnNext with query string: {0}", requestStr);
                 NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
                 LOG.log(Level.INFO, "returned from NativeInterop.ClrSystemHttpServerHandlerOnNext with result : {0}", httpServerEventBridge.getQueryResult());
                 String result = httpServerEventBridge.getQueryResult();
                 response.getWriter().println("Calling back from bridge: " + result);
+                String byteData = new String(httpServerEventBridge.getQueryResponseData(), "UTF-8");
+                response.getWriter().println("byte data: " + byteData);
                 //response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
             } catch (final Exception ex) {
                 LOG.log(Level.SEVERE, "Fail to invoke CLR Http Server handler");
@@ -403,7 +415,8 @@ public final class JobDriver {
           }
 
           HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-          NativeInterop.ClrSystemHttpServerHandlerGetSpec(httpServerEventHandler, httpServerEventBridge, interopLogger);
+          httpServerEventBridge.setQueryRequestData((new String("SPEC")).getBytes(Charset.forName("UTF-8")));
+          NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
           String specList = httpServerEventBridge.getUriSpecification();
           LOG.log(Level.INFO, "getUriSpecification: {0}", specList);
           if (specList != null) {
@@ -454,4 +467,3 @@ public final class JobDriver {
       }
     }
 }
-

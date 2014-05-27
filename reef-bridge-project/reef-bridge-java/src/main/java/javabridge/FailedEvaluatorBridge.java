@@ -21,7 +21,7 @@ import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 
 import java.util.logging.Logger;
 
-public class FailedEvaluatorBridge {
+public class FailedEvaluatorBridge extends NativeBridge{
   private static final Logger LOG = Logger.getLogger(FailedEvaluatorBridge.class.getName());
   private FailedEvaluator jfailedEvaluator;
   private EvaluatorRequestorBridge evaluatorRequestorBridge;
@@ -37,6 +37,11 @@ public class FailedEvaluatorBridge {
   public int getNewlyRequestedEvaluatorNumber()
   {
     return evaluatorRequestorBridge.getEvaluatorNumber();
+  }
+
+  @Override
+  public void close()
+  {
   }
 }
 

@@ -18,7 +18,7 @@ namespace Microsoft
 					fprintf(stdout, "EvaluatorRequestorClr2Java _jobjectEvaluatorRequestor %p\n", _jobjectEvaluatorRequestor); fflush (stdout);
 				}
 
-				void EvaluatorRequestorClr2Java::Submit(EvaluatorRequest^ request)
+				void EvaluatorRequestorClr2Java::Submit(IEvaluatorRequest^ request)
 				{
 					JNIEnv *env = RetrieveEnv(_jvm);
 					jclass jclassEvaluatorRequestor = env->GetObjectClass (_jobjectEvaluatorRequestor);
@@ -38,6 +38,13 @@ namespace Microsoft
 						request -> Number,
 						request -> MemoryMegaBytes,
 						JavaStringFromManagedString(env, request -> Rack));
+				}
+
+				void EvaluatorRequestorClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "EvaluatorRequestorClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectEvaluatorRequestor);
 				}
 			}
 		}

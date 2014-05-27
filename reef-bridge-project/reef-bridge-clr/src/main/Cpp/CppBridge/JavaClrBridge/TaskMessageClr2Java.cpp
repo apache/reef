@@ -18,6 +18,13 @@ namespace Microsoft
 					fprintf(stdout, "TaskMessageClr2Java _jvm %p\n", _jvm); fflush (stdout);
 					fprintf(stdout, "TaskMessageClr2Java _jobjectTaskMessage %p\n", _jobjectTaskMessage); fflush (stdout);
 				}
+
+				void TaskMessageClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "TaskMessageClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectTaskMessage);
+				}
 			}
 		}
 	}

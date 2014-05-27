@@ -16,11 +16,7 @@
 
 package javabridge;
 
-import com.microsoft.reef.driver.task.CompletedTask;
-import org.codehaus.plexus.util.FileUtils;
-
 import java.io.*;
-import java.util.Date;
 import java.util.HashMap;
 
 
@@ -66,12 +62,6 @@ public class NativeInterop {
     );
 
     public static native void ClrSystemHttpServerHandlerOnNext(
-            long handle,
-            HttpServerEventBridge httpServerEventBridge,
-            InteropLogger interopLogger
-    );
-
-    public static native void ClrSystemHttpServerHandlerGetSpec(
             long handle,
             HttpServerEventBridge httpServerEventBridge,
             InteropLogger interopLogger

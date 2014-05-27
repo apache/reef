@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,7 @@ public class SuspendDriver {
   SuspendDriver(final Clock clock,
                 final JobMessageObserver jobMessageObserver,
                 final EvaluatorRequestor evaluatorRequestor,
+                final ResourceCatalog catalog,
                 @Parameter(Launch.Local.class) final boolean isLocal,
                 @Parameter(Launch.NumCycles.class) final int numCycles,
                 @Parameter(Launch.Delay.class) final int delay) {
@@ -130,7 +131,7 @@ public class SuspendDriver {
     this.clock = clock;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.catalog = evaluatorRequestor.getResourceCatalog();
+    this.catalog = catalog;
 
     try {
 
@@ -161,7 +162,7 @@ public class SuspendDriver {
     public final void onNext(final RunningTask task) {
       LOG.log(Level.INFO, "Running task: {0}", task.getId());
       SuspendDriver.this.runningTasks.put(task.getId(), task);
-      SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode("start task: " + task.getId()));
+      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode("start task: " + task.getId()));
     }
   }
 
@@ -176,7 +177,7 @@ public class SuspendDriver {
       final String msg = "Task completed " + task.getId() + " on node " + e;
       LOG.info(msg);
 
-      SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode(msg));
+      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
       SuspendDriver.this.runningTasks.remove(task.getId());
       task.getActiveContext().close();
 
@@ -207,7 +208,7 @@ public class SuspendDriver {
         SuspendDriver.this.suspendedTasks.put(task.getId(), task);
         SuspendDriver.this.runningTasks.remove(task.getId());
       }
-      SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode(msg));
+      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
     }
   }
 
@@ -220,7 +221,7 @@ public class SuspendDriver {
       final int result = CODEC_INT.decode(message.get());
       final String msg = "Task message " + message.getId() + ": " + result;
       LOG.info(msg);
-      SuspendDriver.this.jobMessageObserver.onNext(CODEC_STR.encode(msg));
+      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
     }
   }
 
@@ -362,7 +363,7 @@ public class SuspendDriver {
     @Override
     public void onNext(final StopTime time) {
       LOG.log(Level.INFO, "StopTime: {0}", time);
-      jobMessageObserver.onNext(CODEC_STR.encode("got StopTime"));
+      jobMessageObserver.sendMessageToClient(CODEC_STR.encode("got StopTime"));
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,11 +151,12 @@ public final class JobDriver {
   @Inject
   JobDriver(final Clock clock,
             final JobMessageObserver jobMessageObserver,
-            final EvaluatorRequestor evaluatorRequestor) {
+            final EvaluatorRequestor evaluatorRequestor,
+            final ResourceCatalog catalog) {
     this.clock = clock;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.catalog = evaluatorRequestor.getResourceCatalog();
+    this.catalog = catalog;
   }
 
   /**
@@ -409,7 +410,7 @@ public final class JobDriver {
     }
     this.results.clear();
     LOG.log(Level.INFO, "Return results to the client:\n{0}", sb);
-    this.jobMessageObserver.onNext(JVM_CODEC.encode(sb.toString()));
+    this.jobMessageObserver.sendMessageToClient(JVM_CODEC.encode(sb.toString()));
   }
 
   /**

@@ -51,6 +51,13 @@ namespace Microsoft
 						JavaStringFromManagedString(env, taskConfigStr));
 				}
 
+				void ActiveContextClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "ActiveContextClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectActiveContext);
+				}
+
 				void ActiveContextClr2Java::Close()
 				{
 					fprintf(stdout, "ActiveContextClr2Java::Close"); fflush (stdout);					

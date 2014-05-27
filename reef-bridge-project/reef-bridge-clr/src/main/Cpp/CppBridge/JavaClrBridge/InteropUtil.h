@@ -40,3 +40,8 @@ jlongArray JavaLongArrayFromManagedLongArray(
 	array<unsigned long long>^ managedLongArray);
 
 JNIEnv* RetrieveEnv(JavaVM* jvm);
+
+void HandleClr2JavaError(
+	JNIEnv *env,
+	String^ errorMessage,
+	jobject javaObject);

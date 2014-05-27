@@ -22,6 +22,10 @@ namespace Microsoft
 					jfieldID jidEvaluatorId = env->GetFieldID(jclassAllocatedEvaluator, "evaluatorId", "Ljava/lang/String;");
 					_jstringId = (jstring)env->GetObjectField(_jobjectAllocatedEvaluator, jidEvaluatorId);
 					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+
+					jfieldID jidNameServerInfo = env->GetFieldID(jclassAllocatedEvaluator, "nameServerInfo", "Ljava/lang/String;");
+					_jstringNameServerInfo = (jstring)env->GetObjectField(_jobjectAllocatedEvaluator, jidNameServerInfo);
+					_jstringNameServerInfo = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringNameServerInfo));
 				}
 
 				void AllocatedEvaluatorClr2Java::SubmitContext(String^ contextConfigStr)
@@ -31,7 +35,6 @@ namespace Microsoft
 					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
 					jmethodID jmidSubmitContext = env->GetMethodID(jclassAllocatedEvaluator, "submitContextString", "(Ljava/lang/String;)V");
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContext %p\n", jmidSubmitContext); fflush (stdout);
 
 					if(jmidSubmitContext == NULL)
@@ -52,7 +55,6 @@ namespace Microsoft
 					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
 					jmethodID jmidSubmitContextAndTask = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndTaskString", "(Ljava/lang/String;Ljava/lang/String;)V");
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContextAndTask %p\n", jmidSubmitContextAndTask); fflush (stdout);
 
 					if(jmidSubmitContextAndTask == NULL)
@@ -74,7 +76,6 @@ namespace Microsoft
 					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
 					jmethodID jmidSubmitContextAndService = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndServiceString", "(Ljava/lang/String;Ljava/lang/String;)V");	
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContextAndService %p\n", jmidSubmitContextAndService); fflush (stdout);
 
 					if(jmidSubmitContextAndService == NULL)
@@ -96,7 +97,6 @@ namespace Microsoft
 					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
 					jmethodID jmidSubmitContextAndServiceAndTask = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndServiceAndTaskString", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");	
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidSubmitContextAndServiceAndTask %p\n", jmidSubmitContextAndServiceAndTask); fflush (stdout);
 
 					if(jmidSubmitContextAndServiceAndTask == NULL)
@@ -112,6 +112,13 @@ namespace Microsoft
 						JavaStringFromManagedString(env, taskConfigStr));
 				}
 
+				void AllocatedEvaluatorClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectAllocatedEvaluator);
+				}
+
 				void AllocatedEvaluatorClr2Java::Close()
 				{
 					fprintf(stdout, "AllocatedEvaluatorClr2Java::Close"); fflush (stdout);					
@@ -119,7 +126,6 @@ namespace Microsoft
 					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
 					jmethodID jmidClose = env->GetMethodID(jclassAllocatedEvaluator, "close", "()V");
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidClose %p\n", jmidClose); fflush (stdout);
 
 					if(jmidClose == NULL)
@@ -140,6 +146,14 @@ namespace Microsoft
 					return ManagedStringFromJavaString(env, _jstringId);
 				}
 
+				String^ AllocatedEvaluatorClr2Java::GetNameServerInfo()
+				{
+					fprintf(stdout, "AllocatedEvaluatorClr2Java::GetNameServerInfo\n"); fflush (stdout);															
+					
+					JNIEnv *env = RetrieveEnv(_jvm);
+					return ManagedStringFromJavaString(env, _jstringNameServerInfo);
+				}
+
 				IEvaluatorDescriptor^ AllocatedEvaluatorClr2Java::GetEvaluatorDescriptor()
 				{
 					fprintf(stdout, "AllocatedEvaluatorClr2Java::GetEvaluatorDescriptor"); fflush (stdout);															
@@ -147,7 +161,6 @@ namespace Microsoft
 					jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
 					jmethodID jmidGetEvaluatorDescriptor= env->GetMethodID(jclassAllocatedEvaluator, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");	
 
-					fprintf(stdout, "AllocatedEvaluatorClr2Java jclassAllocatedEvaluator %p\n", jclassAllocatedEvaluator); fflush (stdout);
 					fprintf(stdout, "AllocatedEvaluatorClr2Java jmidGetEvaluatorDescriptor %p\n", jmidGetEvaluatorDescriptor); fflush (stdout);
 
 					if(jmidGetEvaluatorDescriptor == NULL)

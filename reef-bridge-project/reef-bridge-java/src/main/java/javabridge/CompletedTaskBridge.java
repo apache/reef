@@ -16,10 +16,9 @@
 
 package javabridge;
 
-import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.task.CompletedTask;
 
-public class CompletedTaskBridge {
+public class CompletedTaskBridge extends NativeBridge{
 
   private CompletedTask jcompletedTask;
 
@@ -32,5 +31,9 @@ public class CompletedTaskBridge {
       jcompletedTask = completedTask;
       taskId = completedTask.getId();
       jactiveContext = new ActiveContextBridge(completedTask.getActiveContext());
+  }
+  @Override
+  public void close()
+  {
   }
 }

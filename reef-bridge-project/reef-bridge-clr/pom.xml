@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.microsoft.reef</groupId>
     <artifactId>reef-bridge-project</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
   </parent>
 
 
@@ -58,30 +58,10 @@
 
   <build>
     <plugins>
-      <!--
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>false</addClasspath>
-              <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>javabridge.JavaBridge</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-       
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-      -->
       <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-dependency-plugin</artifactId>
       <executions>
-
         <execution>
           <id>unpack</id>
           <phase>process-resources</phase>
@@ -102,54 +82,55 @@
           </configuration>
         </execution>
       </executions>
-      </plugin>      
-      
-<plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>exec-maven-plugin</artifactId>
-    <configuration>
-        <executable>msbuild.exe</executable>
-    </configuration>
-    <executions>
-        <execution>
-            <id>clean</id>
-            <phase>clean</phase>
-            <configuration>
-                <arguments>
-                  <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
-
-                    <argument>/p:Configuration="Release"</argument>
-                    <argument>/p:Platform="x64"</argument>
-                    <argument>/t:Clean</argument>
-                </arguments>
-            </configuration>
-            <goals>
-                <goal>exec</goal>
-            </goals>
-        </execution>
-        <execution>
-            <id>build</id>
-            <phase>compile</phase>
-            <configuration>
-                <arguments>
-                    <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
-                    <argument>/p:Configuration="Release"</argument>
-                    <argument>/p:Platform="x64"</argument>
-              <!--
-                    <argument>/p:Configuration=${foo.config}</argument>
-                    <argument>/p:Platform=${foo.cpu}</argument>
-                    <argument>/t:Build</argument>
-            -->
-                </arguments>
-            </configuration>
-            <goals>
-                <goal>exec</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
-
-
+      </plugin>
     </plugins>
   </build>
+
+    <profiles>
+        <profile>
+            <id>Bridge</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <executable>msbuild.exe</executable>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>clean</id>
+                                <phase>clean</phase>
+                                <configuration>
+                                    <arguments>
+                                        <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
+                                        <argument>/p:Configuration="Release"</argument>
+                                        <argument>/p:Platform="x64"</argument>
+                                        <argument>/t:Clean</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>build</id>
+                                <phase>compile</phase>
+                                <configuration>
+                                    <arguments>
+                                        <argument>${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</argument>
+                                        <argument>/p:Configuration="Release"</argument>
+                                        <argument>/p:Platform="x64"</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

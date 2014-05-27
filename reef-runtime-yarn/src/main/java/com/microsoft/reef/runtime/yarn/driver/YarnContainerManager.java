@@ -27,7 +27,6 @@ import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.remote.Encoder;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-import com.microsoft.wake.time.runtime.RuntimeClock;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
@@ -41,19 +40,24 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMClientAsync.CallbackHandler {
+final class YarnContainerManager
+    implements AMRMClientAsync.CallbackHandler, NMClientAsync.CallbackHandler {
 
   private static final Logger LOG = Logger.getLogger(YarnContainerManager.class.getName());
 
   private static final String RUNTIME_NAME = "YARN";
 
+  private final YarnClient yarnClient = YarnClient.createYarnClient();
+
+  private final Queue<AMRMClient.ContainerRequest>
+      outstandingContainerRequests = new  ConcurrentLinkedQueue<>();
+
   private final YarnConfiguration yarnConf;
-  private final YarnClient yarnClient;
   private final AMRMClientAsync resourceManager;
   private final NMClientAsync nodeManager;
   private final REEFEventHandlers reefEventHandlers;
@@ -64,15 +68,16 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private final TrackingURLProvider trackingURLProvider;
 
   @Inject
-  YarnContainerManager(final RuntimeClock clock,
-                       final YarnConfiguration yarnConf,
-                       final @Parameter(YarnMasterConfiguration.YarnHeartbeatPeriod.class) int yarnRMHeartbeatPeriod,
-                       final REEFEventHandlers reefEventHandlers,
-                       final Containers containers,
-                       final ApplicationMasterRegistration registration,
-                       final ContainerRequestCounter containerRequestCounter,
-                       final DriverStatusManager driverStatusManager,
-                       final TrackingURLProvider trackingURLProvider) throws IOException {
+  YarnContainerManager(
+      final YarnConfiguration yarnConf,
+      final @Parameter(YarnMasterConfiguration.YarnHeartbeatPeriod.class) int yarnRMHeartbeatPeriod,
+      final REEFEventHandlers reefEventHandlers,
+      final Containers containers,
+      final ApplicationMasterRegistration registration,
+      final ContainerRequestCounter containerRequestCounter,
+      final DriverStatusManager driverStatusManager,
+      final TrackingURLProvider trackingURLProvider) throws IOException {
+
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
 
@@ -82,13 +87,12 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     this.yarnConf = yarnConf;
     this.trackingURLProvider = trackingURLProvider;
 
-    this.yarnClient = YarnClient.createYarnClient();
     this.yarnClient.init(this.yarnConf);
-
 
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
-    LOG.log(Level.FINEST, "Instantiated 'YarnContainerManager'");
+
+    LOG.log(Level.FINEST, "Instantiated YarnContainerManager");
   }
 
   @Override
@@ -131,7 +135,7 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   @Override
   public final float getProgress() {
-    return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    return 0; // TODO: return actual values for progress
   }
 
   @Override
@@ -140,13 +144,11 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   }
 
   @Override
-  public final void onContainerStarted(final ContainerId containerId,
-                                       final Map<String, ByteBuffer> stringByteBufferMap) {
-
+  public final void onContainerStarted(
+      final ContainerId containerId, final Map<String, ByteBuffer> stringByteBufferMap) {
     final Optional<Container> container = this.containers.getOptional(containerId.toString());
-
     if (container.isPresent()) {
-      nodeManager.getContainerStatusAsync(containerId, container.get().getNodeId());
+      this.nodeManager.getContainerStatusAsync(containerId, container.get().getNodeId());
     }
   }
 
@@ -158,7 +160,6 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
   @Override
   public final void onContainerStopped(final ContainerId containerId) {
-
     final boolean hasContainer = this.containers.hasContainer(containerId.toString());
     if (hasContainer) {
       final ResourceStatusProto.Builder resourceStatusBuilder =
@@ -169,17 +170,20 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   }
 
   @Override
-  public final void onStartContainerError(final ContainerId containerId, final Throwable throwable) {
+  public final void onStartContainerError(
+      final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
   @Override
-  public final void onGetContainerStatusError(final ContainerId containerId, final Throwable throwable) {
+  public final void onGetContainerStatusError(
+      final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
   @Override
-  public final void onStopContainerError(final ContainerId containerId, final Throwable throwable) {
+  public final void onStopContainerError(
+      final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
@@ -200,55 +204,63 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
    */
   void release(final String containerId) {
     LOG.log(Level.FINE, "Release container: {0}", containerId);
-    final Container container = containers.removeAndGet(containerId);
-    resourceManager.releaseAssignedContainer(container.getId());
+    final Container container = this.containers.removeAndGet(containerId);
+    this.resourceManager.releaseAssignedContainer(container.getId());
     updateRuntimeStatus();
   }
 
+  void onStart() {
 
-  synchronized void onStart() {
     try {
-      yarnClient.start();
-      for (final NodeReport nodeReport : yarnClient.getNodeReports(NodeState.RUNNING)) {
+
+      this.yarnClient.start();
+      for (final NodeReport nodeReport : this.yarnClient.getNodeReports(NodeState.RUNNING)) {
         onNodeReport(nodeReport);
       }
 
       this.resourceManager.init(this.yarnConf);
       this.resourceManager.start();
 
-      this.nodeManager.init(yarnConf);
+      this.nodeManager.init(this.yarnConf);
       this.nodeManager.start();
-      this.registration.setRegistration(resourceManager.registerApplicationMaster("", 0, this.trackingURLProvider.getTrackingUrl()));
+
+      this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
+              "", 0, this.trackingURLProvider.getTrackingUrl()));
+
       LOG.log(Level.INFO, "YARN registration: {0}", registration);
+
     } catch (final YarnException | IOException e) {
       LOG.log(Level.WARNING, "Error starting YARN Node Manager", e);
       onRuntimeError(e);
     }
   }
 
-  synchronized void onStop() {
-    LOG.log(Level.FINE, "Stop Runtime: RM status {0}", resourceManager.getServiceState());
-    if (resourceManager.getServiceState() == Service.STATE.STARTED) {
+  void onStop() {
+
+    LOG.log(Level.FINE, "Stop Runtime: RM status {0}", this.resourceManager.getServiceState());
+
+    if (this.resourceManager.getServiceState() == Service.STATE.STARTED) {
       // invariant: if RM is still running then we declare success.
       try {
         this.reefEventHandlers.close();
-        resourceManager.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED, null, null);
-        resourceManager.close();
+        this.resourceManager.unregisterApplicationMaster(
+            FinalApplicationStatus.SUCCEEDED, null, null);
+        this.resourceManager.close();
       } catch (final Exception e) {
         LOG.log(Level.WARNING, "Error shutting down YARN application", e);
       }
     }
 
-    if (nodeManager.getServiceState() == Service.STATE.STARTED) {
+    if (this.nodeManager.getServiceState() == Service.STATE.STARTED) {
       try {
-        nodeManager.close();
+        this.nodeManager.close();
       } catch (final IOException e) {
         LOG.log(Level.WARNING, "Error closing YARN Node Manager", e);
       }
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////
   // HELPER METHODS
 
   private void onNodeReport(final NodeReport nodeReport) {
@@ -282,16 +294,35 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
   private void handleNewContainer(final Container container) {
 
     LOG.log(Level.FINE, "New allocated container: id[ {0} ]", container.getId());
-    synchronized (this.containers) {
-      this.containers.add(container);
+
+    this.containers.add(container);
+
+    synchronized (this) {
+
       this.containerRequestCounter.decrement();
+
+      if (!this.outstandingContainerRequests.isEmpty()) {
+        // we need to make sure that the previous request is no longer in RM request queue
+        this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
+
+        final AMRMClient.ContainerRequest requestToBeSubmitted =
+            this.outstandingContainerRequests.peek();
+
+        if (requestToBeSubmitted != null) {
+          LOG.log(Level.FINEST,
+              "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
+          this.resourceManager.addContainerRequest(requestToBeSubmitted);
+        }
+      }
     }
+
     this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
         .setIdentifier(container.getId().toString())
         .setNodeId(container.getNodeId().toString())
         .setResourceMemory(container.getResource().getMemory())
         .build());
-    updateRuntimeStatus();
+
+    this.updateRuntimeStatus();
   }
 
   /**
@@ -311,13 +342,21 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
 
       switch (value.getState()) {
         case COMPLETE:
-          LOG.info("container complete");
-          // TODO: should we consider KILLED state? FYI: exit code = 143
-          status.setState(value.getExitStatus() > 0 ? ReefServiceProtos.State.FAILED : ReefServiceProtos.State.DONE);
+          LOG.log(Level.INFO, "Container completed: status {0}", value.getExitStatus());
+          switch (value.getExitStatus()) {
+            case 0:
+              status.setState(ReefServiceProtos.State.DONE);
+              break;
+            case 143:
+              status.setState(ReefServiceProtos.State.KILLED);
+              break;
+            default:
+              status.setState(ReefServiceProtos.State.FAILED);
+          }
           status.setExitCode(value.getExitStatus());
           break;
         default:
-          LOG.info("container running");
+          LOG.info("Container running");
           status.setState(ReefServiceProtos.State.RUNNING);
       }
 
@@ -330,53 +369,66 @@ final class YarnContainerManager implements AMRMClientAsync.CallbackHandler, NMC
     }
   }
 
+  void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests) {
 
-  synchronized void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests) {
-    synchronized (this.containers) {
+    synchronized (this) {
+
       this.containerRequestCounter.incrementBy(containerRequests.length);
-    }
-    for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
-      LOG.log(Level.FINEST, "Adding container request: " + containerRequest);
-      this.resourceManager.addContainerRequest(containerRequest);
-    }
-    this.updateRuntimeStatus();
-    LOG.log(Level.INFO, "Done adding container requests to YARN");
-  }
+      boolean queueWasEmpty = this.outstandingContainerRequests.isEmpty();
 
+      for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
+
+        LOG.log(Level.FINEST, "Adding container request to queue: {0}", containerRequest);
+
+        this.outstandingContainerRequests.add(containerRequest);
+
+        if (queueWasEmpty) {
+          LOG.log(Level.FINEST, "Requesting first container from YARN: {0}", containerRequest);
+          this.resourceManager.addContainerRequest(containerRequest);
+          queueWasEmpty = false;
+        }
+
+        LOG.log(Level.INFO, "Done adding container requests to local request queue.");
+      }
+    }
+
+    this.updateRuntimeStatus();
+  }
 
   /**
    * Update the driver with my current status
    */
-
   private void updateRuntimeStatus() {
-    final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder;
-    synchronized (this.containers) {
-      builder = DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
+
+    final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder =
+        DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
           .setName(RUNTIME_NAME)
           .setState(ReefServiceProtos.State.RUNNING)
           .setOutstandingContainerRequests(this.containerRequestCounter.get());
-      for (final String allocatedContainerId : this.containers.getContainerIds()) {
-        builder.addContainerAllocation(allocatedContainerId);
-      }
+
+    for (final String allocatedContainerId : this.containers.getContainerIds()) {
+      builder.addContainerAllocation(allocatedContainerId);
     }
+
     this.reefEventHandlers.onRuntimeStatus(builder.build());
   }
 
   private void onRuntimeError(final Throwable throwable) {
+
     // SHUTDOWN YARN
     try {
       this.reefEventHandlers.close();
-      resourceManager.unregisterApplicationMaster(FinalApplicationStatus.FAILED, throwable.getMessage(), null);
+      this.resourceManager.unregisterApplicationMaster(
+          FinalApplicationStatus.FAILED, throwable.getMessage(), null);
     } catch (final Exception e) {
       LOG.log(Level.WARNING, "Error shutting down YARN application", e);
     } finally {
-      resourceManager.stop();
+      this.resourceManager.stop();
     }
 
     final RuntimeStatusProto.Builder runtimeStatusBuilder = RuntimeStatusProto.newBuilder()
         .setState(ReefServiceProtos.State.FAILED)
         .setName(RUNTIME_NAME);
-
 
     final Encoder<Throwable> codec = new ObjectSerializableCodec<>();
     runtimeStatusBuilder.setError(ReefServiceProtos.RuntimeErrorProto.newBuilder()

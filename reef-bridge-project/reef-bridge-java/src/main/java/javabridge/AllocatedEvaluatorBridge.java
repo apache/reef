@@ -26,21 +26,23 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AllocatedEvaluatorBridge implements AutoCloseable {
+public class AllocatedEvaluatorBridge extends NativeBridge {
 
     private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
 
     private AllocatedEvaluator jallocatedEvaluator;
-    private  AvroConfigurationSerializer serializer;
-    private   ClassHierarchy clrClassHierarchy;
+    private AvroConfigurationSerializer serializer;
+    private ClassHierarchy clrClassHierarchy;
     private String evaluatorId;
+    private String nameServerInfo;
 
-    public AllocatedEvaluatorBridge(AllocatedEvaluator allocatedEvaluator)
+    public AllocatedEvaluatorBridge(final AllocatedEvaluator allocatedEvaluator, final String serverInfo)
       {
         jallocatedEvaluator = allocatedEvaluator;
         serializer = new AvroConfigurationSerializer();
         clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
         evaluatorId = allocatedEvaluator.getId();
+        nameServerInfo = serverInfo;
       }
 
     public void submitContextAndTaskString(final String contextConfigurationString, final String taskConfigurationString)

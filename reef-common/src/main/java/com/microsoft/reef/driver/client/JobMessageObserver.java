@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,16 +30,6 @@ import com.microsoft.reef.annotations.audience.Public;
 @Provided
 @Optional
 public interface JobMessageObserver {
-
-  /**
-   * Send a message to the client.
-   *
-   * @param message a message to be sent to the client
-   * @deprecated use sendMessageToClient instead.
-   */
-  @Deprecated
-  public void onNext(final byte[] message);
-
 
   /**
    * Send a message to the client.

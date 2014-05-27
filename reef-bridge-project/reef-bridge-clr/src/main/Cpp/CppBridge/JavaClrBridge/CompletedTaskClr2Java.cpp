@@ -30,6 +30,13 @@ namespace Microsoft
 
 				}
 
+				void CompletedTaskClr2Java::OnError(String^ message)
+				{
+					fprintf(stdout, "CompletedTaskClr2Java::OnError\n"); fflush (stdout);										
+					JNIEnv *env = RetrieveEnv(_jvm);	
+					HandleClr2JavaError(env, message, _jobjectCompletedTask);
+				}
+
 				IActiveContextClr2Java^ CompletedTaskClr2Java::GetActiveContext()
 				{
 					fprintf(stdout, "CompletedTaskClr2Java::GetActiveContext\n"); fflush (stdout);																				

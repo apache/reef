@@ -18,25 +18,35 @@ package javabridge;
 /**
  *  HttpServerEventBridge
  */
-public final class HttpServerEventBridge {
+public final class HttpServerEventBridge extends NativeBridge{
     private String queryString;
+    private byte[] queryRequestData;
+    private byte[] queryResponseData;
     private String queryResult;
     private String uriSpecification;
 
-    public HttpServerEventBridge(String queryStr) {
+    public HttpServerEventBridge(final String queryStr) {
        this.queryString = queryStr;
+    }
+
+    public HttpServerEventBridge(final byte[] queryRequestData) {
+        this.queryRequestData = queryRequestData;
     }
 
     public final String getQueryString() {
         return queryString;
     }
 
-    public final String getQueryResult() {
-        return queryResult;
+    public final void setQueryString(final String queryStr) {
+        this.queryString = queryStr;
     }
 
     public final void setQueryResult(final String queryResult) {
         this.queryResult = queryResult;
+    }
+
+    public final String getQueryResult() {
+        return queryResult;
     }
 
     public final String getUriSpecification() {
@@ -45,5 +55,26 @@ public final class HttpServerEventBridge {
 
     public final void setUriSpecification(final String uriSpecification) {
         this.uriSpecification = uriSpecification;
+    }
+
+    public final void setQueryRequestData(final byte[] queryRequestData) {
+        this.queryRequestData = queryRequestData;
+    }
+
+    public final byte[] getQueryRequestData() {
+        return queryRequestData;
+    }
+
+    public final void setQueryResponseData(final byte[] responseData) {
+        queryResponseData = responseData;
+    }
+
+    public final byte[] getQueryResponseData() {
+        return queryResponseData;
+    }
+
+    @Override
+    public void close()
+    {
     }
 }
