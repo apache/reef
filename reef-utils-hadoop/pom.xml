@@ -22,5 +22,10 @@
             <artifactId>hadoop-common</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reef-bridge</artifactId>
+            <version>${project.version}</version>
+        </dependency>                 
     </dependencies>
 </project>
