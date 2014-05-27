@@ -14,7 +14,7 @@ using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
 using namespace Microsoft::Reef::Driver::Bridge;
-using namespace Microsoft::Reef::Utilities::Logging;
+
 
 static void ManagedLog (String^ fname, String^ msg)
 {		
@@ -317,18 +317,23 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrBufferedLog
   (JNIEnv *env, jclass cls, jint logLevel, jstring message)
 {
     try {
-        Logger^ logger = gcnew Logger("JavaClrBridge");
-        Level level;
+        if (!JavaClrBridge::LoggerWrapper::initialized) {
+            JavaClrBridge::LoggerWrapper::logger->Listeners->Add(gcnew System::Diagnostics::ConsoleTraceListener());
+        }
+        
+        System::Diagnostics::TraceEventType eventType;
         switch (logLevel) {
-            case 0: level = Level.Off;     break;
-            case 1: level = Level.Error;   break;
-            case 2: level = Level.Warning; break;
-            case 3: level = Level.Info;    break;
-            case 4: level = Level.Verbose; break;
+            case 0: eventType = System::Diagnostics::TraceEventType::Stop; break;
+            case 1: eventType = System::Diagnostics::TraceEventType::Error; break;
+            case 2: eventType = System::Diagnostics::TraceEventType::Warning; break;
+            case 3: eventType = System::Diagnostics::TraceEventType::Information; break;
+            case 4: eventType = System::Diagnostics::TraceEventType::Verbose; break;
+            default: throw gcnew System::Exception("Exception in Java_javabridge_nativeInterop_ClrBufferedLog: Log level does not exist");
         }
 
-        String^ logMessage = ManagedStringFromJavaString(env, jfileName);
-        logger::Log(level, logMessage);
+        String^ msg = ManagedStringFromJavaString(env, message);
+        msg = System::String::Concat(System::DateTime::Now, msg);
+        JavaClrBridge::LoggerWrapper::logger->TraceEvent(eventType, 0, msg);
     }
     catch (System::Exception^ ex) {
         Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrBufferedLog");
