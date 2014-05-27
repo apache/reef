@@ -36,9 +36,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -48,6 +46,12 @@ import java.util.*;
  */
 public final class AvroConfigurationSerializer implements ConfigurationSerializer {
 
+  /**
+   * The Charset used for the JSON encoding.
+   * <p/>
+   * Copied from <code>org.apache.avro.io.JsonDecoder.CHARSET</code>
+   */
+  private static final String JSON_CHARSET = "ISO-8859-1";
 
   @Inject
   public AvroConfigurationSerializer() {
@@ -129,7 +133,18 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   @Override
   public String toString(final Configuration configuration) {
-    return this.toAvro(configuration).toString();
+    final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
+    final String result;
+    try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroConfiguration.SCHEMA$, out);
+      configurationWriter.write(toAvro(configuration), encoder);
+      encoder.flush();
+      out.flush();
+      result = out.toString(JSON_CHARSET);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+    return result;
   }
 
   /**
