@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
-import com.microsoft.reef.runtime.common.driver.catalog.RackDescriptorImpl;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

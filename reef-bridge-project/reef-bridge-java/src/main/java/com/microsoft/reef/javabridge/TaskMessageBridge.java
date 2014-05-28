@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.microsoft.reef.driver.task.TaskMessage;
 
-public abstract class NativeBridge implements AutoCloseable {
+public class TaskMessageBridge extends NativeBridge{
+    private TaskMessage jtaskMessage;
 
-  private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
+    // we don't really need to pass this around, just have this as place holder for future.
+    public TaskMessageBridge(TaskMessage taskMessage)
+    {
+        jtaskMessage = taskMessage;
+    }
 
-  public void onError(String errorMessage)
-  {
-    LOG.log(Level.SEVERE, "Bridge received error from CLR: " + errorMessage );
-    throw new RuntimeException("Bridge received error from CLR: " + errorMessage);
-  }
+    @Override
+    public void close()
+    {
+    }
 }

@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
-import com.microsoft.reef.driver.task.TaskMessage;
+import com.microsoft.reef.driver.task.CompletedTask;
 
-public class TaskMessageBridge extends NativeBridge{
-    private TaskMessage jtaskMessage;
+public class CompletedTaskBridge extends NativeBridge{
 
-    // we don't really need to pass this around, just have this as place holder for future.
-    public TaskMessageBridge(TaskMessage taskMessage)
-    {
-        jtaskMessage = taskMessage;
-    }
+  private CompletedTask jcompletedTask;
 
-    @Override
-    public void close()
-    {
-    }
+  private String taskId;
+
+  private ActiveContextBridge jactiveContext;
+
+  public CompletedTaskBridge(CompletedTask completedTask)
+  {
+      jcompletedTask = completedTask;
+      taskId = completedTask.getId();
+      jactiveContext = new ActiveContextBridge(completedTask.getActiveContext());
+  }
+  @Override
+  public void close()
+  {
+  }
 }

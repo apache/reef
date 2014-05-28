@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * The Clr Bridge example.
- */
-package com.microsoft.reef.examples.ClrBridge;
+
+package com.microsoft.reef.javabridge;
+
+public class JavaBridge {
+  private final static String CPP_BRIDGE = "JavaClrBridge";
+
+  static {
+    try {
+      System.loadLibrary(CPP_BRIDGE);
+    } catch (UnsatisfiedLinkError e) {
+    }
+  }
+}
+

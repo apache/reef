@@ -22,12 +22,6 @@ namespace Microsoft
 					jfieldID jidTaskId = env->GetFieldID(jclassCompletedTask, "taskId", "Ljava/lang/String;");
 					_jstringId = (jstring)env->GetObjectField(_jobjectCompletedTask, jidTaskId);
 					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
-
-					jfieldID jidActiveContext = env->GetFieldID(jclassCompletedTask, "jactiveContext", "Ljavabridge/ActiveContextBridge;");
-					_jobjectActiveContext = env->GetObjectField(_jobjectCompletedTask, jidActiveContext);
-					_jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(_jobjectActiveContext));
-					fprintf(stdout, "CompletedTaskClr2Java _jobjectActiveContext %p\n", _jobjectActiveContext); fflush (stdout);
-
 				}
 
 				void CompletedTaskClr2Java::OnError(String^ message)
@@ -41,7 +35,14 @@ namespace Microsoft
 				{
 					fprintf(stdout, "CompletedTaskClr2Java::GetActiveContext\n"); fflush (stdout);																				
 					JNIEnv *env = RetrieveEnv(_jvm);
-					return gcnew ActiveContextClr2Java(env, _jobjectActiveContext);
+
+
+					jclass jclassCompletedTask = env->GetObjectClass (_jobjectCompletedTask);
+					jfieldID jidActiveContext = env->GetFieldID(jclassCompletedTask, "jactiveContext", "Lcom/microsoft/reef/javabridge/ActiveContextBridge;");
+					jobject jobjectActiveContext = env->GetObjectField(_jobjectCompletedTask, jidActiveContext);
+
+					fprintf(stdout, "CompletedTaskClr2Java jobjectActiveContext %p\n", jobjectActiveContext); fflush (stdout);
+					return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 				}
 
 				String^ CompletedTaskClr2Java::GetId()

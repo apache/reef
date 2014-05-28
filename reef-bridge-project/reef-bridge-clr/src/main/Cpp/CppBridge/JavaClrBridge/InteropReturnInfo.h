@@ -1,5 +1,5 @@
 #include "InteropUtil.h"
-#include "javabridge_NativeInterop.h"
+#include "com_microsoft_reef_javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
 #using "clrhandler.dll" 

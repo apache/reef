@@ -82,7 +82,7 @@
             <manifest>
               <addClasspath>false</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>javabridge.JavaBridge</mainClass>
+              <mainClass>com.microsoft.reef.javabridge.JavaBridge</mainClass>
             </manifest>
           </archive>
         </configuration>

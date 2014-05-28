@@ -26,7 +26,7 @@ namespace Microsoft
 					JNIEnv *env = RetrieveEnv(_jvm);
 
 					jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
-					jfieldID jidActiveContext = env->GetFieldID(jclassFailedTask, "jactiveContext", "Ljavabridge/ActiveContextBridge;");
+					jfieldID jidActiveContext = env->GetFieldID(jclassFailedTask, "jactiveContext", "Lcom.microsoft.reef.javabridge/ActiveContextBridge;");
 					jobject jobjectActiveContext = env->GetObjectField(_jobjectFailedTask, jidActiveContext);
 
 					fprintf(stdout, "FailedTaskClr2Java jidActiveContext %p\n", jidActiveContext); fflush (stdout);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
 import java.io.*;
 import java.util.HashMap;
@@ -92,13 +92,14 @@ public class NativeInterop {
 
     static {
       System.out.println("============== Driver Bridge initiated, loading DLLs ============== ");
-      try {
+     /* try {
             System.loadLibrary(CPP_BRIDGE);
             System.out.println("DLL is loaded from memory");
             loadFromJar();
         } catch (UnsatisfiedLinkError e) {
             loadFromJar();
-        }
+        }*/
+      loadFromJar();
       System.out.println("================== Done loading dlls for Driver  ================== \n");
     }
 
@@ -132,8 +133,9 @@ public class NativeInterop {
                 return name.toLowerCase().endsWith(DLL_EXTENSION);
             }
         });
+      //System.out.println("Total dll files to load from " + System.getProperty("user.dir") + "  are: " + files.length );
 
-        for (int i=0; i<files.length; i++)
+      for (int i=0; i<files.length; i++)
         {
             try {
                 String fileName = files[i].getName();
@@ -161,7 +163,11 @@ public class NativeInterop {
     private static void loadLib(String name, boolean copyOnly) {
         name = name + DLL_EXTENSION;
         try {
-            InputStream in = NativeInterop.class.getResourceAsStream("/ReefDriverAppDlls/" + name);
+            String path = "/ReefDriverAppDlls/" + name;
+
+            //System.out.println("trying to load: " +  NativeInterop.class.getClass().getResource(path).getPath());
+
+            InputStream in = NativeInterop.class.getResourceAsStream(path);
             // always write to different location
             String directory = System.getProperty("java.io.tmpdir");
             boolean status = new File(directory).mkdir();
@@ -170,7 +176,8 @@ public class NativeInterop {
             //System.out.println("after new FileOutputStream(fileOut)");
             if (null == in)
             {
-                return;
+              //System.out.println("Cannot find " + name);
+              return;
             }
             if (out == null)
             {
@@ -199,15 +206,12 @@ public class NativeInterop {
                 {
                     System.out.println("fileOut is NULL");
                 }
-                else {
-                    //System.out.println("fileOut is not NULL");
-                }
                 //System.out.println("fileOut.toString() " + fileOut.toString());
                 NativeInterop.loadClrAssembly (fileOut.toString());
-                //System.out.println("Loading DLL copyonly done");
+                //System.out.println("Done Loading DLL " +  fileOut.toString());
             }
         } catch (Exception e) {
-            throw new UnsatisfiedLinkError("Failed to load required DLL" +   e.getMessage());
+            throw new UnsatisfiedLinkError("Failed to load required DLL " +  name);
         }
 
     }

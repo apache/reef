@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
 import  java.util.ArrayList;
 

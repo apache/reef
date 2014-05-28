@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.ClrBridge;
+
+package com.microsoft.reef.javabridge.generic;
 
 import com.microsoft.reef.client.ClientConfiguration;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
@@ -26,10 +27,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.CommandLine;
-import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.OptionalParameter;
 
 import java.io.File;
 import java.io.IOException;

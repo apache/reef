@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.util.Optional;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
