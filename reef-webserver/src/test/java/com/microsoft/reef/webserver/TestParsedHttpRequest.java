@@ -15,35 +15,52 @@
  */
 package com.microsoft.reef.webserver;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.mortbay.io.bio.StringEndPoint;
 import org.mortbay.jetty.*;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 
 import java.io.IOException;
 import java.util.*;
 
 public final class TestParsedHttpRequest {
 
-  @Test
-  public void testQueryMap() throws IOException, ServletException {
+  private Request request;
+  private ParsedHttpRequest parsedRequest;
 
-    final Request request = new Request(
+  @Before
+  public void setUp() throws IOException, ServletException {
+
+    this.request = new Request(
         new HttpConnection(new LocalConnector(), new StringEndPoint(), new Server()));
 
-    request.setUri(new HttpURI("http://localhost.com/get#test?a=10&b=20&a=30"));
-    request.setQueryString("a=10&b=20&a=30");
+    this.request.setUri(new HttpURI("http://localhost.com/get#test?a=10&b=20&a=30"));
+    this.request.setQueryString("a=10&b=20&a=30");
+    this.request.setContentType("text/json");
 
-    final ParsedHttpRequest parsedRequest = new ParsedHttpRequest(request);
+    this.parsedRequest = new ParsedHttpRequest(this.request);
+  }
 
-    final Map<String, List<String>> queryMap = new LinkedHashMap<String, List<String>>(2) {{
-      put("a", Arrays.asList("10", "30"));
-      put("b", Arrays.asList("20"));
-    }};
+  @Test
+  public void testQueryMap() {
+    Assert.assertEquals(
+        new LinkedHashMap<String, List<String>>() {{
+          put("a", Arrays.asList("10", "30"));
+          put("b", Arrays.asList("20"));
+        }},
+        this.parsedRequest.getQueryMap());
+  }
 
-    Assert.assertEquals(queryMap, parsedRequest.getQueryMap());
+  @Test
+  public void testHeaders() {
+    Assert.assertEquals(
+        new HashMap<String, String>() {{ put("Content-Type", "text/json"); }},
+        this.parsedRequest.getHeaders());
   }
 }
