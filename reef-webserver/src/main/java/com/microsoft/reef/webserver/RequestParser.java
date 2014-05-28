@@ -32,7 +32,6 @@ public class RequestParser {
     private final String queryString;
     private final String requestUri;
     private final String requestUrl;
-    private final String serveletPath;
     private final Map<String, String> headers = new HashMap();
     private final byte[] inputStream;
     private final String targetSpecification;
@@ -51,28 +50,32 @@ public class RequestParser {
 
         pathInfo = request.getPathInfo();
         method = request.getMethod();
-        queryString = request.getQueryString();
         requestUri = request.getRequestURI();
-        serveletPath = request.getServletPath();
         requestUrl = request.getRequestURL().toString();
 
-        Enumeration hn = request.getHeaderNames();
+        if (request.getQueryString() != null ) {
+            queryString = request.getQueryString();
+        } else {
+            queryString = "";
+        }
+
+        final Enumeration hn = request.getHeaderNames();
         while (hn.hasMoreElements()) {
-            String s = (String) hn.nextElement();
-            String header = request.getHeader(s);
+            final String s = (String) hn.nextElement();
+            final String header = request.getHeader(s);
             headers.put(s, header);
         }
 
-        int len = request.getContentLength();
+        final int len = request.getContentLength();
         if (len > 0) {
             inputStream = new byte[len];
             request.getInputStream().read(inputStream);
         } else {
-            inputStream = null;
+            inputStream = new byte[0];
         }
 
         if (requestUri != null) {
-            String[] parts = requestUri.split("/");
+            final String[] parts = requestUri.split("/");
 
             if (parts != null && parts.length > 1) {
                 targetSpecification = parts[1];
@@ -166,11 +169,27 @@ public class RequestParser {
         return headers;
     }
 
+    /**
+     * get query maps
+     * @return
+     */
     public Map<String, List<String>> getQueryMap() {
         return queryPairs;
     }
 
+    /**
+     * get request URL
+     * @return
+     */
     public String getRequestUrl() {
         return requestUrl;
+    }
+
+    /**
+     * get pathInfo
+     * @return
+     */
+    public String getPathInfo() {
+        return pathInfo;
     }
 }
