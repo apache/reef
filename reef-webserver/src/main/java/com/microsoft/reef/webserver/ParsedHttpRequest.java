@@ -25,6 +25,7 @@ import java.util.*;
  * Parsed HttpServletRequest
  */
 public final class ParsedHttpRequest {
+
   private final HttpServletRequest request;
   private final String pathInfo;
   private final String method;
@@ -59,7 +60,7 @@ public final class ParsedHttpRequest {
 
     for (final Enumeration en = request.getHeaderNames(); en.hasMoreElements(); ) {
       final String headerName = en.nextElement().toString();
-      headers.put(headerName, request.getHeader(headerName));
+      this.headers.put(headerName, request.getHeader(headerName));
     }
 
     final int len = request.getContentLength();
@@ -80,7 +81,7 @@ public final class ParsedHttpRequest {
     }
 
     if (this.queryString != null) {
-      final String[] pairs = queryString.split("&");
+      final String[] pairs = this.queryString.split("&");
       for (final String pair : pairs) {
         final int idx = pair.indexOf("=");
         if (idx != -1) {
