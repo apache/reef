@@ -300,6 +300,8 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrBufferedLog
     try {
         if (!JavaClrBridge::LoggerWrapper::initialized) {
             JavaClrBridge::LoggerWrapper::logger->Listeners->Add(gcnew System::Diagnostics::ConsoleTraceListener());
+            JavaClrBridge::LoggerWrapper::initialized = true;
+            Console::WriteLine("Initialized loggerwrapper!");
         }
         
         System::Diagnostics::TraceEventType eventType;

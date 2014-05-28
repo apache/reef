@@ -10,10 +10,13 @@ import javabridge.*;
 
 public class CLRHandler extends Handler
 {
+    private SimpleFormatter formatter;
+
     @Inject
     public CLRHandler()
     {
         super();
+        formatter = new SimpleFormatter();
     }
 
     @Override
@@ -35,6 +38,25 @@ public class CLRHandler extends Handler
         if (record == null)
             return;
 
-        //NativeInterop.ClrBufferedLog(3, getFormatter().format(record));
+        int level;
+        Level recordLevel = record.getLevel();
+        if (recordLevel.equals(Level.OFF)) {
+            level = 0;
+        }
+        else if (recordLevel.equals(Level.SEVERE)) {
+            level = 1;
+        }
+        else if (recordLevel.equals(Level.WARNING)) {
+            level = 2;
+        }
+        else if (recordLevel.equals(Level.ALL)) {
+            level = 4;
+        }
+        else {
+            level = 3;
+        }
+
+        String msg = formatter.format(record);
+        NativeInterop.ClrBufferedLog(level, msg);
     }
 }
