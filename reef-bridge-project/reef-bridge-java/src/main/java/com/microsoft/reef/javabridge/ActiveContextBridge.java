@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
-
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;

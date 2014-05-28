@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package javabridge;
-
-    public class JavaBridge {
-  private final static String CPP_BRIDGE = "JavaClrBridge";
-
-  static {
-    try {
-      System.loadLibrary(CPP_BRIDGE);
-    } catch (UnsatisfiedLinkError e) {
-    }
-  }
-}
-
+/**
+ * Generic java bridge driver/client
+ */
+package com.microsoft.reef.javabridge.generic;

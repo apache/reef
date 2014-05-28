@@ -1,5 +1,5 @@
 #include "InteropUtil.h"
-#include "javabridge_NativeInterop.h"
+#include "com_microsoft_reef_javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
 #using "clrhandler.dll" 
@@ -117,7 +117,6 @@ namespace Microsoft
 					jobject  _jobjectCompletedTask;
 					JavaVM* _jvm;
 					jstring _jstringId;
-					jobject _jobjectActiveContext;
 				public:
 					CompletedTaskClr2Java(JNIEnv *env, jobject jcompletedTask);
 					virtual void OnError(String^ message);

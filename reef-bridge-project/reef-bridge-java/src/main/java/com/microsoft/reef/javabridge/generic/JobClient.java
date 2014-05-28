@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.ClrBridge;
+
+package com.microsoft.reef.javabridge.generic;
 
 import com.microsoft.reef.client.*;
 import com.microsoft.reef.util.EnvironmentUtils;
@@ -22,17 +23,13 @@ import com.microsoft.reef.webserver.HttpServerReefEventHandler;
 import com.microsoft.reef.webserver.ReefEventStateManager;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
-import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-
 import javax.inject.Inject;
+
 import java.io.*;
-import java.sql.Driver;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

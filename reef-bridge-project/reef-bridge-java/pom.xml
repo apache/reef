@@ -40,6 +40,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.microsoft.reef</groupId>
+      <artifactId>reef-webserver</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.avro</groupId>
       <artifactId>avro</artifactId>
     </dependency>
@@ -51,7 +56,6 @@
 
   </dependencies>
 
-
   <build>
     <plugins>
       <plugin>
@@ -61,7 +65,7 @@
             <manifest>
               <addClasspath>false</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>javabridge.JavaBridge</mainClass>
+              <mainClass>com.microsoft.reef.javabridge.JavaBridge</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -85,8 +89,11 @@
                   <arg value="${runtime_classpath}"/>
                   <arg value="-d"/>
                   <arg value="${project.build.directory}/classes"/>
-                  <arg value="javabridge.NativeInterop"/>
-                </exec>
+                  <arg value="com.microsoft.reef.javabridge.NativeInterop"/>
+              </exec>
+                  <exec executable="mkdir">
+                      <arg value="/target/generated-sources/avro"/>
+                  </exec>
               </target>
             </configuration>
           </execution>
@@ -114,6 +121,27 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.8</version>
+            <executions>
+                <execution>
+                    <id>unpack-dependencies</id>
+                    <phase>process-resources</phase>
+                    <goals>
+                        <goal>unpack-dependencies</goal>
+                    </goals>
+
+                    <configuration>
+                        <includeArtifactIds>reef-bridge-java,reef-bridge-clr</includeArtifactIds>
+                        <outputDirectory>
+                            ${project.build.directory}/classes/ReefDriverAppDlls
+                        </outputDirectory>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
 </project>

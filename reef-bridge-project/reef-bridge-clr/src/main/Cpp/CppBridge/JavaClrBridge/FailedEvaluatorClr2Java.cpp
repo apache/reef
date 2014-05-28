@@ -31,7 +31,7 @@ namespace Microsoft
 					JNIEnv *env = RetrieveEnv(_jvm);
 
 					jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
-					jfieldID jidEvaluatorRequestor = env->GetFieldID(jclassFailedEvaluator, "evaluatorRequestorBridge", "Ljavabridge/EvaluatorRequestorBridge;");
+					jfieldID jidEvaluatorRequestor = env->GetFieldID(jclassFailedEvaluator, "evaluatorRequestorBridge", "Lcom.microsoft.reef.javabridge/EvaluatorRequestorBridge;");
 					jobject jobjectEvaluatorRequestor = env->GetObjectField(_jobjectFailedEvaluator, jidEvaluatorRequestor);
 
 					fprintf(stdout, "FailedEvaluatorClr2Java jidEvaluatorRequestor %p\n", jidEvaluatorRequestor); fflush (stdout);

@@ -1,5 +1,5 @@
 #include "InteropUtil.h"
-#include "javabridge_NativeInterop.h"
+#include "com_microsoft_reef_javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
 #include "InteropReturnInfo.h"
@@ -53,7 +53,7 @@ static void MarshalErrorToJava (
 	}
 
 	
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_loadClrAssembly
   (
 	JNIEnv *env, 
 	jclass  tobj, 
@@ -61,7 +61,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 {
 	try
 	{
-		Console::Write("+Java_javabridge_NativeInterop_loadClrAssembly: ");
+		Console::Write("+Java_com_microsoft_reef_javabridge_NativeInterop_loadClrAssembly: ");
 		const wchar_t* charAsmName = UnicodeCppStringFromJavaString (env, jfileName);
 		int len = env->GetStringLength(jfileName);	
 		wchar_t* fileName = (wchar_t* )_alloca((len+2)* sizeof(wchar_t));
@@ -85,7 +85,7 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 	{
 		// We do not propagate the exception back to Java to stop driver here 
 		// since failure to load an assembly is not necesary devastating
-		Console::WriteLine("Exceptions in Java_javabridge_NativeInterop_loadClrAssembly");
+		Console::WriteLine("Exceptions in Java_com_microsoft_reef_javabridge_NativeInterop_loadClrAssembly");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}
@@ -93,16 +93,16 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_loadClrAssembly
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    CallClrSystemOnStartHandler
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartHandler
+JNIEXPORT jlongArray JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_CallClrSystemOnStartHandler
   (JNIEnv * env, jclass jclassx, jstring dateTimeString)
 {
 	try
 	{
-		Console::WriteLine("+Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
+		Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_CallClrSystemOnStartHandler");
 		const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
 		int lenConfig = env->GetStringLength(dateTimeString);		
 		String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);		
@@ -113,21 +113,21 @@ JNIEXPORT jlongArray JNICALL Java_javabridge_NativeInterop_CallClrSystemOnStartH
 	catch (System::Exception^ ex)
 	{
 		// we cannot get error back to java here since we don't have an object to call back (although we idealy should...)
-		Console::WriteLine("Exceptions in Java_javabridge_NativeInterop_CallClrSystemOnStartHandler");
+		Console::WriteLine("Exceptions in Java_com_microsoft_reef_javabridge_NativeInterop_CallClrSystemOnStartHandler");
 		Console::WriteLine(ex->Message);
 		Console::WriteLine(ex->StackTrace);
 	}
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemAllocatedEvaluatorHandlerOnNext
- * Signature: (JLjavabridge/AllocatedEvaluatorBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLcom.microsoft.reef.javabridge/AllocatedEvaluatorBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluatorBridge, jobject jlogger)
 {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext");
 	AllocatedEvaluatorClr2Java^ allocatedEval = gcnew AllocatedEvaluatorClr2Java(env, jallocatedEvaluatorBridge);
 	try{		
 		ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, allocatedEval);
@@ -141,14 +141,14 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemAllocatedEvaluator
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemActiveContextHandlerOnNext
- * Signature: (JLjavabridge/ActiveContextBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLcom.microsoft.reef.javabridge/ActiveContextBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge, jobject jlogger)
 {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext");
 	ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
 	try{	
 		ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, activeContextBrdige);
@@ -162,14 +162,14 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemActiveContextHandl
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemEvaluatorRequstorHandlerOnNext
- * Signature: (JLjavabridge/EvaluatorRequstorBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLcom.microsoft.reef.javabridge/EvaluatorRequstorBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jevaluatorRequestorBridge, jobject jlogger)
 {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext");
 	EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
 	try{		
 		ClrSystemHandlerWrapper::Call_ClrSystemEvaluatorRequestor_OnNext(handle, evaluatorRequestorBridge);
@@ -183,14 +183,14 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemEvaluatorRequstorH
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemTaskMessageHandlerOnNext
- * Signature: (J[BLjavabridge/TaskMessageBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (J[BLcom.microsoft.reef.javabridge/TaskMessageBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext
 	(JNIEnv *env, jclass cls, jlong handle, jbyteArray jmessage, jobject jtaskMessageBridge, jobject jlogger)
 {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext");
 	TaskMessageClr2Java^ taskMesageBridge = gcnew TaskMessageClr2Java(env, jtaskMessageBridge);
 	array<byte>^ message = ManagedByteArrayFromJavaByteArray(env, jmessage);
 	try{		
@@ -205,14 +205,14 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemTaskMessageHandler
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSysteFailedTaskHandlerOnNext
- * Signature: (JLjavabridge/FailedTaskBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLcom.microsoft.reef.javabridge/FailedTaskBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jfailedTask, jobject jlogger)
 {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext");
 	FailedTaskClr2Java^ failedTaskBridge = gcnew FailedTaskClr2Java(env, jfailedTask);
 	try{		
 		ClrSystemHandlerWrapper::Call_ClrSystemFailedTask_OnNext(handler, failedTaskBridge);
@@ -226,14 +226,14 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedTaskHandlerO
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemFailedEvaluatorHandlerOnNext
- * Signature: (JLjavabridge/FailedEvaluatorBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLcom.microsoft.reef.javabridge/FailedEvaluatorBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jfailedEvaluator, jobject jlogger)
 {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext");
 	FailedEvaluatorClr2Java^ failedEvaluatorBridge = gcnew FailedEvaluatorClr2Java(env, jfailedEvaluator);
 	try{
 		ClrSystemHandlerWrapper::Call_ClrSystemFailedEvaluator_OnNext(handler, failedEvaluatorBridge);
@@ -247,14 +247,14 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemFailedEvaluatorHan
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemHttpServerEventHandlerOnHttpRequest
- * Signature: (JLjavabridge/HttpServerEventBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLcom.microsoft.reef.javabridge/HttpServerEventBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jhttpServerEventBridge, jobject jlogger)
  {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext");
 	HttpServerClr2Java^ httpServerClr2Java = gcnew HttpServerClr2Java(env, jhttpServerEventBridge);	
 	 try{
 		ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_OnNext(handler, httpServerClr2Java);
@@ -268,14 +268,14 @@ JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemHttpServerHandlerO
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemCompletedTaskHandlerOnNext
- * Signature: (JLjavabridge/CompletedTaskBridge;Ljavabridge/InteropLogger;)V
+ * Signature: (JLcom.microsoft.reef.javabridge/CompletedTaskBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
  */
-JNIEXPORT void JNICALL Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jcompletedTask, jobject jlogger)
 {
-	Console::WriteLine("+Java_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext");
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext");
 	CompletedTaskClr2Java^ completedTaskBridge = gcnew CompletedTaskClr2Java(env, jcompletedTask);
 	try{
 		ClrSystemHandlerWrapper::Call_ClrSystemCompletedTask_OnNext(handler, completedTaskBridge);

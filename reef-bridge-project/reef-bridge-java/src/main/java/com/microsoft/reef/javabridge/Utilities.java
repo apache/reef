@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
 
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;

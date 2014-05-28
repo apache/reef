@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package javabridge;
 
-/**
- *  HttpServerEventBridge
- */
+package com.microsoft.reef.javabridge;
+
 public final class HttpServerEventBridge extends NativeBridge{
     private String queryString;
     private byte[] queryRequestData;

@@ -15,6 +15,7 @@ namespace Microsoft
 					_jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectActiveContext));
 
 					jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
+
 					jfieldID jidContextId = env->GetFieldID(jclassActiveContext, "contextId", "Ljava/lang/String;");
 					_jstringId = (jstring)env->GetObjectField(_jobjectActiveContext, jidContextId);
 					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));

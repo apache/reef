@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package javabridge;
+package com.microsoft.reef.javabridge;
+
 import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.logging.Level;
