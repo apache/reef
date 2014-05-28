@@ -91,19 +91,21 @@ public class RequestParser {
         }
 
         if (queryString != null) {
-            String[] pairs = queryString.split("&");
-            for (String pair : pairs) {
-                int idx = pair.indexOf("=");
+            final String[] pairs = queryString.split("&");
+            for (final String pair : pairs) {
+                final int idx = pair.indexOf("=");
                 if (idx != -1) {
-                    String rKey = pair.substring(0, idx);
-                    String rValue = pair.substring(idx + 1);
+                    final String rKey = pair.substring(0, idx);
+                    final String rValue = pair.substring(idx + 1);
                     if(rKey != null && rValue != null) {
-                        String key = URLDecoder.decode(rKey, "UTF-8");
-                        String value = URLDecoder.decode(rValue, "UTF-8");
-                        if(!queryPairs.containsKey(key)) {
-                            queryPairs.put(key, new ArrayList<String>());
+                        final String key = URLDecoder.decode(rKey, "UTF-8");
+                        final String value = URLDecoder.decode(rValue, "UTF-8");
+                        List<String> valuesList = queryPairs.get(key);
+                        if (valuesList == null) {
+                            valuesList = new ArrayList<String>(1);
+                            queryPairs.put(key, valuesList);
                         }
-                        queryPairs.get(key).add(value);
+                        valuesList.add(value);
                     }
                 }
             }
