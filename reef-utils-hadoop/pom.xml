@@ -23,8 +23,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-bridge</artifactId>
+            <groupId>com.microsoft.reef</groupId>
+            <artifactId>reef-project</artifactId>
             <version>${project.version}</version>
         </dependency>                 
     </dependencies>
