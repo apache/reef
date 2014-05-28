@@ -40,7 +40,7 @@ public final class TestParsedHttpRequest {
     this.request = new Request(
         new HttpConnection(new LocalConnector(), new StringEndPoint(), new Server()));
 
-    this.request.setUri(new HttpURI("http://localhost.com/get#test?a=10&b=20&a=30"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/whatever/id123#test?a=10&b=20&a=30"));
     this.request.setQueryString("a=10&b=20&a=30");
     this.request.setContentType("text/json");
 
@@ -62,5 +62,15 @@ public final class TestParsedHttpRequest {
     Assert.assertEquals(
         new HashMap<String, String>() {{ put("Content-Type", "text/json"); }},
         this.parsedRequest.getHeaders());
+  }
+
+  @Test
+  public void testTargetSpecification() {
+    Assert.assertEquals("whatever", this.parsedRequest.getTargetSpecification());
+  }
+
+  @Test
+  public void testTargetEntity() {
+    Assert.assertEquals("id123", this.parsedRequest.getTargetEntity());
   }
 }
