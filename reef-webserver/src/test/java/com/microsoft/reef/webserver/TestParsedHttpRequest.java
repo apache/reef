@@ -17,10 +17,12 @@ package com.microsoft.reef.webserver;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mortbay.jetty.HttpURI;
-import org.mortbay.jetty.Request;
+
+import org.mortbay.io.bio.StringEndPoint;
+import org.mortbay.jetty.*;
 
 import javax.servlet.ServletException;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -29,8 +31,11 @@ public final class TestParsedHttpRequest {
   @Test
   public void testQueryMap() throws IOException, ServletException {
 
-    final Request request = new Request();
+    final Request request = new Request(
+        new HttpConnection(new LocalConnector(), new StringEndPoint(), new Server()));
+
     request.setUri(new HttpURI("http://localhost.com/get#test?a=10&b=20&a=30"));
+    request.setQueryString("a=10&b=20&a=30");
 
     final ParsedHttpRequest parsedRequest = new ParsedHttpRequest(request);
 
@@ -39,6 +44,6 @@ public final class TestParsedHttpRequest {
       put("b", Arrays.asList("20"));
     }};
 
-    Assert.assertEquals(parsedRequest.getQueryMap(), queryMap);
+    Assert.assertEquals(queryMap, parsedRequest.getQueryMap());
   }
 }
