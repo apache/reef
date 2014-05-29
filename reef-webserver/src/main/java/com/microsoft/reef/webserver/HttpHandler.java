@@ -29,7 +29,7 @@ public interface HttpHandler {
      *
      * @return
      */
-    String getUriSpecification();
+    public String getUriSpecification();
 
     /**
      * return specification of the handler. e.g Reef
