@@ -31,10 +31,10 @@ public class CLRHandler extends Handler
     @Override
     public void publish(LogRecord record)
     {
-        if (!isLoggable(record))
+        if (record == null)
             return;
 
-        if (record == null)
+        if (!isLoggable(record))
             return;
 
         /*int level;
@@ -56,8 +56,7 @@ public class CLRHandler extends Handler
         }*/
 
         String msg = formatter.format(record);
-        System.out.println(" === hello from clrhandler.java! ===");
         //NativeInterop.ClrBufferedLog(level, msg);
-        //NativeInterop.ClrBufferedLog(3, msg);
+        NativeInterop.ClrBufferedLog(3, msg);
     }
 }

@@ -290,16 +290,16 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 }
 
 /*
- * Class:     javabridge_NativeInterop
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrBufferedLog
  * Signature: (ILjava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrBufferedLog
-  (JNIEnv *env, jclass cls, jint logLevel, jstring message)
+  (JNIEnv *env, jclass cls, jint level, jstring msg)
 {
     try {
         Console::WriteLine("=== Hello from ClrBufferedLog! ===");
-        if (!JavaClrBridge::LoggerWrapper::initialized) {
+        /*if (!JavaClrBridge::LoggerWrapper::initialized) {
             JavaClrBridge::LoggerWrapper::logger->Listeners->Add(gcnew System::Diagnostics::ConsoleTraceListener());
             JavaClrBridge::LoggerWrapper::initialized = true;
             Console::WriteLine("Initialized loggerwrapper!");
@@ -319,6 +319,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrBuffe
         msg = System::String::Concat(System::DateTime::Now, msg);
         msg = System::String::Concat(System::DateTime::Now, msg);
         JavaClrBridge::LoggerWrapper::logger->TraceEvent(eventType, 0, msg);
+        */
     }
     catch (System::Exception^ ex) {
         Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrBufferedLog");
