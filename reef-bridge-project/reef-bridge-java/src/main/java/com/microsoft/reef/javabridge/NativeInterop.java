@@ -18,6 +18,7 @@ package com.microsoft.reef.javabridge;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.UUID;
 
 
 public class NativeInterop {
@@ -84,6 +85,9 @@ public class NativeInterop {
     private static final String DLL_EXTENSION = ".dll";
     private final static String CPP_BRIDGE = "JavaClrBridge";
 
+    private static final String tmpLoadingDirectory = System.getProperty("user.dir") + "/TmpDlls";
+;
+
     static String[] managedDlls =		{
             "ClrHandler",
     };
@@ -97,6 +101,7 @@ public class NativeInterop {
         } catch (UnsatisfiedLinkError e) {
             loadFromJar();
         }*/
+      boolean status = new File(tmpLoadingDirectory).mkdir();
       loadFromJar();
       System.out.println("================== Done loading dlls for Driver  ================== \n");
     }
@@ -167,9 +172,7 @@ public class NativeInterop {
 
             InputStream in = NativeInterop.class.getResourceAsStream(path);
             // always write to different location
-            String directory = System.getProperty("java.io.tmpdir");
-            boolean status = new File(directory).mkdir();
-            File fileOut = new File(directory + LIB_BIN + name);
+            File fileOut = new File(tmpLoadingDirectory + LIB_BIN + name);
             OutputStream out = new FileOutputStream(fileOut);
             //System.out.println("after new FileOutputStream(fileOut)");
             if (null == in)
