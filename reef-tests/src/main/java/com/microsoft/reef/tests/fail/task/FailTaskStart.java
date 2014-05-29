@@ -55,12 +55,8 @@ public final class FailTaskStart implements Task, EventHandler<TaskStart> {
 
   @Override
   public void onNext(final TaskStart event) throws SimulatedTaskFailure {
-    // synchronized (this) {
-    //   this.isRunning = false;
-    //   this.notify();
-    // }
     final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskStart.send() invoked.");
-    LOG.log(Level.FINE, "FailTaskStart.send() invoked: {0}", ex);
+    LOG.log(Level.FINE, "FailTaskStart.onNext() invoked: {0}", ex);
     throw ex;
   }
 }
