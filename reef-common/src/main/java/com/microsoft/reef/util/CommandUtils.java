@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.webserver;
-
-import com.microsoft.reef.util.OSUtils;
+package com.microsoft.reef.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * utility to run command
+ * run given command and return the result as string
  */
-public class CommandUtility {
-    public static String runCommand(final String command) {
+final public class CommandUtils {
+    /** Standard java logger. */
+    private static final Logger LOG = Logger.getLogger(CommandUtils.class.getName());
+
+    public final static String runCommand(final String command) {
         final StringBuilder sb = new StringBuilder();
         try {
-            String cmd = OSUtils.isWindows() ? "cmd.exe /c " + command : command;
+            final String cmd = OSUtils.isWindows() ? "cmd.exe /c " + command : command;
             final Process proc = Runtime.getRuntime().exec(cmd);
 
             try (final BufferedReader input =
@@ -39,7 +41,8 @@ public class CommandUtility {
                     sb.append(line).append('\n');
                 }
             }
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
+            LOG.log(Level.SEVERE, "Error in call: " + command, ex);
             sb.append(ex);
         }
         return sb.toString();
