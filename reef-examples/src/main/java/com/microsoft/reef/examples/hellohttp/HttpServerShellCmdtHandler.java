@@ -18,7 +18,7 @@ package com.microsoft.reef.examples.hellohttp;
 
 import com.microsoft.reef.util.CommandUtils;
 import com.microsoft.reef.webserver.HttpHandler;
-import com.microsoft.reef.webserver.RequestParser;
+import com.microsoft.reef.webserver.ParsedHttpRequest;
 import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
@@ -97,11 +97,11 @@ class HttpServerShellCmdtHandler implements HttpHandler {
     @Override
     public final synchronized void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOG.log(Level.INFO, "HttpServeShellCmdtHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
-        final RequestParser requestParser = new RequestParser(request);
-        final Map<String, List<String>> queries = requestParser.getQueryMap();
-        final String queryStr = requestParser.getQueryString();
+        final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
+        final Map<String, List<String>> queries = parsedHttpRequest.getQueryMap();
+        final String queryStr = parsedHttpRequest.getQueryString();
 
-        if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators")) {
+        if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Evaluators")) {
             final byte[] b = HttpShellJobDriver.CODEC.encode(queryStr);
             LOG.log(Level.INFO, "HttpServeShellCmdtHandler call HelloDriver onCommand(): {0}", queryStr);
             messageHandler.get().onNext(b);
@@ -123,7 +123,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
             }
             response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
             cmdOutput = null;
-        } else if (requestParser.getTargetEntity().equalsIgnoreCase("Driver")) {
+        } else if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Driver")) {
             final String cmdOutput = CommandUtils.runCommand(queryStr);
             response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
         }
