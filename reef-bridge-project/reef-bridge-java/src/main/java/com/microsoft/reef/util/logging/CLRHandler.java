@@ -58,6 +58,6 @@ public class CLRHandler extends Handler
         String msg = formatter.format(record);
         System.out.println(" === hello from clrhandler.java! ===");
         //NativeInterop.ClrBufferedLog(level, msg);
-        NativeInterop.ClrBufferedLog(3, msg);
+        //NativeInterop.ClrBufferedLog(3, msg);
     }
 }
