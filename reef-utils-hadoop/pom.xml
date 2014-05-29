@@ -22,10 +22,5 @@
             <artifactId>hadoop-common</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.microsoft.reef</groupId>
-            <artifactId>reef-project</artifactId>
-            <version>${project.version}</version>
-        </dependency>                 
     </dependencies>
 </project>

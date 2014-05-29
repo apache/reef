@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import javax.inject.Inject;
 import com.microsoft.reef.javabridge.*;
 
-
 public class CLRHandler extends Handler
 {
     private SimpleFormatter formatter;
@@ -38,7 +37,7 @@ public class CLRHandler extends Handler
         if (record == null)
             return;
 
-        int level;
+        /*int level;
         Level recordLevel = record.getLevel();
         if (recordLevel.equals(Level.OFF)) {
             level = 0;
@@ -54,9 +53,11 @@ public class CLRHandler extends Handler
         }
         else {
             level = 3;
-        }
+        }*/
 
         String msg = formatter.format(record);
-        NativeInterop.ClrBufferedLog(level, msg);
+        System.out.println(" === hello from clrhandler.java! ===");
+        //NativeInterop.ClrBufferedLog(level, msg);
+        NativeInterop.ClrBufferedLog(3, msg);
     }
 }
