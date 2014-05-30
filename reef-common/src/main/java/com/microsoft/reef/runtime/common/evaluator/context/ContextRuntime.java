@@ -19,9 +19,9 @@ import com.google.protobuf.ByteString;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.EvaluatorSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.evaluator.context.parameters.Services;
 import com.microsoft.reef.evaluator.context.ContextMessage;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
+import com.microsoft.reef.evaluator.context.parameters.Services;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException;
 import com.microsoft.reef.runtime.common.evaluator.task.TaskRuntime;
@@ -332,13 +332,7 @@ public final class ContextRuntime {
           this.task = Optional.empty();
           return Optional.empty();
         } else {
-          final ReefServiceProtos.TaskStatusProto taskStatusProto = this.task.get().getStatusProto();
-          if (taskStatusProto.getState() == ReefServiceProtos.State.RUNNING) {
-            /* I'm only allowed to return RUNNING status here...
-             * all other state pushed out to heartbeat */
-            return Optional.of(taskStatusProto);
-          }
-          throw new IllegalStateException("Task state must be RUNNING, but instead is in " + taskStatusProto.getState());
+          return Optional.of(this.task.get().getStatusProto());
         }
       } else {
         return Optional.empty();

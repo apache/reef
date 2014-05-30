@@ -20,6 +20,7 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
+import com.microsoft.reef.runtime.common.evaluator.task.exceptions.*;
 import com.microsoft.reef.task.Task;
 import com.microsoft.reef.task.events.CloseEvent;
 import com.microsoft.reef.task.events.DriverMessage;
@@ -35,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The resourcemanager environment for a Task.
+ * The execution environment for a Task.
  */
 @Private
 @EvaluatorSide
@@ -48,6 +49,7 @@ public final class TaskRuntime extends Thread {
   private final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler;
   private final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler;
   private final InjectionFuture<EventHandler<DriverMessage>> f_messageHandler;
+  private final TaskLifeCycleHandlers taskLifeCycleHandlers;
 
   // The memento given by the task configuration
   private final Optional<byte[]> memento;
@@ -64,8 +66,9 @@ public final class TaskRuntime extends Thread {
                       final TaskStatus currentStatus,
                       final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
                       final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-                      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler) {
-    this(heartBeatManager, task, currentStatus, f_closeHandler, f_suspendHandler, f_messageHandler, null);
+                      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+                      final TaskLifeCycleHandlers taskLifeCycleHandlers) {
+    this(heartBeatManager, task, currentStatus, f_closeHandler, f_suspendHandler, f_messageHandler, null, taskLifeCycleHandlers);
   }
 
   // TODO: Document
@@ -76,9 +79,11 @@ public final class TaskRuntime extends Thread {
                       final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
                       final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
                       final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
-                      final @Parameter(TaskConfigurationOptions.Memento.class) String memento) {
+                      final @Parameter(TaskConfigurationOptions.Memento.class) String memento,
+                      final TaskLifeCycleHandlers taskLifeCycleHandlers) {
     this.heartBeatManager = heartBeatManager;
     this.task = task;
+    this.taskLifeCycleHandlers = taskLifeCycleHandlers;
     this.memento = null == memento ? Optional.<byte[]>empty() :
         Optional.of(DatatypeConverter.parseBase64Binary(memento));
 
@@ -90,9 +95,12 @@ public final class TaskRuntime extends Thread {
 
   }
 
-  // TODO: Document
+  /**
+   * This method needs to be called before a Task can be run(). It informs the Driver that the Task is initializing.
+   */
   public void initialize() {
-    this.currentStatus.setRunning();
+    this.currentStatus.setInit();
+
   }
 
   /**
@@ -101,46 +109,47 @@ public final class TaskRuntime extends Thread {
   @Override
   public void run() {
     try {
-      LOG.log(Level.FINEST, "call task");
-      if (this.currentStatus.isNotRunning()) {
-        throw new RuntimeException("TaskRuntime not initialized!");
-      }
+      // Change state and inform the Driver
+      this.taskLifeCycleHandlers.beforeTaskStart();
 
-      final byte[] result;
-      if (this.memento.isPresent()) {
-        result = this.task.call(this.memento.get());
-      } else {
-        result = this.task.call(null);
-      }
+      LOG.log(Level.FINEST, "Informing registered EventHandler<TaskStart>.");
+      this.currentStatus.setRunning();
 
-      synchronized (this.heartBeatManager) {
-        LOG.log(Level.FINEST, "task call finished");
-        this.currentStatus.setResult(result);
-      }
+      // Call Task.call()
+      final byte[] result = this.runTask();
 
-    } catch (final InterruptedException e) {
-      synchronized (this.heartBeatManager) {
-        LOG.log(Level.WARNING, "Killed the Task", e);
-        this.currentStatus.setKilled();
-      }
-    } catch (final Throwable throwable) {
-      synchronized (this.heartBeatManager) {
-        this.currentStatus.setException(throwable);
-      }
+      // Inform the Driver about it
+      this.currentStatus.setResult(result);
+
+      LOG.log(Level.FINEST, "Informing registered EventHandler<TaskStop>.");
+      this.taskLifeCycleHandlers.afterTaskExit();
+
+    } catch (final TaskStartHandlerFailure taskStartHandlerFailure) {
+      LOG.log(Level.WARNING, "Caught an exception during TaskStart handler execution.", taskStartHandlerFailure);
+      this.currentStatus.setException(taskStartHandlerFailure.getCause());
+    } catch (final TaskStopHandlerFailure taskStopHandlerFailure) {
+      LOG.log(Level.WARNING, "Caught an exception during TaskStop handler execution.", taskStopHandlerFailure);
+      this.currentStatus.setException(taskStopHandlerFailure.getCause());
+    } catch (final TaskCallFailure e) {
+      LOG.log(Level.WARNING, "Caught an exception during Task.call().", e.getCause());
+      this.currentStatus.setException(e);
     }
   }
+
 
   /**
    * Called by heartbeat manager
    *
    * @return current TaskStatusProto
    */
-  public final ReefServiceProtos.TaskStatusProto getStatusProto() {
+  public ReefServiceProtos.TaskStatusProto getStatusProto() {
     return this.currentStatus.toProto();
   }
 
-  // TODO: Document
-  public final boolean hasEnded() {
+  /**
+   * @return true, if the Task is no longer running, either because it is crashed or exited cleanly
+   */
+  public boolean hasEnded() {
     return this.currentStatus.hasEnded();
   }
 
@@ -157,17 +166,18 @@ public final class TaskRuntime extends Thread {
    * @param message the optional message for the close handler or null if there none.
    */
   public final void close(final byte[] message) {
+    LOG.log(Level.FINEST, "Triggering Task close.");
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
         LOG.log(Level.WARNING, "Trying to close a task that is in state: '{0}'. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
-          this.f_closeHandler.get().onNext(new CloseEventImpl(message));
+          this.closeTask(message);
           this.currentStatus.setCloseRequested();
-        } catch (final Throwable throwable) {
-          this.currentStatus.setException(new TaskClientCodeException(
-              this.getTaskId(), this.getContextID(), "Error during close().", throwable));
+        } catch (final TaskCloseHandlerFailure taskCloseHandlerFailure) {
+          LOG.log(Level.WARNING, "Exception while executing task close handler.", taskCloseHandlerFailure.getCause());
+          this.currentStatus.setException(taskCloseHandlerFailure.getCause());
         }
       }
     }
@@ -178,18 +188,18 @@ public final class TaskRuntime extends Thread {
    *
    * @param message the optional message for the suspend handler or null if there none.
    */
-  public final void suspend(final byte[] message) {
+  public void suspend(final byte[] message) {
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
         LOG.log(Level.WARNING, "Trying to suspend a task that is in state: '{0}'. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
-          this.f_suspendHandler.get().onNext(new SuspendEventImpl(message));
+          this.suspendTask(message);
           this.currentStatus.setSuspendRequested();
-        } catch (final Throwable throwable) {
-          this.currentStatus.setException(new TaskClientCodeException(
-              this.getTaskId(), this.getContextID(), "Error during suspend().", throwable));
+        } catch (final TaskSuspendHandlerFailure taskSuspendHandlerFailure) {
+          LOG.log(Level.WARNING, "Exception while executing task suspend handler.", taskSuspendHandlerFailure.getCause());
+          this.currentStatus.setException(taskSuspendHandlerFailure.getCause());
         }
       }
     }
@@ -200,23 +210,93 @@ public final class TaskRuntime extends Thread {
    *
    * @param message the message to be delivered.
    */
-  public final void deliver(final byte[] message) {
+  public void deliver(final byte[] message) {
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
         LOG.log(Level.WARNING, "Trying to send a message to a task that is in state: '{0}'. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
-          this.f_messageHandler.get().onNext(new DriverMessageImpl(message));
-        } catch (final Throwable throwable) {
-          this.currentStatus.setException(new TaskClientCodeException(
-              this.getTaskId(), this.getContextID(), "Error during message delivery.", throwable));
+          this.deliverMessageToTask(message);
+        } catch (final TaskMessageHandlerFailure taskMessageHandlerFailure) {
+          LOG.log(Level.WARNING, "Exception while executing task close handler.", taskMessageHandlerFailure.getCause());
+          this.currentStatus.setException(taskMessageHandlerFailure.getCause());
         }
       }
     }
   }
 
-  final String getContextID() {
+  /**
+   * @return the ID of the Context this task is executing in.
+   */
+  private String getContextID() {
     return this.currentStatus.getContextId();
+  }
+
+  /**
+   * Calls the Task.call() method and catches exceptions it may throw.
+   *
+   * @return the return value of Task.call()
+   * @throws TaskCallFailure if any Throwable was caught from the Task.call() method. That throwable would be the cause
+   *                         of the TaskCallFailure
+   */
+  private byte[] runTask() throws TaskCallFailure {
+    try {
+      final byte[] result;
+      if (this.memento.isPresent()) {
+        LOG.log(Level.FINEST, "Calling Task.call() with a memento");
+        result = this.task.call(this.memento.get());
+      } else {
+        LOG.log(Level.FINEST, "Calling Task.call() without a memento");
+        result = this.task.call(null);
+      }
+      LOG.log(Level.FINEST, "Task.call() exited cleanly.");
+      return result;
+    } catch (final Throwable throwable) {
+      throw new TaskCallFailure(throwable);
+    }
+  }
+
+  /**
+   * Calls the configured Task close handler and catches exceptions it may throw.
+   *
+   * @param message
+   * @throws TaskCloseHandlerFailure
+   */
+  private void closeTask(final byte[] message) throws TaskCloseHandlerFailure {
+    LOG.log(Level.FINEST, "Invoking close handler.");
+    try {
+      this.f_closeHandler.get().onNext(new CloseEventImpl(message));
+    } catch (final Throwable throwable) {
+      throw new TaskCloseHandlerFailure(throwable);
+    }
+  }
+
+  /**
+   * Calls the configured Task message handler and catches exceptions it may throw.
+   *
+   * @param message
+   * @throws TaskMessageHandlerFailure
+   */
+  private void deliverMessageToTask(final byte[] message) throws TaskMessageHandlerFailure {
+    try {
+      this.f_messageHandler.get().onNext(new DriverMessageImpl(message));
+    } catch (final Throwable throwable) {
+      throw new TaskMessageHandlerFailure(throwable);
+    }
+  }
+
+  /**
+   * Calls the configured Task suspend handler and catches exceptions it may throw.
+   *
+   * @param message
+   * @throws TaskSuspendHandlerFailure
+   */
+  private void suspendTask(final byte[] message) throws TaskSuspendHandlerFailure {
+    try {
+      this.f_suspendHandler.get().onNext(new SuspendEventImpl(message));
+    } catch (final Throwable throwable) {
+      throw new TaskSuspendHandlerFailure(throwable);
+    }
   }
 }

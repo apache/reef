@@ -55,12 +55,8 @@ public final class FailTaskStop implements Task, EventHandler<TaskStop> {
 
   @Override
   public void onNext(final TaskStop event) throws SimulatedTaskFailure {
-    // synchronized (this) {
-    //   this.isRunning = false;
-    //   this.notify();
-    // }
     final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskStop.send() invoked.");
-    LOG.log(Level.FINE, "FailTaskStop.send() invoked: {0}", ex);
+    LOG.log(Level.FINE, "FailTaskStop.onNext() invoked: {0}", ex);
     throw ex;
   }
 }

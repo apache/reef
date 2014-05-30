@@ -26,10 +26,13 @@ import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.Alarm;
+import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,12 +62,8 @@ public class HeartBeatManager {
   /**
    * Assemble a complete new heartbeat and send it out.
    */
-  public void onNext() {
-    synchronized (this) {
-      final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto = this.getEvaluatorHeartbeatProto();
-      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
-      this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
-    }
+  public synchronized void onNext() {
+    this.sendHeartBeat(this.getEvaluatorHeartbeatProto());
   }
 
   /**
@@ -73,15 +72,11 @@ public class HeartBeatManager {
    * @param taskStatusProto
    * @return
    */
-  public void onNext(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
-    synchronized (this) {
-      final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto = this.getEvaluatorHeartbeatProto(
-          this.evaluatorRuntime.get().getEvaluatorStatus(),
-          this.contextManager.get().getContextStatusCollection(),
-          Optional.of(taskStatusProto));
-      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
-      this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
-    }
+  public synchronized void onNext(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
+    this.sendHeartBeat(this.getEvaluatorHeartbeatProto(
+        this.evaluatorRuntime.get().getEvaluatorStatus(),
+        this.contextManager.get().getContextStatusCollection(),
+        Optional.of(taskStatusProto)));
   }
 
   /**
@@ -90,19 +85,16 @@ public class HeartBeatManager {
    * @param contextStatusProto
    * @return
    */
-  public void onNext(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
-    synchronized (this) {
-      // TODO: Write a test that checks for the order.
-      final Collection<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
-      contextStatusList.add(contextStatusProto);
-      contextStatusList.addAll(this.contextManager.get().getContextStatusCollection());
-      final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto = this.getEvaluatorHeartbeatProto(
-          this.evaluatorRuntime.get().getEvaluatorStatus(),
-          contextStatusList,
-          Optional.<ReefServiceProtos.TaskStatusProto>empty());
-      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
-      this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
-    }
+  public synchronized void onNext(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
+    // TODO: Write a test that checks for the order.
+    final Collection<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
+    contextStatusList.add(contextStatusProto);
+    contextStatusList.addAll(this.contextManager.get().getContextStatusCollection());
+    final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto = this.getEvaluatorHeartbeatProto(
+        this.evaluatorRuntime.get().getEvaluatorStatus(),
+        contextStatusList,
+        Optional.<ReefServiceProtos.TaskStatusProto>empty());
+    this.sendHeartBeat(heartbeatProto);
   }
 
   /**
@@ -110,17 +102,27 @@ public class HeartBeatManager {
    *
    * @param evaluatorStatusProto
    */
-  public void onNext(final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto) {
-    synchronized (this) {
-      final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto =
-          EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.newBuilder()
-              .setTimestamp(System.currentTimeMillis())
-              .setEvaluatorStatus(evaluatorStatusProto)
-              .build();
-      LOG.log(Level.FINEST, "heartbeat: " + heartbeatProto);
-      this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
-    }
+  public synchronized void onNext(final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto) {
+    this.sendHeartBeat(EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.newBuilder()
+        .setTimestamp(System.currentTimeMillis())
+        .setEvaluatorStatus(evaluatorStatusProto)
+        .build());
   }
+
+  /**
+   * Sends the actual heartbeat out and logs it, so desired.
+   *
+   * @param heartbeatProto
+   */
+  private synchronized void sendHeartBeat(final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto heartbeatProto) {
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Heart beat message:\n{" + heartbeatProto + "\n}");
+      final List<StackTraceElement> stackTraceElements = Arrays.asList(Thread.currentThread().getStackTrace());
+      LOG.log(Level.FINEST, "Stacktrace: \n\t" + StringUtils.join(stackTraceElements, "\n\t"));
+    }
+    this.evaluatorHeartbeatHandler.onNext(heartbeatProto);
+  }
+
 
   private EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto getEvaluatorHeartbeatProto() {
     return this.getEvaluatorHeartbeatProto(
@@ -153,9 +155,7 @@ public class HeartBeatManager {
     public void onNext(final Alarm alarm) {
       synchronized (HeartBeatManager.this) {
         if (HeartBeatManager.this.evaluatorRuntime.get().getState() == ReefServiceProtos.State.RUNNING) {
-          final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = HeartBeatManager.this.getEvaluatorHeartbeatProto();
-          LOG.log(Level.FINEST, "Triggering a heartbeat:\n" + evaluatorHeartbeatProto.toString());
-          HeartBeatManager.this.evaluatorHeartbeatHandler.onNext(evaluatorHeartbeatProto);
+          HeartBeatManager.this.onNext();
           HeartBeatManager.this.clock.scheduleAlarm(HeartBeatManager.this.heartbeatPeriod, this);
         } else {
           LOG.log(Level.FINEST, "Not triggering a heartbeat, because state is:" + HeartBeatManager.this.evaluatorRuntime.get().getState());
