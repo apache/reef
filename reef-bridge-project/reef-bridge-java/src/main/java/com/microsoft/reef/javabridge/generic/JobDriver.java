@@ -407,7 +407,7 @@ public final class JobDriver {
           LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
           CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
           if (handler == null) {
-              LOG.log(Level.Warning, "CLRBufferedLogHandler could not be initialized");
+              LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
           }
           else {
               handler.setDriverInitialized();
