@@ -66,6 +66,7 @@ public class TestRuntimeStartHandler {
       try {
         runtimeStartHandler.onNext(null);
       } catch (final Exception e) {
+        throw new RuntimeException("Fail to call onNext on runtimeStartHandler.", e);
       }
     }
 
@@ -75,6 +76,7 @@ public class TestRuntimeStartHandler {
       try {
         runtimeStopHandler.onNext(null);
       } catch (final Exception e) {
+        throw new RuntimeException("Fail to call onNext on runtimeStopHandler.", e);
       }
     }
   }
