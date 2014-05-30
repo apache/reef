@@ -407,10 +407,6 @@ public final class JobDriver {
           LOG.log(Level.INFO, "Starting clr logging handler...");
           CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
           handler.setDriverInitialized();
-          try {
-              Thread.sleep(20000);
-          }
-          catch (Exception e) {}
 
           InteropLogger interopLogger = new InteropLogger();
           LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
