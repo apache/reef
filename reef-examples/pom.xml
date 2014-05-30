@@ -47,11 +47,6 @@
             <artifactId>reef-bridge</artifactId>
             <version>${project.version}</version>
         </dependency>                 
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-utils-hadoop</artifactId>
-            <version>${project.version}</version>
-        </dependency>                 
         <!-- End of REEF -->
 
         <!-- HADOOP -->
