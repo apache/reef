@@ -48,9 +48,12 @@ class JettyHandler extends AbstractHandler {
      */
     @Inject
     JettyHandler(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
-        //TODO handle duplicated case
-        for (HttpHandler h : httpEventHandlers) {
-            eventHandlers.put(h.getUriSpecification().toLowerCase(), h);
+        for (HttpHandler handler : httpEventHandlers) {
+          if (!eventHandlers.containsKey(handler.getUriSpecification())) {
+            eventHandlers.put(handler.getUriSpecification().toLowerCase(), handler);
+          } else {
+            LOG.log(Level.WARNING, "JettyHandler handle is already registered: {0} ", handler.getUriSpecification());
+          }
         }
     }
 
@@ -76,7 +79,6 @@ class JettyHandler extends AbstractHandler {
                 HttpConnection.getCurrentConnection().getRequest();
 
         response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
 
         final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
         final String specification = parsedHttpRequest.getTargetSpecification();
@@ -86,11 +88,14 @@ class JettyHandler extends AbstractHandler {
             if (h != null) {
                 LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", h.getUriSpecification());
                 h.onHttpRequest(request, response);
+                response.setStatus(HttpServletResponse.SC_OK);
             } else {
-                response.getWriter().println("HttpHandler is not provided for" + parsedHttpRequest.getTargetSpecification());
+              response.getWriter().println("HttpHandler is not provided for" + parsedHttpRequest.getTargetSpecification());
+              response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
-            response.getWriter().println("Hello Reef Http Server");
+          response.getWriter().println("Hello Reef Http Server");
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
         baseRequest.setHandled(true);
         LOG.log(Level.INFO, "JettyHandler handle exists");
@@ -102,6 +107,12 @@ class JettyHandler extends AbstractHandler {
      */
     final void addHandler(final HttpHandler handler)
     {
-        eventHandlers.put(handler.getUriSpecification(), handler);
+      if (handler != null) {
+        if (!eventHandlers.containsKey(handler.getUriSpecification().toLowerCase())) {
+          eventHandlers.put(handler.getUriSpecification().toLowerCase(), handler);
+        } else {
+          LOG.log(Level.WARNING, "JettyHandler handle is already registered: {0} ", handler.getUriSpecification());
+        }
+      }
     }
 }
