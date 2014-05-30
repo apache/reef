@@ -20,7 +20,8 @@ import com.microsoft.tang.Configuration;
 /**
  * Environment for REEF unit tests.
  * <p/>
- * The idea is to use an instance of this class to gain access to a REEF resourcemanager environment in order to make the tests
+ * The idea is to use an instance of this class to gain access
+ * to a REEF resource manager environment in order to make the tests
  * portable amongst REEF runtimes (e.g. YARN, Local, ...)
  */
 public interface TestEnvironment {
@@ -28,22 +29,24 @@ public interface TestEnvironment {
   /**
    * Setup the test environment. This is typically called in a method @Before the actual test.
    */
-  public void setUp();
+  void setUp();
 
   /**
-   * @return a Configuration used to obtain a REEF resourcemanager for the tests. E.g. the local or YARN resourcemanager.
+   * @return a Configuration used to obtain a REEF resourcemanager for the tests.
+   * E.g. the local or YARN resource manager.
    */
-  public Configuration getRuntimeConfiguration();
+  Configuration getRuntimeConfiguration();
 
   /**
    * Cleanup the test environment. This is typically called in a method @After the actual test.
    */
-  public void tearDown();
+  void tearDown();
 
   /**
-   * Return test timeout in milliseconds (we need longer timeouts on YARN comparing than in local mode).
+   * Return test timeout in milliseconds
+   * (we need longer timeouts on YARN comparing than in local mode).
    *
    * @return test timeout in milliseconds.
    */
-  public int getTestTimeout();
+  int getTestTimeout();
 }
