@@ -38,8 +38,7 @@ import com.microsoft.wake.test.util.PassThroughEncoder;
 import com.microsoft.wake.test.util.TimeoutHandler;
 
 /**
- * @author shravan
- *
+ * Test transferring large messages
  */
 public class LargeMsgTest {
   private final static byte[][] values = new byte[3][];
@@ -64,7 +63,7 @@ public class LargeMsgTest {
     }
   }
 
-  @Test
+  //@Test
   public void testLargeWrite() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
     Monitor monitor = new Monitor();

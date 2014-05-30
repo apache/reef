@@ -18,9 +18,9 @@ package com.microsoft.wake.remote.transport.netty;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.remote.impl.ByteCodec;
 import com.microsoft.wake.remote.impl.TransportEvent;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
@@ -34,30 +34,30 @@ final class NettyServerEventListener extends AbstractNettyEventListener {
     super(addrToLinkRefMap, stage);
   }
 
+
+  @Override
+  public void channelActive(final ChannelHandlerContext ctx) {
+    final Channel channel = ctx.channel();
+    
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Channel active. key: {0}", channel.remoteAddress());
+    }
+
+    this.addrToLinkRefMap.putIfAbsent(
+        channel.remoteAddress(), new LinkReference(new NettyLink<>(
+        channel, new ByteCodec(), new LoggingLinkListener<byte[]>())));
+
+    LOG.log(Level.FINER, "Add connected channel ref: {0}", this.addrToLinkRefMap.get(channel.remoteAddress()));
+    
+  }
+
   @Override
   protected TransportEvent getTransportEvent(final byte[] message, final Channel channel) {
     return new TransportEvent(message, new NettyLink<>(channel, new ByteEncoder()));
   }
 
   @Override
-  public void channelConnected(final ChannelStateEvent event) {
-
-    final Channel channel = event.getChannel();
-
-    if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, "Channel connected. key: {0} :: {1}", new Object[] {
-          channel.getRemoteAddress(), event });
-    }
-
-    final LinkReference ref = this.addrToLinkRefMap.putIfAbsent(
-        channel.getRemoteAddress(), new LinkReference(new NettyLink<>(
-        channel, new ByteCodec(), new LoggingLinkListener<byte[]>())));
-
-    LOG.log(Level.FINER, "Add connected channel ref: {0}", ref);
-  }
-
-  @Override
-  protected void exceptionCleanup(final ExceptionEvent event) {
+  protected void exceptionCleanup(final ChannelHandlerContext ctx, final Throwable cause) {
     // noop
   }
 }

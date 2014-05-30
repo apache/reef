@@ -17,7 +17,6 @@ package com.microsoft.wake.remote.transport.netty;
 
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.WakeParameters;
 import com.microsoft.wake.impl.DefaultThreadFactory;
 import com.microsoft.wake.remote.Encoder;
 import com.microsoft.wake.remote.exception.RemoteRuntimeException;
@@ -27,13 +26,16 @@ import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
 import com.microsoft.wake.remote.transport.exception.TransportRuntimeException;
 
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -41,7 +43,6 @@ import java.net.SocketAddress;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,15 +55,22 @@ public class NettyMessagingTransport implements Transport {
   private static final String CLASS_NAME = NettyMessagingTransport.class.getName();
   private static final Logger LOG = Logger.getLogger(CLASS_NAME);
 
-  private static final long SHUTDOWN_TIMEOUT = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
-
+  private static final int SERVER_BOSS_NUM_THREADS = 3;
+  private static final int SERVER_WORKER_NUM_THREADS = 20;
+  private static final int CLIENT_WORKER_NUM_THREADS = 10;
+  
   private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap = new ConcurrentHashMap<>();
 
-  private final ClientBootstrap clientBootstrap;
+  private final EventLoopGroup clientWorkerGroup;
+  private final EventLoopGroup serverBossGroup;
+  private final EventLoopGroup serverWorkerGroup;
+  
+  private final Bootstrap clientBootstrap;
   private final ServerBootstrap serverBootstrap;
+  private final Channel acceptor;
 
-  private final ChannelGroup clientChannelGroup = new DefaultChannelGroup();
-  private final ChannelGroup serverChannelGroup = new DefaultChannelGroup();
+  private final ChannelGroup clientChannelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+  private final ChannelGroup serverChannelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
   private final int serverPort;
   private final SocketAddress localAddress;
@@ -89,56 +97,54 @@ public class NettyMessagingTransport implements Transport {
     this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
     this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
 
-    this.clientBootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
-        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME)),
-        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME))));
-    this.clientBootstrap.setOption("reuseAddress", true);
-    this.clientBootstrap.setOption("tcpNoDelay", true);
-    this.clientBootstrap.setOption("keepAlive", true);
-    this.clientBootstrap.setPipelineFactory(new NettyChannelPipelineFactory("client",
-        this.clientChannelGroup, this.clientEventListener, new NettyDefaultChannelHandlerFactory()));
+    this.serverBossGroup = new NioEventLoopGroup(SERVER_BOSS_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerBoss"));
+    this.serverWorkerGroup = new NioEventLoopGroup(SERVER_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerWorker"));
+    this.clientWorkerGroup = new NioEventLoopGroup(CLIENT_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ClientWorker"));
+    
+    this.clientBootstrap = new Bootstrap();
+    this.clientBootstrap.group(this.clientWorkerGroup)
+      .channel(NioSocketChannel.class)
+      .handler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("client",
+        this.clientChannelGroup, this.clientEventListener)))
+      .option(ChannelOption.SO_REUSEADDR, true)
+      .option(ChannelOption.SO_KEEPALIVE, true);
+    
+    this.serverBootstrap = new ServerBootstrap();
+    this.serverBootstrap.group(this.serverBossGroup, this.serverWorkerGroup)
+      .channel(NioServerSocketChannel.class)
+      .childHandler(new NettyChannelInitializer(new NettyDefaultChannelHandlerFactory("server",
+          this.serverChannelGroup, this.serverEventListener)))
+      .option(ChannelOption.SO_BACKLOG, 128)
+      .option(ChannelOption.SO_REUSEADDR, true)
+      .childOption(ChannelOption.SO_KEEPALIVE, true);    
 
-    this.serverBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
-        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME)),
-        Executors.newCachedThreadPool(new DefaultThreadFactory(CLASS_NAME))));
-
-    this.serverBootstrap.setOption("reuseAddress", true);
-    this.serverBootstrap.setOption("tcpNoDelay", true);
-    this.serverBootstrap.setOption("keepAlive", true);
-    this.serverBootstrap.setPipelineFactory(new NettyChannelPipelineFactory("server",
-        this.serverChannelGroup, this.serverEventListener, new NettyDefaultChannelHandlerFactory()));
-
+    LOG.log(Level.FINE, "Binding to {0}", port);
+    
     Channel acceptor = null;
-    if (port > 0) {
-      acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port));
-    } else {
-      final Random rand = new Random();
-      while (acceptor == null) {
-        port = rand.nextInt(10000) + 10000;
-        try {
+    try {
+      if (port > 0) {
+        acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+      } else {
+        final Random rand = new Random();
+        while (acceptor == null) {
+          port = rand.nextInt(10000) + 10000;
           LOG.log(Level.FINEST, "Try port {0}", port);
-          acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port));
-        } catch (final ChannelException ex) {
-          LOG.log(Level.WARNING, "Port collision", ex);
+          acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
         }
       }
-    }
-
-    this.serverPort = port;
-
-    if (acceptor.isBound()) {
-
-      this.localAddress = new InetSocketAddress(hostAddress, this.serverPort);
-      this.serverChannelGroup.add(acceptor);
-
-    } else {
+    } catch (Exception ex) {
       final RuntimeException transportException =
           new TransportRuntimeException("Cannot bind to " + this.serverPort);
       LOG.log(Level.SEVERE, "Cannot bind to " + this.serverPort, transportException);
-      this.clientBootstrap.releaseExternalResources();
-      this.serverBootstrap.releaseExternalResources();
+      this.clientWorkerGroup.shutdownGracefully();
+      this.serverBossGroup.shutdownGracefully();
+      this.serverWorkerGroup.shutdownGracefully();
       throw transportException;
     }
+    
+    this.acceptor = acceptor;
+    this.serverPort = port;
+    this.localAddress = new InetSocketAddress(hostAddress, this.serverPort);
 
     LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
   }
@@ -156,9 +162,11 @@ public class NettyMessagingTransport implements Transport {
     this.clientChannelGroup.close().awaitUninterruptibly();
     this.serverChannelGroup.close().awaitUninterruptibly();
 
-    this.clientBootstrap.releaseExternalResources();
-    this.serverBootstrap.releaseExternalResources();
-
+    this.acceptor.close().sync();
+    this.clientWorkerGroup.shutdownGracefully();
+    this.serverBossGroup.shutdownGracefully();
+    this.serverWorkerGroup.shutdownGracefully();
+    
     LOG.log(Level.FINE, "Closing netty transport socket address: {0} done", this.localAddress);
   }
 
@@ -220,7 +228,7 @@ public class NettyMessagingTransport implements Transport {
     final ChannelFuture connectFuture = this.clientBootstrap.connect(remoteAddr);
     connectFuture.awaitUninterruptibly();
 
-    link = new NettyLink<>(connectFuture.getChannel(), encoder, listener);
+    link = new NettyLink<>(connectFuture.channel(), encoder, listener);
     linkRef.setLink(link);
 
     synchronized (flag) {

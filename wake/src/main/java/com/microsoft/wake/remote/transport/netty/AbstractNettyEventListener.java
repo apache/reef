@@ -18,10 +18,9 @@ package com.microsoft.wake.remote.transport.netty;
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.TransportEvent;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
@@ -53,16 +52,15 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   }
 
   @Override
-  public void messageReceived(final MessageEvent event) {
-
-    final Channel channel = event.getChannel();
-    final byte[] message = (byte[]) event.getMessage();
-
+  public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    final Channel channel = ctx.channel();
+    final byte[] message = (byte[]) msg;
+    
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[] {
-          channel.getLocalAddress(), channel.getRemoteAddress(), message });
+          channel.localAddress(), channel.remoteAddress(), message });
     }
-
+    
     if (message.length > 0) {
       // send to the dispatch stage
       this.stage.onNext(this.getTransportEvent(message, channel));
@@ -70,27 +68,29 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   }
 
   @Override
-  public void exceptionCaught(final ExceptionEvent event) {
-    final Throwable ex = event.getCause();
-    LOG.log(Level.WARNING, "ExceptionEvent: " + event, ex);
-    this.exceptionCleanup(event);
+  public void exceptionCaught(final ChannelHandlerContext ctx, Throwable cause) {
+    final Channel channel = ctx.channel();
+    LOG.log(Level.WARNING, "ExceptionEvent: local: {0} remote: {1} :: {2}", new Object[] {
+        channel.localAddress(), channel.remoteAddress(), cause});
+    this.exceptionCleanup(ctx, cause);
     if (this.exceptionHandler != null) {
-      this.exceptionHandler.onNext(ex instanceof Exception ? (Exception) ex : new Exception(ex));
+      this.exceptionHandler.onNext(cause instanceof Exception ? (Exception) cause : new Exception(cause));
     }
   }
+  
 
   @Override
-  public void channelClosed(final ChannelStateEvent event) {
-    this.closeChannel(event.getChannel());
+  public void channelInactive(final ChannelHandlerContext ctx) {
+    this.closeChannel(ctx.channel());
   }
 
   protected abstract TransportEvent getTransportEvent(final byte[] message, final Channel channel);
 
-  protected abstract void exceptionCleanup(final ExceptionEvent event);
-
+  protected abstract void exceptionCleanup(final ChannelHandlerContext ctx, Throwable cause);
+  
   protected void closeChannel(final Channel channel) {
     final LinkReference refRemoved = channel != null ?
-        this.addrToLinkRefMap.remove(channel.getRemoteAddress()) : null;
+        this.addrToLinkRefMap.remove(channel.remoteAddress()) : null;
     LOG.log(Level.FINER, "Channel closed: {0}. Link ref found and removed: {1}",
         new Object[]{channel, refRemoved != null});
   }

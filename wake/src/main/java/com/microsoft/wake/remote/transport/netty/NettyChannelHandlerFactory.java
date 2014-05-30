@@ -15,8 +15,9 @@
  */
 package com.microsoft.wake.remote.transport.netty;
 
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
+
 
 /**
  * Factory that creates a Netty channel handler
@@ -24,12 +25,8 @@ import org.jboss.netty.channel.group.ChannelGroup;
 interface NettyChannelHandlerFactory {
   
   /**
-   * Creates an channel upstream handler
-   * @param tag the name of the handler
-   * @param group the channel group
-   * @param listener the Netty event listener
-   * @return a simple channel upstream handler
+   * Creates a channel inbound handler
+   * @return a channel inbound handler adapter
    */
-  SimpleChannelUpstreamHandler createUpstreamHandler(
-      String tag, ChannelGroup group, NettyEventListener listener);
+  ChannelInboundHandlerAdapter createChannelInboundHandler();
 }

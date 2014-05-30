@@ -15,9 +15,7 @@
  */
 package com.microsoft.wake.remote.transport.netty;
 
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * Netty event listener
@@ -25,26 +23,29 @@ import org.jboss.netty.channel.MessageEvent;
 interface NettyEventListener {
   
   /**
-   * Handles the message event
-   * @param e the message event
+   * Handles the message
+   * @param ctx the channel handler context
+   * @param msg the message
    */
-  public void messageReceived(MessageEvent e);
+  public void channelRead(ChannelHandlerContext ctx, Object msg);
   
   /**
    * Handles the exception event
-   * @param e the exception event
+   * @param ctx the channel handler context
+   * @param cause the cause
    */
-  public void exceptionCaught(ExceptionEvent e);
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause);
   
   /**
-   * Handles the channel connected event
-   * @param e the channel state event
+   * Handles the channel active event
+   * @param ctx the channel handler context
    */
-  public void channelConnected(ChannelStateEvent e);
+  public void channelActive(ChannelHandlerContext ctx);
   
   /**
-   * Handles the channel closed event
-   * @param e the channel state event
+   * Handles the channel inactive event
+   * @param ctx the channel handler context
    */ 
-  public void channelClosed(ChannelStateEvent e);
+  public void channelInactive(ChannelHandlerContext ctx);
+
 }

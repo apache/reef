@@ -20,10 +20,8 @@ import java.net.SocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFutureListener;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 
 import com.microsoft.wake.remote.Encoder;
 import com.microsoft.wake.remote.transport.Link;
@@ -78,9 +76,10 @@ public class NettyLink<T> implements Link<T> {
    */
   @Override
   public void write(final T message) throws IOException {
-    LOG.log(Level.FINEST, "write {0}", message);
+    LOG.log(Level.FINEST, "write {0} {1}", new Object[]{channel, message.toString()});
     byte[] allData = encoder.encode(message);
-    channel.write(allData);
+    // byte[] -> ByteBuf
+    channel.writeAndFlush(Unpooled.wrappedBuffer(allData));
   }
 
   /**
@@ -113,7 +112,7 @@ public class NettyLink<T> implements Link<T> {
    */
   @Override
   public SocketAddress getLocalAddress() {
-    return channel.getLocalAddress();
+    return channel.localAddress();
   }
 
   /**
@@ -123,7 +122,7 @@ public class NettyLink<T> implements Link<T> {
    */
   @Override
   public SocketAddress getRemoteAddress() {
-    return channel.getRemoteAddress();
+    return channel.remoteAddress();
   }
 
 

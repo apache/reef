@@ -18,16 +18,10 @@ package com.microsoft.wake.remote.transport.netty;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBufferInputStream;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.DownstreamMessageEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.UpstreamMessageEvent;
-import org.jboss.netty.handler.stream.ChunkedStream;
-import org.jboss.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * Thin wrapper around ChunkedWriteHandler
@@ -48,6 +42,7 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler;
  * the second begins.
  *
  */
+
 public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
 
   public static final int INT_SIZE = Integer.SIZE / Byte.SIZE;
@@ -57,13 +52,14 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   private boolean start = true;
   private int expectedSize = 0;
 
-  private ChannelBuffer readBuffer;
+  private ByteBuf readBuffer;
 
   private byte[] retArr;
   
   /**
    * @see org.jboss.netty.handler.stream.ChunkedWriteHandler#handleUpstream(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
    */
+  /*
   @Override
   public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent chEvent) throws Exception {
     if (chEvent instanceof MessageEvent) {
@@ -81,7 +77,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
         expectedSize = getSize(data);
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "Expected Size = {0}. Wrapping byte[{1}] into a ChannelBuffer", new Object[]{expectedSize,expectedSize});
         retArr = new byte[expectedSize];
-        readBuffer = ChannelBuffers.wrappedBuffer(retArr);
+        readBuffer = Unpooled.wrappedBuffer(retArr);
         readBuffer.clear();
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: cur sz = " + readBuffer.writerIndex() + " + " + (data.length - INT_SIZE) + " bytes will added by current chunk");
         readBuffer.writeBytes(data, INT_SIZE, data.length - INT_SIZE);
@@ -110,7 +106,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       super.handleUpstream(ctx, chEvent);
     }
   }
-
+  */
   /**
    * Thread-safe since there is no shared instance state.
    * Just prepend size to the message and stream it through
@@ -121,6 +117,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * serializes access to the channel and first write will complete before
    * the second begins.
    */
+  /*
   @Override
   public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent event) throws Exception {
 
@@ -134,8 +131,8 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
         final byte[] data = (byte[]) msg;
         final byte[] size = sizeAsByteArr(data.length);
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} Setting size={1}", new Object[] {curThrName, data.length});
-        final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(size, data);
-        final ChannelBufferInputStream stream = new ChannelBufferInputStream(buffer);
+        final ByteBuf buffer = Unpooled.wrappedBuffer(size, data);
+        final ByteBufInputStream stream = new ByteBufInputStream(buffer);
 
         final ChunkedStream chunkedStream = new ChunkedStream(
             stream, NettyChannelPipelineFactory.MAXFRAMELENGTH - 1024);
@@ -154,48 +151,53 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       super.handleDownstream(ctx, event);
     }
   }
-
+  */
+  
   /**
    * Converts the int size into a byte[]
    * @param size
    * @return the bit representation of size
    */
+  /*
   private byte[] sizeAsByteArr(final int size) {
     final byte[] ret = new byte[INT_SIZE];
-    final ChannelBuffer intBuffer =
-        ChannelBuffers.wrappedBuffer(ChannelBuffers.LITTLE_ENDIAN, ret);
+    final ByteBuf intBuffer = Unpooled.wrappedBuffer(ret).order(Unpooled.LITTLE_ENDIAN);
     intBuffer.clear();
     intBuffer.writeInt(size);
     return ret;
   }
-
+  */
+  
   /**
    * Get expected size encoded as the first
    * 4 bytes of data
    * 
    * @param data
-   * @return
+   * @return size
    */
+  /*
   private int getSize(final byte[] data) {
     return getSize(data, 0);
   }
-
+  */
+  
   /**
    * Get expected size encoded as offset + 4 bytes 
    * of data
    * 
    * @param data
    * @param offset
-   * @return
+   * @return size
    */
+  /*
   private int getSize(final byte[] data, final int offset) {
     if (data.length - offset < INT_SIZE) {
       return 0;
     } else {
-      final ChannelBuffer intBuffer =
-          ChannelBuffers.wrappedBuffer(ChannelBuffers.LITTLE_ENDIAN, data, offset, INT_SIZE);
+      final ByteBuf intBuffer = Unpooled.wrappedBuffer(data, offset, INT_SIZE).order(Unpooled.LITTLE_ENDIAN);
       final int ret = intBuffer.readInt();
       return ret;
     }
   }
+  */
 }
