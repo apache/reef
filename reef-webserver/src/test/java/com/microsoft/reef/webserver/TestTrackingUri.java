@@ -38,7 +38,7 @@ public class TestTrackingUri {
    */
   @Test
   public void testDefaultTrackingUri() throws InjectionException, UnknownHostException {
-    String uri = Tang.Factory.getTang().newInjector().getInstance(TrackingURLProvider.class).getTrackingUrl();
+    final String uri = Tang.Factory.getTang().newInjector().getInstance(TrackingURLProvider.class).getTrackingUrl();
     Assert.assertEquals(uri, "");
   }
 
@@ -51,13 +51,13 @@ public class TestTrackingUri {
    */
   @Test
   public void testHttpTrackingUri() throws InjectionException, UnknownHostException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindNamedParameter(PortNumber.class, "8888");
     cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
     cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
-    Injector injector = Tang.Factory.getTang().newInjector(cb.build());
-    String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
-    int port = injector.getInstance(HttpServer.class).getPort();
+    final Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+    final String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+    final int port = injector.getInstance(HttpServer.class).getPort();
     verifyUri(uri, port);
   }
 
@@ -70,12 +70,12 @@ public class TestTrackingUri {
    */
   @Test
   public void testHttpTrackingUriDefaultPort() throws InjectionException, UnknownHostException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
     cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
-    Injector injector = Tang.Factory.getTang().newInjector(cb.build());
-    String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
-    int port = injector.getInstance(HttpServer.class).getPort();
+    final Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+    final String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+    final int port = injector.getInstance(HttpServer.class).getPort();
     verifyUri(uri, port);
   }
 
@@ -88,14 +88,14 @@ public class TestTrackingUri {
    */
   @Test
   public void testHttpTrackingUriDefaultBinding() throws InjectionException, UnknownHostException, BindException {
-    Injector injector = Tang.Factory.getTang().newInjector(HttpHandlerConfiguration.CONF.build());
-    String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
-    int port = injector.getInstance(HttpServer.class).getPort();
+    final Injector injector = Tang.Factory.getTang().newInjector(HttpHandlerConfiguration.CONF.build());
+    final String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
+    final int port = injector.getInstance(HttpServer.class).getPort();
     verifyUri(uri, port);
   }
 
   private void verifyUri(final String uri, final int port) {
-    String[] parts = uri.split(":");
+    final String[] parts = uri.split(":");
     Assert.assertTrue(parts.length == 2);
     Assert.assertEquals(port, Integer.parseInt(parts[1]));
   }

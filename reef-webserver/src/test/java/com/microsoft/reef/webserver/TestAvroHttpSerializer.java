@@ -134,7 +134,6 @@ public final class TestAvroHttpSerializer {
 
   @Test
   public void testEmptyBytes() {
-    //final String s = "test binary stream data";
     final byte[] b = new byte[0];
     avroRequest = AvroHttpRequest.newBuilder()
         .setRequestUrl("http://localhost:8080/reef/evaluators?id=12&id=34&a=b")

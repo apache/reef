@@ -32,23 +32,6 @@ import java.util.Set;
  * TestRuntimeStartHandler
  */
 public class TestRuntimeStartHandler {
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
-
-  @Before
-  public void setUp() throws Exception {
-  }
-
-  @After
-  public void tearDown() throws Exception {
-  }
-
   /**
    * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers, when inject RuntimeClock
    * all the nested objects including HeetServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler
@@ -58,11 +41,11 @@ public class TestRuntimeStartHandler {
    */
   @Test
   public void testHttpHandlerBindingWithRuntimeClock() throws BindException, InjectionException {
-    Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
+   final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
-    RuntimeClock c = Tang.Factory.getTang().newInjector(clockConfiguraiton).getInstance(RuntimeClock.class);
-    Assert.assertNotNull(c);
+    final RuntimeClock clock = Tang.Factory.getTang().newInjector(clockConfiguraiton).getInstance(RuntimeClock.class);
+    Assert.assertNotNull(clock);
   }
 
   /**
@@ -73,25 +56,25 @@ public class TestRuntimeStartHandler {
    */
   @Test
   public void testRunTimeStartStopHandler() throws BindException, InjectionException {
-    Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
+    final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
-    Injector injector = Tang.Factory.getTang().newInjector(clockConfiguraiton);
-    Set<EventHandler<RuntimeStart>> rStart = injector.getNamedInstance(RuntimeClock.RuntimeStartHandler.class);
-    for (EventHandler<RuntimeStart> i : rStart) {
-      HttpRuntimeStartHandler h = (HttpRuntimeStartHandler) i;
+    final Injector injector = Tang.Factory.getTang().newInjector(clockConfiguraiton);
+    final Set<EventHandler<RuntimeStart>> startEventHandlers = injector.getNamedInstance(RuntimeClock.RuntimeStartHandler.class);
+    for (final EventHandler<RuntimeStart> enventHandler : startEventHandlers) {
+      final HttpRuntimeStartHandler runtimeStartHandler = (HttpRuntimeStartHandler)enventHandler;
       try {
-        h.onNext(null);
-      } catch (Exception e) {
+        runtimeStartHandler.onNext(null);
+      } catch (final Exception e) {
       }
     }
 
-    Set<EventHandler<RuntimeStop>> rStop = injector.getNamedInstance(RuntimeClock.RuntimeStopHandler.class);
-    for (EventHandler<RuntimeStop> i : rStop) {
-      HttpRuntimeStopHandler h = (HttpRuntimeStopHandler) i;
+    final Set<EventHandler<RuntimeStop>> stopEventHandlers = injector.getNamedInstance(RuntimeClock.RuntimeStopHandler.class);
+    for (final EventHandler<RuntimeStop> enventHandler : stopEventHandlers) {
+      final HttpRuntimeStopHandler runtimeStopHandler = (HttpRuntimeStopHandler)enventHandler;
       try {
-        h.onNext(null);
-      } catch (Exception e) {
+        runtimeStopHandler.onNext(null);
+      } catch (final Exception e) {
       }
     }
   }
