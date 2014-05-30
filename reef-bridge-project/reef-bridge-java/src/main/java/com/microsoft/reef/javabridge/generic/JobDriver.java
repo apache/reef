@@ -404,9 +404,15 @@ public final class JobDriver {
         synchronized (JobDriver.this) {
           // Signal to the clr buffered log handler that the driver has started and that
           // we can begin logging
-          LOG.log(Level.INFO, "Starting clr logging handler...");
+          LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
           CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
-          handler.setDriverInitialized();
+          if (handler == null) {
+              LOG.log(Level.Warning, "CLRBufferedLogHandler could not be initialized");
+          }
+          else {
+              handler.setDriverInitialized();
+              LOG.log(Level.INFO, "CLRBufferedLogHandler init complete.");
+          }
 
           InteropLogger interopLogger = new InteropLogger();
           LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
