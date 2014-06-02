@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.tests;
 
+import com.microsoft.reef.tests.close_eval.CloseEvaluatorTest;
 import com.microsoft.reef.tests.driver.DriverTest;
 import com.microsoft.reef.tests.evaluatorreuse.EvaluatorReuseTest;
 import com.microsoft.reef.tests.evaluatorsize.EvaluatorSizeTest;
@@ -39,7 +40,8 @@ import org.junit.runners.Suite;
     TaskMessagingTest.class,
     StatePassingTest.class,
     SubContextTest.class,
-    TaskResubmitTest.class
+    TaskResubmitTest.class,
+    CloseEvaluatorTest.class
 })
 public final class AllTestsSuite {
 }
