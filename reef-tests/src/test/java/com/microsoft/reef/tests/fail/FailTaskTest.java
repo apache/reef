@@ -57,11 +57,10 @@ public final class FailTaskTest {
     failOn(FailTask.class);
   }
 
-  // TODO: https://github.com/Microsoft-CISL/REEF/issues/750
-//  @Test
-//  public void testFailTaskCall() throws BindException, InjectionException {
-//    failOn(FailTaskCall.class);
-//  }
+  @Test
+  public void testFailTaskCall() throws BindException, InjectionException {
+    failOn(FailTaskCall.class);
+  }
 
   @Test
   public void testFailTaskMsg() throws BindException, InjectionException {
@@ -73,14 +72,13 @@ public final class FailTaskTest {
     failOn(FailTaskSuspend.class);
   }
 
-  // TODO: https://github.com/Microsoft-CISL/REEF/issues/750
-//  @Test
-//  public void testFailTaskStart() throws BindException, InjectionException {
-//    failOn(FailTaskStart.class);
-//  }
-
   @Test
-  public void testFailTaskStop() throws BindException, InjectionException {
-    failOn(FailTaskStop.class);
+  public void testFailTaskStart() throws BindException, InjectionException {
+    failOn(FailTaskStart.class);
   }
+
+//  @Test
+//  public void testFailTaskStop() throws BindException, InjectionException {
+//    failOn(FailTaskStop.class);
+//  }
 }

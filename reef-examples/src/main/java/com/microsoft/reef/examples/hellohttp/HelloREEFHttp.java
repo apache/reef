@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.microsoft.reef.examples.hellohttp;
 
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
+import com.microsoft.reef.client.DriverServiceConfiguration;
 import com.microsoft.reef.client.LauncherStatus;
-import com.microsoft.reef.runtime.common.driver.defaults.DefaultContextActiveHandler;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.webserver.*;
@@ -27,8 +28,6 @@ import com.microsoft.tang.Configurations;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 
-import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,14 +41,22 @@ public final class HelloREEFHttp {
      */
     public static final int JOB_TIMEOUT = 300000; // 300 sec.
 
-
     /**
      * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
      */
     public static Configuration getHTTPConfiguration() {
-        return HttpHandlerConfiguration.CONF
+        Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+                .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdtHandler.class)
                 .build();
+        Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
+                .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+                .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+                .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+                .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+                .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+                .build();
+        return Configurations.merge(httpHandlerConfiguration, driverConfigurationForHttpServer);
     }
 
     /**
@@ -58,15 +65,15 @@ public final class HelloREEFHttp {
     public static Configuration getDriverConfiguration() {
         return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
                 .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
-                .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, DefaultContextActiveHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-                .set(DriverConfiguration.ON_CLIENT_MESSAGE, ReefEventStateManager.ClientMessageStateHandler.class)
-                .set(DriverConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-                .set(DriverConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
-                .set(DriverConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+                .set(DriverConfiguration.ON_DRIVER_STARTED, HttpShellJobDriver.StartHandler.class)
+                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HttpShellJobDriver.AllocatedEvaluatorHandler.class)
+                .set(DriverConfiguration.ON_EVALUATOR_FAILED, HttpShellJobDriver.FailedEvaluatorHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, HttpShellJobDriver.ActiveContextHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_CLOSED, HttpShellJobDriver.ClosedContextHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_FAILED, HttpShellJobDriver.FailedContextHandler.class)
+                .set(DriverConfiguration.ON_TASK_COMPLETED, HttpShellJobDriver.CompletedTaskHandler.class)
+                .set(DriverConfiguration.ON_CLIENT_MESSAGE, HttpShellJobDriver.ClientMessageHandler.class)
+                .set(DriverConfiguration.ON_DRIVER_STOP, HttpShellJobDriver.StopHandler.class)
                 .build();
     }
 

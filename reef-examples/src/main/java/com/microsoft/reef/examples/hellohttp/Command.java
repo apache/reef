@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.microsoft.reef.examples.hellohttp;
 
-import com.microsoft.reef.task.Task;
-
-import javax.inject.Inject;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * A 'hello REEF' Task.
+ * Command line parameter: a command to run. e.g. "echo Hello REEF"
  */
-public final class HelloTask implements Task {
-
-    @Inject
-    HelloTask() {
-    }
-
-    @Override
-    public final byte[] call(final byte[] memento) {
-        System.out.println("Hello, REEF Http Server!");
-        try {
-            Thread.sleep(5*60*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        return null;
-    }
+@NamedParameter(doc = "The shell command", short_name = "cmd", default_value = "*INTERACTIVE*")
+final class Command implements Name<String> {
 }

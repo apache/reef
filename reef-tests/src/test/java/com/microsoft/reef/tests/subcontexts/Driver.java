@@ -35,8 +35,10 @@ import java.util.logging.Logger;
 final class Driver {
 
   private static final Logger LOG = Logger.getLogger(Driver.class.getName());
+
   private static String CONTEXT_1_IDENTIFIER = "CONTEXT_1";
   private static String CONTEXT_2_IDENTIFIER = "CONTEXT_2";
+
   private final EvaluatorRequestor requestor;
   private State state = State.INIT; // lock: this
 
@@ -53,12 +55,11 @@ final class Driver {
   }
 
   final class StartHandler implements EventHandler<StartTime> {
-
     @Override
-    public void onNext(StartTime startTime) {
-      LOG.info("StartTime: " + startTime.toString());
-      Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(128).build());
+    public void onNext(final StartTime startTime) {
+      LOG.log(Level.FINE, "StartTime: {0}", startTime);
+      Driver.this.requestor.submit(
+          EvaluatorRequest.newBuilder().setNumber(1).setMemory(128).build());
     }
   }
 
@@ -66,17 +67,23 @@ final class Driver {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      LOG.log(Level.INFO, "Submitting root context");
+
+      LOG.log(Level.FINE, "Submitting root context");
+
       try {
+
         final Configuration contextConfiguration = ContextConfiguration.CONF
             .set(ContextConfiguration.ON_CONTEXT_STARTED, ContextStartHandler1.class)
             .set(ContextConfiguration.ON_CONTEXT_STOP, ContextStopHandler1.class)
             .set(ContextConfiguration.IDENTIFIER, CONTEXT_1_IDENTIFIER)
             .build();
+
         allocatedEvaluator.submitContext(contextConfiguration);
+
         synchronized (Driver.this) {
           Driver.this.state = State.CONTEXT_1_SUBMITTED;
         }
+
       } catch (final BindException e) {
         throw new RuntimeException(e);
       }
@@ -87,26 +94,35 @@ final class Driver {
 
     @Override
     public void onNext(final ActiveContext activeContext) {
-      LOG.log(Level.INFO, "Received ActiveContext: " + activeContext);
+
+      LOG.log(Level.FINE, "Received ActiveContext: {0}", activeContext);
 
       if (activeContext.getId().equals(CONTEXT_1_IDENTIFIER)) {
+
         synchronized (Driver.this) {
           assert (Driver.this.state == State.CONTEXT_1_SUBMITTED);
         }
-        LOG.log(Level.INFO, "Submitting sub context");
+
+        LOG.log(Level.FINE, "Submitting sub context");
+
         try {
+
           final Configuration contextConfiguration = ContextConfiguration.CONF
               .set(ContextConfiguration.ON_CONTEXT_STARTED, ContextStartHandler2.class)
               .set(ContextConfiguration.ON_CONTEXT_STOP, ContextStopHandler2.class)
               .set(ContextConfiguration.IDENTIFIER, CONTEXT_2_IDENTIFIER)
               .build();
+
           activeContext.submitContext(contextConfiguration);
+
           synchronized (Driver.this) {
             Driver.this.state = State.CONTEXT_2_SUBMITTED;
           }
+
         } catch (final BindException e) {
           throw new RuntimeException(e);
         }
+
       } else if (activeContext.getId().equals(CONTEXT_2_IDENTIFIER)) {
         LOG.log(Level.INFO, "Received sub context. Closing");
         activeContext.close();
@@ -115,19 +131,27 @@ final class Driver {
   }
 
   final class ContextClosedHandler implements EventHandler<ClosedContext> {
+
     @Override
     public void onNext(final ClosedContext closedContext) {
-      LOG.log(Level.INFO, "Received ClosedContext: " + closedContext);
+
+      LOG.log(Level.FINE, "Received ClosedContext: {0}", closedContext);
+
       if (closedContext.getId().equals(CONTEXT_2_IDENTIFIER)) {
+
         synchronized (Driver.this) {
           assert (Driver.this.state == State.CONTEXT_2_SUBMITTED);
         }
+
         closedContext.getParentContext().close();
         Driver.this.state = State.CONTEXT_2_CLOSED;
+
       } else if (closedContext.getId().equals(CONTEXT_1_IDENTIFIER)) {
+
         synchronized (Driver.this) {
           assert (Driver.this.state == State.CONTEXT_2_CLOSED);
         }
+
         throw new IllegalStateException("Received a closed context for the root context");
       }
     }

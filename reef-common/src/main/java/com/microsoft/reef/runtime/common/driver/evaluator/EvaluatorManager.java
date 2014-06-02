@@ -491,6 +491,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final byte[] message = taskStatusProto.hasResult() ? taskStatusProto.getResult().toByteArray() : null;
       this.messageDispatcher.onTaskCompleted(new CompletedTaskImpl(evaluatorContext, message, taskId));
     } else if (ReefServiceProtos.State.FAILED == taskState) {
+      LOG.log(Level.FINEST, "Processing task failure message for Task `{0}`", taskId);
       this.onTaskFailure(taskStatusProto);
     } else if (taskStatusProto.getTaskMessageCount() > 0) {
       assert (this.runningTask != null);
@@ -522,6 +523,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     final String message = exception.isPresent() ? exception.get().getMessage() : "No message given";
     final Optional<String> description = Optional.empty();
     final FailedTask failedTask = new FailedTask(taskId, message, description, exception, bytes, evaluatorContext);
+    LOG.log(Level.FINEST, "Dispatching FailedTask `{0}`", failedTask);
     this.messageDispatcher.onTaskFailed(failedTask);
   }
 

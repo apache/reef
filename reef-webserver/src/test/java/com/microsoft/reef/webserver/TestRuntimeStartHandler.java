@@ -58,7 +58,7 @@ public class TestRuntimeStartHandler {
      * @throws InjectionException
      */
     @Test
-    public void testHttpHandlerBindingWIthRuntimeClock() throws BindException, InjectionException {
+    public void testHttpHandlerBindingWithRuntimeClock() throws BindException, InjectionException {
         Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
                 .build();

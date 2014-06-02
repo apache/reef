@@ -39,6 +39,13 @@ public interface HttpHandler {
     public void setUriSpecification(final String s);
 
     /**
+     * return specification of the handler. e.g Reef
+     *
+     * @return
+     */
+    public void setUriSpecification(final String s);
+
+    /**
      * Will be called when request comes
      *
      * @param request
