@@ -27,7 +27,7 @@ import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.webserver.HttpHandler;
-import com.microsoft.reef.webserver.RequestParser;
+import com.microsoft.reef.webserver.ParsedHttpRequest;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.NetUtils;
@@ -327,7 +327,7 @@ public final class JobDriver {
         @Override
         public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest is called: {0}", request.getRequestURI());
-            final RequestParser requestParser = new RequestParser(request);
+            final ParsedHttpRequest requestParser = new ParsedHttpRequest(request);
             StringBuffer sb = new StringBuffer();
             sb.append(requestParser.getTargetSpecification()).append(":").append(requestParser.getQueryString());
             final String requestStr = sb.toString(); //requestParser.getQueryString();

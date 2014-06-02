@@ -23,11 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-<<<<<<< HEAD
 import java.nio.charset.Charset;
 import java.util.HashMap;
-=======
->>>>>>> master
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
