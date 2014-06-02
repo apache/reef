@@ -43,8 +43,12 @@ final class Driver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime time) {
-      LOG.log(Level.FINE, "StartTime: {0} :: request {1} evaluators", new Object[] { time, NUM_EVALUATORS });
-      requestor.submit(EvaluatorRequest.newBuilder().setNumber(NUM_EVALUATORS).setMemory(256).build());
+
+      LOG.log(Level.FINE, "StartTime: {0} :: request {1} evaluators",
+          new Object[] { time, NUM_EVALUATORS });
+
+      requestor.submit(EvaluatorRequest.newBuilder()
+          .setNumber(NUM_EVALUATORS).setMemory(256).build());
     }
   }
 
