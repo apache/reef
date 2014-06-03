@@ -19,6 +19,7 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.util.Optional;
+import com.microsoft.reef.util.SingletonAsserter;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -47,12 +48,11 @@ public final class Evaluators implements AutoCloseable {
    */
   private final ResourceCatalog resourceCatalog;
 
-
   @Inject
   Evaluators(final ResourceCatalog resourceCatalog) {
+    LOG.log(Level.INFO, "Instantiated 'Evaluators'");
+    assert(SingletonAsserter.assertSingleton(Evaluators.class));
     this.resourceCatalog = resourceCatalog;
-    LOG.log(Level.FINEST, "Instantiated 'Evaluators'");
-
   }
 
   /**
