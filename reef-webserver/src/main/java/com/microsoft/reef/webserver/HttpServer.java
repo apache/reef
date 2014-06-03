@@ -23,23 +23,24 @@ import com.microsoft.tang.annotations.DefaultImplementation;
 @DefaultImplementation(HttpServerImpl.class)
 public interface HttpServer {
 
-    /**
-     * start the server
-     *
-     * @throws Exception
-     */
-    public void start() throws Exception;
+  /**
+   * start the server
+   *
+   * @throws Exception
+   */
+  public void start() throws Exception;
 
-    /**
-     * stop the server
-     *
-     * @throws Exception
-     */
-    public void stop() throws Exception;
+  /**
+   * stop the server
+   *
+   * @throws Exception
+   */
+  public void stop() throws Exception;
 
-    /**
-     * get port number of the server
-     * @return
-     */
-    public int getPort();
+  /**
+   * get port number of the server
+   *
+   * @return
+   */
+  public int getPort();
 }

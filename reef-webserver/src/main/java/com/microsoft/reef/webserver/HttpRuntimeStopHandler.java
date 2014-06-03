@@ -26,39 +26,39 @@ import java.util.logging.Logger;
  * Http Runtime Stop Handler
  */
 final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
-    /**
-     * Standard Java logger.
-     */
-    private static final Logger LOG = Logger.getLogger(HttpRuntimeStopHandler.class.getName());
+  /**
+   * Standard Java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(HttpRuntimeStopHandler.class.getName());
 
-    /**
-     * HttpServer
-     */
-    private final HttpServer httpServer;
+  /**
+   * HttpServer
+   */
+  private final HttpServer httpServer;
 
-    /**
-     * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
-     *
-     * @param httpServer
-     */
-    @Inject
-    HttpRuntimeStopHandler(HttpServer httpServer) {
-        this.httpServer = httpServer;
+  /**
+   * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
+   *
+   * @param httpServer
+   */
+  @Inject
+  HttpRuntimeStopHandler(HttpServer httpServer) {
+    this.httpServer = httpServer;
+  }
+
+  /**
+   * Override EventHandler<RuntimeStop>
+   *
+   * @param runtimeStop
+   */
+  @Override
+  public synchronized void onNext(final RuntimeStop runtimeStop) {
+    LOG.log(Level.FINEST, "HttpRuntimeStopHandler: {0}", runtimeStop);
+    try {
+      httpServer.stop();
+      LOG.log(Level.FINEST, "HttpRuntimeStopHandler complete.");
+    } catch (final Exception e) {
+      LOG.log(Level.SEVERE, "HttpRuntimeStopHandler cannot stop the Server. {0}", e);
     }
-
-    /**
-     * Override EventHandler<RuntimeStop>
-     *
-     * @param runtimeStop
-     */
-    @Override
-    public synchronized void onNext(final RuntimeStop runtimeStop) {
-        LOG.log(Level.FINEST, "HttpRuntimeStopHandler: {0}", runtimeStop);
-        try {
-            httpServer.stop();
-            LOG.log(Level.FINEST, "HttpRuntimeStopHandler complete.");
-        } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "HttpRuntimeStopHandler cannot stop the Server. {0}", e);
-        }
-    }
+  }
 }

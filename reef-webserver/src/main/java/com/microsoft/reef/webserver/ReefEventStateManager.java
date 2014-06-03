@@ -39,195 +39,195 @@ import java.util.logging.Logger;
  */
 @Unit
 public final class ReefEventStateManager {
-    /**
-     * Standard Java logger.
-     */
-    private static final Logger LOG = Logger.getLogger(ReefEventStateManager.class.getName());
+  /**
+   * Standard Java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(ReefEventStateManager.class.getName());
 
-    /**
-     * date format
-     */
-    private static final Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
+  /**
+   * date format
+   */
+  private static final Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
 
-    /**
-     * Map of evaluators
-     */
-    private final Map<String, EvaluatorDescriptor> evaluators = new HashMap<>();
+  /**
+   * Map of evaluators
+   */
+  private final Map<String, EvaluatorDescriptor> evaluators = new HashMap<>();
 
-    /**
-     * Map from context ID to running evaluator context.
-     */
-    private final Map<String, ActiveContext> contexts = new HashMap<>();
+  /**
+   * Map from context ID to running evaluator context.
+   */
+  private final Map<String, ActiveContext> contexts = new HashMap<>();
 
-    /**
-     * Evaluator start time
-     */
-    private StartTime startTime;
+  /**
+   * Evaluator start time
+   */
+  private StartTime startTime;
 
-    /**
-     * Evaluator stop time
-     */
-    private StopTime stopTime;
+  /**
+   * Evaluator stop time
+   */
+  private StopTime stopTime;
 
-    /**
-     * ReefEventStateManager that keeps the states of Reef components
-     */
-    @Inject
-    public ReefEventStateManager() {
+  /**
+   * ReefEventStateManager that keeps the states of Reef components
+   */
+  @Inject
+  public ReefEventStateManager() {
+  }
+
+  /**
+   * get start time
+   *
+   * @return
+   */
+  public String getStartTime() {
+    if (startTime != null) {
+      return convertTime(startTime.getTimeStamp());
     }
+    return null;
+  }
 
-    /**
-     * get start time
-     *
-     * @return
-     */
-    public String getStartTime() {
-      if (startTime != null) {
-        return convertTime(startTime.getTimeStamp());
+  /**
+   * get stop time
+   *
+   * @return
+   */
+  public String getStopTime() {
+    if (stopTime != null) {
+      return convertTime(stopTime.getTimeStamp());
+    }
+    return null;
+  }
+
+  /**
+   * convert time from long to formatted string
+   *
+   * @param time
+   * @return
+   */
+  private String convertTime(long time) {
+    Date date = new Date(time);
+    return format.format(date).toString();
+  }
+
+  /**
+   * get evaluator map
+   *
+   * @return
+   */
+  public Map<String, EvaluatorDescriptor> getEvaluators() {
+    return evaluators;
+  }
+
+  /**
+   * pus a entry to evaluators
+   *
+   * @param key
+   * @param value
+   */
+  public void put(String key, EvaluatorDescriptor value) {
+    evaluators.put(key, value);
+  }
+
+  /**
+   * get a value from evaluators by key
+   *
+   * @param key
+   * @return
+   */
+  public EvaluatorDescriptor get(String key) {
+    return evaluators.get(key);
+  }
+
+  /**
+   * getEvaluatorDescriptor
+   *
+   * @param evaluatorId
+   * @return
+   */
+  public EvaluatorDescriptor getEvaluatorDescriptor(String evaluatorId) {
+    return evaluators.get(evaluatorId);
+  }
+
+  /**
+   * get Evaluator NodeDescriptor
+   *
+   * @param evaluatorId
+   * @return
+   */
+  public NodeDescriptor getEvaluatorNodeDescriptor(String evaluatorId) {
+    return evaluators.get(evaluatorId).getNodeDescriptor();
+  }
+
+  /**
+   * Job Driver is ready and the clock is set up: request the evaluators.
+   */
+  public final class StartStateHandler implements EventHandler<StartTime> {
+    @Override
+    public void onNext(final StartTime startTime) {
+      LOG.log(Level.INFO, "StartStateHandler called. StartTime: {0}", startTime);
+      ReefEventStateManager.this.startTime = startTime;
+    }
+  }
+
+  /**
+   * Shutting down the job driver: close the evaluators.
+   */
+  public final class StopStateHandler implements EventHandler<StopTime> {
+    @Override
+    public void onNext(final StopTime stopTime) {
+      LOG.log(Level.INFO, "StopStateHandler called. StopTime: {0}", stopTime);
+      ReefEventStateManager.this.stopTime = stopTime;
+    }
+  }
+
+  /**
+   * Receive notification that an Evaluator had been allocated,
+   */
+  public final class AllocatedEvaluatorStateHandler implements EventHandler<AllocatedEvaluator> {
+    @Override
+    public void onNext(final AllocatedEvaluator eval) {
+      synchronized (ReefEventStateManager.this) {
+        ReefEventStateManager.this.put(eval.getId(), eval.getEvaluatorDescriptor());
       }
-      return null;
     }
+  }
 
-    /**
-     * get stop time
-     *
-     * @return
-     */
-    public String getStopTime() {
-      if (stopTime != null) {
-        return convertTime(stopTime.getTimeStamp());
+  /**
+   * Receive event when task is running
+   */
+  public final class TaskRunningStateHandler implements EventHandler<RunningTask> {
+    @Override
+    public void onNext(final RunningTask runningActivity) {
+      String ip = runningActivity.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor().getInetSocketAddress().toString();
+      String id = runningActivity.getActiveContext().getId();
+      LOG.log(Level.INFO, "RunningActivity on address: " + ip + " for id " + id);
+    }
+  }
+
+  /**
+   * Receive notification that a new Context is available.
+   */
+  public final class ActiveContextStateHandler implements EventHandler<ActiveContext> {
+    @Override
+    public void onNext(final ActiveContext context) {
+      synchronized (ReefEventStateManager.this) {
+        LOG.log(Level.INFO, "ActiveContextStateHandler called: {0}.", context);
+        contexts.put(context.getId(), context);
       }
-      return null;
     }
+  }
 
-    /**
-     * convert time from long to formatted string
-     *
-     * @param time
-     * @return
-     */
-    private String convertTime(long time) {
-        Date date = new Date(time);
-        return format.format(date).toString();
+  /**
+   * Receive notification from the client.
+   */
+  public final class ClientMessageStateHandler implements EventHandler<byte[]> {
+    @Override
+    public void onNext(final byte[] message) {
+      synchronized (ReefEventStateManager.this) {
+        LOG.log(Level.INFO, "ClientMessageStateHandler OnNext called");
+      }
     }
-
-    /**
-     * get evaluator map
-     *
-     * @return
-     */
-    public Map<String, EvaluatorDescriptor> getEvaluators() {
-        return evaluators;
-    }
-
-    /**
-     * pus a entry to evaluators
-     *
-     * @param key
-     * @param value
-     */
-    public void put(String key, EvaluatorDescriptor value) {
-        evaluators.put(key, value);
-    }
-
-    /**
-     * get a value from evaluators by key
-     *
-     * @param key
-     * @return
-     */
-    public EvaluatorDescriptor get(String key) {
-        return evaluators.get(key);
-    }
-
-    /**
-     * getEvaluatorDescriptor
-     *
-     * @param evaluatorId
-     * @return
-     */
-    public EvaluatorDescriptor getEvaluatorDescriptor(String evaluatorId) {
-        return evaluators.get(evaluatorId);
-    }
-
-    /**
-     * get Evaluator NodeDescriptor
-     *
-     * @param evaluatorId
-     * @return
-     */
-    public NodeDescriptor getEvaluatorNodeDescriptor(String evaluatorId) {
-        return evaluators.get(evaluatorId).getNodeDescriptor();
-    }
-
-    /**
-     * Job Driver is ready and the clock is set up: request the evaluators.
-     */
-    public final class StartStateHandler implements EventHandler<StartTime> {
-        @Override
-        public void onNext(final StartTime startTime) {
-            LOG.log(Level.INFO, "StartStateHandler called. StartTime: {0}", startTime);
-            ReefEventStateManager.this.startTime = startTime;
-        }
-    }
-
-    /**
-     * Shutting down the job driver: close the evaluators.
-     */
-    public final class StopStateHandler implements EventHandler<StopTime> {
-        @Override
-        public void onNext(final StopTime stopTime) {
-            LOG.log(Level.INFO, "StopStateHandler called. StopTime: {0}", stopTime);
-            ReefEventStateManager.this.stopTime = stopTime;
-        }
-    }
-
-    /**
-     * Receive notification that an Evaluator had been allocated,
-     */
-    public final class AllocatedEvaluatorStateHandler implements EventHandler<AllocatedEvaluator> {
-        @Override
-        public void onNext(final AllocatedEvaluator eval) {
-            synchronized (ReefEventStateManager.this) {
-                ReefEventStateManager.this.put(eval.getId(), eval.getEvaluatorDescriptor());
-            }
-        }
-    }
-
-    /**
-     * Receive event when task is running
-     */
-    public final class TaskRunningStateHandler implements EventHandler<RunningTask> {
-        @Override
-        public void onNext(final RunningTask runningActivity) {
-            String ip = runningActivity.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor().getInetSocketAddress().toString();
-            String id = runningActivity.getActiveContext().getId();
-            LOG.log(Level.INFO, "RunningActivity on address: " + ip + " for id " + id);
-        }
-    }
-
-    /**
-     * Receive notification that a new Context is available.
-     */
-    public final class ActiveContextStateHandler implements EventHandler<ActiveContext> {
-        @Override
-        public void onNext(final ActiveContext context) {
-            synchronized (ReefEventStateManager.this) {
-                LOG.log(Level.INFO, "ActiveContextStateHandler called: {0}.", context);
-                contexts.put(context.getId(), context);
-            }
-        }
-    }
-
-    /**
-     * Receive notification from the client.
-     */
-    public final class ClientMessageStateHandler implements EventHandler<byte[]> {
-        @Override
-        public void onNext(final byte[] message) {
-            synchronized (ReefEventStateManager.this) {
-                LOG.log(Level.INFO, "ClientMessageStateHandler OnNext called");
-            }
-        }
-    }
+  }
 }
