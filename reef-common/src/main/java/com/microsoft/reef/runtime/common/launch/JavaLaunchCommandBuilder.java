@@ -21,6 +21,7 @@ import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPat
 import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
 import com.microsoft.reef.runtime.common.utils.JavaUtils;
+import com.microsoft.reef.util.EnvironmentUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -37,6 +38,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private String evaluatorConfigurationPath = null;
   private String javaPath = null;
   private String classPath = null;
+  private Boolean assertionsEnabled = null;
 
   @Override
   public List<String> build() {
@@ -52,6 +54,16 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
       add("-XX:MaxPermSize=128m");
       // Set Xmx based on am memory size
       add("-Xmx" + megaBytes + "m");
+
+      if (assertionsEnabled != null) {
+        if (assertionsEnabled.booleanValue()) {
+          add("-ea");
+        }
+      } else {
+        if (EnvironmentUtils.areAssertionsEnabled()) {
+          add("-ea");
+        }
+      }
 
       add("-classpath");
       add(classPath != null ? classPath : JavaUtils.getClasspath());
@@ -135,6 +147,17 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
     this.classPath = StringUtils.join(classPathElements, File.pathSeparatorChar);
+    return this;
+  }
+
+  /**
+   * Enable or disable assertions on the child process. If not set, the setting is taken from the JVM that executes the code.
+   *
+   * @param assertionsEnabled
+   * @return
+   */
+  public JavaLaunchCommandBuilder enableAssertions(final boolean assertionsEnabled) {
+    this.assertionsEnabled = assertionsEnabled;
     return this;
   }
 

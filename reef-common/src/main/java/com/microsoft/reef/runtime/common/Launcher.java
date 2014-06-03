@@ -21,6 +21,7 @@ import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPath;
 import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
+import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -98,6 +99,11 @@ public final class Launcher {
    */
   public static void main(final String[] args) {
     LOG.log(Level.FINEST, "Launcher started");
+    if (EnvironmentUtils.areAssertionsEnabled()) {
+      LOG.log(Level.INFO, "Assertions are enabled in this process.");
+    } else {
+      LOG.log(Level.INFO, "Assertions are NOT enabled in this process.");
+    }
     Injector injector = null;
 
     try {
