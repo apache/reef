@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 
 @Unit
 @EvaluatorSide
-final class EvaluatorRuntime {
+final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorRuntime.class.getName());
 
@@ -53,7 +53,9 @@ final class EvaluatorRuntime {
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
 
   @Inject
-  private EvaluatorRuntime(final Clock clock, final HeartBeatManager.HeartbeatAlarmHandler heartbeatAlarmHandler,
+  private EvaluatorRuntime(final Clock clock,
+                           final HeartBeatManager.HeartbeatAlarmHandler heartbeatAlarmHandler,
+                           final @Parameter(EvaluatorConfigurationModule.HeartbeatPeriod.class) int heartbeatPeriod,
                            final RemoteManager remoteManager,
                            final ContextManager contextManagerFuture,
                            final HeartBeatManager heartBeatManager,
@@ -67,28 +69,23 @@ final class EvaluatorRuntime {
 
     this.evaluatorIdentifier = evaluatorIdentifier;
     this.exceptionCodec = exceptionCodec;
-    this.evaluatorControlChannel = remoteManager.registerHandler(driverRID, EvaluatorControlProto.class, new EventHandler<EvaluatorControlProto>() {
-      @Override
-      public void onNext(final EvaluatorControlProto value) {
-        EvaluatorRuntime.this.handle(value);
-      }
-    });
+    this.evaluatorControlChannel = remoteManager.registerHandler(driverRID, EvaluatorControlProto.class, this);
 
     /* start the heartbeats */
-    clock.scheduleAlarm(0, heartbeatAlarmHandler);
+    clock.scheduleAlarm(heartbeatPeriod, heartbeatAlarmHandler);
   }
 
-  private void handle(final EvaluatorControlProto message) {
+  private void onEvaluatorControlMessage(final EvaluatorControlProto message) {
     synchronized (this.heartBeatManager) {
       LOG.log(Level.FINEST, "Evaluator control message");
 
       if (!message.getIdentifier().equals(this.evaluatorIdentifier.toString())) {
-        this.handle(new RuntimeException(
+        this.onException(new RuntimeException(
             "Identifier mismatch: message for evaluator id[" + message.getIdentifier()
                 + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"
         ));
       } else if (ReefServiceProtos.State.RUNNING != this.state) {
-        this.handle(new RuntimeException(
+        this.onException(new RuntimeException(
             "Evaluator sent a control message but its state is not "
                 + ReefServiceProtos.State.RUNNING + " but rather " + this.state
         ));
@@ -104,7 +101,7 @@ final class EvaluatorRuntime {
               this.clock.close();
             }
           } catch (final Throwable e) {
-            this.handle(e);
+            this.onException(e);
             throw new RuntimeException(e);
           }
         }
@@ -118,7 +115,7 @@ final class EvaluatorRuntime {
     }
   }
 
-  private final void handle(final Throwable exception) {
+  private final void onException(final Throwable exception) {
     synchronized (this.heartBeatManager) {
       this.state = ReefServiceProtos.State.FAILED;
 
@@ -147,6 +144,11 @@ final class EvaluatorRuntime {
     return this.state;
   }
 
+  @Override
+  public void onNext(EvaluatorControlProto evaluatorControlProto) {
+    this.onEvaluatorControlMessage(evaluatorControlProto);
+  }
+
   final class RuntimeStartHandler implements EventHandler<RuntimeStart> {
 
     @Override
@@ -159,7 +161,7 @@ final class EvaluatorRuntime {
           EvaluatorRuntime.this.contextManager.start();
           EvaluatorRuntime.this.heartBeatManager.onNext();
         } catch (final Throwable e) {
-          EvaluatorRuntime.this.handle(e);
+          EvaluatorRuntime.this.onException(e);
         }
       }
     }
