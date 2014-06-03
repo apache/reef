@@ -73,6 +73,7 @@ import java.util.logging.Logger;
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
+
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
   private final Evaluators evaluators;
@@ -124,8 +125,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.stateManager = stateManager;
     this.exceptionCodec = exceptionCodec;
 
-    this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer));
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: " + this.getId());
+    this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(
+        this, remoteManager.getMyIdentifier(), this.configurationSerializer));
+
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: {0}", this.getId());
   }
 
   /**
@@ -278,9 +281,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
-  public synchronized void onEvaluatorHeartbeatMessage(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
-    final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
+  public synchronized void onEvaluatorHeartbeatMessage(
+      final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
+
+    final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto =
+        evaluatorHeartbeatProtoRemoteMessage.getMessage();
+
     LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
+
     this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
 
     // If this is the first message from this Evaluator, register it.
@@ -305,7 +313,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     if (evaluatorHeartbeatProto.hasTaskStatus()) {
       this.onTaskStatusMessage(evaluatorHeartbeatProto.getTaskStatus());
     }
-    LOG.log(Level.INFO, "DONE with evaluator heartbeat from Evaluator " + this.getId());
+    LOG.log(Level.FINE, "DONE with evaluator heartbeat from Evaluator {0}", this.getId());
   }
 
   /**
@@ -314,6 +322,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param message
    */
   private synchronized void onEvaluatorStatusMessage(final ReefServiceProtos.EvaluatorStatusProto message) {
+
     switch (message.getState()) {
       case DONE:
         this.onEvaluatorDone(message);
@@ -322,18 +331,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         this.onEvaluatorFailed(message);
         break;
       case INIT:
-        break;
       case KILLED:
-        break;
       case RUNNING:
-        break;
       case SUSPEND:
         break;
     }
 
     if (message.getState() == ReefServiceProtos.State.FAILED) {
       this.onEvaluatorFailed(message);
-      return;
     }
   }
 
@@ -568,6 +573,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString(), this.runningTask));
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "EvaluatorManager:"
+        + " id=" + this.evaluatorId
+        + " state=" + this.stateManager
+        + " contexts=" + this.activeContextIds
+        + " task=" + this.runningTask;
   }
 
   /**
