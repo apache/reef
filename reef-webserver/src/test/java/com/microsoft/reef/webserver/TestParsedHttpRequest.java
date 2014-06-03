@@ -15,19 +15,18 @@
  */
 package com.microsoft.reef.webserver;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mortbay.io.bio.StringEndPoint;
 import org.mortbay.jetty.*;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public final class TestParsedHttpRequest {
 
@@ -61,7 +60,9 @@ public final class TestParsedHttpRequest {
   @Test
   public void testHeaders() {
     Assert.assertEquals(
-        new HashMap<String, String>() {{ put("Content-Type", "text/json"); }},
+        new HashMap<String, String>() {{
+          put("Content-Type", "text/json");
+        }},
         this.parsedRequest.getHeaders());
   }
 
@@ -77,16 +78,16 @@ public final class TestParsedHttpRequest {
 
   @Test
   public void testPathInfo() {
-      Assert.assertEquals("/whatever/id123#test", this.parsedRequest.getPathInfo());
+    Assert.assertEquals("/whatever/id123#test", this.parsedRequest.getPathInfo());
   }
 
   @Test
   public void testUrl() {
-      Assert.assertEquals("http://microsoft.com:8080/whatever/id123#test", this.parsedRequest.getRequestUrl());
+    Assert.assertEquals("http://microsoft.com:8080/whatever/id123#test", this.parsedRequest.getRequestUrl());
   }
 
   @Test
   public void testUri() {
-      Assert.assertEquals("/whatever/id123#test", this.parsedRequest.getRequestUri());
+    Assert.assertEquals("/whatever/id123#test", this.parsedRequest.getRequestUri());
   }
 }
