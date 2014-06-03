@@ -28,16 +28,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages all Evaluators. See EvaluatorManager for the Driver side representation of a single Evaluator.
+ * Manages all Evaluators.
+ * See EvaluatorManager for the Driver side representation of a single Evaluator.
  */
 @DriverSide
 @Private
 public final class Evaluators implements AutoCloseable {
+
   private static final Logger LOG = Logger.getLogger(Evaluators.class.getName());
+
   /**
    * A map between evaluatorId and the EvaluatorManager that handles this evaluator.
    */
   private final Map<String, EvaluatorManager> evaluators = new HashMap<>();
+
   /**
    * Resources we know about in the cluster.
    */
@@ -47,7 +51,7 @@ public final class Evaluators implements AutoCloseable {
   @Inject
   Evaluators(final ResourceCatalog resourceCatalog) {
     this.resourceCatalog = resourceCatalog;
-    LOG.log(Level.INFO, "Instantiated 'Evaluators'");
+    LOG.log(Level.FINEST, "Instantiated 'Evaluators'");
 
   }
 
@@ -82,11 +86,7 @@ public final class Evaluators implements AutoCloseable {
    * @return the EvaluatorManager for the given id, if one exists.
    */
   public synchronized Optional<EvaluatorManager> get(final String evaluatorId) {
-    if (this.evaluators.containsKey(evaluatorId)) {
-      return Optional.of(this.evaluators.get(evaluatorId));
-    } else {
-      return Optional.empty();
-    }
+    return Optional.ofNullable(this.evaluators.get(evaluatorId));
   }
 
   /**
@@ -97,11 +97,11 @@ public final class Evaluators implements AutoCloseable {
    */
   public synchronized void put(final EvaluatorManager evaluatorManager) {
     final String evaluatorId = evaluatorManager.getId();
-    if (this.evaluators.containsKey(evaluatorId)) {
-      throw new IllegalArgumentException("Trying to re-add an Evaluator that is already known: " + evaluatorId);
-    } else {
-      LOG.log(Level.INFO, "Adding: " + evaluatorId);
-      this.evaluators.put(evaluatorId, evaluatorManager);
+    final EvaluatorManager prev = this.evaluators.put(evaluatorId, evaluatorManager);
+    LOG.log(Level.FINEST, "Adding: {0} previous: {1}", new Object[] { evaluatorId, prev });
+    if (prev != null) {
+      throw new IllegalArgumentException(
+          "Trying to re-add an Evaluator that is already known: " + evaluatorId);
     }
   }
 
@@ -111,13 +111,10 @@ public final class Evaluators implements AutoCloseable {
    */
   public synchronized void remove(final EvaluatorManager evaluatorManager) {
     final String evaluatorId = evaluatorManager.getId();
-    if (this.evaluators.containsKey(evaluatorId)) {
-      LOG.log(Level.INFO, "Removing: " + evaluatorId);
-      this.evaluators.remove(evaluatorId);
-    } else {
-      throw new RuntimeException("Trying to remove an unknown EvaluatorManager: " + evaluatorId);
+    final EvaluatorManager prev = this.evaluators.remove(evaluatorId);
+    LOG.log(Level.FINEST, "Removing: {0} found: {1}", new Object[] { evaluatorId, prev });
+    if (prev == null) {
+      throw new RuntimeException("Trying to remove unknown EvaluatorManager: " + evaluatorId);
     }
   }
-
-
 }
