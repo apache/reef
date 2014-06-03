@@ -29,11 +29,15 @@ String^ ManagedStringFromJavaString (
 	JNIEnv *env,
 	jstring javaString)
 {	
-	int len = env->GetStringLength(javaString);
-	const wchar_t* wcsStr = UnicodeCppStringFromJavaString (env, javaString);
-	String^ managedStr = (NULL == wcsStr || 0 == len) ? nullptr : Marshal::PtrToStringUni((IntPtr)(unsigned short*)wcsStr, len);
-	ReleaseUnicodeCppString (env, javaString, (jchar*)wcsStr);
-	return managedStr;
+	if (javaString != NULL) 
+	{
+		int len = env->GetStringLength(javaString);
+		const wchar_t* wcsStr = UnicodeCppStringFromJavaString (env, javaString);
+		String^ managedStr = (NULL == wcsStr || 0 == len) ? nullptr : Marshal::PtrToStringUni((IntPtr)(unsigned short*)wcsStr, len);
+		ReleaseUnicodeCppString (env, javaString, (jchar*)wcsStr);
+		return managedStr;
+	}
+	return nullptr;
 }
 
 jstring JavaStringFromManagedString(
@@ -69,15 +73,19 @@ array<byte>^ ManagedByteArrayFromJavaByteArray(
 	JNIEnv *env,
 	jbyteArray javaByteArray)
 {
-	byte* bytes = (byte*)env->GetByteArrayElements (javaByteArray, FALSE);
-	int len = env->GetArrayLength(javaByteArray);
-	array<byte>^  managedByteArray = gcnew array<byte>(len);
-	//System::Array
-	for (int i=0; i<len; i++)
+	if (javaByteArray != NULL)
 	{
-		managedByteArray[i] = bytes[i];
+		byte* bytes = (byte*)env->GetByteArrayElements (javaByteArray, FALSE);
+		int len = env->GetArrayLength(javaByteArray);
+		array<byte>^  managedByteArray = gcnew array<byte>(len);
+		//System::Array
+		for (int i=0; i<len; i++)
+		{
+			managedByteArray[i] = bytes[i];
+		}
+		return managedByteArray;
 	}
-	return managedByteArray;
+	return nullptr;
 }
 
 jbyteArray JavaByteArrayFromManagedByteArray(

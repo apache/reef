@@ -26,6 +26,8 @@ import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
+import com.microsoft.reef.webserver.AvroHttpRequest;
+import com.microsoft.reef.webserver.AvroHttpSerializer;
 import com.microsoft.reef.webserver.HttpHandler;
 import com.microsoft.reef.webserver.ParsedHttpRequest;
 import com.microsoft.tang.annotations.Unit;
@@ -326,28 +328,22 @@ public final class JobDriver {
          */
         @Override
         public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-            LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest is called: {0}", request.getRequestURI());
-            final ParsedHttpRequest requestParser = new ParsedHttpRequest(request);
-            StringBuffer sb = new StringBuffer();
-            sb.append(requestParser.getTargetSpecification()).append(":").append(requestParser.getQueryString());
-            final String requestStr = sb.toString(); //requestParser.getQueryString();
-            try {
-                InteropLogger interopLogger = new InteropLogger();
-                HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestStr);
-                httpServerEventBridge.setQueryRequestData(requestStr.getBytes(Charset.forName("UTF-8")));
+          LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest is called: {0}", request.getRequestURI());
+          final AvroHttpSerializer httpSerializer = new AvroHttpSerializer();
+          final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(request);
+          final byte[] requestBytes = httpSerializer.toBytes(avroHttpRequest);
 
-                LOG.log(Level.INFO, "Calling NativeInterop.ClrSystemHttpServerHandlerOnNext with query string: {0}", requestStr);
-                NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
-                LOG.log(Level.INFO, "returned from NativeInterop.ClrSystemHttpServerHandlerOnNext with result : {0}", httpServerEventBridge.getQueryResult());
-                String result = httpServerEventBridge.getQueryResult();
-                response.getWriter().println("Calling back from bridge: " + result);
-                String byteData = new String(httpServerEventBridge.getQueryResponseData(), "UTF-8");
-                response.getWriter().println("byte data: " + byteData);
-                //response.getOutputStream().write(result.getBytes(Charset.forName("UTF-8")));
-            } catch (final Exception ex) {
-                LOG.log(Level.SEVERE, "Fail to invoke CLR Http Server handler");
-                throw new RuntimeException(ex);
-            }
+          try {
+            final InteropLogger interopLogger = new InteropLogger();
+            final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestBytes);
+            NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
+            final String responseBody = new String(httpServerEventBridge.getQueryResponseData(), "UTF-8");
+            response.getWriter().println(responseBody);
+            LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest is returned with response: {0}", responseBody);
+          } catch (final Exception ex) {
+            LOG.log(Level.SEVERE, "Fail to invoke CLR Http Server handler", ex);
+            throw new RuntimeException(ex);
+          }
         }
     }
 
@@ -414,15 +410,14 @@ public final class JobDriver {
             completedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.CompletedTaskKey)];
           }
 
-          HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-          httpServerEventBridge.setQueryRequestData((new String("SPEC")).getBytes(Charset.forName("UTF-8")));
+          final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
           NativeInterop.ClrSystemHttpServerHandlerOnNext(httpServerEventHandler, httpServerEventBridge, interopLogger);
-          String specList = httpServerEventBridge.getUriSpecification();
-          LOG.log(Level.INFO, "getUriSpecification: {0}", specList);
+          final String specList = httpServerEventBridge.getUriSpecification();
+          LOG.log(Level.INFO, "StartHandler, getUriSpecification: {0}", specList);
           if (specList != null) {
-            String[] specs = specList.split(":");
-            for (String s : specs) {
-              HttpHandler h = new HttpServerBridgeEventHandler();
+            final String[] specs = specList.split(":");
+            for (final String s : specs) {
+              final HttpHandler h = new HttpServerBridgeEventHandler();
               h.setUriSpecification(s);
               com.microsoft.reef.webserver.HttpServerImpl.addHttpHandler(h);
             }
