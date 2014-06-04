@@ -15,6 +15,7 @@ using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
 using namespace Microsoft::Reef::Driver::Bridge;
 
+
 static void ManagedLog (String^ fname, String^ msg)
 {		
 	Console::WriteLine (fname);
@@ -287,3 +288,42 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 		completedTaskBridge -> OnError(errorMessage);
 	}
 }
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrBufferedLog
+ * Signature: (ILjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrBufferedLog
+  (JNIEnv *env, jclass cls, jint logLevel, jstring message)
+{
+    try {
+        if (!JavaClrBridge::LoggerWrapper::initialized) {
+            Console::WriteLine("Initializing CLRBufferedLogHandler in java bridge...");
+            JavaClrBridge::LoggerWrapper::logger->Listeners->Add(gcnew System::Diagnostics::ConsoleTraceListener());
+            JavaClrBridge::LoggerWrapper::initialized = true;
+        }
+        
+        System::Diagnostics::TraceEventType eventType;
+        switch (logLevel) {
+            case 0: eventType = System::Diagnostics::TraceEventType::Stop; break;
+            case 1: eventType = System::Diagnostics::TraceEventType::Error; break;
+            case 2: eventType = System::Diagnostics::TraceEventType::Warning; break;
+            case 3: eventType = System::Diagnostics::TraceEventType::Information; break;
+            case 4: eventType = System::Diagnostics::TraceEventType::Verbose; break;
+            default: eventType = System::Diagnostics::TraceEventType::Information; break;
+            
+        }
+
+        String^ msg = ManagedStringFromJavaString(env, message);
+        msg = System::String::Concat(System::DateTime::Now, msg);
+        JavaClrBridge::LoggerWrapper::logger->TraceEvent(eventType, 0, msg);
+    }
+    catch (System::Exception^ ex) {
+        Console::WriteLine("Exception in Java_javabridge_NativeInterop_ClrBufferedLog");
+        Console::WriteLine(ex->Message);
+        Console::WriteLine(ex->StackTrace);
+    }
+}
+
+

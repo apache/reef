@@ -26,6 +26,8 @@ import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
+import com.microsoft.reef.javabridge.*;
+import com.microsoft.reef.util.logging.CLRBufferedLogHandler;
 import com.microsoft.reef.webserver.AvroHttpRequest;
 import com.microsoft.reef.webserver.AvroHttpSerializer;
 import com.microsoft.reef.webserver.HttpHandler;
@@ -37,19 +39,19 @@ import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
-import com.microsoft.reef.javabridge.*;
-import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Generic job driver for CLRBridge.
@@ -395,7 +397,19 @@ public final class JobDriver {
       @Override
       public void onNext(final StartTime startTime) {
         synchronized (JobDriver.this) {
-          InteropLogger interopLogger = new InteropLogger();
+          // Signal to the clr buffered log handler that the driver has started and that
+          // we can begin logging
+          LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
+          final CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
+          if (handler == null) {
+            LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
+          }
+          else {
+            handler.setDriverInitialized();
+            LOG.log(Level.INFO, "CLRBufferedLogHandler init complete.");
+          }
+
+          final InteropLogger interopLogger = new InteropLogger();
           LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null) {
@@ -433,6 +447,14 @@ public final class JobDriver {
           JobDriver.this.expectCount = nCLREvaluators;
           LOG.log(Level.INFO, "evaluator requested: " + nCLREvaluators);
         }
+      }
+
+      private CLRBufferedLogHandler getCLRBufferedLogHandler() {
+        for (Handler handler : Logger.getLogger("").getHandlers()) {
+          if (handler instanceof CLRBufferedLogHandler)
+            return (CLRBufferedLogHandler) handler;
+        }
+        return null;
       }
     }
 
