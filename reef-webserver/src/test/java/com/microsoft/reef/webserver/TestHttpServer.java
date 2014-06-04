@@ -100,9 +100,9 @@ public class TestHttpServer {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(PortNumber.class, "1");
-    cb.bindNamedParameter(MaxPortNumber.class, "1");
-    cb.bindNamedParameter(MinPortNumber.class, "1");
+    cb.bindNamedParameter(PortNumber.class, "3000");
+    cb.bindNamedParameter(MaxPortNumber.class, "3000");
+    cb.bindNamedParameter(MinPortNumber.class, "3000");
     cb.bindNamedParameter(MaxRetryAttempts.class, "3");
     final Configuration httpServerConfiguration = cb.build();
 
@@ -117,7 +117,6 @@ public class TestHttpServer {
     } catch (RuntimeException e) {
       Assert.assertEquals("Could not find available port in 3 attempts", e.getMessage());
     } catch (InjectionException e) {
-      //expected
     }
     httpServer1.stop();
   }

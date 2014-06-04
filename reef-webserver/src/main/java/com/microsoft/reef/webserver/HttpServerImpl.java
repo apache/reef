@@ -61,8 +61,8 @@ public final class HttpServerImpl implements HttpServer {
     int port = portNumber;
     Server srv = null;
     boolean found = false;
-    for (int attempt = 1; attempt < maxRetryAttempts; ++attempt) {
-      if (attempt > 1) {
+    for (int attempt = 0; attempt < maxRetryAttempts; ++attempt) {
+      if (attempt > 0) {
         port = getNextPort(maxPortNumber, minPortNumber);
       }
       srv = new Server(port);
