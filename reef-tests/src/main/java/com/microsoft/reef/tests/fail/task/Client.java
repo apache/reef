@@ -43,7 +43,6 @@ public final class Client {
             .set(DriverConfiguration.ON_TASK_RUNNING, Driver.RunningTaskHandler.class)
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, Driver.ActiveContextHandler.class)
             .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
-            .set(DriverConfiguration.ON_TASK_FAILED, Driver.OnTaskFailed.class)
             .build();
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();

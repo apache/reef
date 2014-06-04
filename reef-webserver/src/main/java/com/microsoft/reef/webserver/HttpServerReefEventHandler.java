@@ -80,16 +80,16 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     @Override
     public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
-        final RequestParser requestParser = new RequestParser(request);
-        if (requestParser.getTargetEntity().equalsIgnoreCase("Evaluators")) {
-            final String queryStr = requestParser.getQueryString();
+        final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
+        if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Evaluators")) {
+            final String queryStr = parsedHttpRequest.getQueryString();
             if (queryStr == null || queryStr.length() == 0) {
                 getEvaluators(response);
             } else {
-                handleQueries(response, requestParser.getQueryMap());
+                handleQueries(response, parsedHttpRequest.getQueryMap());
             }
         } else {
-            response.getWriter().println("Unsupported query for entity: " + requestParser.getTargetEntity());
+            response.getWriter().println("Unsupported query for entity: " + parsedHttpRequest.getTargetEntity());
         }
     }
 
@@ -108,14 +108,14 @@ public final class HttpServerReefEventHandler implements HttpHandler {
                 for (String val : values) {
                     EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
                     if (evaluatorDescriptor != null) {
-                        final String NodeId = evaluatorDescriptor.getNodeDescriptor().getId();
-                        final String NodeName = evaluatorDescriptor.getNodeDescriptor().getName();
+                        final String nodeId = evaluatorDescriptor.getNodeDescriptor().getId();
+                        final String nodeName = evaluatorDescriptor.getNodeDescriptor().getName();
                         InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
                         response.getWriter().println("Evaluator Id: " + val);
                         response.getWriter().write("<br/>");
-                        response.getWriter().println("Evaluator Node Id: " + NodeId);
+                        response.getWriter().println("Evaluator Node Id: " + nodeId);
                         response.getWriter().write("<br/>");
-                        response.getWriter().println("Evaluator Node Name: " + NodeName);
+                        response.getWriter().println("Evaluator Node Name: " + nodeName);
                         response.getWriter().write("<br/>");
                         response.getWriter().println("Evaluator InternetAddress: " + address);
                         response.getWriter().write("<br/>");

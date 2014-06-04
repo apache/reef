@@ -16,8 +16,8 @@
 package com.microsoft.reef.runtime.common.evaluator.task;
 
 import com.google.protobuf.ByteString;
-import com.microsoft.reef.evaluator.context.parameters.ContextIdentifier;
 import com.microsoft.reef.driver.task.TaskConfigurationOptions;
+import com.microsoft.reef.evaluator.context.parameters.ContextIdentifier;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.HeartBeatManager;
 import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
@@ -44,15 +44,15 @@ public final class TaskStatus {
   private final String contextId;
   private Optional<Throwable> lastException = Optional.empty();
   private Optional<byte[]> result = Optional.empty();
-  private State state;
+  private State state = State.PRE_INIT;
 
-  private final TaskLifeCycle taskLifeCycle;
   private final HeartBeatManager heartBeatManager;
   private final Set<TaskMessageSource> evaluatorMessageSources;
   private final ExceptionCodec exceptionCodec;
 
 
   enum State {
+    PRE_INIT,
     INIT,
     RUNNING,
     CLOSE_REQUESTED,
@@ -67,17 +67,13 @@ public final class TaskStatus {
   TaskStatus(final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
              final @Parameter(ContextIdentifier.class) String contextId,
              final @Parameter(TaskConfigurationOptions.TaskMessageSources.class) Set<TaskMessageSource> evaluatorMessageSources,
-             final TaskLifeCycle taskLifeCycle,
              final HeartBeatManager heartBeatManager,
              final ExceptionCodec exceptionCodec) {
     this.taskId = taskId;
     this.contextId = contextId;
-    this.taskLifeCycle = taskLifeCycle;
     this.heartBeatManager = heartBeatManager;
     this.evaluatorMessageSources = evaluatorMessageSources;
     this.exceptionCodec = exceptionCodec;
-
-    this.setState(State.INIT);
   }
 
   public final String getTaskId() {
@@ -135,25 +131,27 @@ public final class TaskStatus {
   }
 
   void setException(final Throwable throwable) {
-    this.lastException = Optional.of(throwable);
-    this.state = State.FAILED;
-    this.check();
-    this.taskLifeCycle.stop();
-    this.heartbeat();
+    synchronized (this.heartBeatManager) {
+      this.lastException = Optional.of(throwable);
+      this.state = State.FAILED;
+      this.check();
+      this.heartbeat();
+    }
   }
 
   void setResult(final byte[] result) {
-    this.result = Optional.ofNullable(result);
-    if (this.state == State.RUNNING) {
-      this.setState(State.DONE);
-    } else if (this.state == State.SUSPEND_REQUESTED) {
-      this.setState(State.SUSPENDED);
-    } else if (this.state == State.CLOSE_REQUESTED) {
-      this.setState(State.DONE);
+    synchronized (this.heartBeatManager) {
+      this.result = Optional.ofNullable(result);
+      if (this.state == State.RUNNING) {
+        this.setState(State.DONE);
+      } else if (this.state == State.SUSPEND_REQUESTED) {
+        this.setState(State.SUSPENDED);
+      } else if (this.state == State.CLOSE_REQUESTED) {
+        this.setState(State.DONE);
+      }
+      this.check();
+      this.heartbeat();
     }
-    this.check();
-    this.taskLifeCycle.stop();
-    this.heartbeat();
   }
 
   private void setState(final State state) {
@@ -170,22 +168,20 @@ public final class TaskStatus {
     this.heartBeatManager.onNext(this.toProto());
   }
 
-  void setRunning() {
-    if (this.state == State.INIT) {
-      try {
-        this.taskLifeCycle.start();
+  /**
+   * Sets the state to INIT and informs the driver about it.
+   */
+  void setInit() {
+    LOG.log(Level.FINEST, "Sending Task INIT heartbeat to the Driver.");
+    this.setState(State.INIT);
+    this.heartbeat();
+  }
 
-        /* I need to send an INIT heartbeat to the driver
-         * prompting it to create an RunningTask event.
-         * RUNNING state heartbeats are not time dependent,
-         * and can happen at the next scheduled heartbeat period. */
-        this.heartbeat();
-        this.setState(State.RUNNING);
-      } catch (final Exception e) {
-        // Task start handler error
-        this.setException(e);
-      }
-    }
+  /**
+   * Sets the state to RUNNING after the handlers for TaskStart have been called.
+   */
+  void setRunning() {
+    this.setState(State.RUNNING);
   }
 
   void setCloseRequested() {
@@ -200,6 +196,10 @@ public final class TaskStatus {
   void setKilled() {
     this.setState(State.KILLED);
     this.heartbeat();
+  }
+
+  boolean isRunning() {
+    return this.state == State.RUNNING;
   }
 
   boolean isNotRunning() {
@@ -237,6 +237,13 @@ public final class TaskStatus {
       return to == State.INIT;
     }
     switch (from) {
+      case PRE_INIT:
+        switch (to) {
+          case INIT:
+            return true;
+          default:
+            return false;
+        }
       case INIT:
         switch (to) {
           case RUNNING:

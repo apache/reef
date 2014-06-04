@@ -48,7 +48,8 @@ public final class SubContextTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration = EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+    final Configuration driverConfiguration =
+      EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "SubContext")
         .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.EvaluatorAllocatedHandler.class)
@@ -56,8 +57,29 @@ public final class SubContextTest {
         .set(DriverConfiguration.ON_CONTEXT_CLOSED, Driver.ContextClosedHandler.class)
         .build();
 
-    final LauncherStatus status = DriverLauncher
-        .getLauncher(runtimeConfiguration)
+    final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
+        .run(driverConfiguration, this.testEnvironment.getTestTimeout());
+
+    Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
+  }
+
+  /**
+   * Same as testSubContexts(), but using default ClosedContext handler.
+   */
+  @Test
+  public void testChainClose() throws BindException, InjectionException {
+
+    final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
+
+    final Configuration driverConfiguration =
+        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "SubContext")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.EvaluatorAllocatedHandler.class)
+            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, Driver.ContextActiveHandler.class)
+            .build();
+
+    final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());
 
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());

@@ -78,16 +78,16 @@ class JettyHandler extends AbstractHandler {
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        final RequestParser requestParser = new RequestParser(request);
-        final String specification = requestParser.getTargetSpecification();
+        final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
+        final String specification = parsedHttpRequest.getTargetSpecification();
 
         if (specification != null) {
-            final HttpHandler h = eventHandlers.get(requestParser.getTargetSpecification().toLowerCase());
+            final HttpHandler h = eventHandlers.get(parsedHttpRequest.getTargetSpecification().toLowerCase());
             if (h != null) {
                 LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", h.getUriSpecification());
                 h.onHttpRequest(request, response);
             } else {
-                response.getWriter().println("HttpHandler is not provided for" + requestParser.getTargetSpecification());
+                response.getWriter().println("HttpHandler is not provided for" + parsedHttpRequest.getTargetSpecification());
             }
         } else {
             response.getWriter().println("Hello Reef Http Server");

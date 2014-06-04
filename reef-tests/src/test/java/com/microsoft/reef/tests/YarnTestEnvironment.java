@@ -26,8 +26,6 @@ import java.util.logging.Logger;
  */
 public final class YarnTestEnvironment implements TestEnvironment {
 
-  private final static Logger LOG = Logger.getLogger(TestEnvironment.class.getName());
-
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
 
@@ -54,6 +52,6 @@ public final class YarnTestEnvironment implements TestEnvironment {
 
   @Override
   public int getTestTimeout() {
-    return 180000; // 3 minutes
+    return 300000; // 5 minutes
   }
 }
