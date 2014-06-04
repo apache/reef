@@ -20,15 +20,16 @@ import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.InjectionException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Test Http Server
  */
 public class TestHttpServer {
-  private HttpServer httpServer;
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void HttpServerDefaultTest() throws InjectionException, Exception {
+  public void httpServerDefaultTest() throws InjectionException, Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
     final Injector injector = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
     final HttpServer httpServer = injector.getInstance(HttpServer.class);
@@ -38,7 +39,7 @@ public class TestHttpServer {
   }
 
   @Test
-  public void HttpServerSpecifiedPortTest() throws InjectionException, Exception {
+  public void httpServerSpecifiedPortTest() throws InjectionException, Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -46,7 +47,6 @@ public class TestHttpServer {
     final Configuration httpServerConfiguration = cb.build();
 
     final Configuration configuration = Configurations.merge(httpRuntimeConfiguration, httpServerConfiguration);
-
     final Injector injector = Tang.Factory.getTang().newInjector(configuration);
     final HttpServer httpServer = injector.getInstance(HttpServer.class);
 
@@ -55,7 +55,7 @@ public class TestHttpServer {
   }
 
   @Test
-  public void HttpServerConflictPortTest() throws InjectionException, Exception {
+  public void httpServerConflictPortTest() throws InjectionException, Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
 
     final Injector injector1 = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
@@ -71,7 +71,7 @@ public class TestHttpServer {
   }
 
   @Test
-  public void HttpServerPortRangeTest() throws InjectionException, Exception {
+  public void httpServerPortRangeTest() throws InjectionException, Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -93,5 +93,43 @@ public class TestHttpServer {
     Assert.assertTrue("port number is out of specified range", httpServer2.getPort() > 1000 && httpServer2.getPort() < 9900);
     httpServer1.stop();
     httpServer2.stop();
+  }
+
+  @Test
+  public void httpServerPortRetryTest() throws InjectionException, Exception {
+    final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
+
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindNamedParameter(PortNumber.class, "1");
+    cb.bindNamedParameter(MaxPortNumber.class, "1");
+    cb.bindNamedParameter(MinPortNumber.class, "1");
+    cb.bindNamedParameter(MaxRetryAttempts.class, "3");
+    final Configuration httpServerConfiguration = cb.build();
+
+    final Configuration configuration = Configurations.merge(httpRuntimeConfiguration, httpServerConfiguration);
+
+    final Injector injector1 = Tang.Factory.getTang().newInjector(configuration);
+    final HttpServer httpServer1 = injector1.getInstance(HttpServer.class);
+
+    final Injector injector2 = Tang.Factory.getTang().newInjector(configuration);
+    try {
+      final HttpServer httpServer2 = injector2.getInstance(HttpServer.class);
+    } catch (RuntimeException e) {
+      Assert.assertEquals("Could not find available port in 3 attempts", e.getMessage());
+    } catch (InjectionException e) {
+      //expected
+    }
+    httpServer1.stop();
+  }
+
+  @Test
+  public void httpServerAddHandlerTest() throws InjectionException, Exception {
+    final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
+    final Injector injector = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
+    final HttpServer httpServer = injector.getInstance(HttpServer.class);
+    final HttpServerReefEventHandler httpHandler = injector.getInstance(HttpServerReefEventHandler.class);
+    httpServer.addHttpHandler(httpHandler);
+    Assert.assertTrue(true);    //Cannot access private variables inside the server. If it is returned, meaning it is added successfully.
+    httpServer.stop();
   }
 }

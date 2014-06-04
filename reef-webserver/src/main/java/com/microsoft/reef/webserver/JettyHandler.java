@@ -94,7 +94,7 @@ class JettyHandler extends AbstractHandler {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
     } else {
-      response.getWriter().println("Hello Reef Http Server");
+      response.getWriter().println("Specification is not provided in teh request.");
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
     baseRequest.setHandled(true);

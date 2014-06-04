@@ -43,4 +43,10 @@ public interface HttpServer {
    * @return
    */
   public int getPort();
+
+  /**
+   * Add a httpHandler to the server
+   * @param httpHandler
+   */
+  public void addHttpHandler(HttpHandler httpHandler);
 }

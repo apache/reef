@@ -106,8 +106,8 @@ public final class ReefEventStateManager {
    * @param time
    * @return
    */
-  private String convertTime(long time) {
-    Date date = new Date(time);
+  private String convertTime(final long time) {
+    final Date date = new Date(time);
     return format.format(date).toString();
   }
 
@@ -120,13 +120,16 @@ public final class ReefEventStateManager {
     return evaluators;
   }
 
+  public Map<String, ActiveContext> getContexts() {
+    return contexts;
+  }
   /**
    * pus a entry to evaluators
    *
    * @param key
    * @param value
    */
-  public void put(String key, EvaluatorDescriptor value) {
+  public void put(final String key, final EvaluatorDescriptor value) {
     evaluators.put(key, value);
   }
 
@@ -136,7 +139,7 @@ public final class ReefEventStateManager {
    * @param key
    * @return
    */
-  public EvaluatorDescriptor get(String key) {
+  public EvaluatorDescriptor get(final String key) {
     return evaluators.get(key);
   }
 
@@ -146,7 +149,7 @@ public final class ReefEventStateManager {
    * @param evaluatorId
    * @return
    */
-  public EvaluatorDescriptor getEvaluatorDescriptor(String evaluatorId) {
+  public EvaluatorDescriptor getEvaluatorDescriptor(final String evaluatorId) {
     return evaluators.get(evaluatorId);
   }
 
@@ -156,7 +159,7 @@ public final class ReefEventStateManager {
    * @param evaluatorId
    * @return
    */
-  public NodeDescriptor getEvaluatorNodeDescriptor(String evaluatorId) {
+  public NodeDescriptor getEvaluatorNodeDescriptor(final String evaluatorId) {
     return evaluators.get(evaluatorId).getNodeDescriptor();
   }
 
@@ -200,8 +203,8 @@ public final class ReefEventStateManager {
   public final class TaskRunningStateHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask runningActivity) {
-      String ip = runningActivity.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor().getInetSocketAddress().toString();
-      String id = runningActivity.getActiveContext().getId();
+      final String ip = runningActivity.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor().getInetSocketAddress().toString();
+      final String id = runningActivity.getActiveContext().getId();
       LOG.log(Level.INFO, "RunningActivity on address: " + ip + " for id " + id);
     }
   }
