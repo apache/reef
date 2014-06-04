@@ -406,11 +406,11 @@ public final class JobDriver {
           LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
           final CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
           if (handler == null) {
-              LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
+            LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
           }
           else {
-              handler.setDriverInitialized();
-              LOG.log(Level.INFO, "CLRBufferedLogHandler init complete.");
+            handler.setDriverInitialized();
+            LOG.log(Level.INFO, "CLRBufferedLogHandler init complete.");
           }
 
           final InteropLogger interopLogger = new InteropLogger();
@@ -456,8 +456,8 @@ public final class JobDriver {
 
       private CLRBufferedLogHandler getCLRBufferedLogHandler() {
         for (Handler handler : Logger.getLogger("").getHandlers()) {
-            if (handler instanceof CLRBufferedLogHandler)
-                return (CLRBufferedLogHandler) handler;
+          if (handler instanceof CLRBufferedLogHandler)
+            return (CLRBufferedLogHandler) handler;
         }
         return null;
       }
