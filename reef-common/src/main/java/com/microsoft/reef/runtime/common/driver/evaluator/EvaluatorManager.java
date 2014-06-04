@@ -125,9 +125,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.stateManager = stateManager;
     this.exceptionCodec = exceptionCodec;
 
+
     this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(
         this, remoteManager.getMyIdentifier(), this.configurationSerializer));
-
     LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: {0}", this.getId());
   }
 
@@ -178,30 +178,31 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           this.stateManager.setKilled();
         }
       }
-    }
 
-    if (!this.isResourceReleased) {
-      this.isResourceReleased = true;
-      try {
+
+      if (!this.isResourceReleased) {
+        this.isResourceReleased = true;
+        try {
         /* We need to wait awhile before returning the container to the RM in order to
          * give the EvaluatorRuntime (and Launcher) time to cleanly exit. */
-        this.clock.scheduleAlarm(100, new EventHandler<Alarm>() {
-          @Override
-          public void onNext(final Alarm alarm) {
-            EvaluatorManager.this.resourceReleaseHandler.onNext(
-                DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-                    .setIdentifier(EvaluatorManager.this.evaluatorId).build()
-            );
-          }
-        });
-      } catch (final IllegalStateException e) {
-        LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
-        EvaluatorManager.this.resourceReleaseHandler.onNext(
-            DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-                .setIdentifier(EvaluatorManager.this.evaluatorId).build()
-        );
-      } finally {
-        EvaluatorManager.this.evaluators.remove(EvaluatorManager.this);
+          this.clock.scheduleAlarm(100, new EventHandler<Alarm>() {
+            @Override
+            public void onNext(final Alarm alarm) {
+              EvaluatorManager.this.resourceReleaseHandler.onNext(
+                  DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+                      .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+              );
+            }
+          });
+        } catch (final IllegalStateException e) {
+          LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
+          EvaluatorManager.this.resourceReleaseHandler.onNext(
+              DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+                  .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+          );
+        } finally {
+          EvaluatorManager.this.evaluators.remove(EvaluatorManager.this);
+        }
       }
     }
   }
