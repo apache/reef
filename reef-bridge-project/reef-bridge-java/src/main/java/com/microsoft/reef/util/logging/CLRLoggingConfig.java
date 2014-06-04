@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Logging handler for clr bridge
- */
 package com.microsoft.reef.util.logging;
+
+import java.io.IOException;
+import java.util.logging.LogManager;
+
+public final class CLRLoggingConfig {
+
+  public CLRLoggingConfig() throws IOException {
+    LogManager.getLogManager().readConfiguration(
+            Thread.currentThread().getContextClassLoader()
+            .getResourceAsStream("com/microsoft/reef/clr.logging.properties"));
+  }
+}

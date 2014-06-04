@@ -311,7 +311,8 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrBuffe
             case 2: eventType = System::Diagnostics::TraceEventType::Warning; break;
             case 3: eventType = System::Diagnostics::TraceEventType::Information; break;
             case 4: eventType = System::Diagnostics::TraceEventType::Verbose; break;
-            default: throw gcnew System::Exception("Exception in Java_javabridge_nativeInterop_ClrBufferedLog: Log level does not exist");
+            default: eventType = System::Diagnostics::TraceEventType::Information; break;
+            
         }
 
         String^ msg = ManagedStringFromJavaString(env, message);

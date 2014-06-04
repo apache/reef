@@ -60,7 +60,6 @@ public final class JobDriver {
    * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(JobDriver.class.getName());
-  private static Logger clrLogger = Logger.getLogger("");
 
   private long  evaluatorRequestorHandler = 0;
   private long  allocatedEvaluatorHandler = 0;
@@ -405,7 +404,7 @@ public final class JobDriver {
           // Signal to the clr buffered log handler that the driver has started and that
           // we can begin logging
           LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
-          CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
+          final CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
           if (handler == null) {
               LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
           }
@@ -414,7 +413,7 @@ public final class JobDriver {
               LOG.log(Level.INFO, "CLRBufferedLogHandler init complete.");
           }
 
-          InteropLogger interopLogger = new InteropLogger();
+          final InteropLogger interopLogger = new InteropLogger();
           LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null) {
