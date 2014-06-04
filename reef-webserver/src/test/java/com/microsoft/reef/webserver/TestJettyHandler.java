@@ -48,10 +48,10 @@ public class TestJettyHandler {
         new HttpConnection(new LocalConnector(), new StringEndPoint(), new Server()));
     this.request.setContentType("text/json");
 
-    final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
+    final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
-    final Injector injector = Tang.Factory.getTang().newInjector(clockConfiguraiton);
+    final Injector injector = Tang.Factory.getTang().newInjector(httpHandlerConfiguration);
 
     handler = injector.getInstance(JettyHandler.class);
   }
