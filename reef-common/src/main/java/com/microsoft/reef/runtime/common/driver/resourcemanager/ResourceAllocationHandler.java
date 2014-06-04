@@ -29,24 +29,29 @@ import javax.inject.Inject;
  */
 @Private
 @DriverSide
-public final class ResourceAllocationHandler implements EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> {
+public final class ResourceAllocationHandler
+    implements EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> {
+
   /**
-   * Helper class to make new EvaluatorManager instances, given a Node they have been allocated on.
+   * Helper class to make new EvaluatorManager instances,
+   * given a Node they have been allocated on.
    */
   private final EvaluatorManagerFactory evaluatorManagerFactory;
+
   /**
    * The Evaluators known to the Driver.
    */
   private final Evaluators evaluators;
 
   @Inject
-  ResourceAllocationHandler(final EvaluatorManagerFactory evaluatorManagerFactory, final Evaluators evaluators) {
+  ResourceAllocationHandler(
+      final EvaluatorManagerFactory evaluatorManagerFactory, final Evaluators evaluators) {
     this.evaluatorManagerFactory = evaluatorManagerFactory;
     this.evaluators = evaluators;
   }
 
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceAllocationProto value) {
-    evaluators.put(this.evaluatorManagerFactory.getNewEvaluatorManager(value));
+    this.evaluators.put(this.evaluatorManagerFactory, value);
   }
 }

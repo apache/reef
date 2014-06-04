@@ -18,6 +18,7 @@ package com.microsoft.reef.runtime.common.driver.evaluator;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
+import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.reef.util.SingletonAsserter;
 
@@ -87,6 +88,19 @@ public final class Evaluators implements AutoCloseable {
    */
   public synchronized Optional<EvaluatorManager> get(final String evaluatorId) {
     return Optional.ofNullable(this.evaluators.get(evaluatorId));
+  }
+
+  /**
+   * Create new EvaluatorManager and add it to the collection.
+   *
+   * @param evaluatorManagerFactory Factory that builds new EvaluatorManager objects.
+   * @param evaluatorMsg Resource allocation message that contains data on the new evaluator.
+   * @throws java.lang.IllegalArgumentException if the EvaluatorManager is already known.
+   */
+  public synchronized void put(
+      final EvaluatorManagerFactory evaluatorManagerFactory,
+      final DriverRuntimeProtocol.ResourceAllocationProto evaluatorMsg) {
+    this.put(evaluatorManagerFactory.getNewEvaluatorManager(evaluatorMsg));
   }
 
   /**
