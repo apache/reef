@@ -81,8 +81,10 @@ public class CLRBufferedLogHandler extends Handler {
    * Flushes the remaining buffered logs and shuts down the log scheduler thread.
    */
   @Override
-  public void close() throws SecurityException {
-    logAll();
+  public synchronized void close() throws SecurityException {
+    if (driverInitialized) {
+      this.logAll();
+    }
     this.logScheduler.shutdown();
   }
 
