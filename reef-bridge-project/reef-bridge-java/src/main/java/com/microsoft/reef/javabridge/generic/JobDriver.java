@@ -28,10 +28,7 @@ import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.javabridge.*;
 import com.microsoft.reef.util.logging.CLRBufferedLogHandler;
-import com.microsoft.reef.webserver.AvroHttpRequest;
-import com.microsoft.reef.webserver.AvroHttpSerializer;
-import com.microsoft.reef.webserver.HttpHandler;
-import com.microsoft.reef.webserver.ParsedHttpRequest;
+import com.microsoft.reef.webserver.*;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.NetUtils;
@@ -76,6 +73,7 @@ public final class JobDriver {
 
   private NameServer nameServer;
   private String nameServerInfo;
+  private HttpServer httpServer;
 
 
   /**
@@ -127,9 +125,11 @@ public final class JobDriver {
    */
   @Inject
   JobDriver(final Clock clock,
+            final HttpServer httpServer,
             final JobMessageObserver jobMessageObserver,
             final EvaluatorRequestor evaluatorRequestor) {
     this.clock = clock;
+    this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
     this.nameServer = new NameServer(0, new StringIdentifierFactory());
@@ -433,7 +433,7 @@ public final class JobDriver {
             for (final String s : specs) {
               final HttpHandler h = new HttpServerBridgeEventHandler();
               h.setUriSpecification(s);
-              com.microsoft.reef.webserver.HttpServerImpl.addHttpHandler(h);
+              httpServer.addHttpHandler(h);
             }
           }
 

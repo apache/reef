@@ -35,73 +35,84 @@ import java.util.logging.Logger;
  * Jetty Event Handler
  */
 class JettyHandler extends AbstractHandler {
-    private static final Logger LOG = Logger.getLogger(JettyHandler.class.getName());
-    /**
-     * a map that contains eventHandler's specification and the reference
-     */
-    private final Map<String, HttpHandler> eventHandlers = new HashMap<>();
+  private static final Logger LOG = Logger.getLogger(JettyHandler.class.getName());
+  /**
+   * a map that contains eventHandler's specification and the reference
+   */
+  private final Map<String, HttpHandler> eventHandlers = new HashMap<>();
 
-    /**
-     * Jetty Event Handler. It accepts a set of IHttpHandlers
-     *
-     * @param httpEventHandlers
-     */
-    @Inject
-    JettyHandler(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
-        //TODO handle duplicated case
-        for (HttpHandler h : httpEventHandlers) {
-            eventHandlers.put(h.getUriSpecification().toLowerCase(), h);
-        }
+  /**
+   * Jetty Event Handler. It accepts a set of IHttpHandlers
+   *
+   * @param httpEventHandlers
+   */
+  @Inject
+  JettyHandler(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
+    for (HttpHandler handler : httpEventHandlers) {
+      if (!eventHandlers.containsKey(handler.getUriSpecification())) {
+        eventHandlers.put(handler.getUriSpecification().toLowerCase(), handler);
+      } else {
+        LOG.log(Level.WARNING, "JettyHandler handle is already registered: {0} ", handler.getUriSpecification());
+      }
     }
+  }
 
-    /**
-     * handle http request
-     *
-     * @param target
-     * @param request
-     * @param response
-     * @param i
-     * @throws IOException
-     * @throws ServletException
-     */
-    @Override
-    public void handle(
-            String target,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            int i)
-            throws IOException, ServletException {
-        LOG.log(Level.INFO, "JettyHandler handle is entered with target: {0} ", target);
-        Request baseRequest = (request instanceof Request) ? (Request) request :
-                HttpConnection.getCurrentConnection().getRequest();
+  /**
+   * handle http request
+   *
+   * @param target
+   * @param request
+   * @param response
+   * @param i
+   * @throws IOException
+   * @throws ServletException
+   */
+  @Override
+  public void handle(
+      String target,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      int i)
+      throws IOException, ServletException {
+    LOG.log(Level.INFO, "JettyHandler handle is entered with target: {0} ", target);
+    Request baseRequest = (request instanceof Request) ? (Request) request :
+        HttpConnection.getCurrentConnection().getRequest();
 
-        response.setContentType("text/html;charset=utf-8");
+    response.setContentType("text/html;charset=utf-8");
+
+    final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
+    final String specification = parsedHttpRequest.getTargetSpecification();
+
+    if (specification != null) {
+      final HttpHandler h = eventHandlers.get(parsedHttpRequest.getTargetSpecification().toLowerCase());
+      if (h != null) {
+        LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", h.getUriSpecification());
+        h.onHttpRequest(request, response);
         response.setStatus(HttpServletResponse.SC_OK);
-
-        final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
-        final String specification = parsedHttpRequest.getTargetSpecification();
-
-        if (specification != null) {
-            final HttpHandler h = eventHandlers.get(parsedHttpRequest.getTargetSpecification().toLowerCase());
-            if (h != null) {
-                LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", h.getUriSpecification());
-                h.onHttpRequest(request, response);
-            } else {
-                response.getWriter().println("HttpHandler is not provided for" + parsedHttpRequest.getTargetSpecification());
-            }
-        } else {
-            response.getWriter().println("Hello Reef Http Server");
-        }
-        baseRequest.setHandled(true);
-        LOG.log(Level.INFO, "JettyHandler handle exists");
+      } else {
+        response.getWriter().println("HttpHandler is not provided for" + parsedHttpRequest.getTargetSpecification());
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      }
+    } else {
+      response.getWriter().println("Specification is not provided in teh request.");
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
+    baseRequest.setHandled(true);
+    LOG.log(Level.INFO, "JettyHandler handle exists");
+  }
 
-    /**
-     * Add a handler explicitly instead of through injection. This is for handlers created on the fly.
-     * @param handler
-     */
-    final void addHandler(final HttpHandler handler)
-    {
-        eventHandlers.put(handler.getUriSpecification(), handler);
+  /**
+   * Add a handler explicitly instead of through injection. This is for handlers created on the fly.
+   *
+   * @param handler
+   */
+  final void addHandler(final HttpHandler handler) {
+    if (handler != null) {
+      if (!eventHandlers.containsKey(handler.getUriSpecification().toLowerCase())) {
+        eventHandlers.put(handler.getUriSpecification().toLowerCase(), handler);
+      } else {
+        LOG.log(Level.WARNING, "JettyHandler handle is already registered: {0} ", handler.getUriSpecification());
+      }
     }
+  }
 }

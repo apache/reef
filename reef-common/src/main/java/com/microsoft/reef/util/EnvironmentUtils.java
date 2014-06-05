@@ -113,4 +113,20 @@ public final class EnvironmentUtils {
       final ConfigurationModule config, final OptionalParameter<String> param) {
     return addAll(config, param, getAllClasspathJars());
   }
+
+  /**
+   * Check whether assert() statements are evaluated.
+   *
+   * @return true, if assertions are enabled. False otherwise.
+   */
+  public static boolean areAssertionsEnabled() {
+    try {
+      assert false;
+      // If we got here, the assert above can't have thrown an exception. hence, asserts must be off.
+      return false;
+    } catch (final AssertionError assertionError) {
+      // The assert above threw an exception. Asserts must be enabled.
+      return true;
+    }
+  }
 }

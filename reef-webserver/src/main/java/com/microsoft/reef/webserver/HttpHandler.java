@@ -24,25 +24,25 @@ import java.io.IOException;
  * HttpHandler interface
  */
 public interface HttpHandler {
-    /**
-     * return specification of the handler. e.g Reef
-     *
-     * @return
-     */
-    public String getUriSpecification();
+  /**
+   * return specification of the handler. e.g Reef
+   *
+   * @return
+   */
+  public String getUriSpecification();
 
-    /**
-     * return specification of the handler. e.g Reef
-     *
-     * @return
-     */
-    public void setUriSpecification(final String s);
+  /**
+   * return specification of the handler. e.g Reef
+   *
+   * @return
+   */
+  public void setUriSpecification(final String s);
 
-    /**
-     * Will be called when request comes
-     *
-     * @param request
-     * @param response
-     */
-    void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+  /**
+   * Will be called when request comes
+   *
+   * @param request
+   * @param response
+   */
+  void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
 }

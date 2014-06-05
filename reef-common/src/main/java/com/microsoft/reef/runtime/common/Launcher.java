@@ -21,6 +21,7 @@ import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPath;
 import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
+import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -36,53 +37,42 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Launcher {
+
   public final static String[] LOGGING_PROPERTIES = {
       "java.util.logging.config.file",
       "java.util.logging.config.class"
   };
+
   private final static Logger LOG = Logger.getLogger(Launcher.class.getName());
 
   private Launcher() {
   }
 
   /**
-   * Logs the currently running threads.
+   * Parse command line options of the launcher.
    *
-   * @param prefix put before the comma-separated list of threads
-   * @param level  the level used for the log entry
+   * @param args Command line as passed into main().
+   * @return TANG configuration object.
    */
+  private static Configuration processCommandLine(
+      final String[] args) throws BindException, IOException, InjectionException {
 
-  private static void logThreads(final String prefix, final Level level) {
-    final StringBuilder sb = new StringBuilder(prefix);
-    for (final Thread t : Thread.getAllStackTraces().keySet()) {
-      sb.append(t.getName());
-      sb.append(", ");
-    }
-    LOG.log(level, sb.toString());
-  }
+    final JavaConfigurationBuilder commandLineBuilder =
+        Tang.Factory.getTang().newConfigurationBuilder();
 
-  /**
-   * Parses the command line options of the launcher.
-   *
-   * @param args
-   * @return
-   * @throws BindException
-   * @throws IOException
-   * @throws InjectionException
-   */
-  private static Configuration processCommandLine(final String[] args) throws BindException, IOException, InjectionException {
-    final JavaConfigurationBuilder commandLineBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    final CommandLine cl = new CommandLine(commandLineBuilder);
-    cl.registerShortNameOfClass(ClockConfigurationPath.class);
-    cl.registerShortNameOfClass(ErrorHandlerRID.class);
-    cl.registerShortNameOfClass(LaunchID.class);
-    cl.processCommandLine(args);
-    // Bind the wake error handler
-    commandLineBuilder.bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class);
-    commandLineBuilder.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER");
-    // Bind the wake codec
-    commandLineBuilder.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
-    return commandLineBuilder.build();
+    new CommandLine(commandLineBuilder)
+      .registerShortNameOfClass(ClockConfigurationPath.class)
+      .registerShortNameOfClass(ErrorHandlerRID.class)
+      .registerShortNameOfClass(LaunchID.class)
+      .processCommandLine(args);
+
+    return commandLineBuilder
+        // Bind the wake error handler
+        .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER")
+        // Bind the wake codec
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .build();
   }
 
   private static void fail(final String msg, final Throwable t) {
@@ -97,9 +87,11 @@ public final class Launcher {
    * @throws Exception
    */
   public static void main(final String[] args) {
-    LOG.log(Level.FINEST, "Launcher started");
-    Injector injector = null;
 
+    LOG.log(Level.FINE, "Launcher started. Assertions are {0} in this process.",
+        EnvironmentUtils.areAssertionsEnabled() ? "ENABLED" : "DISABLED");
+
+    Injector injector = null;
     try {
       injector = Tang.Factory.getTang().newInjector(processCommandLine(args));
     } catch (final BindException | IOException | InjectionException e) {
@@ -120,10 +112,16 @@ public final class Launcher {
     } catch (final Exception e) {
       fail("Exception in closing the launcher", e);
     }
-    LOG.log(Level.FINEST, "Launcher exiting");
-    logThreads("Threads running after Launcher.close(): ", Level.FINEST);
+
+    LOG.log(Level.FINE, "Launcher exiting");
+
+    LOG.log(Level.FINEST, "Threads running after Launcher.close(): {0}",
+        Thread.getAllStackTraces().keySet());
+
     System.exit(0);
-    logThreads("Threads running after System.exit(): ", Level.FINEST);
+
+    LOG.log(Level.FINEST, "Threads running after System.exit(): {0}",
+        Thread.getAllStackTraces().keySet());
   }
 
   /**
@@ -141,5 +139,4 @@ public final class Launcher {
       }
     }
   }
-
 }
