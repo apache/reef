@@ -78,6 +78,9 @@ public class NettyMessagingTransport implements Transport {
   private final NettyClientEventListener clientEventListener;
   private final NettyServerEventListener serverEventListener;
   
+  private final int numberOfTries;
+  private final int retryTimeout;
+
   /**
    * Constructs a messaging transport
    *
@@ -85,15 +88,37 @@ public class NettyMessagingTransport implements Transport {
    * @param port  the server listening port; when it is 0, randomly assign a port number
    * @param clientStage the client-side stage that handles transport events
    * @param serverStage the server-side stage that handles transport events
+   * @param numberOfTries the number of tries of connection
+   * @param retryTimeout the timeout of reconnection
    */
   public NettyMessagingTransport(final String hostAddress, int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage) {
+    this(hostAddress, port, clientStage, serverStage, 3, 10000);
+  }
+  
+  /**
+   * Constructs a messaging transport
+   *
+   * @param hostAddress the server host address
+   * @param port  the server listening port; when it is 0, randomly assign a port number
+   * @param clientStage the client-side stage that handles transport events
+   * @param serverStage the server-side stage that handles transport events
+   * @param numberOfTries the number of tries of connection
+   * @param retryTimeout the timeout of reconnection
+   */
+  public NettyMessagingTransport(final String hostAddress, int port,
+                                 final EStage<TransportEvent> clientStage,
+                                 final EStage<TransportEvent> serverStage,
+                                 final int numberOfTries,
+                                 final int retryTimeout) {
 
     if (port < 0) {
       throw new RemoteRuntimeException("Invalid server port: " + port);
     }
 
+    this.numberOfTries = numberOfTries;
+    this.retryTimeout = retryTimeout;
     this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
     this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
 
@@ -184,58 +209,83 @@ public class NettyMessagingTransport implements Transport {
   public <T> Link<T> open(final SocketAddress remoteAddr, final Encoder<? super T> encoder,
                           final LinkListener<? super T> listener) throws IOException {
 
-    LinkReference linkRef = this.addrToLinkRefMap.get(remoteAddr);
-    Link<T> link;
-
-    if (linkRef != null) {
-      link = (Link<T>) linkRef.getLink();
-      if (LOG.isLoggable(Level.FINE)) {
-        LOG.log(Level.FINE, "Link {0} for {1} found", new Object[] {link, remoteAddr});
+    Link<T> link = null;
+    
+    for(int i=0; i < this.numberOfTries; ++i) {
+      LinkReference linkRef = this.addrToLinkRefMap.get(remoteAddr);
+      
+      if (linkRef != null) {
+        link = (Link<T>) linkRef.getLink();
+        if (LOG.isLoggable(Level.FINE)) {
+          LOG.log(Level.FINE, "Link {0} for {1} found", new Object[] {link, remoteAddr});
+        }
+        if (link != null) {
+          return link;
+        }
       }
-      if (link != null) {
-        return link;
-      }
-    }
 
-    LOG.log(Level.FINE, "No cached link for {0} thread {1}",
-        new Object[]{remoteAddr, Thread.currentThread()});
+      LOG.log(Level.FINE, "No cached link for {0} thread {1}",
+          new Object[]{remoteAddr, Thread.currentThread()});
 
-    // no linkRef
-    final LinkReference newLinkRef = new LinkReference();
-    final LinkReference prior = this.addrToLinkRefMap.putIfAbsent(remoteAddr, newLinkRef);
-    final AtomicBoolean flag = prior != null ?
-        prior.getConnectInProgress() : newLinkRef.getConnectInProgress();
+      // no linkRef
+      final LinkReference newLinkRef = new LinkReference();
+      final LinkReference prior = this.addrToLinkRefMap.putIfAbsent(remoteAddr, newLinkRef);
+      final AtomicBoolean flag = prior != null ?
+          prior.getConnectInProgress() : newLinkRef.getConnectInProgress();
 
-    synchronized (flag) {
-      if (!flag.compareAndSet(false, true)) {
-        while (flag.get()) {
-          try {
-            flag.wait();
-          } catch (final InterruptedException ex) {
-            LOG.log(Level.WARNING, "Wait interrupted", ex);
+      synchronized (flag) {
+        if (!flag.compareAndSet(false, true)) {
+          while (flag.get()) {
+            try {
+              flag.wait();
+            } catch (final InterruptedException ex) {
+              LOG.log(Level.WARNING, "Wait interrupted", ex);
+            }
           }
         }
       }
+
+      linkRef = this.addrToLinkRefMap.get(remoteAddr);
+      link = (Link<T>) linkRef.getLink();
+
+      if (link != null) {
+        return link;
+      }
+
+      ChannelFuture connectFuture = null;
+      try {
+        connectFuture = this.clientBootstrap.connect(remoteAddr);
+        connectFuture.syncUninterruptibly();
+
+        link = new NettyLink<>(connectFuture.channel(), encoder, listener);
+        linkRef.setLink(link);
+
+        synchronized (flag) {
+          flag.compareAndSet(true, false);
+          flag.notifyAll();
+        }
+        break;
+      } catch (final Exception e) {
+        if (e.getClass().getSimpleName().compareTo("ConnectException") == 0) {
+          LOG.log(Level.WARNING, "Connection refused. Retry {0} of {1}", 
+              new Object[]{i+1, this.numberOfTries});
+          synchronized(flag) {
+            flag.compareAndSet(true, false);
+            flag.notifyAll();
+          }
+          
+          if (i < this.numberOfTries) {
+            try {
+              Thread.sleep(retryTimeout);
+            } catch (final InterruptedException interrupt) {
+              LOG.log(Level.WARNING, "Thread {0} interrupted while sleeping", Thread.currentThread());
+            }
+          }
+        } else {
+          throw e;
+        }
+      }
     }
-
-    linkRef = this.addrToLinkRefMap.get(remoteAddr);
-    link = (Link<T>) linkRef.getLink();
-
-    if (link != null) {
-      return link;
-    }
-
-    final ChannelFuture connectFuture = this.clientBootstrap.connect(remoteAddr);
-    connectFuture.awaitUninterruptibly();
-
-    link = new NettyLink<>(connectFuture.channel(), encoder, listener);
-    linkRef.setLink(link);
-
-    synchronized (flag) {
-      flag.compareAndSet(true, false);
-      flag.notifyAll();
-    }
-
     return link;
   }
 

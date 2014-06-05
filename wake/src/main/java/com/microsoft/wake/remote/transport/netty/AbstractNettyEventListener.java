@@ -89,7 +89,8 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   protected abstract void exceptionCleanup(final ChannelHandlerContext ctx, Throwable cause);
   
   protected void closeChannel(final Channel channel) {
-    final LinkReference refRemoved = channel != null ?
+    final LinkReference refRemoved = 
+        channel != null && channel.remoteAddress() != null ?
         this.addrToLinkRefMap.remove(channel.remoteAddress()) : null;
     LOG.log(Level.FINER, "Channel closed: {0}. Link ref found and removed: {1}",
         new Object[]{channel, refRemoved != null});
