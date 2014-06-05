@@ -23,12 +23,12 @@ import com.microsoft.wake.time.Clock;
  * Configuration Module Builder for HttpRuntime
  */
 public final class HttpRuntimeConfiguration extends ConfigurationModuleBuilder {
-    /**
-     * HttpRuntimeConfiguration
-     */
-    public static final ConfigurationModule CONF = new HttpRuntimeConfiguration()
-            .bindSetEntry(Clock.RuntimeStartHandler.class, HttpRuntimeStartHandler.class)
-            .bindSetEntry(Clock.RuntimeStopHandler.class, HttpRuntimeStopHandler.class)
-            .bindImplementation(HttpServer.class, HttpServerImpl.class)
-            .build();
+  /**
+   * HttpRuntimeConfiguration
+   */
+  public static final ConfigurationModule CONF = new HttpRuntimeConfiguration()
+      .bindSetEntry(Clock.RuntimeStartHandler.class, HttpRuntimeStartHandler.class)
+      .bindSetEntry(Clock.RuntimeStopHandler.class, HttpRuntimeStopHandler.class)
+      .bindImplementation(HttpServer.class, HttpServerImpl.class)
+      .build();
 }

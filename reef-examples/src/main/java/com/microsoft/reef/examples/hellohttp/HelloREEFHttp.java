@@ -39,7 +39,7 @@ public final class HelloREEFHttp {
     /**
      * Number of milliseconds to wait for the job to complete.
      */
-    public static final int JOB_TIMEOUT = 300000; // 300 sec.
+    public static final int JOB_TIMEOUT = 60*1000; // 60 sec.
 
     /**
      * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
