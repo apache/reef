@@ -92,20 +92,19 @@ public class TestHttpServer {
   }
 
   @Test
-  public void fix () throws InjectionException, Exception {
+  public void httpServerPortRetryTest() throws InjectionException, Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
+    final Injector injector1 = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
+    final HttpServer httpServer1 = injector1.getInstance(HttpServer.class);
+    String portUsed = Integer.toString(httpServer1.getPort());
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(PortNumber.class, "3917");
-    cb.bindNamedParameter(MaxPortNumber.class, "3917");
-    cb.bindNamedParameter(MinPortNumber.class, "3917");
+    cb.bindNamedParameter(PortNumber.class, portUsed);
+    cb.bindNamedParameter(MaxPortNumber.class, portUsed);
+    cb.bindNamedParameter(MinPortNumber.class, portUsed);
     cb.bindNamedParameter(MaxRetryAttempts.class, "3");
     final Configuration httpServerConfiguration = cb.build();
-
     final Configuration configuration = Configurations.merge(httpRuntimeConfiguration, httpServerConfiguration);
-
-    final Injector injector1 = Tang.Factory.getTang().newInjector(configuration);
-    final HttpServer httpServer1 = injector1.getInstance(HttpServer.class);
 
     final Injector injector2 = Tang.Factory.getTang().newInjector(configuration);
     try {
