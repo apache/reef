@@ -52,6 +52,9 @@ public final class ResourceAllocationHandler
 
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceAllocationProto value) {
+    // FIXME: Using this put() method is a temporary fix for the race condition
+    // described in issues #828 and #839. Use Evaluators.put(EvaluatorManager) instead
+    // when the bug is fixed.
     this.evaluators.put(this.evaluatorManagerFactory, value);
   }
 }

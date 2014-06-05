@@ -93,6 +93,9 @@ public final class Evaluators implements AutoCloseable {
   /**
    * Create new EvaluatorManager and add it to the collection.
    *
+   * FIXME: This method is a temporary fix for the race condition
+   * described in issues #828 and #839.
+   *
    * @param evaluatorManagerFactory Factory that builds new EvaluatorManager objects.
    * @param evaluatorMsg Resource allocation message that contains data on the new evaluator.
    * @throws java.lang.IllegalArgumentException if the EvaluatorManager is already known.
