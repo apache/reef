@@ -26,40 +26,40 @@ import java.util.logging.Logger;
  * RuntimeStartHandler for Http server
  */
 final class HttpRuntimeStartHandler implements EventHandler<RuntimeStart> {
-    /**
-     * Standard Java logger.
-     */
-    private static final Logger LOG = Logger.getLogger(HttpRuntimeStartHandler.class.getName());
+  /**
+   * Standard Java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(HttpRuntimeStartHandler.class.getName());
 
-    /**
-     * HttpServer
-     */
-    private final HttpServer httpServer;
+  /**
+   * HttpServer
+   */
+  private final HttpServer httpServer;
 
-    /**
-     * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
-     *
-     * @param httpServer
-     */
-    @Inject
-    HttpRuntimeStartHandler(HttpServer httpServer) {
-        this.httpServer = httpServer;
+  /**
+   * Constructor of HttpRuntimeStartHandler. It has a reference of HttpServer
+   *
+   * @param httpServer
+   */
+  @Inject
+  HttpRuntimeStartHandler(HttpServer httpServer) {
+    this.httpServer = httpServer;
+  }
+
+  /**
+   * Override EventHandler<RuntimeStart>
+   *
+   * @param runtimeStart
+   */
+  @Override
+  public synchronized void onNext(final RuntimeStart runtimeStart) {
+    LOG.log(Level.FINEST, "HttpRuntimeStartHandler: {0}", runtimeStart);
+    try {
+      httpServer.start();
+      LOG.log(Level.FINEST, "HttpRuntimeStartHandler complete.");
+    } catch (final Exception e) {
+      LOG.log(Level.SEVERE, "HttpRuntimeStartHandler cannot start the Server. {0}", e);
+      throw new RuntimeException("HttpRuntimeStartHandler cannot start the Server.", e);
     }
-
-    /**
-     * Override EventHandler<RuntimeStart>
-     *
-     * @param runtimeStart
-     */
-    @Override
-    public synchronized void onNext(final RuntimeStart runtimeStart) {
-        LOG.log(Level.FINEST, "HttpRuntimeStartHandler: {0}", runtimeStart);
-        try {
-            httpServer.start();
-            LOG.log(Level.FINEST, "HttpRuntimeStartHandler complete.");
-        } catch (final Exception e) {
-            LOG.log(Level.SEVERE, "HttpRuntimeStartHandler cannot start the Server. {0}", e);
-            throw new RuntimeException("HttpRuntimeStartHandler cannot start the Server.", e);
-        }
-    }
+  }
 }

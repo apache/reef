@@ -1,0 +1,11 @@
+{"namespace": "com.microsoft.reef.webserver",
+ "type": "record",
+ "name": "AvroHttpRequest",
+ "fields": [
+     {"name": "requestUrl", "type": "string"},
+     {"name": "pathInfo", "type": "string"},
+     {"name": "queryString", "type": "string"},
+     {"name": "httpMethod", "type": "string"},
+     {"name": "inputStream", "type": "bytes"}
+ ]
+}

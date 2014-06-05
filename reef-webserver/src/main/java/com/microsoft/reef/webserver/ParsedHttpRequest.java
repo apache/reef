@@ -149,6 +149,7 @@ public final class ParsedHttpRequest {
 
   /**
    * get parsed queries
+   *
    * @return
    */
   public Map<String, List<String>> getQueryMap() {
@@ -157,6 +158,7 @@ public final class ParsedHttpRequest {
 
   /**
    * get URL like //http://localhost:8080/Reef/Evaluators/
+   *
    * @return
    */
   public String getRequestUrl() {
@@ -165,17 +167,19 @@ public final class ParsedHttpRequest {
 
   /**
    * get path infor, like /Reef/Evaluators/
+   *
    * @return
-  */
-  public String getPathInfo(){
+   */
+  public String getPathInfo() {
     return pathInfo;
   }
 
   /**
    * get URI, like /Reef/Evaluators/
+   *
    * @return
    */
-  public String getRequestUri(){
+  public String getRequestUri() {
     return this.requestUri;
   }
 }
