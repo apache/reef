@@ -13,40 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.webserver;
+package com.microsoft.reef.util;
 
-import com.microsoft.tang.annotations.DefaultImplementation;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * HttpServer interface
+ * A helper class that can be used to ensure that objects are only instantiated once.
  */
-@DefaultImplementation(HttpServerImpl.class)
-public interface HttpServer {
+public final class SingletonAsserter {
+
+  private static final Set<Class> classes = Collections.synchronizedSet(new HashSet<Class>());
 
   /**
-   * start the server
-   *
-   * @throws Exception
+   * This class operates purely in static mode.
    */
-  public void start() throws Exception;
+  private SingletonAsserter() {
+  }
 
-  /**
-   * stop the server
-   *
-   * @throws Exception
-   */
-  public void stop() throws Exception;
-
-  /**
-   * get port number of the server
-   *
-   * @return
-   */
-  public int getPort();
-
-  /**
-   * Add a httpHandler to the server
-   * @param httpHandler
-   */
-  public void addHttpHandler(HttpHandler httpHandler);
+  public static boolean assertSingleton(final Class clazz) {
+    return classes.add(clazz);
+  }
 }

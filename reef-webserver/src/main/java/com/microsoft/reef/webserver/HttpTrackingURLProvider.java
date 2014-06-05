@@ -16,7 +16,6 @@
 package com.microsoft.reef.webserver;
 
 import com.microsoft.reef.runtime.yarn.driver.TrackingURLProvider;
-import com.microsoft.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.net.InetAddress;
@@ -28,36 +27,38 @@ import java.util.logging.Logger;
  * Http TrackingURLProvider
  */
 public final class HttpTrackingURLProvider implements TrackingURLProvider {
-    /**
-     * Standard Java logger.
-     */
-    private static final Logger LOG = Logger.getLogger(HttpTrackingURLProvider.class.getName());
+  /**
+   * Standard Java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(HttpTrackingURLProvider.class.getName());
 
-    /**
-     * HttpServer
-     */
-    private final HttpServer httpServer;
+  /**
+   * HttpServer
+   */
+  private final HttpServer httpServer;
 
-    /**
-     * Constructor of HttpTrackingURLProvider
-     * @param httpServer
-     */
-    @Inject
-    public HttpTrackingURLProvider(final HttpServer httpServer) {
-        this.httpServer = httpServer;
+  /**
+   * Constructor of HttpTrackingURLProvider
+   *
+   * @param httpServer
+   */
+  @Inject
+  public HttpTrackingURLProvider(final HttpServer httpServer) {
+    this.httpServer = httpServer;
+  }
+
+  /**
+   * get tracking URI
+   *
+   * @return
+   */
+  @Override
+  public final String getTrackingUrl() {
+    try {
+      return InetAddress.getLocalHost().getHostAddress() + ":" + httpServer.getPort();
+    } catch (UnknownHostException e) {
+      LOG.log(Level.WARNING, "Cannot get host address.", e);
+      throw new RuntimeException("Cannot get host address.", e);
     }
-
-    /**
-     * get tracking URI
-     * @return
-     */
-    @Override
-    public final String getTrackingUrl() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress() + ":" + httpServer.getPort();
-        } catch (UnknownHostException e) {
-            LOG.log(Level.WARNING, "Cannot get host address.", e);
-            throw new RuntimeException("Cannot get host address.", e);
-        }
-    }
+  }
 }

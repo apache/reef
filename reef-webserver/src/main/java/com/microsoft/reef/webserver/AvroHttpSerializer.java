@@ -30,101 +30,107 @@ import java.nio.ByteBuffer;
  * Serialize Http Request Response data with Avro
  */
 public class AvroHttpSerializer {
-    private static final String JSON_CHARSET = "ISO-8859-1";
+  private static final String JSON_CHARSET = "ISO-8859-1";
 
-    public AvroHttpSerializer() {}
+  public AvroHttpSerializer() {
+  }
 
-    /**
-     * Convert from HttpServletRequest to AvroHttpRequest
-     * @param request
-     * @return
-     * @throws ServletException
-     * @throws IOException
-     */
-    public AvroHttpRequest toAvro(final HttpServletRequest request) throws ServletException, IOException {
-        final ParsedHttpRequest requestParser = new ParsedHttpRequest(request);
-        return AvroHttpRequest.newBuilder()
-                .setRequestUrl(requestParser.getRequestUrl())
-                .setHttpMethod(requestParser.getMethod())
-                .setQueryString(requestParser.getQueryString())
-                .setPathInfo(requestParser.getPathInfo())
-                .setInputStream(ByteBuffer.wrap(requestParser.getInputStream()))
-                .build();
+  /**
+   * Convert from HttpServletRequest to AvroHttpRequest
+   *
+   * @param request
+   * @return
+   * @throws ServletException
+   * @throws IOException
+   */
+  public AvroHttpRequest toAvro(final HttpServletRequest request) throws ServletException, IOException {
+    final ParsedHttpRequest requestParser = new ParsedHttpRequest(request);
+    return AvroHttpRequest.newBuilder()
+        .setRequestUrl(requestParser.getRequestUrl())
+        .setHttpMethod(requestParser.getMethod())
+        .setQueryString(requestParser.getQueryString())
+        .setPathInfo(requestParser.getPathInfo())
+        .setInputStream(ByteBuffer.wrap(requestParser.getInputStream()))
+        .build();
+  }
+
+  /**
+   * From AvroHttpRequest to Jason String
+   *
+   * @param request
+   * @return
+   */
+  public String toString(final AvroHttpRequest request) {
+    final DatumWriter<AvroHttpRequest> configurationWriter1 = new SpecificDatumWriter<>(AvroHttpRequest.class);
+    final String result;
+    try {
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroHttpRequest.SCHEMA$, out);
+      configurationWriter1.write(request, encoder);
+      encoder.flush();
+      out.flush();
+      result = out.toString(JSON_CHARSET);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
+    return result;
+  }
 
-    /**
-     * From AvroHttpRequest to Jason String
-     * @param request
-     * @return
-     */
-    public String toString (final AvroHttpRequest request) {
-        final DatumWriter<AvroHttpRequest> configurationWriter1 = new SpecificDatumWriter<>(AvroHttpRequest.class);
-        final String result;
-        try {
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(AvroHttpRequest.SCHEMA$, out);
-            configurationWriter1.write(request, encoder);
-            encoder.flush();
-            out.flush();
-            result = out.toString(JSON_CHARSET);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-        return result;
+  /**
+   * From Json String to AvroHttpRequest
+   *
+   * @param jasonStr
+   * @return
+   */
+  public AvroHttpRequest fromString(final String jasonStr) {
+    final AvroHttpRequest request;
+    try {
+      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(AvroHttpRequest.getClassSchema(), jasonStr);
+      final SpecificDatumReader<AvroHttpRequest> reader = new SpecificDatumReader<>(AvroHttpRequest.class);
+      request = reader.read(null, decoder);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
+    return request;
+  }
 
-    /**
-     * From Json String to AvroHttpRequest
-     * @param jasonStr
-     * @return
-     */
-    public AvroHttpRequest fromString(final String jasonStr) {
-        final AvroHttpRequest request;
-        try {
-            final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(AvroHttpRequest.getClassSchema(), jasonStr);
-            final SpecificDatumReader<AvroHttpRequest> reader = new SpecificDatumReader<>(AvroHttpRequest.class);
-            request = reader.read(null, decoder);
-        } catch(final IOException e) {
-            throw new RuntimeException(e);
-        }
-        return request;
+  /**
+   * From AvroHttpRequest to bytes
+   *
+   * @param request
+   * @return
+   */
+  public byte[] toBytes(final AvroHttpRequest request) {
+    final DatumWriter<AvroHttpRequest> requestWriter = new SpecificDatumWriter<>(AvroHttpRequest.class);
+    final byte[] theBytes;
+    try {
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+      requestWriter.write(request, encoder);
+      encoder.flush();
+      out.flush();
+      theBytes = out.toByteArray();
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
+    return theBytes;
+  }
 
-    /**
-     * From AvroHttpRequest to bytes
-     * @param request
-     * @return
-     */
-    public byte[] toBytes (final AvroHttpRequest request) {
-        final DatumWriter<AvroHttpRequest> requestWriter = new SpecificDatumWriter<>(AvroHttpRequest.class);
-        final byte[] theBytes;
-        try {
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            final BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-            requestWriter.write(request, encoder);
-            encoder.flush();
-            out.flush();
-            theBytes = out.toByteArray();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-        return theBytes;
+  /**
+   * From bytes to AvroHttpRequest
+   *
+   * @param theBytes
+   * @return
+   */
+  public AvroHttpRequest fromBytes(final byte[] theBytes) {
+    final AvroHttpRequest request;
+    try {
+      final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(theBytes, null);
+      final SpecificDatumReader<AvroHttpRequest> reader = new SpecificDatumReader<>(AvroHttpRequest.class);
+      request = reader.read(null, decoder);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
-
-    /**
-     * From bytes to AvroHttpRequest
-     * @param theBytes
-     * @return
-     */
-    public AvroHttpRequest fromBytes(final byte[] theBytes) {
-        final AvroHttpRequest request;
-        try {
-            final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(theBytes, null);
-            final SpecificDatumReader<AvroHttpRequest> reader = new SpecificDatumReader<>(AvroHttpRequest.class);
-            request = reader.read(null, decoder);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-        return request;
-    }
+    return request;
+  }
 }

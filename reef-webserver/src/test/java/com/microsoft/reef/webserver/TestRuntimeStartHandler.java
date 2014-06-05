@@ -24,7 +24,8 @@ import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.runtime.RuntimeClock;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 import com.microsoft.wake.time.runtime.event.RuntimeStop;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Set;
 
@@ -41,7 +42,7 @@ public class TestRuntimeStartHandler {
    */
   @Test
   public void testHttpHandlerBindingWithRuntimeClock() throws BindException, InjectionException {
-   final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
+    final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
     final RuntimeClock clock = Tang.Factory.getTang().newInjector(clockConfiguraiton).getInstance(RuntimeClock.class);
@@ -62,7 +63,7 @@ public class TestRuntimeStartHandler {
     final Injector injector = Tang.Factory.getTang().newInjector(clockConfiguraiton);
     final Set<EventHandler<RuntimeStart>> startEventHandlers = injector.getNamedInstance(RuntimeClock.RuntimeStartHandler.class);
     for (final EventHandler<RuntimeStart> enventHandler : startEventHandlers) {
-      final HttpRuntimeStartHandler runtimeStartHandler = (HttpRuntimeStartHandler)enventHandler;
+      final HttpRuntimeStartHandler runtimeStartHandler = (HttpRuntimeStartHandler) enventHandler;
       try {
         runtimeStartHandler.onNext(null);
       } catch (final Exception e) {
@@ -72,7 +73,7 @@ public class TestRuntimeStartHandler {
 
     final Set<EventHandler<RuntimeStop>> stopEventHandlers = injector.getNamedInstance(RuntimeClock.RuntimeStopHandler.class);
     for (final EventHandler<RuntimeStop> enventHandler : stopEventHandlers) {
-      final HttpRuntimeStopHandler runtimeStopHandler = (HttpRuntimeStopHandler)enventHandler;
+      final HttpRuntimeStopHandler runtimeStopHandler = (HttpRuntimeStopHandler) enventHandler;
       try {
         runtimeStopHandler.onNext(null);
       } catch (final Exception e) {
