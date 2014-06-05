@@ -29,24 +29,32 @@ import javax.inject.Inject;
  */
 @Private
 @DriverSide
-public final class ResourceAllocationHandler implements EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> {
+public final class ResourceAllocationHandler
+    implements EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> {
+
   /**
-   * Helper class to make new EvaluatorManager instances, given a Node they have been allocated on.
+   * Helper class to make new EvaluatorManager instances,
+   * given a Node they have been allocated on.
    */
   private final EvaluatorManagerFactory evaluatorManagerFactory;
+
   /**
    * The Evaluators known to the Driver.
    */
   private final Evaluators evaluators;
 
   @Inject
-  ResourceAllocationHandler(final EvaluatorManagerFactory evaluatorManagerFactory, final Evaluators evaluators) {
+  ResourceAllocationHandler(
+      final EvaluatorManagerFactory evaluatorManagerFactory, final Evaluators evaluators) {
     this.evaluatorManagerFactory = evaluatorManagerFactory;
     this.evaluators = evaluators;
   }
 
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceAllocationProto value) {
-    evaluators.put(this.evaluatorManagerFactory.getNewEvaluatorManager(value));
+    // FIXME: Using this put() method is a temporary fix for the race condition
+    // described in issues #828 and #839. Use Evaluators.put(EvaluatorManager) instead
+    // when the bug is fixed.
+    this.evaluators.put(this.evaluatorManagerFactory, value);
   }
 }
