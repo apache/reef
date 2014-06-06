@@ -158,7 +158,6 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * @param size
    * @return the bit representation of size
    */
-  /*
   private byte[] sizeAsByteArr(final int size) {
     final byte[] ret = new byte[INT_SIZE];
     final ByteBuf intBuffer = Unpooled.wrappedBuffer(ret).order(Unpooled.LITTLE_ENDIAN);
@@ -166,7 +165,6 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
     intBuffer.writeInt(size);
     return ret;
   }
-  */
   
   /**
    * Get expected size encoded as the first
@@ -175,11 +173,10 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * @param data
    * @return size
    */
-  /*
   private int getSize(final byte[] data) {
     return getSize(data, 0);
   }
-  */
+  
   
   /**
    * Get expected size encoded as offset + 4 bytes 
@@ -189,7 +186,6 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * @param offset
    * @return size
    */
-  /*
   private int getSize(final byte[] data, final int offset) {
     if (data.length - offset < INT_SIZE) {
       return 0;
@@ -199,5 +195,4 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       return ret;
     }
   }
-  */
 }
