@@ -82,4 +82,9 @@ public final class FailTaskTest {
   public void testFailTaskStop() throws BindException, InjectionException {
     failOn(FailTaskStop.class);
   }
+
+  @Test
+  public void testFailTaskClose() throws BindException, InjectionException {
+    failOn(FailTaskClose.class);
+  }
 }

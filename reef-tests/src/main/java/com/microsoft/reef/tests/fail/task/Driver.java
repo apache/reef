@@ -103,6 +103,11 @@ public final class Driver {
                 .set(TaskConfiguration.ON_TASK_STOP, FailTaskStop.class)
                 .set(TaskConfiguration.ON_CLOSE, FailTaskStop.CloseEventHandler.class);
             break;
+          case "FailTaskClose":
+            taskConfig = taskConfig
+                .set(TaskConfiguration.TASK, FailTaskClose.class)
+                .set(TaskConfiguration.ON_CLOSE, FailTaskClose.class);
+            break;
         }
 
         eval.submitContextAndTask(contextConfig, taskConfig.build());
@@ -136,7 +141,8 @@ public final class Driver {
           task.suspend();
           break;
         case "FailTaskStop":
-          LOG.log(Level.INFO, "TaskRuntime: Stop: {0}", task);
+        case "FailTaskClose":
+          LOG.log(Level.INFO, "TaskRuntime: Stop/Close: {0}", task);
           task.close();
           break;
       }
