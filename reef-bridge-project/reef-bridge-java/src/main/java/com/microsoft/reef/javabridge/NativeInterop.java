@@ -92,6 +92,7 @@ public class NativeInterop {
 
     static String[] managedDlls =		{
             "ClrHandler",
+             "msvcr110",
     };
 
     static {
