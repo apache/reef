@@ -16,8 +16,10 @@
 package com.microsoft.reef.tests.fail.task;
 
 import com.microsoft.reef.task.Task;
+import com.microsoft.reef.task.events.CloseEvent;
 import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.tests.exceptions.SimulatedTaskFailure;
+import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -27,6 +29,7 @@ import java.util.logging.Logger;
 /**
  * A basic task that just fails when we stop it.
  */
+@Unit
 public final class FailTaskStop implements Task, EventHandler<TaskStop> {
 
   private static final Logger LOG = Logger.getLogger(FailTaskStop.class.getName());
@@ -35,13 +38,13 @@ public final class FailTaskStop implements Task, EventHandler<TaskStop> {
 
   @Inject
   public FailTaskStop() {
-    LOG.info("FailTaskStop created.");
+    LOG.fine("FailTaskStop created.");
   }
 
   @Override
   public byte[] call(final byte[] memento) {
     synchronized (this) {
-      LOG.info("FailTaskStop.call() invoked. Waiting for the message.");
+      LOG.fine("FailTaskStop.call() invoked. Waiting for the message.");
       while (this.isRunning) {
         try {
           this.wait();
@@ -56,7 +59,18 @@ public final class FailTaskStop implements Task, EventHandler<TaskStop> {
   @Override
   public void onNext(final TaskStop event) throws SimulatedTaskFailure {
     final SimulatedTaskFailure ex = new SimulatedTaskFailure("FailTaskStop.send() invoked.");
-    LOG.log(Level.FINE, "FailTaskStop.onNext() invoked: {0}", ex);
+    LOG.log(Level.FINE, "FailTaskStop.onNext() invoked. Raise exception: {0}", ex.toString());
     throw ex;
+  }
+
+  public final class CloseEventHandler implements EventHandler<CloseEvent> {
+    @Override
+    public void onNext(final CloseEvent event) {
+      LOG.log(Level.FINEST, "FailTaskStop.CloseEventHandler.onNext() invoked: {0}", event);
+      synchronized (FailTaskStop.this) {
+        isRunning = false;
+        FailTaskStop.this.notify();
+      }
+    }
   }
 }

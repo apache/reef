@@ -44,12 +44,13 @@ public final class FailTaskTest {
     this.testEnvironment.tearDown();
   }
 
-  private void failOn(final Class<? extends Task> failTaskClass) throws BindException, InjectionException {
+  private void failOn(
+      final Class<? extends Task> failTaskClass) throws BindException, InjectionException {
     TestUtils.assertLauncherFailure(
         Client.run(failTaskClass,
-            this.testEnvironment.getRuntimeConfiguration(), this.testEnvironment.getTestTimeout()),
-        SimulatedTaskFailure.class
-    );
+                   this.testEnvironment.getRuntimeConfiguration(),
+                   this.testEnvironment.getTestTimeout()),
+        SimulatedTaskFailure.class);
   }
 
   @Test
@@ -77,8 +78,8 @@ public final class FailTaskTest {
     failOn(FailTaskStart.class);
   }
 
-//  @Test
-//  public void testFailTaskStop() throws BindException, InjectionException {
-//    failOn(FailTaskStop.class);
-//  }
+  @Test
+  public void testFailTaskStop() throws BindException, InjectionException {
+    failOn(FailTaskStop.class);
+  }
 }

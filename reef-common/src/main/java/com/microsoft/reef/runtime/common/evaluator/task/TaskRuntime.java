@@ -44,46 +44,51 @@ public final class TaskRuntime extends Thread {
 
   private final static Logger LOG = Logger.getLogger(TaskRuntime.class.getName());
 
-  /// User supplied Task code
+  /** User supplied Task code. */
   private final Task task;
+
   private final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler;
   private final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler;
   private final InjectionFuture<EventHandler<DriverMessage>> f_messageHandler;
   private final TaskLifeCycleHandlers taskLifeCycleHandlers;
 
-  // The memento given by the task configuration
+  /** The memento given by the task configuration. */
   private final Optional<byte[]> memento;
 
-  // Heart beat manager to trigger on heartbeats.
+  /** Heart beat manager to trigger on heartbeats. */
   private final HeartBeatManager heartBeatManager;
 
   private final TaskStatus currentStatus;
 
   // TODO: Document
   @Inject
-  private TaskRuntime(final HeartBeatManager heartBeatManager,
-                      final Task task,
-                      final TaskStatus currentStatus,
-                      final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-                      final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-                      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
-                      final TaskLifeCycleHandlers taskLifeCycleHandlers) {
+  private TaskRuntime(
+      final HeartBeatManager heartBeatManager,
+      final Task task,
+      final TaskStatus currentStatus,
+      final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
+      final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
+      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+      final TaskLifeCycleHandlers taskLifeCycleHandlers) {
     this(heartBeatManager, task, currentStatus, f_closeHandler, f_suspendHandler, f_messageHandler, null, taskLifeCycleHandlers);
   }
 
   // TODO: Document
   @Inject
-  private TaskRuntime(final HeartBeatManager heartBeatManager,
-                      final Task task,
-                      final TaskStatus currentStatus,
-                      final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-                      final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-                      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
-                      final @Parameter(TaskConfigurationOptions.Memento.class) String memento,
-                      final TaskLifeCycleHandlers taskLifeCycleHandlers) {
+  private TaskRuntime(
+      final HeartBeatManager heartBeatManager,
+      final Task task,
+      final TaskStatus currentStatus,
+      final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
+      final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
+      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+      final @Parameter(TaskConfigurationOptions.Memento.class) String memento,
+      final TaskLifeCycleHandlers taskLifeCycleHandlers) {
+
     this.heartBeatManager = heartBeatManager;
     this.task = task;
     this.taskLifeCycleHandlers = taskLifeCycleHandlers;
+
     this.memento = null == memento ? Optional.<byte[]>empty() :
         Optional.of(DatatypeConverter.parseBase64Binary(memento));
 
@@ -92,7 +97,6 @@ public final class TaskRuntime extends Thread {
     this.f_messageHandler = f_messageHandler;
 
     this.currentStatus = currentStatus;
-
   }
 
   /**
@@ -100,7 +104,6 @@ public final class TaskRuntime extends Thread {
    */
   public void initialize() {
     this.currentStatus.setInit();
-
   }
 
   /**
@@ -136,7 +139,6 @@ public final class TaskRuntime extends Thread {
     }
   }
 
-
   /**
    * Called by heartbeat manager
    *
@@ -169,14 +171,15 @@ public final class TaskRuntime extends Thread {
     LOG.log(Level.FINEST, "Triggering Task close.");
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
-        LOG.log(Level.WARNING, "Trying to close a task that is in state: '{0}'. Ignoring.",
+        LOG.log(Level.WARNING, "Trying to close a task that is in state: {0}. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
           this.closeTask(message);
           this.currentStatus.setCloseRequested();
         } catch (final TaskCloseHandlerFailure taskCloseHandlerFailure) {
-          LOG.log(Level.WARNING, "Exception while executing task close handler.", taskCloseHandlerFailure.getCause());
+          LOG.log(Level.WARNING, "Exception while executing task close handler.",
+              taskCloseHandlerFailure.getCause());
           this.currentStatus.setException(taskCloseHandlerFailure.getCause());
         }
       }
@@ -191,14 +194,15 @@ public final class TaskRuntime extends Thread {
   public void suspend(final byte[] message) {
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
-        LOG.log(Level.WARNING, "Trying to suspend a task that is in state: '{0}'. Ignoring.",
+        LOG.log(Level.WARNING, "Trying to suspend a task that is in state: {0}. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
           this.suspendTask(message);
           this.currentStatus.setSuspendRequested();
         } catch (final TaskSuspendHandlerFailure taskSuspendHandlerFailure) {
-          LOG.log(Level.WARNING, "Exception while executing task suspend handler.", taskSuspendHandlerFailure.getCause());
+          LOG.log(Level.WARNING, "Exception while executing task suspend handler.",
+              taskSuspendHandlerFailure.getCause());
           this.currentStatus.setException(taskSuspendHandlerFailure.getCause());
         }
       }
@@ -213,13 +217,15 @@ public final class TaskRuntime extends Thread {
   public void deliver(final byte[] message) {
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {
-        LOG.log(Level.WARNING, "Trying to send a message to a task that is in state: '{0}'. Ignoring.",
+        LOG.log(Level.WARNING,
+            "Trying to send a message to a task that is in state: {0}. Ignoring.",
             this.currentStatus.getState());
       } else {
         try {
           this.deliverMessageToTask(message);
         } catch (final TaskMessageHandlerFailure taskMessageHandlerFailure) {
-          LOG.log(Level.WARNING, "Exception while executing task close handler.", taskMessageHandlerFailure.getCause());
+          LOG.log(Level.WARNING, "Exception while executing task close handler.",
+              taskMessageHandlerFailure.getCause());
           this.currentStatus.setException(taskMessageHandlerFailure.getCause());
         }
       }
@@ -237,8 +243,8 @@ public final class TaskRuntime extends Thread {
    * Calls the Task.call() method and catches exceptions it may throw.
    *
    * @return the return value of Task.call()
-   * @throws TaskCallFailure if any Throwable was caught from the Task.call() method. That throwable would be the cause
-   *                         of the TaskCallFailure
+   * @throws TaskCallFailure if any Throwable was caught from the Task.call() method.
+   * That throwable would be the cause of the TaskCallFailure.
    */
   private byte[] runTask() throws TaskCallFailure {
     try {
