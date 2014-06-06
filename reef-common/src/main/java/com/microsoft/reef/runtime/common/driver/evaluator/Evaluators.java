@@ -25,6 +25,7 @@ import com.microsoft.reef.util.SingletonAsserter;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,8 +61,12 @@ public final class Evaluators implements AutoCloseable {
    * Closes all EvaluatorManager instances managed.
    */
   @Override
-  public synchronized void close() {
-    for (final EvaluatorManager evaluatorManager : new ArrayList<>(this.evaluators.values())) {
+  public void close() {
+    final List<EvaluatorManager> evaluatorsCopy;
+    synchronized (this) {
+      evaluatorsCopy = new ArrayList<>(this.evaluators.values());
+    }
+    for (final EvaluatorManager evaluatorManager : evaluatorsCopy) {
       LOG.log(Level.WARNING, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
       evaluatorManager.close();
     }
