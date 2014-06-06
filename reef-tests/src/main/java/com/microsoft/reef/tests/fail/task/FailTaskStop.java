@@ -53,7 +53,7 @@ public final class FailTaskStop implements Task, EventHandler<TaskStop> {
         }
       }
     }
-    return new byte[0];
+    return null;
   }
 
   @Override
