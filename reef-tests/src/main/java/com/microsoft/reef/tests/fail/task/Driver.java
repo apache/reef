@@ -22,11 +22,6 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.task.Task;
-import com.microsoft.reef.task.events.DriverMessage;
-import com.microsoft.reef.task.events.SuspendEvent;
-import com.microsoft.reef.task.events.TaskStart;
-import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
@@ -39,9 +34,6 @@ import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,28 +49,14 @@ public final class Driver {
 
   private static final Logger LOG = Logger.getLogger(Driver.class.getName());
 
-  private static final Map<String, Class<? extends Task>> FAIL_TASKS =
-      new HashMap<String, Class<? extends Task>>() {{
-        for (final Class<? extends Task> task : Arrays.asList(
-            FailTask.class,
-            FailTaskStart.class,
-            FailTaskCall.class,
-            FailTaskMsg.class,
-            FailTaskSuspend.class,
-            FailTaskStop.class)) {
-          put(task.getName(), task);
-        }
-      }};
-
-  private final transient Class<? extends Task> failTask;
+  private final transient String failTaskName;
   private final transient EvaluatorRequestor requestor;
   private transient String taskId;
 
   @Inject
   public Driver(final @Parameter(FailTaskName.class) String failTaskName,
                 final EvaluatorRequestor requestor) {
-    this.failTask = FAIL_TASKS.get(failTaskName);
-    assert (this.failTask != null);
+    this.failTaskName = failTaskName;
     this.requestor = requestor;
   }
 
@@ -88,41 +66,42 @@ public final class Driver {
 
       try {
 
-        taskId = failTask.getSimpleName() + "_" + eval.getId();
+        taskId = failTaskName + "_" + eval.getId();
         LOG.log(Level.INFO, "Submit task: {0}", taskId);
 
-        final Configuration contextConfig = ContextConfiguration.CONF
-            .set(ContextConfiguration.IDENTIFIER, taskId)
-            .build();
+        final Configuration contextConfig =
+            ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, taskId).build();
 
-        ConfigurationModule taskConfig = TaskConfiguration.CONF
-            .set(TaskConfiguration.IDENTIFIER, taskId)
-            .set(TaskConfiguration.TASK, failTask);
+        ConfigurationModule taskConfig =
+            TaskConfiguration.CONF.set(TaskConfiguration.IDENTIFIER, taskId);
 
-        switch (failTask.getSimpleName()) {
+        switch (failTaskName) {
+          case "FailTask":
+            taskConfig = taskConfig.set(TaskConfiguration.TASK, FailTask.class);
+            break;
+          case "FailTaskCall":
+            taskConfig = taskConfig.set(TaskConfiguration.TASK, FailTaskCall.class);
+            break;
           case "FailTaskMsg":
-            LOG.log(Level.INFO, "MessageHandler: {0}", failTask);
-            taskConfig = taskConfig.set(
-                TaskConfiguration.ON_MESSAGE,
-                (Class<? extends EventHandler<DriverMessage>>) failTask);
+            taskConfig = taskConfig
+                .set(TaskConfiguration.TASK, FailTaskMsg.class)
+                .set(TaskConfiguration.ON_MESSAGE, FailTaskMsg.class);
             break;
           case "FailTaskSuspend":
-            LOG.log(Level.INFO, "SuspendHandler: {0}", failTask);
-            taskConfig = taskConfig.set(
-                TaskConfiguration.ON_SUSPEND,
-                (Class<? extends EventHandler<SuspendEvent>>) failTask);
+            taskConfig = taskConfig
+                .set(TaskConfiguration.TASK, FailTaskSuspend.class)
+                .set(TaskConfiguration.ON_SUSPEND, FailTaskSuspend.class);
             break;
           case "FailTaskStart":
-            LOG.log(Level.INFO, "StartHandler: {0}", failTask);
-            taskConfig = taskConfig.set(
-                TaskConfiguration.ON_TASK_STARTED,
-                (Class<? extends EventHandler<TaskStart>>) failTask);
+            taskConfig = taskConfig
+                .set(TaskConfiguration.TASK, FailTaskStart.class)
+                .set(TaskConfiguration.ON_TASK_STARTED, FailTaskStart.class);
             break;
           case "FailTaskStop":
-            LOG.log(Level.INFO, "StopHandler: {0}", failTask);
-            taskConfig = taskConfig.set(
-                TaskConfiguration.ON_TASK_STOP,
-                (Class<? extends EventHandler<TaskStop>>) failTask);
+            taskConfig = taskConfig
+                .set(TaskConfiguration.TASK, FailTaskStop.class)
+                .set(TaskConfiguration.ON_TASK_STOP, FailTaskStop.class)
+                .set(TaskConfiguration.ON_CLOSE, FailTaskStop.CloseEventHandler.class);
             break;
         }
 
@@ -147,7 +126,7 @@ public final class Driver {
             + " not equal expected ID " + taskId);
       }
 
-      switch (failTask.getSimpleName()) {
+      switch (failTaskName) {
         case "FailTaskMsg":
           LOG.log(Level.INFO, "TaskRuntime: Send message: {0}", task);
           task.send(new byte[0]);

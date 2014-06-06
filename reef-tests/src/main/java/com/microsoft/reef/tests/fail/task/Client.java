@@ -38,7 +38,7 @@ public final class Client {
 
     final Configuration driverConfig =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "Fail_" + failTaskClass.getSimpleName())
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, failTaskClass.getSimpleName())
             .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.AllocatedEvaluatorHandler.class)
             .set(DriverConfiguration.ON_TASK_RUNNING, Driver.RunningTaskHandler.class)
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, Driver.ActiveContextHandler.class)
@@ -47,7 +47,7 @@ public final class Client {
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.addConfiguration(driverConfig);
-    cb.bindNamedParameter(Driver.FailTaskName.class, failTaskClass.getName());
+    cb.bindNamedParameter(Driver.FailTaskName.class, failTaskClass.getSimpleName());
 
     return TestDriverLauncher.getLauncher(runtimeConfig).run(cb.build(), timeOut);
   }
