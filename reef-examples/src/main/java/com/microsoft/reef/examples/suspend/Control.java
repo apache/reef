@@ -24,16 +24,19 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.CommandLine;
+import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.RemoteIdentifier;
-import com.microsoft.wake.remote.RemoteIdentifierFactory;
-import com.microsoft.wake.remote.RemoteManager;
-import com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
-import com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation;
+import com.microsoft.wake.impl.LoggingEventHandler;
+import com.microsoft.wake.impl.ThreadPoolStage;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
+import com.microsoft.wake.remote.impl.TransportEvent;
+import com.microsoft.wake.remote.transport.Link;
+import com.microsoft.wake.remote.transport.Transport;
+import com.microsoft.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,23 +65,6 @@ public final class Control {
     this.port = port;
   }
 
-  public void run() throws Exception {
-    LOG.log(Level.INFO, "command: {0} task: {1} port: {2}",
-        new Object[]{this.command, this.taskId, this.port});
-    final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
-    try (final RemoteManager rm = new DefaultRemoteManagerImplementation("Control", "localhost", 0, codec, new EventHandler<Throwable>() {
-      @Override
-      public void onNext(final Throwable throwable) {
-        throw new RuntimeException(throwable);
-      }
-    }, true)) {
-      final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-      final RemoteIdentifier remoteId = factory.getNewInstance("socket://localhost:" + port);
-      final EventHandler<String> proxyConnection = rm.getHandler(remoteId, String.class);
-      proxyConnection.onNext(command + " " + taskId);
-    }
-  }
-
   private static Configuration getConfig(final String[] args) throws IOException, BindException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     new CommandLine(cb).processCommandLine(args, SuspendClientControl.Port.class, TaskId.class, Command.class);
@@ -90,5 +76,26 @@ public final class Control {
     final Injector injector = Tang.Factory.getTang().newInjector(config);
     final Control control = injector.getInstance(Control.class);
     control.run();
+  }
+
+  public void run() throws Exception {
+
+    LOG.log(Level.INFO, "command: {0} task: {1} port: {2}",
+        new Object[] { this.command, this.taskId, this.port });
+
+    final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
+
+    final EStage<TransportEvent> stage = new ThreadPoolStage<>("suspend-control-client",
+        new LoggingEventHandler<TransportEvent>(), 1, new EventHandler<Throwable>() {
+      @Override
+      public void onNext(final Throwable throwable) {
+        throw new RuntimeException(throwable);
+      }
+    });
+
+    try (final Transport transport = new NettyMessagingTransport("localhost", 0, stage, stage, 1, 10000)) {
+      final Link link = transport.open(new InetSocketAddress("localhost", this.port), codec, null);
+      link.write(this.command + " " + this.taskId);
+    }
   }
 }

@@ -26,6 +26,7 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,14 +60,15 @@ public class SuspendClient {
    * @param delay     delay in seconds between cycles in the task.
    */
   @Inject
-  SuspendClient(final REEF reef,
-                @Parameter(SuspendClientControl.Port.class) final int port,
-                @Parameter(Launch.NumCycles.class) final int numCycles,
-                @Parameter(Launch.Delay.class) final int delay) throws BindException {
+  SuspendClient(
+      final REEF reef,
+      final @Parameter(SuspendClientControl.Port.class) int port,
+      final @Parameter(Launch.NumCycles.class) int numCycles,
+      final @Parameter(Launch.Delay.class) int delay) throws BindException, IOException {
 
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(Launch.NumCycles.class, Integer.toString(numCycles));
-    cb.bindNamedParameter(Launch.Delay.class, Integer.toString(delay));
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(Launch.NumCycles.class, Integer.toString(numCycles))
+        .bindNamedParameter(Launch.Delay.class, Integer.toString(delay));
 
     cb.addConfiguration(
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)

@@ -19,14 +19,16 @@ import com.microsoft.reef.client.RunningJob;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.impl.ThreadPoolStage;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-import com.microsoft.wake.remote.impl.RemoteEvent;
-import com.microsoft.wake.remote.impl.RemoteReceiverStage;
+import com.microsoft.wake.remote.impl.TransportEvent;
 import com.microsoft.wake.remote.transport.Transport;
 import com.microsoft.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,28 +43,39 @@ public class SuspendClientControl implements AutoCloseable {
   }
 
   private static final Logger LOG = Logger.getLogger(Control.class.getName());
-  private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
+  private static final ObjectSerializableCodec<byte[]> CODEC = new ObjectSerializableCodec<>();
 
   private transient RunningJob runningJob;
+
   private final transient Transport transport;
 
   @Inject
-  public SuspendClientControl(@Parameter(SuspendClientControl.Port.class) final int port) {
+  public SuspendClientControl(
+      final @Parameter(SuspendClientControl.Port.class) int port) throws IOException {
+
     LOG.log(Level.INFO, "Listen to control port {0}", port);
-    final RemoteReceiverStage recvStage = new RemoteReceiverStage(new ControlMessageHandler(), true);
-    this.transport = new NettyMessagingTransport("localhost", port, recvStage, recvStage);
+
+    final EStage<TransportEvent> stage = new ThreadPoolStage<>(
+        "suspend-control-server", new ControlMessageHandler(), 1, new EventHandler<Throwable>() {
+      @Override
+      public void onNext(final Throwable throwable) {
+        throw new RuntimeException(throwable);
+      }
+    });
+
+    this.transport = new NettyMessagingTransport("localhost", port, stage, stage, 1, 10000);
   }
 
   /**
    * Forward remote message to the job driver.
    */
-  private class ControlMessageHandler implements EventHandler<RemoteEvent<byte[]>> {
+  private class ControlMessageHandler implements EventHandler<TransportEvent> {
     @Override
-    public synchronized void onNext(final RemoteEvent<byte[]> msg) {
+    public synchronized void onNext(final TransportEvent msg) {
       LOG.log(Level.INFO, "Control message: {0} destination: {1}",
-              new Object[] { CODEC.decode(msg.getEvent()), runningJob });
+              new Object[] { CODEC.decode(msg.getData()), runningJob });
       if (runningJob != null) {
-        runningJob.send(msg.getEvent());
+        runningJob.send(msg.getData());
       }
     }
   }
