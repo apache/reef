@@ -71,13 +71,6 @@ public final class Control {
     return cb.build();
   }
 
-  public static void main(final String[] args) throws Exception {
-    final Configuration config = getConfig(args);
-    final Injector injector = Tang.Factory.getTang().newInjector(config);
-    final Control control = injector.getInstance(Control.class);
-    control.run();
-  }
-
   public void run() throws Exception {
 
     LOG.log(Level.INFO, "command: {0} task: {1} port: {2}",
@@ -97,5 +90,12 @@ public final class Control {
       final Link link = transport.open(new InetSocketAddress("localhost", this.port), codec, null);
       link.write(this.command + " " + this.taskId);
     }
+  }
+
+  public static void main(final String[] args) throws Exception {
+    final Configuration config = getConfig(args);
+    final Injector injector = Tang.Factory.getTang().newInjector(config);
+    final Control control = injector.getInstance(Control.class);
+    control.run();
   }
 }
