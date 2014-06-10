@@ -42,7 +42,7 @@
         <reef.log.dir>${project.build.directory}/log</reef.log.dir>
         <bundle.snappy>false</bundle.snappy>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version>2.2.0</hadoop.version>
+        <hadoop.version>2.4.0</hadoop.version>
         <avro.version>1.7.6</avro.version>
         <tang.version>${project.version}</tang.version>
         <wake.version>${project.version}</wake.version>
