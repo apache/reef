@@ -79,7 +79,7 @@ public class ObjectWritableCodec<T extends Writable> implements Codec<T> {
   public T decode(byte[] buffer) {
     try (final ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
          final DataInputStream dis = new DataInputStream(bis)) {
-        final T writable = this.writableClass.newInstance();
+      final T writable = this.writableClass.newInstance();
       writable.readFields(dis);
       return writable;
     } catch (final IOException | InstantiationException | IllegalAccessException ex) {
