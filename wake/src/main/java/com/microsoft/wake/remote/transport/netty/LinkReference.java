@@ -15,14 +15,14 @@
  */
 package com.microsoft.wake.remote.transport.netty;
 
-import com.microsoft.wake.remote.transport.Link;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.microsoft.wake.remote.transport.Link;
 
 final class LinkReference {
 
   private Link<?> link;
-  private AtomicBoolean connectInProgress = new AtomicBoolean(false);
+  private final AtomicInteger connectInProgress = new AtomicInteger(0);
 
   LinkReference() {
   }
@@ -39,7 +39,7 @@ final class LinkReference {
     return this.link;
   }
 
-  AtomicBoolean getConnectInProgress() {
+  AtomicInteger getConnectInProgress() {
     return this.connectInProgress;
   }
 }
