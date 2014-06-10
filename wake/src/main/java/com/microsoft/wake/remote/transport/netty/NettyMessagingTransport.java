@@ -230,7 +230,7 @@ public class NettyMessagingTransport implements Transport {
 
       synchronized (flag) {
         if (!flag.compareAndSet(0, 1)) {
-          while (flag.get()!=2) {
+          while (flag.get()==1) {
             try {
               flag.wait();
             } catch (final InterruptedException ex) {
