@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.examples.suspend;
 
-import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
@@ -33,8 +32,6 @@ import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-import com.microsoft.wake.time.Clock;
-import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 
@@ -52,10 +49,14 @@ import java.util.logging.Logger;
  */
 @Unit
 public class SuspendDriver {
+
   /**
    * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(SuspendDriver.class.getName());
+
+  /** Number of evaluators to request */
+  private static final int NUM_EVALUATORS = 2;
 
   /**
    * String codec is used to encode the results driver sends to the client.
@@ -68,11 +69,6 @@ public class SuspendDriver {
   private static final ObjectSerializableCodec<Integer> CODEC_INT = new ObjectSerializableCodec<>();
 
   /**
-   * Wake clock is used to schedule periodical job check-ups.
-   */
-  private final Clock clock;
-
-  /**
    * Job observer on the client.
    * We use it to send results from the driver back to the client.
    */
@@ -82,12 +78,6 @@ public class SuspendDriver {
    * Job driver uses EvaluatorRequestor to request Evaluators that will run the Tasks.
    */
   private final EvaluatorRequestor evaluatorRequestor;
-
-  /**
-   * Static catalog of REEF resources.
-   * We use it to schedule Task on every available node.
-   */
-  private final ResourceCatalog catalog;
 
   /**
    * TANG Configuration of the Task.
@@ -105,33 +95,24 @@ public class SuspendDriver {
    */
   private final Map<String, SuspendedTask> suspendedTasks = new HashMap<>();
 
-  private final int evaluatorTimeOut = 1000; //ms
-  private final int numberOfEvaluatorsRequested = 2;
-  private int numberOfEvaluatorsReceived = 0;
-
-
   /**
    * Job driver constructor.
    * All parameters are injected from TANG automatically.
    *
-   * @param clock              Wake clock to schedule and check up running jobs.
    * @param evaluatorRequestor is used to request Evaluators.
-   * @param numCycles          number of cycles to run in the task.
-   * @param delay              delay in seconds between cycles in the task.
+   * @param numCycles number of cycles to run in the task.
+   * @param delay delay in seconds between cycles in the task.
    */
   @Inject
-  SuspendDriver(final Clock clock,
-                final JobMessageObserver jobMessageObserver,
-                final EvaluatorRequestor evaluatorRequestor,
-                final ResourceCatalog catalog,
-                @Parameter(Launch.Local.class) final boolean isLocal,
-                @Parameter(Launch.NumCycles.class) final int numCycles,
-                @Parameter(Launch.Delay.class) final int delay) {
+  SuspendDriver(
+      final JobMessageObserver jobMessageObserver,
+      final EvaluatorRequestor evaluatorRequestor,
+      final @Parameter(Launch.Local.class) boolean isLocal,
+      final @Parameter(Launch.NumCycles.class) int numCycles,
+      final @Parameter(Launch.Delay.class) int delay) {
 
-    this.clock = clock;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.catalog = catalog;
 
     try {
 
@@ -142,11 +123,11 @@ public class SuspendDriver {
           .set(FSCheckPointServiceConfiguration.REPLICATION_FACTOR, "3")
           .build();
 
-      final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-      cb.bindNamedParameter(Launch.NumCycles.class, Integer.toString(numCycles));
-      cb.bindNamedParameter(Launch.Delay.class, Integer.toString(delay));
-      cb.addConfiguration(checkpointServiceConfig);
+      final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+          .bindNamedParameter(Launch.NumCycles.class, Integer.toString(numCycles))
+          .bindNamedParameter(Launch.Delay.class, Integer.toString(delay));
 
+      cb.addConfiguration(checkpointServiceConfig);
       this.contextConfig = cb.build();
 
     } catch (final BindException ex) {
@@ -161,8 +142,8 @@ public class SuspendDriver {
     @Override
     public final void onNext(final RunningTask task) {
       LOG.log(Level.INFO, "Running task: {0}", task.getId());
-      SuspendDriver.this.runningTasks.put(task.getId(), task);
-      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode("start task: " + task.getId()));
+      runningTasks.put(task.getId(), task);
+      jobMessageObserver.sendMessageToClient(CODEC_STR.encode("start task: " + task.getId()));
     }
   }
 
@@ -177,17 +158,16 @@ public class SuspendDriver {
       final String msg = "Task completed " + task.getId() + " on node " + e;
       LOG.info(msg);
 
-      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
-      SuspendDriver.this.runningTasks.remove(task.getId());
+      jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
+      runningTasks.remove(task.getId());
       task.getActiveContext().close();
 
       final boolean noTasks;
-      synchronized (SuspendDriver.this.suspendedTasks) {
-        LOG.log(Level.INFO, "Tasks running: {0} suspended: {1}", new Object[]{
-            SuspendDriver.this.runningTasks.size(),
-            SuspendDriver.this.suspendedTasks.size()});
-        noTasks = SuspendDriver.this.runningTasks.isEmpty() &&
-            SuspendDriver.this.suspendedTasks.isEmpty();
+
+      synchronized (suspendedTasks) {
+        LOG.log(Level.INFO, "Tasks running: {0} suspended: {1}", new Object[] {
+            runningTasks.size(), suspendedTasks.size() });
+        noTasks = runningTasks.isEmpty() && suspendedTasks.isEmpty();
       }
 
       if (noTasks) {
@@ -202,13 +182,16 @@ public class SuspendDriver {
   final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
     public final void onNext(final SuspendedTask task) {
+
       final String msg = "Task suspended: " + task.getId();
       LOG.info(msg);
-      synchronized (SuspendDriver.this.suspendedTasks) {
-        SuspendDriver.this.suspendedTasks.put(task.getId(), task);
-        SuspendDriver.this.runningTasks.remove(task.getId());
+
+      synchronized (suspendedTasks) {
+        suspendedTasks.put(task.getId(), task);
+        runningTasks.remove(task.getId());
       }
-      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
+
+      jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
     }
   }
 
@@ -221,7 +204,7 @@ public class SuspendDriver {
       final int result = CODEC_INT.decode(message.get());
       final String msg = "Task message " + message.getId() + ": " + result;
       LOG.info(msg);
-      SuspendDriver.this.jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
+      jobMessageObserver.sendMessageToClient(CODEC_STR.encode(msg));
     }
   }
 
@@ -233,13 +216,15 @@ public class SuspendDriver {
     @Override
     public void onNext(final AllocatedEvaluator eval) {
       try {
+
         LOG.log(Level.INFO, "Allocated Evaluator: {0}", eval.getId());
+
         final Configuration thisContextConfiguration = ContextConfiguration.CONF.set(
             ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build();
-        final Configuration mergedContextConfiguration = Tang.Factory.getTang()
-            .newConfigurationBuilder(thisContextConfiguration, SuspendDriver.this.contextConfig).build();
-        eval.submitContext(mergedContextConfiguration);
-        ++SuspendDriver.this.numberOfEvaluatorsReceived;
+
+        eval.submitContext(Tang.Factory.getTang()
+            .newConfigurationBuilder(thisContextConfiguration, contextConfig).build());
+
       } catch (final BindException ex) {
         throw new RuntimeException(ex);
       }
@@ -288,7 +273,7 @@ public class SuspendDriver {
         switch (command) {
 
           case "suspend": {
-            final RunningTask task = SuspendDriver.this.runningTasks.get(taskId);
+            final RunningTask task = runningTasks.get(taskId);
             if (task != null) {
               task.suspend();
             } else {
@@ -299,8 +284,8 @@ public class SuspendDriver {
 
           case "resume": {
             final SuspendedTask suspendedTask;
-            synchronized (SuspendDriver.this.suspendedTasks) {
-              suspendedTask = SuspendDriver.this.suspendedTasks.remove(taskId);
+            synchronized (suspendedTasks) {
+              suspendedTask = suspendedTasks.remove(taskId);
             }
             if (suspendedTask != null) {
               try {
@@ -332,27 +317,8 @@ public class SuspendDriver {
     @Override
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
-      SuspendDriver.this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-          .setMemory(128)
-          .setNumber(SuspendDriver.this.numberOfEvaluatorsRequested)
-          .build());
-
-      SuspendDriver.this.clock.scheduleAlarm(SuspendDriver.this.evaluatorTimeOut,
-          new EventHandler<Alarm>() {
-            @Override
-            public void onNext(final Alarm alarm) {
-              if (SuspendDriver.this.numberOfEvaluatorsRequested >
-                  SuspendDriver.this.numberOfEvaluatorsReceived) {
-                final String message = "Waited " + SuspendDriver.this.evaluatorTimeOut +
-                    "ms for " + SuspendDriver.this.numberOfEvaluatorsRequested +
-                    " Evaluators; but only received " +
-                    SuspendDriver.this.numberOfEvaluatorsReceived;
-                final RuntimeException ex = new RuntimeException(message);
-                throw ex;
-              }
-            }
-          }
-      );
+      evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
+          .setMemory(128).setNumber(NUM_EVALUATORS).build());
     }
   }
 
