@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.examples.suspend;
 
-import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
@@ -33,8 +32,6 @@ import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
-import com.microsoft.wake.time.Clock;
-import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 
