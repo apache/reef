@@ -64,11 +64,6 @@ public final class RunningTaskImpl implements RunningTask {
   }
 
   @Override
-  public final void onNext(final byte[] message) {
-    this.send(message);
-  }
-
-  @Override
   public void send(final byte[] message) {
     LOG.log(Level.FINEST, "MESSAGE: Task id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 

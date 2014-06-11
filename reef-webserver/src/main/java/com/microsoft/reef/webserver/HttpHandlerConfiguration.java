@@ -25,16 +25,16 @@ import com.microsoft.tang.formats.OptionalParameter;
  */
 public final class HttpHandlerConfiguration extends ConfigurationModuleBuilder {
 
-    /**
-     * Specify optional parameter for HttpEventHandlers
-     */
-    public static final OptionalParameter<HttpHandler> HTTP_HANDLERS = new OptionalParameter<>();
+  /**
+   * Specify optional parameter for HttpEventHandlers
+   */
+  public static final OptionalParameter<HttpHandler> HTTP_HANDLERS = new OptionalParameter<>();
 
-    /**
-     * HttpHandlerConfiguration merged with HttpRuntimeConfiguration
-     */
-    public static final ConfigurationModule CONF = new HttpHandlerConfiguration().merge(HttpRuntimeConfiguration.CONF)
-            .bindSetEntry(HttpEventHandlers.class, HTTP_HANDLERS)
-            .bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class)
-            .build();
+  /**
+   * HttpHandlerConfiguration merged with HttpRuntimeConfiguration
+   */
+  public static final ConfigurationModule CONF = new HttpHandlerConfiguration().merge(HttpRuntimeConfiguration.CONF)
+      .bindSetEntry(HttpEventHandlers.class, HTTP_HANDLERS)
+      .bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class)
+      .build();
 }

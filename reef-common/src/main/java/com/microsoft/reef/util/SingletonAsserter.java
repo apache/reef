@@ -13,3 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.microsoft.reef.util;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * A helper class that can be used to ensure that objects are only instantiated once.
+ */
+public final class SingletonAsserter {
+
+  private static final Set<Class> classes = Collections.synchronizedSet(new HashSet<Class>());
+
+  /**
+   * This class operates purely in static mode.
+   */
+  private SingletonAsserter() {
+  }
+
+  public static boolean assertSingleton(final Class clazz) {
+    return classes.add(clazz);
+  }
+}

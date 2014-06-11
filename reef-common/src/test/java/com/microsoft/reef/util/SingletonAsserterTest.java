@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.hellohttp;
+package com.microsoft.reef.util;
 
-import com.microsoft.reef.task.Task;
+import org.junit.Assert;
+import org.junit.Test;
 
-import javax.inject.Inject;
+import java.util.List;
 
-/**
- * A 'hello REEF' Task.
- */
-public final class HelloTask implements Task {
+public final class SingletonAsserterTest {
 
-    @Inject
-    HelloTask() {
-    }
-
-    @Override
-    public final byte[] call(final byte[] memento) {
-        System.out.println("Hello, REEF Http Server!");
-        try {
-            Thread.sleep(5*60*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        return null;
-    }
+  @Test
+  public void testSingletonAsserter() {
+    Assert.assertTrue(SingletonAsserter.assertSingleton(SingletonAsserterTest.class));
+    Assert.assertTrue(SingletonAsserter.assertSingleton(List.class));
+    Assert.assertFalse(SingletonAsserter.assertSingleton(List.class));
+  }
 }

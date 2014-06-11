@@ -13,3 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.microsoft.reef.examples.hellohttp;
+
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+
+/**
+ * Command line parameter: a command to run. e.g. "echo Hello REEF"
+ */
+@NamedParameter(doc = "The shell command", short_name = "cmd", default_value = "*INTERACTIVE*")
+final class Command implements Name<String> {
+}

@@ -73,6 +73,7 @@ import java.util.logging.Logger;
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
+
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
   private final Evaluators evaluators;
@@ -124,8 +125,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.stateManager = stateManager;
     this.exceptionCodec = exceptionCodec;
 
-    this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer));
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: " + this.getId());
+
+    this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(
+        this, remoteManager.getMyIdentifier(), this.configurationSerializer));
+    LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: {0}", this.getId());
   }
 
   /**
@@ -175,30 +178,31 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           this.stateManager.setKilled();
         }
       }
-    }
 
-    if (!this.isResourceReleased) {
-      this.isResourceReleased = true;
-      try {
+
+      if (!this.isResourceReleased) {
+        this.isResourceReleased = true;
+        try {
         /* We need to wait awhile before returning the container to the RM in order to
          * give the EvaluatorRuntime (and Launcher) time to cleanly exit. */
-        this.clock.scheduleAlarm(100, new EventHandler<Alarm>() {
-          @Override
-          public void onNext(final Alarm alarm) {
-            EvaluatorManager.this.resourceReleaseHandler.onNext(
-                DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-                    .setIdentifier(EvaluatorManager.this.evaluatorId).build()
-            );
-          }
-        });
-      } catch (final IllegalStateException e) {
-        LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
-        EvaluatorManager.this.resourceReleaseHandler.onNext(
-            DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
-                .setIdentifier(EvaluatorManager.this.evaluatorId).build()
-        );
-      } finally {
-        EvaluatorManager.this.evaluators.remove(EvaluatorManager.this);
+          this.clock.scheduleAlarm(100, new EventHandler<Alarm>() {
+            @Override
+            public void onNext(final Alarm alarm) {
+              EvaluatorManager.this.resourceReleaseHandler.onNext(
+                  DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+                      .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+              );
+            }
+          });
+        } catch (final IllegalStateException e) {
+          LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
+          EvaluatorManager.this.resourceReleaseHandler.onNext(
+              DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+                  .setIdentifier(EvaluatorManager.this.evaluatorId).build()
+          );
+        } finally {
+          EvaluatorManager.this.evaluators.remove(EvaluatorManager.this);
+        }
       }
     }
   }
@@ -278,9 +282,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
-  public synchronized void onEvaluatorHeartbeatMessage(final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
-    final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto = evaluatorHeartbeatProtoRemoteMessage.getMessage();
+  public synchronized void onEvaluatorHeartbeatMessage(
+      final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
+
+    final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto =
+        evaluatorHeartbeatProtoRemoteMessage.getMessage();
+
     LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
+
     this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
 
     // If this is the first message from this Evaluator, register it.
@@ -305,7 +314,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     if (evaluatorHeartbeatProto.hasTaskStatus()) {
       this.onTaskStatusMessage(evaluatorHeartbeatProto.getTaskStatus());
     }
-    LOG.log(Level.INFO, "DONE with evaluator heartbeat from Evaluator " + this.getId());
+    LOG.log(Level.FINE, "DONE with evaluator heartbeat from Evaluator {0}", this.getId());
   }
 
   /**
@@ -314,6 +323,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param message
    */
   private synchronized void onEvaluatorStatusMessage(final ReefServiceProtos.EvaluatorStatusProto message) {
+
     switch (message.getState()) {
       case DONE:
         this.onEvaluatorDone(message);
@@ -322,18 +332,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         this.onEvaluatorFailed(message);
         break;
       case INIT:
-        break;
       case KILLED:
-        break;
       case RUNNING:
-        break;
       case SUSPEND:
         break;
     }
 
     if (message.getState() == ReefServiceProtos.State.FAILED) {
       this.onEvaluatorFailed(message);
-      return;
     }
   }
 
@@ -491,6 +497,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final byte[] message = taskStatusProto.hasResult() ? taskStatusProto.getResult().toByteArray() : null;
       this.messageDispatcher.onTaskCompleted(new CompletedTaskImpl(evaluatorContext, message, taskId));
     } else if (ReefServiceProtos.State.FAILED == taskState) {
+      LOG.log(Level.FINEST, "Processing task failure message for Task `{0}`", taskId);
       this.onTaskFailure(taskStatusProto);
     } else if (taskStatusProto.getTaskMessageCount() > 0) {
       assert (this.runningTask != null);
@@ -522,6 +529,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     final String message = exception.isPresent() ? exception.get().getMessage() : "No message given";
     final Optional<String> description = Optional.empty();
     final FailedTask failedTask = new FailedTask(taskId, message, description, exception, bytes, evaluatorContext);
+    LOG.log(Level.FINEST, "Dispatching FailedTask `{0}`", failedTask);
     this.messageDispatcher.onTaskFailed(failedTask);
   }
 
@@ -566,6 +574,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString(), this.runningTask));
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "EvaluatorManager:"
+        + " id=" + this.evaluatorId
+        + " state=" + this.stateManager
+        + " contexts=" + this.activeContextIds
+        + " task=" + this.runningTask;
   }
 
   /**

@@ -24,8 +24,8 @@ import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Dummy implementation of a driver.
@@ -66,7 +66,7 @@ final class DriverMessagingDriver {
     @Override
     public void onNext(final byte[] message) {
       LOG.log(Level.INFO, "Message received: {0}", String.valueOf(message));
-      client.onNext(message);
+      client.sendMessageToClient(message);
       clock.scheduleAlarm(DELAY, new EventHandler<Alarm>() {
         @Override
         public void onNext(final Alarm alarm) {}

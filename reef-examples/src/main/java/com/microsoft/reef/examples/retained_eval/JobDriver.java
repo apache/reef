@@ -265,7 +265,7 @@ public final class JobDriver {
     }
     this.results.clear();
     LOG.log(Level.INFO, "Return results to the client:\n{0}", sb);
-    this.jobMessageObserver.onNext(CODEC.encode(sb.toString()));
+    this.jobMessageObserver.sendMessageToClient(CODEC.encode(sb.toString()));
   }
 
   /**
