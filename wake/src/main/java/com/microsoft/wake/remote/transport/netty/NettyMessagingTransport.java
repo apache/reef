@@ -15,6 +15,27 @@
  */
 package com.microsoft.wake.remote.transport.netty;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.WakeParameters;
@@ -26,25 +47,6 @@ import com.microsoft.wake.remote.transport.Link;
 import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
 import com.microsoft.wake.remote.transport.exception.TransportRuntimeException;
-
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Messaging transport implementation with Netty
@@ -69,10 +71,10 @@ public class NettyMessagingTransport implements Transport {
 
   private final NettyClientEventListener clientEventListener;
   private final NettyServerEventListener serverEventListener;
-  
+
   private final int numberOfTries;
   private final int retryTimeout;
-  
+
   /**
    * Constructs a messaging transport
    *
@@ -83,7 +85,7 @@ public class NettyMessagingTransport implements Transport {
    * @deprecated in 0.4. Please use the other constructor instead.
    */
   @Deprecated
-  public NettyMessagingTransport(final String hostAddress, int port,
+  public NettyMessagingTransport(final String hostAddress, final int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage) {
 
@@ -91,19 +93,19 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Constructs a messaging transport 
+   * Constructs a messaging transport
    * @param hostAddress the server host address
    * @param port  the server listening port; when it is 0, randomly assign a port number
    * @param clientStage the client-side stage that handles transport events
    * @param serverStage the server-side stage that handles transport events
-   * @param numberOfTries the number of tries of reconnection 
-   * @param retryTimeout the timeout of reconnection 
+   * @param numberOfTries the number of tries of reconnection
+   * @param retryTimeout the timeout of reconnection
    */
   public NettyMessagingTransport(final String hostAddress, int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage,
-                                 int numberOfTries,
-                                 int retryTimeout) {
+                                 final int numberOfTries,
+                                 final int retryTimeout) {
 
     if (port < 0) {
       throw new RemoteRuntimeException("Invalid server port: " + port);
@@ -223,12 +225,12 @@ public class NettyMessagingTransport implements Transport {
       // no linkRef
       final LinkReference newLinkRef = new LinkReference();
       final LinkReference prior = this.addrToLinkRefMap.putIfAbsent(remoteAddr, newLinkRef);
-      final AtomicBoolean flag = prior != null ?
+      final AtomicInteger flag = prior != null ?
           prior.getConnectInProgress() : newLinkRef.getConnectInProgress();
 
       synchronized (flag) {
-        if (!flag.compareAndSet(false, true)) {
-          while (flag.get()) {
+        if (!flag.compareAndSet(0, 1)) {
+          while (flag.get()==1) {
             try {
               flag.wait();
             } catch (final InterruptedException ex) {
@@ -253,22 +255,22 @@ public class NettyMessagingTransport implements Transport {
         linkRef.setLink(link);
 
         synchronized (flag) {
-          flag.compareAndSet(true, false);
+          flag.compareAndSet(1, 2);
           flag.notifyAll();
         }
         break;
-      } catch (Exception e) {
+      } catch (final Exception e) {
         if (e.getCause().getClass().getSimpleName().compareTo("ConnectException") == 0) {
           LOG.log(Level.WARNING, "Connection Refused... Retrying {0} of {1}", new Object[] {i+1, this.numberOfTries});
           synchronized (flag) {
-            flag.compareAndSet(true, false);
+            flag.compareAndSet(1, 0);
             flag.notifyAll();
           }
 
           if (i < this.numberOfTries) {
             try {
               Thread.sleep(retryTimeout);
-            } catch (InterruptedException e1) {
+            } catch (final InterruptedException e1) {
               e1.printStackTrace();
             }
           }
@@ -287,6 +289,7 @@ public class NettyMessagingTransport implements Transport {
    * @param remoteAddr the remote address
    * @return a link if already cached; otherwise, null
    */
+  @Override
   public <T> Link<T> get(final SocketAddress remoteAddr) {
     final LinkReference linkRef = this.addrToLinkRefMap.get(remoteAddr);
     return linkRef != null ? (Link<T>) linkRef.getLink() : null;
