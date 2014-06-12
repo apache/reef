@@ -96,3 +96,4 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
         new Object[]{channel, refRemoved != null});
   }
 }
+
