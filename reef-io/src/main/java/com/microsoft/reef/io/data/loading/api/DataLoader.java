@@ -15,10 +15,6 @@
  */
 package com.microsoft.reef.io.data.loading.api;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -36,6 +32,7 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.io.data.loading.impl.EvaluatorRequestSerializer;
+import com.microsoft.reef.io.network.util.Utils.Pair;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
@@ -69,26 +66,26 @@ public class DataLoader {
   private final AtomicInteger numComputeRequestsToSubmit;
   private final SingleThreadStage<EvaluatorRequest> resourceRequestStage;
   private final ResourceRequestHandler resourceRequestHandler;
-  private final ConcurrentMap<String,Configuration> submittedDataEvalConfigs;
+  private final ConcurrentMap<String,Pair<Configuration, Configuration>> submittedDataEvalConfigs;
   private final ConcurrentMap<String,Configuration> submittedComputeEvalConfigs;
   private final int computeEvalMemoryMB;
   private final EvaluatorRequestor requestor;
   private final BlockingQueue<Configuration> failedComputeEvalConfigs;
-  private final BlockingQueue<Configuration> failedDataEvalConfigs;
+  private final BlockingQueue<Pair<Configuration, Configuration>> failedDataEvalConfigs;
 
-  
+
   @Inject
   public DataLoader(
       final Clock clock,
-      final EvaluatorRequestor requestor, 
+      final EvaluatorRequestor requestor,
       final DataLoadingService dataLoadingService,
       @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) final int dataEvalMemoryMB,
       @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) final String serializedComputeRequest
       ) {
     clock.scheduleAlarm(30000, new EventHandler<Alarm>() {
-      
+
       @Override
-      public void onNext(Alarm arg0) {
+      public void onNext(final Alarm arg0) {
         LOG.log(Level.FINE,"Received Alarm");
       }
     });
@@ -114,7 +111,7 @@ public class DataLoader {
     }
     resourceRequestStage.onNext(getDataLoadingRequest());
   }
-  
+
   private EvaluatorRequest getDataLoadingRequest() {
     return EvaluatorRequest.newBuilder()
             .setNumber(dataLoadingService.getNumberOfPartitions())
@@ -125,12 +122,12 @@ public class DataLoader {
   public class StartHandler implements EventHandler<StartTime> {
 
     @Override
-    public void onNext(StartTime startTime) {
+    public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO,"StartTime: " + startTime.toString());
       resourceRequestHandler.releaseResourceRequestGate();
     }
   }
-  
+
   public class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 
     @Override
@@ -144,6 +141,7 @@ public class DataLoader {
           if(conf!=null){
             LOG.log(Level.INFO,"Satisfying a failed configuration.");
             allocatedEvaluator.submitContext(conf);
+            submittedComputeEvalConfigs.put(allocatedEvaluator.getId(),conf);
             return;
           }
         }
@@ -152,16 +150,17 @@ public class DataLoader {
         LOG.log(Level.INFO,"Failed Data requests need to be satisfied.");
         if(allocatedEvaluator.getEvaluatorDescriptor().getMemory()==dataEvalMemoryMB){
           LOG.log(Level.INFO,"My resources match data request resources.");
-          final Configuration conf = failedDataEvalConfigs.poll();
-          if(conf!=null){
+          final Pair<Configuration, Configuration> confPair = failedDataEvalConfigs.poll();
+          if(confPair!=null){
             LOG.log(Level.INFO,"Satisfying a failed configuration.");
-            allocatedEvaluator.submitContext(conf);
+            allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
+            submittedDataEvalConfigs.put(allocatedEvaluator.getId(), new Pair<>(confPair.first, confPair.second));
             return;
           }
         }
       }
-      
-      
+
+
       final int evaluatorsForComputeRequest = numComputeRequestsToSubmit.decrementAndGet();
       LOG.log(Level.FINE,"Evals For Compute Request: " + evaluatorsForComputeRequest);
       if(evaluatorsForComputeRequest >= 0){
@@ -176,25 +175,26 @@ public class DataLoader {
             LOG.log(Level.FINE,"All Compute requests satisfied. Releasing gate");
             resourceRequestHandler.releaseResourceRequestGate();
           }
-        } catch (BindException e) {
+        } catch (final BindException e) {
           throw new RuntimeException("Unable to bind context id for Compute request", e);
         }
-        
+
       }
       else{
         LOG.log(Level.FINE,"Getting evals for data loading");
-        final Configuration dataLoadConfiguration = dataLoadingService.getConfiguration(allocatedEvaluator);
+        final Configuration contextConfiguration = dataLoadingService.getContextConfiguration(allocatedEvaluator);
+        final Configuration serviceConfiguration = dataLoadingService.getServiceConfiguration(allocatedEvaluator);
         LOG.log(Level.FINE,"Submitting data loading context");
-        allocatedEvaluator.submitContext(dataLoadConfiguration);
-        submittedDataEvalConfigs.put(allocatedEvaluator.getId(), dataLoadConfiguration);
+        allocatedEvaluator.submitContextAndService(contextConfiguration, serviceConfiguration);
+        submittedDataEvalConfigs.put(allocatedEvaluator.getId(), new Pair<>(contextConfiguration, serviceConfiguration));
       }
     }
   }
-  
+
   public class FailedEvaluatorHandler implements EventHandler<FailedEvaluator>{
 
     @Override
-    public void onNext(FailedEvaluator failedEvaluator) {
+    public void onNext(final FailedEvaluator failedEvaluator) {
       if(submittedComputeEvalConfigs.containsKey(failedEvaluator.getId())){
         LOG.log(Level.INFO,"Received a failed compute evaluator.");
         failedComputeEvalConfigs.add(submittedComputeEvalConfigs.remove(failedEvaluator.getId()));
@@ -208,9 +208,9 @@ public class DataLoader {
       else{
         throw new RuntimeException("Received a failed evaluator that I did not submit");
       }
-      
+
     }
-    
+
   }
-  
+
 }

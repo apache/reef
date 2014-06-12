@@ -15,13 +15,19 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.TextInputFormat;
+
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.io.data.loading.api.DataLoader;
-import com.microsoft.reef.io.data.loading.api.DataLoadingDriverConfiguration;
 import com.microsoft.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -35,13 +41,6 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.CommandLine;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.TextInputFormat;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Client for the data loading demo app
@@ -66,7 +65,7 @@ public class DataLoadingREEF {
   @NamedParameter(doc = "Whether or not to run on the local runtime", short_name = "local", default_value = "true")
   public static final class Local implements Name<Boolean> {
   }
-  
+
   @NamedParameter(doc="Number of minutes before timeout", short_name="timeout",default_value="2")
   public static final class TimeOut implements Name<Integer>{
   }
@@ -131,15 +130,15 @@ public class DataLoadingREEF {
     final JobConf jobConf = new JobConf();
     jobConf.setInputFormat(TextInputFormat.class);
     TextInputFormat.addInputPath(jobConf, new Path(input));
-    EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
+    final EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
         .setNumber(2)
-        .setMemory(2048)
+        .setMemory(512)
         .build();
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
-        .setMemoryMB(4096)
+        .setMemoryMB(1024)
         .setJobConf(jobConf)
-//        .setNumberOfDesiredSplits(12)
-//        .setComputeRequest(computeRequest)
+        .setNumberOfDesiredSplits(6)
+        .setComputeRequest(computeRequest)
         .setDriverConfigurationModule(EnvironmentUtils
             .addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, LineCounter.ContextActiveHandler.class)
@@ -160,7 +159,7 @@ public class DataLoadingREEF {
    * @throws BindException
    * @throws InjectionException
    */
-  public static void main(String[] args) throws InjectionException, BindException {
+  public static void main(final String[] args) throws InjectionException, BindException {
     final Configuration commandLineConf = parseCommandLine(args);
     storeCommandLineArgs(commandLineConf);
     final Configuration runtimeConfiguration = getRunTimeConfiguration();

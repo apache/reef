@@ -15,20 +15,24 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
-import com.microsoft.reef.annotations.audience.DriverSide;
-import com.microsoft.reef.driver.context.ActiveContext;
-import com.microsoft.reef.driver.task.CompletedTask;
-import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.io.data.loading.api.DataLoadingService;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.annotations.Unit;
-import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.wake.EventHandler;
-
-import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.driver.context.ActiveContext;
+import com.microsoft.reef.driver.context.ContextConfiguration;
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.driver.task.TaskConfiguration;
+import com.microsoft.reef.io.data.loading.api.DataLoadingService;
+import com.microsoft.reef.poison.context.PoisonedContextConfiguration;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.annotations.Unit;
+import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.wake.EventHandler;
 
 /**
  * Driver side for the line counting
@@ -39,17 +43,17 @@ import java.util.logging.Logger;
 public class LineCounter {
 
   private static final Logger LOG = Logger.getLogger(LineCounter.class.getName());
-  
+
   private final DataLoadingService dataLoadingService;
 
   private final AtomicInteger ctrlCtxIds = new AtomicInteger();
-  
+
   private final AtomicInteger completedDataTasks;
-  
-  private AtomicInteger lineCnt = new AtomicInteger();
+
+  private final AtomicInteger lineCnt = new AtomicInteger();
 
   @Inject
-  public LineCounter(DataLoadingService dataLoadingService) {
+  public LineCounter(final DataLoadingService dataLoadingService) {
     super();
     this.dataLoadingService = dataLoadingService;
     this.completedDataTasks = new AtomicInteger(dataLoadingService.getNumberOfPartitions());
@@ -68,8 +72,9 @@ public class LineCounter {
       final String retStr = new String(retVal == null ? "No RetVal".getBytes() : retVal);
       LOG.log(Level.INFO, "Line count from " + taskId + " " + retStr);
       lineCnt.addAndGet(Integer.parseInt(retStr));
-      if(completedDataTasks.decrementAndGet()==0)
+      if(completedDataTasks.decrementAndGet()==0) {
         LOG.log(Level.INFO, "Total line count: " + lineCnt.get());
+      }
       LOG.log(Level.INFO, "Releasing Context: " + taskId);
       completedTask.getActiveContext().close();
     }
@@ -83,20 +88,36 @@ public class LineCounter {
     @Override
     public void onNext(final ActiveContext activeContext) {
       if(dataLoadingService.isDataLoadedContext(activeContext)){
+        final Configuration poissonConfiguration = PoisonedContextConfiguration.CONF
+            .set(PoisonedContextConfiguration.CRASH_PROBABILITY, "0.4")
+            .set(PoisonedContextConfiguration.CRASH_TIMEOUT, "1")
+            .build();
+
+        activeContext.submitContext(Tang.Factory.getTang()
+          .newConfigurationBuilder(
+            poissonConfiguration,
+            ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, "LineCountCtxt-" + ctrlCtxIds.getAndIncrement()).build()
+          )
+          .build());
+      }
+      else if(activeContext.getId().startsWith("LineCountCtxt")) {
         final String evaluatorId = activeContext.getEvaluatorId();
-        final String taskId = "LineCount-" + ctrlCtxIds.getAndIncrement();
+        final String taskId = "LineCountTask-" + ctrlCtxIds.getAndIncrement();
         try {
+
+
           final Configuration taskConfiguration = TaskConfiguration.CONF
               .set(TaskConfiguration.IDENTIFIER, taskId)
               .set(TaskConfiguration.TASK, LineCountingTask.class)
               .build();
+
           activeContext.submitTask(taskConfiguration);
-        } catch (BindException e) {
+        } catch (final BindException e) {
           throw new RuntimeException("Unable to create context/task configuration for " + evaluatorId, e);
         }
       }
       else{
-        LOG.log(Level.INFO, "Line count Compute Task " + activeContext.getId() + 
+        LOG.log(Level.INFO, "Line count Compute Task " + activeContext.getId() +
             " -- Closing");
         activeContext.close();
         return;

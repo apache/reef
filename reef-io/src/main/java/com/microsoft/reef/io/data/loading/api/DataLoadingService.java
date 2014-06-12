@@ -19,7 +19,6 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.exceptions.BindException;
 
 /**
  * All data loading services should implement
@@ -27,7 +26,7 @@ import com.microsoft.tang.exceptions.BindException;
  */
 @DriverSide
 public interface DataLoadingService {
-  
+
   /**
    * Access to the number of partitions suggested by this DataSource.
    *
@@ -37,18 +36,23 @@ public interface DataLoadingService {
 
   /**
    * @param descriptor
-   * @return the configuration for the given Evaluator.
-   * @throws BindException
+   * @return the context configuration for the given Evaluator.
    */
-  public Configuration getConfiguration(final AllocatedEvaluator allocatedEvaluator);
-  
+  public Configuration getContextConfiguration(final AllocatedEvaluator allocatedEvaluator);
+
+  /**
+   * @param allocatedEvaluator
+   * @return the service configuration for the given Evaluator.
+   */
+  public Configuration getServiceConfiguration(final AllocatedEvaluator allocatedEvaluator);
+
   /**
    * @return Return the prefix to be used to enumerate
    * context ids for compute requests fired other than
    * the data load contexts
    */
   public String getComputeContextIdPrefix();
-  
+
   /**
    * Distinguishes data loaded contexts from compute
    * contexts.
@@ -56,4 +60,11 @@ public interface DataLoadingService {
    * @return true if this context has been loaded with data
    */
   public boolean isDataLoadedContext(ActiveContext context);
+
+  /**
+   * @param context
+   * @return
+   */
+  boolean isComputeContext(ActiveContext context);
+
 }
