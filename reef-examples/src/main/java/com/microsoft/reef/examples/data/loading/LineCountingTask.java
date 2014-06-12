@@ -25,7 +25,7 @@ import com.microsoft.reef.io.network.util.Utils.Pair;
 import com.microsoft.reef.task.Task;
 
 /**
- * The task that iterates over the 
+ * The task that iterates over the
  * data set to count the number of records
  * Assumes a TextInputFormat and that
  * records represent lines
@@ -33,9 +33,9 @@ import com.microsoft.reef.task.Task;
 @TaskSide
 public class LineCountingTask implements Task {
   private static final Logger LOG = Logger.getLogger(LineCountingTask.class.getName());
-  
+
   private final DataSet<?,?> dataSet;
-  
+
   @Inject
   public LineCountingTask(final DataSet<?,?> dataSet) {
     this.dataSet = dataSet;
@@ -45,7 +45,7 @@ public class LineCountingTask implements Task {
   public byte[] call(final byte[] arg0) throws Exception {
     int numEx = 0;
     for (final Pair<?,?> keyValue : dataSet) {
-      LOG.finest(keyValue.toString());
+//      LOG.finest(keyValue.toString());
       ++numEx;
     }
     return Integer.toString(numEx).getBytes();
