@@ -65,7 +65,9 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
       // add("-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000");
 
-      Launcher.propagateProperties(this, Launcher.LOGGING_PROPERTIES);
+      Launcher.propagateProperties(this, true, "proc_reef");
+      Launcher.propagateProperties(this, false,
+          "java.util.logging.config.file", "java.util.logging.config.class");
 
       add(Launcher.class.getName());
 
