@@ -34,8 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Driver side for the line counting
- * demo that uses the data loading service
+ * Driver side for the line counting demo that uses the data loading service.
  */
 @DriverSide
 @Unit
@@ -43,73 +42,82 @@ public class LineCounter {
 
   private static final Logger LOG = Logger.getLogger(LineCounter.class.getName());
 
-  private final DataLoadingService dataLoadingService;
-
   private final AtomicInteger ctrlCtxIds = new AtomicInteger();
-
-  private final AtomicInteger completedDataTasks;
-
   private final AtomicInteger lineCnt = new AtomicInteger();
+  private final AtomicInteger completedDataTasks = new AtomicInteger();
+
+  private final DataLoadingService dataLoadingService;
 
   @Inject
   public LineCounter(final DataLoadingService dataLoadingService) {
     this.dataLoadingService = dataLoadingService;
-    this.completedDataTasks = new AtomicInteger(dataLoadingService.getNumberOfPartitions());
-  }
-
-  public class TaskCompletedHandler implements EventHandler<CompletedTask> {
-    @Override
-    public void onNext(final CompletedTask completedTask) {
-      final String taskId = completedTask.getId();
-      LOG.log(Level.INFO, "Completed Task: {0}", taskId);
-      final byte[] retVal = completedTask.get();
-      final String retStr = retVal == null ? "No RetVal": new String(retVal);
-      LOG.log(Level.INFO, "Line count from {0} : {1}", new String[] { taskId, retStr });
-      lineCnt.addAndGet(Integer.parseInt(retStr));
-      if (completedDataTasks.decrementAndGet() == 0) {
-        LOG.log(Level.INFO, "Total line count: {0}", lineCnt.get());
-      }
-      LOG.log(Level.INFO, "Releasing Context: {0}", taskId);
-      completedTask.getActiveContext().close();
-    }
+    this.completedDataTasks.set(dataLoadingService.getNumberOfPartitions());
   }
 
   public class ContextActiveHandler implements EventHandler<ActiveContext> {
 
     @Override
     public void onNext(final ActiveContext activeContext) {
+
+      final String contextId = activeContext.getId();
+      LOG.log(Level.FINER, "Context active: {0}", contextId);
+
       if (dataLoadingService.isDataLoadedContext(activeContext)) {
-        final Configuration poissonConfiguration = PoisonedContextConfiguration.CONF
+
+        final String lcContextId = "LineCountCtxt-" + ctrlCtxIds.getAndIncrement();
+        LOG.log(Level.FINEST, "Submit LineCount context {0} to: {1}",
+            new Object[] { lcContextId, contextId });
+
+        final Configuration poisonedConfiguration = PoisonedContextConfiguration.CONF
             .set(PoisonedContextConfiguration.CRASH_PROBABILITY, "0.4")
             .set(PoisonedContextConfiguration.CRASH_TIMEOUT, "1")
             .build();
 
         activeContext.submitContext(Tang.Factory.getTang()
-            .newConfigurationBuilder(
-                poissonConfiguration,
-                ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, "LineCountCtxt-" + ctrlCtxIds.getAndIncrement()).build()
-            )
+            .newConfigurationBuilder(poisonedConfiguration,
+                ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, lcContextId).build())
             .build());
-      } else if (activeContext.getId().startsWith("LineCountCtxt")) {
-        final String evaluatorId = activeContext.getEvaluatorId();
-        final String taskId = "LineCountTask-" + ctrlCtxIds.getAndIncrement();
-        try {
 
-          final Configuration taskConfiguration = TaskConfiguration.CONF
+      } else if (activeContext.getId().startsWith("LineCountCtxt")) {
+
+        final String taskId = "LineCountTask-" + ctrlCtxIds.getAndIncrement();
+        LOG.log(Level.FINEST, "Submit LineCount task {0} to: {1}", new Object[] { taskId, contextId });
+
+        try {
+          activeContext.submitTask(TaskConfiguration.CONF
               .set(TaskConfiguration.IDENTIFIER, taskId)
               .set(TaskConfiguration.TASK, LineCountingTask.class)
-              .build();
-
-          activeContext.submitTask(taskConfiguration);
-        } catch (final BindException e) {
-          throw new RuntimeException("Unable to create context/task configuration for " + evaluatorId, e);
+              .build());
+        } catch (final BindException ex) {
+          LOG.log(Level.SEVERE, "Configuration error in " + contextId, ex);
+          throw new RuntimeException("Configuration error in " + contextId, ex);
         }
       } else {
-        LOG.log(Level.INFO, "Line count Compute Task " + activeContext.getId() +
-            " -- Closing");
+        LOG.log(Level.FINEST, "Line count Compute Task {0} -- Closing", contextId);
         activeContext.close();
-        return;
       }
+    }
+  }
+
+  public class TaskCompletedHandler implements EventHandler<CompletedTask> {
+    @Override
+    public void onNext(final CompletedTask completedTask) {
+
+      final String taskId = completedTask.getId();
+      LOG.log(Level.FINEST, "Completed Task: {0}", taskId);
+
+      final byte[] retBytes = completedTask.get();
+      final String retStr = retBytes == null ? "No RetVal": new String(retBytes);
+      LOG.log(Level.FINE, "Line count from {0} : {1}", new String[] { taskId, retStr });
+
+      lineCnt.addAndGet(Integer.parseInt(retStr));
+
+      if (completedDataTasks.decrementAndGet() <= 0) {
+        LOG.log(Level.INFO, "Total line count: {0}", lineCnt.get());
+      }
+
+      LOG.log(Level.FINEST, "Releasing Context: {0}", taskId);
+      completedTask.getActiveContext().close();
     }
   }
 }
