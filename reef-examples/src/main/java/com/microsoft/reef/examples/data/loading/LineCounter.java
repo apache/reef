@@ -15,12 +15,6 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
@@ -33,6 +27,11 @@ import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Driver side for the line counting
@@ -54,57 +53,47 @@ public class LineCounter {
 
   @Inject
   public LineCounter(final DataLoadingService dataLoadingService) {
-    super();
     this.dataLoadingService = dataLoadingService;
     this.completedDataTasks = new AtomicInteger(dataLoadingService.getNumberOfPartitions());
   }
 
-  /**
-   *
-   */
   public class TaskCompletedHandler implements EventHandler<CompletedTask> {
-
     @Override
     public void onNext(final CompletedTask completedTask) {
       final String taskId = completedTask.getId();
-      LOG.log(Level.INFO, "Completed Task: " + taskId);
+      LOG.log(Level.INFO, "Completed Task: {0}", taskId);
       final byte[] retVal = completedTask.get();
-      final String retStr = new String(retVal == null ? "No RetVal".getBytes() : retVal);
-      LOG.log(Level.INFO, "Line count from " + taskId + " " + retStr);
+      final String retStr = retVal == null ? "No RetVal": new String(retVal);
+      LOG.log(Level.INFO, "Line count from {0} : {1}", new String[] { taskId, retStr });
       lineCnt.addAndGet(Integer.parseInt(retStr));
-      if(completedDataTasks.decrementAndGet()==0) {
-        LOG.log(Level.INFO, "Total line count: " + lineCnt.get());
+      if (completedDataTasks.decrementAndGet() == 0) {
+        LOG.log(Level.INFO, "Total line count: {0}", lineCnt.get());
       }
-      LOG.log(Level.INFO, "Releasing Context: " + taskId);
+      LOG.log(Level.INFO, "Releasing Context: {0}", taskId);
       completedTask.getActiveContext().close();
     }
   }
 
-  /**
-   *
-   */
   public class ContextActiveHandler implements EventHandler<ActiveContext> {
 
     @Override
     public void onNext(final ActiveContext activeContext) {
-      if(dataLoadingService.isDataLoadedContext(activeContext)){
+      if (dataLoadingService.isDataLoadedContext(activeContext)) {
         final Configuration poissonConfiguration = PoisonedContextConfiguration.CONF
             .set(PoisonedContextConfiguration.CRASH_PROBABILITY, "0.4")
             .set(PoisonedContextConfiguration.CRASH_TIMEOUT, "1")
             .build();
 
         activeContext.submitContext(Tang.Factory.getTang()
-          .newConfigurationBuilder(
-            poissonConfiguration,
-            ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, "LineCountCtxt-" + ctrlCtxIds.getAndIncrement()).build()
-          )
-          .build());
-      }
-      else if(activeContext.getId().startsWith("LineCountCtxt")) {
+            .newConfigurationBuilder(
+                poissonConfiguration,
+                ContextConfiguration.CONF.set(ContextConfiguration.IDENTIFIER, "LineCountCtxt-" + ctrlCtxIds.getAndIncrement()).build()
+            )
+            .build());
+      } else if (activeContext.getId().startsWith("LineCountCtxt")) {
         final String evaluatorId = activeContext.getEvaluatorId();
         final String taskId = "LineCountTask-" + ctrlCtxIds.getAndIncrement();
         try {
-
 
           final Configuration taskConfiguration = TaskConfiguration.CONF
               .set(TaskConfiguration.IDENTIFIER, taskId)
@@ -115,8 +104,7 @@ public class LineCounter {
         } catch (final BindException e) {
           throw new RuntimeException("Unable to create context/task configuration for " + evaluatorId, e);
         }
-      }
-      else{
+      } else {
         LOG.log(Level.INFO, "Line count Compute Task " + activeContext.getId() +
             " -- Closing");
         activeContext.close();
