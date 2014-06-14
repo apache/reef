@@ -16,6 +16,7 @@
 package com.microsoft.reef.io.data.loading.api;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
@@ -63,10 +64,11 @@ public class DataLoader {
   private final BlockingQueue<Configuration> failedComputeEvalConfigs = new LinkedBlockingQueue<>();
   private final BlockingQueue<Pair<Configuration, Configuration>> failedDataEvalConfigs = new LinkedBlockingQueue<>();
 
+  private final AtomicInteger numComputeRequestsToSubmit = new AtomicInteger(0);
+
   private final DataLoadingService dataLoadingService;
   private final int dataEvalMemoryMB;
   private final EvaluatorRequest computeRequest;
-  private final AtomicInteger numComputeRequestsToSubmit;
   private final SingleThreadStage<EvaluatorRequest> resourceRequestStage;
   private final ResourceRequestHandler resourceRequestHandler;
   private final int computeEvalMemoryMB;
@@ -94,15 +96,15 @@ public class DataLoader {
     this.resourceRequestHandler = new ResourceRequestHandler(requestor);
     this.resourceRequestStage = new SingleThreadStage<>(this.resourceRequestHandler, 2);
 
-    if (!serializedComputeRequest.equals("NULL")) {
-      this.computeRequest = EvaluatorRequestSerializer.deserialize(serializedComputeRequest);
-      this.computeEvalMemoryMB = this.computeRequest.getMegaBytes();
-      this.numComputeRequestsToSubmit = new AtomicInteger(this.computeRequest.getNumber());
-      this.resourceRequestStage.onNext(this.computeRequest);
-    } else {
+    if (serializedComputeRequest.equals("NULL")) {
       this.computeRequest = null;
       this.computeEvalMemoryMB = -1;
-      this.numComputeRequestsToSubmit = new AtomicInteger(0);
+    } else {
+      this.computeRequest = EvaluatorRequestSerializer.deserialize(serializedComputeRequest);
+      this.computeEvalMemoryMB = this.computeRequest.getMegaBytes();
+      this.numComputeRequestsToSubmit.set(this.computeRequest.getNumber());
+
+      this.resourceRequestStage.onNext(this.computeRequest);
     }
 
     this.resourceRequestStage.onNext(getDataLoadingRequest());
@@ -127,42 +129,48 @@ public class DataLoader {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      LOG.log(Level.INFO, "Received an allocated evaluator.");
+
+      final String evalId = allocatedEvaluator.getId();
+      LOG.log(Level.FINEST, "Allocated evaluator: {0}", evalId);
+
       if (!failedComputeEvalConfigs.isEmpty()) {
-        LOG.log(Level.INFO, "Failed Compute requests need to be satisfied.");
+        LOG.log(Level.FINE, "Failed Compute requests need to be satisfied for {0}", evalId);
         if (allocatedEvaluator.getEvaluatorDescriptor().getMemory() == computeEvalMemoryMB) {
-          LOG.log(Level.INFO, "My resources match compute request resources.");
+          LOG.log(Level.FINE, "Resources match failed compute request for {0}", evalId);
           final Configuration conf = failedComputeEvalConfigs.poll();
           if (conf != null) {
-            LOG.log(Level.INFO, "Satisfying a failed configuration.");
+            LOG.log(Level.FINE, "Satisfying failed configuration for {0}", evalId);
             allocatedEvaluator.submitContext(conf);
-            submittedComputeEvalConfigs.put(allocatedEvaluator.getId(), conf);
+            submittedComputeEvalConfigs.put(evalId, conf);
             return;
           }
         }
       }
+
       if (!failedDataEvalConfigs.isEmpty()) {
-        LOG.log(Level.INFO, "Failed Data requests need to be satisfied.");
+        LOG.log(Level.FINE, "Failed Data requests need to be satisfied for {0}", evalId);
         if (allocatedEvaluator.getEvaluatorDescriptor().getMemory() == dataEvalMemoryMB) {
-          LOG.log(Level.INFO, "My resources match data request resources.");
+          LOG.log(Level.FINE, "Resources match data request resources for {0}", evalId);
           final Pair<Configuration, Configuration> confPair = failedDataEvalConfigs.poll();
           if (confPair != null) {
-            LOG.log(Level.INFO, "Satisfying a failed configuration.");
+            LOG.log(Level.FINE, "Satisfying failed configuration for {0}", evalId);
             allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
-            submittedDataEvalConfigs.put(allocatedEvaluator.getId(), new Pair<>(confPair.first, confPair.second));
+            submittedDataEvalConfigs.put(evalId, confPair);
             return;
           }
         }
       }
 
       final int evaluatorsForComputeRequest = numComputeRequestsToSubmit.decrementAndGet();
-      LOG.log(Level.FINE, "Evals For Compute Request: " + evaluatorsForComputeRequest);
+      LOG.log(Level.FINE, "Evaluators for compute request: {0}", evaluatorsForComputeRequest);
+
       if (evaluatorsForComputeRequest >= 0) {
         try {
           final Configuration idConfiguration = ContextConfiguration.CONF
-              .set(ContextConfiguration.IDENTIFIER, dataLoadingService.getComputeContextIdPrefix() + evaluatorsForComputeRequest)
+              .set(ContextConfiguration.IDENTIFIER,
+                  dataLoadingService.getComputeContextIdPrefix() + evaluatorsForComputeRequest)
               .build();
-          LOG.log(Level.FINE, "Submitting Compute Context");
+          LOG.log(Level.FINE, "Submitting Compute Context to {0}", evalId);
           allocatedEvaluator.submitContext(idConfiguration);
           submittedComputeEvalConfigs.put(allocatedEvaluator.getId(), idConfiguration);
           if (evaluatorsForComputeRequest == 0) {
@@ -174,12 +182,14 @@ public class DataLoader {
         }
 
       } else {
-        LOG.log(Level.FINE, "Getting evals for data loading");
-        final Configuration contextConfiguration = dataLoadingService.getContextConfiguration(allocatedEvaluator);
-        final Configuration serviceConfiguration = dataLoadingService.getServiceConfiguration(allocatedEvaluator);
-        LOG.log(Level.FINE, "Submitting data loading context");
-        allocatedEvaluator.submitContextAndService(contextConfiguration, serviceConfiguration);
-        submittedDataEvalConfigs.put(allocatedEvaluator.getId(), new Pair<>(contextConfiguration, serviceConfiguration));
+
+        final Pair<Configuration, Configuration> confPair = new Pair<>(
+            dataLoadingService.getContextConfiguration(allocatedEvaluator),
+            dataLoadingService.getServiceConfiguration(allocatedEvaluator));
+
+        LOG.log(Level.FINE, "Submitting data loading context to {0}", evalId);
+        allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
+        submittedDataEvalConfigs.put(allocatedEvaluator.getId(), confPair);
       }
     }
   }
@@ -187,16 +197,36 @@ public class DataLoader {
   public class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator failedEvaluator) {
-      if (submittedComputeEvalConfigs.containsKey(failedEvaluator.getId())) {
-        LOG.log(Level.INFO, "Received a failed compute evaluator.");
-        failedComputeEvalConfigs.add(submittedComputeEvalConfigs.remove(failedEvaluator.getId()));
-        requestor.submit(EvaluatorRequest.newBuilder().setMemory(computeEvalMemoryMB).setNumber(1).build());
-      } else if (submittedDataEvalConfigs.containsKey(failedEvaluator.getId())) {
-        LOG.log(Level.INFO, "Received a failed data evaluator.");
-        failedDataEvalConfigs.add(submittedDataEvalConfigs.remove(failedEvaluator.getId()));
-        requestor.submit(EvaluatorRequest.newBuilder().setMemory(dataEvalMemoryMB).setNumber(1).build());
+
+      final String evalId = failedEvaluator.getId();
+
+      final Configuration computeConfig = submittedComputeEvalConfigs.remove(evalId);
+      if (computeConfig != null) {
+
+        LOG.log(Level.INFO, "Received failed compute evaluator: {0}", evalId);
+        failedComputeEvalConfigs.add(computeConfig);
+
+        requestor.submit(EvaluatorRequest.newBuilder()
+            .setMemory(computeEvalMemoryMB).setNumber(1).build());
+
       } else {
-        throw new RuntimeException("Received a failed evaluator that I did not submit");
+
+        final Pair<Configuration, Configuration> confPair = submittedDataEvalConfigs.remove(evalId);
+        if (confPair != null) {
+
+          LOG.log(Level.INFO, "Received failed data evaluator: {0}", evalId);
+          failedDataEvalConfigs.add(confPair);
+
+          requestor.submit(EvaluatorRequest.newBuilder()
+              .setMemory(dataEvalMemoryMB).setNumber(1).build());
+
+        } else {
+
+          LOG.log(Level.SEVERE, "Received unknown failed evaluator " + evalId,
+              failedEvaluator.getEvaluatorException());
+
+          throw new RuntimeException("Received failed evaluator that I did not submit: " + evalId);
+        }
       }
     }
   }
