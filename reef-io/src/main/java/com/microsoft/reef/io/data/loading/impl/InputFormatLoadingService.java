@@ -15,16 +15,6 @@
  */
 package com.microsoft.reef.io.data.loading.impl;
 
-import java.io.IOException;
-import java.util.Random;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.apache.hadoop.mapred.InputFormat;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
@@ -38,26 +28,37 @@ import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
+import org.apache.hadoop.mapred.InputFormat;
+import org.apache.hadoop.mapred.InputSplit;
+import org.apache.hadoop.mapred.JobConf;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An implementation of {@link DataLoadingService}
  * that uses the Hadoop {@link InputFormat} to find
  * partitions of data & request resources.
- *
+ * <p/>
  * The InputFormat is injected using a Tang external constructor
- *
+ * <p/>
  * It also tries to obtain data locality in a greedy
  * fashion using {@link EvaluatorToPartitionMapper}
  */
 @DriverSide
-public class InputFormatLoadingService<K,V> implements DataLoadingService {
-  /**
-   *
-   */
-  private static final String DATA_LOAD_CONTEXT_PREFIX = "DataLoadContext-";
-  private static final String COMPUTE_CONTEXT_PREFIX
-    = "ComputeContext-" + (new Random(3381)).nextInt(1 << 20) + "-";
+public class InputFormatLoadingService<K, V> implements DataLoadingService {
+
   private static final Logger LOG = Logger.getLogger(InputFormatLoadingService.class.getName());
+
+  private static final String DATA_LOAD_CONTEXT_PREFIX = "DataLoadContext-";
+
+  private static final String COMPUTE_CONTEXT_PREFIX =
+      "ComputeContext-" + new Random(3381).nextInt(1 << 20) + "-";
+
   private final EvaluatorToPartitionMapper<InputSplit> evaluatorToPartitionMapper;
   private final int numberOfPartitions;
   private final String serializedJobConf;
@@ -67,21 +68,27 @@ public class InputFormatLoadingService<K,V> implements DataLoadingService {
   @Inject
   public InputFormatLoadingService(
       final InputFormat<K, V> inputFormat,
-      @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) final String serializedJobConf,
-      @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) final int numberOfDesiredSplits,
-      @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory
-  ) {
+      final @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf,
+      final @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) int numberOfDesiredSplits,
+      final @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) boolean inMemory) {
+
     this.serializedJobConf = serializedJobConf;
     this.inMemory = inMemory;
+
     final JobConf jobConf = WritableSerializer.deserialize(serializedJobConf);
+
     try {
+
       final InputSplit[] inputSplits = inputFormat.getSplits(jobConf, numberOfDesiredSplits);
-      for (final InputSplit inputSplit : inputSplits) {
-        LOG.info("Split-" + inputSplit.toString());
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "Splits: {0}", Arrays.toString(inputSplits));
       }
+
       this.numberOfPartitions = inputSplits.length;
-      LOG.info("Number of Partitions: " + numberOfPartitions);
+      LOG.log(Level.FINE, "Number of partitions: {0}", this.numberOfPartitions);
+
       this.evaluatorToPartitionMapper = new EvaluatorToPartitionMapper<>(inputSplits);
+
     } catch (final IOException e) {
       throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
     }
@@ -89,14 +96,17 @@ public class InputFormatLoadingService<K,V> implements DataLoadingService {
 
   @Override
   public int getNumberOfPartitions() {
-    return numberOfPartitions;
+    return this.numberOfPartitions;
   }
 
   @Override
   public Configuration getContextConfiguration(final AllocatedEvaluator allocatedEvaluator) {
-    final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper
-        .getInputSplit(allocatedEvaluator.getEvaluatorDescriptor()
-            .getNodeDescriptor().getName(), allocatedEvaluator.getId());
+
+    final NumberedSplit<InputSplit> numberedSplit =
+        this.evaluatorToPartitionMapper.getInputSplit(
+            allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getName(),
+            allocatedEvaluator.getId());
+
     return ContextConfiguration.CONF
         .set(ContextConfiguration.IDENTIFIER, DATA_LOAD_CONTEXT_PREFIX + numberedSplit.getIndex())
         .build();
@@ -104,43 +114,36 @@ public class InputFormatLoadingService<K,V> implements DataLoadingService {
 
   @Override
   public Configuration getServiceConfiguration(final AllocatedEvaluator allocatedEvaluator) {
+
     try {
-      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper
-          .getInputSplit(allocatedEvaluator.getEvaluatorDescriptor()
-              .getNodeDescriptor().getName(), allocatedEvaluator.getId());
 
-      final Tang tang = Tang.Factory.getTang();
-      final Configuration serviceConfiguration =
-          !inMemory ? ServiceConfiguration.CONF
-                      .set(ServiceConfiguration.SERVICES, InputFormatDataSet.class)
-                      .build()
-                    : ServiceConfiguration.CONF
-                      .set(ServiceConfiguration.SERVICES, InMemoryInputFormatDataSet.class)
-                      .build();
+      final NumberedSplit<InputSplit> numberedSplit =
+          this.evaluatorToPartitionMapper.getInputSplit(
+              allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getName(),
+              allocatedEvaluator.getId());
 
-      final JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(serviceConfiguration);
+      final Configuration serviceConfiguration = ServiceConfiguration.CONF
+          .set(ServiceConfiguration.SERVICES,
+              this.inMemory ? InMemoryInputFormatDataSet.class : InputFormatDataSet.class)
+          .build();
 
-      if(inMemory){
-        jcb.bindImplementation(DataSet.class, InMemoryInputFormatDataSet.class);
-      }
-      else{
-        jcb.bindImplementation(DataSet.class, InputFormatDataSet.class);
-      }
-      jcb.bindNamedParameter(
-          InputFormatExternalConstructor.SerializedJobConf.class,
-          serializedJobConf
-        );
-      jcb.bindNamedParameter(
-          InputSplitExternalConstructor.SerializedInputSplit.class,
-          WritableSerializer.serialize(numberedSplit.getEntry())
-        );
-      jcb.bindConstructor(
-          InputSplit.class,
-          InputSplitExternalConstructor.class
-        );
-      return jcb.build();
-    } catch (final BindException e) {
-      throw new RuntimeException("Unable to create Configuration", e);
+      return Tang.Factory.getTang().newConfigurationBuilder(serviceConfiguration)
+          .bindImplementation(
+              DataSet.class,
+              this.inMemory ? InMemoryInputFormatDataSet.class : InputFormatDataSet.class)
+          .bindNamedParameter(
+              InputFormatExternalConstructor.SerializedJobConf.class, this.serializedJobConf)
+          .bindNamedParameter(
+              InputSplitExternalConstructor.SerializedInputSplit.class,
+              WritableSerializer.serialize(numberedSplit.getEntry()))
+          .bindConstructor(InputSplit.class, InputSplitExternalConstructor.class)
+          .build();
+
+    } catch (final BindException ex) {
+      final String evalId = allocatedEvaluator.getId();
+      final String msg = "Unable to create configuration for evaluator " + evalId;
+      LOG.log(Level.WARNING, msg, ex);
+      throw new RuntimeException(msg, ex);
     }
   }
 
@@ -150,7 +153,7 @@ public class InputFormatLoadingService<K,V> implements DataLoadingService {
   }
 
   @Override
-  public boolean isComputeContext(final ActiveContext context){
+  public boolean isComputeContext(final ActiveContext context) {
     return context.getId().startsWith(COMPUTE_CONTEXT_PREFIX);
   }
 

@@ -73,6 +73,8 @@ public class Utils {
     public final T1 first;
     public final T2 second;
 
+    private String pairStr = null;
+
     public Pair(final T1 first, final T2 second) {
       this.first = first;
       this.second = second;
@@ -80,12 +82,14 @@ public class Utils {
 
     @Override
     public String toString() {
-      return "(" + first + "," + second + ")";
+      if (this.pairStr == null) {
+        this.pairStr = "(" + this.first + "," + this.second + ")";
+      }
+      return this.pairStr;
     }
   }
 
   private static class AddressComparator implements Comparator<Inet4Address> {
-
     @Override
     public int compare(final Inet4Address aa, final Inet4Address ba) {
       final byte[] a = aa.getAddress();
