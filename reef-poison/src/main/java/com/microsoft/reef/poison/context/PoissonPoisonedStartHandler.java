@@ -16,15 +16,14 @@
 package com.microsoft.reef.poison.context;
 
 import com.microsoft.reef.evaluator.context.events.ContextStart;
-import com.microsoft.reef.poison.PoisonException;
 import com.microsoft.reef.poison.context.params.CrashProbability;
-import com.microsoft.reef.poison.context.params.CrashTimeout;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
 
+import org.apache.commons.math3.distribution.PoissonDistribution;
+
 import javax.inject.Inject;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,8 +39,7 @@ final class PoissonPoisonedStartHandler implements EventHandler<ContextStart> {
       final @Parameter(CrashProbability.class) double lambda, final Clock clock) {
 
     this.clock = clock;
-    // FIXME: generate a Poisson random here:
-    this.timeToCrash = (int) Math.floor(new Random().nextDouble() * lambda * 1000);
+    this.timeToCrash = new PoissonDistribution(lambda * 1000).sample();
 
     LOG.log(Level.INFO,
         "Created Poisson poison injector with prescribed dose: {0}. Crash in {1} msec.",
