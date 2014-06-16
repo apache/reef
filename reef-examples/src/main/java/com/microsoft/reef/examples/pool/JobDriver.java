@@ -294,7 +294,7 @@ public final class JobDriver {
   }
 
   /**
-   * Receive notification that the Task is running.
+   * Receive notification that the Evaluator has been shut down.
    */
   final class CompletedEvaluatorHandler implements EventHandler<CompletedEvaluator> {
     @Override
