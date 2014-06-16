@@ -193,9 +193,42 @@ public class JobClient {
     /**
      * Wait for the job driver to complete. This method is called from Launcher.main()
      */
-    public void waitForCompletion() {
+    public void waitForCompletion(int waitTime) {
+        LOG.info("Waiting for the Job Driver to complete: " + waitTime);
+        if(waitTime == 0)
+        {
+            close(0);
+            return;
+        }
+        else if(waitTime < 0)
+        {
+            waitTillDone();
+        }
+        long endTime = System.currentTimeMillis() + waitTime * 1000;
+        close(endTime);
+    }
+
+    public void close(long endTime)
+    {
+      while (endTime > System.currentTimeMillis())
+      {
+          try
+          {
+              Thread.sleep(1000);
+          }
+          catch (final InterruptedException e)
+          {
+              LOG.log(Level.SEVERE, "Thread sleep failed");
+          }
+      }
+      LOG.log(Level.INFO, "Done waiting.");
+      this.stopAndNotify();
+      reef.close();
+    }
+
+    private void waitTillDone()
+    {
         while (this.isBusy) {
-            LOG.info("Waiting for the Job Driver to complete.");
             try {
                 synchronized (this) {
                     this.wait();
@@ -205,11 +238,5 @@ public class JobClient {
             }
         }
         this.reef.close();
-    }
-
-    public void close()
-    {
-      LOG.log(Level.WARNING, "Closing without waiting for driver to complete.");
-      this.reef.close();
     }
 }

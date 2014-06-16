@@ -74,12 +74,13 @@ public final class Launch {
   }
 
   /**
-   * Command line parameter = true to wait till driver finishes ,
-   * or false to exit without waiting for driver
+   * Command line parameter, number of seconds  to wait till driver finishes ,
+   * = -1 : waits forever
+   * = 0: exit immediately without wait for driver.
    */
   @NamedParameter(doc = "Whether or not to wait for driver to finish",
-          short_name = "wait_for_driver", default_value = "true")
-  public static final class WaitForDriver implements Name<Boolean> {
+          short_name = "wait_time", default_value = "-1")
+  public static final class WaitTimeForDriver implements Name<Integer> {
   }
 
   /**
@@ -96,7 +97,7 @@ public final class Launch {
     final CommandLine cl = new CommandLine(confBuilder);
     cl.registerShortNameOfClass(Local.class);
     cl.registerShortNameOfClass(NumRuns.class);
-    cl.registerShortNameOfClass(WaitForDriver.class);
+    cl.registerShortNameOfClass(WaitTimeForDriver.class);
     cl.processCommandLine(args);
     return confBuilder.build();
   }
@@ -159,16 +160,19 @@ public final class Launch {
     try {
       if(args == null || args.length == 0)
       {
-        throw new IllegalArgumentException("No arguments provided, at least a clrFolder should be supplied.")   ;
+        throw new IllegalArgumentException("No arguments provided, at least a clrFolder should be supplied.");
       }
       final File dotNetFolder = new File(args[0]).getAbsoluteFile();
       String[] removedArgs = Arrays.copyOfRange(args, 1, args.length);
 
       final Configuration config = getClientConfiguration(removedArgs);
+      final Injector commandLineInjector = Tang.Factory.getTang().newInjector(parseCommandLine(removedArgs));
+      final int waitTime = commandLineInjector.getNamedInstance(WaitTimeForDriver.class);
+
       final Injector injector = Tang.Factory.getTang().newInjector(config);
       final JobClient client = injector.getInstance(JobClient.class);
       client.submit(dotNetFolder);
-      client.waitForCompletion();      // client.close();
+      client.waitForCompletion(waitTime);
       LOG.info("Done!");
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
