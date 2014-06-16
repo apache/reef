@@ -15,31 +15,27 @@
  */
 package com.microsoft.reef.tests;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.tests.yarn.failure.FailureREEF;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.InjectionException;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- *
- */
 public class FailureTest {
 
-  /**
-   * @param args
-   * @throws InjectionException
-   */
+  private static final int JOB_TIMEOUT = 2 * 60 * 1000;
+
   @Test
   public void testFailureRestart() throws InjectionException {
+
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 40)
+        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, FailureREEF.NUM_LOCAL_THREADS)
         .build();
-    final LauncherStatus status = FailureREEF.runFailureReef(runtimeConfiguration, 2 * 60 * 1000);
+
+    final LauncherStatus status = FailureREEF.runFailureReef(runtimeConfiguration, JOB_TIMEOUT);
+
     Assert.assertTrue("FailureReef failed: " + status, status.isSuccess());
   }
-
 }

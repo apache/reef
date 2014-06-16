@@ -15,12 +15,6 @@
  */
 package com.microsoft.reef.tests.yarn.failure;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
@@ -32,20 +26,22 @@ import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 
-/**
- *
- */
+import javax.inject.Inject;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 @Unit
 public class FailureDriver {
 
-  private static final Logger LOG = Logger.getLogger(FailureDriver.class
-    .getName());
+  private static final int NUM_EVALUATORS = 40;
+  private static final int NUM_FAILURES = 10;
+
+  private static final Logger LOG = Logger.getLogger(FailureDriver.class.getName());
 
   private final EvaluatorRequestor requestor;
 
-  private final AtomicInteger submitted = new AtomicInteger(10);
-
-
+  private final AtomicInteger toSubmit = new AtomicInteger(NUM_FAILURES);
 
   @Inject
   public FailureDriver(final EvaluatorRequestor requestor) {
@@ -59,55 +55,53 @@ public class FailureDriver {
   final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
+      LOG.log(Level.FINE, "Request {0} Evaluators.", NUM_EVALUATORS);
       FailureDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(40)
+          .setNumber(NUM_EVALUATORS)
           .setMemory(64)
           .build());
-      LOG.log(Level.INFO, "Requested Evaluator.");
     }
   }
 
   /**
-   * Handles AllocatedEvaluator: Submit a poisoned context
+   * Handles AllocatedEvaluator: Submit a poisoned context.
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      if(submitted.getAndDecrement()>0) {
+      final String evalId = allocatedEvaluator.getId();
+      LOG.log(Level.FINE, "Got allocated evaluator: {0}", evalId);
+      if (toSubmit.getAndDecrement() > 0) {
+        LOG.log(Level.FINE, "Submitting poisoned context. {0} to go.", toSubmit);
         allocatedEvaluator.submitContext(
-          Tang.Factory.getTang()
-            .newConfigurationBuilder(
-                ContextConfiguration.CONF
-                  .set(ContextConfiguration.IDENTIFIER, "Poisoned Context")
-                  .build(),
-                PoisonedContextConfiguration.CONF
-                  .set(PoisonedContextConfiguration.CRASH_PROBABILITY, "1")
-                  .set(PoisonedContextConfiguration.CRASH_TIMEOUT, "1")
-                  .build()
-             ).build());
-      }
-      else {
+            Tang.Factory.getTang()
+                .newConfigurationBuilder(
+                    ContextConfiguration.CONF
+                        .set(ContextConfiguration.IDENTIFIER, "Poisoned Context: " + evalId)
+                        .build(),
+                    PoisonedContextConfiguration.CONF
+                        .set(PoisonedContextConfiguration.CRASH_PROBABILITY, "1")
+                        .set(PoisonedContextConfiguration.CRASH_TIMEOUT, "1")
+                        .build())
+                .build());
+      } else {
+        LOG.log(Level.FINE, "Closing evaluator {0}", evalId);
         allocatedEvaluator.close();
       }
     }
   }
 
   /**
-   * Handles FailedEvaluator: Resubmits the single Evaluator
-   * resource request
+   * Handles FailedEvaluator: Resubmits the single Evaluator resource request.
    */
-  final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator>{
-
+  final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator failedEvaluator) {
-      LOG.info("Got a failed evaluator " + failedEvaluator.getId());
+      LOG.log(Level.FINE, "Got failed evaluator: {0} - re-request", failedEvaluator.getId());
       FailureDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1)
           .setMemory(64)
           .build());
-      LOG.log(Level.INFO, "Re-Requested Evaluator.");
     }
-
   }
-
 }
