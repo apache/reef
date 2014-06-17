@@ -101,6 +101,9 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   @Override
   public JavaConfigurationBuilder bindNamedParameter(Class<? extends Name<?>> name, String s)
       throws BindException {
+    if (s == null) {
+          throw new IllegalStateException("The value null set to the named parameter is illegel: " + name);
+    }
     final Node np = getNode(name);
     if (np instanceof NamedParameterNode) {
       super.bindParameter((NamedParameterNode<?>) np, s);
