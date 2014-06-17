@@ -16,30 +16,93 @@
 package com.microsoft.reef.runtime.yarn.util;
 
 import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Parameter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * An external constructor that creates YarnConfiguration instances.
+ */
 public final class YarnConfigurationConstructor implements ExternalConstructor<YarnConfiguration> {
+  private static final Logger LOG = Logger.getLogger(YarnConfigurationConstructor.class.getName());
 
-  private final YarnConfiguration conf;
+  private final Optional<Path> configurationPath;
 
   @Inject
   YarnConfigurationConstructor() {
-    this.conf = new YarnConfiguration();
+    this(Optional.<Path>empty());
   }
 
   @Inject
   YarnConfigurationConstructor(@Parameter(YarnMasterConfiguration.YarnConfigurationFile.class) final String file) {
-    this();
-    this.conf.addResource(new Path(file));
+    this(Optional.of(new Path(file)));
   }
+
+  private YarnConfigurationConstructor(final Optional<Path> configurationFilePath) {
+    this.configurationPath = configurationFilePath;
+    LOG.log(Level.INFO, "Instantiated 'YarnConfigurationConstructor' with path {0}", configurationFilePath);
+  }
+
 
   @Override
   public YarnConfiguration newInstance() {
-    return this.conf;
+    final YarnConfiguration yarnConfiguration = new YarnConfiguration();
+    if (this.configurationPath.isPresent()) {
+      yarnConfiguration.addResource(this.configurationPath.get());
+    }
+    // TODO: This should not be needed.
+    yarnConfiguration.reloadConfiguration();
+
+    LOG.log(Level.INFO, "Instantiated 'YarnConfiguration' with path [{0}] and contents [{1}] ",
+        new Object[]{this.configurationPath, yarnConfiguration});
+    return yarnConfiguration;
+  }
+
+  @Override
+  public String toString() {
+    return "YarnConfigurationConstructor{configurationPath=" + this.configurationPath + '}';
+  }
+
+  /**
+   * @return A Configuration primed with the contents of $HADOOP_HOME/etc/hadoop/*.xml   *
+   */
+  // TODO: This is a hack. Just calling new Configuration(true) should do this, but did not on HDInsight.
+  private static Configuration getDefaultConfiguration() throws IOException {
+    final Configuration conf = new Configuration(false);
+    final File hadoopConfigurationFolder = getHadoopConfFolder();
+    final List<File> configurationFiles = new ArrayList<>();
+    for (final File f : hadoopConfigurationFolder.listFiles()) {
+      if (f.isFile() && f.getName().endsWith(".xml")) {
+        conf.addResource(new Path(f.getAbsolutePath()));
+      }
+    }
+    return conf;
+  }
+
+  /**
+   * Finds the folder containing the hadoop configuration files.
+   *
+   * @return the folder containing the hadoop configuration files.
+   * @throws java.io.IOException if the folder can't be found.
+   */
+  private static File getHadoopConfFolder() throws IOException {
+    if (System.getenv().containsKey("HADOOP_CONF_DIR")) {
+      return new File(System.getenv("HADOOP_CONF_DIR"));
+    } else if (System.getenv().containsKey("HADOOP_HOME")) {
+      return new File(System.getenv("HADOOP_HOME") + "/etc/hadoop/");
+    } else {
+      throw new IOException("Unable to find hadoop configuration folder.");
+    }
   }
 }

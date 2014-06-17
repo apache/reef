@@ -45,7 +45,7 @@ public class JARFileMaker implements AutoCloseable {
    * @param inputFile
    * @throws IOException
    */
-  public void add(final File inputFile) throws IOException {
+  public JARFileMaker add(final File inputFile) throws IOException {
 
     final String fileNameInJAR = makeRelative(inputFile);
     if (inputFile.isDirectory()) {
@@ -53,9 +53,10 @@ public class JARFileMaker implements AutoCloseable {
       entry.setTime(inputFile.lastModified());
       this.jarOutputStream.putNextEntry(entry);
       this.jarOutputStream.closeEntry();
-      for (final File nestedFile : inputFile.listFiles())
+      for (final File nestedFile : inputFile.listFiles()) {
         add(nestedFile);
-      return;
+      }
+      return this;
     }
 
     final JarEntry entry = new JarEntry(fileNameInJAR);
@@ -71,14 +72,16 @@ public class JARFileMaker implements AutoCloseable {
       }
       this.jarOutputStream.closeEntry();
     }
+    return this;
   }
 
-  public void addChildren(final File folder) throws IOException {
+  public JARFileMaker addChildren(final File folder) throws IOException {
     this.relativeStartCanonicalPath = folder.getCanonicalPath();
     for (final File f : folder.listFiles()) {
       this.add(f);
     }
     this.relativeStartCanonicalPath = null;
+    return this;
   }
 
   private String makeRelative(final File input) throws IOException {
