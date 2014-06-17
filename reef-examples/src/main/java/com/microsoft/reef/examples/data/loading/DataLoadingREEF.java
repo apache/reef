@@ -49,7 +49,9 @@ public class DataLoadingREEF {
 
   private static final Logger LOG = Logger.getLogger(DataLoadingREEF.class.getName());
 
-  private static final int NUM_LOCAL_THREADS = 8;
+  private static final int NUM_LOCAL_THREADS = 16;
+  private static final int NUM_SPLITS = 6;
+  private static final int NUM_COMPUTE_EVALUATORS = 2;
 
   /**
    * Command line parameter = true to run locally, or false to run on YARN.
@@ -103,14 +105,14 @@ public class DataLoadingREEF {
     TextInputFormat.addInputPath(jobConf, new Path(inputDir));
 
     final EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
-        .setNumber(2)
+        .setNumber(NUM_COMPUTE_EVALUATORS)
         .setMemory(512)
         .build();
 
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
         .setMemoryMB(1024)
         .setJobConf(jobConf)
-        .setNumberOfDesiredSplits(6)
+        .setNumberOfDesiredSplits(NUM_SPLITS)
         .setComputeRequest(computeRequest)
         .setDriverConfigurationModule(EnvironmentUtils
             .addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
