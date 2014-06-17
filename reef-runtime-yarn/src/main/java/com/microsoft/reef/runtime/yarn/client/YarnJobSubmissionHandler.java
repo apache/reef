@@ -77,7 +77,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   @Override
   public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
-    LOG.log(Level.FINEST, "Submitting job with ID " + jobSubmissionProto.getIdentifier());
+    LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionProto.getIdentifier());
     try {
       // Get a new application id
       final YarnClientApplication yarnClientApplication = yarnClient.createApplication();
@@ -228,13 +228,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   // TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration
   private final String getQueue(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
                                 final String defaultQueue) {
-    final String queue;
-    if (jobSubmissionProto.hasQueue() && (!jobSubmissionProto.getQueue().isEmpty())) {
-      queue = jobSubmissionProto.getQueue();
-    } else {
-      queue = defaultQueue;
-    }
-    return queue;
+    return jobSubmissionProto.hasQueue() && !jobSubmissionProto.getQueue().isEmpty() ?
+        jobSubmissionProto.getQueue() : defaultQueue;
   }
 
   /**

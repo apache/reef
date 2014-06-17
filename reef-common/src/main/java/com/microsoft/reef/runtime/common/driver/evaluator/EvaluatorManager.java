@@ -129,9 +129,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
     final AllocatedEvaluator allocatedEvaluator =
         new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer);
-    LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID " + evaluatorId);
+    LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
     this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
-    LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: {0}", this.getId());
+    LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
   }
 
   /**

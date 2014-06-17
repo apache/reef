@@ -86,7 +86,7 @@ public final class Launcher {
    * @throws Exception
    */
   public static void main(final String[] args) {
-    LOG.log(Level.INFO, "Launcher started with user name [{0}]" + System.getProperty("user.name"));
+    LOG.log(Level.INFO, "Launcher started with user name [{0}]", System.getProperty("user.name"));
 
     LOG.log(Level.FINE, "Launcher started. Assertions are {0} in this process.",
         EnvironmentUtils.areAssertionsEnabled() ? "ENABLED" : "DISABLED");

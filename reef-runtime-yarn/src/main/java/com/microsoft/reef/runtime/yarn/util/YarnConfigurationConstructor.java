@@ -25,6 +25,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -64,7 +65,7 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
     yarnConfiguration.reloadConfiguration();
 
     LOG.log(Level.INFO, "Instantiated 'YarnConfiguration' with path [{0}] and contents [{1}] ",
-        new Object[]{this.configurationPath, yarnConfiguration.toString()});
+        new Object[]{this.configurationPath, yarnConfiguration});
     return yarnConfiguration;
   }
 
@@ -77,9 +78,9 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
    * @return A Configuration primed with the contents of $HADOOP_HOME/etc/hadoop/*.xml   *
    */
   // TODO: This is a hack. Just calling new Configuration(true) should do this, but did not on HDInsight.
-  private static Configuration getDefaultConfiguration() {
+  private static Configuration getDefaultConfiguration() throws IOException {
     final Configuration conf = new Configuration(false);
-    final File hadoopConfigurationFolder = new File(System.getenv("HADOOP_HOME") + "/etc/hadoop/");
+    final File hadoopConfigurationFolder = getHadoopConfFolder();
     final List<File> configurationFiles = new ArrayList<>();
     for (final File f : hadoopConfigurationFolder.listFiles()) {
       if (f.isFile() && f.getName().endsWith(".xml")) {
@@ -87,5 +88,21 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
       }
     }
     return conf;
+  }
+
+  /**
+   * Finds the folder containing the hadoop configuration files.
+   *
+   * @return the folder containing the hadoop configuration files.
+   * @throws java.io.IOException if the folder can't be found.
+   */
+  private static File getHadoopConfFolder() throws IOException {
+    if (System.getenv().containsKey("HADOOP_CONF_DIR")) {
+      return new File(System.getenv("HADOOP_CONF_DIR"));
+    } else if (System.getenv().containsKey("HADOOP_HOME")) {
+      return new File(System.getenv("HADOOP_HOME") + "/etc/hadoop/");
+    } else {
+      throw new IOException("Unable to find hadoop configuration folder.");
+    }
   }
 }
