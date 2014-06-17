@@ -127,6 +127,13 @@ public final class ReefEventStateManager {
     return evaluators;
   }
 
+  /**
+   * get driver endpoint identifier
+   */
+  public String getDriverEndpointIdentifier() {
+    return remoteManager.getMyIdentifier();
+  }
+
   public Map<String, ActiveContext> getContexts() {
     return contexts;
   }
@@ -176,10 +183,9 @@ public final class ReefEventStateManager {
   public final class StartStateHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, String.format(
-              "StartStateHandler: Driver started with endpoint identifier [%s]  and StartTime: [%s]",
-              ReefEventStateManager.this.remoteManager.getMyIdentifier(),
-              startTime));
+      LOG.log(Level.INFO,
+              "StartStateHandler: Driver started with endpoint identifier [{0}]  and StartTime [{1}]",
+              new Object[] {ReefEventStateManager.this.remoteManager.getMyIdentifier(), startTime});
       ReefEventStateManager.this.startTime = startTime;
     }
   }

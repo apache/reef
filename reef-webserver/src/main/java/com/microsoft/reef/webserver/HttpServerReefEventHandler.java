@@ -81,15 +81,21 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
     final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
-    if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Evaluators")) {
+    final String target = parsedHttpRequest.getTargetEntity().toLowerCase();
+    if (target.equals("evaluators")) {
       final String queryStr = parsedHttpRequest.getQueryString();
       if (queryStr == null || queryStr.length() == 0) {
         getEvaluators(response);
       } else {
         handleQueries(response, parsedHttpRequest.getQueryMap());
       }
-    } else {
-      response.getWriter().println("Unsupported query for entity: " + parsedHttpRequest.getTargetEntity());
+    }
+    else if(target.equals("driver"))
+    {
+        getDriverInformation(response);
+    }
+    else {
+      response.getWriter().println("Unsupported query for entity: " + target);
     }
   }
 
@@ -143,12 +149,32 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     for (Map.Entry<String, EvaluatorDescriptor> entry : reefStateManager.getEvaluators().entrySet()) {
       final String key = entry.getKey();
       final EvaluatorDescriptor descriptor = entry.getValue();
-      response.getWriter().println("Evaluator ID: " + key);
+      response.getWriter().println(
+              String.format("Evaluator [%s] with [%s]MB memory is running on [%s].",
+                      key,
+                      descriptor.getMemory(),
+                      descriptor.getNodeDescriptor().getInetSocketAddress()
+              ));
       response.getWriter().write("<br/>");
     }
     response.getWriter().write("<br/>");
     response.getWriter().println("Total number of Evaluators: " + reefStateManager.getEvaluators().size());
     response.getWriter().write("<br/>");
-    response.getWriter().println("Start time: " + reefStateManager.getStartTime());
+    response.getWriter().println("Driver start time: " + reefStateManager.getStartTime());
+  }
+
+  /**
+   * Get driver information
+   *
+   * @param response
+   * @throws IOException
+   */
+  private void getDriverInformation(HttpServletResponse response) throws IOException {
+    LOG.log(Level.INFO, "HttpServerReefEventHandler getDriverInformation invoked.");
+    response.getWriter().println("<h1>Driver Information:</h1>");
+
+    response.getWriter().println(String.format("Driver Remote Identifier: [%s]", reefStateManager.getDriverEndpointIdentifier()));
+    response.getWriter().write("<br/><br/>");
+    response.getWriter().println("Driver start time: " + reefStateManager.getStartTime());
   }
 }
