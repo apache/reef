@@ -25,7 +25,6 @@ import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnUtils;
-import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import org.apache.commons.lang.StringUtils;
@@ -78,6 +77,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   @Override
   public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+    LOG.log(Level.FINEST, "Submitting job with ID " + jobSubmissionProto.getIdentifier());
     try {
       // Get a new application id
       final YarnClientApplication yarnClientApplication = yarnClient.createApplication();
@@ -85,6 +85,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
       final ApplicationSubmissionContext applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
       final ApplicationId applicationId = applicationSubmissionContext.getApplicationId();
+
 
       LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
 
@@ -102,9 +103,9 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final Map<String, LocalResource> localResources = new HashMap<>();
 
       final File yarnConfigurationFile = this.tempFileCreator.createTempFile("yarn", ".conf");
-      final FileOutputStream yarnConfigurationFOS = new FileOutputStream(yarnConfigurationFile);
-      this.yarnConfiguration.writeXml(yarnConfigurationFOS);
-      yarnConfigurationFOS.close();
+      try (final FileOutputStream yarnConfigurationFOS = new FileOutputStream(yarnConfigurationFile)) {
+        this.yarnConfiguration.writeXml(yarnConfigurationFOS);
+      }
 
       LOG.log(Level.FINEST, "Upload tmp yarn configuration file {0}", yarnConfigurationFile.toURI());
       localResources.put(yarnConfigurationFile.getName(),
@@ -157,16 +158,17 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       }
 
       // RUNTIME CONFIGURATION FILE
-      final Configuration masterConfiguration = new YarnMasterConfiguration()
-          .setGlobalFileClassPath(globalClassPath.toString())
-          .setJobSubmissionDirectory(job_dir.toString())
-          .setYarnConfigurationFile(yarnConfigurationFile.getName())
-          .setJobIdentifier(jobSubmissionProto.getIdentifier())
-          .setClientRemoteIdentifier(jobSubmissionProto.getRemoteId())
-          .addClientConfiguration(this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
-          .build();
       final File masterConfigurationFile = this.tempFileCreator.createTempFile("driver", ".conf");
-      this.configurationSerializer.toFile(masterConfiguration, masterConfigurationFile);
+      this.configurationSerializer.toFile(
+          new YarnMasterConfiguration()
+              .setGlobalFileClassPath(globalClassPath.toString())
+              .setJobSubmissionDirectory(job_dir.toString())
+              .setYarnConfigurationFile(yarnConfigurationFile.getName())
+              .setJobIdentifier(jobSubmissionProto.getIdentifier())
+              .setClientRemoteIdentifier(jobSubmissionProto.getRemoteId())
+              .addClientConfiguration(this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
+              .build(),
+          masterConfigurationFile);
 
       localResources.put(masterConfigurationFile.getName(),
           YarnUtils.getLocalResource(fs, new Path(masterConfigurationFile.toURI()), new Path(job_dir, masterConfigurationFile.getName())));
@@ -174,16 +176,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       ////////////////////////////////////////////////////////////////////////////
 
       // SET MEMORY RESOURCE
-      final int amMemory;
-      final int maxMemory = applicationResponse.getMaximumResourceCapability().getMemory();
-      final int requestedMemory = jobSubmissionProto.getDriverMemory();
-      if (requestedMemory <= maxMemory) {
-        amMemory = requestedMemory;
-      } else {
-        LOG.log(Level.WARNING, "Requested {0}MB of memory for the driver. The max on this YARN installation is {1}. Using {1} as the memory for the driver.",
-            new Object[]{requestedMemory, maxMemory});
-        amMemory = maxMemory;
-      }
+      final int amMemory = getMemory(jobSubmissionProto, applicationResponse.getMaximumResourceCapability().getMemory());
+
       final Resource capability = Records.newRecord(Resource.class);
       capability.setMemory(amMemory);
       applicationSubmissionContext.setResource(capability);
@@ -212,15 +206,60 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       applicationSubmissionContext.setPriority(pri);
 
       // Set the queue to which this application is to be submitted in the RM
-      applicationSubmissionContext.setQueue(jobSubmissionProto.hasQueue() ? jobSubmissionProto.getQueue() : "default");
 
-      LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", applicationId);
+      final String yarnSubmissionQueue = getQueue(jobSubmissionProto, "default");
+      applicationSubmissionContext.setQueue(yarnSubmissionQueue);
+      LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0} Queue: {1} ",
+          new Object[]{applicationId, yarnSubmissionQueue});
       this.yarnClient.submitApplication(applicationSubmissionContext);
       // monitorApplication(applicationId);
     } catch (YarnException | IOException | URISyntaxException | BindException e) {
       throw new RuntimeException(e);
     }
   }
+
+  /**
+   * Extract the queue name from the jobSubmissionProto or return default if none is set.
+   *
+   * @param jobSubmissionProto
+   * @param defaultQueue
+   * @return
+   */
+  // TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration
+  private final String getQueue(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+                                final String defaultQueue) {
+    final String queue;
+    if (jobSubmissionProto.hasQueue() && (!jobSubmissionProto.getQueue().isEmpty())) {
+      queue = jobSubmissionProto.getQueue();
+    } else {
+      queue = defaultQueue;
+    }
+    return queue;
+  }
+
+  /**
+   * Extract the desired driver memory from jobSubmissionProto.
+   * <p/>
+   * returns maxMemory if that desired amount is more than maxMemory
+   *
+   * @param jobSubmissionProto
+   * @param maxMemory
+   * @return
+   */
+  private int getMemory(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+                        final int maxMemory) {
+    final int amMemory;
+    final int requestedMemory = jobSubmissionProto.getDriverMemory();
+    if (requestedMemory <= maxMemory) {
+      amMemory = requestedMemory;
+    } else {
+      LOG.log(Level.WARNING, "Requested {0}MB of memory for the driver. The max on this YARN installation is {1}. Using {1} as the memory for the driver.",
+          new Object[]{requestedMemory, maxMemory});
+      amMemory = maxMemory;
+    }
+    return amMemory;
+  }
+
 
   private boolean monitorApplication(final ApplicationId appId)
       throws YarnException, IOException {

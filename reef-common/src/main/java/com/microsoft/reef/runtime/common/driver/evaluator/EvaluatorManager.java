@@ -20,6 +20,7 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.FailedContext;
+import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.driver.task.FailedTask;
@@ -109,8 +110,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorMessageDispatcher messageDispatcher,
       final EvaluatorControlHandler evaluatorControlHandler,
       final ContextControlHandler contextControlHandler,
-      final EvaluatorStatusManager stateManager, ExceptionCodec exceptionCodec) {
-
+      final EvaluatorStatusManager stateManager,
+      final ExceptionCodec exceptionCodec) {
+    LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
     this.clock = clock;
     this.evaluators = evaluators;
     this.resourceReleaseHandler = resourceReleaseHandler;
@@ -125,10 +127,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.stateManager = stateManager;
     this.exceptionCodec = exceptionCodec;
 
-
-    this.messageDispatcher.onEvaluatorAllocated(new AllocatedEvaluatorImpl(
-        this, remoteManager.getMyIdentifier(), this.configurationSerializer));
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorManager' for evaluator: {0}", this.getId());
+    final AllocatedEvaluator allocatedEvaluator =
+        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer);
+    LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID " + evaluatorId);
+    this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
+    LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: {0}", this.getId());
   }
 
   /**
