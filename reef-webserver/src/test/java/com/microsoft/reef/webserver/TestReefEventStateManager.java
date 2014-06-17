@@ -20,11 +20,10 @@ import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.Injector;
-import com.microsoft.tang.JavaConfigurationBuilder;
-import com.microsoft.tang.Tang;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
+import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.remote.RemoteConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +44,9 @@ public class TestReefEventStateManager {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class);
     cb.bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class);
+    cb.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER");
+    cb.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
+
     final Configuration configuration = cb.build();
     injector = Tang.Factory.getTang().newInjector(configuration);
     reefEventStateManager = injector.getInstance(ReefEventStateManager.class);

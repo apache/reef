@@ -16,10 +16,10 @@
 
 package com.microsoft.reef.webserver;
 
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.Injector;
-import com.microsoft.tang.Tang;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
+import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.remote.RemoteConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,11 @@ public class TestJettyHandler {
     final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
-    final Injector injector = Tang.Factory.getTang().newInjector(httpHandlerConfiguration);
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER");
+    cb.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
+    final Configuration finalConfig = Configurations.merge(httpHandlerConfiguration, cb.build());
+    final Injector injector = Tang.Factory.getTang().newInjector(finalConfig);
 
     handler = injector.getInstance(JettyHandler.class);
   }

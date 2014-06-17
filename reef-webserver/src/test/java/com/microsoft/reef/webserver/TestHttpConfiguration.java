@@ -19,9 +19,13 @@ package com.microsoft.reef.webserver;
 import com.microsoft.reef.client.DriverServiceConfiguration;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.remote.*;
+import com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 import org.junit.Assert;
@@ -30,6 +34,7 @@ import org.junit.Test;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
+import java.rmi.Remote;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -56,6 +61,8 @@ public class TestHttpConfiguration {
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindImplementation(ActiveContext.class, MockActiveContext.class);
+    cb.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER");
+    cb.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
     final Configuration contextConfig = cb.build();
 
     final Configuration configuration = Configurations.merge(httpHandlerConfiguration, driverConfigurationForHttpServer, contextConfig);

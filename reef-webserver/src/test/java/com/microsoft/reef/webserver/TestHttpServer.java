@@ -16,8 +16,10 @@
 
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.remote.RemoteConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +31,7 @@ public class TestHttpServer {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void httpServerDefaultTest() throws InjectionException, Exception {
+  public void httpServerDefaultTest() throws  Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
     final Injector injector = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
     final HttpServer httpServer = injector.getInstance(HttpServer.class);
@@ -38,7 +40,7 @@ public class TestHttpServer {
   }
 
   @Test
-  public void httpServerSpecifiedPortTest() throws InjectionException, Exception {
+  public void httpServerSpecifiedPortTest() throws  Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -53,7 +55,7 @@ public class TestHttpServer {
   }
 
   @Test
-  public void httpServerConflictPortTest() throws InjectionException, Exception {
+  public void httpServerConflictPortTest() throws  Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
 
     final Injector injector1 = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
@@ -92,7 +94,7 @@ public class TestHttpServer {
   }
 
   @Test
-  public void httpServerPortRetryTest() throws InjectionException, Exception {
+  public void httpServerPortRetryTest() throws Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
     final Injector injector1 = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
     final HttpServer httpServer1 = injector1.getInstance(HttpServer.class);
@@ -117,9 +119,13 @@ public class TestHttpServer {
   }
 
   @Test
-  public void httpServerAddHandlerTest() throws InjectionException, Exception {
+  public void httpServerAddHandlerTest() throws Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
-    final Injector injector = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER");
+    cb.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
+    final Configuration finalConfig = Configurations.merge(httpRuntimeConfiguration, cb.build());
+    final Injector injector = Tang.Factory.getTang().newInjector(finalConfig);
     final HttpServer httpServer = injector.getInstance(HttpServer.class);
     final HttpServerReefEventHandler httpHandler = injector.getInstance(HttpServerReefEventHandler.class);
     httpServer.addHttpHandler(httpHandler);
