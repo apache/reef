@@ -67,20 +67,26 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
                             final Containers containers,
                             final ConfigurationSerializer configurationSerializer,
                             final YarnConfiguration yarnConf,
-                            final TempFileCreator tempFileCreator, final InjectionFuture<YarnContainerManager> yarnContainerManager) throws IOException {
+                            final TempFileCreator tempFileCreator,
+                            final InjectionFuture<YarnContainerManager> yarnContainerManager) throws IOException {
+    LOG.log(Level.FINEST, "Instantiating 'YARNResourceLaunchHandler'");
     this.globalClassPath = globalClassPath;
     this.tempFileCreator = tempFileCreator;
     this.yarnContainerManager = yarnContainerManager;
     this.jobSubmissionDirectory = new Path(jobSubmissionDirectory);
     this.containers = containers;
     this.configurationSerializer = configurationSerializer;
-    this.fileSystem = FileSystem.get(yarnConf);
-
+    try {
+      this.fileSystem = FileSystem.get(yarnConf);
+    } catch (final IOException e) {
+      throw new RuntimeException("Unable to instantiate a FileSystem instance.", e);
+    }
     final Path globalFilePath = new Path(this.jobSubmissionDirectory, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
     if (this.fileSystem.exists(globalFilePath)) {
       final FileContext fileContext = FileContext.getFileContext(this.fileSystem.getUri());
       setResources(this.fileSystem, this.globalResources, fileContext.listStatus(globalFilePath));
     }
+    LOG.log(Level.INFO, "Instantiated 'YARNResourceLaunchHandler'");
   }
 
   @Override
@@ -193,14 +199,12 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
     while (files.hasNext()) {
       final FileStatus fstatus = files.next();
       if (fstatus.isFile()) {
-        LOG.log(Level.FINE, "Load file resource: {0}", fstatus.getPath());
+        LOG.log(Level.FINEST, "Load file resource: {0}", fstatus.getPath());
         resources.put(fstatus.getPath().getName(), YarnUtils.getLocalResource(fs, fstatus.getPath()));
       } else if (fstatus.isSymlink()) {
-        LOG.log(Level.FINE, "Load symlink resource: {0}", fstatus.getSymlink());
+        LOG.log(Level.FINEST, "Load symlink resource: {0}", fstatus.getSymlink());
         resources.put(fstatus.getPath().getName(), YarnUtils.getLocalResource(fs, fstatus.getSymlink()));
       }
     }
   }
-
-
 }
