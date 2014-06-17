@@ -39,7 +39,7 @@ public class TestConfigurationBuilder {
     @Test
     public void nullStringVaueTest() {
         thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("The value null set to the named parameter is illegel: class com.microsoft.tang.implementation.java.TestConfigurationBuilder$NamedParamterNoDefault$NamedString");
+        thrown.expectMessage("The value null set to the named parameter is illegal: class com.microsoft.tang.implementation.java.TestConfigurationBuilder$NamedParamterNoDefault$NamedString");
 
         Tang.Factory.getTang().newConfigurationBuilder()
                 .bindNamedParameter(NamedParamterNoDefault.NamedString.class, (String) null)
