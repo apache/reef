@@ -94,7 +94,7 @@ public class FailureDriver {
   /**
    * Handles FailedEvaluator: Resubmits the single Evaluator resource request.
    */
-  final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
+  final class EvaluatorFailedHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator failedEvaluator) {
       LOG.log(Level.FINE, "Got failed evaluator: {0} - re-request", failedEvaluator.getId());

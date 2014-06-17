@@ -99,7 +99,7 @@ public final class FailureREEF {
             .set(DriverConfiguration.DRIVER_IDENTIFIER, "FailureREEF")
             .set(DriverConfiguration.ON_DRIVER_STARTED, FailureDriver.StartHandler.class)
             .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailureDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_FAILED, FailureDriver.FailedEvaluatorHandler.class)
+            .set(DriverConfiguration.ON_EVALUATOR_FAILED, FailureDriver.EvaluatorFailedHandler.class)
             .build();
 
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfig).run(driverConf, timeout);

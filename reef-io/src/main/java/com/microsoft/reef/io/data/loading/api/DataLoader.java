@@ -194,7 +194,7 @@ public class DataLoader {
     }
   }
 
-  public class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
+  public class EvaluatorFailedHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator failedEvaluator) {
 

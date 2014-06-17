@@ -34,7 +34,8 @@ import org.apache.hadoop.mapred.JobConf;
 /**
  * Builder to create a request to the DataLoadingService.
  */
-public final class DataLoadingRequestBuilder implements com.microsoft.reef.util.Builder<Configuration> {
+public final class DataLoadingRequestBuilder
+    implements com.microsoft.reef.util.Builder<Configuration> {
 
   @NamedParameter(short_name = "num_splits", default_value = "0")
   public static final class NumberOfDesiredSplits implements Name<Integer> {
@@ -100,50 +101,44 @@ public final class DataLoadingRequestBuilder implements com.microsoft.reef.util.
   }
 
   @Override
-  public Configuration build() {
+  public Configuration build() throws BindException {
 
     this.jobConf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
     this.jobConf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
 
-    try {
-
-      if (this.driverConfigurationModule == null) {
-        throw new IllegalStateException("Driver Configuration Module is a required parameter.");
-      }
-
-      final Configuration driverConfiguration = this.driverConfigurationModule
-          .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_FAILED, DataLoader.FailedEvaluatorHandler.class)
-          .build();
-
-      final JavaConfigurationBuilder jcb =
-          Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration);
-
-      if (this.numberOfDesiredSplits > 0) {
-        jcb.bindNamedParameter(NumberOfDesiredSplits.class, "" + this.numberOfDesiredSplits);
-      }
-
-      if (this.memoryMB > 0) {
-        jcb.bindNamedParameter(DataLoadingEvaluatorMemoryMB.class, "" + this.memoryMB);
-      }
-
-      if (this.computeRequest != null) {
-        jcb.bindNamedParameter(DataLoadingComputeRequest.class,
-            EvaluatorRequestSerializer.serialize(this.computeRequest));
-      }
-
-      return jcb
-          .bindNamedParameter(LoadDataIntoMemory.class, "" + this.inMemory)
-          .bindConstructor(InputFormat.class, InputFormatExternalConstructor.class)
-          .bindNamedParameter(
-              InputFormatExternalConstructor.SerializedJobConf.class,
-              WritableSerializer.serialize(this.jobConf))
-          .bindImplementation(DataLoadingService.class, InputFormatLoadingService.class)
-          .build();
-
-    } catch (final BindException e) {
-      throw new RuntimeException("Unable to convert JobConf to TangConf", e);
+    if (this.driverConfigurationModule == null) {
+      throw new BindException("Driver Configuration Module is a required parameter.");
     }
+
+    final Configuration driverConfiguration = this.driverConfigurationModule
+        .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_FAILED, DataLoader.EvaluatorFailedHandler.class)
+        .build();
+
+    final JavaConfigurationBuilder jcb =
+        Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration);
+
+    if (this.numberOfDesiredSplits > 0) {
+      jcb.bindNamedParameter(NumberOfDesiredSplits.class, "" + this.numberOfDesiredSplits);
+    }
+
+    if (this.memoryMB > 0) {
+      jcb.bindNamedParameter(DataLoadingEvaluatorMemoryMB.class, "" + this.memoryMB);
+    }
+
+    if (this.computeRequest != null) {
+      jcb.bindNamedParameter(DataLoadingComputeRequest.class,
+          EvaluatorRequestSerializer.serialize(this.computeRequest));
+    }
+
+    return jcb
+        .bindNamedParameter(LoadDataIntoMemory.class, "" + this.inMemory)
+        .bindConstructor(InputFormat.class, InputFormatExternalConstructor.class)
+        .bindNamedParameter(
+            InputFormatExternalConstructor.SerializedJobConf.class,
+            WritableSerializer.serialize(this.jobConf))
+        .bindImplementation(DataLoadingService.class, InputFormatLoadingService.class)
+        .build();
   }
 }
