@@ -61,6 +61,11 @@ public final class ReefEventStateManager {
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
   /**
+   * Remote manager
+   */
+  private final  RemoteManager remoteManager;
+
+  /**
    * Evaluator start time
    */
   private StartTime startTime;
@@ -71,15 +76,10 @@ public final class ReefEventStateManager {
   private StopTime stopTime;
 
   /**
-   * Remote manager
-   */
-  private RemoteManager remoteManager;
-
-  /**
    * ReefEventStateManager that keeps the states of Reef components
    */
   @Inject
-  public ReefEventStateManager(RemoteManager remoteManager) {
+  public ReefEventStateManager(final RemoteManager remoteManager) {
     this.remoteManager = remoteManager;
   }
 
