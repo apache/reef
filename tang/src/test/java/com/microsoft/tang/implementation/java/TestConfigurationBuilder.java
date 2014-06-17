@@ -41,32 +41,21 @@ public class TestConfigurationBuilder {
         thrown.expect(IllegalStateException.class);
         thrown.expectMessage("The value null set to the named parameter is illegel: class com.microsoft.tang.implementation.java.TestConfigurationBuilder$NamedParamterNoDefault$NamedString");
 
-        Configuration conf = Tang.Factory.getTang().newConfigurationBuilder()
+        Tang.Factory.getTang().newConfigurationBuilder()
                 .bindNamedParameter(NamedParamterNoDefault.NamedString.class, (String) null)
-        .build();
-
-        final AvroConfiguration aConf = new AvroConfigurationSerializer().toAvro(conf);
-        Configuration conf2 = new AvroConfigurationSerializer().fromAvro(aConf);
+                .build();
     }
 
-    static class NamedParamterNoDefault
-    {
-        private String str;
+    static class NamedParamterNoDefault {
+        final private String str;
 
         @NamedParameter()
-        public class NamedString implements Name<String>
-        {
+        class NamedString implements Name<String> {
         }
 
         @Inject
-        public NamedParamterNoDefault(@Parameter(NamedString.class) String str)
-        {
+        NamedParamterNoDefault(@Parameter(NamedString.class) String str) {
             this.str = str;
-        }
-
-        public String GetString()
-        {
-            return str;
         }
     }
 }
