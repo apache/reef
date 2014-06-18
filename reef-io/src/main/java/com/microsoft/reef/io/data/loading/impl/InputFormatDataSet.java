@@ -15,11 +15,10 @@
  */
 package com.microsoft.reef.io.data.loading.impl;
 
-import java.io.IOException;
-import java.util.Iterator;
-
-import javax.inject.Inject;
-
+import com.microsoft.reef.annotations.audience.TaskSide;
+import com.microsoft.reef.io.data.loading.api.DataSet;
+import com.microsoft.reef.io.network.util.Utils.Pair;
+import com.microsoft.tang.annotations.Parameter;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.Counters.Counter;
@@ -28,54 +27,61 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-import com.microsoft.reef.annotations.audience.TaskSide;
-import com.microsoft.reef.io.data.loading.api.DataSet;
-import com.microsoft.reef.io.network.util.Utils.Pair;
-import com.microsoft.tang.annotations.Parameter;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * An implementation of {@link DataSet} that reads
  * records using a RecordReader encoded inside an
  * InputSplit.
- * 
+ * <p/>
  * The input split is injected through an external
  * constructor by deserializing the input split
  * assigned to this evaluator
- * 
+ *
  * @param <K>
  * @param <V>
  */
 @TaskSide
-public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writable> implements DataSet<K,V> {
-  private final RecordReader<K, V> recordReader;
+public final class InputFormatDataSet<K extends WritableComparable<K>, V extends Writable> implements DataSet<K, V> {
+
+  private final JobConf jobConf;
+  private final FakeReporter fakeReporter = new FakeReporter();
+  private final InputSplit split;
+  private RecordReader lastRecordReader = null;
 
   @Inject
   public InputFormatDataSet(
-        InputSplit split,
-        @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf
-      ) {
-    final JobConf jobConf = WritableSerializer.deserialize(serializedJobConf);
-    final FakeReporter fakeReporter = new FakeReporter();
-    try {
-      this.recordReader = jobConf.getInputFormat().getRecordReader(split, jobConf, fakeReporter);
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
-    }
+      final InputSplit split,
+      final @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf) {
+    this.jobConf = WritableSerializer.deserialize(serializedJobConf);
+    this.split = split;
   }
 
   @Override
-  public Iterator<Pair<K,V>> iterator() {
-    return new RecordReaderIterator(this.recordReader);
+  public Iterator<Pair<K, V>> iterator() {
+    try {
+      final RecordReader newRecordReader = jobConf.getInputFormat().getRecordReader(split, jobConf, fakeReporter);
+      if (newRecordReader == lastRecordReader) {
+        throw new RuntimeException("Received the same record reader again. This isn't supported.");
+      }
+      this.lastRecordReader = newRecordReader;
+      return new RecordReaderIterator(newRecordReader);
+    } catch (final IOException e) {
+      throw new RuntimeException("Can't instantiate iterator.", e);
+
+    }
   }
-  
-  class RecordReaderIterator implements Iterator<Pair<K,V>>{
-    
-    private final RecordReader<K,V> recordReader;
+
+  private final class RecordReaderIterator implements Iterator<Pair<K, V>> {
+
+    private final RecordReader<K, V> recordReader;
     private K key;
     private V value;
     private boolean available;
-    
-    public RecordReaderIterator(final RecordReader<K,V> recordReader) {
+
+    RecordReaderIterator(final RecordReader<K, V> recordReader) {
       this.recordReader = recordReader;
       fetchRecord();
     }
@@ -87,7 +93,7 @@ public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writab
 
     @Override
     public Pair<K, V> next() {
-      Pair<K,V> retPair = new Pair<K, V>(key, value);
+      Pair<K, V> retPair = new Pair<K, V>(key, value);
       fetchRecord();
       return retPair;
     }
@@ -108,10 +114,11 @@ public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writab
     }
   }
 
-  class FakeReporter implements Reporter{
+  private class FakeReporter implements Reporter {
 
     @Override
-    public void progress() {    }
+    public void progress() {
+    }
 
     @Override
     public Counter getCounter(Enum<?> arg0) {
@@ -134,12 +141,15 @@ public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writab
     }
 
     @Override
-    public void incrCounter(Enum<?> arg0, long arg1) {    }
+    public void incrCounter(Enum<?> arg0, long arg1) {
+    }
 
     @Override
-    public void incrCounter(String arg0, String arg1, long arg2) {    }
+    public void incrCounter(String arg0, String arg1, long arg2) {
+    }
 
     @Override
-    public void setStatus(String arg0) {    }
+    public void setStatus(String arg0) {
+    }
   }
 }
