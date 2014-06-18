@@ -82,20 +82,24 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
     final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final String target = parsedHttpRequest.getTargetEntity().toLowerCase();
-    if (target.equals("evaluators")) {
-      final String queryStr = parsedHttpRequest.getQueryString();
-      if (queryStr == null || queryStr.length() == 0) {
-        getEvaluators(response);
-      } else {
-        handleQueries(response, parsedHttpRequest.getQueryMap());
-      }
-    }
-    else if(target.equals("driver"))
+    switch(target)
     {
+      case "evaluators":{
+        final String queryStr = parsedHttpRequest.getQueryString();
+        if (queryStr == null || queryStr.isEmpty()) {
+          getEvaluators(response);
+        } else {
+          handleQueries(response, parsedHttpRequest.getQueryMap());
+        }
+        break;
+      }
+      case "driver":{
         getDriverInformation(response);
-    }
-    else {
-      response.getWriter().println("Unsupported query for entity: " + target);
+        break;
+      }
+      default:{
+        response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
+      }
     }
   }
 
@@ -108,7 +112,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    */
   private void handleQueries(HttpServletResponse response, Map<String, List<String>> queries) throws IOException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler handleQueries is called");
-    for (Map.Entry<String, List<String>> entry : queries.entrySet()) {
+    for (final Map.Entry<String, List<String>> entry : queries.entrySet()) {
       final String key = entry.getKey();
       final List<String> values = entry.getValue();
       if (key.equalsIgnoreCase("Id")) {
@@ -160,7 +164,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     response.getWriter().write("<br/>");
     response.getWriter().println("Total number of Evaluators: " + reefStateManager.getEvaluators().size());
     response.getWriter().write("<br/>");
-    response.getWriter().println("Driver start time: " + reefStateManager.getStartTime());
+    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));;
   }
 
   /**
@@ -173,8 +177,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     LOG.log(Level.INFO, "HttpServerReefEventHandler getDriverInformation invoked.");
     response.getWriter().println("<h1>Driver Information:</h1>");
 
-    response.getWriter().println(String.format("Driver Remote Identifier: [%s]", reefStateManager.getDriverEndpointIdentifier()));
+    response.getWriter().println(String.format("Driver Remote Identifier:[%s]", reefStateManager.getDriverEndpointIdentifier()));
     response.getWriter().write("<br/><br/>");
-    response.getWriter().println("Driver start time: " + reefStateManager.getStartTime());
+    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));;
   }
 }
