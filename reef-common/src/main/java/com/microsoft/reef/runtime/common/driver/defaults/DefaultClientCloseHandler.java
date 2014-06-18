@@ -18,6 +18,7 @@ package com.microsoft.reef.runtime.common.driver.defaults;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -33,6 +34,7 @@ public final class DefaultClientCloseHandler implements EventHandler<Void> {
 
   @Override
   public void onNext(final Void aVoid) {
-    LOG.info("Closing the Client.");
+    LOG.log(Level.WARNING, "Received a close message from the client, but no handler was bound for it.");
+    throw new RuntimeException("Received a close message from the client, but no handler was bound for it.");
   }
 }
