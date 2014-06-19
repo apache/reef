@@ -22,73 +22,74 @@ import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupMessa
 import com.microsoft.wake.ComparableIdentifier;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
+import org.apache.commons.lang.StringUtils;
 
 import java.net.Inet4Address;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class Utils {
 
   private static final String DELIMITER = "-";
 
-  public static List<Identifier> parseList(String ids, IdentifierFactory factory) {
-    List<Identifier> result = new ArrayList<>();
-    String[] tokens = ids.split(DELIMITER);
-    for (String token : tokens) {
+  /**
+   * TODO: Merge with parseListCmp() into one generic implementation.
+   */
+  public static List<Identifier> parseList(
+      final String ids, final IdentifierFactory factory) {
+    final List<Identifier> result = new ArrayList<>();
+    for (final String token : ids.split(DELIMITER)) {
       result.add(factory.getNewInstance(token.trim()));
     }
     return result;
   }
 
-  public static List<ComparableIdentifier> parseListCmp(String ids, IdentifierFactory factory) {
-    List<ComparableIdentifier> result = new ArrayList<>();
-    String[] tokens = ids.split(DELIMITER);
-    for (String token : tokens) {
+  /**
+   * TODO: Merge with parseList() into one generic implementation.
+   */
+  public static List<ComparableIdentifier> parseListCmp(
+      final String ids, final IdentifierFactory factory) {
+    final List<ComparableIdentifier> result = new ArrayList<>();
+    for (final String token : ids.split(DELIMITER)) {
       result.add((ComparableIdentifier) factory.getNewInstance(token.trim()));
     }
     return result;
   }
 
-  public static String listToString(List<ComparableIdentifier> ids) {
-    if (ids == null || ids.size() == 0) return "";
-    StringBuilder sb = new StringBuilder();
-    for (ComparableIdentifier comparableIdentifier : ids) {
-      sb.append(comparableIdentifier.toString());
-      sb.append(DELIMITER);
-    }
-    sb.deleteCharAt(sb.length() - 1);
-    return sb.toString();
+  public static String listToString(final List<ComparableIdentifier> ids) {
+    return StringUtils.join(ids, DELIMITER);
   }
 
   public static List<Integer> createUniformCounts(int elemSize, int childSize) {
-    List<Integer> result = new ArrayList<>(childSize);
-    int remainder = elemSize % childSize;
-    int quotient = elemSize / childSize;
-    for (int i = 0; i < remainder; i++)
-      result.add(quotient + 1);
-    for (int i = remainder; i < childSize; i++)
-      result.add(quotient);
-    return result;
+    final int remainder = elemSize % childSize;
+    final int quotient = elemSize / childSize;
+    final ArrayList<Integer> result = new ArrayList<>(childSize);
+    result.addAll(Collections.nCopies(remainder, quotient + 1));
+    result.addAll(Collections.nCopies(childSize - remainder, quotient));
+    return Collections.unmodifiableList(result);
   }
 
-  public static class Pair<T1, T2> {
+  public final static class Pair<T1, T2> {
+
     public final T1 first;
     public final T2 second;
 
-    public Pair(T1 first, T2 second) {
+    private String pairStr = null;
+
+    public Pair(final T1 first, final T2 second) {
       this.first = first;
       this.second = second;
     }
 
     @Override
     public String toString() {
-      return "(" + first + "," + second + ")";
+      if (this.pairStr == null) {
+        this.pairStr = "(" + this.first + "," + this.second + ")";
+      }
+      return this.pairStr;
     }
   }
 
   private static class AddressComparator implements Comparator<Inet4Address> {
-
     @Override
     public int compare(final Inet4Address aa, final Inet4Address ba) {
       final byte[] a = aa.getAddress();
@@ -115,12 +116,13 @@ public class Utils {
   public static GroupCommMessage bldGCM(
       final Type msgType, final Identifier from, final Identifier to, final byte[]... elements) {
 
-    final GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
-    GCMBuilder.setType(msgType);
-    GCMBuilder.setSrcid(from.toString());
-    GCMBuilder.setDestid(to.toString());
+    final GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder()
+        .setType(msgType)
+        .setSrcid(from.toString())
+        .setDestid(to.toString());
 
     final GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
+
     for (final byte[] element : elements) {
       bodyBuilder.setData(ByteString.copyFrom(element));
       GCMBuilder.addMsgs(bodyBuilder.build());
