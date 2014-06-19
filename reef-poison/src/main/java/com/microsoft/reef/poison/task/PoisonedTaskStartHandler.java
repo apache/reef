@@ -15,11 +15,6 @@
  */
 package com.microsoft.reef.poison.task;
 
-import java.util.Random;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.poison.PoisonException;
 import com.microsoft.reef.poison.PoisonedAlarmHandler;
 import com.microsoft.reef.poison.params.CrashProbability;
@@ -28,6 +23,11 @@ import com.microsoft.reef.task.events.TaskStart;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
+
+import javax.inject.Inject;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class PoisonedTaskStartHandler implements EventHandler<TaskStart> {
 
@@ -38,32 +38,33 @@ public final class PoisonedTaskStartHandler implements EventHandler<TaskStart> {
   private final Clock clock;
 
   @Inject
-  PoisonedTaskStartHandler(final @Parameter(CrashProbability.class) double crashProbability,
-                       final @Parameter(CrashTimeout.class) int timeOut,
-                       final Clock clock) {
+  PoisonedTaskStartHandler(
+      final @Parameter(CrashProbability.class) double crashProbability,
+      final @Parameter(CrashTimeout.class) int timeOut,
+      final Clock clock) {
     this.crashProbability = crashProbability;
     this.timeOut = timeOut;
     this.clock = clock;
   }
 
-
   @Override
   public void onNext(final TaskStart taskStart) {
-    LOG.info("Starting Task poison injector with prescribed dose " + crashProbability + " units");
+
+    LOG.log(Level.INFO, "Starting Task poison injector with prescribed dose {0} units",
+        this.crashProbability);
+
     final Random random = new Random();
     if (random.nextDouble() <= this.crashProbability) {
       LOG.info("Dosage lethal");
       final int timeToCrash = random.nextInt(this.timeOut) * 1000;
-      if(timeToCrash==0) {
+      if (timeToCrash == 0) {
         LOG.info("Crashing now");
         throw new PoisonException("Crashed at: " + System.currentTimeMillis());
-      }
-      else {
-        LOG.info("Will crash in " + timeToCrash + " secs.");
+      } else {
+        LOG.log(Level.INFO, "Will crash in {0} sec.", timeToCrash);
         this.clock.scheduleAlarm(timeToCrash, new PoisonedAlarmHandler());
       }
-    }
-    else {
+    } else {
       LOG.info("Dosage not lethal");
     }
   }

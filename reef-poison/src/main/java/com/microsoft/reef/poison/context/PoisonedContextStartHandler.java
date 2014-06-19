@@ -16,6 +16,8 @@
 package com.microsoft.reef.poison.context;
 
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -29,25 +31,32 @@ import com.microsoft.wake.time.Clock;
 
 public final class PoisonedContextStartHandler implements EventHandler<ContextStart> {
 
+  private static final Logger LOG = Logger.getLogger(PoisonedContextStartHandler.class.getName());
+
   private final double crashProbability;
   private final int timeOut;
   private final Clock clock;
 
   @Inject
-  PoisonedContextStartHandler(final @Parameter(CrashProbability.class) double crashProbability,
-                       final @Parameter(CrashTimeout.class) int timeOut,
-                       final Clock clock) {
+  PoisonedContextStartHandler(
+      final @Parameter(CrashProbability.class) double crashProbability,
+      final @Parameter(CrashTimeout.class) int timeOut,
+      final Clock clock) {
     this.crashProbability = crashProbability;
     this.timeOut = timeOut;
     this.clock = clock;
   }
 
-
   @Override
   public void onNext(final ContextStart contextStart) {
+
+    LOG.log(Level.INFO, "Starting Context poison injector with prescribed dose {0} units",
+        this.crashProbability);
+
     final Random random = new Random();
     if (random.nextDouble() <= this.crashProbability) {
       final int timeToCrash = random.nextInt(this.timeOut) * 1000;
+      LOG.log(Level.INFO, "Dosage lethal. Will crash in {0} sec.", timeToCrash);
       this.clock.scheduleAlarm(timeToCrash, new PoisonedAlarmHandler());
     }
   }

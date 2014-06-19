@@ -47,9 +47,8 @@ public final class PoisonedConfiguration extends ConfigurationModuleBuilder {
       .build();
 
   public static final ConfigurationModule TASK_CONF = new PoisonedConfiguration()
-  .bindNamedParameter(CrashTimeout.class, CRASH_TIMEOUT)
-  .bindNamedParameter(CrashProbability.class, CRASH_PROBABILITY)
-  .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, PoisonedTaskStartHandler.class)
-  .build();
-
+      .bindNamedParameter(CrashTimeout.class, CRASH_TIMEOUT)
+      .bindNamedParameter(CrashProbability.class, CRASH_PROBABILITY)
+      .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, PoisonedTaskStartHandler.class)
+      .build();
 }
