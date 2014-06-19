@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.poison.context;
+package com.microsoft.reef.poison;
 
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.evaluator.context.parameters.ContextStartHandlers;
-import com.microsoft.reef.poison.context.params.CrashProbability;
-import com.microsoft.reef.poison.context.params.CrashTimeout;
+import com.microsoft.reef.poison.context.PoisonedContextStartHandler;
+import com.microsoft.reef.poison.params.CrashProbability;
+import com.microsoft.reef.poison.params.CrashTimeout;
+import com.microsoft.reef.poison.task.PoisonedTaskStartHandler;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
@@ -25,7 +28,7 @@ import com.microsoft.tang.formats.OptionalParameter;
 /**
  * Configure a Context with a lethal injection.
  */
-public final class PoisonedContextConfiguration extends ConfigurationModuleBuilder {
+public final class PoisonedConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * The time window in seconds beginning at ContextStart during which the crash is to occur.
@@ -37,11 +40,16 @@ public final class PoisonedContextConfiguration extends ConfigurationModuleBuild
    */
   public static final OptionalParameter<Double> CRASH_PROBABILITY = new OptionalParameter<>();
 
-  public static final ConfigurationModule CONF = new PoisonedContextConfiguration()
+  public static final ConfigurationModule CONTEXT_CONF = new PoisonedConfiguration()
       .bindNamedParameter(CrashTimeout.class, CRASH_TIMEOUT)
       .bindNamedParameter(CrashProbability.class, CRASH_PROBABILITY)
-      .bindSetEntry(ContextStartHandlers.class, PoisonedStartHandler.class)
+      .bindSetEntry(ContextStartHandlers.class, PoisonedContextStartHandler.class)
       .build();
 
+  public static final ConfigurationModule TASK_CONF = new PoisonedConfiguration()
+  .bindNamedParameter(CrashTimeout.class, CRASH_TIMEOUT)
+  .bindNamedParameter(CrashProbability.class, CRASH_PROBABILITY)
+  .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, PoisonedTaskStartHandler.class)
+  .build();
 
 }

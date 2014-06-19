@@ -15,40 +15,40 @@
  */
 package com.microsoft.reef.poison.context;
 
+import java.util.Random;
+
+import javax.inject.Inject;
+
 import com.microsoft.reef.evaluator.context.events.ContextStart;
-import com.microsoft.reef.poison.context.params.CrashProbability;
+import com.microsoft.reef.poison.PoisonedAlarmHandler;
+import com.microsoft.reef.poison.params.CrashProbability;
+import com.microsoft.reef.poison.params.CrashTimeout;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
 
-import org.apache.commons.math3.distribution.PoissonDistribution;
+public final class PoisonedContextStartHandler implements EventHandler<ContextStart> {
 
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-final class PoissonPoisonedStartHandler implements EventHandler<ContextStart> {
-
-  private static final Logger LOG = Logger.getLogger(PoissonPoisonedStartHandler.class.getName());
-
+  private final double crashProbability;
+  private final int timeOut;
   private final Clock clock;
-  private final int timeToCrash;
 
   @Inject
-  public PoissonPoisonedStartHandler(
-      final @Parameter(CrashProbability.class) double lambda, final Clock clock) {
-
+  PoisonedContextStartHandler(final @Parameter(CrashProbability.class) double crashProbability,
+                       final @Parameter(CrashTimeout.class) int timeOut,
+                       final Clock clock) {
+    this.crashProbability = crashProbability;
+    this.timeOut = timeOut;
     this.clock = clock;
-    this.timeToCrash = new PoissonDistribution(lambda * 1000).sample();
-
-    LOG.log(Level.INFO,
-        "Created Poisson poison injector with prescribed dose: {0}. Crash in {1} msec.",
-        new Object[] { lambda, this.timeToCrash });
   }
+
 
   @Override
   public void onNext(final ContextStart contextStart) {
-    LOG.log(Level.INFO, "Started Poisson poison injector. Crashing in {0} msec.", this.timeToCrash);
-    this.clock.scheduleAlarm(this.timeToCrash, new PoisonedAlarmHandler());
+    final Random random = new Random();
+    if (random.nextDouble() <= this.crashProbability) {
+      final int timeToCrash = random.nextInt(this.timeOut) * 1000;
+      this.clock.scheduleAlarm(timeToCrash, new PoisonedAlarmHandler());
+    }
   }
 }

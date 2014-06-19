@@ -15,23 +15,24 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.io.data.loading.api.DataLoadingService;
-import com.microsoft.reef.poison.context.PoisonedContextConfiguration;
+import com.microsoft.reef.poison.PoisonedConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
-
-import javax.inject.Inject;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Driver side for the line counting demo that uses the data loading service.
@@ -68,9 +69,9 @@ public class LineCounter {
         LOG.log(Level.FINEST, "Submit LineCount context {0} to: {1}",
             new Object[] { lcContextId, contextId });
 
-        final Configuration poisonedConfiguration = PoisonedContextConfiguration.CONF
-            .set(PoisonedContextConfiguration.CRASH_PROBABILITY, "0.4")
-            .set(PoisonedContextConfiguration.CRASH_TIMEOUT, "1")
+        final Configuration poisonedConfiguration = PoisonedConfiguration.CONTEXT_CONF
+            .set(PoisonedConfiguration.CRASH_PROBABILITY, "0.4")
+            .set(PoisonedConfiguration.CRASH_TIMEOUT, "1")
             .build();
 
         activeContext.submitContext(Tang.Factory.getTang()

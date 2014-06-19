@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.poison.context;
+package com.microsoft.reef.poison;
 
-import com.microsoft.reef.poison.PoisonException;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.Alarm;
 
@@ -23,7 +22,7 @@ import com.microsoft.wake.time.event.Alarm;
 /**
  * To be registered on the Clock to handle Alarms.
  */
-final class PoisonedAlarmHandler implements EventHandler<Alarm> {
+final public class PoisonedAlarmHandler implements EventHandler<Alarm> {
   @Override
   public void onNext(final Alarm alarm) {
     throw new PoisonException("Crashed at: " + alarm.toString());

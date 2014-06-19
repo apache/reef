@@ -15,21 +15,22 @@
  */
 package com.microsoft.reef.tests.yarn.failure;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
-import com.microsoft.reef.poison.context.PoisonedContextConfiguration;
+import com.microsoft.reef.poison.PoisonedConfiguration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
-
-import javax.inject.Inject;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Unit
 public class FailureDriver {
@@ -79,9 +80,9 @@ public class FailureDriver {
                     ContextConfiguration.CONF
                         .set(ContextConfiguration.IDENTIFIER, "Poisoned Context: " + evalId)
                         .build(),
-                    PoisonedContextConfiguration.CONF
-                        .set(PoisonedContextConfiguration.CRASH_PROBABILITY, "1")
-                        .set(PoisonedContextConfiguration.CRASH_TIMEOUT, "1")
+                    PoisonedConfiguration.CONTEXT_CONF
+                        .set(PoisonedConfiguration.CRASH_PROBABILITY, "1")
+                        .set(PoisonedConfiguration.CRASH_TIMEOUT, "1")
                         .build())
                 .build());
       } else {
