@@ -55,6 +55,13 @@ class JettyHandler extends AbstractHandler {
         LOG.log(Level.WARNING, "JettyHandler handle is already registered: {0} ", handler.getUriSpecification());
       }
     }
+
+    Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+      public void uncaughtException(Thread t, Throwable e) {
+        LOG.log(Level.INFO, "Uncaught Exception in thread '" + t.getName() + "'", e);
+        throw (RuntimeException)e;
+      }
+    });
   }
 
   /**
@@ -75,6 +82,15 @@ class JettyHandler extends AbstractHandler {
       int i)
       throws IOException, ServletException {
     LOG.log(Level.INFO, "JettyHandler handle is entered with target: {0} ", target);
+
+
+    Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+      public void uncaughtException(Thread t, Throwable e) {
+        LOG.log(Level.INFO, "Uncaught Exception in thread '" + t.getName() + "'", e);
+        throw (RuntimeException)e;
+      }
+    });
+
     Request baseRequest = (request instanceof Request) ? (Request) request :
         HttpConnection.getCurrentConnection().getRequest();
 
@@ -87,14 +103,20 @@ class JettyHandler extends AbstractHandler {
       final HttpHandler h = eventHandlers.get(parsedHttpRequest.getTargetSpecification().toLowerCase());
       if (h != null) {
         LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", h.getUriSpecification());
-        h.onHttpRequest(request, response);
+        try {
+          h.onHttpRequest(request, response);
+        } catch (RuntimeException e) {
+          LOG.log(Level.INFO, "JettyHandler handle received RunTimeException.");
+          throw e;
+        }
+        LOG.log(Level.INFO, "JettyHandler handle returned from eventHandler.");
         response.setStatus(HttpServletResponse.SC_OK);
       } else {
         response.getWriter().println("HttpHandler is not provided for" + parsedHttpRequest.getTargetSpecification());
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
     } else {
-      response.getWriter().println("Specification is not provided in teh request.");
+      response.getWriter().println("Specification is not provided in the request.");
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
     baseRequest.setHandled(true);
