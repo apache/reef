@@ -105,7 +105,7 @@ public class TestHttpServer {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
     final Injector injector1 = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
     final HttpServer httpServer1 = injector1.getInstance(HttpServer.class);
-    String portUsed = Integer.toString(httpServer1.getPort());
+    final String portUsed = "" + httpServer1.getPort();
 
     final Configuration httpServerConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(PortNumber.class, portUsed)
@@ -121,6 +121,7 @@ public class TestHttpServer {
 
     try {
       injector2.getInstance(HttpServer.class);
+      Assert.fail("Created two web servers on the same port: " + portUsed);
     } catch (final RuntimeException ex) {
       Assert.assertEquals("Could not find available port in 3 attempts", ex.getMessage());
     } catch (final InjectionException ex) {
