@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.local.driver;
 
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.annotations.audience.TaskSide;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,11 @@ final class ProcessContainer implements Container {
   private final File folder;
   private final String containedID;
   private final int megaBytes;
+  private final REEFFileNames fileNames;
+  private final File reefFolder;
+  private final File localFolder;
+  private final File globalFolder;
+
 
   /**
    * @param errorHandlerRID the remoteID of the error handler.
@@ -46,18 +52,39 @@ final class ProcessContainer implements Container {
    * @param containedID     the  ID used to identify this container uniquely
    * @param folder          the folder in which logs etc. will be deposited
    */
-  ProcessContainer(final String errorHandlerRID, final String nodeID, final String containedID, final File folder, final int megaBytes) {
+  ProcessContainer(final String errorHandlerRID,
+                   final String nodeID,
+                   final String containedID,
+                   final File folder,
+                   final int megaBytes,
+                   final REEFFileNames fileNames) {
     this.errorHandlerRID = errorHandlerRID;
     this.nodeID = nodeID;
     this.containedID = containedID;
     this.folder = folder;
     this.megaBytes = megaBytes;
+    this.fileNames = fileNames;
+    this.reefFolder = new File(folder, fileNames.getREEFFolderName());
+    this.localFolder = new File(reefFolder, fileNames.getLocalFolderName());
+    this.localFolder.mkdirs();
+    this.globalFolder = new File(reefFolder, fileNames.getGlobalFolderName());
+    this.globalFolder.mkdirs();
   }
 
   @Override
-  public void addFiles(final Iterable<File> files) {
+  public void addLocalFiles(final Iterable<File> files) {
     try {
-      copy(files, this.folder);
+      copy(files, this.localFolder);
+    } catch (final IOException e) {
+      throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
+    }
+  }
+
+
+  @Override
+  public void addGlobalFiles(File globalFolder) {
+    try {
+      copy(globalFolder.listFiles(), this.globalFolder);
     } catch (final IOException e) {
       throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
     }
@@ -116,6 +143,13 @@ final class ProcessContainer implements Container {
 
 
   private static void copy(final Iterable<File> files, final File folder) throws IOException {
+    for (final File sourceFile : files) {
+      final File destinationFile = new File(folder, sourceFile.getName());
+      Files.copy(sourceFile.toPath(), destinationFile.toPath());
+    }
+  }
+
+  private static void copy(final File[] files, final File folder) throws IOException {
     for (final File sourceFile : files) {
       final File destinationFile = new File(folder, sourceFile.getName());
       Files.copy(sourceFile.toPath(), destinationFile.toPath());

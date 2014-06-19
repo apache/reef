@@ -34,8 +34,8 @@ import java.util.logging.Logger;
 public final class HelloREEFNoClient {
   private static final Logger LOG = Logger.getLogger(HelloREEFNoClient.class.getName());
 
-  static void runHelloReefWithoutClient(final Configuration runtimeConf)
-      throws BindException, InjectionException {
+  public static void runHelloReefWithoutClient(final Configuration runtimeConf)
+      throws InjectionException {
     final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEFImplementation.class);
 
     final Configuration driverConf =

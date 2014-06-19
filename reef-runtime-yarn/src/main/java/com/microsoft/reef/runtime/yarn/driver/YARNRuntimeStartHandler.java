@@ -23,7 +23,7 @@ import javax.inject.Inject;
 /**
  * Handler of RuntimeStart for the YARN Runtime.
  */
-final class YARNRuntimeStartHandler implements EventHandler<RuntimeStart> {
+public final class YARNRuntimeStartHandler implements EventHandler<RuntimeStart> {
   private final YarnContainerManager yarnContainerManager;
 
   @Inject

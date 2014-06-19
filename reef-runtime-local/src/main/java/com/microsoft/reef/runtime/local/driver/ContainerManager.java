@@ -21,6 +21,7 @@ import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.tang.annotations.Parameter;
@@ -64,13 +65,17 @@ final class ContainerManager implements AutoCloseable {
   private final int capacity;
   private final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler;
   private final File rootFolder;
+  private final REEFFileNames fileNames;
 
   @Inject
-  ContainerManager(final RemoteManager remoteManager, final RuntimeClock clock,
+  ContainerManager(final RemoteManager remoteManager,
+                   final RuntimeClock clock,
+                   final REEFFileNames fileNames,
                    @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) final int capacity,
                    @Parameter(LocalRuntimeConfiguration.RootFolder.class) final String rootFolderName,
                    @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler) {
     this.capacity = capacity;
+    this.fileNames = fileNames;
     this.errorHandlerRID = remoteManager.getMyIdentifier();
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
@@ -132,7 +137,7 @@ final class ContainerManager implements AutoCloseable {
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
       final File processFolder = new File(this.rootFolder, processID);
       processFolder.mkdirs();
-      final ProcessContainer container = new ProcessContainer(this.errorHandlerRID, nodeId, processID, processFolder, megaBytes);
+      final ProcessContainer container = new ProcessContainer(this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, this.fileNames);
       this.containers.put(container.getContainerID(), container);
       return container;
     }

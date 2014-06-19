@@ -24,6 +24,10 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 
+/**
+ * @deprecated Runtimes are advised to create their own ConfigurationModules instead of subclassing this class.
+ */
+@Deprecated
 public abstract class AbstractDriverRuntimeConfiguration implements Builder<Configuration> {
 
   protected JavaConfigurationBuilder builder = Tang.Factory.getTang().newConfigurationBuilder();

@@ -19,17 +19,14 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
-import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
-import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
@@ -37,7 +34,9 @@ import com.microsoft.wake.EventHandler;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,56 +45,35 @@ import java.util.logging.Logger;
  */
 @Private
 @DriverSide
-@Unit
 public final class ResourceManager {
 
   private final static Logger LOG = Logger.getLogger(ResourceManager.class.getName());
-  private static final String EVALUATOR_CONFIGURATION_NAME = "evaluator.conf";
-
   private final EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler;
   private final ResourceRequestQueue requestQueue = new ResourceRequestQueue();
   private final ContainerManager theContainers;
   private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
   private final int defaultMemorySize;
   private final ConfigurationSerializer configurationSerializer;
-
   private final RemoteManager remoteManager;
-
-  /**
-   * Libraries to be added to all evaluators.
-   */
-  private final List<String> globalLibraries;
-
-  private final Set<File> globalFilesAndLibraries;
+  private final REEFFileNames fileNames;
 
   @Inject
-  ResourceManager(final ContainerManager cm,
+  ResourceManager(final ContainerManager containerManager,
                   final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
                   final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
                   final @Parameter(LocalDriverConfiguration.GlobalLibraries.class) Set<String> globalLibraries,
                   final @Parameter(LocalDriverConfiguration.GlobalFiles.class) Set<String> globalFiles,
                   final @Parameter(LocalRuntimeConfiguration.DefaultMemorySize.class) int defaultMemorySize,
                   final ConfigurationSerializer configurationSerializer,
-                  final RemoteManager remoteManager) {
-    this.theContainers = cm;
+                  final RemoteManager remoteManager,
+                  final REEFFileNames fileNames) {
+    this.theContainers = containerManager;
     this.allocationHandler = allocationHandler;
     this.runtimeStatusHandlerEventHandler = runtimeStatusHandlerEventHandler;
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
     this.defaultMemorySize = defaultMemorySize;
-    this.globalLibraries = new ArrayList<>(globalLibraries);
-    Collections.sort(this.globalLibraries);
-
-    this.globalFilesAndLibraries = new HashSet<>(globalFiles.size() + globalLibraries.size());
-
-    for (final String fileName : globalFiles) {
-      this.globalFilesAndLibraries.add(new File(fileName));
-    }
-    for (final String fileName : this.globalLibraries) {
-      this.globalFilesAndLibraries.add(new File(fileName));
-    }
-
-
+    this.fileNames = fileNames;
     LOG.log(Level.INFO, "Instantiated 'ResourceManager'");
   }
 
@@ -136,14 +114,14 @@ public final class ResourceManager {
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
       // Add the global files and libraries.
-      c.addFiles(this.globalFilesAndLibraries);
-      c.addFiles(getLocalFiles(launchRequest));
+      c.addGlobalFiles(this.fileNames.getGlobalFolder());
+      c.addLocalFiles(getLocalFiles(launchRequest));
 
       // Assemble the classpath.
-      final List<String> classPath = this.assembleClasspath(getLocalLibraries(launchRequest));
+      final List<String> classPath = this.fileNames.getClassPathList();
 
       // Make the configuration file of the evaluator.
-      final File evaluatorConfigurationFile = new File(c.getFolder(), EVALUATOR_CONFIGURATION_NAME);
+      final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
 
       try {
         this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()), evaluatorConfigurationFile);
@@ -167,7 +145,7 @@ public final class ResourceManager {
       final List<String> command = commandBuilder
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(c.getNodeID())
-          .setConfigurationFileName(evaluatorConfigurationFile.getName())
+          .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
           .setMemory(c.getMemory())
           .build();
 
@@ -227,36 +205,6 @@ public final class ResourceManager {
   }
 
   /**
-   * Assembles the class path: sorts localLibraries and adds the globalLibraries
-   *
-   * @param localLibraries a list of file names to assemble to a classpath.
-   * @return a classpath list.
-   */
-  private List<String> assembleClasspath(final List<String> localLibraries) {
-    Collections.sort(localLibraries);
-    final ArrayList<String> classPathList = new ArrayList<>(this.globalLibraries.size() + localLibraries.size());
-    classPathList.addAll(localLibraries);
-    classPathList.addAll(this.globalLibraries);
-    return classPathList;
-  }
-
-  /**
-   * Extracts the libraries out of the launchRequest.
-   *
-   * @param launchRequest the ResourceLaunchProto to parse
-   * @return a list of libraries set in the given ResourceLaunchProto
-   */
-  private static List<String> getLocalLibraries(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
-    final List<String> localLibraries = new ArrayList<>();  // Libraries local to this evaluator
-    for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
-      if (frp.getType() == ReefServiceProtos.FileType.LIB) {
-        localLibraries.add(frp.getName());
-      }
-    }
-    return localLibraries;
-  }
-
-  /**
    * Extracts the files out of the launchRequest.
    *
    * @param launchRequest the ResourceLaunchProto to parse
@@ -270,41 +218,5 @@ public final class ResourceManager {
     return files;
   }
 
-  /**
-   * Takes resource launch events and patches them through to the ResourceManager.
-   */
-  @Private
-  @DriverSide
-  public class LocalResourceLaunchHandler implements ResourceLaunchHandler {
-    @Override
-    public void onNext(final DriverRuntimeProtocol.ResourceLaunchProto t) {
-      ResourceManager.this.onResourceLaunchRequest(t);
-    }
-  }
 
-  /**
-   * Takes Resource Release requests and patches them through to the resource
-   * manager.
-   */
-  @Private
-  @DriverSide
-  public class LocalResourceReleaseHandler implements ResourceReleaseHandler {
-    @Override
-    public void onNext(final DriverRuntimeProtocol.ResourceReleaseProto t) {
-      ResourceManager.this.onResourceReleaseRequest(t);
-    }
-  }
-
-
-  /**
-   * Takes resource requests and patches them through to the ResourceManager
-   */
-  @Private
-  @DriverSide
-  public class LocalResourceRequestHandler implements ResourceRequestHandler {
-    @Override
-    public void onNext(final DriverRuntimeProtocol.ResourceRequestProto t) {
-      ResourceManager.this.onResourceRequest(t);
-    }
-  }
 }

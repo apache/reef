@@ -1,0 +1,168 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.microsoft.reef.runtime.yarn.driver;
+
+import com.microsoft.reef.annotations.audience.DriverSide;
+import com.microsoft.reef.io.TempFileCreator;
+import com.microsoft.reef.io.WorkingDirectoryTempFileCreator;
+import com.microsoft.reef.proto.DriverRuntimeProtocol;
+import com.microsoft.reef.runtime.common.files.JobJarMaker;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
+import com.microsoft.reef.util.JARFileMaker;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Tang;
+import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.tang.formats.ConfigurationSerializer;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
+import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.hadoop.yarn.util.Records;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * Manages the global files on the driver and can produce the needed FileResources for container submissions.
+ */
+@DriverSide
+final class EvaluatorSetupHelper {
+
+  private static final Logger LOG = Logger.getLogger(EvaluatorSetupHelper.class.getName());
+  private final String jobSubmissionDirectory;
+  private final Map<String, LocalResource> globalResources;
+  private final REEFFileNames fileNames;
+  private final ConfigurationSerializer configurationSerializer;
+  private final FileSystem fileSystem;
+
+  @Inject
+  EvaluatorSetupHelper(final @Parameter(YarnMasterConfiguration.JobSubmissionDirectory.class) String jobSubmissionDirectory,
+                       final YarnConfiguration yarnConfiguration,
+                       final REEFFileNames fileNames,
+                       final ConfigurationSerializer configurationSerializer) throws IOException {
+    this.fileSystem = FileSystem.get(yarnConfiguration);
+    this.jobSubmissionDirectory = jobSubmissionDirectory;
+    this.fileNames = fileNames;
+    this.configurationSerializer = configurationSerializer;
+    globalResources = this.setup();
+  }
+
+  public Map<String, LocalResource> getGlobalResources() {
+    return globalResources;
+  }
+
+  private Map<String, LocalResource> setup() throws IOException {
+    final Map<String, LocalResource> result = new HashMap<>(1);
+    final Path pathToGlobalJar = this.uploadToJobFolder(makeGlobalJar());
+    result.put(fileNames.getGlobalFolderPath(), makeLocalResourceForJarFile(pathToGlobalJar));
+    return result;
+  }
+
+  private File makeGlobalJar() throws IOException {
+    final File jarFile = new File(fileNames.getGlobalFolderName() + fileNames.getJarFileSuffix());
+    new JARFileMaker(jarFile).addChildren(fileNames.getGlobalFolder()).close();
+    return jarFile;
+  }
+
+  /**
+   * Sets up the LocalResources for a new Evaluator.
+   *
+   * @param resourceLaunchProto
+   * @return
+   * @throws IOException
+   */
+  public Map<String, LocalResource> getResources(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto)
+      throws IOException {
+    final Map<String, LocalResource> result = new HashMap<>();
+    result.putAll(getGlobalResources());
+    final File localStagingFolder = Files.createTempDirectory(fileNames.getEvaluatorFolderPrefix()).toFile();
+
+    // Write the configuration
+    final File configurationFile = new File(localStagingFolder, fileNames.getEvaluatorConfigurationName());
+    this.configurationSerializer.toFile(makeEvaluatorConfiguration(resourceLaunchProto), configurationFile);
+
+    // Copy files to the staging folder
+    JobJarMaker.copy(resourceLaunchProto.getFileList(), localStagingFolder);
+
+    // Make a JAR file out of it
+    final File localFile = File.createTempFile(fileNames.getEvaluatorFolderPrefix(), fileNames.getJarFileSuffix());
+    new JARFileMaker(localFile).addChildren(localStagingFolder).close();
+
+    // Upload the JAR to the job folder
+    final Path pathToEvaluatorJar = uploadToJobFolder(localFile);
+    result.put(fileNames.getLocalFolderPath(), makeLocalResourceForJarFile(pathToEvaluatorJar));
+
+    return result;
+  }
+
+  /**
+   * Assembles the configuration for an Evaluator.
+   *
+   * @param resourceLaunchProto
+   * @return
+   * @throws IOException
+   */
+  private Configuration makeEvaluatorConfiguration(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) throws IOException {
+    return Tang.Factory.getTang()
+        .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf()))
+        .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
+        .build();
+  }
+
+  /**
+   * Uploads the given file to the job folder on (H)DFS.
+   *
+   * @param file
+   * @return
+   * @throws IOException
+   */
+  private Path uploadToJobFolder(final File file) throws IOException {
+    final Path source = new Path(file.getAbsolutePath());
+    final Path destination = new Path(this.jobSubmissionDirectory + "/" + file.getName());
+    LOG.log(Level.INFO, "Uploading {0} to {1}", new Object[]{source, destination});
+    this.fileSystem.copyFromLocalFile(false, true, source, destination);
+    return destination;
+  }
+
+  /**
+   * Creates a LocalResource instance for the JAR file referenced by the given Path
+   *
+   * @param path
+   * @return
+   * @throws IOException
+   */
+  private LocalResource makeLocalResourceForJarFile(final Path path) throws IOException {
+    final LocalResource localResource = Records.newRecord(LocalResource.class);
+    final FileStatus status = FileContext.getFileContext(fileSystem.getUri()).getFileStatus(path);
+    localResource.setType(LocalResourceType.ARCHIVE);
+    localResource.setVisibility(LocalResourceVisibility.APPLICATION);
+    localResource.setResource(ConverterUtils.getYarnUrlFromPath(status.getPath()));
+    localResource.setTimestamp(status.getModificationTime());
+    localResource.setSize(status.getLen());
+    return localResource;
+  }
+}

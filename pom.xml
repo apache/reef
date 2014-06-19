@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.reef</groupId>
     <version>0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -332,6 +333,12 @@
                 <version>${hadoop.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-yarn-api</artifactId>
+                <version>${hadoop.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <!-- END OF HADOOP -->
 
             <!-- Apache Commons -->
@@ -374,8 +381,10 @@
         <module>reef-common</module>
         <module>reef-examples</module>
         <module>reef-examples-clr</module>
+        <module>reef-examples-hdinsight</module>
         <module>reef-io</module>
         <module>reef-poison</module>
+        <module>reef-runtime-hdinsight</module>
         <module>reef-runtime-local</module>
         <module>reef-runtime-yarn</module>
         <module>reef-tests</module>

@@ -17,15 +17,12 @@ package com.microsoft.reef.runtime.local.client;
 
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.OptionalParameter;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,8 +39,10 @@ final class DriverFiles {
   private final FileSet localLibs = new FileSet();
   private final FileSet globalFiles = new FileSet();
   private final FileSet globalLibs = new FileSet();
+  private final REEFFileNames fileNames;
 
-  private DriverFiles() {
+  public DriverFiles(final REEFFileNames fileNames) {
+    this.fileNames = fileNames;
   }
 
   private void addLocalLib(final File f) throws IOException {
@@ -82,24 +81,6 @@ final class DriverFiles {
   }
 
   /**
-   * Assembles the classpath to be used for the driver.
-   * <p/>
-   * Local classes come first, global ones after that. Both local and global are sorted beforehand.
-   *
-   * @return the classpath to be used for the driver.
-   */
-  public final String getClassPath() {
-    final List<String> localList = new ArrayList<>(localLibs.fileNames());
-    Collections.sort(localList);
-    final List<String> globalList = new ArrayList<>(globalLibs.fileNames());
-    Collections.sort(globalList);
-    final List<String> classPathList = new ArrayList<>();
-    classPathList.addAll(localList);
-    classPathList.addAll(globalList);
-    return StringUtils.join(classPathList, File.pathSeparatorChar);
-  }
-
-  /**
    * Copies this set of files to the destination folder given.
    *
    * @param destinationFolder the folder the files shall be copied to.
@@ -107,10 +88,17 @@ final class DriverFiles {
    */
   public void copyTo(final File destinationFolder) throws IOException {
     destinationFolder.mkdirs();
-    this.localFiles.copyTo(destinationFolder);
-    this.localLibs.copyTo(destinationFolder);
-    this.globalLibs.copyTo(destinationFolder);
-    this.globalFiles.copyTo(destinationFolder);
+    final File reefFolder = new File(destinationFolder, fileNames.getREEFFolderName());
+
+    final File localFolder = new File(reefFolder, fileNames.getLocalFolderName());
+    localFolder.mkdirs();
+    this.localFiles.copyTo(localFolder);
+    this.localLibs.copyTo(localFolder);
+
+    final File globalFolder = new File(reefFolder, fileNames.getGlobalFolderName());
+    globalFolder.mkdirs();
+    this.globalLibs.copyTo(globalFolder);
+    this.globalFiles.copyTo(globalFolder);
   }
 
   /**
@@ -144,9 +132,9 @@ final class DriverFiles {
    * @throws IOException
    */
   public static DriverFiles fromJobSubmission(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) throws IOException {
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto, final REEFFileNames fileNames) throws IOException {
 
-    final DriverFiles driverFiles = new DriverFiles();
+    final DriverFiles driverFiles = new DriverFiles(fileNames);
 
     for (final ReefServiceProtos.FileResourceProto frp : jobSubmissionProto.getGlobalFileList()) {
       final File f = new File(frp.getPath());
