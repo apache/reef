@@ -42,21 +42,20 @@ public class ResourceRequestHandler implements EventHandler<EvaluatorRequest> {
 
   @Override
   public void onNext(final EvaluatorRequest request) {
+    try {
 
-    LOG.log(Level.FINE, "Processing a request with count: {0} - Waiting for gate to be released",
-        request.getNumber());
+      LOG.log(Level.FINE,
+          "Processing a request with count: {0} - Waiting for gate to be released",
+          request.getNumber());
 
-    for (;;) {
-      try {
-        this.resourceRequestGate.await();
-        break;
-      } catch (final InterruptedException ex) {
-        LOG.log(Level.FINEST, "Interrupted", ex);
-      }
+      this.resourceRequestGate.await();
+
+      LOG.log(Level.FINE, "Gate released. Submitting request: {0}", request);
+      this.resourceRequestGate = new CountDownLatch(1);
+      this.requestor.submit(request);
+
+    } catch (final InterruptedException ex) {
+      LOG.log(Level.FINEST, "Interrupted", ex);
     }
-
-    LOG.log(Level.FINE, "Gate released. Submitting request: {0}", request);
-    this.resourceRequestGate = new CountDownLatch(1);
-    this.requestor.submit(request);
   }
 }
