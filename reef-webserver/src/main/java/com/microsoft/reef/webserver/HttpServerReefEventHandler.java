@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.logging.Logger;
  * HttpServerReefEventHandler
  */
 public final class HttpServerReefEventHandler implements HttpHandler {
+
   /**
    * Standard Java logger.
    */
@@ -78,10 +80,16 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param response
    */
   @Override
-  public void onHttpRequest(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
-    LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
+  public void onHttpRequest(
+      final HttpServletRequest request,
+      final HttpServletResponse response) throws IOException, ServletException {
+
+    LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}",
+        request.getRequestURI());
+
     final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final String target = parsedHttpRequest.getTargetEntity().toLowerCase();
+
     switch(target) {
       case "evaluators": {
         final String queryStr = parsedHttpRequest.getQueryString();
@@ -92,13 +100,11 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         }
         break;
       }
-      case "driver": {
+      case "driver":
         writeDriverInformation(response);
         break;
-      }
-      default: {
+      default:
         response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
-      }
     }
   }
 
@@ -109,32 +115,47 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param queries
    * @throws IOException
    */
-  private void handleQueries(final HttpServletResponse response, final Map<String, List<String>> queries) throws IOException {
+  private void handleQueries(
+      final HttpServletResponse response,
+      final Map<String, List<String>> queries) throws IOException {
+
     LOG.log(Level.INFO, "HttpServerReefEventHandler handleQueries is called");
+
+    final PrintWriter writer = response.getWriter();
+
     for (final Map.Entry<String, List<String>> entry : queries.entrySet()) {
+
       final String key = entry.getKey();
-      final List<String> values = entry.getValue();
+
       if (key.equalsIgnoreCase("Id")) {
-        for (String val : values) {
-          EvaluatorDescriptor evaluatorDescriptor = reefStateManager.getEvaluators().get(val);
+
+        for (String val : entry.getValue()) {
+
+          final EvaluatorDescriptor evaluatorDescriptor =
+              this.reefStateManager.getEvaluators().get(val);
+
           if (evaluatorDescriptor != null) {
+
             final String nodeId = evaluatorDescriptor.getNodeDescriptor().getId();
             final String nodeName = evaluatorDescriptor.getNodeDescriptor().getName();
-            InetSocketAddress address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
-            response.getWriter().println("Evaluator Id: " + val);
-            response.getWriter().write("<br/>");
-            response.getWriter().println("Evaluator Node Id: " + nodeId);
-            response.getWriter().write("<br/>");
-            response.getWriter().println("Evaluator Node Name: " + nodeName);
-            response.getWriter().write("<br/>");
-            response.getWriter().println("Evaluator InternetAddress: " + address);
-            response.getWriter().write("<br/>");
+            final InetSocketAddress address =
+                evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+
+            writer.println("Evaluator Id: " + val);
+            writer.write("<br/>");
+            writer.println("Evaluator Node Id: " + nodeId);
+            writer.write("<br/>");
+            writer.println("Evaluator Node Name: " + nodeName);
+            writer.write("<br/>");
+            writer.println("Evaluator InternetAddress: " + address);
+            writer.write("<br/>");
+
           } else {
-            response.getWriter().println("Incorrect Evaluator Id: " + val);
+            writer.println("Incorrect Evaluator Id: " + val);
           }
         }
       } else {
-        response.getWriter().println("Not supported query : " + key);
+        writer.println("Not supported query : " + key);
       }
     }
   }
@@ -146,24 +167,30 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @throws IOException
    */
   private void getEvaluators(final HttpServletResponse response) throws IOException {
-    LOG.log(Level.INFO, "HttpServerReefEventHandler getEvaluators is called");
-    response.getWriter().println("<h1>Evaluators:</h1>");
 
-    for (Map.Entry<String, EvaluatorDescriptor> entry : reefStateManager.getEvaluators().entrySet()) {
+    LOG.log(Level.INFO, "HttpServerReefEventHandler getEvaluators is called");
+
+    final PrintWriter writer = response.getWriter();
+
+    writer.println("<h1>Evaluators:</h1>");
+
+    for (final Map.Entry<String, EvaluatorDescriptor> entry
+        : this.reefStateManager.getEvaluators().entrySet()) {
+
       final String key = entry.getKey();
       final EvaluatorDescriptor descriptor = entry.getValue();
-      response.getWriter().println(
-              String.format("Evaluator [%s] with [%s]MB memory is running on [%s].",
-                      key,
-                      descriptor.getMemory(),
-                      descriptor.getNodeDescriptor().getInetSocketAddress()
-              ));
-      response.getWriter().write("<br/>");
+
+      writer.println(
+          String.format("Evaluator [%s] with [%s]MB memory is running on [%s].",
+              key,
+              descriptor.getMemory(),
+              descriptor.getNodeDescriptor().getInetSocketAddress()));
+      writer.write("<br/>");
     }
-    response.getWriter().write("<br/>");
-    response.getWriter().println("Total number of Evaluators: " + reefStateManager.getEvaluators().size());
-    response.getWriter().write("<br/>");
-    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));
+    writer.write("<br/>");
+    writer.println("Total number of Evaluators: " + this.reefStateManager.getEvaluators().size());
+    writer.write("<br/>");
+    writer.println(String.format("Driver Start Time:[%s]", this.reefStateManager.getStartTime()));
   }
 
   /**
@@ -173,11 +200,17 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @throws IOException
    */
   private void writeDriverInformation(final HttpServletResponse response) throws IOException {
-    LOG.log(Level.INFO, "HttpServerReefEventHandler writeDriverInformation invoked.");
-    response.getWriter().println("<h1>Driver Information:</h1>");
 
-    response.getWriter().println(String.format("Driver Remote Identifier:[%s]", reefStateManager.getDriverEndpointIdentifier()));
-    response.getWriter().write("<br/><br/>");
-    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));
+    LOG.log(Level.INFO, "HttpServerReefEventHandler writeDriverInformation invoked.");
+
+    final PrintWriter writer = response.getWriter();
+
+    writer.println("<h1>Driver Information:</h1>");
+
+    writer.println(String.format("Driver Remote Identifier:[%s]",
+        this.reefStateManager.getDriverEndpointIdentifier()));
+
+    writer.write("<br/><br/>");
+    writer.println(String.format("Driver Start Time:[%s]", this.reefStateManager.getStartTime()));
   }
 }
