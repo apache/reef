@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.poison.context;
+package com.microsoft.reef.poison.task;
 
-import com.microsoft.reef.evaluator.context.events.ContextStart;
-import com.microsoft.reef.poison.PoisonException;
-import com.microsoft.reef.poison.context.params.CrashProbability;
-import com.microsoft.reef.poison.context.params.CrashTimeout;
-import com.microsoft.tang.annotations.Parameter;
-import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
-
-import javax.inject.Inject;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final class PoisonedStartHandler implements EventHandler<ContextStart> {
+import javax.inject.Inject;
 
-  private static final Logger LOG = Logger.getLogger(PoisonedStartHandler.class.getName());
+import com.microsoft.reef.poison.PoisonException;
+import com.microsoft.reef.poison.PoisonedAlarmHandler;
+import com.microsoft.reef.poison.params.CrashProbability;
+import com.microsoft.reef.poison.params.CrashTimeout;
+import com.microsoft.reef.task.events.TaskStart;
+import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.time.Clock;
+
+public final class PoisonedTaskStartHandler implements EventHandler<TaskStart> {
+
+  private static final Logger LOG = Logger.getLogger(PoisonedTaskStartHandler.class.getName());
 
   private final Random random = new Random();
 
@@ -39,7 +41,7 @@ final class PoisonedStartHandler implements EventHandler<ContextStart> {
   private final Clock clock;
 
   @Inject
-  public PoisonedStartHandler(
+  public PoisonedTaskStartHandler(
       final @Parameter(CrashProbability.class) double crashProbability,
       final @Parameter(CrashTimeout.class) int timeOut,
       final Clock clock) {
@@ -50,9 +52,10 @@ final class PoisonedStartHandler implements EventHandler<ContextStart> {
   }
 
   @Override
-  public void onNext(final ContextStart contextStart) {
+  public void onNext(final TaskStart taskStart) {
 
-    LOG.log(Level.INFO, "Start poison injector with prescribed dose: {0}", this.crashProbability);
+    LOG.log(Level.INFO, "Starting Task poison injector with prescribed dose: {0} units",
+        this.crashProbability);
 
     if (this.random.nextDouble() <= this.crashProbability) {
 

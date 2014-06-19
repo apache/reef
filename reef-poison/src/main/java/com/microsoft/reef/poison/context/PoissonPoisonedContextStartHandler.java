@@ -16,7 +16,8 @@
 package com.microsoft.reef.poison.context;
 
 import com.microsoft.reef.evaluator.context.events.ContextStart;
-import com.microsoft.reef.poison.context.params.CrashProbability;
+import com.microsoft.reef.poison.PoisonedAlarmHandler;
+import com.microsoft.reef.poison.params.CrashProbability;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
@@ -27,15 +28,15 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final class PoissonPoisonedStartHandler implements EventHandler<ContextStart> {
+final class PoissonPoisonedContextStartHandler implements EventHandler<ContextStart> {
 
-  private static final Logger LOG = Logger.getLogger(PoissonPoisonedStartHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(PoissonPoisonedContextStartHandler.class.getName());
 
   private final Clock clock;
   private final int timeToCrash;
 
   @Inject
-  public PoissonPoisonedStartHandler(
+  public PoissonPoisonedContextStartHandler(
       final @Parameter(CrashProbability.class) double lambda, final Clock clock) {
 
     this.clock = clock;

@@ -15,6 +15,15 @@
  */
 package com.microsoft.reef.io.network.util;
 
+import java.io.Serializable;
+import java.net.Inet4Address;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.google.protobuf.ByteString;
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage;
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
@@ -22,10 +31,6 @@ import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupMessa
 import com.microsoft.wake.ComparableIdentifier;
 import com.microsoft.wake.Identifier;
 import com.microsoft.wake.IdentifierFactory;
-import org.apache.commons.lang.StringUtils;
-
-import java.net.Inet4Address;
-import java.util.*;
 
 public class Utils {
 
@@ -59,7 +64,7 @@ public class Utils {
     return StringUtils.join(ids, DELIMITER);
   }
 
-  public static List<Integer> createUniformCounts(int elemSize, int childSize) {
+  public static List<Integer> createUniformCounts(final int elemSize, final int childSize) {
     final int remainder = elemSize % childSize;
     final int quotient = elemSize / childSize;
     final ArrayList<Integer> result = new ArrayList<>(childSize);
@@ -68,7 +73,7 @@ public class Utils {
     return Collections.unmodifiableList(result);
   }
 
-  public final static class Pair<T1, T2> {
+  public final static class Pair<T1, T2> implements Serializable {
 
     public final T1 first;
     public final T2 second;
