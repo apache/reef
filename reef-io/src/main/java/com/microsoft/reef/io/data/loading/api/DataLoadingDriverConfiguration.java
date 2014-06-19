@@ -22,10 +22,9 @@ import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.wake.time.Clock;
 
 public final class DataLoadingDriverConfiguration extends ConfigurationModuleBuilder {
-
-  public static final ConfigurationModule CONF = new DataLoadingDriverConfiguration().merge(DriverConfiguration.CONF)
+  public static final ConfigurationModule CONF = new DataLoadingDriverConfiguration()
+      .merge(DriverConfiguration.CONF)
       .bindSetEntry(Clock.StartHandler.class, DataLoader.StartHandler.class)
       .bindSetEntry(EvaluatorAllocatedHandlers.class, DataLoader.EvaluatorAllocatedHandler.class)
       .build();
-
 }
