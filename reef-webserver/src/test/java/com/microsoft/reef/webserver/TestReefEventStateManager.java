@@ -41,14 +41,16 @@ public class TestReefEventStateManager {
 
   @Before
   public void setUp() throws InjectionException {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class);
-    cb.bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class);
-    cb.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER");
-    cb.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
+    final Tang tang = Tang.Factory.getTang();
 
-    final Configuration configuration = cb.build();
-    injector = Tang.Factory.getTang().newInjector(configuration);
+    final Configuration configuration = tang.newConfigurationBuilder()
+            .bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class)
+            .bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class)
+            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+            .build();
+
+    injector = tang.newInjector(configuration);
     reefEventStateManager = injector.getInstance(ReefEventStateManager.class);
   }
 

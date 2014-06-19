@@ -61,7 +61,7 @@ public final class ReefEventStateManager {
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
   /**
-   * Remote manager
+   * Remote manager in driver the carries information such as driver endpoint identifier
    */
   private final  RemoteManager remoteManager;
 

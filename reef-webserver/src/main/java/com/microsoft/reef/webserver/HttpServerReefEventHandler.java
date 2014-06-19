@@ -48,7 +48,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * HttpServerReefEventHandler constructor.
    */
   @Inject
-  public HttpServerReefEventHandler(ReefEventStateManager reefStateManager) {
+  public HttpServerReefEventHandler(final ReefEventStateManager reefStateManager) {
     this.reefStateManager = reefStateManager;
   }
 
@@ -78,13 +78,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param response
    */
   @Override
-  public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  public void onHttpRequest(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}", request.getRequestURI());
     final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final String target = parsedHttpRequest.getTargetEntity().toLowerCase();
-    switch(target)
-    {
-      case "evaluators":{
+    switch(target) {
+      case "evaluators": {
         final String queryStr = parsedHttpRequest.getQueryString();
         if (queryStr == null || queryStr.isEmpty()) {
           getEvaluators(response);
@@ -93,11 +92,11 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         }
         break;
       }
-      case "driver":{
-        getDriverInformation(response);
+      case "driver": {
+        writeDriverInformation(response);
         break;
       }
-      default:{
+      default: {
         response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
       }
     }
@@ -110,7 +109,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param queries
    * @throws IOException
    */
-  private void handleQueries(HttpServletResponse response, Map<String, List<String>> queries) throws IOException {
+  private void handleQueries(final HttpServletResponse response, final Map<String, List<String>> queries) throws IOException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler handleQueries is called");
     for (final Map.Entry<String, List<String>> entry : queries.entrySet()) {
       final String key = entry.getKey();
@@ -146,7 +145,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param response
    * @throws IOException
    */
-  private void getEvaluators(HttpServletResponse response) throws IOException {
+  private void getEvaluators(final HttpServletResponse response) throws IOException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler getEvaluators is called");
     response.getWriter().println("<h1>Evaluators:</h1>");
 
@@ -164,7 +163,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     response.getWriter().write("<br/>");
     response.getWriter().println("Total number of Evaluators: " + reefStateManager.getEvaluators().size());
     response.getWriter().write("<br/>");
-    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));;
+    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));
   }
 
   /**
@@ -173,12 +172,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param response
    * @throws IOException
    */
-  private void getDriverInformation(HttpServletResponse response) throws IOException {
-    LOG.log(Level.INFO, "HttpServerReefEventHandler getDriverInformation invoked.");
+  private void writeDriverInformation(final HttpServletResponse response) throws IOException {
+    LOG.log(Level.INFO, "HttpServerReefEventHandler writeDriverInformation invoked.");
     response.getWriter().println("<h1>Driver Information:</h1>");
 
     response.getWriter().println(String.format("Driver Remote Identifier:[%s]", reefStateManager.getDriverEndpointIdentifier()));
     response.getWriter().write("<br/><br/>");
-    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));;
+    response.getWriter().println(String.format("Driver Start Time:[%s]", reefStateManager.getStartTime()));
   }
 }

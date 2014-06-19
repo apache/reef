@@ -44,10 +44,11 @@ public class TestRuntimeStartHandler {
     final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
             .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
             .build();
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER");
-    cb.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
-    this.configuation = Configurations.merge(clockConfiguraiton, cb.build());
+    final Configuration remoteConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+            .build();
+    this.configuation = Configurations.merge(clockConfiguraiton, remoteConfiguration);
   }
   /**
    * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers, when inject RuntimeClock

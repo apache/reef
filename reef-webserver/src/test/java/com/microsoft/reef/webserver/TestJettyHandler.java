@@ -51,11 +51,13 @@ public class TestJettyHandler {
     final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER");
-    cb.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
-    final Configuration finalConfig = Configurations.merge(httpHandlerConfiguration, cb.build());
-    final Injector injector = Tang.Factory.getTang().newInjector(finalConfig);
+    final Tang tang = Tang.Factory.getTang();
+    final Configuration remoteConfiguration = tang.newConfigurationBuilder()
+            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+            .build();
+    final Configuration finalConfig = Configurations.merge(httpHandlerConfiguration, remoteConfiguration);
+    final Injector injector = tang.newInjector(finalConfig);
 
     handler = injector.getInstance(JettyHandler.class);
   }
