@@ -54,15 +54,23 @@ public final class EvaluatorManagerFactory {
    * @return a new EvaluatorManager instance.
    */
   private final EvaluatorManager getNewEvaluatorManagerInstance(final String id, final EvaluatorDescriptorImpl desc) {
+    LOG.log(Level.FINEST, "Creating Evaluator Manager for Evaluator ID {0}", id);
+    final Injector child = this.injector.forkInjector();
+
     try {
-      LOG.log(Level.FINEST, "Create Evaluator Manager: {0}", id);
-      final Injector child = this.injector.forkInjector();
       child.bindVolatileParameter(EvaluatorManager.EvaluatorIdentifier.class, id);
       child.bindVolatileParameter(EvaluatorManager.EvaluatorDescriptorName.class, desc);
-      return child.getInstance(EvaluatorManager.class);
-    } catch (final BindException | InjectionException e) {
-      throw new RuntimeException("Unable to instantiate a new EvaluatorManager", e);
+    } catch (final BindException e) {
+      throw new RuntimeException("Unable to bind evaluator identifier and name.", e);
     }
+
+    final EvaluatorManager result;
+    try {
+      result = child.getInstance(EvaluatorManager.class);
+    } catch (final InjectionException e) {
+      throw new RuntimeException("Unable to instantiate a new EvaluatorManager for Evaluator ID: " + id, e);
+    }
+    return result;
   }
 
   /**
@@ -81,6 +89,6 @@ public final class EvaluatorManagerFactory {
         EvaluatorType.UNDECIDED, resourceAllocationProto.getResourceMemory());
 
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
-    return getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
+    return this.getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
   }
 }

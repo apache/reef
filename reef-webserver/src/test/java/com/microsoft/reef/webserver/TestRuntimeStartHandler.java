@@ -15,24 +15,41 @@
  */
 package com.microsoft.reef.webserver;
 
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.Injector;
-import com.microsoft.tang.Tang;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
+import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.EventHandler;
+import com.microsoft.wake.remote.RemoteConfiguration;
 import com.microsoft.wake.time.runtime.RuntimeClock;
 import com.microsoft.wake.time.runtime.event.RuntimeStart;
 import com.microsoft.wake.time.runtime.event.RuntimeStop;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
 import java.util.Set;
 
 /**
  * TestRuntimeStartHandler
  */
 public class TestRuntimeStartHandler {
+
+  private Configuration configuation;
+
+  @Before
+  public void setUp() throws InjectionException, IOException, ServletException {
+    final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
+            .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+            .build();
+    final Configuration remoteConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+            .build();
+    this.configuation = Configurations.merge(clockConfiguraiton, remoteConfiguration);
+  }
   /**
    * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers, when inject RuntimeClock
    * all the nested objects including HeetServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler
@@ -42,10 +59,7 @@ public class TestRuntimeStartHandler {
    */
   @Test
   public void testHttpHandlerBindingWithRuntimeClock() throws BindException, InjectionException {
-    final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
-        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
-        .build();
-    final RuntimeClock clock = Tang.Factory.getTang().newInjector(clockConfiguraiton).getInstance(RuntimeClock.class);
+    final RuntimeClock clock = Tang.Factory.getTang().newInjector(this.configuation).getInstance(RuntimeClock.class);
     Assert.assertNotNull(clock);
   }
 
@@ -57,10 +71,7 @@ public class TestRuntimeStartHandler {
    */
   @Test
   public void testRunTimeStartStopHandler() throws BindException, InjectionException {
-    final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
-        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
-        .build();
-    final Injector injector = Tang.Factory.getTang().newInjector(clockConfiguraiton);
+    final Injector injector = Tang.Factory.getTang().newInjector(this.configuation);
     final Set<EventHandler<RuntimeStart>> startEventHandlers = injector.getNamedInstance(RuntimeClock.RuntimeStartHandler.class);
     for (final EventHandler<RuntimeStart> enventHandler : startEventHandlers) {
       final HttpRuntimeStartHandler runtimeStartHandler = (HttpRuntimeStartHandler) enventHandler;

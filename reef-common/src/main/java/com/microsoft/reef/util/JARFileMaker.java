@@ -15,27 +15,33 @@
  */
 package com.microsoft.reef.util;
 
+import org.apache.commons.compress.utils.IOUtils;
+
 import java.io.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Helper class to create JAR files.
  */
 public class JARFileMaker implements AutoCloseable {
 
+  private static final Logger LOG = Logger.getLogger(JARFileMaker.class.getName());
+
   private final FileOutputStream fileOutputStream;
   private final JarOutputStream jarOutputStream;
   private String relativeStartCanonicalPath = null;
 
-  public JARFileMaker(final File outPutFile, final Manifest manifest) throws IOException {
-    this.fileOutputStream = new FileOutputStream(outPutFile);
+  public JARFileMaker(final File outputFile, final Manifest manifest) throws IOException {
+    this.fileOutputStream = new FileOutputStream(outputFile);
     this.jarOutputStream = new JarOutputStream(this.fileOutputStream, manifest);
   }
 
-  public JARFileMaker(final File outPutFile) throws IOException {
-    this.fileOutputStream = new FileOutputStream(outPutFile);
+  public JARFileMaker(final File outputFile) throws IOException {
+    this.fileOutputStream = new FileOutputStream(outputFile);
     this.jarOutputStream = new JarOutputStream(this.fileOutputStream);
   }
 
@@ -45,7 +51,7 @@ public class JARFileMaker implements AutoCloseable {
    * @param inputFile
    * @throws IOException
    */
-  public void add(final File inputFile) throws IOException {
+  public JARFileMaker add(final File inputFile) throws IOException {
 
     final String fileNameInJAR = makeRelative(inputFile);
     if (inputFile.isDirectory()) {
@@ -53,32 +59,31 @@ public class JARFileMaker implements AutoCloseable {
       entry.setTime(inputFile.lastModified());
       this.jarOutputStream.putNextEntry(entry);
       this.jarOutputStream.closeEntry();
-      for (final File nestedFile : inputFile.listFiles())
+      for (final File nestedFile : inputFile.listFiles()) {
         add(nestedFile);
-      return;
+      }
+      return this;
     }
 
     final JarEntry entry = new JarEntry(fileNameInJAR);
     entry.setTime(inputFile.lastModified());
     this.jarOutputStream.putNextEntry(entry);
     try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile))) {
-      final byte[] buffer = new byte[1024];
-      while (true) {
-        final int count = in.read(buffer);
-        if (count == -1)
-          break;
-        this.jarOutputStream.write(buffer, 0, count);
-      }
+      IOUtils.copy(in, this.jarOutputStream);
       this.jarOutputStream.closeEntry();
+    } catch (final FileNotFoundException ex) {
+      LOG.log(Level.WARNING, "Skip the file: " + inputFile, ex);
     }
+    return this;
   }
 
-  public void addChildren(final File folder) throws IOException {
+  public JARFileMaker addChildren(final File folder) throws IOException {
     this.relativeStartCanonicalPath = folder.getCanonicalPath();
     for (final File f : folder.listFiles()) {
       this.add(f);
     }
     this.relativeStartCanonicalPath = null;
+    return this;
   }
 
   private String makeRelative(final File input) throws IOException {
