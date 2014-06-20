@@ -22,21 +22,18 @@ import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Test Hello Http
- */
 public class HelloHttpTest {
-    @Test
-    public void testHttpServer() throws BindException, InjectionException {
-        final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-                .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
-                .build();
-        final LauncherStatus status = HelloREEFHttp.runHelloReef(runtimeConfiguration, 10 * 1000);
-        Assert.assertTrue("Job state after execution: " + status, status.isDone());
-    }
+  @Test
+  public void testHttpServer() throws BindException, InjectionException {
+
+    final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
+        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
+        .build();
+
+    final LauncherStatus status = HelloREEFHttp.runHelloReef(runtimeConfiguration, 10 * 1000);
+    Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
+  }
 }
