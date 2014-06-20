@@ -28,8 +28,9 @@
     "type":"record",
     "name":"AvroEvaluatorList",
     "fields":[
-	  {"name":"Evaluators","type":{"type":"array", "items":"AvroEvaluatorEntry"}},
-	  {"name":"total","type":"int"}
+	  {"name":"evaluators","type":{"type":"array", "items":"AvroEvaluatorEntry"}},
+	  {"name":"total","type":"int"},
+	  {"name":"startTime","type":"string"}
     ]
 }
 ]

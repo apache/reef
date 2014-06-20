@@ -32,6 +32,7 @@ public final class ParsedHttpRequest {
   private final String requestUrl;
   private final byte[] inputStream;
   private final String targetSpecification;
+  private final String version;
   private final String targetEntity;
 
   private final Map<String, String> headers = new HashMap();
@@ -67,10 +68,12 @@ public final class ParsedHttpRequest {
     if (this.requestUri != null) {
       final String[] parts = this.requestUri.split("/");
       this.targetSpecification = parts.length > 1 ? parts[1] : null;
-      this.targetEntity = parts.length > 2 ? parts[2] : null;
+      this.version = parts.length > 2 ? parts[2] : null;
+      this.targetEntity = parts.length > 3 ? parts[3] : null;
     } else {
       this.targetSpecification = null;
       this.targetEntity = null;
+      this.version = null;
     }
 
     if (this.queryString != null && this.queryString.length() != 0) {
@@ -181,5 +184,13 @@ public final class ParsedHttpRequest {
    */
   public String getRequestUri() {
     return this.requestUri;
+  }
+
+  /**
+   * get version of the request for Rest API
+   * @return
+   */
+  public String getVersion() {
+    return version;
   }
 }

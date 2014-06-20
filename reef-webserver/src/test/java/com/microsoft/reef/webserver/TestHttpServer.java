@@ -122,11 +122,8 @@ public class TestHttpServer {
     try {
       injector2.getInstance(HttpServer.class);
       Assert.fail("Created two web servers on the same port: " + portUsed);
-    } catch (final RuntimeException ex) {
-      Assert.assertEquals("Could not find available port in 3 attempts", ex.getMessage());
     } catch (final InjectionException ex) {
-      // This exception is expected.
-      // TODO: check if this is indeed intended behavior.
+      Assert.assertEquals("Could not find available port in 3 attempts", ex.getCause().getMessage());
     }
 
     httpServer1.stop();

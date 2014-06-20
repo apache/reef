@@ -59,7 +59,7 @@ class JettyHandler extends AbstractHandler {
     Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
       public void uncaughtException(Thread t, Throwable e) {
         LOG.log(Level.INFO, "Uncaught Exception in thread '" + t.getName() + "'", e);
-        throw (RuntimeException)e;
+        throw (RuntimeException) e;
       }
     });
   }
@@ -83,7 +83,6 @@ class JettyHandler extends AbstractHandler {
       throws IOException, ServletException {
     LOG.log(Level.INFO, "JettyHandler handle is entered with target: {0} ", target);
 
-
     Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
       public void uncaughtException(Thread t, Throwable e) {
         LOG.log(Level.INFO, "Uncaught Exception in thread '" + t.getName() + "'", e);
@@ -91,36 +90,49 @@ class JettyHandler extends AbstractHandler {
       }
     });
 
-    Request baseRequest = (request instanceof Request) ? (Request) request :
+    final Request baseRequest = (request instanceof Request) ? (Request) request :
         HttpConnection.getCurrentConnection().getRequest();
 
     response.setContentType("text/html;charset=utf-8");
 
-    final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
-    final String specification = parsedHttpRequest.getTargetSpecification();
-
-    if (specification != null) {
-      final HttpHandler h = eventHandlers.get(parsedHttpRequest.getTargetSpecification().toLowerCase());
-      if (h != null) {
-        LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", h.getUriSpecification());
-        try {
-          h.onHttpRequest(request, response);
-        } catch (RuntimeException e) {
-          LOG.log(Level.INFO, "JettyHandler handle received RunTimeException.");
-          throw e;
-        }
-        LOG.log(Level.INFO, "JettyHandler handle returned from eventHandler.");
-        response.setStatus(HttpServletResponse.SC_OK);
-      } else {
-        response.getWriter().println("HttpHandler is not provided for" + parsedHttpRequest.getTargetSpecification());
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      }
-    } else {
-      response.getWriter().println("Specification is not provided in the request.");
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    final HttpHandler handler = validate(request, response);
+    if (handler != null) {
+      LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", handler.getUriSpecification());
+      handler.onHttpRequest(request, response);
+      response.setStatus(HttpServletResponse.SC_OK);
     }
+
     baseRequest.setHandled(true);
     LOG.log(Level.INFO, "JettyHandler handle exists");
+  }
+
+  final private HttpHandler validate(final HttpServletRequest request,
+                               final HttpServletResponse response) throws IOException, ServletException {
+    final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
+    final String specification = parsedHttpRequest.getTargetSpecification();
+    final String version = parsedHttpRequest.getVersion();
+
+    if (specification == null) {
+      badRequest(response, "Specification is not provided in the request.", HttpServletResponse.SC_BAD_REQUEST);
+      return null;
+    }
+
+    final HttpHandler handler = eventHandlers.get(specification.toLowerCase());
+    if (handler == null) {
+      badRequest(response, String.format("No event handler registered for: [%s].", specification), HttpServletResponse.SC_NOT_FOUND);
+      return null;
+    }
+
+    if (version == null) {
+      badRequest(response, "Version is not provided in the request.", HttpServletResponse.SC_BAD_REQUEST);
+      return null;
+    }
+    return handler;
+  }
+
+  private void badRequest(final HttpServletResponse response, final String message, final int status) throws IOException{
+    response.getWriter().println(message);
+    response.setStatus(status);
   }
 
   /**

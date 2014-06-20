@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
  * Serialize Http Request Response data with Avro
  */
 public class AvroHttpSerializer {
-  private static final String JSON_CHARSET = "ISO-8859-1";
+  public static final String JSON_CHARSET = "ISO-8859-1";
 
   public AvroHttpSerializer() {
   }

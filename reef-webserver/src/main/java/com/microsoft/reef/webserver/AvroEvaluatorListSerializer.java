@@ -1,13 +1,26 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.microsoft.reef.webserver;
 
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.formats.avro.AvroConfiguration;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.io.JsonEncoder;
 import org.apache.avro.specific.SpecificDatumWriter;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,14 +31,7 @@ import java.util.Map;
  * Serializer for Evaluator list
  */
 public class AvroEvaluatorListSerializer {
-  /**
-   * The Charset used for the JSON encoding.
-   * <p/>
-   * Copied from <code>org.apache.avro.io.JsonDecoder.CHARSET</code>
-   */
-  private static final String JSON_CHARSET = "ISO-8859-1";
-
-  public AvroEvaluatorList toAvro(final Map<String, EvaluatorDescriptor> evaluatorMap, final int totalEvaluators) {
+  public AvroEvaluatorList toAvro(final Map<String, EvaluatorDescriptor> evaluatorMap, final int totalEvaluators, final String startTime) {
     final List<AvroEvaluatorEntry> EvaluatorEntities = new ArrayList<>();
     for (final Map.Entry<String, EvaluatorDescriptor> entry : evaluatorMap.entrySet()) {
       final String key = entry.getKey();
@@ -39,6 +45,7 @@ public class AvroEvaluatorListSerializer {
     return AvroEvaluatorList.newBuilder()
         .setEvaluators(EvaluatorEntities)
         .setTotal(totalEvaluators)
+        .setStartTime(startTime)
         .build();
   }
 
@@ -50,7 +57,7 @@ public class AvroEvaluatorListSerializer {
       evaluatorWriter.write(avroEvaluatorList, encoder);
       encoder.flush();
       out.flush();
-      result = out.toString(JSON_CHARSET);
+      result = out.toString(AvroHttpSerializer.JSON_CHARSET);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
