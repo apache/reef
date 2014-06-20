@@ -42,11 +42,15 @@ public class AvroEvaluatorInfoSerializer {
       String nodeId = null;
       String nodeName = null;
       InetSocketAddress address = null;
+      int memory = 0;
+      String type = null;
 
       if (evaluatorDescriptor != null) {
         nodeId = evaluatorDescriptor.getNodeDescriptor().getId();
         nodeName = evaluatorDescriptor.getNodeDescriptor().getName();
         address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+        memory = evaluatorDescriptor.getMemory();
+        type =  evaluatorDescriptor.getType().toString();
       }
 
       evaluatorsInfo.add(AvroEvaluatorInfo.newBuilder()
@@ -54,6 +58,8 @@ public class AvroEvaluatorInfoSerializer {
           .setNodeId(nodeId != null ? nodeId : "")
           .setNodeName(nodeName != null ? nodeName : "")
           .setInternetAddress(address != null ? address.toString() : "")
+          .setMemory(memory)
+          .setType(type != null ? type : "")
           .build());
     }
 

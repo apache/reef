@@ -125,7 +125,11 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         break;
       }
       case "driver":
-        writeDriverInformation(response);
+        if (version.equals("v1")) {
+          writeDriverJsonInformation(response);
+        } else {
+          writeDriverWebInformation(response);
+        }
         break;
       case "close":
         for (EventHandler<Void> e : clientCloseHandlers) {
@@ -142,7 +146,6 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       case "logfile":
         final byte[] outputBody = readFile().getBytes(Charset.forName("UTF-8"));
         response.getOutputStream().write(outputBody);
-        //response.getWriter().println(readFile());
         break;
       default:
         response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
@@ -200,6 +203,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         final String nodeName = evaluatorDescriptor.getNodeDescriptor().getName();
         final InetSocketAddress address =
             evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+
         writer.println("Evaluator Id: " + id);
         writer.write("<br/>");
         writer.println("Evaluator Node Id: " + nodeId);
@@ -208,7 +212,10 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         writer.write("<br/>");
         writer.println("Evaluator InternetAddress: " + address);
         writer.write("<br/>");
-
+        writer.println("Evaluator Memory: " + evaluatorDescriptor.getMemory());
+        writer.write("<br/>");
+        writer.println("Evaluator Type: " + evaluatorDescriptor.getType());
+        writer.write("<br/>");
       } else {
         writer.println("Incorrect Evaluator Id: " + id);
       }
@@ -261,13 +268,19 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     writer.println(String.format("Driver Start Time:[%s]", this.reefStateManager.getStartTime()));
   }
 
-  /**
-   * Get driver information
-   *
-   * @param response
-   * @throws IOException
-   */
-  private void writeDriverInformation(final HttpServletResponse response) throws IOException {
+  private void writeDriverJsonInformation(final HttpServletResponse response) throws IOException {
+    AvroDriverInfoSerializer serializer = new AvroDriverInfoSerializer();
+    AvroDriverInfo driverInfo = serializer.toAvro(this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime());
+    final byte[] outputBody = serializer.toString(driverInfo).getBytes(Charset.forName("UTF-8"));
+    response.getOutputStream().write(outputBody);
+  }
+    /**
+     * Get driver information
+     *
+     * @param response
+     * @throws IOException
+     */
+  private void writeDriverWebInformation(final HttpServletResponse response) throws IOException {
 
     LOG.log(Level.INFO, "HttpServerReefEventHandler writeDriverInformation invoked.");
 
