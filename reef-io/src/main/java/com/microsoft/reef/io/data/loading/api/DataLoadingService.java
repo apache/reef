@@ -19,41 +19,47 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.exceptions.BindException;
 
 /**
- * All data loading services should implement
- * this interface
+ * All data loading services should implement this interface.
  */
 @DriverSide
 public interface DataLoadingService {
-  
+
   /**
    * Access to the number of partitions suggested by this DataSource.
    *
    * @return the number of partitions suggested by this DataSource.
    */
-  public int getNumberOfPartitions();
+  int getNumberOfPartitions();
 
   /**
-   * @param descriptor
-   * @return the configuration for the given Evaluator.
-   * @throws BindException
+   * @return the context configuration for the given Evaluator.
    */
-  public Configuration getConfiguration(final AllocatedEvaluator allocatedEvaluator);
-  
+  Configuration getContextConfiguration(final AllocatedEvaluator allocatedEvaluator);
+
+  /**
+   * @return the service configuration for the given Evaluator.
+   */
+  Configuration getServiceConfiguration(final AllocatedEvaluator allocatedEvaluator);
+
   /**
    * @return Return the prefix to be used to enumerate
    * context ids for compute requests fired other than
-   * the data load contexts
+   * the data load contexts.
    */
-  public String getComputeContextIdPrefix();
-  
+  String getComputeContextIdPrefix();
+
   /**
-   * Distinguishes data loaded contexts from compute
-   * contexts.
-   * @param context
-   * @return true if this context has been loaded with data
+   * Distinguishes data loaded contexts from compute contexts.
+   *
+   * @return true if this context has been loaded with data.
    */
-  public boolean isDataLoadedContext(ActiveContext context);
+  boolean isDataLoadedContext(ActiveContext context);
+
+  /**
+   * @return true if this is a computation context,
+   * false otherwise. (e.g. this is a data loading context).
+   */
+  boolean isComputeContext(ActiveContext context);
 }

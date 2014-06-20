@@ -20,6 +20,7 @@ import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
@@ -60,6 +61,11 @@ public final class ReefEventStateManager {
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
   /**
+   * Remote manager in driver the carries information such as driver endpoint identifier
+   */
+  private final  RemoteManager remoteManager;
+
+  /**
    * Evaluator start time
    */
   private StartTime startTime;
@@ -73,7 +79,8 @@ public final class ReefEventStateManager {
    * ReefEventStateManager that keeps the states of Reef components
    */
   @Inject
-  public ReefEventStateManager() {
+  public ReefEventStateManager(final RemoteManager remoteManager) {
+    this.remoteManager = remoteManager;
   }
 
   /**
@@ -120,6 +127,13 @@ public final class ReefEventStateManager {
     return evaluators;
   }
 
+  /**
+   * get driver endpoint identifier
+   */
+  public String getDriverEndpointIdentifier() {
+    return remoteManager.getMyIdentifier();
+  }
+
   public Map<String, ActiveContext> getContexts() {
     return contexts;
   }
@@ -164,18 +178,20 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * Job Driver is ready and the clock is set up: request the evaluators.
+   * Job Driver is ready and the clock is set up
    */
   public final class StartStateHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      LOG.log(Level.INFO, "StartStateHandler called. StartTime: {0}", startTime);
+      LOG.log(Level.INFO,
+              "StartStateHandler: Driver started with endpoint identifier [{0}]  and StartTime [{1}]",
+              new Object[] {ReefEventStateManager.this.remoteManager.getMyIdentifier(), startTime});
       ReefEventStateManager.this.startTime = startTime;
     }
   }
 
   /**
-   * Shutting down the job driver: close the evaluators.
+   * Job driver stopped, log the stop time.
    */
   public final class StopStateHandler implements EventHandler<StopTime> {
     @Override
@@ -186,7 +202,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * Receive notification that an Evaluator had been allocated,
+   * Receive notification that an Evaluator had been allocated
    */
   public final class AllocatedEvaluatorStateHandler implements EventHandler<AllocatedEvaluator> {
     @Override

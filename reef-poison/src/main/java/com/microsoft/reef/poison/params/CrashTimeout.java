@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.poison.context.params;
+package com.microsoft.reef.poison.params;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;

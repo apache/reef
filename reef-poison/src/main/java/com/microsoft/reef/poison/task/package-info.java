@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.poison.context.params;
-
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * The probability with which a crash will occur.
+ * Fault Injection into REEF tasks.
  */
-@NamedParameter(doc = "the probability with which a crash will occur.", default_value = "" + CrashProbability.DEFAULT_VALUE)
-public final class CrashProbability implements Name<Double> {
-  public static final double DEFAULT_VALUE = 0.1;
-}
+package com.microsoft.reef.poison.task;

@@ -15,115 +15,150 @@
  */
 package com.microsoft.reef.io.data.loading.impl;
 
-import java.io.IOException;
-import java.util.Random;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.apache.hadoop.mapred.InputFormat;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
+import com.microsoft.reef.driver.context.ServiceConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import com.microsoft.reef.io.data.loading.api.DataLoadingService;
 import com.microsoft.reef.io.data.loading.api.DataSet;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
+import org.apache.hadoop.mapred.InputFormat;
+import org.apache.hadoop.mapred.InputSplit;
+import org.apache.hadoop.mapred.JobConf;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An implementation of {@link DataLoadingService}
  * that uses the Hadoop {@link InputFormat} to find
  * partitions of data & request resources.
- * 
+ * <p/>
  * The InputFormat is injected using a Tang external constructor
- * 
+ * <p/>
  * It also tries to obtain data locality in a greedy
  * fashion using {@link EvaluatorToPartitionMapper}
  */
 @DriverSide
-public class InputFormatLoadingService<K,V> implements DataLoadingService {
+public class InputFormatLoadingService<K, V> implements DataLoadingService {
+
   private static final Logger LOG = Logger.getLogger(InputFormatLoadingService.class.getName());
+
+  private static final String DATA_LOAD_CONTEXT_PREFIX = "DataLoadContext-";
+
+  private static final String COMPUTE_CONTEXT_PREFIX =
+      "ComputeContext-" + new Random(3381).nextInt(1 << 20) + "-";
+
   private final EvaluatorToPartitionMapper<InputSplit> evaluatorToPartitionMapper;
   private final int numberOfPartitions;
   private final String serializedJobConf;
-  private final String computeContextPrefix 
-      = "ComputeContext-" + (new Random(3381)).nextInt(1 << 20) + "-";
+
   private final boolean inMemory;
-  
+
   @Inject
   public InputFormatLoadingService(
-      InputFormat<K, V> inputFormat,
-      @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf,
-      @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) int numberOfDesiredSplits,
-      @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) boolean inMemory
-  ) {
+      final InputFormat<K, V> inputFormat,
+      final @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf,
+      final @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) int numberOfDesiredSplits,
+      final @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) boolean inMemory) {
+
     this.serializedJobConf = serializedJobConf;
     this.inMemory = inMemory;
+
     final JobConf jobConf = WritableSerializer.deserialize(serializedJobConf);
+
     try {
+
       final InputSplit[] inputSplits = inputFormat.getSplits(jobConf, numberOfDesiredSplits);
-      for (InputSplit inputSplit : inputSplits) {
-        LOG.info("Split-" + inputSplit.toString());
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "Splits: {0}", Arrays.toString(inputSplits));
       }
+
       this.numberOfPartitions = inputSplits.length;
-      LOG.info("Number of Partitions: " + numberOfPartitions);
+      LOG.log(Level.FINE, "Number of partitions: {0}", this.numberOfPartitions);
+
       this.evaluatorToPartitionMapper = new EvaluatorToPartitionMapper<>(inputSplits);
-    } catch (IOException e) {
+
+    } catch (final IOException e) {
       throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
     }
   }
 
   @Override
   public int getNumberOfPartitions() {
-    return numberOfPartitions;
+    return this.numberOfPartitions;
   }
 
   @Override
-  public Configuration getConfiguration(AllocatedEvaluator allocatedEvaluator) {
+  public Configuration getContextConfiguration(final AllocatedEvaluator allocatedEvaluator) {
+
+    final NumberedSplit<InputSplit> numberedSplit =
+        this.evaluatorToPartitionMapper.getInputSplit(
+            allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getName(),
+            allocatedEvaluator.getId());
+
+    return ContextConfiguration.CONF
+        .set(ContextConfiguration.IDENTIFIER, DATA_LOAD_CONTEXT_PREFIX + numberedSplit.getIndex())
+        .build();
+  }
+
+  @Override
+  public Configuration getServiceConfiguration(final AllocatedEvaluator allocatedEvaluator) {
+
     try {
-      final NumberedSplit<InputSplit> numberedSplit = evaluatorToPartitionMapper
-          .getInputSplit(allocatedEvaluator.getEvaluatorDescriptor()
-              .getNodeDescriptor().getName(), allocatedEvaluator.getId());
-      final Configuration contextIdConfiguration = ContextConfiguration.CONF
-          .set(ContextConfiguration.IDENTIFIER, "DataLoadContext-" + numberedSplit.getIndex())
+
+      final NumberedSplit<InputSplit> numberedSplit =
+          this.evaluatorToPartitionMapper.getInputSplit(
+              allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getName(),
+              allocatedEvaluator.getId());
+
+      final Configuration serviceConfiguration = ServiceConfiguration.CONF
+          .set(ServiceConfiguration.SERVICES,
+              this.inMemory ? InMemoryInputFormatDataSet.class : InputFormatDataSet.class)
           .build();
-      final Tang tang = Tang.Factory.getTang();
-      final JavaConfigurationBuilder jcb = tang.newConfigurationBuilder(contextIdConfiguration);
-      if(inMemory){
-        jcb.bindImplementation(DataSet.class, InMemoryInputFormatDataSet.class);
-      }
-      else{
-        jcb.bindImplementation(DataSet.class, InputFormatDataSet.class);
-      }
-      jcb.bindNamedParameter(InputFormatExternalConstructor.SerializedJobConf.class,
-          serializedJobConf);
-      jcb.bindNamedParameter(InputSplitExternalConstructor.SerializedInputSplit.class, WritableSerializer.serialize(numberedSplit.getEntry()));
-      jcb.bindConstructor(
-          InputSplit.class,
-          (Class<? extends ExternalConstructor<InputSplit>>) InputSplitExternalConstructor.class
-      );
-      return jcb.build();
-    } catch (BindException e) {
-      throw new RuntimeException("Unable to create Configuration", e);
+
+      return Tang.Factory.getTang().newConfigurationBuilder(serviceConfiguration)
+          .bindImplementation(
+              DataSet.class,
+              this.inMemory ? InMemoryInputFormatDataSet.class : InputFormatDataSet.class)
+          .bindNamedParameter(
+              InputFormatExternalConstructor.SerializedJobConf.class, this.serializedJobConf)
+          .bindNamedParameter(
+              InputSplitExternalConstructor.SerializedInputSplit.class,
+              WritableSerializer.serialize(numberedSplit.getEntry()))
+          .bindConstructor(InputSplit.class, InputSplitExternalConstructor.class)
+          .build();
+
+    } catch (final BindException ex) {
+      final String evalId = allocatedEvaluator.getId();
+      final String msg = "Unable to create configuration for evaluator " + evalId;
+      LOG.log(Level.WARNING, msg, ex);
+      throw new RuntimeException(msg, ex);
     }
   }
 
   @Override
   public String getComputeContextIdPrefix() {
-    return computeContextPrefix;
+    return COMPUTE_CONTEXT_PREFIX;
   }
 
   @Override
-  public boolean isDataLoadedContext(ActiveContext context) {
-    return !context.getId().startsWith(computeContextPrefix);
+  public boolean isComputeContext(final ActiveContext context) {
+    return context.getId().startsWith(COMPUTE_CONTEXT_PREFIX);
+  }
+
+  @Override
+  public boolean isDataLoadedContext(final ActiveContext context) {
+    return context.getId().startsWith(DATA_LOAD_CONTEXT_PREFIX);
   }
 }
