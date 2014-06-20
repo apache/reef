@@ -34,6 +34,6 @@ public class HelloHttpTest {
         .build();
 
     final LauncherStatus status = HelloREEFHttp.runHelloReef(runtimeConfiguration, 10 * 1000);
-    Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
+    Assert.assertEquals(LauncherStatus.FORCE_CLOSED, status); // must be force closed by timeout
   }
 }
