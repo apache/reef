@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.BindException;
@@ -47,6 +48,7 @@ public class TestRuntimeStartHandler {
     final Configuration remoteConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
             .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+            .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
             .build();
     this.configuation = Configurations.merge(clockConfiguraiton, remoteConfiguration);
   }

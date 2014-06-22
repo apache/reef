@@ -16,6 +16,7 @@
 
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -61,7 +62,8 @@ public class TestJettyHandler {
     final Configuration remoteConfiguration = tang.newConfigurationBuilder()
             .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .build();
+            .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .build();
 
     final Configuration finalConfig =
         Configurations.merge(httpHandlerConfiguration, remoteConfiguration);
@@ -73,7 +75,7 @@ public class TestJettyHandler {
 
   @Test
   public void testWithoutQueryString() throws IOException, ServletException {
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/Evaluators/V1"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/v1/Evaluators/"));
     this.handler.handle("target", this.request, this.response, 0);
     Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
  [
-{
-    "namespace":"com.microsoft.reef.webserver",
-    "type":"record",
-    "name":"AvroDriverInfo",
-    "fields":[
-	  {"name":"remoteId","type":"string"},
-	  {"name":"startTime","type":"string"}
-    ]
-}
-]
+ {
+     "namespace":"com.microsoft.reef.webserver",
+     "type":"record",
+     "name":"AvroDriverInfo",
+     "fields":[
+ 	  {"name":"remoteId","type":"string"},
+ 	  {"name":"startTime","type":"string"}
+     ]
+ }
+ ]

@@ -48,11 +48,11 @@ class JettyHandler extends AbstractHandler {
    */
   @Inject
   JettyHandler(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
-    for (HttpHandler handler : httpEventHandlers) {
+    for (final HttpHandler handler : httpEventHandlers) {
       if (!eventHandlers.containsKey(handler.getUriSpecification())) {
         eventHandlers.put(handler.getUriSpecification().toLowerCase(), handler);
       } else {
-        LOG.log(Level.WARNING, "JettyHandler handle is already registered: {0} ", handler.getUriSpecification());
+        LOG.log(Level.WARNING, "The http event handler for {0} is already registered.", handler.getUriSpecification());
       }
     }
 
@@ -86,7 +86,7 @@ class JettyHandler extends AbstractHandler {
     Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
       public void uncaughtException(Thread t, Throwable e) {
         LOG.log(Level.INFO, "Uncaught Exception in thread '" + t.getName() + "'", e);
-        throw (RuntimeException)e;
+        throw (RuntimeException) e;
       }
     });
 
@@ -106,31 +106,48 @@ class JettyHandler extends AbstractHandler {
     LOG.log(Level.INFO, "JettyHandler handle exists");
   }
 
+  /**
+   * Validate request and get http handler for the request
+   *
+   * @param request
+   * @param response
+   * @return
+   * @throws IOException
+   * @throws ServletException
+   */
   final private HttpHandler validate(final HttpServletRequest request,
-                               final HttpServletResponse response) throws IOException, ServletException {
+                                     final HttpServletResponse response) throws IOException, ServletException {
     final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final String specification = parsedHttpRequest.getTargetSpecification();
     final String version = parsedHttpRequest.getVersion();
 
     if (specification == null) {
-      badRequest(response, "Specification is not provided in the request.", HttpServletResponse.SC_BAD_REQUEST);
+      writeMessage(response, "Specification is not provided in the request.", HttpServletResponse.SC_BAD_REQUEST);
       return null;
     }
 
     final HttpHandler handler = eventHandlers.get(specification.toLowerCase());
     if (handler == null) {
-      badRequest(response, String.format("No event handler registered for: [%s].", specification), HttpServletResponse.SC_NOT_FOUND);
+      writeMessage(response, String.format("No event handler registered for: [%s].", specification), HttpServletResponse.SC_NOT_FOUND);
       return null;
     }
 
     if (version == null) {
-      badRequest(response, "Version is not provided in the request.", HttpServletResponse.SC_BAD_REQUEST);
+      writeMessage(response, "Version is not provided in the request.", HttpServletResponse.SC_BAD_REQUEST);
       return null;
     }
     return handler;
   }
 
-  private void badRequest(final HttpServletResponse response, final String message, final int status) throws IOException{
+  /**
+   * process write message and status on the response
+   *
+   * @param response
+   * @param message
+   * @param status
+   * @throws IOException
+   */
+  final private void writeMessage(final HttpServletResponse response, final String message, final int status) throws IOException {
     response.getWriter().println(message);
     response.setStatus(status);
   }

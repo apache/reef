@@ -20,6 +20,7 @@ import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
@@ -63,7 +64,9 @@ public final class ReefEventStateManager {
   /**
    * Remote manager in driver the carries information such as driver endpoint identifier
    */
-  private final  RemoteManager remoteManager;
+  private final RemoteManager remoteManager;
+
+  private DriverStatusManager driverStatusManager;
 
   /**
    * Evaluator start time
@@ -79,8 +82,9 @@ public final class ReefEventStateManager {
    * ReefEventStateManager that keeps the states of Reef components
    */
   @Inject
-  public ReefEventStateManager(final RemoteManager remoteManager) {
+  public ReefEventStateManager(final RemoteManager remoteManager, final DriverStatusManager driverStatusManager) {
     this.remoteManager = remoteManager;
+    this.driverStatusManager = driverStatusManager;
   }
 
   /**
@@ -137,6 +141,7 @@ public final class ReefEventStateManager {
   public Map<String, ActiveContext> getContexts() {
     return contexts;
   }
+
   /**
    * pus a entry to evaluators
    *
@@ -177,6 +182,10 @@ public final class ReefEventStateManager {
     return evaluators.get(evaluatorId).getNodeDescriptor();
   }
 
+  public void OnClientKill() {
+    driverStatusManager.onComplete();
+  }
+
   /**
    * Job Driver is ready and the clock is set up
    */
@@ -184,8 +193,8 @@ public final class ReefEventStateManager {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO,
-              "StartStateHandler: Driver started with endpoint identifier [{0}]  and StartTime [{1}]",
-              new Object[] {ReefEventStateManager.this.remoteManager.getMyIdentifier(), startTime});
+          "StartStateHandler: Driver started with endpoint identifier [{0}]  and StartTime [{1}]",
+          new Object[]{ReefEventStateManager.this.remoteManager.getMyIdentifier(), startTime});
       ReefEventStateManager.this.startTime = startTime;
     }
   }

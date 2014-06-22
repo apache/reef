@@ -19,6 +19,7 @@ package com.microsoft.reef.webserver;
 import com.microsoft.reef.client.DriverServiceConfiguration;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.*;
@@ -65,6 +66,7 @@ public class TestHttpConfiguration {
         .bindImplementation(ActiveContext.class, MockActiveContext.class)
         .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
         .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
         .build();
 
     final Configuration configuration = Configurations.merge(

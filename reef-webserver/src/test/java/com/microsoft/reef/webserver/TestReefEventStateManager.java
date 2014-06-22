@@ -20,6 +20,7 @@ import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -48,7 +49,8 @@ public class TestReefEventStateManager {
             .bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class)
             .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .build();
+            .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .build();
 
     injector = tang.newInjector(configuration);
     reefEventStateManager = injector.getInstance(ReefEventStateManager.class);

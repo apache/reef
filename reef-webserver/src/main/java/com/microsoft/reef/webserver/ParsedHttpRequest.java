@@ -188,6 +188,7 @@ public final class ParsedHttpRequest {
 
   /**
    * get version of the request for Rest API
+   *
    * @return
    */
   public String getVersion() {

@@ -21,32 +21,53 @@ import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.io.JsonEncoder;
 import org.apache.avro.specific.SpecificDatumWriter;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
  * Serialize Drive information
  */
-public class AvroDriverInfoSerializer {
-  public AvroDriverInfo toAvro(String id, String startTime) {
+public class AvroDriverInfoSerializer implements DriverInfoSerializer {
+  /**
+   * Default constructor for AvroDriverInfoSerializer. It is the default implementation for interface DriverInfoSerializer
+   */
+  @Inject
+  AvroDriverInfoSerializer() {}
+
+  /**
+   * Build AvroDriverInfo object
+   * @param id
+   * @param startTime
+   * @return
+   */
+  @Override
+  public AvroDriverInfo toAvro(final String id, final String startTime) {
     return AvroDriverInfo.newBuilder()
         .setRemoteId(id)
         .setStartTime(startTime)
         .build();
   }
 
+  /**
+   * Convert AvroDriverInfo object to JSon string
+   *
+   * @param avroDriverInfo
+   * @return
+   */
+  @Override
   public String toString(final AvroDriverInfo avroDriverInfo) {
     final DatumWriter<AvroDriverInfo> evaluatorWriter = new SpecificDatumWriter<>(AvroDriverInfo.class);
-    final String result;
+    final String jsonString;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroDriverInfo.getSchema(), out);
       evaluatorWriter.write(avroDriverInfo, encoder);
       encoder.flush();
       out.flush();
-      result = out.toString(AvroHttpSerializer.JSON_CHARSET);
+      jsonString = out.toString(AvroHttpSerializer.JSON_CHARSET);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
-    return result;
+    return jsonString;
   }
 }

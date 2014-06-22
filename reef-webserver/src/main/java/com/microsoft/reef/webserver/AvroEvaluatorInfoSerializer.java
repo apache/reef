@@ -22,6 +22,7 @@ import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.io.JsonEncoder;
 import org.apache.avro.specific.SpecificDatumWriter;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,11 +34,25 @@ import java.util.Map;
 /**
  * Serialize Evaluator Info
  */
-public class AvroEvaluatorInfoSerializer {
-  public AvroEvaluatorsInfo toAvro(List<String> ids, Map<String, EvaluatorDescriptor> evaluators) {
+public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
+
+  /**
+   * Default constructor for AvroEvaluatorInfoSerializer. It is the default implementation for interface EvaluatorInfoSerializer
+   */
+  @Inject
+  AvroEvaluatorInfoSerializer() {}
+
+  /**
+   * Create AvroEvaluatorsInfo object
+   * @param ids
+   * @param evaluators
+   * @return
+   */
+  @Override
+  public AvroEvaluatorsInfo toAvro(final List<String> ids, final Map<String, EvaluatorDescriptor> evaluators) {
     final List<AvroEvaluatorInfo> evaluatorsInfo = new ArrayList<>();
 
-    for (String id : ids) {
+    for (final String id : ids) {
       final EvaluatorDescriptor evaluatorDescriptor = evaluators.get(id);
       String nodeId = null;
       String nodeName = null;
@@ -50,7 +65,7 @@ public class AvroEvaluatorInfoSerializer {
         nodeName = evaluatorDescriptor.getNodeDescriptor().getName();
         address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
         memory = evaluatorDescriptor.getMemory();
-        type =  evaluatorDescriptor.getType().toString();
+        type = evaluatorDescriptor.getType().toString();
       }
 
       evaluatorsInfo.add(AvroEvaluatorInfo.newBuilder()
@@ -68,19 +83,25 @@ public class AvroEvaluatorInfoSerializer {
         .build();
   }
 
+  /**
+   * Convert AvroEvaluatorsInfo object to JSon string
+   * @param avroEvaluatorsInfo
+   * @return
+   */
+  @Override
   public String toString(final AvroEvaluatorsInfo avroEvaluatorsInfo) {
     final DatumWriter<AvroEvaluatorsInfo> evaluatorWriter = new SpecificDatumWriter<>(AvroEvaluatorsInfo.class);
-    final String result;
+    final String jsonString;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroEvaluatorsInfo.getSchema(), out);
       evaluatorWriter.write(avroEvaluatorsInfo, encoder);
       encoder.flush();
       out.flush();
-      result = out.toString(AvroHttpSerializer.JSON_CHARSET);
+      jsonString = out.toString(AvroHttpSerializer.JSON_CHARSET);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
-    return result;
+    return jsonString;
   }
 }
 
