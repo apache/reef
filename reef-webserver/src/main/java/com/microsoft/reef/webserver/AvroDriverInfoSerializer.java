@@ -60,16 +60,14 @@ public class AvroDriverInfoSerializer implements DriverInfoSerializer {
   @Override
   public String toString(final AvroDriverInfo avroDriverInfo) {
     final DatumWriter<AvroDriverInfo> evaluatorWriter = new SpecificDatumWriter<>(AvroDriverInfo.class);
-    final String jsonString;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroDriverInfo.getSchema(), out);
       evaluatorWriter.write(avroDriverInfo, encoder);
       encoder.flush();
       out.flush();
-      jsonString = out.toString(AvroHttpSerializer.JSON_CHARSET);
+      return out.toString(AvroHttpSerializer.JSON_CHARSET);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
-    return jsonString;
   }
 }

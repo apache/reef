@@ -45,11 +45,11 @@ public final class HelloREEFHttp {
      * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
      */
     public static Configuration getHTTPConfiguration() {
-        Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
+        final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdtHandler.class)
                 .build();
-        Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
+        final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
                 .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
                 .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
                 .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)

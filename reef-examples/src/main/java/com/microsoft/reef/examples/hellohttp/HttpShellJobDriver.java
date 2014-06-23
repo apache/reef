@@ -204,7 +204,7 @@ public final class HttpShellJobDriver {
       @Override
       public void onNext(final Void aVoid) throws RuntimeException {
         LOG.log(Level.INFO, "Received a close message from the client. You can put code here to properly close drivers and evaluators.");
-        for (ActiveContext c : contexts.values()) {
+        for (final ActiveContext c : contexts.values()) {
             c.close();
         }
       }
@@ -357,7 +357,7 @@ public final class HttpShellJobDriver {
     final class StopHandler implements EventHandler<StopTime> {
         @Override
         public void onNext(final StopTime time) {
-            LOG.log(Level.INFO, "{0} ++++++StopTime: {1}", new Object[]{state, time});
+            LOG.log(Level.INFO, "{0} StopTime: {1}", new Object[]{state, time});
             for (final ActiveContext context : contexts.values()) {
                 context.close();
             }
