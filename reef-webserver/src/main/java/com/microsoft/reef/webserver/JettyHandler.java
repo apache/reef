@@ -47,7 +47,7 @@ class JettyHandler extends AbstractHandler {
    * @param httpEventHandlers
    */
   @Inject
-  JettyHandler(@Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
+  JettyHandler(final @Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
     for (final HttpHandler handler : httpEventHandlers) {
       if (!eventHandlers.containsKey(handler.getUriSpecification())) {
         eventHandlers.put(handler.getUriSpecification().toLowerCase(), handler);
@@ -55,13 +55,6 @@ class JettyHandler extends AbstractHandler {
         LOG.log(Level.WARNING, "The http event handler for {0} is already registered.", handler.getUriSpecification());
       }
     }
-
-    Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-      public void uncaughtException(Thread t, Throwable e) {
-        LOG.log(Level.INFO, "Uncaught Exception in thread '" + t.getName() + "'", e);
-        throw (RuntimeException) e;
-      }
-    });
   }
 
   /**
@@ -76,19 +69,12 @@ class JettyHandler extends AbstractHandler {
    */
   @Override
   public void handle(
-      String target,
-      HttpServletRequest request,
-      HttpServletResponse response,
-      int i)
+      final String target,
+      final HttpServletRequest request,
+      final HttpServletResponse response,
+      final int i)
       throws IOException, ServletException {
     LOG.log(Level.INFO, "JettyHandler handle is entered with target: {0} ", target);
-
-    Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-      public void uncaughtException(Thread t, Throwable e) {
-        LOG.log(Level.INFO, "Uncaught Exception in thread '" + t.getName() + "'", e);
-        throw (RuntimeException) e;
-      }
-    });
 
     final Request baseRequest = (request instanceof Request) ? (Request) request :
         HttpConnection.getCurrentConnection().getRequest();

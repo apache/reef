@@ -45,7 +45,7 @@ public class TestAvroSerializerForHttp {
       final AvroDriverInfo driverInfo = serializer.toAvro("abc", "xxxxxx");
       final String driverInfoString = serializer.toString(driverInfo);
       Assert.assertEquals(driverInfoString, "{\"remoteId\":\"abc\",\"startTime\":\"xxxxxx\"}");
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       Assert.fail("Not able to inject DriverInfoSerializer");
     }
   }
@@ -64,7 +64,7 @@ public class TestAvroSerializerForHttp {
       final AvroEvaluatorsInfo evaluatorInfo = serializer.toAvro(ids, data);
       final String evaluatorInfoString = serializer.toString(evaluatorInfo);
       Assert.assertEquals(evaluatorInfoString, "{\"evaluatorsInfo\":[{\"evaluatorId\":\"abc\",\"nodeId\":\"\",\"nodeName\":\"mock\",\"memory\":64,\"type\":\"CLR\",\"internetAddress\":\"\"}]}");
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       Assert.fail("Not able to inject EvaluatorInfoSerializer");
     }
   }
@@ -77,13 +77,13 @@ public class TestAvroSerializerForHttp {
       final List<String> ids = new ArrayList<>();
       ids.add("abc");
       final EvaluatorDescriptor evaluatorDescriptor = Tang.Factory.getTang().newInjector(EvaluatorDescriptorConfig.CONF.build()).getInstance(EvaluatorDescriptor.class);
-      Map<String, EvaluatorDescriptor> data = new HashMap<>();
+      final Map<String, EvaluatorDescriptor> data = new HashMap<>();
       data.put("abc", evaluatorDescriptor);
 
       final AvroEvaluatorList evaluatorList = serializer.toAvro(data, 1, "xxxxxx");
       final String evaluatorListString = serializer.toString(evaluatorList);
       Assert.assertEquals(evaluatorListString, "{\"evaluators\":[{\"id\":\"abc\",\"name\":\"mock\"}],\"total\":1,\"startTime\":\"xxxxxx\"}");
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       Assert.fail("Not able to inject EvaluatorListSerializer");
     }
   }
@@ -99,7 +99,7 @@ public class TestAvroSerializerForHttp {
     final NodeDescriptor nodeDescriptor;
 
     @Inject
-    EvaluatorDescriptorMock(NodeDescriptor nodeDescriptor) {
+    EvaluatorDescriptorMock(final NodeDescriptor nodeDescriptor) {
       this.nodeDescriptor = nodeDescriptor;
     }
 

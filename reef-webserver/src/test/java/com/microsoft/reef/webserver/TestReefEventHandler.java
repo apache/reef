@@ -62,7 +62,7 @@ public class TestReefEventHandler {
   public void testGetEvaluatorList() throws IOException, ServletException {
     this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/v1/Evaluators/"));
     this.handler.handle("target", this.request, this.response, 0);
-    ServletOutputStream outputStream = response.getOutputStream();
+    final ServletOutputStream outputStream = response.getOutputStream();
     Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }
 }

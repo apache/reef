@@ -89,10 +89,10 @@ public class TestReefEventStateManager {
 }
 
 final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
-  private NodeDescriptor nodeDescriptor;
+  final private NodeDescriptor nodeDescriptor;
 
   @Inject
-  public MockEvaluatorDescriptor(NodeDescriptor nodeDescriptor) {
+  public MockEvaluatorDescriptor(final NodeDescriptor nodeDescriptor) {
     this.nodeDescriptor = nodeDescriptor;
   }
 

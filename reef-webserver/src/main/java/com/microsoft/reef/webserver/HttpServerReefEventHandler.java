@@ -63,7 +63,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * HttpServerReefEventHandler constructor.
    */
   @Inject
-  public HttpServerReefEventHandler(ReefEventStateManager reefStateManager,
+  public HttpServerReefEventHandler(final ReefEventStateManager reefStateManager,
                                     final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers) {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
@@ -153,7 +153,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         }
         break;
       case "close":
-        for (EventHandler<Void> e : clientCloseHandlers) {
+        for (final EventHandler<Void> e : clientCloseHandlers) {
           e.onNext(null);
         }
         response.getWriter().println("Enforced closing");
@@ -215,7 +215,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final EvaluatorInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorInfoSerializer.class);
       final AvroEvaluatorsInfo evaluatorsInfo = serializer.toAvro(ids, this.reefStateManager.getEvaluators());
       writeResponse(response, serializer.toString(evaluatorsInfo));
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       LOG.log(Level.SEVERE, "Error in injecting EvaluatorInfoSerializer.");
       writeResponse(response, "Error in injecting EvaluatorInfoSerializer.");
     }
@@ -229,7 +229,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @throws IOException
    */
   private void writeEvaluatorInfoWebOutput(final HttpServletResponse response, final List<String> ids) throws IOException {
-    for (String id : ids) {
+    for (final String id : ids) {
       final EvaluatorDescriptor evaluatorDescriptor =
           this.reefStateManager.getEvaluators().get(id);
       final PrintWriter writer = response.getWriter();
@@ -270,7 +270,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final EvaluatorListSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorListSerializer.class);
       final AvroEvaluatorList evaluatorList = serializer.toAvro(reefStateManager.getEvaluators(), reefStateManager.getEvaluators().size(), this.reefStateManager.getStartTime());
       writeResponse(response, serializer.toString(evaluatorList));
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       LOG.log(Level.SEVERE, "Error in injecting EvaluatorListSerializer.");
       writeResponse(response, "Error in injecting EvaluatorListSerializer.");
     }
@@ -317,7 +317,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final DriverInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
       final AvroDriverInfo driverInfo = serializer.toAvro(this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime());
       writeResponse(response, serializer.toString(driverInfo));
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       LOG.log(Level.SEVERE, "Error in injecting DriverInfoSerializer.");
       writeResponse(response, "Error in injecting DriverInfoSerializer.");
     }
