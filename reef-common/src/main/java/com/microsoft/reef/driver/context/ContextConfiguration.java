@@ -23,7 +23,7 @@ import com.microsoft.reef.evaluator.context.ContextMessageHandler;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;
-import com.microsoft.tang.formats.*;;
+import com.microsoft.tang.formats.*;
 import com.microsoft.reef.evaluator.context.parameters.*;
 import com.microsoft.reef.runtime.common.evaluator.DefaultDriverConnection;
 import com.microsoft.reef.runtime.common.evaluator.DriverConnection;
