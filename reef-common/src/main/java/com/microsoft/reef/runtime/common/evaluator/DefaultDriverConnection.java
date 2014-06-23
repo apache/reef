@@ -22,9 +22,9 @@ import java.util.logging.Logger;
  */
 
 /**
- * Default implementation for re-establishing connection to driver after driver restart
- * By default the information about re-started driver will be obtained by querying
- * Http-server
+ * Default implementation for re-establishing connection to driver after driver restart.
+ * In this default implementation, information about re-started driver will be obtained
+ * by querying Http server.
  */
 
 public final class DefaultDriverConnection implements DriverConnection{

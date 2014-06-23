@@ -15,10 +15,8 @@
  */
 package com.microsoft.reef.runtime.common.evaluator;
 
-import com.microsoft.tang.annotations.NamedParameter;
-
 /**
- * Represents Context that failed.
+ * Interface used for reconnecting to driver after driver restart
  */
 public interface DriverConnection extends AutoCloseable {
 
