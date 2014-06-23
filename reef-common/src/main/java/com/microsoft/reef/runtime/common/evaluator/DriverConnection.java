@@ -15,10 +15,11 @@
  */
 package com.microsoft.reef.runtime.common.evaluator;
 
+import com.microsoft.tang.annotations.NamedParameter;
+
 /**
  * Represents Context that failed.
  */
-
 public interface DriverConnection extends AutoCloseable {
 
   /**

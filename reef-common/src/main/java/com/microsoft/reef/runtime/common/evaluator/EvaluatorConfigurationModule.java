@@ -62,15 +62,14 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
   }
 
   @NamedParameter(doc = "The evaluator identifier.")
-  public final static class EvaluatorIdentifier implements Name<String> {
+   public final static class EvaluatorIdentifier implements Name<String> {
   }
-
   @NamedParameter(doc = "The evaluator heartbeat period.", default_value = "5000")
   public final static class HeartbeatPeriod implements Name<Integer> {
   }
 
-  @NamedParameter(doc = "The evaluator heartbeat period.", default_value = "5000")
-  public final static class DriveReconnect implements Name<DriverConnection> {
+  @NamedParameter(doc = "The RM application/job identifier.")
+  public final static class ApplicationIdentifier implements Name<String> {
   }
 
   public static final RequiredParameter<String> DRIVER_REMOTE_IDENTIFIER = new RequiredParameter<>();
@@ -79,7 +78,7 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
   public static final OptionalParameter<String> ROOT_SERVICE_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<String> TASK_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<Integer> HEARTBEAT_PERIOD = new OptionalParameter<>();
-  public static final OptionalParameter<DriverConnection> DRIVER_CONNECTION = new OptionalParameter<>();
+  public static final OptionalParameter<String> APPLICATION_IDENTIFIER = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new EvaluatorConfigurationModule()
       .bindSetEntry(Clock.RuntimeStartHandler.class, EvaluatorRuntime.RuntimeStartHandler.class)
@@ -91,7 +90,7 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
       .bindNamedParameter(RootContextConfiguration.class, ROOT_CONTEXT_CONFIGURATION)
       .bindNamedParameter(TaskConfiguration.class, TASK_CONFIGURATION)
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
-      .bindImplementation()
+      .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
       .build();
 
 }
