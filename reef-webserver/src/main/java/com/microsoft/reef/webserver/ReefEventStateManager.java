@@ -69,7 +69,7 @@ public final class ReefEventStateManager {
   /**
    * Driver Status Manager that controls the driver status
    */
-  private DriverStatusManager driverStatusManager;
+  private final DriverStatusManager driverStatusManager;
 
   /**
    * Evaluator start time

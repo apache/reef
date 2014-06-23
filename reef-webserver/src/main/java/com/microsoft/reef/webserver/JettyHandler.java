@@ -115,8 +115,8 @@ class JettyHandler extends AbstractHandler {
    * @throws IOException
    * @throws ServletException
    */
-  final private HttpHandler validate(final HttpServletRequest request,
-                                     final HttpServletResponse response) throws IOException, ServletException {
+  private HttpHandler validate(final HttpServletRequest request,
+                               final HttpServletResponse response) throws IOException, ServletException {
     final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final String specification = parsedHttpRequest.getTargetSpecification();
     final String version = parsedHttpRequest.getVersion();
@@ -147,7 +147,7 @@ class JettyHandler extends AbstractHandler {
    * @param status
    * @throws IOException
    */
-  final private void writeMessage(final HttpServletResponse response, final String message, final int status) throws IOException {
+  private void writeMessage(final HttpServletResponse response, final String message, final int status) throws IOException {
     response.getWriter().println(message);
     response.setStatus(status);
   }

@@ -17,13 +17,10 @@ package com.microsoft.reef.webserver;
 
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.parameters.ClientCloseHandlers;
-import com.microsoft.tang.InjectionFuture;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
-import com.microsoft.wake.time.event.StopTime;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -56,10 +53,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * reference of ClientCloseHandlers
    */
   private final Set<EventHandler<Void>> clientCloseHandlers;
-  /**
-   * reference of runtimeStopHandler
-   */
-  private final InjectionFuture<Set<EventHandler<StopTime>>> runtimeStopHandler;
+
   /**
    * specification that would match URI request
    */
@@ -70,11 +64,9 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    */
   @Inject
   public HttpServerReefEventHandler(ReefEventStateManager reefStateManager,
-                                    final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers,
-                                    final @Parameter(Clock.RuntimeStopHandler.class) InjectionFuture<Set<EventHandler<StopTime>>> runtimeStopHandler) {
+                                    final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers) {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
-    this.runtimeStopHandler = runtimeStopHandler;
   }
 
   /**
@@ -84,7 +76,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @throws FileNotFoundException
    * @throws IOException
    */
-  private static String readFile(final String fileName) throws FileNotFoundException, IOException {
+  private static String readFile(final String fileName) throws IOException {
     final BufferedReader br = new BufferedReader(new FileReader(fileName));
     final StringBuilder sb;
     try {
