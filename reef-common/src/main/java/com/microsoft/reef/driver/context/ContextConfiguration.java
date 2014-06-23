@@ -23,6 +23,7 @@ import com.microsoft.reef.evaluator.context.ContextMessageHandler;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;
+import com.microsoft.tang.formats.*;;
 import com.microsoft.reef.evaluator.context.parameters.*;
 import com.microsoft.reef.runtime.common.evaluator.DefaultDriverConnection;
 import com.microsoft.reef.runtime.common.evaluator.DriverConnection;
@@ -30,10 +31,6 @@ import com.microsoft.reef.task.events.TaskStart;
 import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder;
-import com.microsoft.tang.formats.OptionalImpl;
-import com.microsoft.tang.formats.RequiredParameter;
 import com.microsoft.wake.EventHandler;
 
 /**
