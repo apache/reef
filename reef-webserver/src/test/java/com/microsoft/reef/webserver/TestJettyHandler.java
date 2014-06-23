@@ -60,9 +60,9 @@ public class TestJettyHandler {
     final Tang tang = Tang.Factory.getTang();
 
     final Configuration remoteConfiguration = tang.newConfigurationBuilder()
-            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
-            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
         .build();
 
     final Configuration finalConfig =

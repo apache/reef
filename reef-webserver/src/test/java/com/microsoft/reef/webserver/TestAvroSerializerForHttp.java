@@ -26,6 +26,7 @@ import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import org.junit.Assert;
 import org.junit.Test;
+
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ import java.util.Map;
  */
 public class TestAvroSerializerForHttp {
   @Test
-  public void DriverInfoSerializerInjectionTest()  {
+  public void DriverInfoSerializerInjectionTest() {
     try {
       final DriverInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
       final AvroDriverInfo driverInfo = serializer.toAvro("abc", "xxxxxx");
@@ -50,7 +51,7 @@ public class TestAvroSerializerForHttp {
   }
 
   @Test
-  public void EvaluatorInfoSerializerInjectionTest()  {
+  public void EvaluatorInfoSerializerInjectionTest() {
     try {
       final EvaluatorInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorInfoSerializer.class);
 
@@ -69,7 +70,7 @@ public class TestAvroSerializerForHttp {
   }
 
   @Test
-  public void EvaluatorListSerializerInjectionTest()  {
+  public void EvaluatorListSerializerInjectionTest() {
     try {
       final EvaluatorListSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorListSerializer.class);
 
@@ -129,7 +130,8 @@ public class TestAvroSerializerForHttp {
 
   static class NodeDescriptorMock implements NodeDescriptor {
     @Inject
-    NodeDescriptorMock() {}
+    NodeDescriptorMock() {
+    }
 
     /**
      * Access the inet address of the Evaluator.

@@ -123,7 +123,8 @@ public final class HttpServerImpl implements HttpServer {
    *
    * @param httpHandler
    */
-  public void addHttpHandler(HttpHandler httpHandler) {
+  @Override
+  public void addHttpHandler(final HttpHandler httpHandler) {
     LOG.log(Level.INFO, "addHttpHandler: {0}", httpHandler.getUriSpecification());
     jettyHandler.addHandler(httpHandler);
   }

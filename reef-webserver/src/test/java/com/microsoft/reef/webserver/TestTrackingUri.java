@@ -51,10 +51,11 @@ public class TestTrackingUri {
    */
   @Test
   public void testHttpTrackingUri() throws InjectionException, UnknownHostException, BindException {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindNamedParameter(PortNumber.class, "8888");
-    cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
-    cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+      .bindNamedParameter(PortNumber.class, "8888")
+      .bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class)
+      .bindImplementation(HttpServer.class, HttpServerImpl.class);
+
     final Injector injector = Tang.Factory.getTang().newInjector(cb.build());
     final String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
     final int port = injector.getInstance(HttpServer.class).getPort();
@@ -70,9 +71,10 @@ public class TestTrackingUri {
    */
   @Test
   public void testHttpTrackingUriDefaultPort() throws InjectionException, UnknownHostException, BindException {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindImplementation(HttpServer.class, HttpServerImpl.class);
-    cb.bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
+      .bindImplementation(HttpServer.class, HttpServerImpl.class)
+      .bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class);
+
     final Injector injector = Tang.Factory.getTang().newInjector(cb.build());
     final String uri = injector.getInstance(TrackingURLProvider.class).getTrackingUrl();
     final int port = injector.getInstance(HttpServer.class).getPort();
@@ -94,6 +96,12 @@ public class TestTrackingUri {
     verifyUri(uri, port);
   }
 
+  /**
+   * Verify if URI is correct
+   *
+   * @param uri
+   * @param port
+   */
   private void verifyUri(final String uri, final int port) {
     final String[] parts = uri.split(":");
     Assert.assertTrue(parts.length == 2);

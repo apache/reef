@@ -25,7 +25,6 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +39,12 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
    * Default constructor for AvroEvaluatorInfoSerializer. It is the default implementation for interface EvaluatorInfoSerializer
    */
   @Inject
-  AvroEvaluatorInfoSerializer() {}
+  AvroEvaluatorInfoSerializer() {
+  }
 
   /**
    * Create AvroEvaluatorsInfo object
+   *
    * @param ids
    * @param evaluators
    * @return
@@ -85,6 +86,7 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
 
   /**
    * Convert AvroEvaluatorsInfo object to JSon string
+   *
    * @param avroEvaluatorsInfo
    * @return
    */

@@ -66,6 +66,9 @@ public final class ReefEventStateManager {
    */
   private final RemoteManager remoteManager;
 
+  /**
+   * Driver Status Manager that controls the driver status
+   */
   private DriverStatusManager driverStatusManager;
 
   /**
@@ -138,6 +141,11 @@ public final class ReefEventStateManager {
     return remoteManager.getMyIdentifier();
   }
 
+  /**
+   * get a map of contexts
+   *
+   * @return
+   */
   public Map<String, ActiveContext> getContexts() {
     return contexts;
   }
@@ -182,6 +190,9 @@ public final class ReefEventStateManager {
     return evaluators.get(evaluatorId).getNodeDescriptor();
   }
 
+  /**
+   * Kill driver by calling onComplete() . This method is called when client wants to kill the driver and evaluators.
+   */
   public void OnClientKill() {
     driverStatusManager.onComplete();
   }

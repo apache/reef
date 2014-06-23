@@ -39,10 +39,12 @@ public class AvroEvaluatorListSerializer implements EvaluatorListSerializer {
    * Default constructor for AvroEvaluatorListSerializer. It is the default implementation for interface EvaluatorListSerializer
    */
   @Inject
-  AvroEvaluatorListSerializer() {}
+  AvroEvaluatorListSerializer() {
+  }
 
   /**
    * Build AvroEvaluatorList object
+   *
    * @param evaluatorMap
    * @param totalEvaluators
    * @param startTime
@@ -69,6 +71,7 @@ public class AvroEvaluatorListSerializer implements EvaluatorListSerializer {
 
   /**
    * Convert AvroEvaluatorList to JSon string
+   *
    * @param avroEvaluatorList
    * @return
    */

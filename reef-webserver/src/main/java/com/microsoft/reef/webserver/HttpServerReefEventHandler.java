@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.webserver;
 
-import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.parameters.ClientCloseHandlers;
 import com.microsoft.tang.InjectionFuture;
@@ -48,26 +47,23 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
-
-  /**
-   * specification that would match URI request
-   */
-  private String uriSpecification = "Reef";
-
+  private static final String ver = "v1";
   /**
    * reference of ReefEventStateManager
    */
   private final ReefEventStateManager reefStateManager;
-
   /**
    * reference of ClientCloseHandlers
    */
   private final Set<EventHandler<Void>> clientCloseHandlers;
-
   /**
    * reference of runtimeStopHandler
    */
   private final InjectionFuture<Set<EventHandler<StopTime>>> runtimeStopHandler;
+  /**
+   * specification that would match URI request
+   */
+  private String uriSpecification = "Reef";
 
   /**
    * HttpServerReefEventHandler constructor.
@@ -79,6 +75,31 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.runtimeStopHandler = runtimeStopHandler;
+  }
+
+  /**
+   * read a file and output it as a String
+   *
+   * @return
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  private static String readFile(final String fileName) throws FileNotFoundException, IOException {
+    final BufferedReader br = new BufferedReader(new FileReader(fileName));
+    final StringBuilder sb;
+    try {
+      sb = new StringBuilder();
+      String line = br.readLine();
+
+      while (line != null) {
+        sb.append(line);
+        sb.append(System.lineSeparator());
+        line = br.readLine();
+      }
+    } finally {
+      br.close();
+    }
+    return sb.toString();
   }
 
   /**
@@ -122,7 +143,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       case "evaluators": {
         final String queryStr = parsedHttpRequest.getQueryString();
         if (queryStr == null || queryStr.isEmpty()) {
-          if (version.equals("v1")) {
+          if (version.equals(ver)) {
             writeEvaluatorsJsonOutput(response);
           } else {
             writeEvaluatorsWebOutput(response);
@@ -133,7 +154,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         break;
       }
       case "driver":
-        if (version.equals("v1")) {
+        if (version.equals(ver)) {
           writeDriverJsonInformation(response);
         } else {
           writeDriverWebInformation(response);
@@ -146,14 +167,11 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         response.getWriter().println("Enforced closing");
         break;
       case "kill":
-//        for (final ActiveContext context : reefStateManager.getContexts().values()) {
-//          context.close();
-//        }
         reefStateManager.OnClientKill();
         response.getWriter().println("Killing");
         break;
       case "logfile":
-        final byte[] outputBody = readFile("stderr.txt").getBytes(Charset.forName("UTF-8"));
+        final byte[] outputBody = readFile("stderr.txt").getBytes(Charset.forName("UTF-8"));    //TODO: will get file name from query
         response.getOutputStream().write(outputBody);
         break;
       default:
@@ -180,7 +198,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
       switch (queryTarget) {
         case "id":
-          if (version.equals("v1")) {
+          if (version.equals(ver)) {
             writeEvaluatorInfoJsonOutput(response, entry.getValue());
           } else {
             writeEvaluatorInfoWebOutput(response, entry.getValue());
@@ -193,6 +211,13 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     }
   }
 
+  /**
+   * Write Evaluator info as JSon format to the Response
+   *
+   * @param response
+   * @param ids
+   * @throws IOException
+   */
   private void writeEvaluatorInfoJsonOutput(final HttpServletResponse response, final List<String> ids) throws IOException {
     try {
       final EvaluatorInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorInfoSerializer.class);
@@ -204,6 +229,13 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     }
   }
 
+  /**
+   * Write Evaluator info on the Response so that to display on web page directly. This is for direct browser queries.
+   *
+   * @param response
+   * @param ids
+   * @throws IOException
+   */
   private void writeEvaluatorInfoWebOutput(final HttpServletResponse response, final List<String> ids) throws IOException {
     for (String id : ids) {
       final EvaluatorDescriptor evaluatorDescriptor =
@@ -253,7 +285,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * Get all evaluator ids and send it back to response that can be displayed on web
+   * Get all evaluator ids and send it back to response so that can be displayed on web
    *
    * @param response
    * @throws IOException
@@ -282,6 +314,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     writer.println(String.format("Driver Start Time:[%s]", this.reefStateManager.getStartTime()));
   }
 
+  /**
+   * Get Driver Info as JSon format on Response
+   *
+   * @param response
+   * @throws IOException
+   */
   private void writeDriverJsonInformation(final HttpServletResponse response) throws IOException {
     try {
       final DriverInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
@@ -293,6 +331,13 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     }
   }
 
+  /**
+   * Write a String to Response
+   *
+   * @param response
+   * @param data
+   * @throws IOException
+   */
   private void writeResponse(final HttpServletResponse response, final String data) throws IOException {
     final byte[] outputBody = data.getBytes(Charset.forName("UTF-8"));
     response.getOutputStream().write(outputBody);
@@ -317,29 +362,5 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
     writer.write("<br/><br/>");
     writer.println(String.format("Driver Start Time:[%s]", this.reefStateManager.getStartTime()));
-  }
-
-  /**
-   * read a file
-   * @return
-   * @throws FileNotFoundException
-   * @throws IOException
-   */
-  private static String readFile(String fileName) throws FileNotFoundException, IOException {
-    BufferedReader br = new BufferedReader(new FileReader(fileName));
-    StringBuilder sb;
-    try {
-      sb = new StringBuilder();
-      String line = br.readLine();
-
-      while (line != null) {
-        sb.append(line);
-        sb.append(System.lineSeparator());
-        line = br.readLine();
-      }
-    } finally {
-      br.close();
-    }
-    return sb.toString();
   }
 }

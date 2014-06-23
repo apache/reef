@@ -33,10 +33,12 @@ public class AvroDriverInfoSerializer implements DriverInfoSerializer {
    * Default constructor for AvroDriverInfoSerializer. It is the default implementation for interface DriverInfoSerializer
    */
   @Inject
-  AvroDriverInfoSerializer() {}
+  AvroDriverInfoSerializer() {
+  }
 
   /**
    * Build AvroDriverInfo object
+   *
    * @param id
    * @param startTime
    * @return

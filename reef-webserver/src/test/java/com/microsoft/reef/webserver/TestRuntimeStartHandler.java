@@ -43,15 +43,16 @@ public class TestRuntimeStartHandler {
   @Before
   public void setUp() throws InjectionException, IOException, ServletException {
     final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
-            .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
-            .build();
+        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+        .build();
     final Configuration remoteConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
-            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
-            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
-            .build();
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .build();
     this.configuation = Configurations.merge(clockConfiguraiton, remoteConfiguration);
   }
+
   /**
    * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers, when inject RuntimeClock
    * all the nested objects including HeetServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler

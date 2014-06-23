@@ -45,11 +45,11 @@ public class TestReefEventStateManager {
     final Tang tang = Tang.Factory.getTang();
 
     final Configuration configuration = tang.newConfigurationBuilder()
-            .bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class)
-            .bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class)
-            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
-            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class)
+        .bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class)
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
         .build();
 
     injector = tang.newInjector(configuration);
