@@ -78,14 +78,16 @@ public class AvroEvaluatorListSerializer implements EvaluatorListSerializer {
   @Override
   public String toString(final AvroEvaluatorList avroEvaluatorList) {
     final DatumWriter<AvroEvaluatorList> evaluatorWriter = new SpecificDatumWriter<>(AvroEvaluatorList.class);
+    final String jsonString;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroEvaluatorList.getSchema(), out);
       evaluatorWriter.write(avroEvaluatorList, encoder);
       encoder.flush();
-      out.flush();
-      return out.toString(AvroHttpSerializer.JSON_CHARSET);
+      jsonString = out.toString(AvroHttpSerializer.JSON_CHARSET);
+      out.close();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+    return jsonString;
   }
 }
