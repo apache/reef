@@ -85,18 +85,19 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
    * A ConfigurationModule for context.
    */
   public static final ConfigurationModule CONF = new ContextConfiguration()
-          .bindNamedParameter(ContextIdentifier.class, IDENTIFIER)
-          .bindNamedParameter(DriverReconnect.class, ON_DRIVER_RECONNECT)
-          .bindSetEntry(ContextStartHandlers.class, ON_CONTEXT_STARTED)
-          .bindSetEntry(ContextStopHandlers.class, ON_CONTEXT_STOP)
-          .bindSetEntry(ContextMessageSources.class, ON_SEND_MESSAGE)
-          .bindSetEntry(ContextMessageHandlers.class, ON_MESSAGE)
-          .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, ON_TASK_STARTED)
-          .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
-          .build();
+      .bindNamedParameter(ContextIdentifier.class, IDENTIFIER)
+      .bindNamedParameter(DriverReconnect.class, ON_DRIVER_RECONNECT)
+      .bindSetEntry(ContextStartHandlers.class, ON_CONTEXT_STARTED)
+      .bindSetEntry(ContextStopHandlers.class, ON_CONTEXT_STOP)
+      .bindSetEntry(ContextMessageSources.class, ON_SEND_MESSAGE)
+      .bindSetEntry(ContextMessageHandlers.class, ON_MESSAGE)
+      .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, ON_TASK_STARTED)
+      .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
+      .build();
 
   @NamedParameter(doc = "house the implementation for re-connecting to driver after driver restart",
           default_classes = DefaultDriverConnection.class)
   public static final class DriverReconnect implements Name<DriverConnection> {
   }
+
 }

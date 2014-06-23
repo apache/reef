@@ -62,8 +62,9 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
   }
 
   @NamedParameter(doc = "The evaluator identifier.")
-   public final static class EvaluatorIdentifier implements Name<String> {
+  public final static class EvaluatorIdentifier implements Name<String> {
   }
+
   @NamedParameter(doc = "The evaluator heartbeat period.", default_value = "5000")
   public final static class HeartbeatPeriod implements Name<Integer> {
   }

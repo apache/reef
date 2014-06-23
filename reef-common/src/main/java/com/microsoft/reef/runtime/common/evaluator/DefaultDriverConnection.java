@@ -40,7 +40,7 @@ public final class DefaultDriverConnection implements DriverConnection{
   {
     LOG.log(Level.INFO, "Trying to get driver remote identifier by querying Http server.");
     // TODO: implement a proper mechanism to obtain driver remote identifier.
-    return null;
+    throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
