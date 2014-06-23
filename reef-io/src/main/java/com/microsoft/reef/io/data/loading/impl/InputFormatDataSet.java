@@ -15,81 +15,89 @@
  */
 package com.microsoft.reef.io.data.loading.impl;
 
-import java.io.IOException;
-import java.util.Iterator;
-
-import javax.inject.Inject;
-
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapred.Counters.Counter;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordReader;
-import org.apache.hadoop.mapred.Reporter;
-
 import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.io.data.loading.api.DataSet;
 import com.microsoft.reef.io.network.util.Utils.Pair;
 import com.microsoft.tang.annotations.Parameter;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapred.Counters.Counter;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
- * An implementation of {@link DataSet} that reads
- * records using a RecordReader encoded inside an
- * InputSplit.
- * 
- * The input split is injected through an external
- * constructor by deserializing the input split
- * assigned to this evaluator
- * 
+ * An implementation of {@link DataSet} that reads records using a RecordReader
+ * encoded inside an InputSplit.
+ * <p/>
+ * The input split is injected through an external constructor by deserializing
+ * the input split assigned to this evaluator.
+ *
  * @param <K>
  * @param <V>
  */
 @TaskSide
-public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writable> implements DataSet<K,V> {
-  private final RecordReader<K, V> recordReader;
+public final class
+    InputFormatDataSet<K extends WritableComparable<K>, V extends Writable>
+    implements DataSet<K, V> {
+
+  private final DummyReporter dummyReporter = new DummyReporter();
+  private RecordReader lastRecordReader = null;
+
+  private final JobConf jobConf;
+  private final InputFormat<K, V> inputFormat;
+  private final InputSplit split;
 
   @Inject
-  public InputFormatDataSet(
-        InputSplit split,
-        @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf
-      ) {
-    final JobConf jobConf = WritableSerializer.deserialize(serializedJobConf);
-    final FakeReporter fakeReporter = new FakeReporter();
-    try {
-      this.recordReader = jobConf.getInputFormat().getRecordReader(split, jobConf, fakeReporter);
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
-    }
+  public InputFormatDataSet(final InputSplit split,
+      final @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf) {
+    this.jobConf = WritableSerializer.deserialize(serializedJobConf);
+    this.inputFormat = this.jobConf.getInputFormat();
+    this.split = split;
   }
 
   @Override
-  public Iterator<Pair<K,V>> iterator() {
-    return new RecordReaderIterator(this.recordReader);
+  public Iterator<Pair<K, V>> iterator() {
+    try {
+
+      final RecordReader newRecordReader =
+          this.inputFormat.getRecordReader(this.split, this.jobConf, this.dummyReporter);
+
+      if (newRecordReader == this.lastRecordReader) {
+        throw new RuntimeException("Received the same record reader again. This isn't supported.");
+      }
+
+      this.lastRecordReader = newRecordReader;
+      return new RecordReaderIterator(newRecordReader);
+
+    } catch (final IOException ex) {
+      throw new RuntimeException("Can't instantiate iterator.", ex);
+    }
   }
-  
-  class RecordReaderIterator implements Iterator<Pair<K,V>>{
-    
-    private final RecordReader<K,V> recordReader;
-    private K key;
-    private V value;
-    private boolean available;
-    
-    public RecordReaderIterator(final RecordReader<K,V> recordReader) {
+
+  private final class RecordReaderIterator implements Iterator<Pair<K, V>> {
+
+    private final RecordReader<K, V> recordReader;
+    private Pair<K, V> recordPair;
+    private boolean hasNext;
+
+    RecordReaderIterator(final RecordReader<K, V> recordReader) {
       this.recordReader = recordReader;
       fetchRecord();
     }
 
     @Override
     public boolean hasNext() {
-      return available;
+      return this.hasNext;
     }
 
     @Override
     public Pair<K, V> next() {
-      Pair<K,V> retPair = new Pair<K, V>(key, value);
+      final Pair<K, V> prevRecordPair = this.recordPair;
       fetchRecord();
-      return retPair;
+      return prevRecordPair;
     }
 
     @Override
@@ -98,28 +106,28 @@ public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writab
     }
 
     private void fetchRecord() {
-      key = this.recordReader.createKey();
-      value = this.recordReader.createValue();
+      this.recordPair = new Pair<>(this.recordReader.createKey(), this.recordReader.createValue());
       try {
-        available = this.recordReader.next(key, value);
-      } catch (IOException e) {
-        throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
+        this.hasNext = this.recordReader.next(this.recordPair.first, this.recordPair.second);
+      } catch (final IOException ex) {
+        throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", ex);
       }
     }
   }
 
-  class FakeReporter implements Reporter{
+  private final class DummyReporter implements Reporter {
 
     @Override
-    public void progress() {    }
+    public void progress() {
+    }
 
     @Override
-    public Counter getCounter(Enum<?> arg0) {
+    public Counter getCounter(final Enum<?> key) {
       return null;
     }
 
     @Override
-    public Counter getCounter(String arg0, String arg1) {
+    public Counter getCounter(final String group, final String name) {
       return null;
     }
 
@@ -134,12 +142,15 @@ public class InputFormatDataSet<K extends WritableComparable<K>,V extends Writab
     }
 
     @Override
-    public void incrCounter(Enum<?> arg0, long arg1) {    }
+    public void incrCounter(final Enum<?> key, final long amount) {
+    }
 
     @Override
-    public void incrCounter(String arg0, String arg1, long arg2) {    }
+    public void incrCounter(final String group, final String counter, final long amount) {
+    }
 
     @Override
-    public void setStatus(String arg0) {    }
+    public void setStatus(final String status) {
+    }
   }
 }
