@@ -44,8 +44,8 @@ import java.util.logging.LogRecord;
  *    * `com.microsoft.reef.util.logging.ThreadLogFormatter.dropPrefix`
  *      contains a comma-separated list of package name prefixes that should be
  *      removed from the class name for logging. e.g. value `com.microsoft.,org.apache.`
- *      will have the formatter write class `com.microsoft.reef.util.logging` as
- *      `reef.util.logging`. (Note the dot at the end of the prefix).
+ *      will have the formatter write class `com.microsoft.reef.util.logging.Config` as
+ *      `reef.util.logging.Config`. (Note the dot at the end of the prefix).
  */
 public final class ThreadLogFormatter extends Formatter {
 
@@ -62,7 +62,7 @@ public final class ThreadLogFormatter extends Formatter {
     final String className = this.getClass().getName();
 
     final String format = logManager.getProperty(className + ".format");
-    this.logFormat = format != null ?  format : DEFAULT_FORMAT;
+    this.logFormat = format != null ? format : DEFAULT_FORMAT;
 
     final String rawDropStr = logManager.getProperty(className + ".dropPrefix");
     if (rawDropStr != null) {
@@ -75,6 +75,19 @@ public final class ThreadLogFormatter extends Formatter {
     }
   }
 
+  /**
+   * Format the log string. Internally, it uses `String.format()` that takes same
+   * arguments and in the same order as the standard SimpleFormatter, plus the thread name:
+   *    1. date
+   *    2. class and method name
+   *    3. logger name
+   *    4. logging level
+   *    5. message
+   *    6. stack trace
+   *    7. thread name
+   *
+   * @return string to be written to the log.
+   */
   @Override
   public String format(final LogRecord logRecord) {
     this.date.setTime(System.currentTimeMillis());
@@ -89,6 +102,12 @@ public final class ThreadLogFormatter extends Formatter {
         Thread.currentThread().getName());
   }
 
+  /**
+   * Check if the class name starts with one of the prefixes specified in `dropPrefix`,
+   * and remove it. e.g. for class name `com.microsoft.reef.util.logging.Config` and
+   * prefix `com.microsoft.` (note the trailing dot), the result will be
+   * `reef.util.logging.Config`
+   */
   private String trimPrefix(final String className) {
     for (final String prefix : this.dropPrefix) {
       if (className.startsWith(prefix)) {
@@ -98,6 +117,10 @@ public final class ThreadLogFormatter extends Formatter {
     return className;
   }
 
+  /**
+   * @return a string that contains stack trace of a given exception.
+   * if `error` is null, return an empty string.
+   */
   private String getStackTrace(final Throwable error) {
     if (error != null) {
       try (final StringWriter sw = new StringWriter();
