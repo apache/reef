@@ -38,6 +38,7 @@ import java.util.Map;
  * Test Avro Serializer for http schema
  */
 public class TestAvroSerializerForHttp {
+
   @Test
   public void DriverInfoSerializerInjectionTest() {
     try {

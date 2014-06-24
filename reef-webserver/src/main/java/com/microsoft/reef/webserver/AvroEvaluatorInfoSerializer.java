@@ -31,29 +31,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Serialize Evaluator Info
+ * Serialize Evaluator Info.
+ * It is the default implementation for interface EvaluatorInfoSerializer.
  */
 public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
 
-  /**
-   * Default constructor for AvroEvaluatorInfoSerializer. It is the default implementation for interface EvaluatorInfoSerializer
-   */
   @Inject
   AvroEvaluatorInfoSerializer() {
   }
 
   /**
-   * Create AvroEvaluatorsInfo object
-   *
-   * @param ids
-   * @param evaluators
-   * @return
+   * Create AvroEvaluatorsInfo object.
    */
   @Override
-  public AvroEvaluatorsInfo toAvro(final List<String> ids, final Map<String, EvaluatorDescriptor> evaluators) {
+  public AvroEvaluatorsInfo toAvro(
+      final List<String> ids, final Map<String, EvaluatorDescriptor> evaluators) {
+
     final List<AvroEvaluatorInfo> evaluatorsInfo = new ArrayList<>();
 
     for (final String id : ids) {
+
       final EvaluatorDescriptor evaluatorDescriptor = evaluators.get(id);
       String nodeId = null;
       String nodeName = null;
@@ -85,25 +82,18 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
   }
 
   /**
-   * Convert AvroEvaluatorsInfo object to JSon string
-   *
-   * @param avroEvaluatorsInfo
-   * @return
+   * Convert AvroEvaluatorsInfo object to JSON string
    */
   @Override
   public String toString(final AvroEvaluatorsInfo avroEvaluatorsInfo) {
     final DatumWriter<AvroEvaluatorsInfo> evaluatorWriter = new SpecificDatumWriter<>(AvroEvaluatorsInfo.class);
-    final String jsonString;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroEvaluatorsInfo.getSchema(), out);
       evaluatorWriter.write(avroEvaluatorsInfo, encoder);
       encoder.flush();
-      jsonString = out.toString(AvroHttpSerializer.JSON_CHARSET);
-      out.close();
+      return out.toString(AvroHttpSerializer.JSON_CHARSET);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
-    return jsonString;
   }
 }
-

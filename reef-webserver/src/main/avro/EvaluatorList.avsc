@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- [
-{
-    "namespace":"com.microsoft.reef.webserver",
-    "type":"record",
-    "name":"AvroEvaluatorEntry",
-    "fields":[
-	  {"name":"id","type":"string"},
-	  {"name":"name","type":"string"}
+[
+  {
+    "namespace": "com.microsoft.reef.webserver",
+    "type": "record",
+    "name": "AvroEvaluatorEntry",
+    "fields": [
+	    { "name": "id", "type": "string" },
+	    { "name": "name", "type": "string" }
     ]
-},
-{
-    "namespace":"com.microsoft.reef.webserver",
-    "type":"record",
-    "name":"AvroEvaluatorList",
-    "fields":[
-	  {"name":"evaluators","type":{"type":"array", "items":"AvroEvaluatorEntry"}},
-	  {"name":"total","type":"int"},
-	  {"name":"startTime","type":"string"}
+  },
+  {
+    "namespace": "com.microsoft.reef.webserver",
+    "type": "record",
+    "name": "AvroEvaluatorList",
+    "fields": [
+	    {
+        "name": "evaluators",
+        "type": { "type": "array", "items": "AvroEvaluatorEntry" }
+      },
+	    { "name": "total", "type": "int" },
+	    { "name": "startTime", "type":"string" }
     ]
-}
+  }
 ]
+

@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 [
-{"namespace": "com.microsoft.reef.webserver",
- "type": "record",
- "name": "AvroEvaluatorInfo",
- "fields": [
-     {"name": "evaluatorId", "type": "string"},
-     {"name": "nodeId", "type": "string"},
-     {"name": "nodeName", "type": "string"},
-     {"name": "memory", "type": "int"},
-     {"name": "type", "type": "string"},
-     {"name": "internetAddress", "type": "string"}
- ]
-},
-{
-    "namespace":"com.microsoft.reef.webserver",
-    "type":"record",
-    "name":"AvroEvaluatorsInfo",
-    "fields":[
-	  {"name":"evaluatorsInfo","type":{"type":"array", "items":"AvroEvaluatorInfo"}}
+  {
+    "namespace": "com.microsoft.reef.webserver",
+    "type": "record",
+    "name": "AvroEvaluatorInfo",
+    "fields": [
+      { "name": "evaluatorId", "type": "string" },
+      { "name": "nodeId", "type": "string" },
+      { "name": "nodeName", "type": "string" },
+      { "name": "memory", "type": "int" },
+      { "name": "type", "type": "string" },
+      { "name": "internetAddress", "type": "string" }
     ]
-}
+  },
+  {
+    "namespace": "com.microsoft.reef.webserver",
+    "type": "record",
+    "name": "AvroEvaluatorsInfo",
+    "fields": [
+      {
+        "name": "evaluatorsInfo",
+        "type": { "type": "array", "items": "AvroEvaluatorInfo" }
+      }
+    ]
+  }
 ]
+

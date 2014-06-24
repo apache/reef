@@ -29,75 +29,45 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * HttpServerReefEventHandler
- */
 public final class HttpServerReefEventHandler implements HttpHandler {
 
-  /**
-   * Standard Java logger.
-   */
   private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
+
   private static final String ver = "v1";
-  /**
-   * reference of ReefEventStateManager
-   */
+
   private final ReefEventStateManager reefStateManager;
-  /**
-   * reference of ClientCloseHandlers
-   */
   private final Set<EventHandler<Void>> clientCloseHandlers;
 
   /**
-   * specification that would match URI request
+   * specification that would match URI request.
    */
   private String uriSpecification = "Reef";
 
-  /**
-   * HttpServerReefEventHandler constructor.
-   */
   @Inject
-  public HttpServerReefEventHandler(final ReefEventStateManager reefStateManager,
-                                    final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers) {
+  public HttpServerReefEventHandler(
+      final ReefEventStateManager reefStateManager,
+      final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers) {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
   }
 
   /**
-   * read a file and output it as a String
-   *
-   * @return
-   * @throws FileNotFoundException
-   * @throws IOException
+   * read a file and output it as a String.
    */
   private static String readFile(final String fileName) throws IOException {
-    final BufferedReader br = new BufferedReader(new FileReader(fileName));
-    final StringBuilder sb;
-    try {
-      sb = new StringBuilder();
-      String line = br.readLine();
-
-      while (line != null) {
-        sb.append(line);
-        sb.append(System.lineSeparator());
-        line = br.readLine();
-      }
-    } finally {
-      br.close();
-    }
-    return sb.toString();
+    return new String(Files.readAllBytes(Paths.get(fileName)));
   }
 
   /**
-   * returns URI specification for the handler
-   *
-   * @return
+   * @return URI specification for the handler.
    */
   @Override
   public String getUriSpecification() {
@@ -105,19 +75,14 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * set URI specification
-   *
-   * @param s
+   * set URI specification.
    */
   public void setUriSpecification(final String s) {
     uriSpecification = s;
   }
 
   /**
-   * it is called when receiving a http request
-   *
-   * @param request
-   * @param response
+   * Event handler that is called when receiving a http request.
    */
   @Override
   public void onHttpRequest(
@@ -163,7 +128,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         response.getWriter().println("Killing");
         break;
       case "logfile":
-        final byte[] outputBody = readFile("stderr.txt").getBytes(Charset.forName("UTF-8"));    //TODO: will get file name from query
+        //TODO: will get file name from query
+        final byte[] outputBody = readFile("stderr.txt").getBytes(Charset.forName("UTF-8"));
         response.getOutputStream().write(outputBody);
         break;
       default:
@@ -172,17 +138,14 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * handle queries
+   * handle HTTP queries
    * Example of a query: http://localhost:8080/reef/Evaluators/?id=Node-2-1403225213803&id=Node-1-1403225213712
-   *
-   * @param response
-   * @param queries
-   * @throws IOException
    */
   private void handleQueries(
       final HttpServletResponse response,
       final Map<String, List<String>> queries,
       final String version) throws IOException {
+
     LOG.log(Level.INFO, "HttpServerReefEventHandler handleQueries is called");
 
     for (final Map.Entry<String, List<String>> entry : queries.entrySet()) {
@@ -204,34 +167,32 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * Write Evaluator info as JSon format to the Response
-   *
-   * @param response
-   * @param ids
-   * @throws IOException
+   * Write Evaluator info as JSON format to HTTP Response.
    */
-  private void writeEvaluatorInfoJsonOutput(final HttpServletResponse response, final List<String> ids) throws IOException {
+  private void writeEvaluatorInfoJsonOutput(
+      final HttpServletResponse response, final List<String> ids) throws IOException {
     try {
-      final EvaluatorInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorInfoSerializer.class);
-      final AvroEvaluatorsInfo evaluatorsInfo = serializer.toAvro(ids, this.reefStateManager.getEvaluators());
+      final EvaluatorInfoSerializer serializer =
+          Tang.Factory.getTang().newInjector().getInstance(EvaluatorInfoSerializer.class);
+      final AvroEvaluatorsInfo evaluatorsInfo =
+          serializer.toAvro(ids, this.reefStateManager.getEvaluators());
       writeResponse(response, serializer.toString(evaluatorsInfo));
     } catch (final InjectionException e) {
-      LOG.log(Level.SEVERE, "Error in injecting EvaluatorInfoSerializer.");
-      writeResponse(response, "Error in injecting EvaluatorInfoSerializer.");
+      LOG.log(Level.SEVERE, "Error in injecting EvaluatorInfoSerializer.", e);
+      writeResponse(response, "Error in injecting EvaluatorInfoSerializer: " + e);
     }
   }
 
   /**
-   * Write Evaluator info on the Response so that to display on web page directly. This is for direct browser queries.
-   *
-   * @param response
-   * @param ids
-   * @throws IOException
+   * Write Evaluator info on the Response so that to display on web page directly.
+   * This is for direct browser queries.
    */
-  private void writeEvaluatorInfoWebOutput(final HttpServletResponse response, final List<String> ids) throws IOException {
+  private void writeEvaluatorInfoWebOutput(
+      final HttpServletResponse response, final List<String> ids) throws IOException {
+
     for (final String id : ids) {
-      final EvaluatorDescriptor evaluatorDescriptor =
-          this.reefStateManager.getEvaluators().get(id);
+
+      final EvaluatorDescriptor evaluatorDescriptor = this.reefStateManager.getEvaluators().get(id);
       final PrintWriter writer = response.getWriter();
 
       if (evaluatorDescriptor != null) {
@@ -259,20 +220,20 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * Get all evaluator ids and send it back to response as Jason format
-   *
-   * @param response
-   * @throws IOException
+   * Get all evaluator ids and send it back to response as JSON.
    */
   private void writeEvaluatorsJsonOutput(final HttpServletResponse response) throws IOException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler getEvaluators is called");
     try {
-      final EvaluatorListSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorListSerializer.class);
-      final AvroEvaluatorList evaluatorList = serializer.toAvro(reefStateManager.getEvaluators(), reefStateManager.getEvaluators().size(), this.reefStateManager.getStartTime());
+      final EvaluatorListSerializer serializer =
+          Tang.Factory.getTang().newInjector().getInstance(EvaluatorListSerializer.class);
+      final AvroEvaluatorList evaluatorList = serializer.toAvro(
+          this.reefStateManager.getEvaluators(), this.reefStateManager.getEvaluators().size(),
+          this.reefStateManager.getStartTime());
       writeResponse(response, serializer.toString(evaluatorList));
     } catch (final InjectionException e) {
-      LOG.log(Level.SEVERE, "Error in injecting EvaluatorListSerializer.");
-      writeResponse(response, "Error in injecting EvaluatorListSerializer.");
+      LOG.log(Level.SEVERE, "Error in injecting EvaluatorListSerializer.", e);
+      writeResponse(response, "Error in injecting EvaluatorListSerializer: " + e);
     }
   }
 
@@ -283,6 +244,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @throws IOException
    */
   private void writeEvaluatorsWebOutput(final HttpServletResponse response) throws IOException {
+
     LOG.log(Level.INFO, "HttpServerReefEventHandler getEvaluators is called");
 
     final PrintWriter writer = response.getWriter();
@@ -307,28 +269,23 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * Get Driver Info as JSon format on Response
-   *
-   * @param response
-   * @throws IOException
+   * Write Driver Info as JSON string to Response.
    */
   private void writeDriverJsonInformation(final HttpServletResponse response) throws IOException {
     try {
-      final DriverInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
-      final AvroDriverInfo driverInfo = serializer.toAvro(this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime());
+      final DriverInfoSerializer serializer =
+          Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
+      final AvroDriverInfo driverInfo = serializer.toAvro(
+          this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime());
       writeResponse(response, serializer.toString(driverInfo));
     } catch (final InjectionException e) {
-      LOG.log(Level.SEVERE, "Error in injecting DriverInfoSerializer.");
-      writeResponse(response, "Error in injecting DriverInfoSerializer.");
+      LOG.log(Level.SEVERE, "Error in injecting DriverInfoSerializer.", e);
+      writeResponse(response, "Error in injecting DriverInfoSerializer: " + e);
     }
   }
 
   /**
-   * Write a String to Response
-   *
-   * @param response
-   * @param data
-   * @throws IOException
+   * Write a String to HTTP Response.
    */
   private void writeResponse(final HttpServletResponse response, final String data) throws IOException {
     final byte[] outputBody = data.getBytes(Charset.forName("UTF-8"));
@@ -336,10 +293,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * Get driver information
-   *
-   * @param response
-   * @throws IOException
+   * Get driver information.
    */
   private void writeDriverWebInformation(final HttpServletResponse response) throws IOException {
 
