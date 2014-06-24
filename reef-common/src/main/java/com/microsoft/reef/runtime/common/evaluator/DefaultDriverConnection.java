@@ -1,10 +1,3 @@
-package com.microsoft.reef.runtime.common.evaluator;
-
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
 /**
  * Copyright (C) 2014 Microsoft Corporation
  *
@@ -20,14 +13,18 @@ import java.util.logging.Logger;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.microsoft.reef.runtime.common.evaluator;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Default implementation for re-establishing connection to driver after driver restart.
  * In this default implementation, information about re-started driver will be obtained
  * by querying Http server.
  */
-
-public final class DefaultDriverConnection implements DriverConnection{
+public final class DefaultDriverConnection implements DriverConnection {
 
   private static final Logger LOG = Logger.getLogger(DefaultDriverConnection.class.getName());
 
@@ -36,16 +33,13 @@ public final class DefaultDriverConnection implements DriverConnection{
   }
 
   @Override
-  public String GetDriverRemoteIdentifier()
-  {
+  public String GetDriverRemoteIdentifier() {
     LOG.log(Level.INFO, "Trying to get driver remote identifier by querying Http server.");
     // TODO: implement a proper mechanism to obtain driver remote identifier.
     throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
-  public void close()
-  {
+  public void close() {
   }
-
 }

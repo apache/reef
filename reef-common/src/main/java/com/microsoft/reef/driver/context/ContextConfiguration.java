@@ -81,6 +81,7 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
    * Implementation for reconnecting to driver after driver restart
    */
   public static final OptionalImpl<DriverConnection> ON_DRIVER_RECONNECT = new OptionalImpl<>();
+
   /**
    * A ConfigurationModule for context.
    */
@@ -99,5 +100,4 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
           default_classes = DefaultDriverConnection.class)
   public static final class DriverReconnect implements Name<DriverConnection> {
   }
-
 }

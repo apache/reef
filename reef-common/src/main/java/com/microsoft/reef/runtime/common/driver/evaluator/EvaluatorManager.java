@@ -422,13 +422,12 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private String getJobIdentifier() {
     // TODO: currently we obtain the job id directly by parsing execution (container) directory path
     // #845 is open to get the id from RM properly
-    File directory = new File(System.getProperty("user.dir"));
-    while (directory != null) {
+    for (File directory = new File(System.getProperty("user.dir"));
+         directory != null; directory = directory.getParentFile()) {
       final String currentDirectoryName = directory.getName();
       if (currentDirectoryName.toLowerCase().contains("application_")) {
         return currentDirectoryName;
       }
-      directory = directory.getParentFile();
     }
     // cannot find a directory that contains application_, presumably we are on local runtime
     // again, this is a hack for now, we need #845 as a proper solution
@@ -440,16 +439,20 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    *
    * @param contextStatusProto indicating the current status of the context
    */
-  private synchronized void onContextStatusMessage(final ReefServiceProtos.ContextStatusProto contextStatusProto,
-                                                   final boolean notifyClientOnNewActiveContext) {
+  private synchronized void onContextStatusMessage(
+      final ReefServiceProtos.ContextStatusProto contextStatusProto,
+      final boolean notifyClientOnNewActiveContext) {
 
     final String contextID = contextStatusProto.getContextId();
     final Optional<String> parentID = contextStatusProto.hasParentId() ?
         Optional.of(contextStatusProto.getParentId()) : Optional.<String>empty();
 
     if (ReefServiceProtos.ContextStatusProto.State.READY == contextStatusProto.getContextState()) {
+
       if (!this.activeContextIds.contains(contextID)) {
-        final EvaluatorContext context = new EvaluatorContext(contextID, this.evaluatorId, this.evaluatorDescriptor, parentID, configurationSerializer, contextControlHandler, this, this.messageDispatcher, this.exceptionCodec);
+        final EvaluatorContext context = new EvaluatorContext(contextID,
+            this.evaluatorId, this.evaluatorDescriptor, parentID, this.configurationSerializer,
+            this.contextControlHandler, this, this.messageDispatcher, this.exceptionCodec);
         addEvaluatorContext(context);
         if (notifyClientOnNewActiveContext) {
           this.messageDispatcher.onContextActive(context);
@@ -461,11 +464,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         final String sourceID = contextMessageProto.getSourceId();
         this.messageDispatcher.onContextMessage(new ContextMessageImpl(theMessage, contextID, sourceID));
       }
+
     } else {
+
       if (!this.activeContextIds.contains(contextID)) {
         if (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState()) {
           // It failed right away
-          addEvaluatorContext(new EvaluatorContext(contextID, this.evaluatorId, this.evaluatorDescriptor, parentID, configurationSerializer, contextControlHandler, this, this.messageDispatcher, this.exceptionCodec));
+          addEvaluatorContext(new EvaluatorContext(contextID, this.evaluatorId,
+              this.evaluatorDescriptor, parentID, this.configurationSerializer,
+              this.contextControlHandler, this, this.messageDispatcher, this.exceptionCodec));
         } else {
           throw new RuntimeException("unknown context signaling state " + contextStatusProto.getContextState());
         }
@@ -485,8 +492,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           LOG.info("Root context closed. Evaluator closed will trigger final shutdown.");
         }
       } else {
-        throw new RuntimeException("Unknown context state " + contextStatusProto.getContextState() +
-            " for context " + contextID);
+        throw new RuntimeException("Unknown context state "
+            + contextStatusProto.getContextState() + " for context " + contextID);
       }
     }
   }
