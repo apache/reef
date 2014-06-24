@@ -33,6 +33,7 @@ public final class ThreadLogFormatter extends Formatter {
   private static final String DEFAULT_FORMAT = "%1$tF %1$tT,%1$tL %4$s %2$s %7$s | %5$s%6$s%n";
 
   private final List<String> dropPrefix = new ArrayList<>();
+  private final Date date = new Date();
   private final String logFormat;
 
   public ThreadLogFormatter() {
@@ -57,8 +58,10 @@ public final class ThreadLogFormatter extends Formatter {
 
   @Override
   public String format(final LogRecord logRecord) {
-    return String.format(this.logFormat,
-        new Date(System.currentTimeMillis()),
+    this.date.setTime(System.currentTimeMillis());
+    return String.format(
+        this.logFormat,
+        this.date,
         this.trimPrefix(logRecord.getSourceClassName()) + "." + logRecord.getSourceMethodName(),
         logRecord.getLoggerName(),
         logRecord.getLevel().getLocalizedName(),
