@@ -51,6 +51,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private final EvaluatorManager evaluatorManager;
   private final String remoteID;
   private final ConfigurationSerializer configurationSerializer;
+  private final String jobIdentifier;
 
   /**
    * The set of files to be places on the Evaluator.
@@ -63,10 +64,12 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager,
                          final String remoteID,
-                         final ConfigurationSerializer configurationSerializer) {
+                         final ConfigurationSerializer configurationSerializer,
+                         final String jobIdentifier) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
     this.configurationSerializer = configurationSerializer;
+    this.jobIdentifier = jobIdentifier;
   }
 
   @Override
@@ -128,6 +131,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                             final Optional<Configuration> taskConfiguration) {
     try {
       final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfigurationModule.CONF
+          .set(EvaluatorConfigurationModule.APPLICATION_IDENTIFIER, this.jobIdentifier)
           .set(EvaluatorConfigurationModule.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
           .set(EvaluatorConfigurationModule.EVALUATOR_IDENTIFIER, this.getId());
 
