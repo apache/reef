@@ -93,5 +93,6 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
       .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
       .build();
+
 }
 
