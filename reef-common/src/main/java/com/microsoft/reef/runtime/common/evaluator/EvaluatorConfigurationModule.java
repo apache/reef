@@ -19,10 +19,7 @@ import com.microsoft.reef.proto.ReefServiceProtos.TaskStatusProto;
 import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder;
-import com.microsoft.tang.formats.OptionalParameter;
-import com.microsoft.tang.formats.RequiredParameter;
+import com.microsoft.tang.formats.*;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
 
@@ -72,12 +69,17 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
   public final static class HeartbeatPeriod implements Name<Integer> {
   }
 
+  @NamedParameter(doc = "The RM application/job identifier.")
+  public final static class ApplicationIdentifier implements Name<String> {
+  }
+
   public static final RequiredParameter<String> DRIVER_REMOTE_IDENTIFIER = new RequiredParameter<>();
   public static final RequiredParameter<String> EVALUATOR_IDENTIFIER = new RequiredParameter<>();
   public static final RequiredParameter<String> ROOT_CONTEXT_CONFIGURATION = new RequiredParameter<>();
   public static final OptionalParameter<String> ROOT_SERVICE_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<String> TASK_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<Integer> HEARTBEAT_PERIOD = new OptionalParameter<>();
+  public static final OptionalParameter<String> APPLICATION_IDENTIFIER = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new EvaluatorConfigurationModule()
       .bindSetEntry(Clock.RuntimeStartHandler.class, EvaluatorRuntime.RuntimeStartHandler.class)
@@ -89,7 +91,6 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
       .bindNamedParameter(RootContextConfiguration.class, ROOT_CONTEXT_CONFIGURATION)
       .bindNamedParameter(TaskConfiguration.class, TASK_CONFIGURATION)
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
+      .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
       .build();
-
 }
-
