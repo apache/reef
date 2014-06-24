@@ -26,7 +26,26 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
 /**
- * A denser logging format for REEF.
+ * A denser logging format for REEF that is similar to the standard SimpleFormatter.
+ *
+ * The following config properties are available:
+ *
+ *    * `com.microsoft.reef.util.logging.ThreadLogFormatter.format`
+ *      is a format string for String.format() that takes same arguments and in
+ *      the same order as the standard SimpleFormatter, plus the thread name:
+ *         1. date
+ *         2. class and method name
+ *         3. logger name
+ *         4. logging level
+ *         5. message
+ *         6. stack trace
+ *         7. thread name
+ *
+ *    * `com.microsoft.reef.util.logging.ThreadLogFormatter.dropPrefix`
+ *      contains a comma-separated list of package name prefixes that should be
+ *      removed from the class name for logging. e.g. value `com.microsoft.,org.apache.`
+ *      will have the formatter write class `com.microsoft.reef.util.logging` as
+ *      `reef.util.logging`. (Note the dot at the end of the prefix).
  */
 public final class ThreadLogFormatter extends Formatter {
 
