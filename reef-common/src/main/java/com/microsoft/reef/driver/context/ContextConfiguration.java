@@ -95,7 +95,7 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
       .build();
 
-  @NamedParameter(doc = "house the implementation for re-connecting to driver after driver restart",
+  @NamedParameter(doc = "House the implementation for re-connecting to driver after driver restart",
           default_classes = DefaultDriverConnection.class)
   public static final class DriverReconnect implements Name<DriverConnection> {
   }
