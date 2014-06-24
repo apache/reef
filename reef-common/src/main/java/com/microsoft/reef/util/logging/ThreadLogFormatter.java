@@ -30,7 +30,7 @@ import java.util.logging.LogRecord;
  */
 public final class ThreadLogFormatter extends Formatter {
 
-  private static final String DEFAULT_FORMAT = "%1$tF %1$tT,%1$tL %4$s %2$s %7$s %5$s%6$s%n";
+  private static final String DEFAULT_FORMAT = "%1$tF %1$tT,%1$tL %4$s %2$s %7$s | %5$s%6$s%n";
 
   private final List<String> dropPrefix = new ArrayList<>();
   private final String logFormat;
