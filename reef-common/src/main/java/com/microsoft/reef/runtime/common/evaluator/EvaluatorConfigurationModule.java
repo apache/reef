@@ -46,7 +46,7 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
   }
 
   @NamedParameter(doc = "The evaluator root context configuration.")
-   public final static class RootContextConfiguration implements Name<String> {
+  public final static class RootContextConfiguration implements Name<String> {
   }
 
   @NamedParameter(doc = "The service configuration for the root context")
@@ -93,6 +93,5 @@ public final class EvaluatorConfigurationModule extends ConfigurationModuleBuild
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
       .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
       .build();
-
 }
 

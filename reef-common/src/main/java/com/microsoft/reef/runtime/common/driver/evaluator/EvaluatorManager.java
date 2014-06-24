@@ -419,18 +419,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   /**
    * Get the id of current job/application
    */
-  private String getJobIdentifier()
-  {
+  private String getJobIdentifier() {
     // TODO: currently we obtain the job id directly by parsing execution (container) directory path
     // #845 is open to get the id from RM properly
     File directory = new File(System.getProperty("user.dir"));
-    while(directory != null)
-    {
-      String currentDirectoryName = directory.getName();
-      if(currentDirectoryName.toLowerCase().contains("application_"))
-       {
-            return currentDirectoryName;
-       }
+    while (directory != null) {
+      final String currentDirectoryName = directory.getName();
+      if (currentDirectoryName.toLowerCase().contains("application_")) {
+        return currentDirectoryName;
+      }
       directory = directory.getParentFile();
     }
     // cannot find a directory that contains application_, presumably we are on local runtime
