@@ -53,6 +53,7 @@ import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.Alarm;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -128,7 +129,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.exceptionCodec = exceptionCodec;
 
     final AllocatedEvaluator allocatedEvaluator =
-        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer);
+        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), this.configurationSerializer, this.getJobIdentifier());
     LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
     this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
@@ -413,6 +414,28 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     synchronized (this.evaluatorDescriptor) {
       this.evaluatorControlHandler.send(evaluatorControlProto);
     }
+  }
+
+  /**
+   * Get the id of current job/application
+   */
+  private String getJobIdentifier()
+  {
+    // TODO: currently we obtain the job id directly by parsing execution (container) directory path
+    // #845 is open to get the id from RM properly
+    File executionPath = new File(System.getProperty("user.dir"));
+    File directory = executionPath.getParentFile();
+    while(directory != null)
+    {
+      String currentDirectoryName = directory.getName();
+      if(currentDirectoryName.toLowerCase().contains("application_"))
+       {
+            return currentDirectoryName;
+       }
+    }
+    // cannot find a directory that contains application_, presumably we are on local runtime
+    // again, this is a hack for now, we need #845 as a proper solution
+    return "REEF_LOCAL_RUNTIME";
   }
 
   /**
