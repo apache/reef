@@ -40,12 +40,13 @@ import java.util.logging.Logger;
  */
 @Private
 @EvaluatorSide
-public final class TaskRuntime extends Thread {
+public final class TaskRuntime implements Runnable {
 
   private final static Logger LOG = Logger.getLogger(TaskRuntime.class.getName());
 
   /** User supplied Task code. */
   private final Task task;
+  private final Thread thread;
 
   private final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler;
   private final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler;
@@ -97,13 +98,17 @@ public final class TaskRuntime extends Thread {
     this.f_messageHandler = f_messageHandler;
 
     this.currentStatus = currentStatus;
+
+    this.thread = new Thread(this);
   }
 
   /**
-   * This method needs to be called before a Task can be run(). It informs the Driver that the Task is initializing.
+   * This method needs to be called before a Task can be run().
+   * It informs the Driver that the Task is initializing.
    */
   public void initialize() {
     this.currentStatus.setInit();
+    this.thread.setName(this.getId());
   }
 
   /**
@@ -160,6 +165,11 @@ public final class TaskRuntime extends Thread {
    */
   public String getTaskId() {
     return this.currentStatus.getTaskId();
+  }
+
+  public String getId() {
+    return "TASK:" + this.task.getClass().getSimpleName() + ':'
+        + this.currentStatus.getTaskId() + ':' + this.currentStatus.getState();
   }
 
   /**
@@ -265,9 +275,6 @@ public final class TaskRuntime extends Thread {
 
   /**
    * Calls the configured Task close handler and catches exceptions it may throw.
-   *
-   * @param message
-   * @throws TaskCloseHandlerFailure
    */
   private void closeTask(final byte[] message) throws TaskCloseHandlerFailure {
     LOG.log(Level.FINEST, "Invoking close handler.");
@@ -280,9 +287,6 @@ public final class TaskRuntime extends Thread {
 
   /**
    * Calls the configured Task message handler and catches exceptions it may throw.
-   *
-   * @param message
-   * @throws TaskMessageHandlerFailure
    */
   private void deliverMessageToTask(final byte[] message) throws TaskMessageHandlerFailure {
     try {
@@ -294,9 +298,6 @@ public final class TaskRuntime extends Thread {
 
   /**
    * Calls the configured Task suspend handler and catches exceptions it may throw.
-   *
-   * @param message
-   * @throws TaskSuspendHandlerFailure
    */
   private void suspendTask(final byte[] message) throws TaskSuspendHandlerFailure {
     try {
@@ -304,5 +305,19 @@ public final class TaskRuntime extends Thread {
     } catch (final Throwable throwable) {
       throw new TaskSuspendHandlerFailure(throwable);
     }
+  }
+
+  /**
+   * Start the TaskRuntime in a separate thread.
+   * @throws java.lang.IllegalStateException if thread already started.
+   */
+  public void start() {
+
+    if (this.thread.getState() != Thread.State.NEW) {
+      LOG.log(Level.SEVERE, "TaskRuntime thread already started: {0}", this.thread);
+      throw new IllegalStateException("TaskRuntime thread already started");
+    }
+
+    this.thread.start();
   }
 }
