@@ -13,36 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.microsoft.reef.webserver;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
+import com.microsoft.tang.annotations.DefaultImplementation;
+
+import java.util.Map;
 
 /**
- * HttpHandler interface
+ * interface for EvaluatorListSerializer
  */
-public interface HttpHandler {
+@DefaultImplementation(AvroEvaluatorListSerializer.class)
+public interface EvaluatorListSerializer {
   /**
-   * return specification of the handler. e.g Reef
+   * Build AvroEvaluatorList object
    *
+   * @param evaluatorMap
+   * @param totalEvaluators
+   * @param startTime
    * @return
    */
-  public String getUriSpecification();
+  public AvroEvaluatorList toAvro(final Map<String, EvaluatorDescriptor> evaluatorMap, final int totalEvaluators, final String startTime);
 
   /**
-   * return specification of the handler. e.g Reef
+   * Convert AvroEvaluatorList to JSon string
    *
+   * @param avroEvaluatorList
    * @return
    */
-  public void setUriSpecification(final String s);
-
-  /**
-   * Will be called when request comes
-   *
-   * @param request
-   * @param response
-   */
-  void onHttpRequest(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException;
+  public String toString(final AvroEvaluatorList avroEvaluatorList);
 }

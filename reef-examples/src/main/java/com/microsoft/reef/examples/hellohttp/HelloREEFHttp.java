@@ -45,11 +45,11 @@ public final class HelloREEFHttp {
      * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
      */
     public static Configuration getHTTPConfiguration() {
-        Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
+        final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdtHandler.class)
                 .build();
-        Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
+        final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
                 .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
                 .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
                 .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
@@ -73,6 +73,7 @@ public final class HelloREEFHttp {
                 .set(DriverConfiguration.ON_CONTEXT_FAILED, HttpShellJobDriver.FailedContextHandler.class)
                 .set(DriverConfiguration.ON_TASK_COMPLETED, HttpShellJobDriver.CompletedTaskHandler.class)
                 .set(DriverConfiguration.ON_CLIENT_MESSAGE, HttpShellJobDriver.ClientMessageHandler.class)
+                .set(DriverConfiguration.ON_CLIENT_CLOSED, HttpShellJobDriver.HttpClientCloseHandler.class)
                 .set(DriverConfiguration.ON_DRIVER_STOP, HttpShellJobDriver.StopHandler.class)
                 .build();
     }

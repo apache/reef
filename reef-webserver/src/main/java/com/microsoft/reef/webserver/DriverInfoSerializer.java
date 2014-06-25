@@ -13,36 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.microsoft.reef.webserver;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.microsoft.tang.annotations.DefaultImplementation;
 
 /**
- * HttpHandler interface
+ * Interface for DriverInfoSerializer
  */
-public interface HttpHandler {
+@DefaultImplementation(AvroDriverInfoSerializer.class)
+public interface DriverInfoSerializer {
   /**
-   * return specification of the handler. e.g Reef
+   * Build AvroDriverInfo object from raw data
    *
-   * @return
+   * @param id
+   * @param startTime
+   * @return AvroDriverInfo object
    */
-  public String getUriSpecification();
+  public AvroDriverInfo toAvro(final String id, final String startTime);
 
   /**
-   * return specification of the handler. e.g Reef
+   * Convert AvroDriverInfo object to JSon string
    *
+   * @param avroDriverInfo
    * @return
    */
-  public void setUriSpecification(final String s);
-
-  /**
-   * Will be called when request comes
-   *
-   * @param request
-   * @param response
-   */
-  void onHttpRequest(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException;
+  public String toString(final AvroDriverInfo avroDriverInfo);
 }

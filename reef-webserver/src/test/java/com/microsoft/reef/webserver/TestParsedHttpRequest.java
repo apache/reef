@@ -39,10 +39,10 @@ public final class TestParsedHttpRequest {
     this.request = new Request(
         new HttpConnection(new LocalConnector(), new StringEndPoint(), new Server()));
 
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/whatever/id123#test?a=10&b=20&a=30"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/whatever/v1/id123#test?a=10&b=20&a=30"));
     this.request.setQueryString("a=10&b=20&a=30");
     this.request.setContentType("text/json");
-    this.request.setPathInfo("/whatever/id123#test");
+    this.request.setPathInfo("/whatever/v1/id123#test");
 
     this.parsedRequest = new ParsedHttpRequest(this.request);
   }
@@ -72,22 +72,27 @@ public final class TestParsedHttpRequest {
   }
 
   @Test
+  public void testVersion() {
+    Assert.assertEquals("v1", this.parsedRequest.getVersion());
+  }
+
+  @Test
   public void testTargetEntity() {
     Assert.assertEquals("id123#test", this.parsedRequest.getTargetEntity());
   }
 
   @Test
   public void testPathInfo() {
-    Assert.assertEquals("/whatever/id123#test", this.parsedRequest.getPathInfo());
+    Assert.assertEquals("/whatever/v1/id123#test", this.parsedRequest.getPathInfo());
   }
 
   @Test
   public void testUrl() {
-    Assert.assertEquals("http://microsoft.com:8080/whatever/id123#test", this.parsedRequest.getRequestUrl());
+    Assert.assertEquals("http://microsoft.com:8080/whatever/v1/id123#test", this.parsedRequest.getRequestUrl());
   }
 
   @Test
   public void testUri() {
-    Assert.assertEquals("/whatever/id123#test", this.parsedRequest.getRequestUri());
+    Assert.assertEquals("/whatever/v1/id123#test", this.parsedRequest.getRequestUri());
   }
 }

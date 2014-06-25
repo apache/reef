@@ -16,8 +16,12 @@
 
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
-import com.microsoft.tang.*;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
+import com.microsoft.tang.Injector;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.remote.RemoteConfiguration;
 import org.junit.Assert;
@@ -137,6 +141,7 @@ public class TestHttpServer {
     final Configuration reefConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
         .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
         .build();
 
     final Configuration finalConfig =

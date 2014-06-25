@@ -16,8 +16,12 @@
 
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
-import com.microsoft.tang.*;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
+import com.microsoft.tang.Injector;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.remote.RemoteConfiguration;
 import org.junit.Assert;
@@ -59,9 +63,10 @@ public class TestJettyHandler {
     final Tang tang = Tang.Factory.getTang();
 
     final Configuration remoteConfiguration = tang.newConfigurationBuilder()
-            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
-            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .build();
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .build();
 
     final Configuration finalConfig =
         Configurations.merge(httpHandlerConfiguration, remoteConfiguration);
@@ -73,7 +78,7 @@ public class TestJettyHandler {
 
   @Test
   public void testWithoutQueryString() throws IOException, ServletException {
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/Evaluators"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/v1/Evaluators/"));
     this.handler.handle("target", this.request, this.response, 0);
     Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }
@@ -86,8 +91,15 @@ public class TestJettyHandler {
   }
 
   @Test
+  public void testWithoutVersion() throws IOException, ServletException {
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/reef"));
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_BAD_REQUEST, this.response.getStatus());
+  }
+
+  @Test
   public void testWithQueryString() throws IOException, ServletException {
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/Evaluators"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/v1/Evaluators"));
     this.request.setQueryString("id=12345");
     this.handler.handle("target", this.request, this.response, 0);
     Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
@@ -95,7 +107,7 @@ public class TestJettyHandler {
 
   @Test
   public void testWithUnSupportedSpec() throws IOException, ServletException {
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/abc"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/abc/v2"));
     this.request.setQueryString("id=12345");
     this.handler.handle("target", this.request, this.response, 0);
     Assert.assertEquals(HttpServletResponse.SC_NOT_FOUND, this.response.getStatus());
@@ -106,7 +118,7 @@ public class TestJettyHandler {
     final Injector injector = Tang.Factory.getTang().newInjector();
     final HttpAbcEventHandler abcEventHandler = injector.getInstance(HttpAbcEventHandler.class);
     this.handler.addHandler(abcEventHandler);
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc/v1"));
     this.handler.handle("target", this.request, this.response, 0);
     Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }
@@ -117,7 +129,7 @@ public class TestJettyHandler {
     final HttpAbcEventHandler abcEventHandler = injector.getInstance(HttpAbcEventHandler.class);
     this.handler.addHandler(abcEventHandler);
     this.handler.addHandler(abcEventHandler);  // it will be ignored
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc/v1"));
     this.handler.handle("target", this.request, this.response, 0);
     Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }

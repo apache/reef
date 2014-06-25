@@ -200,6 +200,16 @@ public final class HttpShellJobDriver {
         }
     }
 
+    final class HttpClientCloseHandler implements EventHandler<Void> {
+      @Override
+      public void onNext(final Void aVoid) throws RuntimeException {
+        LOG.log(Level.INFO, "Received a close message from the client. You can put code here to properly close drivers and evaluators.");
+        for (final ActiveContext c : contexts.values()) {
+            c.close();
+        }
+      }
+    }
+
     /**
      * Receive notification that the Context had failed.
      * Remove context from the list of active context and notify the client.

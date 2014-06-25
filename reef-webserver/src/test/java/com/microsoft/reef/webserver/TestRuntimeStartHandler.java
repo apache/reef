@@ -15,8 +15,12 @@
  */
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
-import com.microsoft.tang.*;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
+import com.microsoft.tang.Injector;
+import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.wake.EventHandler;
@@ -42,14 +46,16 @@ public class TestRuntimeStartHandler {
   @Before
   public void setUp() throws InjectionException, IOException, ServletException {
     final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
-            .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
-            .build();
+        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+        .build();
     final Configuration remoteConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
-            .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
-            .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-            .build();
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .build();
     this.configuation = Configurations.merge(clockConfiguraiton, remoteConfiguration);
   }
+
   /**
    * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers, when inject RuntimeClock
    * all the nested objects including HeetServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler

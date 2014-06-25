@@ -15,34 +15,23 @@
  */
 package com.microsoft.reef.webserver;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
+import com.microsoft.tang.annotations.DefaultImplementation;
 
-/**
- * HttpHandler interface
- */
-public interface HttpHandler {
-  /**
-   * return specification of the handler. e.g Reef
-   *
-   * @return
-   */
-  public String getUriSpecification();
+import java.util.List;
+import java.util.Map;
+
+@DefaultImplementation(AvroEvaluatorInfoSerializer.class)
+public interface EvaluatorInfoSerializer {
 
   /**
-   * return specification of the handler. e.g Reef
-   *
-   * @return
+   * Build AvroEvaluatorsInfo object from raw data
    */
-  public void setUriSpecification(final String s);
+  AvroEvaluatorsInfo toAvro(
+      final List<String> ids, final Map<String, EvaluatorDescriptor> evaluators);
 
   /**
-   * Will be called when request comes
-   *
-   * @param request
-   * @param response
+   * Convert AvroEvaluatorsInfo object to JSON string.
    */
-  void onHttpRequest(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException;
+  String toString(final AvroEvaluatorsInfo avroEvaluatorsInfo);
 }
