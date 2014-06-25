@@ -62,7 +62,7 @@ public class HeartBeatManager {
   /**
    * Assemble a complete new heartbeat and send it out.
    */
-  public synchronized void onNext() {
+  public synchronized void sendHeartbeat() {
     this.sendHeartBeat(this.getEvaluatorHeartbeatProto());
   }
 
@@ -72,7 +72,7 @@ public class HeartBeatManager {
    * @param taskStatusProto
    * @return
    */
-  public synchronized void onNext(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
+  public synchronized void sendTaskStatus(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
     this.sendHeartBeat(this.getEvaluatorHeartbeatProto(
         this.evaluatorRuntime.get().getEvaluatorStatus(),
         this.contextManager.get().getContextStatusCollection(),
@@ -85,7 +85,7 @@ public class HeartBeatManager {
    * @param contextStatusProto
    * @return
    */
-  public synchronized void onNext(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
+  public synchronized void sendContextStatus(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
     // TODO: Write a test that checks for the order.
     final Collection<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
     contextStatusList.add(contextStatusProto);
@@ -102,12 +102,13 @@ public class HeartBeatManager {
    *
    * @param evaluatorStatusProto
    */
-  public synchronized void onNext(final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto) {
+  public synchronized void sendEvaluatorStatus(final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto) {
     this.sendHeartBeat(EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.newBuilder()
         .setTimestamp(System.currentTimeMillis())
         .setEvaluatorStatus(evaluatorStatusProto)
         .build());
   }
+
 
   /**
    * Sends the actual heartbeat out and logs it, so desired.
@@ -154,11 +155,11 @@ public class HeartBeatManager {
     @Override
     public void onNext(final Alarm alarm) {
       synchronized (HeartBeatManager.this) {
-        if (HeartBeatManager.this.evaluatorRuntime.get().getState() == ReefServiceProtos.State.RUNNING) {
-          HeartBeatManager.this.onNext();
+        if (evaluatorRuntime.get().isRunning()) {
+          HeartBeatManager.this.sendHeartbeat();
           HeartBeatManager.this.clock.scheduleAlarm(HeartBeatManager.this.heartbeatPeriod, this);
         } else {
-          LOG.log(Level.FINEST, "Not triggering a heartbeat, because state is:" + HeartBeatManager.this.evaluatorRuntime.get().getState());
+          LOG.log(Level.FINEST, "Not triggering a heartbeat, because state is:" + evaluatorRuntime.get().getState());
         }
       }
     }

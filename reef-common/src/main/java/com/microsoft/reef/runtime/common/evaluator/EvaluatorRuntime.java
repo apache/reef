@@ -97,7 +97,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
             this.contextManager.handleContextControlProtocol(message.getContextControl());
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
               this.state = ReefServiceProtos.State.DONE;
-              this.heartBeatManager.onNext(this.getEvaluatorStatus());
+              this.heartBeatManager.sendEvaluatorStatus(this.getEvaluatorStatus());
               this.clock.close();
             }
           } catch (final Throwable e) {
@@ -124,7 +124,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
           .setError(ByteString.copyFrom(this.exceptionCodec.toBytes(exception)))
           .setState(this.state)
           .build();
-      this.heartBeatManager.onNext(evaluatorStatusProto);
+      this.heartBeatManager.sendEvaluatorStatus(evaluatorStatusProto);
       this.contextManager.close();
     }
   }
@@ -144,6 +144,10 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     return this.state;
   }
 
+  boolean isRunning() {
+    return this.state == ReefServiceProtos.State.RUNNING;
+  }
+
   @Override
   public void onNext(EvaluatorControlProto evaluatorControlProto) {
     this.onEvaluatorControlMessage(evaluatorControlProto);
@@ -159,7 +163,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
           assert (ReefServiceProtos.State.INIT == EvaluatorRuntime.this.state);
           EvaluatorRuntime.this.state = ReefServiceProtos.State.RUNNING;
           EvaluatorRuntime.this.contextManager.start();
-          EvaluatorRuntime.this.heartBeatManager.onNext();
+          EvaluatorRuntime.this.heartBeatManager.sendHeartbeat();
         } catch (final Throwable e) {
           EvaluatorRuntime.this.onException(e);
         }
@@ -172,19 +176,21 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     @Override
     public final void onNext(final RuntimeStop runtimeStop) {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
-        LOG.log(Level.FINEST, "runtime stop");
-        EvaluatorRuntime.this.contextManager.close();
+        LOG.log(Level.FINEST, "EvaluatorRuntime shutdown invoked for Evaluator {0} in state {1}",
+            new Object[]{evaluatorIdentifier, state});
 
-        if (ReefServiceProtos.State.RUNNING == EvaluatorRuntime.this.state) {
-          throw new RuntimeException("RuntimeStopHandler invoked in state RUNNING.");
-        }
+        if (EvaluatorRuntime.this.isRunning()) {
+          EvaluatorRuntime.this.onException(new RuntimeException("RuntimeStopHandler invoked in state RUNNING.", runtimeStop.getException()));
+        } else {
+          EvaluatorRuntime.this.contextManager.close();
+          try {
+            EvaluatorRuntime.this.evaluatorControlChannel.close();
+          } catch (final Exception e) {
+            LOG.log(Level.SEVERE, "Exception during shutdown of evaluatorControlChannel.", e);
+            LOG.log(Level.FINEST, "EvaluatorRuntime shutdown complete");
 
-        try {
-          EvaluatorRuntime.this.evaluatorControlChannel.close();
-        } catch (final Exception e) {
-          LOG.log(Level.SEVERE, "Exception during shutdown of evaluatorControlChannel.", e);
+          }
         }
-        LOG.log(Level.FINEST, "EvaluatorRuntime shutdown complete");
       }
     }
   }

@@ -153,7 +153,7 @@ public final class ContextManager implements AutoCloseable {
           } else {
             // We need to trigger a heartbeat here. In other cases, the heartbeat will be triggered by the TaskRuntime
             // Therefore this call can not go into addContext
-            this.heartBeatManager.onNext();
+            this.heartBeatManager.sendHeartbeat();
           }
         } else if (controlMessage.hasRemoveContext()) {
           this.removeContext(controlMessage.getRemoveContext().getContextId());
@@ -270,7 +270,7 @@ public final class ContextManager implements AutoCloseable {
          * driver explicitly that this context is closed. The root context notification
          * is implicit in the Evaluator close/done notification.
          */
-        this.heartBeatManager.onNext(); // Ensure Driver gets notified of context DONE state
+        this.heartBeatManager.sendHeartbeat(); // Ensure Driver gets notified of context DONE state
       }
       this.contextStack.pop();
       System.gc(); // TODO sure??
@@ -318,7 +318,7 @@ public final class ContextManager implements AutoCloseable {
         .setState(ReefServiceProtos.State.FAILED)
         .build();
     LOG.log(Level.SEVERE, "Sending heartbeat: " + taskStatus.toString());
-    this.heartBeatManager.onNext(taskStatus);
+    this.heartBeatManager.sendTaskStatus(taskStatus);
   }
 
   /**
@@ -343,7 +343,7 @@ public final class ContextManager implements AutoCloseable {
 
     LOG.log(Level.SEVERE, "Sending heartbeat: " + contextStatus.toString());
 
-    this.heartBeatManager.onNext(contextStatus);
+    this.heartBeatManager.sendContextStatus(contextStatus);
   }
 
 }
