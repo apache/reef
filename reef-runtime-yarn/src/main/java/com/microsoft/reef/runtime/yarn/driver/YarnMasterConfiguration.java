@@ -58,11 +58,6 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
   public final static class YarnHeartbeatPeriod implements Name<Integer> {
   }
 
-  // GLOBAL DIRECTORY CLASS PATH
-  @NamedParameter(doc = "The global file class path.", default_value = "")
-  public final static class GlobalFileClassPath implements Name<String> {
-  }
-
   public final YarnMasterConfiguration setJobSubmissionDirectory(final String path) {
     try {
       this.builder.bindNamedParameter(JobSubmissionDirectory.class, path);
@@ -84,15 +79,6 @@ public final class YarnMasterConfiguration extends AbstractDriverRuntimeConfigur
   public final YarnMasterConfiguration setYarnHeartbeatPeriod(final Long period) {
     try {
       this.builder.bindNamedParameter(YarnHeartbeatPeriod.class, Long.toString(period));
-      return this;
-    } catch (final BindException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public final YarnMasterConfiguration setGlobalFileClassPath(final String classpath) {
-    try {
-      this.builder.bindNamedParameter(GlobalFileClassPath.class, classpath);
       return this;
     } catch (final BindException e) {
       throw new RuntimeException(e);

@@ -32,10 +32,12 @@ import java.util.logging.Logger;
  * A main() for running hello REEF without a persistent client connection.
  */
 public final class HelloREEFNoClient {
+
   private static final Logger LOG = Logger.getLogger(HelloREEFNoClient.class.getName());
 
-  static void runHelloReefWithoutClient(final Configuration runtimeConf)
-      throws BindException, InjectionException {
+  public static void runHelloReefWithoutClient(
+      final Configuration runtimeConf) throws InjectionException {
+
     final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEFImplementation.class);
 
     final Configuration driverConf =
@@ -48,11 +50,12 @@ public final class HelloREEFNoClient {
     reef.submit(driverConf);
   }
 
-
   public static void main(final String[] args) throws BindException, InjectionException {
+
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
         .build();
+
     runHelloReefWithoutClient(runtimeConfiguration);
     LOG.log(Level.INFO, "Job Submitted");
   }

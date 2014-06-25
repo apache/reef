@@ -30,6 +30,7 @@ import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
+import org.apache.hadoop.yarn.client.api.NMTokenCache;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
@@ -40,7 +41,9 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +58,7 @@ final class YarnContainerManager
   private final YarnClient yarnClient = YarnClient.createYarnClient();
 
   private final Queue<AMRMClient.ContainerRequest>
-      outstandingContainerRequests = new  ConcurrentLinkedQueue<>();
+      outstandingContainerRequests = new ConcurrentLinkedQueue<>();
 
   private final YarnConfiguration yarnConf;
   private final AMRMClientAsync resourceManager;
@@ -66,6 +69,7 @@ final class YarnContainerManager
   private final ContainerRequestCounter containerRequestCounter;
   private final DriverStatusManager driverStatusManager;
   private final TrackingURLProvider trackingURLProvider;
+  private final NMTokenCache nmTokenCache = new NMTokenCache();
 
   @Inject
   YarnContainerManager(
@@ -87,11 +91,11 @@ final class YarnContainerManager
     this.yarnConf = yarnConf;
     this.trackingURLProvider = trackingURLProvider;
 
+
     this.yarnClient.init(this.yarnConf);
 
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
-
     LOG.log(Level.FINEST, "Instantiated YarnContainerManager");
   }
 
@@ -189,9 +193,6 @@ final class YarnContainerManager
 
   /**
    * Submit the given launchContext to the given container.
-   *
-   * @param container
-   * @param launchContext
    */
   void submit(final Container container, final ContainerLaunchContext launchContext) {
     this.nodeManager.startContainerAsync(container, launchContext);
@@ -199,8 +200,6 @@ final class YarnContainerManager
 
   /**
    * Release the given container.
-   *
-   * @param containerId
    */
   void release(final String containerId) {
     LOG.log(Level.FINE, "Release container: {0}", containerId);
@@ -211,26 +210,28 @@ final class YarnContainerManager
 
   void onStart() {
 
-    try {
+    this.yarnClient.start();
+    this.resourceManager.init(this.yarnConf);
+    this.resourceManager.start();
+    this.nodeManager.init(this.yarnConf);
+    this.nodeManager.start();
 
-      this.yarnClient.start();
+    try {
       for (final NodeReport nodeReport : this.yarnClient.getNodeReports(NodeState.RUNNING)) {
         onNodeReport(nodeReport);
       }
+    } catch (IOException | YarnException e) {
+      LOG.log(Level.WARNING, "Unable to fetch node reports from YARN.", e);
+      onRuntimeError(e);
+    }
 
-      this.resourceManager.init(this.yarnConf);
-      this.resourceManager.start();
-
-      this.nodeManager.init(this.yarnConf);
-      this.nodeManager.start();
-
+    try {
       this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
-              "", 0, this.trackingURLProvider.getTrackingUrl()));
-
+          "", 0, this.trackingURLProvider.getTrackingUrl()));
       LOG.log(Level.INFO, "YARN registration: {0}", registration);
 
     } catch (final YarnException | IOException e) {
-      LOG.log(Level.WARNING, "Error starting YARN Node Manager", e);
+      LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);
     }
   }
@@ -402,9 +403,9 @@ final class YarnContainerManager
 
     final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder =
         DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
-          .setName(RUNTIME_NAME)
-          .setState(ReefServiceProtos.State.RUNNING)
-          .setOutstandingContainerRequests(this.containerRequestCounter.get());
+            .setName(RUNTIME_NAME)
+            .setState(ReefServiceProtos.State.RUNNING)
+            .setOutstandingContainerRequests(this.containerRequestCounter.get());
 
     for (final String allocatedContainerId : this.containers.getContainerIds()) {
       builder.addContainerAllocation(allocatedContainerId);

@@ -17,17 +17,17 @@ package com.microsoft.reef.runtime.yarn.client;
 
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.io.SystemTempFileCreator;
-import com.microsoft.reef.io.TempFileCreator;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
-import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.files.JobJarMaker;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
-import com.microsoft.reef.runtime.yarn.util.YarnUtils;
-import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.reef.runtime.yarn.util.YarnTypes;
+import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.ConfigurationSerializer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -37,13 +37,12 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,16 +54,28 @@ import java.util.logging.Logger;
 final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   private static final Logger LOG = Logger.getLogger(YarnJobSubmissionHandler.class.getName());
+
   private final YarnConfiguration yarnConfiguration;
   private final YarnClient yarnClient;
+  private final JobJarMaker jobJarMaker;
+  private final REEFFileNames fileNames;
+  private final FileSystem fileSystem;
   private final ConfigurationSerializer configurationSerializer;
-  private final TempFileCreator tempFileCreator = new SystemTempFileCreator();
 
   @Inject
-  YarnJobSubmissionHandler(final YarnConfiguration yarnConfiguration,
-                           final ConfigurationSerializer configurationSerializer) {
+  YarnJobSubmissionHandler(
+      final YarnConfiguration yarnConfiguration,
+      final JobJarMaker jobJarMaker,
+      final REEFFileNames fileNames,
+      final ConfigurationSerializer configurationSerializer) throws IOException {
+
     this.yarnConfiguration = yarnConfiguration;
+    this.jobJarMaker = jobJarMaker;
+    this.fileNames = fileNames;
     this.configurationSerializer = configurationSerializer;
+
+    this.fileSystem = FileSystem.get(yarnConfiguration);
+
     this.yarnClient = YarnClient.createYarnClient();
     this.yarnClient.init(this.yarnConfiguration);
     this.yarnClient.start();
@@ -77,155 +88,94 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   @Override
   public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+
     LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionProto.getIdentifier());
+
     try {
-      // Get a new application id
-      final YarnClientApplication yarnClientApplication = yarnClient.createApplication();
+
+      LOG.log(Level.FINE, "Requesting Application ID from YARN.");
+
+      final YarnClientApplication yarnClientApplication = this.yarnClient.createApplication();
       final GetNewApplicationResponse applicationResponse = yarnClientApplication.getNewApplicationResponse();
 
       final ApplicationSubmissionContext applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
       final ApplicationId applicationId = applicationSubmissionContext.getApplicationId();
 
-
       LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
 
       // set the application name
-      final String jobName = "reef-job-" + jobSubmissionProto.getIdentifier();
-      applicationSubmissionContext.setApplicationName(jobName);
+      applicationSubmissionContext.setApplicationName("reef-job-" + jobSubmissionProto.getIdentifier());
 
-      final FileSystem fs = FileSystem.get(this.yarnConfiguration);
-      final String root_dir = "/tmp/reef-" + jobSubmissionProto.getUserName();
-      final Path job_dir = new Path(root_dir, jobName + "/" + applicationId.getId() + "/");
-      final Path global_dir = new Path(job_dir, YarnMasterConfiguration.GLOBAL_FILE_DIRECTORY);
+      LOG.log(Level.INFO, "Assembling submission JAR for the Driver.");
+      final Path submissionFolder = new Path("/tmp/" + this.fileNames.getJobFolderPrefix() + applicationId.getId() + "/");
+      final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionProto, submissionFolder);
+      final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
+      final Path uploadedJobJarPath = this.uploadToJobFolder(jobSubmissionFile, submissionFolder);
 
-      ///////////////////////////////////////////////////////////////////////
-      // FILE RESOURCES
-      final Map<String, LocalResource> localResources = new HashMap<>();
-
-      final File yarnConfigurationFile = this.tempFileCreator.createTempFile("yarn", ".conf");
-      try (final FileOutputStream yarnConfigurationFOS = new FileOutputStream(yarnConfigurationFile)) {
-        this.yarnConfiguration.writeXml(yarnConfigurationFOS);
-      }
-
-      LOG.log(Level.FINEST, "Upload tmp yarn configuration file {0}", yarnConfigurationFile.toURI());
-      localResources.put(yarnConfigurationFile.getName(),
-          YarnUtils.getLocalResource(fs, new Path(yarnConfigurationFile.toURI()), new Path(global_dir, yarnConfigurationFile.getName())));
-
-      final StringBuilder globalClassPath = YarnUtils.getClassPathBuilder(this.yarnConfiguration);
-
-      for (final ReefServiceProtos.FileResourceProto file : jobSubmissionProto.getGlobalFileList()) {
-        final Path src = new Path(file.getPath());
-        final Path dst = new Path(global_dir, file.getName());
-        switch (file.getType()) {
-          case PLAIN:
-            LOG.log(Level.FINEST, "GLOBAL FILE RESOURCE: upload {0} to {1}",
-                new Object[]{src, dst});
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
-            break;
-          case LIB:
-            globalClassPath.append(File.pathSeparatorChar + file.getName());
-            LOG.log(Level.FINEST, "GLOBAL LIB FILE RESOURCE: upload {0} to {1}",
-                new Object[]{src, dst});
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
-            break;
-          case ARCHIVE:
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
-            break;
-        }
-      }
-
-      final StringBuilder localClassPath = new StringBuilder();
-
-      for (final ReefServiceProtos.FileResourceProto file : jobSubmissionProto.getLocalFileList()) {
-        final Path src = new Path(file.getPath());
-        final Path dst = new Path(job_dir, file.getName());
-        switch (file.getType()) {
-          case PLAIN:
-            LOG.log(Level.FINEST, "LOCAL FILE RESOURCE: upload {0} to {1}",
-                new Object[]{src, dst});
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
-            break;
-          case LIB:
-            localClassPath.append(File.pathSeparatorChar + file.getName());
-            LOG.log(Level.FINEST, "LOCAL LIB FILE RESOURCE: upload {0} to {1}",
-                new Object[]{src, dst});
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
-            break;
-          case ARCHIVE:
-            localResources.put(file.getName(), YarnUtils.getLocalResource(fs, src, dst));
-            break;
-        }
-      }
-
-      // RUNTIME CONFIGURATION FILE
-      final File masterConfigurationFile = this.tempFileCreator.createTempFile("driver", ".conf");
-      this.configurationSerializer.toFile(
-          new YarnMasterConfiguration()
-              .setGlobalFileClassPath(globalClassPath.toString())
-              .setJobSubmissionDirectory(job_dir.toString())
-              .setYarnConfigurationFile(yarnConfigurationFile.getName())
-              .setJobIdentifier(jobSubmissionProto.getIdentifier())
-              .setClientRemoteIdentifier(jobSubmissionProto.getRemoteId())
-              .addClientConfiguration(this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
-              .build(),
-          masterConfigurationFile);
-
-      localResources.put(masterConfigurationFile.getName(),
-          YarnUtils.getLocalResource(fs, new Path(masterConfigurationFile.toURI()), new Path(job_dir, masterConfigurationFile.getName())));
-
-      ////////////////////////////////////////////////////////////////////////////
+      final Map<String, LocalResource> resources = new HashMap<>(1);
+      resources.put(fileNames.getREEFFolderName(), this.makeLocalResourceForJarFile(uploadedJobJarPath));
 
       // SET MEMORY RESOURCE
       final int amMemory = getMemory(jobSubmissionProto, applicationResponse.getMaximumResourceCapability().getMemory());
-
-      final Resource capability = Records.newRecord(Resource.class);
-      capability.setMemory(amMemory);
-      applicationSubmissionContext.setResource(capability);
-
-      final String classPath = "".equals(localClassPath.toString()) ?
-          globalClassPath.toString() : localClassPath.toString() + File.pathSeparatorChar + globalClassPath.toString();
+      applicationSubmissionContext.setResource(Resource.newInstance(amMemory, 1));
 
       // SET EXEC COMMAND
-      final List<String> launchCommandList = new JavaLaunchCommandBuilder()
+      final List<String> launchCommand = new JavaLaunchCommandBuilder()
           .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
           .setLaunchID(jobSubmissionProto.getIdentifier())
-          .setConfigurationFileName(masterConfigurationFile.getName())
-          .setClassPath(classPath)
+          .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
+          .setClassPath(this.fileNames.getClasspath())
           .setMemory(amMemory)
-          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stdout")
-          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/driver.stderr")
+          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())
+          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
           .build();
-      final String launchCommand = StringUtils.join(launchCommandList, ' ');
-      LOG.log(Level.FINEST, "LAUNCH COMMAND: {0}", launchCommand);
 
-      final ContainerLaunchContext containerContext = YarnUtils.getContainerLaunchContext(launchCommand, localResources);
-      applicationSubmissionContext.setAMContainerSpec(containerContext);
-
-      final Priority pri = Records.newRecord(Priority.class);
-      pri.setPriority(jobSubmissionProto.hasPriority() ? jobSubmissionProto.getPriority() : 0);
-      applicationSubmissionContext.setPriority(pri);
+      applicationSubmissionContext.setAMContainerSpec(YarnTypes.getContainerLaunchContext(launchCommand, resources));
+      applicationSubmissionContext.setPriority(getPriority(jobSubmissionProto));
 
       // Set the queue to which this application is to be submitted in the RM
-
-      final String yarnSubmissionQueue = getQueue(jobSubmissionProto, "default");
-      applicationSubmissionContext.setQueue(yarnSubmissionQueue);
-      LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0} Queue: {1} ",
-          new Object[]{applicationId, yarnSubmissionQueue});
+      applicationSubmissionContext.setQueue(getQueue(jobSubmissionProto, "default"));
+      LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", applicationId);
       this.yarnClient.submitApplication(applicationSubmissionContext);
-      // monitorApplication(applicationId);
-    } catch (YarnException | IOException | URISyntaxException | BindException e) {
-      throw new RuntimeException(e);
+    } catch (final YarnException | IOException e) {
+      throw new RuntimeException("Unable to submit Driver to YARN.", e);
     }
+  }
+
+  /**
+   * Assembles the Driver configuration.
+   */
+  private Configuration makeDriverConfiguration(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final Path jobFolderPath) throws IOException {
+
+    return new YarnMasterConfiguration()
+        .setJobSubmissionDirectory(jobFolderPath.toString())
+        .setJobIdentifier(jobSubmissionProto.getIdentifier())
+        .setClientRemoteIdentifier(jobSubmissionProto.getRemoteId())
+        .addClientConfiguration(
+            this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
+        .build();
+  }
+
+  private final Path uploadToJobFolder(final File file, final Path jobFolder) throws IOException {
+    final Path source = new Path(file.getAbsolutePath());
+    final Path destination = new Path(jobFolder, file.getName());
+    LOG.log(Level.INFO, "Uploading {0} to {1}", new Object[]{source, destination});
+    this.fileSystem.copyFromLocalFile(false, true, source, destination);
+    return destination;
+  }
+
+  private Priority getPriority(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+    return Priority.newInstance(
+        jobSubmissionProto.hasPriority() ? jobSubmissionProto.getPriority() : 0);
   }
 
   /**
    * Extract the queue name from the jobSubmissionProto or return default if none is set.
    *
-   * @param jobSubmissionProto
-   * @param defaultQueue
-   * @return
+   * TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration.
    */
-  // TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration
   private final String getQueue(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
                                 final String defaultQueue) {
     return jobSubmissionProto.hasQueue() && !jobSubmissionProto.getQueue().isEmpty() ?
@@ -236,10 +186,6 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
    * Extract the desired driver memory from jobSubmissionProto.
    * <p/>
    * returns maxMemory if that desired amount is more than maxMemory
-   *
-   * @param jobSubmissionProto
-   * @param maxMemory
-   * @return
    */
   private int getMemory(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
                         final int maxMemory) {
@@ -255,68 +201,17 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     return amMemory;
   }
 
-
-  private boolean monitorApplication(final ApplicationId appId)
-      throws YarnException, IOException {
-
-    while (true) {
-
-      // Check app status every 1 second.
-      try {
-        Thread.sleep(1000);
-      } catch (final InterruptedException e) {
-        LOG.warning("Thread sleep in monitoring loop interrupted");
-      }
-
-      // Get application report for the appId we are interested in
-      final ApplicationReport report = yarnClient.getApplicationReport(appId);
-
-      LOG.log(Level.INFO,
-          "Got application report from ASM for"
-              + ", appId={0}"
-              + ", clientToAMToken={1}"
-              + ", appDiagnostics={2}"
-              + ", appMasterHost={3}"
-              + ", appQueue={4}"
-              + ", appMasterRpcPort={5}"
-              + ", appStartTime={6}"
-              + ", yarnAppState={7}"
-              + ", distributedFinalState={8}"
-              + ", appTrackingUrl={9}"
-              + ", appUser={10}",
-          new Object[]{
-              appId.getId(),
-              report.getClientToAMToken(),
-              report.getDiagnostics(),
-              report.getHost(),
-              report.getQueue(),
-              report.getRpcPort(),
-              report.getStartTime(),
-              report.getYarnApplicationState(),
-              report.getFinalApplicationStatus(),
-              report.getTrackingUrl(),
-              report.getUser()}
-      );
-
-      final YarnApplicationState state = report.getYarnApplicationState();
-      final FinalApplicationStatus dsStatus = report.getFinalApplicationStatus();
-      if (YarnApplicationState.FINISHED == state) {
-        if (FinalApplicationStatus.SUCCEEDED == dsStatus) {
-          LOG.info("Application has completed successfully. Breaking monitoring loop");
-          return true;
-        } else {
-          LOG.log(Level.INFO, "Application did finished unsuccessfully."
-              + " YarnState={0}, DSFinalStatus={1}"
-              + ". Breaking monitoring loop", new Object[]{state, dsStatus});
-          return false;
-        }
-      } else if (YarnApplicationState.KILLED == state
-          || YarnApplicationState.FAILED == state) {
-        LOG.log(Level.INFO, "Application did not finish."
-            + " YarnState={0}, DSFinalStatus={1}"
-            + ". Breaking monitoring loop", new Object[]{state, dsStatus});
-        return false;
-      }
-    }
+  /**
+   * Creates a LocalResource instance for the JAR file referenced by the given Path
+   */
+  private LocalResource makeLocalResourceForJarFile(final Path path) throws IOException {
+    final LocalResource localResource = Records.newRecord(LocalResource.class);
+    final FileStatus status = FileContext.getFileContext(fileSystem.getUri()).getFileStatus(path);
+    localResource.setType(LocalResourceType.ARCHIVE);
+    localResource.setVisibility(LocalResourceVisibility.APPLICATION);
+    localResource.setResource(ConverterUtils.getYarnUrlFromPath(status.getPath()));
+    localResource.setTimestamp(status.getModificationTime());
+    localResource.setSize(status.getLen());
+    return localResource;
   }
 }

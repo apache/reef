@@ -19,6 +19,7 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.local.driver.LocalDriverConfiguration;
 import com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration;
@@ -41,39 +42,41 @@ import java.util.logging.Logger;
 @Private
 @ClientSide
 final class LocalJobSubmissionHandler implements JobSubmissionHandler {
+
+  private static final Logger LOG = Logger.getLogger(LocalJobSubmissionHandler.class.getName());
+
   /**
    * The name of the folder for the driver within the Job folder.
    */
   public static final String DRIVER_FOLDER_NAME = "driver";
 
   /**
-   * The file name used to store the driver configuration with the driver folder.
-   */
-  public static final String DRIVER_CONFIGURATION_FILE_NAME = "driver.conf";
-
-  /**
    * The (hard-coded) amount of memory to be used for the driver.
    */
   public static final int DRIVER_MEMORY = 512;
-  private static final Logger LOG = Logger.getLogger(LocalJobSubmissionHandler.class.getName());
+
   private final ExecutorService executor;
   private final int nThreads;
   private final String rootFolderName;
   private final ConfigurationSerializer configurationSerializer;
-
+  private final REEFFileNames fileNames;
 
   @Inject
-  public LocalJobSubmissionHandler(final ExecutorService executor,
-                                   final @Parameter(LocalRuntimeConfiguration.RootFolder.class) String rootFolderName,
-                                   final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads,
-                                   final ConfigurationSerializer configurationSerializer) {
+  public LocalJobSubmissionHandler(
+      final ExecutorService executor,
+      final @Parameter(LocalRuntimeConfiguration.RootFolder.class) String rootFolderName,
+      final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads,
+      final ConfigurationSerializer configurationSerializer,
+      final REEFFileNames fileNames) {
+
     this.executor = executor;
     this.nThreads = nThreads;
     this.configurationSerializer = configurationSerializer;
+    this.fileNames = fileNames;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
+
     LOG.log(Level.INFO, "Instantiated 'LocalJobSubmissionHandler'");
   }
-
 
   @Override
   public final void close() {
@@ -82,20 +85,26 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
   @Override
   public final void onNext(final ClientRuntimeProtocol.JobSubmissionProto t) {
+
     try {
+
       LOG.log(Level.FINEST, "Starting Job {0}", t.getIdentifier());
-      final File jobFolder = new File(new File(rootFolderName), "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
+
+      final File jobFolder = new File(new File(rootFolderName),
+          "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
+
       final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
       driverFolder.mkdirs();
 
-      final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t);
+      final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.fileNames);
       driverFiles.copyTo(driverFolder);
 
-      final Configuration driverConfigurationPart1 = driverFiles.addNamesTo(LocalDriverConfiguration.CONF,
-          LocalDriverConfiguration.GLOBAL_FILES,
-          LocalDriverConfiguration.GLOBAL_LIBRARIES,
-          LocalDriverConfiguration.LOCAL_FILES,
-          LocalDriverConfiguration.LOCAL_LIBRARIES)
+      final Configuration driverConfigurationPart1 = driverFiles
+          .addNamesTo(LocalDriverConfiguration.CONF,
+              LocalDriverConfiguration.GLOBAL_FILES,
+              LocalDriverConfiguration.GLOBAL_LIBRARIES,
+              LocalDriverConfiguration.LOCAL_FILES,
+              LocalDriverConfiguration.LOCAL_LIBRARIES)
           .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
           .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
           .build();
@@ -107,25 +116,24 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
       final Configuration driverConfiguration = Tang.Factory.getTang()
           .newConfigurationBuilder(driverConfigurationPart1, driverConfigurationPart2).build();
-      final File runtimeConfigurationFile = new File(driverFolder, DRIVER_CONFIGURATION_FILE_NAME);
+      final File runtimeConfigurationFile = new File(driverFolder, fileNames.getDriverConfigurationPath());
       this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
       final List<String> command = new JavaLaunchCommandBuilder()
           .setErrorHandlerRID(t.getRemoteId())
           .setLaunchID(t.getIdentifier())
-          .setConfigurationFileName(DRIVER_CONFIGURATION_FILE_NAME)
-          .setClassPath(driverFiles.getClassPath())
+          .setConfigurationFileName(fileNames.getDriverConfigurationPath())
+          .setClassPath(fileNames.getClasspath())
           .setMemory(DRIVER_MEMORY)
           .build();
 
       final RunnableProcess process = new RunnableProcess(command, "driver", driverFolder);
       this.executor.submit(process);
       this.executor.shutdown();
+
     } catch (final Exception e) {
       LOG.log(Level.SEVERE, "Unable to setup driver.", e);
       throw new RuntimeException("Unable to setup driver.", e);
     }
   }
-
-
 }

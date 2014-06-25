@@ -21,6 +21,7 @@ import com.microsoft.reef.client.FailedRuntime;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.tang.annotations.Parameter;
@@ -64,13 +65,20 @@ final class ContainerManager implements AutoCloseable {
   private final int capacity;
   private final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler;
   private final File rootFolder;
+  private final REEFFileNames fileNames;
 
   @Inject
-  ContainerManager(final RemoteManager remoteManager, final RuntimeClock clock,
-                   @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) final int capacity,
-                   @Parameter(LocalRuntimeConfiguration.RootFolder.class) final String rootFolderName,
-                   @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler) {
+  ContainerManager(
+      final RemoteManager remoteManager,
+      final RuntimeClock clock,
+      final REEFFileNames fileNames,
+      final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int capacity,
+      final @Parameter(LocalRuntimeConfiguration.RootFolder.class) String rootFolderName,
+      final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
+          EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler) {
+
     this.capacity = capacity;
+    this.fileNames = fileNames;
     this.errorHandlerRID = remoteManager.getMyIdentifier();
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
@@ -132,7 +140,8 @@ final class ContainerManager implements AutoCloseable {
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
       final File processFolder = new File(this.rootFolder, processID);
       processFolder.mkdirs();
-      final ProcessContainer container = new ProcessContainer(this.errorHandlerRID, nodeId, processID, processFolder, megaBytes);
+      final ProcessContainer container = new ProcessContainer(
+          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, this.fileNames);
       this.containers.put(container.getContainerID(), container);
       return container;
     }
@@ -141,13 +150,12 @@ final class ContainerManager implements AutoCloseable {
   final void release(final String containerID) {
     synchronized (this.containers) {
       final Container ctr = this.containers.get(containerID);
-      LOG.info("Releasing: " + ctr);
+      LOG.log(Level.INFO, "Releasing: {0}", ctr);
       ctr.close();
       this.freeNodeList.add(ctr.getNodeID());
       this.containers.remove(ctr.getContainerID());
     }
   }
-
 
   final Container get(final String containedID) {
     synchronized (this.containers) {
@@ -162,7 +170,6 @@ final class ContainerManager implements AutoCloseable {
     return this.containers.keySet();
   }
 
-
   @Override
   public void close() {
     synchronized (this.containers) {
@@ -171,7 +178,7 @@ final class ContainerManager implements AutoCloseable {
       } else {
         LOG.log(Level.WARNING, "Dirty shutdown with outstanding containers.");
         for (final Container c : this.containers.values()) {
-          LOG.log(Level.WARNING, "Force shutdown of:" + c);
+          LOG.log(Level.WARNING, "Force shutdown of: {0}", c);
           c.close();
         }
       }
