@@ -38,10 +38,11 @@ import java.util.logging.Logger;
 @RuntimeAuthor
 @ClientSide
 public final class JobJarMaker {
+
   private static final Logger LOG = Logger.getLogger(JobJarMaker.class.getName());
+
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
-
 
   @Inject
   JobJarMaker(final ConfigurationSerializer configurationSerializer,
@@ -50,23 +51,27 @@ public final class JobJarMaker {
     this.fileNames = fileNames;
   }
 
-  public File createJobSubmissionJAR(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
-                                     final Configuration driverConfiguration) throws IOException {
+  public File createJobSubmissionJAR(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final Configuration driverConfiguration) throws IOException {
 
     // Copy all files to a local job submission folder
     final File jobSubmissionFolder = makejobSubmissionFolder();
     LOG.log(Level.INFO, "Staging submission in {0}", jobSubmissionFolder);
 
-    final File localFolder = new File(jobSubmissionFolder, fileNames.getLocalFolderName());
-    final File globalFolder = new File(jobSubmissionFolder, fileNames.getGlobalFolderName());
+    final File localFolder = new File(jobSubmissionFolder, this.fileNames.getLocalFolderName());
+    final File globalFolder = new File(jobSubmissionFolder, this.fileNames.getGlobalFolderName());
+
     this.copy(jobSubmissionProto.getGlobalFileList(), globalFolder);
     this.copy(jobSubmissionProto.getLocalFileList(), localFolder);
 
     // Store the Driver Configuration in the JAR file.
-    this.configurationSerializer.toFile(driverConfiguration, new File(localFolder, fileNames.getDriverConfigurationName()));
+    this.configurationSerializer.toFile(
+        driverConfiguration, new File(localFolder, this.fileNames.getDriverConfigurationName()));
 
     // Create a JAR File for the submission
-    final File jarFile = File.createTempFile(fileNames.getJobFolderPrefix(), fileNames.getJarFileSuffix());
+    final File jarFile = File.createTempFile(
+        this.fileNames.getJobFolderPrefix(), this.fileNames.getJarFileSuffix());
 
     LOG.log(Level.INFO, "Creating job submission jar file: {0}", jarFile);
     new JARFileMaker(jarFile).addChildren(jobSubmissionFolder).close();
@@ -74,11 +79,13 @@ public final class JobJarMaker {
     return jarFile;
   }
 
-  public static void copy(final Iterable<ReefServiceProtos.FileResourceProto> files, final File destinationFolder) {
+  public static void copy(
+      final Iterable<ReefServiceProtos.FileResourceProto> files, final File destinationFolder) {
 
     if (!destinationFolder.exists()) {
       destinationFolder.mkdirs();
     }
+
     for (final ReefServiceProtos.FileResourceProto fileProto : files) {
       final File sourceFile = toFile(fileProto);
       final File destinationFile = new File(destinationFolder, fileProto.getName());
@@ -95,6 +102,6 @@ public final class JobJarMaker {
   }
 
   private File makejobSubmissionFolder() throws IOException {
-    return Files.createTempDirectory(fileNames.getJobFolderPrefix()).toFile();
+    return Files.createTempDirectory(this.fileNames.getJobFolderPrefix()).toFile();
   }
 }

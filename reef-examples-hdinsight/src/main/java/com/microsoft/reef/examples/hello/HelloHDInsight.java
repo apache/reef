@@ -25,13 +25,13 @@ import com.microsoft.tang.exceptions.InjectionException;
 public class HelloHDInsight {
 
   private static Configuration getRuntimeConfiguration(final String[] args) {
+
     final String username = args[0];
     final String password = args[1];
     final String url = args[2];
     final String storageAccount = args[3];
     final String containerName = args[4];
     final String storageKey = args[5];
-
 
     return UnsafeHDInsightRuntimeConfiguration.CONF
         .set(UnsafeHDInsightRuntimeConfiguration.USER_NAME, username)

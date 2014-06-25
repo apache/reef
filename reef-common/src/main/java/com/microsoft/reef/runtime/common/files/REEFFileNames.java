@@ -21,6 +21,7 @@ import net.jcip.annotations.Immutable;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -28,6 +29,7 @@ import java.util.List;
  */
 @Immutable
 public final class REEFFileNames {
+
   private static final String REEF_BASE_FOLDER = "reef";
   private static final String GLOBAL_FOLDER = "global";
   private static final String LOCAL_FOLDER = "local";
@@ -40,7 +42,6 @@ public final class REEFFileNames {
   private static final String DRIVER_STDOUT = "driver.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
-
 
   @Inject
   public REEFFileNames() {
@@ -178,10 +179,9 @@ public final class REEFFileNames {
   }
 
   public List<String> getClassPathList() {
-    final List<String> result = new ArrayList<>(2);
-    result.add(getLocalFolderPath() + "/*");
-    result.add(getGlobalFolderPath() + "/*");
-    return result;
+    return Arrays.asList(
+        getLocalFolderPath() + "/*",
+        getGlobalFolderPath() + "/*");
   }
 
   /**
@@ -197,6 +197,4 @@ public final class REEFFileNames {
   public String getEvaluatorStdoutFileName() {
     return EVALUATOR_STDOUT;
   }
-
-
 }

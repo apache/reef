@@ -49,6 +49,7 @@ import java.util.logging.Logger;
 final class AzureUploader {
 
   private static final Logger LOG = Logger.getLogger(AzureUploader.class.getName());
+
   private final CloudStorageAccount storageAccount;
   private final CloudBlobClient blobClient;
   private final CloudBlobContainer container;
@@ -58,20 +59,22 @@ final class AzureUploader {
   private String jobFolderName;
 
   @Inject
-  AzureUploader(final @Parameter(AzureStorageAccountName.class) String accountName,
-                final @Parameter(AzureStorageAccountKey.class) String accountKey,
-                final @Parameter(AzureStorageAccountContainerName.class) String azureStorageContainerName,
-                final @Parameter(AzureStorageBaseFolder.class) String baseFolder)
+  AzureUploader(
+      final @Parameter(AzureStorageAccountName.class) String accountName,
+      final @Parameter(AzureStorageAccountKey.class) String accountKey,
+      final @Parameter(AzureStorageAccountContainerName.class) String azureStorageContainerName,
+      final @Parameter(AzureStorageBaseFolder.class) String baseFolder)
       throws URISyntaxException, InvalidKeyException, StorageException {
+
     this.storageAccount = CloudStorageAccount.parse(getStorageConnectionString(accountName, accountKey));
     this.blobClient = this.storageAccount.createCloudBlobClient();
     this.azureStorageContainerName = azureStorageContainerName;
     this.container = this.blobClient.getContainerReference(azureStorageContainerName);
     this.container.createIfNotExists();
     this.baseFolder = baseFolder;
-    LOG.log(Level.INFO, "Instantiated AzureUploader connected to azure storage account: " + accountName);
-  }
 
+    LOG.log(Level.INFO, "Instantiated AzureUploader connected to azure storage account: {0}", accountName);
+  }
 
   public String createJobFolder(final String applicationID) throws IOException {
     try {
@@ -87,18 +90,26 @@ final class AzureUploader {
   }
 
   public FileResource uploadFile(final File file) throws IOException {
+
     LOG.log(Level.INFO, "Uploading: {0}, length: {1}", new Object[]{file, file.length()});
+
     try {
-      final CloudBlockBlob jobJarBlob = this.container.getBlockBlobReference(this.jobFolderName + "/" + file.getName());
+
+      final CloudBlockBlob jobJarBlob =
+          this.container.getBlockBlobReference(this.jobFolderName + "/" + file.getName());
+
       try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
         jobJarBlob.upload(in, file.length());
       }
+
       if (!jobJarBlob.exists()) {
         // TODO: If I don't do this check, the getLength() call below returns 0. No idea why.
         LOG.log(Level.WARNING, "Blob doesn't exist!");
       }
 
-      LOG.log(Level.INFO, "Uploaded to: " + jobJarBlob.getStorageUri().getPrimaryUri());
+      LOG.log(Level.INFO, "Uploaded to: {0}",
+          jobJarBlob.getStorageUri().getPrimaryUri());
+
       // Assemble the FileResource
       final BlobProperties blobProperties = jobJarBlob.getProperties();
       return new FileResource()
@@ -107,17 +118,14 @@ final class AzureUploader {
           .setSize(String.valueOf(blobProperties.getLength()))
           .setTimestamp(String.valueOf(blobProperties.getLastModified().getTime()))
           .setUrl(getFileSystemURL(jobJarBlob));
+
     } catch (final URISyntaxException | StorageException e) {
       throw new IOException(e);
     }
   }
 
   /**
-   * Assembles a connection string from account name and key.
-   *
-   * @param accountName
-   * @param accountKey
-   * @return
+   * Assemble a connection string from account name and key.
    */
   private static String getStorageConnectionString(final String accountName, final String accountKey) {
     // "DefaultEndpointsProtocol=http;AccountName=[ACCOUNT_NAME];AccountKey=[ACCOUNT_KEY]"
@@ -135,8 +143,6 @@ final class AzureUploader {
   }
 
   private String assembleJobFolderName(final String applicationID) {
-    return this.baseFolder.endsWith("/") ?
-        this.baseFolder + applicationID :
-        this.baseFolder + "/" + applicationID;
+    return this.baseFolder + (this.baseFolder.endsWith("/") ? "" : "/") + applicationID;
   }
 }
