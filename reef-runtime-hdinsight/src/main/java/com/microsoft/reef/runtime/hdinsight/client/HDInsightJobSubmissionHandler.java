@@ -23,6 +23,7 @@ import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.*;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.formats.ConfigurationSerializer;
@@ -70,6 +71,7 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
   public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
 
     try {
+
       LOG.log(Level.INFO, "Requesting Application ID from YARN.");
       final ApplicationID applicationID = this.hdInsightInstance.getApplicationID();
 
@@ -77,10 +79,12 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
       final String jobFolderURL = this.uploader.createJobFolder(applicationID.getId());
 
       LOG.log(Level.INFO, "Assembling Configuration for the Driver.");
-      final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionProto, applicationID.getId(), jobFolderURL);
+      final Configuration driverConfiguration =
+          makeDriverConfiguration(jobSubmissionProto, applicationID.getId(), jobFolderURL);
 
       LOG.log(Level.INFO, "Making Job JAR.");
-      final File jobSubmissionJarFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
+      final File jobSubmissionJarFile =
+          this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
 
       LOG.log(Level.INFO, "Uploading Job JAR to Azure.");
       final FileResource uploadedFile = this.uploader.uploadFile(jobSubmissionJarFile);
@@ -93,8 +97,7 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
           .setContainerInfo(new ContainerInfo()
                   .addFileResource(filenames.getREEFFolderName(), uploadedFile)
                   .addCommand(getCommandString(jobSubmissionProto))
-                  .addEnvironment("CLASSPATH", getClassPath())
-          );
+                  .addEnvironment("CLASSPATH", getClassPath()));
 
       LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getId());
       this.hdInsightInstance.submitApplication(applicationSubmission);
@@ -105,32 +108,30 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   /**
-   * Extracts the resource demands from the jobSubmissionProto
-   *
-   * @param jobSubmissionProto
-   * @return
+   * Extracts the resource demands from the jobSubmissionProto.
    */
-  private final Resource getResource(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
-    return new Resource().setMemory(String.valueOf(jobSubmissionProto.getDriverMemory())).setvCores("1");
+  private final Resource getResource(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+
+    return new Resource()
+        .setMemory(String.valueOf(jobSubmissionProto.getDriverMemory()))
+        .setvCores("1");
   }
 
   /**
    * Assembles the command to execute the Driver.
-   *
-   * @param jobSubmissionProto
-   * @return
    */
-  private String getCommandString(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+  private String getCommandString(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
     return Joiner.on(' ').join(getCommandList(jobSubmissionProto));
   }
 
   /**
    * Assembles the command to execute the Driver in list form.
-   *
-   * @param jobSubmissionProto
-   * @return
    */
-  private List<String> getCommandList(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+  private List<String> getCommandList(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+
     return new JavaLaunchCommandBuilder()
         .setJavaPath("%JAVA_HOME%/bin/java")
         .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
@@ -144,24 +145,26 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   private String getClassPath() {
-    final StringBuilder result = new StringBuilder("%HADOOP_HOME%/share/hadoop/common/lib/*;%HADOOP_HOME%/share/hadoop/common/*;%HADOOP_HOME%/etc/hadoop;%HADOOP_HOME%/share/hadoop/yarn/*;");
-    result.append(filenames.getClasspath());
-    return result.toString();
+    return
+        "%HADOOP_HOME%/share/hadoop/common/lib/*;" +
+        "%HADOOP_HOME%/share/hadoop/common/*;" +
+        "%HADOOP_HOME%/etc/hadoop;" +
+        "%HADOOP_HOME%/share/hadoop/yarn/*;" +
+        this.filenames.getClasspath();
   }
 
-
-  private Configuration makeDriverConfiguration(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
-                                                final String applicationId,
-                                                final String jobFolderURL) throws IOException {
-    final JavaConfigurationBuilder result = Tang.Factory.getTang().newConfigurationBuilder();
-    result.addConfiguration(this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()));
+  private Configuration makeDriverConfiguration(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final String applicationId,
+      final String jobFolderURL) throws IOException {
 
     final Configuration hdinsightDriverConfiguration = HDInsightDriverConfiguration.CONF
         .set(HDInsightDriverConfiguration.JOB_IDENTIFIER, applicationId)
         .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderURL)
         .build();
 
-    result.addConfiguration(hdinsightDriverConfiguration);
-    return result.build();
+    return Configurations.merge(
+        this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()),
+        hdinsightDriverConfiguration);
   }
 }

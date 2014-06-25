@@ -20,25 +20,25 @@ public final class LocalResourcesEntry {
   private String key;
   private FileResource value;
 
-  public LocalResourcesEntry(String key, FileResource value) {
+  public LocalResourcesEntry(final String key, final FileResource value) {
     this.key = key;
     this.value = value;
   }
 
   public String getKey() {
-    return key;
+    return this.key;
   }
 
-  public LocalResourcesEntry setKey(String key) {
+  public LocalResourcesEntry setKey(final String key) {
     this.key = key;
     return this;
   }
 
   public FileResource getValue() {
-    return value;
+    return this.value;
   }
 
-  public LocalResourcesEntry setValue(FileResource value) {
+  public LocalResourcesEntry setValue(final FileResource value) {
     this.value = value;
     return this;
   }

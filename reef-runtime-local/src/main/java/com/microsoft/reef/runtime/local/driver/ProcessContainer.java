@@ -32,7 +32,9 @@ import java.util.logging.Logger;
 @Private
 @TaskSide
 final class ProcessContainer implements Container {
+
   private static final Logger LOG = Logger.getLogger(ProcessContainer.class.getName());
+
   private final String errorHandlerRID;
   private final String nodeID;
   private Thread theThread;
@@ -44,7 +46,6 @@ final class ProcessContainer implements Container {
   private final File reefFolder;
   private final File localFolder;
   private final File globalFolder;
-
 
   /**
    * @param errorHandlerRID the remoteID of the error handler.
@@ -80,7 +81,6 @@ final class ProcessContainer implements Container {
     }
   }
 
-
   @Override
   public void addGlobalFiles(File globalFolder) {
     try {
@@ -92,11 +92,10 @@ final class ProcessContainer implements Container {
 
   @Override
   public void run(final List<String> commandLine) {
-    this.process = new RunnableProcess(commandLine, containedID, this.folder);
-    this.theThread = new Thread(process);
+    this.process = new RunnableProcess(commandLine, this.containedID, this.folder);
+    this.theThread = new Thread(this.process);
     this.theThread.start();
   }
-
 
   @Override
   public final boolean isRunning() {
@@ -115,7 +114,7 @@ final class ProcessContainer implements Container {
 
   @Override
   public String getNodeID() {
-    return nodeID;
+    return this.nodeID;
   }
 
   @Override
@@ -140,7 +139,6 @@ final class ProcessContainer implements Container {
         ", folder=" + folder +
         '}';
   }
-
 
   private static void copy(final Iterable<File> files, final File folder) throws IOException {
     for (final File sourceFile : files) {

@@ -28,6 +28,7 @@ import javax.inject.Inject;
 @Private
 @DriverSide
 final class LocalResourceLaunchHandler implements ResourceLaunchHandler {
+
   private final ResourceManager resourceManager;
 
   @Inject
@@ -37,6 +38,6 @@ final class LocalResourceLaunchHandler implements ResourceLaunchHandler {
 
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceLaunchProto t) {
-    resourceManager.onResourceLaunchRequest(t);
+    this.resourceManager.onResourceLaunchRequest(t);
   }
 }

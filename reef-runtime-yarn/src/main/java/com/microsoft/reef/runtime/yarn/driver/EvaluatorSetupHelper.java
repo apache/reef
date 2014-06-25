@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 final class EvaluatorSetupHelper {
 
   private static final Logger LOG = Logger.getLogger(EvaluatorSetupHelper.class.getName());
+
   private final String jobSubmissionDirectory;
   private final Map<String, LocalResource> globalResources;
   private final REEFFileNames fileNames;
@@ -60,31 +61,34 @@ final class EvaluatorSetupHelper {
   private final FileSystem fileSystem;
 
   @Inject
-  EvaluatorSetupHelper(final @Parameter(YarnMasterConfiguration.JobSubmissionDirectory.class) String jobSubmissionDirectory,
-                       final YarnConfiguration yarnConfiguration,
-                       final REEFFileNames fileNames,
-                       final ConfigurationSerializer configurationSerializer) throws IOException {
+  EvaluatorSetupHelper(
+      final @Parameter(YarnMasterConfiguration.JobSubmissionDirectory.class) String jobSubmissionDirectory,
+      final YarnConfiguration yarnConfiguration,
+      final REEFFileNames fileNames,
+      final ConfigurationSerializer configurationSerializer) throws IOException {
+
     this.fileSystem = FileSystem.get(yarnConfiguration);
     this.jobSubmissionDirectory = jobSubmissionDirectory;
     this.fileNames = fileNames;
     this.configurationSerializer = configurationSerializer;
-    globalResources = this.setup();
+    this.globalResources = this.setup();
   }
 
   public Map<String, LocalResource> getGlobalResources() {
-    return globalResources;
+    return this.globalResources;
   }
 
   private Map<String, LocalResource> setup() throws IOException {
     final Map<String, LocalResource> result = new HashMap<>(1);
     final Path pathToGlobalJar = this.uploadToJobFolder(makeGlobalJar());
-    result.put(fileNames.getGlobalFolderPath(), makeLocalResourceForJarFile(pathToGlobalJar));
+    result.put(this.fileNames.getGlobalFolderPath(), makeLocalResourceForJarFile(pathToGlobalJar));
     return result;
   }
 
   private File makeGlobalJar() throws IOException {
-    final File jarFile = new File(fileNames.getGlobalFolderName() + fileNames.getJarFileSuffix());
-    new JARFileMaker(jarFile).addChildren(fileNames.getGlobalFolder()).close();
+    final File jarFile = new File(
+        this.fileNames.getGlobalFolderName() + this.fileNames.getJarFileSuffix());
+    new JARFileMaker(jarFile).addChildren(this.fileNames.getGlobalFolder()).close();
     return jarFile;
   }
 
@@ -95,26 +99,32 @@ final class EvaluatorSetupHelper {
    * @return
    * @throws IOException
    */
-  public Map<String, LocalResource> getResources(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto)
+  public Map<String, LocalResource> getResources(
+      final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto)
       throws IOException {
+
     final Map<String, LocalResource> result = new HashMap<>();
     result.putAll(getGlobalResources());
-    final File localStagingFolder = Files.createTempDirectory(fileNames.getEvaluatorFolderPrefix()).toFile();
+    final File localStagingFolder =
+        Files.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix()).toFile();
 
     // Write the configuration
-    final File configurationFile = new File(localStagingFolder, fileNames.getEvaluatorConfigurationName());
-    this.configurationSerializer.toFile(makeEvaluatorConfiguration(resourceLaunchProto), configurationFile);
+    final File configurationFile = new File(
+        localStagingFolder, this.fileNames.getEvaluatorConfigurationName());
+    this.configurationSerializer.toFile(
+        makeEvaluatorConfiguration(resourceLaunchProto), configurationFile);
 
     // Copy files to the staging folder
     JobJarMaker.copy(resourceLaunchProto.getFileList(), localStagingFolder);
 
     // Make a JAR file out of it
-    final File localFile = File.createTempFile(fileNames.getEvaluatorFolderPrefix(), fileNames.getJarFileSuffix());
+    final File localFile = File.createTempFile(
+        this.fileNames.getEvaluatorFolderPrefix(), this.fileNames.getJarFileSuffix());
     new JARFileMaker(localFile).addChildren(localStagingFolder).close();
 
     // Upload the JAR to the job folder
     final Path pathToEvaluatorJar = uploadToJobFolder(localFile);
-    result.put(fileNames.getLocalFolderPath(), makeLocalResourceForJarFile(pathToEvaluatorJar));
+    result.put(this.fileNames.getLocalFolderPath(), makeLocalResourceForJarFile(pathToEvaluatorJar));
 
     return result;
   }
@@ -126,7 +136,8 @@ final class EvaluatorSetupHelper {
    * @return
    * @throws IOException
    */
-  private Configuration makeEvaluatorConfiguration(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) throws IOException {
+  private Configuration makeEvaluatorConfiguration(
+      final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) throws IOException {
     return Tang.Factory.getTang()
         .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf()))
         .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
@@ -157,7 +168,7 @@ final class EvaluatorSetupHelper {
    */
   private LocalResource makeLocalResourceForJarFile(final Path path) throws IOException {
     final LocalResource localResource = Records.newRecord(LocalResource.class);
-    final FileStatus status = FileContext.getFileContext(fileSystem.getUri()).getFileStatus(path);
+    final FileStatus status = FileContext.getFileContext(this.fileSystem.getUri()).getFileStatus(path);
     localResource.setType(LocalResourceType.ARCHIVE);
     localResource.setVisibility(LocalResourceVisibility.APPLICATION);
     localResource.setResource(ConverterUtils.getYarnUrlFromPath(status.getPath()));

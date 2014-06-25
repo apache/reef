@@ -125,14 +125,15 @@ final class DriverFiles {
   }
 
   /**
-   * Instantiates an instance based on the given JobSubmissionProto
+   * Instantiates an instance based on the given JobSubmissionProto.
    *
    * @param jobSubmissionProto the JobSubmissionProto to parse.
    * @return a DriverFiles instance pre-populated with the information from the given JobSubmissionProto.
    * @throws IOException
    */
   public static DriverFiles fromJobSubmission(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto, final REEFFileNames fileNames) throws IOException {
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final REEFFileNames fileNames) throws IOException {
 
     final DriverFiles driverFiles = new DriverFiles(fileNames);
 
@@ -143,7 +144,6 @@ final class DriverFiles {
       } else {
         driverFiles.addGlobalFile(f);
       }
-
     }
 
     for (final ReefServiceProtos.FileResourceProto frp : jobSubmissionProto.getLocalFileList()) {
@@ -154,6 +154,7 @@ final class DriverFiles {
         driverFiles.addLocalFile(f);
       }
     }
+
     return driverFiles;
   }
 }

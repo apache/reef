@@ -20,23 +20,25 @@ import javax.net.ssl.X509TrustManager;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-
 /**
  * A TrustManager that trusts all certificates. Basically the "GOTO FAIL" bug implemented in Java.
  * <p/>
  * Hence: DO NOT USE THIS CLASS UNLESS DEBUGGING.
  */
 final class TrustingTrustManager implements X509TrustManager {
+
   @Inject
   public TrustingTrustManager() {
   }
 
   @Override
-  public void checkClientTrusted(final X509Certificate[] x509Certificates, final String s) throws CertificateException {
+  public void checkClientTrusted(
+      final X509Certificate[] x509Certificates, final String s) throws CertificateException {
   }
 
   @Override
-  public void checkServerTrusted(final X509Certificate[] x509Certificates, final String s) throws CertificateException {
+  public void checkServerTrusted(
+      final X509Certificate[] x509Certificates, final String s) throws CertificateException {
   }
 
   @Override

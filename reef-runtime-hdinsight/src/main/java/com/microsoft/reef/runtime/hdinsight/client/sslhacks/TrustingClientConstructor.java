@@ -33,6 +33,7 @@ import java.util.logging.Logger;
  * ExternalConstructor for the Client of the javax.ws API
  */
 public final class TrustingClientConstructor implements ExternalConstructor<Client> {
+
   private static final Logger LOG = Logger.getLogger(TrustingClientConstructor.class.getName());
 
   @Inject
@@ -49,8 +50,9 @@ public final class TrustingClientConstructor implements ExternalConstructor<Clie
           .sslContext(sslContext)
           .hostnameVerifier(new IgnoringHostnameVerifier())
           .build();
-    } catch (final Exception e) {
-      throw new RuntimeException("Unable to instantiate HTTP Client", e);
+    } catch (final KeyManagementException | NoSuchAlgorithmException ex) {
+      LOG.log(Level.SEVERE, "SSL context error. Cannot instantiate HTTP client", ex);
+      throw new RuntimeException("Unable to instantiate HTTP Client", ex);
     }
   }
 

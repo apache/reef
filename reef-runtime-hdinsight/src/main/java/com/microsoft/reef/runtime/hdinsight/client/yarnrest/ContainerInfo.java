@@ -25,15 +25,18 @@ import java.util.Map;
  * Represents a ContainerInfo in the YARN REST APIs.
  */
 public final class ContainerInfo {
+
   public static final String DEFAULT_SERVICE_DATA = null;
   private String serviceData = DEFAULT_SERVICE_DATA;
+
   public static final String DEFAULT_TOKENS = "";
   private String tokens = DEFAULT_TOKENS;
+
   public static final String DEFAULT_ACLS = null;
   private String acls = DEFAULT_ACLS;
+
   private List<String> commands = new ArrayList<>();
   private Map<String, EnvironmentEntry> environment = new HashMap<>();
-
   private Map<String, LocalResourcesEntry> localResources = new HashMap<>();
 
   /**
@@ -65,54 +68,54 @@ public final class ContainerInfo {
   }
 
   public String getServiceData() {
-    return serviceData;
+    return this.serviceData;
   }
 
-  public ContainerInfo setServiceData(String serviceData) {
+  public ContainerInfo setServiceData(final String serviceData) {
     this.serviceData = serviceData;
     return this;
   }
 
   public String getTokens() {
-    return tokens;
+    return this.tokens;
   }
 
-  public ContainerInfo setTokens(String tokens) {
+  public ContainerInfo setTokens(final String tokens) {
     this.tokens = tokens;
     return this;
   }
 
   public String getAcls() {
-    return acls;
+    return this.acls;
   }
 
-  public ContainerInfo setAcls(String acls) {
+  public ContainerInfo setAcls(final String acls) {
     this.acls = acls;
     return this;
   }
 
   public Map<String, EnvironmentEntry> getEnvironment() {
-    return environment;
+    return this.environment;
   }
 
-  public void setEnvironment(Map<String, EnvironmentEntry> environment) {
+  public void setEnvironment(final Map<String, EnvironmentEntry> environment) {
     this.environment = environment;
   }
 
   public List<String> getCommands() {
-    return commands;
+    return this.commands;
   }
 
-  public ContainerInfo setCommands(List<String> commands) {
+  public ContainerInfo setCommands(final List<String> commands) {
     this.commands = commands;
     return this;
   }
 
   public Map<String, LocalResourcesEntry> getLocalResources() {
-    return localResources;
+    return this.localResources;
   }
 
-  public ContainerInfo setLocalResources(Map<String, LocalResourcesEntry> localResources) {
+  public ContainerInfo setLocalResources(final Map<String, LocalResourcesEntry> localResources) {
     this.localResources = localResources;
     return this;
   }

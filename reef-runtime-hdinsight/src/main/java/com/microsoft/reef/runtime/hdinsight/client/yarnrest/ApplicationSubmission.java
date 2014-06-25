@@ -22,26 +22,30 @@ public final class ApplicationSubmission {
 
   public static final String DEFAULT_QUEUE = "default";
   private String queue = DEFAULT_QUEUE;
+
   public static final String DEFAULT_PRIORITY = "3";
   private String priority = DEFAULT_PRIORITY;
+
   public static final String DEFAULT_MAX_ATTEMPTS = "1";
   private String maxAppAttempts = DEFAULT_MAX_ATTEMPTS;
+
   public static final String DEFAULT_APPLICATION_TYPE = "YARN";
   private String applicationType = DEFAULT_APPLICATION_TYPE;
+
   public static final String DEFAULT_KEEP_CONTAINERS = "false";
   private String keepContainers = DEFAULT_KEEP_CONTAINERS;
+
+  public static final String DEFAULT_IS_UNMANAGED_AM = "false";
+  private String isUnmanagedAM = DEFAULT_IS_UNMANAGED_AM;
+
+  public static final String DEFAULT_CANCEL_TOKENS_WHEN_COMPLETE = "true";
+  private String cancelTokensWhenComplete = DEFAULT_CANCEL_TOKENS_WHEN_COMPLETE;
+
   private String applicationId;
   private String applicationName;
   private ContainerInfo containerInfo;
-  public static final String DEFAULT_IS_UNMANAGED_AM = "false";
-  private String isUnmanagedAM = DEFAULT_IS_UNMANAGED_AM;
-  public static final String DEFAULT_CANCEL_TOKENS_WHEN_COMPLETE = "true";
-  private String cancelTokensWhenComplete = DEFAULT_CANCEL_TOKENS_WHEN_COMPLETE;
   private Resource resource;
 
-
-  // -------------------------------------------------
-  // Auto-generated getters and setters below.
   public String getApplicationId() {
     return applicationId;
   }

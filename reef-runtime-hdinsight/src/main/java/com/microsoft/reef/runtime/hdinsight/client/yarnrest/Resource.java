@@ -24,7 +24,7 @@ public final class Resource {
   private String vCores;
 
   public String getMemory() {
-    return memory;
+    return this.memory;
   }
 
   public Resource setMemory(final String memory) {
@@ -33,7 +33,7 @@ public final class Resource {
   }
 
   public String getvCores() {
-    return vCores;
+    return this.vCores;
   }
 
   public Resource setvCores(final String vCores) {
@@ -44,8 +44,8 @@ public final class Resource {
   @Override
   public String toString() {
     return "Resource{" +
-        "memory=" + memory +
-        ", vCores=" + vCores +
+        "memory=" + this.memory +
+        ", vCores=" + this.vCores +
         '}';
   }
 }

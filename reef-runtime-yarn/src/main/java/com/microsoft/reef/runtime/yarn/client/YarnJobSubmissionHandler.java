@@ -54,6 +54,7 @@ import java.util.logging.Logger;
 final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   private static final Logger LOG = Logger.getLogger(YarnJobSubmissionHandler.class.getName());
+
   private final YarnConfiguration yarnConfiguration;
   private final YarnClient yarnClient;
   private final JobJarMaker jobJarMaker;
@@ -62,10 +63,12 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final ConfigurationSerializer configurationSerializer;
 
   @Inject
-  YarnJobSubmissionHandler(final YarnConfiguration yarnConfiguration,
-                           final JobJarMaker jobJarMaker,
-                           final REEFFileNames fileNames,
-                           final ConfigurationSerializer configurationSerializer) throws IOException {
+  YarnJobSubmissionHandler(
+      final YarnConfiguration yarnConfiguration,
+      final JobJarMaker jobJarMaker,
+      final REEFFileNames fileNames,
+      final ConfigurationSerializer configurationSerializer) throws IOException {
+
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
     this.fileNames = fileNames;
@@ -85,10 +88,14 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   @Override
   public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+
     LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionProto.getIdentifier());
+
     try {
+
       LOG.log(Level.FINE, "Requesting Application ID from YARN.");
-      final YarnClientApplication yarnClientApplication = yarnClient.createApplication();
+
+      final YarnClientApplication yarnClientApplication = this.yarnClient.createApplication();
       final GetNewApplicationResponse applicationResponse = yarnClientApplication.getNewApplicationResponse();
 
       final ApplicationSubmissionContext applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
@@ -99,16 +106,14 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // set the application name
       applicationSubmissionContext.setApplicationName("reef-job-" + jobSubmissionProto.getIdentifier());
 
-
       LOG.log(Level.INFO, "Assembling submission JAR for the Driver.");
-      final Path submissionFolder = new Path("/tmp/" + fileNames.getJobFolderPrefix() + applicationId.getId() + "/");
+      final Path submissionFolder = new Path("/tmp/" + this.fileNames.getJobFolderPrefix() + applicationId.getId() + "/");
       final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionProto, submissionFolder);
       final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
       final Path uploadedJobJarPath = this.uploadToJobFolder(jobSubmissionFile, submissionFolder);
 
       final Map<String, LocalResource> resources = new HashMap<>(1);
       resources.put(fileNames.getREEFFolderName(), this.makeLocalResourceForJarFile(uploadedJobJarPath));
-
 
       // SET MEMORY RESOURCE
       final int amMemory = getMemory(jobSubmissionProto, applicationResponse.getMaximumResourceCapability().getMemory());
@@ -118,11 +123,11 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final List<String> launchCommand = new JavaLaunchCommandBuilder()
           .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
           .setLaunchID(jobSubmissionProto.getIdentifier())
-          .setConfigurationFileName(fileNames.getDriverConfigurationPath())
-          .setClassPath(fileNames.getClasspath())
+          .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
+          .setClassPath(this.fileNames.getClasspath())
           .setMemory(amMemory)
-          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + fileNames.getDriverStdoutFileName())
-          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + fileNames.getDriverStderrFileName())
+          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())
+          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
           .build();
 
       applicationSubmissionContext.setAMContainerSpec(YarnTypes.getContainerLaunchContext(launchCommand, resources));
@@ -139,22 +144,19 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   /**
    * Assembles the Driver configuration.
-   *
-   * @param jobSubmissionProto
-   * @param jobFolderPath
-   * @return
-   * @throws IOException
    */
-  private Configuration makeDriverConfiguration(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
-                                                final Path jobFolderPath) throws IOException {
+  private Configuration makeDriverConfiguration(
+      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final Path jobFolderPath) throws IOException {
+
     return new YarnMasterConfiguration()
         .setJobSubmissionDirectory(jobFolderPath.toString())
         .setJobIdentifier(jobSubmissionProto.getIdentifier())
         .setClientRemoteIdentifier(jobSubmissionProto.getRemoteId())
-        .addClientConfiguration(this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
+        .addClientConfiguration(
+            this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
         .build();
   }
-
 
   private final Path uploadToJobFolder(final File file, final Path jobFolder) throws IOException {
     final Path source = new Path(file.getAbsolutePath());
@@ -164,19 +166,16 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     return destination;
   }
 
-
   private Priority getPriority(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
-    return Priority.newInstance(jobSubmissionProto.hasPriority() ? jobSubmissionProto.getPriority() : 0);
+    return Priority.newInstance(
+        jobSubmissionProto.hasPriority() ? jobSubmissionProto.getPriority() : 0);
   }
 
   /**
    * Extract the queue name from the jobSubmissionProto or return default if none is set.
    *
-   * @param jobSubmissionProto
-   * @param defaultQueue
-   * @return
+   * TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration.
    */
-  // TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration
   private final String getQueue(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
                                 final String defaultQueue) {
     return jobSubmissionProto.hasQueue() && !jobSubmissionProto.getQueue().isEmpty() ?
@@ -187,12 +186,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
    * Extract the desired driver memory from jobSubmissionProto.
    * <p/>
    * returns maxMemory if that desired amount is more than maxMemory
-   *
-   * @param jobSubmissionProto
-   * @param maxMemory
-   * @return
    */
-
   private int getMemory(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
                         final int maxMemory) {
     final int amMemory;
@@ -207,13 +201,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     return amMemory;
   }
 
-
   /**
    * Creates a LocalResource instance for the JAR file referenced by the given Path
-   *
-   * @param path
-   * @return
-   * @throws IOException
    */
   private LocalResource makeLocalResourceForJarFile(final Path path) throws IOException {
     final LocalResource localResource = Records.newRecord(LocalResource.class);
@@ -225,5 +214,4 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     localResource.setSize(status.getLen());
     return localResource;
   }
-
 }

@@ -26,7 +26,9 @@ import java.util.logging.Logger;
  * ResourceReleaseHandler for YARN.
  */
 public final class YARNResourceReleaseHandler implements ResourceReleaseHandler {
+
   private static final Logger LOG = Logger.getLogger(YARNResourceReleaseHandler.class.getName());
+
   private final YarnContainerManager yarnContainerManager;
 
   @Inject

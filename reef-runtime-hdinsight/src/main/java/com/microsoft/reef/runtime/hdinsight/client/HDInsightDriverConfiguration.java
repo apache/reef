@@ -59,6 +59,7 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
   public static final OptionalParameter<Long> EVALUATOR_TIMEOUT = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new HDInsightDriverConfiguration()
+
       // Bind the YARN runtime for the resource manager.
       .bindImplementation(ResourceLaunchHandler.class, YARNResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, YARNResourceReleaseHandler.class)
@@ -68,11 +69,11 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
       .bindSetEntry(Clock.RuntimeStopHandler.class, YARNRuntimeStopHandler.class)
       .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
 
-          // Bind the YARN Configuration parameters
+      // Bind the YARN Configuration parameters
       .bindNamedParameter(YarnMasterConfiguration.JobSubmissionDirectory.class, JOB_SUBMISSION_DIRECTORY)
       .bindNamedParameter(YarnMasterConfiguration.YarnHeartbeatPeriod.class, YARN_HEARTBEAT_INTERVAL)
 
-          // Bind the fields bound in AbstractDriverRuntimeConfiguration
+      // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, JOB_IDENTIFIER)
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.EvaluatorTimeout.class, EVALUATOR_TIMEOUT)
 

@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
 
   private static final Logger LOG = Logger.getLogger(YARNResourceLaunchHandler.class.getName());
+
   private final Containers containers;
   private final InjectionFuture<YarnContainerManager> yarnContainerManager;
   private final EvaluatorSetupHelper evaluatorSetupHelper;

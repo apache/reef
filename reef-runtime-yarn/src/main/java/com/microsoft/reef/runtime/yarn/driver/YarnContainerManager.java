@@ -193,9 +193,6 @@ final class YarnContainerManager
 
   /**
    * Submit the given launchContext to the given container.
-   *
-   * @param container
-   * @param launchContext
    */
   void submit(final Container container, final ContainerLaunchContext launchContext) {
     this.nodeManager.startContainerAsync(container, launchContext);
@@ -203,8 +200,6 @@ final class YarnContainerManager
 
   /**
    * Release the given container.
-   *
-   * @param containerId
    */
   void release(final String containerId) {
     LOG.log(Level.FINE, "Release container: {0}", containerId);
@@ -214,6 +209,7 @@ final class YarnContainerManager
   }
 
   void onStart() {
+
     this.yarnClient.start();
     this.resourceManager.init(this.yarnConf);
     this.resourceManager.start();
@@ -228,7 +224,6 @@ final class YarnContainerManager
       LOG.log(Level.WARNING, "Unable to fetch node reports from YARN.", e);
       onRuntimeError(e);
     }
-
 
     try {
       this.registration.setRegistration(this.resourceManager.registerApplicationMaster(

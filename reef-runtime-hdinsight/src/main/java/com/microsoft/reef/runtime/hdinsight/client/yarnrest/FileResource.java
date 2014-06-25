@@ -16,44 +16,47 @@
 package com.microsoft.reef.runtime.hdinsight.client.yarnrest;
 
 public final class FileResource {
-  private String url;
-  private String type;
+
   public static final String TYPE_FILE = "FILE";
   public static final String TYPE_ARCHIVE = "ARCHIVE";
-  private String visibility;
+
   public static final String VISIBILITY_APPLICATION = "APPLICATION";
+
+  private String url;
+  private String type;
+  private String visibility;
   private String size;
   private String timestamp;
 
   public String getUrl() {
-    return url;
+    return this.url;
   }
 
-  public FileResource setUrl(String url) {
+  public FileResource setUrl(final String url) {
     this.url = url;
     return this;
   }
 
   public String getType() {
-    return type;
+    return this.type;
   }
 
-  public FileResource setType(String type) {
+  public FileResource setType(final String type) {
     this.type = type;
     return this;
   }
 
   public String getVisibility() {
-    return visibility;
+    return this.visibility;
   }
 
-  public FileResource setVisibility(String visibility) {
+  public FileResource setVisibility(final String visibility) {
     this.visibility = visibility;
     return this;
   }
 
   public String getSize() {
-    return size;
+    return this.size;
   }
 
   public FileResource setSize(final String size) {
@@ -62,10 +65,10 @@ public final class FileResource {
   }
 
   public String getTimestamp() {
-    return timestamp;
+    return this.timestamp;
   }
 
-  public FileResource setTimestamp(String timestamp) {
+  public FileResource setTimestamp(final String timestamp) {
     this.timestamp = timestamp;
     return this;
   }
