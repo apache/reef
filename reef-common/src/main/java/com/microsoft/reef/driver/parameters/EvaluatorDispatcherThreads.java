@@ -21,7 +21,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 /**
  * Number of threads allocated per evaluator to dispatch events from that Evaluator.
  */
-@NamedParameter(doc = "Number of threads allocated per evaluator to dispatch events from that Evaluator.", default_value = "4")
+@NamedParameter(doc = "Number of threads allocated per evaluator to dispatch events from that Evaluator.", default_value = "1")
 public final class EvaluatorDispatcherThreads implements Name<Integer> {
   private EvaluatorDispatcherThreads() {
   }
