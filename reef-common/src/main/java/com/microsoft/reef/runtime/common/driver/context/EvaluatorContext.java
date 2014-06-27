@@ -230,8 +230,8 @@ public final class EvaluatorContext implements ActiveContext {
 
     final String id = this.getId();
     final Optional<String> description = Optional.empty();
-    final Optional<byte[]> data = Optional.<byte[]>empty();
-    final Optional<Throwable> cause = Optional.<Throwable>empty();
+    final Optional<byte[]> data = Optional.empty();
+    final Optional<Throwable> cause = Optional.empty();
     final String message = "Evaluator Failure";
 
     final Optional<ActiveContext> parentContext = getParentId().isPresent() ?
@@ -254,16 +254,14 @@ public final class EvaluatorContext implements ActiveContext {
     final Optional<String> description = Optional.empty();
 
     final Optional<byte[]> data = contextStatusProto.hasError() ?
-        Optional.<byte[]>of(contextStatusProto.getError().toByteArray()) :
+        Optional.of(contextStatusProto.getError().toByteArray()) :
         Optional.<byte[]>empty();
 
     final Optional<Throwable> cause = data.isPresent() ?
         this.exceptionCodec.fromBytes(data) :
         Optional.<Throwable>empty();
 
-    final String message = cause.isPresent() ?
-        cause.get().getMessage() :
-        "No message given";
+    final String message = cause.isPresent() ? cause.get().getMessage() : "No message given";
 
     final Optional<ActiveContext> parentContext = getParentId().isPresent() ?
         Optional.<ActiveContext>of(this.evaluatorManager.getEvaluatorContext(getParentId().get())) :
