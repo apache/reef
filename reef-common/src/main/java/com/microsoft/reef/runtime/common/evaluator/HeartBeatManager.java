@@ -18,6 +18,8 @@ package com.microsoft.reef.runtime.common.evaluator;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.context.ContextManager;
+import com.microsoft.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier;
+import com.microsoft.reef.runtime.common.evaluator.parameters.HeartbeatPeriod;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.InjectionFuture;
@@ -26,13 +28,10 @@ import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.Alarm;
-import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,8 +52,8 @@ public class HeartBeatManager {
       final InjectionFuture<ContextManager> contextManager,
       final Clock clock,
       final RemoteManager remoteManager,
-      final @Parameter(EvaluatorConfigurationModule.HeartbeatPeriod.class) int heartbeatPeriod,
-      final @Parameter(EvaluatorConfigurationModule.DriverRemoteIdentifier.class) String driverRID) {
+      final @Parameter(HeartbeatPeriod.class) int heartbeatPeriod,
+      final @Parameter(DriverRemoteIdentifier.class) String driverRID) {
 
     this.evaluatorRuntime = evaluatorRuntime;
     this.contextManager = contextManager;

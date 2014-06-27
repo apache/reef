@@ -15,7 +15,9 @@
  */
 package com.microsoft.reef.runtime.common.evaluator.context;
 
-import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfigurationModule;
+import com.microsoft.reef.runtime.common.evaluator.parameters.InitialTaskConfiguration;
+import com.microsoft.reef.runtime.common.evaluator.parameters.RootContextConfiguration;
+import com.microsoft.reef.runtime.common.evaluator.parameters.RootServiceConfiguration;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
@@ -44,9 +46,9 @@ final class RootContextLauncher {
   private final ConfigurationSerializer configurationSerializer;
 
   @Inject
-  RootContextLauncher(final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
-                      final @Parameter(EvaluatorConfigurationModule.RootServiceConfiguration.class) String rootServiceConfiguration,
-                      final @Parameter(EvaluatorConfigurationModule.TaskConfiguration.class) String initialTaskConfiguration,
+  RootContextLauncher(final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
+                      final @Parameter(RootServiceConfiguration.class) String rootServiceConfiguration,
+                      final @Parameter(InitialTaskConfiguration.class) String initialTaskConfiguration,
                       final Injector injector, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;
@@ -56,9 +58,9 @@ final class RootContextLauncher {
   }
 
   @Inject
-  RootContextLauncher(final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
+  RootContextLauncher(final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
                       final Injector injector,
-                      final @Parameter(EvaluatorConfigurationModule.RootServiceConfiguration.class) String rootServiceConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
+                      final @Parameter(RootServiceConfiguration.class) String rootServiceConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;
     this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
@@ -68,8 +70,8 @@ final class RootContextLauncher {
 
   @Inject
   RootContextLauncher(final Injector injector,
-                      final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
-                      final @Parameter(EvaluatorConfigurationModule.TaskConfiguration.class) String initialTaskConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
+                      final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
+                      final @Parameter(InitialTaskConfiguration.class) String initialTaskConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;
     this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
@@ -78,7 +80,7 @@ final class RootContextLauncher {
   }
 
   @Inject
-  RootContextLauncher(final @Parameter(EvaluatorConfigurationModule.RootContextConfiguration.class) String rootContextConfiguration,
+  RootContextLauncher(final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
                       final Injector injector, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;
