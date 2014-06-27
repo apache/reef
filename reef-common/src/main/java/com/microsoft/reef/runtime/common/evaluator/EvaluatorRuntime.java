@@ -21,6 +21,9 @@ import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.EvaluatorControlProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.EvaluatorStatusProto;
 import com.microsoft.reef.runtime.common.evaluator.context.ContextManager;
+import com.microsoft.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier;
+import com.microsoft.reef.runtime.common.evaluator.parameters.EvaluatorIdentifier;
+import com.microsoft.reef.runtime.common.evaluator.parameters.HeartbeatPeriod;
 import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Parameter;
@@ -52,9 +55,9 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
 
   @Inject
   private EvaluatorRuntime(
-      final @Parameter(EvaluatorConfigurationModule.HeartbeatPeriod.class) int heartbeatPeriod,
-      final @Parameter(EvaluatorConfigurationModule.EvaluatorIdentifier.class) String evaluatorIdentifier,
-      final @Parameter(EvaluatorConfigurationModule.DriverRemoteIdentifier.class) String driverRID,
+      final @Parameter(HeartbeatPeriod.class) int heartbeatPeriod,
+      final @Parameter(EvaluatorIdentifier.class) String evaluatorIdentifier,
+      final @Parameter(DriverRemoteIdentifier.class) String driverRID,
       final HeartBeatManager.HeartbeatAlarmHandler heartbeatAlarmHandler,
       final HeartBeatManager heartBeatManager,
       final Clock clock,
