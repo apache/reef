@@ -38,7 +38,9 @@ import java.util.logging.Logger;
  * Central dispatcher for all Evaluator related events. This exists once per Evaluator.
  */
 public final class EvaluatorMessageDispatcher {
+
   private static final Logger LOG = Logger.getLogger(EvaluatorMessageDispatcher.class.getName());
+
   /**
    * Dispatcher used for application provided event handlers.
    */
@@ -86,7 +88,7 @@ public final class EvaluatorMessageDispatcher {
       final DriverExceptionHandler driverExceptionHandler) {
 
     this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads);
-    this.applicationDispatcher = new DispatchingEStage(serviceDispatcher);
+    this.applicationDispatcher = new DispatchingEStage(this.serviceDispatcher);
 
     { // Application Context event handlers
       this.applicationDispatcher.register(ActiveContext.class, contextActiveHandlers);
@@ -99,7 +101,6 @@ public final class EvaluatorMessageDispatcher {
       this.serviceDispatcher.register(ClosedContext.class, serviceContextClosedHandlers);
       this.serviceDispatcher.register(FailedContext.class, serviceContextFailedHandlers);
       this.serviceDispatcher.register(ContextMessage.class, serviceContextMessageHandlers);
-
     }
     { // Application Task event handlers.
       this.applicationDispatcher.register(RunningTask.class, taskRunningHandlers);
@@ -115,18 +116,17 @@ public final class EvaluatorMessageDispatcher {
       this.serviceDispatcher.register(TaskMessage.class, serviceTaskMessageEventHandlers);
       this.serviceDispatcher.register(FailedTask.class, serviceTaskExceptionEventHandlers);
     }
-
     { // Application Evaluator event handlers
       this.applicationDispatcher.register(FailedEvaluator.class, evaluatorFailedHandlers);
       this.applicationDispatcher.register(CompletedEvaluator.class, evaluatorCompletedHandlers);
       this.applicationDispatcher.register(AllocatedEvaluator.class, evaluatorAllocatedHandlers);
     }
-
     { // Service Evaluator event handlers
       this.serviceDispatcher.register(FailedEvaluator.class, serviceEvaluatorFailedHandlers);
       this.serviceDispatcher.register(CompletedEvaluator.class, serviceEvaluatorCompletedHandlers);
       this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
     }
+
     LOG.log(Level.INFO, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
