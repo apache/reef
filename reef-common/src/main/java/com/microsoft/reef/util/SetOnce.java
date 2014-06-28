@@ -15,11 +15,11 @@
  */
 package com.microsoft.reef.util;
 
-
 /**
  * A reference to a value that can be set exactly once.
  */
 public final class SetOnce<T> {
+
   private Optional<T> value;
 
   public SetOnce(final T value) {
@@ -36,7 +36,8 @@ public final class SetOnce<T> {
 
   public synchronized void set(final T value) {
     if (this.value.isPresent()) {
-      throw new IllegalStateException("Trying to set new value " + value + " while an old value was already present: " + this.value);
+      throw new IllegalStateException("Trying to set new value " + value +
+          " while an old value was already present: " + this.value);
     }
     this.value = Optional.of(value);
   }

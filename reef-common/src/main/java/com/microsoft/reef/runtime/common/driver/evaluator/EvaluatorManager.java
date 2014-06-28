@@ -491,17 +491,17 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    */
   private void onTaskStatusMessage(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
 
-    if ((!this.task.isPresent()) || (!this.task.get().getId().equals(taskStatusProto.getTaskId()))) {
-      if (taskStatusProto.getState() == ReefServiceProtos.State.INIT || taskStatusProto.getState() == ReefServiceProtos.State.FAILED) {
-        // FAILED is a legal first state of a Task as it could have failed during construction.
+    if (!(this.task.isPresent() && this.task.get().getId().equals(taskStatusProto.getTaskId()))) {
+      if (taskStatusProto.getState() == ReefServiceProtos.State.INIT ||
+          taskStatusProto.getState() == ReefServiceProtos.State.FAILED) {
 
+        // FAILED is a legal first state of a Task as it could have failed during construction.
         this.task = Optional.of(
             new TaskRepresenter(taskStatusProto.getTaskId(),
                 getEvaluatorContext(taskStatusProto.getContextId()),
                 this.messageDispatcher,
                 this,
-                this.exceptionCodec)
-        );
+                this.exceptionCodec));
       } else {
         throw new RuntimeException("Received an message of state " + taskStatusProto.getState() +
             ", not INIT or FAILED for Task " + taskStatusProto.getTaskId() + " which we haven't heard from before.");

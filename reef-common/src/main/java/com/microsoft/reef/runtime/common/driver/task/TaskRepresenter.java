@@ -36,7 +36,9 @@ import java.util.logging.Logger;
 @DriverSide
 @Private
 public final class TaskRepresenter {
+
   private static final Logger LOG = Logger.getLogger(TaskRepresenter.class.getName());
+
   private final EvaluatorContext context;
   private final EvaluatorMessageDispatcher messageDispatcher;
   private final EvaluatorManager evaluatorManager;
@@ -171,5 +173,4 @@ public final class TaskRepresenter {
   private void setState(final ReefServiceProtos.State newState) {
     this.state = newState;
   }
-
 }
