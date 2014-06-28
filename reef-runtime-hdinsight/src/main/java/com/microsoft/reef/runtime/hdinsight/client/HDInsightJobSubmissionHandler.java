@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.runtime.hdinsight.client;
 
-import com.google.common.base.Joiner;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.files.JobJarMaker;
@@ -24,14 +23,14 @@ import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.*;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
-import com.microsoft.tang.JavaConfigurationBuilder;
-import com.microsoft.tang.Tang;
 import com.microsoft.tang.formats.ConfigurationSerializer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,17 +89,24 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
       final FileResource uploadedFile = this.uploader.uploadFile(jobSubmissionJarFile);
 
       LOG.log(Level.INFO, "Assembling application submission.");
+      final String command = getCommandString(jobSubmissionProto);
       final ApplicationSubmission applicationSubmission = new ApplicationSubmission()
           .setApplicationId(applicationID.getId())
           .setApplicationName(jobSubmissionProto.getIdentifier())
           .setResource(getResource(jobSubmissionProto))
           .setContainerInfo(new ContainerInfo()
                   .addFileResource(filenames.getREEFFolderName(), uploadedFile)
-                  .addCommand(getCommandString(jobSubmissionProto))
+                  .addCommand(command)
                   .addEnvironment("CLASSPATH", getClassPath()));
 
       LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getId());
+
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "REEF app command: {0}", command);
+      }
+
       this.hdInsightInstance.submitApplication(applicationSubmission);
+
     } catch (final IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting HDInsight request", ex);
       throw new RuntimeException(ex);
@@ -123,7 +129,7 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
    */
   private String getCommandString(
       final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
-    return Joiner.on(' ').join(getCommandList(jobSubmissionProto));
+    return StringUtils.join(getCommandList(jobSubmissionProto), ' ');
   }
 
   /**
@@ -145,12 +151,13 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   private String getClassPath() {
-    return
-        "%HADOOP_HOME%/share/hadoop/common/lib/*;" +
-        "%HADOOP_HOME%/share/hadoop/common/*;" +
-        "%HADOOP_HOME%/etc/hadoop;" +
-        "%HADOOP_HOME%/share/hadoop/yarn/*;" +
-        this.filenames.getClasspath();
+    return StringUtils.join(Arrays.asList(
+        "%HADOOP_HOME%/etc/hadoop",
+        "%HADOOP_HOME%/share/hadoop/common/*",
+        "%HADOOP_HOME%/share/hadoop/common/lib/*",
+        "%HADOOP_HOME%/share/hadoop/yarn/*",
+        "%HADOOP_HOME%/share/hadoop/yarn/lib/*",
+        this.filenames.getClasspath()), ';');
   }
 
   private Configuration makeDriverConfiguration(
