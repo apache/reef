@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  */
 @Private
 @EvaluatorSide
-public final class TaskRuntime extends Thread {
+public final class TaskRuntime implements Runnable {
 
   private final static Logger LOG = Logger.getLogger(TaskRuntime.class.getName());
 
@@ -161,6 +161,10 @@ public final class TaskRuntime extends Thread {
    */
   public String getTaskId() {
     return this.currentStatus.getTaskId();
+  }
+
+  public String getId() {
+    return "TASK:" + this.task.getClass().getSimpleName() + ':' + this.currentStatus.getTaskId();
   }
 
   /**
