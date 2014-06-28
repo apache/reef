@@ -23,3 +23,12 @@ profile-*.json
 .dll
 .class
 .tlog
+dotnetHello
+lib
+x64
+*.sdf
+*.suo
+*.opensdf
+obj
+*.cache
+*.log
