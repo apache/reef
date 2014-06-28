@@ -86,6 +86,17 @@ namespace Microsoft
 					virtual String^ GetString();
 				};
 
+				public ref class RunningTaskClr2Java : public IRunningTaskClr2Java
+				{
+					jobject  _jobjectRunningTask;
+					JavaVM* _jvm;
+				public:
+					RunningTaskClr2Java(JNIEnv *env, jobject jrunningTask);
+					virtual void OnError(String^ message);
+					virtual IActiveContextClr2Java^ GetActiveContext();
+					virtual String^ GetString();
+				};
+
 				public ref class FailedEvaluatorClr2Java : public IFailedEvaluatorClr2Java
 				{
 					jobject  _jobjectFailedEvaluator;

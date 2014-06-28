@@ -21,12 +21,12 @@ namespace Microsoft
 
 				IActiveContextClr2Java^ FailedTaskClr2Java::GetActiveContext()
 				{
-					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext"); fflush (stdout);															
+					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext\n"); fflush (stdout);															
 					
 					JNIEnv *env = RetrieveEnv(_jvm);
 
 					jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
-					jfieldID jidActiveContext = env->GetFieldID(jclassFailedTask, "jactiveContext", "Lcom.microsoft.reef.javabridge/ActiveContextBridge;");
+					jfieldID jidActiveContext = env->GetFieldID(jclassFailedTask, "jactiveContext", "Lcom/microsoft/reef/javabridge/ActiveContextBridge;");
 					jobject jobjectActiveContext = env->GetObjectField(_jobjectFailedTask, jidActiveContext);
 
 					fprintf(stdout, "FailedTaskClr2Java jidActiveContext %p\n", jidActiveContext); fflush (stdout);
@@ -36,7 +36,7 @@ namespace Microsoft
 
 				String^ FailedTaskClr2Java::GetString()
 				{
-					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext"); fflush (stdout);															
+					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext\n"); fflush (stdout);															
 					JNIEnv *env = RetrieveEnv(_jvm);
 
 					jclass jclassFailedTask = env->GetObjectClass (_jobjectFailedTask);
