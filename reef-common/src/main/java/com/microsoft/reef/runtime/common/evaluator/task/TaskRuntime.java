@@ -164,8 +164,7 @@ public final class TaskRuntime implements Runnable {
   }
 
   public String getId() {
-    return "TASK:" + this.task.getClass().getSimpleName() + ':'
-        + this.currentStatus.getTaskId() + ':' + this.currentStatus.getState();
+    return "TASK:" + this.task.getClass().getSimpleName() + ':' + this.currentStatus.getTaskId();
   }
 
   /**
