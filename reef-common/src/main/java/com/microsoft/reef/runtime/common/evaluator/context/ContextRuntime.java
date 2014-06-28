@@ -75,6 +75,8 @@ public final class ContextRuntime {
    */
   private Optional<TaskRuntime> task = Optional.empty(); // guarded by this
 
+  private Thread taskRuntimeThread = null;
+
   // TODO: Which lock guards this?
   private ReefServiceProtos.ContextStatusProto.State contextState =
       ReefServiceProtos.ContextStatusProto.State.READY;
@@ -252,7 +254,8 @@ public final class ContextRuntime {
         final Injector taskInjector = this.contextInjector.forkInjector(taskConfig);
         final TaskRuntime taskRuntime = taskInjector.getInstance(TaskRuntime.class);
         taskRuntime.initialize();
-        taskRuntime.start();
+        this.taskRuntimeThread = new Thread(taskRuntime, taskRuntime.getId());
+        this.taskRuntimeThread.start();
         this.task = Optional.of(taskRuntime);
         LOG.log(Level.FINEST, "Started task: {0}", taskRuntime.getTaskId());
       } catch (final BindException | InjectionException e) {

@@ -46,7 +46,6 @@ public final class TaskRuntime implements Runnable {
 
   /** User supplied Task code. */
   private final Task task;
-  private final Thread thread;
 
   private final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler;
   private final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler;
@@ -98,8 +97,6 @@ public final class TaskRuntime implements Runnable {
     this.f_messageHandler = f_messageHandler;
 
     this.currentStatus = currentStatus;
-
-    this.thread = new Thread(this);
   }
 
   /**
@@ -108,7 +105,6 @@ public final class TaskRuntime implements Runnable {
    */
   public void initialize() {
     this.currentStatus.setInit();
-    this.thread.setName(this.getId());
   }
 
   /**
@@ -305,19 +301,5 @@ public final class TaskRuntime implements Runnable {
     } catch (final Throwable throwable) {
       throw new TaskSuspendHandlerFailure(throwable);
     }
-  }
-
-  /**
-   * Start the TaskRuntime in a separate thread.
-   * @throws java.lang.IllegalStateException if thread already started.
-   */
-  public void start() {
-
-    if (this.thread.getState() != Thread.State.NEW) {
-      LOG.log(Level.SEVERE, "TaskRuntime thread already started: {0}", this.thread);
-      throw new IllegalStateException("TaskRuntime thread already started");
-    }
-
-    this.thread.start();
   }
 }
