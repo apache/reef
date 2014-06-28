@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.parameters;
+package com.microsoft.reef.tests;
 
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.reef.tests.taskcounting.TaskCountingTest;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
- * Number of threads allocated per evaluator to dispatch events from that Evaluator.
+ * A test suite for probabilistic tests: Tests that run man, many times in order to check for HeisenBugs.
  */
-@NamedParameter(
-    doc = "Number of threads allocated per evaluator to dispatch events from that Evaluator.",
-    default_value = "1")
-public final class EvaluatorDispatcherThreads implements Name<Integer> {
-  private EvaluatorDispatcherThreads() {
-  }
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+    TaskCountingTest.class
+})
+public final class ProbabilisticTests {
 }

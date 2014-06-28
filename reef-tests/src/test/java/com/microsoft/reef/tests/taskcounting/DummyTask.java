@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.parameters;
+package com.microsoft.reef.tests.taskcounting;
 
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.reef.task.Task;
 
-/**
- * Number of threads allocated per evaluator to dispatch events from that Evaluator.
- */
-@NamedParameter(
-    doc = "Number of threads allocated per evaluator to dispatch events from that Evaluator.",
-    default_value = "1")
-public final class EvaluatorDispatcherThreads implements Name<Integer> {
-  private EvaluatorDispatcherThreads() {
+import javax.inject.Inject;
+
+final class DummyTask implements Task {
+
+  @Inject
+  DummyTask() {
+  }
+
+  @Override
+  public byte[] call(final byte[] memento) throws Exception {
+    return null;
   }
 }

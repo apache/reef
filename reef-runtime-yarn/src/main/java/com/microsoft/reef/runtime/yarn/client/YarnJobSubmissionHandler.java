@@ -26,6 +26,7 @@ import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnTypes;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.ConfigurationSerializer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -43,6 +44,7 @@ import org.apache.hadoop.yarn.util.Records;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +126,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
           .setLaunchID(jobSubmissionProto.getIdentifier())
           .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
-          .setClassPath(this.fileNames.getClasspath())
+          .setClassPath(getClasspath())
           .setMemory(amMemory)
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
@@ -136,10 +138,32 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       // Set the queue to which this application is to be submitted in the RM
       applicationSubmissionContext.setQueue(getQueue(jobSubmissionProto, "default"));
       LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", applicationId);
+
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(launchCommand, ' '));
+      }
+
       this.yarnClient.submitApplication(applicationSubmissionContext);
+
     } catch (final YarnException | IOException e) {
       throw new RuntimeException("Unable to submit Driver to YARN.", e);
     }
+  }
+
+  private String getClasspath() {
+    return StringUtils.join(Arrays.asList(
+        "$HADOOP_CONF_DIR",
+        "$HADOOP_HOME/*",
+        "$HADOOP_HOME/lib/*",
+        "$HADOOP_COMMON_HOME/*",
+        "$HADOOP_COMMON_HOME/lib/*",
+        "$HADOOP_YARN_HOME/*",
+        "$HADOOP_YARN_HOME/lib/*",
+        "$HADOOP_HDFS_HOME/*",
+        "$HADOOP_HDFS_HOME/lib/*",
+        "$HADOOP_MAPRED_HOME/*",
+        "$HADOOP_MAPRED_HOME/lib/*",
+        this.fileNames.getClasspath()), ':');
   }
 
   /**

@@ -16,52 +16,38 @@
 package com.microsoft.reef.exception;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
-import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.io.naming.Identifiable;
 
 import java.util.concurrent.ExecutionException;
 
 /**
  * Exception thrown to the Driver when an Evaluator becomes unusable.
- *
  */
 @DriverSide
 public class EvaluatorException extends ExecutionException implements Identifiable {
 
   private static final long serialVersionUID = 1L;
   private final transient String evaluatorId;
-  private final transient RunningTask runningTask;
 
   public EvaluatorException(final String evaluatorId) {
     super();
     this.evaluatorId = evaluatorId;
-    this.runningTask = null;
   }
 
   public EvaluatorException(final String evaluatorId, final String message, final Throwable cause) {
     super(message, cause);
     this.evaluatorId = evaluatorId;
-    this.runningTask = null;
   }
 
   public EvaluatorException(final String evaluatorId, final String message) {
-    this(evaluatorId, message, (RunningTask) null);
-  }
-
-  public EvaluatorException(final String evaluatorId, final String message, final RunningTask runningTask) {
     super(message);
     this.evaluatorId = evaluatorId;
-    this.runningTask = runningTask;
   }
+
 
   public EvaluatorException(final String evaluatorId, final Throwable cause) {
-    this(evaluatorId, cause, null);
-  }
-
-  public EvaluatorException(final String evaluatorId, final Throwable cause, final RunningTask runningTask) {
     super(cause);
     this.evaluatorId = evaluatorId;
-    this.runningTask = runningTask;
   }
 
   /**
@@ -74,7 +60,4 @@ public class EvaluatorException extends ExecutionException implements Identifiab
     return this.evaluatorId;
   }
 
-  public final RunningTask getRunningTask() {
-    return this.runningTask;
-  }
 }

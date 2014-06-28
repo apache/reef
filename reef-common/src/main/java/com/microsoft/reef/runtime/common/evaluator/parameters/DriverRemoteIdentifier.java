@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.parameters;
+package com.microsoft.reef.runtime.common.evaluator.parameters;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * Number of threads allocated per evaluator to dispatch events from that Evaluator.
+ * The identifier used by the Evaluator to connect back to the Driver.
  */
-@NamedParameter(
-    doc = "Number of threads allocated per evaluator to dispatch events from that Evaluator.",
-    default_value = "1")
-public final class EvaluatorDispatcherThreads implements Name<Integer> {
-  private EvaluatorDispatcherThreads() {
+@NamedParameter(doc = "The identifier used by the Evaluator to connect back to the Driver.")
+public final class DriverRemoteIdentifier implements Name<String> {
+  private DriverRemoteIdentifier() {
   }
 }

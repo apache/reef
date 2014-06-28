@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.parameters;
+package com.microsoft.reef.runtime.common.evaluator.parameters;
 
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * Number of threads allocated per evaluator to dispatch events from that Evaluator.
+ * The service configuration for the root context
  */
-@NamedParameter(
-    doc = "Number of threads allocated per evaluator to dispatch events from that Evaluator.",
-    default_value = "1")
-public final class EvaluatorDispatcherThreads implements Name<Integer> {
-  private EvaluatorDispatcherThreads() {
+@NamedParameter(doc = "The service configuration for the root context")
+public final class RootServiceConfiguration implements Name<String> {
+  private RootServiceConfiguration() {
   }
 }
