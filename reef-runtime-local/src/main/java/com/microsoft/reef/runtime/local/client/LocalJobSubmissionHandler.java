@@ -28,6 +28,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationSerializer;
+import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -88,7 +89,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
     try {
 
-      LOG.log(Level.FINEST, "Starting Job {0}", t.getIdentifier());
+      LOG.log(Level.FINEST, "Starting local job {0}", t.getIdentifier());
 
       final File jobFolder = new File(new File(rootFolderName),
           "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
@@ -126,6 +127,10 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
           .setClassPath(fileNames.getClasspath())
           .setMemory(DRIVER_MEMORY)
           .build();
+
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(command, ' '));
+      }
 
       final RunnableProcess process = new RunnableProcess(command, "driver", driverFolder);
       this.executor.submit(process);
