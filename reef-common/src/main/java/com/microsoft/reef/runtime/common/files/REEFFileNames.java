@@ -15,12 +15,12 @@
  */
 package com.microsoft.reef.runtime.common.files;
 
-import com.google.common.base.Joiner;
+import com.microsoft.reef.util.OSUtils;
 import net.jcip.annotations.Immutable;
+import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -175,13 +175,39 @@ public final class REEFFileNames {
    * @return the class path for the process.
    */
   public String getClasspath() {
-    return Joiner.on(File.pathSeparator).join(getClassPathList());
+    return StringUtils.join(getClassPathList(), File.pathSeparatorChar);
   }
 
   public List<String> getClassPathList() {
-    return Arrays.asList(
-        getLocalFolderPath() + "/*",
-        getGlobalFolderPath() + "/*");
+    return OSUtils.isWindows() ?
+          Arrays.asList(
+              "%HADOOP_CONF_DIR%",
+              "%HADOOP_HOME%/*",
+              "%HADOOP_HOME%/lib/*",
+              "%HADOOP_COMMON_HOME%/*",
+              "%HADOOP_COMMON_HOME%/lib/*",
+              "%HADOOP_YARN_HOME%/*",
+              "%HADOOP_YARN_HOME%/lib/*",
+              "%HADOOP_HDFS_HOME%/*",
+              "%HADOOP_HDFS_HOME%/lib/*",
+              "%HADOOP_MAPRED_HOME%/*",
+              "%HADOOP_MAPRED_HOME%/lib/*",
+              getLocalFolderPath() + "/*",
+              getGlobalFolderPath() + "/*") :
+          Arrays.asList(
+              "$HADOOP_CONF_DIR",
+              "$HADOOP_HOME/*",
+              "$HADOOP_HOME/lib/*",
+              "$HADOOP_COMMON_HOME/*",
+              "$HADOOP_COMMON_HOME/lib/*",
+              "$HADOOP_YARN_HOME/*",
+              "$HADOOP_YARN_HOME/lib/*",
+              "$HADOOP_HDFS_HOME/*",
+              "$HADOOP_HDFS_HOME/lib/*",
+              "$HADOOP_MAPRED_HOME/*",
+              "$HADOOP_MAPRED_HOME/lib/*",
+              getLocalFolderPath() + "/*",
+              getGlobalFolderPath() + "/*");
   }
 
   /**

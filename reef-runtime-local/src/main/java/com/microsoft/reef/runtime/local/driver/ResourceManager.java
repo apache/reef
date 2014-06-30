@@ -126,9 +126,6 @@ public final class ResourceManager {
       c.addGlobalFiles(this.fileNames.getGlobalFolder());
       c.addLocalFiles(getLocalFiles(launchRequest));
 
-      // Assemble the classpath.
-      final List<String> classPath = this.fileNames.getClassPathList();
-
       // Make the configuration file of the evaluator.
       final File evaluatorConfigurationFile = new File(
           c.getFolder(), fileNames.getEvaluatorConfigurationPath());
@@ -145,7 +142,8 @@ public final class ResourceManager {
       final LaunchCommandBuilder commandBuilder;
       switch (launchRequest.getType()) {
         case JVM:
-          commandBuilder = new JavaLaunchCommandBuilder().setClassPath(classPath);
+          commandBuilder = new JavaLaunchCommandBuilder()
+              .setClassPath(this.fileNames.getClassPathList());
           break;
         case CLR:
           commandBuilder = new CLRLaunchCommandBuilder();

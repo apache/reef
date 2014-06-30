@@ -23,6 +23,7 @@ import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.util.YarnTypes;
 import com.microsoft.tang.InjectionFuture;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
@@ -90,8 +91,11 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getEvaluatorStdoutFileName())
           .build();
 
-      LOG.log(Level.FINEST, "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
-          new Object[]{containerId, command, localResources});
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST,
+            "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
+            new Object[] { containerId, StringUtils.join(command, ' '), localResources });
+      }
 
       final ContainerLaunchContext ctx = YarnTypes.getContainerLaunchContext(command, localResources);
       this.yarnContainerManager.get().submit(container, ctx);
