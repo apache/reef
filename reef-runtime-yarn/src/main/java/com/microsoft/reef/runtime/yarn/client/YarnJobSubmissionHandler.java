@@ -24,7 +24,6 @@ import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnTypes;
-import com.microsoft.reef.util.OSUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +44,6 @@ import org.apache.hadoop.yarn.util.Records;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +59,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final YarnConfiguration yarnConfiguration;
   private final YarnClient yarnClient;
   private final JobJarMaker jobJarMaker;
-  private final REEFFileNames fileNames;
+  private final REEFFileNames filenames;
   private final FileSystem fileSystem;
   private final ConfigurationSerializer configurationSerializer;
 
@@ -69,12 +67,12 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   YarnJobSubmissionHandler(
       final YarnConfiguration yarnConfiguration,
       final JobJarMaker jobJarMaker,
-      final REEFFileNames fileNames,
+      final REEFFileNames filenames,
       final ConfigurationSerializer configurationSerializer) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
-    this.fileNames = fileNames;
+    this.filenames = filenames;
     this.configurationSerializer = configurationSerializer;
 
     this.fileSystem = FileSystem.get(yarnConfiguration);
@@ -101,39 +99,53 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final YarnClientApplication yarnClientApplication = this.yarnClient.createApplication();
       final GetNewApplicationResponse applicationResponse = yarnClientApplication.getNewApplicationResponse();
 
-      final ApplicationSubmissionContext applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
+      final ApplicationSubmissionContext applicationSubmissionContext =
+          yarnClientApplication.getApplicationSubmissionContext();
+
       final ApplicationId applicationId = applicationSubmissionContext.getApplicationId();
 
       LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
 
       // set the application name
-      applicationSubmissionContext.setApplicationName("reef-job-" + jobSubmissionProto.getIdentifier());
+      applicationSubmissionContext.setApplicationName(
+          "reef-job-" + jobSubmissionProto.getIdentifier());
 
       LOG.log(Level.INFO, "Assembling submission JAR for the Driver.");
-      final Path submissionFolder = new Path("/tmp/" + this.fileNames.getJobFolderPrefix() + applicationId.getId() + "/");
-      final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionProto, submissionFolder);
-      final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
+
+      final Path submissionFolder = new Path(
+          "/tmp/" + this.filenames.getJobFolderPrefix() + applicationId.getId() + "/");
+
+      final Configuration driverConfiguration =
+          makeDriverConfiguration(jobSubmissionProto, submissionFolder);
+
+      final File jobSubmissionFile =
+          this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
+
       final Path uploadedJobJarPath = this.uploadToJobFolder(jobSubmissionFile, submissionFolder);
 
       final Map<String, LocalResource> resources = new HashMap<>(1);
-      resources.put(fileNames.getREEFFolderName(), this.makeLocalResourceForJarFile(uploadedJobJarPath));
+      resources.put(this.filenames.getREEFFolderName(),
+          this.makeLocalResourceForJarFile(uploadedJobJarPath));
 
       // SET MEMORY RESOURCE
-      final int amMemory = getMemory(jobSubmissionProto, applicationResponse.getMaximumResourceCapability().getMemory());
+      final int amMemory = getMemory(
+          jobSubmissionProto, applicationResponse.getMaximumResourceCapability().getMemory());
       applicationSubmissionContext.setResource(Resource.newInstance(amMemory, 1));
 
       // SET EXEC COMMAND
       final List<String> launchCommand = new JavaLaunchCommandBuilder()
           .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
           .setLaunchID(jobSubmissionProto.getIdentifier())
-          .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
-          .setClassPath(getClasspath())
+          .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
+          .setClassPath(this.filenames.getClasspath())
           .setMemory(amMemory)
-          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())
-          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
+          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStdoutFileName())
+          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStderrFileName())
           .build();
 
-      applicationSubmissionContext.setAMContainerSpec(YarnTypes.getContainerLaunchContext(launchCommand, resources));
+      applicationSubmissionContext.setAMContainerSpec(
+          YarnTypes.getContainerLaunchContext(launchCommand, resources));
+
       applicationSubmissionContext.setPriority(getPriority(jobSubmissionProto));
 
       // Set the queue to which this application is to be submitted in the RM
@@ -149,37 +161,6 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     } catch (final YarnException | IOException e) {
       throw new RuntimeException("Unable to submit Driver to YARN.", e);
     }
-  }
-
-  private String getClasspath() {
-    return StringUtils.join(OSUtils.isWindows() ?
-        Arrays.asList(
-            "%HADOOP_CONF_DIR%",
-            "%HADOOP_HOME%/*",
-            "%HADOOP_HOME%/lib/*",
-            "%HADOOP_COMMON_HOME%/*",
-            "%HADOOP_COMMON_HOME%/lib/*",
-            "%HADOOP_YARN_HOME%/*",
-            "%HADOOP_YARN_HOME%/lib/*",
-            "%HADOOP_HDFS_HOME%/*",
-            "%HADOOP_HDFS_HOME%/lib/*",
-            "%HADOOP_MAPRED_HOME%/*",
-            "%HADOOP_MAPRED_HOME%/lib/*",
-            this.fileNames.getClasspath()) :
-        Arrays.asList(
-            "$HADOOP_CONF_DIR",
-            "$HADOOP_HOME/*",
-            "$HADOOP_HOME/lib/*",
-            "$HADOOP_COMMON_HOME/*",
-            "$HADOOP_COMMON_HOME/lib/*",
-            "$HADOOP_YARN_HOME/*",
-            "$HADOOP_YARN_HOME/lib/*",
-            "$HADOOP_HDFS_HOME/*",
-            "$HADOOP_HDFS_HOME/lib/*",
-            "$HADOOP_MAPRED_HOME/*",
-            "$HADOOP_MAPRED_HOME/lib/*",
-            this.fileNames.getClasspath()),
-        File.pathSeparatorChar);
   }
 
   /**
@@ -234,8 +215,11 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     if (requestedMemory <= maxMemory) {
       amMemory = requestedMemory;
     } else {
-      LOG.log(Level.WARNING, "Requested {0}MB of memory for the driver. The max on this YARN installation is {1}. Using {1} as the memory for the driver.",
-          new Object[]{requestedMemory, maxMemory});
+      LOG.log(Level.WARNING,
+          "Requested {0}MB of memory for the driver. " +
+          "The max on this YARN installation is {1}. " +
+          "Using {1} as the memory for the driver.",
+          new Object[] { requestedMemory, maxMemory });
       amMemory = maxMemory;
     }
     return amMemory;

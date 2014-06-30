@@ -143,7 +143,7 @@ public final class ResourceManager {
       switch (launchRequest.getType()) {
         case JVM:
           commandBuilder = new JavaLaunchCommandBuilder()
-              .setClassPath(this.fileNames.getClassPathList());
+              .setClassPath(this.fileNames.getClasspathList());
           break;
         case CLR:
           commandBuilder = new CLRLaunchCommandBuilder();

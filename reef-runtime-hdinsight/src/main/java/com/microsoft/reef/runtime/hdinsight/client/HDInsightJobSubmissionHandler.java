@@ -30,7 +30,6 @@ import org.apache.hadoop.yarn.api.ApplicationConstants;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,7 +96,7 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
           .setContainerInfo(new ContainerInfo()
                   .addFileResource(filenames.getREEFFolderName(), uploadedFile)
                   .addCommand(command)
-                  .addEnvironment("CLASSPATH", getClassPath()));
+                  .addEnvironment("CLASSPATH", this.filenames.getClasspath()));
 
       LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getId());
 
@@ -142,22 +141,12 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
         .setJavaPath("%JAVA_HOME%/bin/java")
         .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
         .setLaunchID(jobSubmissionProto.getIdentifier())
-        .setConfigurationFileName(filenames.getDriverConfigurationPath())
-        .setClassPath(getClassPath())
+        .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
+        .setClassPath(this.filenames.getClasspathList())
         .setMemory(jobSubmissionProto.getDriverMemory())
-        .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + filenames.getDriverStderrFileName())
-        .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + filenames.getDriverStdoutFileName())
+        .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStderrFileName())
+        .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStdoutFileName())
         .build();
-  }
-
-  private String getClassPath() {
-    return StringUtils.join(Arrays.asList(
-        "%HADOOP_HOME%/etc/hadoop",
-        "%HADOOP_HOME%/share/hadoop/common/*",
-        "%HADOOP_HOME%/share/hadoop/common/lib/*",
-        "%HADOOP_HOME%/share/hadoop/yarn/*",
-        "%HADOOP_HOME%/share/hadoop/yarn/lib/*",
-        this.filenames.getClasspath()), File.pathSeparatorChar);
   }
 
   private Configuration makeDriverConfiguration(

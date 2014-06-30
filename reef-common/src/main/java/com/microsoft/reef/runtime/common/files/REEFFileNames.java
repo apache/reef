@@ -171,43 +171,48 @@ public final class REEFFileNames {
     return EVALUATOR_FOLDER_PREFIX;
   }
 
+  private static String wrapVar(final String var) {
+    return OSUtils.isWindows() ? "%" + var + "%" : "$" + var;
+  }
+
+  private final static String HADOOP_CONF_DIR = wrapVar("HADOOP_CONF_DIR");
+  private final static String HADOOP_HOME = wrapVar("HADOOP_HOME");
+  private final static String HADOOP_COMMON_HOME = wrapVar("HADOOP_COMMON_HOME");
+  private final static String HADOOP_YARN_HOME = wrapVar("HADOOP_YARN_HOME");
+  private final static String HADOOP_HDFS_HOME = wrapVar("HADOOP_HDFS_HOME");
+  private final static String HADOOP_MAPRED_HOME = wrapVar("HADOOP_MAPRED_HOME");
+
   /**
    * @return the class path for the process.
    */
   public String getClasspath() {
-    return StringUtils.join(getClassPathList(), File.pathSeparatorChar);
+    return StringUtils.join(getClasspathList(), File.pathSeparatorChar);
   }
 
-  public List<String> getClassPathList() {
-    return OSUtils.isWindows() ?
-          Arrays.asList(
-              "%HADOOP_CONF_DIR%",
-              "%HADOOP_HOME%/*",
-              "%HADOOP_HOME%/lib/*",
-              "%HADOOP_COMMON_HOME%/*",
-              "%HADOOP_COMMON_HOME%/lib/*",
-              "%HADOOP_YARN_HOME%/*",
-              "%HADOOP_YARN_HOME%/lib/*",
-              "%HADOOP_HDFS_HOME%/*",
-              "%HADOOP_HDFS_HOME%/lib/*",
-              "%HADOOP_MAPRED_HOME%/*",
-              "%HADOOP_MAPRED_HOME%/lib/*",
-              getLocalFolderPath() + "/*",
-              getGlobalFolderPath() + "/*") :
-          Arrays.asList(
-              "$HADOOP_CONF_DIR",
-              "$HADOOP_HOME/*",
-              "$HADOOP_HOME/lib/*",
-              "$HADOOP_COMMON_HOME/*",
-              "$HADOOP_COMMON_HOME/lib/*",
-              "$HADOOP_YARN_HOME/*",
-              "$HADOOP_YARN_HOME/lib/*",
-              "$HADOOP_HDFS_HOME/*",
-              "$HADOOP_HDFS_HOME/lib/*",
-              "$HADOOP_MAPRED_HOME/*",
-              "$HADOOP_MAPRED_HOME/lib/*",
-              getLocalFolderPath() + "/*",
-              getGlobalFolderPath() + "/*");
+  public List<String> getClasspathList() {
+    return Arrays.asList(
+        HADOOP_CONF_DIR,
+        HADOOP_HOME + "/*",
+        HADOOP_HOME + "/lib/*",
+        HADOOP_COMMON_HOME + "/*",
+        HADOOP_COMMON_HOME + "/lib/*",
+        HADOOP_YARN_HOME + "/*",
+        HADOOP_YARN_HOME + "/lib/*",
+        HADOOP_HDFS_HOME + "/*",
+        HADOOP_HDFS_HOME + "/lib/*",
+        HADOOP_MAPRED_HOME + "/*",
+        HADOOP_MAPRED_HOME + "/lib/*",
+        HADOOP_HOME + "/etc/hadoop",
+        HADOOP_HOME + "/share/hadoop/common/*",
+        HADOOP_HOME + "/share/hadoop/common/lib/*",
+        HADOOP_HOME + "/share/hadoop/yarn/*",
+        HADOOP_HOME + "/share/hadoop/yarn/lib/*",
+        HADOOP_HOME + "/share/hadoop/hdfs/*",
+        HADOOP_HOME + "/share/hadoop/hdfs/lib/*",
+        HADOOP_HOME + "/share/hadoop/mapreduce/*",
+        HADOOP_HOME + "/share/hadoop/mapreduce/lib/*",
+        getLocalFolderPath() + "/*",
+        getGlobalFolderPath() + "/*");
   }
 
   /**
