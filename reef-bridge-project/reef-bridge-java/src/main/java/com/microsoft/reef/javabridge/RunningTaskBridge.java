@@ -27,6 +27,7 @@ public class RunningTaskBridge extends NativeBridge {
 
   final private RunningTask jrunningTask;
   final private ActiveContextBridge jactiveContext;
+  private byte[] message;
 
   public RunningTaskBridge(RunningTask runningTask) {
     jrunningTask = runningTask;
@@ -34,10 +35,18 @@ public class RunningTaskBridge extends NativeBridge {
     jactiveContext = new ActiveContextBridge(activeContext);
   }
 
-  public String getRunningTaskString() {
-    final String poorString = jrunningTask.getId();
-    LOG.log(Level.INFO, "serialized running task " + poorString);
-    return poorString;
+//  public String getRunningTaskString() {
+//    final String poorString = jrunningTask.getId();
+//    LOG.log(Level.INFO, "serialized running task " + poorString);
+//    return poorString;
+//  }
+
+  public final void setMessage(final byte[] message) {
+    this.message = message;
+  }
+
+  public final byte[] getMessage() {
+    return this.message;
   }
 
   @Override

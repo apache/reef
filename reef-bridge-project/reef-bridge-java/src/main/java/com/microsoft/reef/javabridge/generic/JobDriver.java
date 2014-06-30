@@ -389,9 +389,12 @@ public final class JobDriver {
         final InteropLogger interopLogger = new InteropLogger();
         final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task);
         NativeInterop.ClrSystemRunningTaskHandlerOnNext(runningTaskHandler, runningTaskBridge, interopLogger);
+        byte[] m = runningTaskBridge.getMessage();
+        LOG.log(Level.INFO, "RunningTaskHandler onNext is returned from bridge with message: {0}", new String(m, "UTF-8"));
+        task.send(m);
       } catch (final Exception ex) {
-        LOG.log(Level.SEVERE, "Fail to invoke CLR running task handler");
-        throw new RuntimeException(ex);
+        LOG.log(Level.WARNING, "Fail to invoke CLR running task handler");
+        //throw new RuntimeException(ex);
       }
     }
   }
