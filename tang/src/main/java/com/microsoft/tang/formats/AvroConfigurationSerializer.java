@@ -118,6 +118,13 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   @Override
+  public void toTextFile(final Configuration conf, final File file) throws IOException {
+    try (final Writer w = new FileWriter(file)) {
+      w.write(this.toString(conf));
+    }
+  }
+
+  @Override
   public byte[] toByteArray(final Configuration conf) throws IOException {
     final DatumWriter<AvroConfiguration> configurationWriter = new SpecificDatumWriter<>(AvroConfiguration.class);
     final byte[] theBytes;
@@ -236,6 +243,19 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   @Override
   public Configuration fromFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException {
     return fromAvro(avroFromFile(file), classHierarchy);
+  }
+
+  @Override
+  public Configuration fromTextFile(final File file) throws IOException, BindException{
+    final StringBuilder result = new StringBuilder();
+    try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+      String line = reader.readLine();
+      while (line != null) {
+        result.append(line);
+        line = reader.readLine();
+      }
+    }
+    return this.fromString(result.toString());
   }
 
   private static AvroConfiguration avroFromBytes(final byte[] theBytes) throws IOException {
