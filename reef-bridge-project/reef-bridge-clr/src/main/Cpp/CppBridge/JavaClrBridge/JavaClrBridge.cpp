@@ -123,7 +123,7 @@ JNIEXPORT jlongArray JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_Ca
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemAllocatedEvaluatorHandlerOnNext
- * Signature: (JLcom.microsoft.reef.javabridge/AllocatedEvaluatorBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (JLcom/microsoft/reef/javabridge/AllocatedEvaluatorBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemAllocatedEvaluatorHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jallocatedEvaluatorBridge, jobject jlogger)
@@ -144,7 +144,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemActiveContextHandlerOnNext
- * Signature: (JLcom.microsoft.reef.javabridge/ActiveContextBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (JLcom/microsoft/reef/javabridge/ActiveContextBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemActiveContextHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge, jobject jlogger)
@@ -165,7 +165,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemEvaluatorRequstorHandlerOnNext
- * Signature: (JLcom.microsoft.reef.javabridge/EvaluatorRequstorBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (JLcom/microsoft/reef/javabridge/EvaluatorRequstorBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemEvaluatorRequstorHandlerOnNext
   (JNIEnv *env, jclass cls, jlong handle, jobject jevaluatorRequestorBridge, jobject jlogger)
@@ -186,7 +186,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemTaskMessageHandlerOnNext
- * Signature: (J[BLcom.microsoft.reef.javabridge/TaskMessageBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (J[BLcom/microsoft/reef/javabridge/TaskMessageBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemTaskMessageHandlerOnNext
 	(JNIEnv *env, jclass cls, jlong handle, jbyteArray jmessage, jobject jtaskMessageBridge, jobject jlogger)
@@ -208,7 +208,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSysteFailedTaskHandlerOnNext
- * Signature: (JLcom.microsoft.reef.javabridge/FailedTaskBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (JLcom/microsoft/reef/javabridge/FailedTaskBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jfailedTask, jobject jlogger)
@@ -229,7 +229,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemFailedEvaluatorHandlerOnNext
- * Signature: (JLcom.microsoft.reef.javabridge/FailedEvaluatorBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (JLcom/microsoft/reef/javabridge/FailedEvaluatorBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jfailedEvaluator, jobject jlogger)
@@ -250,7 +250,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemHttpServerEventHandlerOnHttpRequest
- * Signature: (JLcom.microsoft.reef.javabridge/HttpServerEventBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (JLcom/microsoft/reef/javabridge/HttpServerEventBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemHttpServerHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jhttpServerEventBridge, jobject jlogger)
@@ -271,7 +271,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemCompletedTaskHandlerOnNext
- * Signature: (JLcom.microsoft.reef.javabridge/CompletedTaskBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ * Signature: (JLcom/microsoft/reef/javabridge/CompletedTaskBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */
 JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemCompletedTaskHandlerOnNext
   (JNIEnv *env , jclass cls, jlong handler, jobject jcompletedTask, jobject jlogger)
