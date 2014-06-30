@@ -15,10 +15,7 @@
  */
 package com.microsoft.wake.test.remote;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,7 +44,6 @@ import com.microsoft.wake.remote.impl.MultiEncoder;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.remote.impl.ProxyEventHandler;
 import com.microsoft.wake.remote.impl.RemoteEvent;
-import com.microsoft.wake.remote.impl.RemoteEventCodec;
 import com.microsoft.wake.remote.impl.RemoteReceiverStage;
 import com.microsoft.wake.remote.impl.RemoteSenderStage;
 import com.microsoft.wake.remote.impl.RemoteSeqNumGenerator;
@@ -67,7 +63,7 @@ public class SmallMessagesTest {
   @Test
   public void testRemoteTest() throws Exception {    
     System.out.println(logPrefix + name.getMethodName());
-    LoggingUtils.setLoggingLevel(Level.INFO);
+    LoggingUtils.setLoggingLevel(Level.FINEST);
 	
     Monitor monitor = new Monitor();
     TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 60000, 60000);
@@ -83,7 +79,8 @@ public class SmallMessagesTest {
     Decoder<Object> decoder = new MultiDecoder<Object>(clazzToDecoderMap);
     
     // receive handlers
-    int finalSize = 200000; // 6 events will be sent
+    int finalSize = 6; // 6 events will be sent
+    //int finalSize = 200000; // 6 events will be sent
     Map<Class<?>, EventHandler<?>> clazzToHandlerMap = new HashMap<Class<?>, EventHandler<?>>();
     Set<Object> set = Collections.synchronizedSet(new HashSet<Object>());
     clazzToHandlerMap.put(TestEvent.class, new ConsoleEventHandler<TestEvent>("recvEH1", set, finalSize, monitor));  
@@ -117,20 +114,8 @@ public class SmallMessagesTest {
         myId, remoteId, "recvEH1", reSendStage.<TestEvent>getHandler(), new RemoteSeqNumGenerator());
     long start = System.nanoTime();
     for (int i=0; i<finalSize; i++) {
-      proxyHandler1.onNext(new TestEvent("0", 0.0));
+      proxyHandler1.onNext(new TestEvent("0", i));
     }
-
-    /*
-    ProxyEventHandler<TestEvent2> proxyHandler2 = new ProxyEventHandler<TestEvent2>(
-        myId, remoteId, "recvEH2", reSendStage.<TestEvent2>getHandler());
-    proxyHandler2.onNext(new TestEvent2("hello1", 1.0));
-    proxyHandler2.onNext(new TestEvent2("hello2", 1.0));
-    
-    ProxyEventHandler<TestEvent> proxyHandler3 = new ProxyEventHandler<TestEvent>(
-        myId, remoteId, "recvEH3", reSendStage.<TestEvent>getHandler());
-    proxyHandler3.onNext(new TestEvent("hello1", 1.0));
-    proxyHandler3.onNext(new TestEvent("hello2", 1.0));
-    */
     
     monitor.mwait();
     long end = System.nanoTime();

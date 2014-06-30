@@ -59,14 +59,14 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   private final RemoteSeqNumGenerator seqGen = new RemoteSeqNumGenerator();
 
   /**
-   * 
-   * @param name
+   * Constructs a remote manager
+   *
    * @param hostAddress
    * @param listeningPort
    * @param codec
    * @param errorHandler
    * @param orderingGuarantee
-   * @deprecated in 0.4. Please use the other constructor instead or rely on Tang for defaults.
+   * @deprecated in 0.4. Please use the other constructor or rely on Tang for default implementation.
    */
   @Inject
   @Deprecated
@@ -77,14 +77,12 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.MessageCodec.class) Codec<T> codec,
       final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
       final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee) {
-
-      this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, 3, 10000);
+    this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, 3, 10000);
   }
-
+  
   /**
    * Constructs a remote manager
    *
-   * @param name
    * @param hostAddress
    * @param listeningPort
    * @param codec
@@ -93,7 +91,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
    * @param numberOfTries
    * @param retryTimeout
    */
-  @Inject 
+  @Inject
   public <T> DefaultRemoteManagerImplementation(
       final @Parameter(RemoteConfiguration.ManagerName.class) String name,
       final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
@@ -102,7 +100,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
       final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee,
       final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
-      final @Parameter(RemoteConfiguration.RetryTimeout.class)int retryTimeout) {
+      final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout) {
 
     this.name = name;
     this.handlerContainer = new HandlerContainer<>(name, codec);

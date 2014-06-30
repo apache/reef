@@ -57,12 +57,12 @@ public final class RemoteConfiguration {
   }
   
   @NamedParameter(doc = "The number of tries", default_value = "3")
-  public final static class NumberOfTries implements Name<Integer> {
-    // Intentionally empty
+  public static final class NumberOfTries implements Name<Integer> {
+    // Intentionally empty    
   }
   
   @NamedParameter(doc = "The timeout of connection retrying", default_value = "10000")
-  public final static class RetryTimeout implements Name<Integer> {
-    // Intentionally empty
+  public static final class RetryTimeout implements Name<Integer> {
+    // Intentionally empty       
   }
 }

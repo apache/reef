@@ -40,25 +40,6 @@ public class RemoteEvent<T> {
    * @param remoteAddr the remote socket address
    * @param src the source
    * @param sink the remote sink
-   * @param event the event
-   */
-  /*public RemoteEvent(SocketAddress localAddr, SocketAddress remoteAddr, String src, String sink, T event) {
-    this.localAddr = localAddr;
-    this.remoteAddr = remoteAddr;
-    this.src = src;
-    this.sink = sink;
-    this.event = event;
-    this.seq = curSeq.getAndIncrement();
-  }
-  */
-
-  /**
-   * Constructs a remote event
-   * 
-   * @param localAddr the local socket address
-   * @param remoteAddr the remote socket address
-   * @param src the source
-   * @param sink the remote sink
    * @param seq the sequence number
    * @param event the event
    */

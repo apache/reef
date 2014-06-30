@@ -36,4 +36,13 @@ public class TestEvent implements Serializable {
   public double getLoad() {
     return load;
   }
+  
+  public String toString() {
+    StringBuilder builder = new StringBuilder()
+      .append("message=")
+      .append(message)
+      .append(" load=")
+      .append(load);
+    return builder.toString();
+  }
 }

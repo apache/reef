@@ -37,5 +37,5 @@ public final class WakeParameters {
   public final static long EXECUTOR_SHUTDOWN_TIMEOUT = 1000;
   
   public final static long REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT = 10000;
-  
+
 }

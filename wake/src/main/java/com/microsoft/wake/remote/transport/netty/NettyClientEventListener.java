@@ -17,14 +17,17 @@ package com.microsoft.wake.remote.transport.netty;
 
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.remote.impl.TransportEvent;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 final class NettyClientEventListener extends AbstractNettyEventListener {
+  private static final Logger LOG = Logger.getLogger(NettyClientEventListener.class.getName());
 
   public NettyClientEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
@@ -33,17 +36,19 @@ final class NettyClientEventListener extends AbstractNettyEventListener {
   }
 
   @Override
-  protected TransportEvent getTransportEvent(final byte[] message, final Channel channel) {
-    return new TransportEvent(message, channel.getLocalAddress(), channel.getRemoteAddress());
-  }
-
-  @Override
-  public void channelConnected(ChannelStateEvent e) {
+  public void channelActive(ChannelHandlerContext ctx) {
     // noop
+    LOG.log(Level.FINEST, "{0}", ctx);
   }
 
   @Override
-  protected void exceptionCleanup(final ExceptionEvent event) {
-    this.closeChannel(event.getChannel());
+  protected TransportEvent getTransportEvent(final byte[] message, final Channel channel) {
+    return new TransportEvent(message, channel.localAddress(), channel.remoteAddress());
+  }
+
+  @Override
+  protected void exceptionCleanup(ChannelHandlerContext ctx, Throwable cause) {
+    this.closeChannel(ctx.channel());
+    
   }
 }

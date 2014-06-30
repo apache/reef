@@ -29,7 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by sergiym on 3/13/14.
+ * Main logic to dispatch messages
  */
 final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
 
