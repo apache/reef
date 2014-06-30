@@ -508,6 +508,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       }
     }
     this.task.get().onTaskStatusMessage(taskStatusProto);
+
+    if (this.task.get().isNotRunning()) {
+      LOG.log(Level.FINEST, "Task no longer running. De-registering it.");
+      this.task = Optional.empty();
+    }
   }
 
 

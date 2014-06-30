@@ -110,7 +110,7 @@ public final class TaskRepresenter {
   private void onTaskRunning(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
     assert (taskStatusProto.getState() == ReefServiceProtos.State.RUNNING);
     if (this.isNotRunning()) {
-      throw new IllegalStateException("Received a task status message from a task that is believed to be RUNNING on the Evaluator, but the Driver thinks it is in state " + this.state);
+      throw new IllegalStateException("Received a task status message from task " + this.taskId + " that is believed to be RUNNING on the Evaluator, but the Driver thinks it is in state " + this.state);
     }
 
     for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto taskMessageProto : taskStatusProto.getTaskMessageList()) {
@@ -147,6 +147,7 @@ public final class TaskRepresenter {
     this.setState(ReefServiceProtos.State.FAILED);
   }
 
+
   private static byte[] getResult(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
     return taskStatusProto.hasResult() ? taskStatusProto.getResult().toByteArray() : null;
   }
@@ -162,15 +163,18 @@ public final class TaskRepresenter {
     return this.state != ReefServiceProtos.State.INIT;
   }
 
-  private boolean isRunning() {
-    return this.state == ReefServiceProtos.State.RUNNING;
-  }
 
-  private boolean isNotRunning() {
-    return !this.isRunning();
+  /**
+   * @return true, if this task is in any other state but RUNNING.
+   */
+  public boolean isNotRunning() {
+    return !(this.state == ReefServiceProtos.State.RUNNING);
   }
 
   private void setState(final ReefServiceProtos.State newState) {
+    LOG.log(Level.FINE, "Task [{0}] state transition from [{1}] to [{2}]",
+        new Object[]{this.taskId, this.state, newState});
     this.state = newState;
   }
+
 }
