@@ -157,7 +157,7 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
         "%HADOOP_HOME%/share/hadoop/common/lib/*",
         "%HADOOP_HOME%/share/hadoop/yarn/*",
         "%HADOOP_HOME%/share/hadoop/yarn/lib/*",
-        this.filenames.getClasspath()), ';');
+        this.filenames.getClasspath()), File.pathSeparatorChar);
   }
 
   private Configuration makeDriverConfiguration(

@@ -24,6 +24,7 @@ import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnTypes;
+import com.microsoft.reef.util.OSUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import org.apache.commons.lang.StringUtils;
@@ -151,19 +152,34 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   private String getClasspath() {
-    return StringUtils.join(Arrays.asList(
-        "$HADOOP_CONF_DIR",
-        "$HADOOP_HOME/*",
-        "$HADOOP_HOME/lib/*",
-        "$HADOOP_COMMON_HOME/*",
-        "$HADOOP_COMMON_HOME/lib/*",
-        "$HADOOP_YARN_HOME/*",
-        "$HADOOP_YARN_HOME/lib/*",
-        "$HADOOP_HDFS_HOME/*",
-        "$HADOOP_HDFS_HOME/lib/*",
-        "$HADOOP_MAPRED_HOME/*",
-        "$HADOOP_MAPRED_HOME/lib/*",
-        this.fileNames.getClasspath()), ':');
+    return StringUtils.join(OSUtils.isWindows() ?
+        Arrays.asList(
+            "%HADOOP_CONF_DIR%",
+            "%HADOOP_HOME%/*",
+            "%HADOOP_HOME%/lib/*",
+            "%HADOOP_COMMON_HOME%/*",
+            "%HADOOP_COMMON_HOME%/lib/*",
+            "%HADOOP_YARN_HOME%/*",
+            "%HADOOP_YARN_HOME%/lib/*",
+            "%HADOOP_HDFS_HOME%/*",
+            "%HADOOP_HDFS_HOME%/lib/*",
+            "%HADOOP_MAPRED_HOME%/*",
+            "%HADOOP_MAPRED_HOME%/lib/*",
+            this.fileNames.getClasspath()) :
+        Arrays.asList(
+            "$HADOOP_CONF_DIR",
+            "$HADOOP_HOME/*",
+            "$HADOOP_HOME/lib/*",
+            "$HADOOP_COMMON_HOME/*",
+            "$HADOOP_COMMON_HOME/lib/*",
+            "$HADOOP_YARN_HOME/*",
+            "$HADOOP_YARN_HOME/lib/*",
+            "$HADOOP_HDFS_HOME/*",
+            "$HADOOP_HDFS_HOME/lib/*",
+            "$HADOOP_MAPRED_HOME/*",
+            "$HADOOP_MAPRED_HOME/lib/*",
+            this.fileNames.getClasspath()),
+        File.pathSeparatorChar);
   }
 
   /**
