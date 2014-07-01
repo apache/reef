@@ -15,20 +15,16 @@
  */
 package com.microsoft.reef.runtime.hdinsight.client;
 
-import com.microsoft.reef.client.REEF;
-import com.microsoft.reef.client.RunningJob;
-import com.microsoft.reef.runtime.common.client.REEFImplementation;
-import com.microsoft.reef.runtime.common.client.RunningJobImpl;
-import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
-import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
-import com.microsoft.reef.runtime.hdinsight.client.sslhacks.DefaultClientConstructor;
 import com.microsoft.reef.runtime.hdinsight.parameters.*;
+import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.RequiredParameter;
-import com.microsoft.wake.remote.RemoteConfiguration;
 
-import javax.ws.rs.client.Client;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Configuration module to setup REEF to submit jobs to HDInsight.
@@ -65,23 +61,60 @@ public final class HDInsightRuntimeConfiguration extends ConfigurationModuleBuil
    */
   public static final RequiredParameter<String> PASSWORD = new RequiredParameter<>();
 
+  /**
+   * The environment variable that holds the path to the default configuration file
+   */
+  public static final String HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE = "REEF_HDI_CONF";
+
   public static final ConfigurationModule CONF = new HDInsightRuntimeConfiguration()
-      .bindImplementation(REEF.class, REEFImplementation.class)
-      .bindImplementation(RunningJob.class, RunningJobImpl.class)
-      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-
-          // Make WS API injectable
-      .bindConstructor(Client.class, DefaultClientConstructor.class)
-
-          // Uploader configuration
+      .merge(HDInsightRuntimeConfigurationStatic.CONF)
       .bindNamedParameter(AzureStorageAccountName.class, STORAGE_ACCOUNT_NAME)
       .bindNamedParameter(AzureStorageAccountKey.class, STORAGE_ACCOUNT_KEY)
       .bindNamedParameter(AzureStorageAccountContainerName.class, CONTAINER_NAME)
-
-          // WebHCat configuration
-      .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)
       .bindNamedParameter(HDInsightInstanceURL.class, URL)
       .bindNamedParameter(HDInsightUsername.class, USER_NAME)
       .bindNamedParameter(HDInsightPassword.class, PASSWORD)
       .build();
+
+  /**
+   * Returns a HDInsight runtime configuration from the credentials stored in the given file.
+   *
+   * @param file
+   * @return a HDInsight runtime configuration from the credentials stored in the given file.
+   * @throws IOException if the file can't be read
+   */
+  public static Configuration fromTextFile(final File file) throws IOException {
+    final Configuration loaded = new AvroConfigurationSerializer().fromTextFile(file);
+    final Configuration staticConfiguration = HDInsightRuntimeConfigurationStatic.CONF.build();
+    return Configurations.merge(loaded, staticConfiguration);
+  }
+
+  /**
+   * @return the RuntimeConfiguration that is stored in a file refered to
+   * by the environment variable HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE.
+   * @throws IOException
+   * @see HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE
+   */
+  public static Configuration fromEnvironment() throws IOException {
+
+    final String configurationPath =
+        System.getenv(HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE);
+
+    if (null == configurationPath) {
+      throw new IOException("Environment Variable " +
+          HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE +
+          " not set.");
+    }
+
+    final File configurationFile = new File(configurationPath);
+    if (!configurationFile.canRead()) {
+      throw new IOException("Environment Variable " +
+          HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE +
+          " points to a file " + configurationFile.getAbsolutePath() +
+          " which can't be read."
+      );
+    }
+
+    return fromTextFile(configurationFile);
+  }
 }

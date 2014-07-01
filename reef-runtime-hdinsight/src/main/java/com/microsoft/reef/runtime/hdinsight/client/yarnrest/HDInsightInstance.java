@@ -43,11 +43,14 @@ import java.util.logging.Logger;
 public final class HDInsightInstance {
 
   private static final Logger LOG = Logger.getLogger(HDInsightInstance.class.getName());
+  private static final String APPLICATION_KILL_MESSAGE = "{\"app:{\"state\":\"KILLED\"}}";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
 
-  /** e.g. https://reefhdi.cloudapp.net/ */
+  /**
+   * e.g. https://reefhdi.cloudapp.net/
+   */
   private final String instanceUrl;
   private final Client client;
   private final String username;
@@ -64,15 +67,16 @@ public final class HDInsightInstance {
         "Basic " + Base64Utility.encode((username + ":" + password).getBytes()));
   }
 
-
   public ApplicationID getApplicationID() throws IOException {
     final Invocation.Builder b = getInvocationBuilder("ws/v1/cluster/appids?user.name=" + this.username);
     final Response response = b.post(null);
     return this.objectMapper.readValue((InputStream) response.getEntity(), ApplicationID.class);
   }
 
-  public void submitApplication(
-      final ApplicationSubmission applicationSubmission) throws IOException {
+  /**
+   * Submits an application for execution.
+   */
+  public void submitApplication(final ApplicationSubmission applicationSubmission) throws IOException {
 
     final String applicationId = applicationSubmission.getApplicationId();
     final String url = "ws/v1/cluster/apps/" + applicationId + "?user.name=" + this.username;
@@ -91,6 +95,22 @@ public final class HDInsightInstance {
 
     final Response response = b.post(Entity.entity(message, MediaType.APPLICATION_JSON_TYPE));
     LOG.log(Level.FINEST, "Response: {0}", response);
+  }
+
+  /**
+   * Issues a YARN kill command to the application.
+   */
+  public void killApplication(final String applicationId) {
+    LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
+    getInvocationBuilder(getApplicationURL(applicationId)).post(
+        Entity.entity(APPLICATION_KILL_MESSAGE, MediaType.APPLICATION_JSON_TYPE));
+  }
+
+  /**
+   * @return the URL that can be used to issue application level messages.
+   */
+  public String getApplicationURL(final String applicationId) {
+    return "ws/v1/cluster/apps/" + applicationId;
   }
 
   private Invocation.Builder getInvocationBuilder(final String path) {
