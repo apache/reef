@@ -15,6 +15,8 @@
  */
 package com.microsoft.reef.runtime.hdinsight.client;
 
+import com.microsoft.reef.annotations.audience.ClientSide;
+import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.files.JobJarMaker;
@@ -38,7 +40,9 @@ import java.util.logging.Logger;
 /**
  * Handles job submission to a HDInsight instance.
  */
-final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
+@ClientSide
+@Private
+public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
 
   private static final Logger LOG = Logger.getLogger(HDInsightJobSubmissionHandler.class.getName());
 
@@ -95,9 +99,9 @@ final class HDInsightJobSubmissionHandler implements JobSubmissionHandler {
           .setApplicationName(jobSubmissionProto.getIdentifier())
           .setResource(getResource(jobSubmissionProto))
           .setContainerInfo(new ContainerInfo()
-                  .addFileResource(filenames.getREEFFolderName(), uploadedFile)
-                  .addCommand(command)
-                  .addEnvironment("CLASSPATH", getClassPath()));
+              .addFileResource(filenames.getREEFFolderName(), uploadedFile)
+              .addCommand(command)
+              .addEnvironment("CLASSPATH", getClassPath()));
 
       LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getId());
 
