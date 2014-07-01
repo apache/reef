@@ -19,7 +19,6 @@ package com.microsoft.reef.javabridge;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.task.RunningTask;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RunningTaskBridge extends NativeBridge {
@@ -35,18 +34,8 @@ public class RunningTaskBridge extends NativeBridge {
     jactiveContext = new ActiveContextBridge(activeContext);
   }
 
-//  public String getRunningTaskString() {
-//    final String poorString = jrunningTask.getId();
-//    LOG.log(Level.INFO, "serialized running task " + poorString);
-//    return poorString;
-//  }
-
-  public final void setMessage(final byte[] message) {
-    this.message = message;
-  }
-
-  public final byte[] getMessage() {
-    return this.message;
+  public final void send(final byte[] message) {
+    jrunningTask.send(message);
   }
 
   @Override

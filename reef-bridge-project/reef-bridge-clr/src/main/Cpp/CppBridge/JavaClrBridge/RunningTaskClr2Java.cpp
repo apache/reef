@@ -34,36 +34,14 @@ namespace Microsoft
 					return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 				}
 
-				//String^ RunningTaskClr2Java::GetString()
-				//{
-				//	fprintf(stdout, "RunningTaskClr2Java::GetString\n"); fflush (stdout);															
-				//	JNIEnv *env = RetrieveEnv(_jvm);
-
-				//	jclass jclassRunningTask = env->GetObjectClass (_jobjectRunningTask);
-				//	jmethodID jmidGetRunningTaskString= env->GetMethodID(jclassRunningTask, "getRunningTaskString", "()Ljava/lang/String;");	
-
-				//	fprintf(stdout, "RunningTaskClr2Java jclassRunningTask %p\n", jclassRunningTask); fflush (stdout);
-				//	fprintf(stdout, "RunningTaskClr2Java jmidGetRunningTaskString %p\n", jmidGetRunningTaskString); fflush (stdout);
-
-				//	if(jmidGetRunningTaskString == NULL)
-				//	{
-				//		fprintf(stdout, " jmidGetRunningTaskString is NULL\n"); fflush (stdout);
-				//		return nullptr;
-				//	}
-				//	jstring jRunningTaskString = (jstring)env -> CallObjectMethod(
-				//		_jobjectRunningTask, 
-				//		jmidGetRunningTaskString);
-				//	return ManagedStringFromJavaString(env, jRunningTaskString);
-				//}
-
-				void RunningTaskClr2Java::SetMessage(array<byte>^ message)
+				void RunningTaskClr2Java::Send(array<byte>^ message)
 				{					
 					JNIEnv *env = RetrieveEnv(_jvm);
 					jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
-					jmethodID jmidsend = env->GetMethodID(jclassRunningTask, "setMessage", "([B)V");
+					jmethodID jmidsend = env->GetMethodID(jclassRunningTask, "send", "([B)V");
 
 					fprintf(stdout, "RunningTaskClr2Java jclassRunningTask %p\n", jclassRunningTask); fflush (stdout);
-					fprintf(stdout, "RunningTaskClr2Java jmidGetRunningTaskString %p\n", jmidsend); fflush (stdout);
+					fprintf(stdout, "RunningTaskClr2Java jmidsend %p\n", jmidsend); fflush (stdout);
 
 					if(jmidsend == NULL)
 					{

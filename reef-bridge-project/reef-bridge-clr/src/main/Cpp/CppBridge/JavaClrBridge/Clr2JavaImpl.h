@@ -94,7 +94,7 @@ namespace Microsoft
 					RunningTaskClr2Java(JNIEnv *env, jobject jrunningTask);
 					virtual void OnError(String^ message);
 					virtual IActiveContextClr2Java^ GetActiveContext();
-					virtual void SetMessage(array<byte>^ message);
+					virtual void Send(array<byte>^ message);
 				};
 
 				public ref class FailedEvaluatorClr2Java : public IFailedEvaluatorClr2Java

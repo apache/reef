@@ -382,19 +382,17 @@ public final class JobDriver {
 
       LOG.log(Level.INFO, "RunningTask received, will be handle in CLR handler. Task Id: {0}", task.getId());
       if (runningTaskHandler == 0) {
-        LOG.log(Level.SEVERE, "Running Task Handler not initialized by CLR, fail for real.");
-        throw new RuntimeException("Running Task Handler not initialized by CLR.");
-      }
-      try {
-        final InteropLogger interopLogger = new InteropLogger();
-        final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task);
-        NativeInterop.ClrSystemRunningTaskHandlerOnNext(runningTaskHandler, runningTaskBridge, interopLogger);
-        final byte[] m = runningTaskBridge.getMessage();
-        LOG.log(Level.INFO, "RunningTaskHandler onNext is returned from bridge with message: {0}", new String(m, "UTF-8"));
-        task.send(m);
-      } catch (final Exception ex) {  //if clients doesn't provide a handler, default will be called.
-        LOG.log(Level.WARNING, "Fail to invoke CLR running task handler");
-        throw new RuntimeException(ex);
+        LOG.log(Level.INFO, "No CLR handler bound to handle running task.");
+      } else {
+        try {
+          final InteropLogger interopLogger = new InteropLogger();
+          final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task);
+          NativeInterop.ClrSystemRunningTaskHandlerOnNext(runningTaskHandler, runningTaskBridge, interopLogger);
+          LOG.log(Level.INFO, "RunningTaskHandler onNext is returned from bridge.");
+        } catch (final Exception ex) {
+          LOG.log(Level.WARNING, "Fail to invoke CLR running task handler");
+          throw new RuntimeException(ex);
+        }
       }
     }
   }
