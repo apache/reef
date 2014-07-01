@@ -76,6 +76,16 @@
                     <outputFile>
                         ${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar
                     </outputFile>
+                    <transformers>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <manifestEntries>
+                                <Main-Class>
+                                    com.microsoft.reef.examples.hdinsightcli.HDICommandLine
+                                </Main-Class>
+                            </manifestEntries>
+                        </transformer>
+                    </transformers>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
