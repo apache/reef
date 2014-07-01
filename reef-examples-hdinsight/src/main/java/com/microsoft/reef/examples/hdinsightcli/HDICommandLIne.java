@@ -1,11 +1,15 @@
 package com.microsoft.reef.examples.hdinsightcli;
 
 import com.microsoft.reef.runtime.hdinsight.client.UnsafeHDInsightRuntimeConfiguration;
+import com.microsoft.reef.runtime.hdinsight.client.yarnrest.ApplicationID;
+import com.microsoft.reef.runtime.hdinsight.client.yarnrest.ApplicationState;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.HDInsightInstance;
 import com.microsoft.tang.Tang;
 import org.apache.commons.cli.*;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +20,8 @@ public final class HDICommandLine {
   private static final Logger LOG = Logger.getLogger(HDICommandLine.class.getName());
   private static final String KILL = "kill";
   private static final String LOGS = "logs";
+  private static final String LIST = "list";
+
   private final HDInsightInstance hdInsightInstance;
   private final Options options;
 
@@ -24,7 +30,8 @@ public final class HDICommandLine {
     this.hdInsightInstance = hdInsightInstance;
     final OptionGroup commands = new OptionGroup()
         .addOption(OptionBuilder.withArgName(KILL).hasArg().withDescription("Kills the given application").create(KILL))
-        .addOption(OptionBuilder.withArgName(LOGS).hasArg().withDescription("Kills the given application").create(LOGS));
+        .addOption(OptionBuilder.withArgName(LOGS).hasArg().withDescription("Kills the given application").create(LOGS))
+        .addOption(OptionBuilder.withArgName(LIST).withDescription("Kills the given application").create(LIST));
     this.options = new Options().addOptionGroup(commands);
   }
 
@@ -36,6 +43,8 @@ public final class HDICommandLine {
       this.kill(line.getOptionValue(KILL));
     } else if (line.hasOption(LOGS)) {
       this.logs(line.getOptionValue(LOGS));
+    } else if (line.hasOption(LIST)) {
+      this.list();
     } else {
       throw new Exception("Unable to parse command line");
     }
@@ -44,11 +53,20 @@ public final class HDICommandLine {
 
   private void kill(final String applicationId) {
     LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
-
   }
 
   private void logs(final String applicationId) {
     LOG.log(Level.INFO, "Fetching logs for application [{0}]", applicationId);
+  }
+
+  private void list() throws IOException {
+    LOG.log(Level.INFO, "Listing applications");
+    final ApplicationID applicationID = this.hdInsightInstance.getApplicationID();
+    System.out.println(applicationID);
+    final List<ApplicationState> applications = this.hdInsightInstance.listApplications();
+    for (final ApplicationState appState : applications) {
+      System.out.println(appState.getId() + "\t" + appState.getName());
+    }
   }
 
 

@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.runtime.hdinsight.client.yarnrest;
 
+import com.microsoft.reef.runtime.hdinsight.client.sslhacks.ClientProvider;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightInstanceURL;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightPassword;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightUsername;
@@ -34,6 +35,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,21 +50,17 @@ public final class HDInsightInstance {
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
 
-
-  /**
-   * e.g. https://reefhdi.cloudapp.net/
-   */
   private final String instanceUrl;
-  private final Client client;
+  private final ClientProvider clientProvider;
   private final String username;
 
   @Inject
   HDInsightInstance(final @Parameter(HDInsightUsername.class) String username,
                     final @Parameter(HDInsightPassword.class) String password,
                     final @Parameter(HDInsightInstanceURL.class) String instanceUrl,
-                    final Client client) {
+                    final ClientProvider clientProvider) {
+    this.clientProvider = clientProvider;
     this.instanceUrl = instanceUrl.endsWith("/") ? instanceUrl : instanceUrl + "/";
-    this.client = client;
     this.username = username;
     this.headers.add("Authorization",
         "Basic " + Base64Utility.encode((username + ":" + password).getBytes()));
@@ -70,8 +68,10 @@ public final class HDInsightInstance {
 
 
   public ApplicationID getApplicationID() throws IOException {
+    LOG.log(Level.INFO, "Creating Invocation builder");
     final Invocation.Builder b = getInvocationBuilder("ws/v1/cluster/appids?user.name=" + this.username);
-    final Response response = b.post(null);
+    LOG.log(Level.INFO, "Posting query");
+    final Response response = b.post(Entity.json("{}"));
     return this.objectMapper.readValue((InputStream) response.getEntity(), ApplicationID.class);
   }
 
@@ -112,6 +112,12 @@ public final class HDInsightInstance {
     getInvocationBuilder(getApplicationURL(applicationId)).post(Entity.entity(APPLICATION_KILL_MESSAGE, MediaType.APPLICATION_JSON_TYPE));
   }
 
+  public List<ApplicationState> listApplications() throws IOException {
+    final String url = "ws/v1/cluster/apps/";
+    final Response response = getInvocationBuilder(url).get();
+    return this.objectMapper.readValue((InputStream) response.getEntity(), ApplicationResponse.class).getApplicationStates();
+  }
+
   /**
    * @param applicationId
    * @return the URL that can be used to issue application level messages.
@@ -120,10 +126,18 @@ public final class HDInsightInstance {
     return "ws/v1/cluster/apps/" + applicationId;
   }
 
+
   private Invocation.Builder getInvocationBuilder(final String path) {
-    final WebTarget target = this.client.target(this.instanceUrl + path);
+    final Client client = this.clientProvider.getNewClient();
+    LOG.log(Level.INFO, "Building InvocationBuilder with client [{0}], SSLContext [{1}], HostNameVerifier [{2}]",
+        new Object[]{client, client.getSslContext(), client.getHostnameVerifier(), client.getSslContext()});
+    LOG.log(Level.INFO, "Setting up target.");
+    final WebTarget target = client.target(this.instanceUrl + path);
+    LOG.log(Level.INFO, "Setting up Builder.");
     final Invocation.Builder b = target.request();
     b.headers(this.headers);
+    LOG.log(Level.INFO, "Built InvocationBuilder with client [{0}], SSLContext [{1}], HostNameVerifier [{2}]",
+        new Object[]{client, client.getSslContext(), client.getHostnameVerifier(), client.getSslContext()});
     return b;
   }
 }

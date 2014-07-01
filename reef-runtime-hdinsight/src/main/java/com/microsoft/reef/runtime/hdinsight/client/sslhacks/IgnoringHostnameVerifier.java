@@ -17,10 +17,15 @@ package com.microsoft.reef.runtime.hdinsight.client.sslhacks;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 final class IgnoringHostnameVerifier implements HostnameVerifier {
+  private static final Logger LOG = Logger.getLogger(IgnoringHostnameVerifier.class.getName());
+
   @Override
   public boolean verify(final String hostName, final SSLSession sslSession) {
+    LOG.log(Level.INFO, "Ignoring verfication of: {0}", hostName);
     return true;
   }
 }

@@ -25,6 +25,10 @@ import java.io.IOException;
  */
 public class HelloHDInsight {
   public static void main(final String[] args) throws InjectionException, IOException {
+
+//    String classPath = System.getProperty("java.class.path");
+//
+//    System.out.println("Classpath is " + classPath);
     HelloREEFNoClient.runHelloReefWithoutClient(UnsafeHDInsightRuntimeConfiguration.fromEnvironment());
   }
 }
