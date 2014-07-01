@@ -43,11 +43,15 @@ import java.util.logging.Logger;
 public final class HDInsightInstance {
 
   private static final Logger LOG = Logger.getLogger(HDInsightInstance.class.getName());
+  private static final String APPLICATION_KILL_MESSAGE = "{\"app:{\"state\":\"KILLED\"}}";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
 
-  /** e.g. https://reefhdi.cloudapp.net/ */
+
+  /**
+   * e.g. https://reefhdi.cloudapp.net/
+   */
   private final String instanceUrl;
   private final Client client;
   private final String username;
@@ -71,8 +75,13 @@ public final class HDInsightInstance {
     return this.objectMapper.readValue((InputStream) response.getEntity(), ApplicationID.class);
   }
 
-  public void submitApplication(
-      final ApplicationSubmission applicationSubmission) throws IOException {
+  /**
+   * Submits an application for execution.
+   *
+   * @param applicationSubmission
+   * @throws IOException
+   */
+  public void submitApplication(final ApplicationSubmission applicationSubmission) throws IOException {
 
     final String applicationId = applicationSubmission.getApplicationId();
     final String url = "ws/v1/cluster/apps/" + applicationId + "?user.name=" + this.username;
@@ -91,6 +100,24 @@ public final class HDInsightInstance {
 
     final Response response = b.post(Entity.entity(message, MediaType.APPLICATION_JSON_TYPE));
     LOG.log(Level.FINEST, "Response: {0}", response);
+  }
+
+  /**
+   * Issues a YARN kill command to the application.
+   *
+   * @param applicationId
+   */
+  public void killApplication(final String applicationId) {
+    LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
+    getInvocationBuilder(getApplicationURL(applicationId)).post(Entity.entity(APPLICATION_KILL_MESSAGE, MediaType.APPLICATION_JSON_TYPE));
+  }
+
+  /**
+   * @param applicationId
+   * @return the URL that can be used to issue application level messages.
+   */
+  public String getApplicationURL(final String applicationId) {
+    return "ws/v1/cluster/apps/" + applicationId;
   }
 
   private Invocation.Builder getInvocationBuilder(final String path) {
