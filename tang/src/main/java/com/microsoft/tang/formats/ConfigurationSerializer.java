@@ -40,6 +40,15 @@ public interface ConfigurationSerializer {
   public void toFile(final Configuration conf, final File file) throws IOException;
 
   /**
+   * Stores the given Configuration in the given Text File.
+   *
+   * @param conf the Configuration to store
+   * @param file the file to store the Configuration in
+   * @throws java.io.IOException if there is an IO error in the process.
+   */
+  public void toTextFile(final Configuration conf, final File file) throws IOException;
+
+  /**
    * Writes the Configuration to a byte[].
    *
    * @param conf
@@ -70,6 +79,16 @@ public interface ConfigurationSerializer {
   /**
    * Loads a Configuration from a File created with toFile().
    *
+   * @param file the File to read from.
+   * @return the Configuration stored in the file.
+   * @throws IOException   if the File can't be read or parsed
+   * @throws BindException if the file contains an illegal Configuration
+   */
+  public Configuration fromTextFile(final File file) throws IOException, BindException;
+
+  /**
+   * Loads a Configuration from a File created with toFile().
+   *
    * @param file           the File to read from.
    * @param classHierarchy used to validate the configuration against
    * @return the Configuration stored in the file.
@@ -77,7 +96,6 @@ public interface ConfigurationSerializer {
    * @throws BindException if the file contains an illegal Configuration
    */
   public Configuration fromFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException;
-
 
   /**
    * Loads a Configuration from a byte[] created with toByteArray().
