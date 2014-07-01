@@ -16,35 +16,15 @@
 package com.microsoft.reef.examples.hello;
 
 import com.microsoft.reef.runtime.hdinsight.client.UnsafeHDInsightRuntimeConfiguration;
-import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.InjectionException;
+
+import java.io.IOException;
 
 /**
  * HelloREEF running on HDInsight
  */
 public class HelloHDInsight {
-
-  private static Configuration getRuntimeConfiguration(final String[] args) {
-
-    final String username = args[0];
-    final String password = args[1];
-    final String url = args[2];
-    final String storageAccount = args[3];
-    final String containerName = args[4];
-    final String storageKey = args[5];
-
-    return UnsafeHDInsightRuntimeConfiguration.CONF
-        .set(UnsafeHDInsightRuntimeConfiguration.USER_NAME, username)
-        .set(UnsafeHDInsightRuntimeConfiguration.PASSWORD, password)
-        .set(UnsafeHDInsightRuntimeConfiguration.URL, url)
-        .set(UnsafeHDInsightRuntimeConfiguration.STORAGE_ACCOUNT_NAME, storageAccount)
-        .set(UnsafeHDInsightRuntimeConfiguration.CONTAINER_NAME, containerName)
-        .set(UnsafeHDInsightRuntimeConfiguration.STORAGE_ACCOUNT_KEY, storageKey)
-        .build();
-  }
-
-  public static void main(final String[] args) throws InjectionException {
-    final Configuration runtimeConfiguration = getRuntimeConfiguration(args);
-    HelloREEFNoClient.runHelloReefWithoutClient(runtimeConfiguration);
+  public static void main(final String[] args) throws InjectionException, IOException {
+    HelloREEFNoClient.runHelloReefWithoutClient(UnsafeHDInsightRuntimeConfiguration.fromEnvironment());
   }
 }
