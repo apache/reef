@@ -26,12 +26,15 @@ public class RunningTaskBridge extends NativeBridge {
 
   final private RunningTask jrunningTask;
   final private ActiveContextBridge jactiveContext;
-  private byte[] message;
 
   public RunningTaskBridge(RunningTask runningTask) {
     jrunningTask = runningTask;
     final ActiveContext activeContext = runningTask.getActiveContext();
     jactiveContext = new ActiveContextBridge(activeContext);
+  }
+
+  public final String getId() {
+    return jrunningTask.getId();
   }
 
   public final void send(final byte[] message) {

@@ -94,6 +94,7 @@ namespace Microsoft
 					RunningTaskClr2Java(JNIEnv *env, jobject jrunningTask);
 					virtual void OnError(String^ message);
 					virtual IActiveContextClr2Java^ GetActiveContext();
+					virtual String^ GetId();
 					virtual void Send(array<byte>^ message);
 				};
 

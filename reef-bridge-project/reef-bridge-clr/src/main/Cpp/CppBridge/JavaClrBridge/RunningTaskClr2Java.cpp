@@ -34,6 +34,28 @@ namespace Microsoft
 					return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 				}
 
+				String^ RunningTaskClr2Java::GetId()
+				{
+					fprintf(stdout, "RunningTaskClr2Java::GetId\n"); fflush (stdout);															
+					JNIEnv *env = RetrieveEnv(_jvm);
+
+					jclass jclassRunningTask = env->GetObjectClass (_jobjectRunningTask);
+					jmethodID jmidGetId= env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");	
+
+					fprintf(stdout, "RunningTaskClr2Java jclassRunningTask %p\n", jclassRunningTask); fflush (stdout);
+					fprintf(stdout, "RunningTaskClr2Java jmidGetId %p\n", jmidGetId); fflush (stdout);
+
+					if(jmidGetId == NULL)
+					{
+						fprintf(stdout, " jmidGetId is NULL\n"); fflush (stdout);
+						return nullptr;
+					}
+					jstring jRunningTaskId = (jstring)env -> CallObjectMethod(
+						_jobjectRunningTask, 
+						jmidGetId);
+					return ManagedStringFromJavaString(env, jRunningTaskId);
+				}
+
 				void RunningTaskClr2Java::Send(array<byte>^ message)
 				{					
 					JNIEnv *env = RetrieveEnv(_jvm);
