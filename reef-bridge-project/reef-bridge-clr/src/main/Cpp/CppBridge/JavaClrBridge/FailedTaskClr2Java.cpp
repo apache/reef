@@ -21,7 +21,7 @@ namespace Microsoft
 
 				IActiveContextClr2Java^ FailedTaskClr2Java::GetActiveContext()
 				{
-					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext"); fflush (stdout);															
+					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext\n"); fflush (stdout);															
 					
 					JNIEnv *env = RetrieveEnv(_jvm);
 
@@ -36,7 +36,7 @@ namespace Microsoft
 
 				String^ FailedTaskClr2Java::GetString()
 				{
-					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext"); fflush (stdout);															
+					fprintf(stdout, "FailedTaskClr2Java::GetActiveContext\n"); fflush (stdout);															
 					JNIEnv *env = RetrieveEnv(_jvm);
 
 					jclass jclassFailedTask = env->GetObjectClass (_jobjectFailedTask);

@@ -80,6 +80,12 @@ public class NativeInterop {
             InteropLogger interopLogger
     );
 
+    public static native void ClrSystemRunningTaskHandlerOnNext (
+            long handle,
+            RunningTaskBridge runningTaskBridge,
+            InteropLogger interopLogger
+    );
+
     public static native void ClrBufferedLog(int level, String message);
 
     public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
@@ -117,6 +123,7 @@ public class NativeInterop {
     public static String FailedEvaluatorKey = "FailedEvaluator";
     public static String HttpServerKey = "HttpServerKey";
     public static String CompletedTaskKey = "CompletedTask";
+    public static String RunningTaskKey = "RunningTask";
 
   public static HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
         put(EvaluatorRequestorKey, 0);
@@ -127,9 +134,10 @@ public class NativeInterop {
         put(FailedEvaluatorKey, 5);
         put(HttpServerKey, 6);
         put(CompletedTaskKey, 7);
+        put(RunningTaskKey, 8);
     }};
 
-    public static int nHandlers = 8;
+    public static int nHandlers = 9;
 
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir

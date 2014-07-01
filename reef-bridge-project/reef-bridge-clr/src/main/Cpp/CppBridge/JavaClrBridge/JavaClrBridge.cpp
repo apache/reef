@@ -228,6 +228,27 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 
 /*
  * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSysteFailedTaskHandlerOnNext
+ * Signature: (JLcom.microsoft.reef.javabridge/FailedTaskBridge;Lcom.microsoft.reef.javabridge/InteropLogger;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemRunningTaskHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jrunningTask, jobject jlogger)
+{
+	Console::WriteLine("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemRunningTaskHandlerOnNext");
+	RunningTaskClr2Java^ runningTaskBridge = gcnew RunningTaskClr2Java(env, jrunningTask);
+	try{		
+		ClrSystemHandlerWrapper::Call_ClrSystemRunningTask_OnNext(handler, runningTaskBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemRunningTask_OnNext" + ex -> Message + ex -> StackTrace;
+		Console::WriteLine(errorMessage);
+		runningTaskBridge -> OnError(errorMessage);
+	}
+}
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
  * Method:    ClrSystemFailedEvaluatorHandlerOnNext
  * Signature: (JLcom/microsoft/reef/javabridge/FailedEvaluatorBridge;Lcom/microsoft/reef/javabridge/InteropLogger;)V
  */

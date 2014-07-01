@@ -23,6 +23,7 @@ import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.FailedTask;
+import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.task.TaskMessage;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
@@ -66,8 +67,9 @@ public final class JobDriver {
   private long  taskMessageHandler = 0;
   private long  failedTaskHandler = 0;
   private long  failedEvaluatorHandler = 0;
-  private long httpServerEventHandler = 0;
+  private long  httpServerEventHandler = 0;
   private long  completedTaskHandler = 0;
+  private long  runningTaskHandler = 0;
 
   private int nCLREvaluators = 0;
 
@@ -210,7 +212,7 @@ public final class JobDriver {
           LOG.log(Level.WARNING, "failed to decode task outcome");
         }
         LOG.log(Level.INFO, "Return results to the client:\n{0}", result);
-       JobDriver.this.jobMessageObserver.sendMessageToClient(JVM_CODEC.encode(result));
+        JobDriver.this.jobMessageObserver.sendMessageToClient(JVM_CODEC.encode(result));
         if(completedTaskHandler == 0)
         {
           LOG.log(Level.INFO, "No CLR handler bound to handle completed task.");
@@ -371,6 +373,30 @@ public final class JobDriver {
     }
   }
 
+  /**
+   * Receive notification that the Task is running.
+   */
+  final class RunningTaskHandler implements EventHandler<RunningTask> {
+    @Override
+    public void onNext(final RunningTask task) {
+
+      LOG.log(Level.INFO, "RunningTask received, will be handle in CLR handler. Task Id: {0}", task.getId());
+      if (runningTaskHandler == 0) {
+        LOG.log(Level.INFO, "No CLR handler bound to handle running task.");
+      } else {
+        try {
+          final InteropLogger interopLogger = new InteropLogger();
+          final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task);
+          NativeInterop.ClrSystemRunningTaskHandlerOnNext(runningTaskHandler, runningTaskBridge, interopLogger);
+          LOG.log(Level.INFO, "RunningTaskHandler onNext is returned from bridge.");
+        } catch (final Exception ex) {
+          LOG.log(Level.WARNING, "Fail to invoke CLR running task handler");
+          throw new RuntimeException(ex);
+        }
+      }
+    }
+  }
+
     /**
      * Submit a Task to a single Evaluator.
      */
@@ -422,6 +448,7 @@ public final class JobDriver {
             failedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedEvaluatorKey)];
             httpServerEventHandler = handlers[NativeInterop.Handlers.get(NativeInterop.HttpServerKey)];
             completedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.CompletedTaskKey)];
+            runningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.RunningTaskKey)];
           }
 
           final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");

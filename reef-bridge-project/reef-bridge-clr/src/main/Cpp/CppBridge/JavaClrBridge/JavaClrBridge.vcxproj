@@ -157,6 +157,7 @@
     <ClCompile Include="InteropReturnInfo.cpp" />
     <ClCompile Include="InteropUtil.cpp" />
     <ClCompile Include="JavaClrBridge.cpp" />
+    <ClCompile Include="RunningTaskClr2Java.cpp" />
     <ClCompile Include="TaskMessageClr2Java.cpp" />
   </ItemGroup>
   <ItemGroup>
