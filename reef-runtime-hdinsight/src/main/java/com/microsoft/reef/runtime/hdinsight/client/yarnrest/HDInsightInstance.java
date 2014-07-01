@@ -48,7 +48,6 @@ public final class HDInsightInstance {
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
 
-
   /**
    * e.g. https://reefhdi.cloudapp.net/
    */
@@ -68,7 +67,6 @@ public final class HDInsightInstance {
         "Basic " + Base64Utility.encode((username + ":" + password).getBytes()));
   }
 
-
   public ApplicationID getApplicationID() throws IOException {
     final Invocation.Builder b = getInvocationBuilder("ws/v1/cluster/appids?user.name=" + this.username);
     final Response response = b.post(null);
@@ -77,9 +75,6 @@ public final class HDInsightInstance {
 
   /**
    * Submits an application for execution.
-   *
-   * @param applicationSubmission
-   * @throws IOException
    */
   public void submitApplication(final ApplicationSubmission applicationSubmission) throws IOException {
 
@@ -104,16 +99,14 @@ public final class HDInsightInstance {
 
   /**
    * Issues a YARN kill command to the application.
-   *
-   * @param applicationId
    */
   public void killApplication(final String applicationId) {
     LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
-    getInvocationBuilder(getApplicationURL(applicationId)).post(Entity.entity(APPLICATION_KILL_MESSAGE, MediaType.APPLICATION_JSON_TYPE));
+    getInvocationBuilder(getApplicationURL(applicationId)).post(
+        Entity.entity(APPLICATION_KILL_MESSAGE, MediaType.APPLICATION_JSON_TYPE));
   }
 
   /**
-   * @param applicationId
    * @return the URL that can be used to issue application level messages.
    */
   public String getApplicationURL(final String applicationId) {

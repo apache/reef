@@ -90,17 +90,22 @@ public final class HDInsightRuntimeConfiguration extends ConfigurationModuleBuil
   }
 
   /**
-   * @return the RuntimeConfiguration that is stored in a file refered to by the environment variable HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE
+   * @return the RuntimeConfiguration that is stored in a file refered to
+   * by the environment variable HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE.
    * @throws IOException
    * @see HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE
    */
   public static Configuration fromEnvironment() throws IOException {
-    final String configurationPath = System.getenv(HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE);
+
+    final String configurationPath =
+        System.getenv(HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE);
+
     if (null == configurationPath) {
       throw new IOException("Environment Variable " +
           HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE +
           " not set.");
     }
+
     final File configurationFile = new File(configurationPath);
     if (!configurationFile.canRead()) {
       throw new IOException("Environment Variable " +
@@ -109,6 +114,7 @@ public final class HDInsightRuntimeConfiguration extends ConfigurationModuleBuil
           " which can't be read."
       );
     }
+
     return fromTextFile(configurationFile);
   }
 }
