@@ -69,7 +69,7 @@ public final class TaskRepresenter {
     if (!taskStatusProto.getContextId().equals(this.context.getId())) {
       throw new RuntimeException(
           "Received a message for a task running on Context " + taskStatusProto.getContextId() +
-          " while the Driver believes this Task to be run on Context " + this.context.getId());
+              " while the Driver believes this Task to be run on Context " + this.context.getId());
     }
 
     if (!taskStatusProto.getTaskId().equals(this.taskId)) {
@@ -106,7 +106,7 @@ public final class TaskRepresenter {
           " which we have seen before. Ignoring the second message", this.taskId);
     } else {
       final RunningTask runningTask = new RunningTaskImpl(
-          this.evaluatorManager, this.taskId, this.context);
+          this.evaluatorManager, this.taskId, this.context, this);
       this.messageDispatcher.onTaskRunning(runningTask);
       this.setState(ReefServiceProtos.State.RUNNING);
     }
