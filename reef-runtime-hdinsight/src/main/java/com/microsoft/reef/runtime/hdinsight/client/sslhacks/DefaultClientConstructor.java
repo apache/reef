@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.hdinsight.client.yarnrest;
+package com.microsoft.reef.runtime.hdinsight.client.sslhacks;
 
-import java.util.List;
-import java.util.Map;
+import com.microsoft.tang.ExternalConstructor;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import javax.inject.Inject;
 
 /**
- * Created by marku_000 on 2014-06-30.
+ * Default Client constructor with default SSL checks.
  */
-public class ApplicationResponse {
-
-  private Map<String, List<ApplicationState>> apps;
-
-  public Map<String, List<ApplicationState>> getApps() {
-    return apps;
+public final class DefaultClientConstructor implements ExternalConstructor<CloseableHttpClient> {
+  @Inject
+  DefaultClientConstructor() {
   }
 
-  public void setApps(Map<String, List<ApplicationState>> apps) {
-    this.apps = apps;
+  @Override
+  public CloseableHttpClient newInstance() {
+    return HttpClients.createDefault();
   }
-
-  public List<ApplicationState> getApplicationStates() {
-    return apps.get("app");
-  }
-
-
 }

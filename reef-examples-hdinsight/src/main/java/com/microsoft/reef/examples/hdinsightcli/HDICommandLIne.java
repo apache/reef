@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.microsoft.reef.examples.hdinsightcli;
 
 import com.microsoft.reef.runtime.hdinsight.client.UnsafeHDInsightRuntimeConfiguration;
@@ -6,6 +21,7 @@ import com.microsoft.reef.runtime.hdinsight.client.yarnrest.ApplicationState;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.HDInsightInstance;
 import com.microsoft.tang.Tang;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang.NotImplementedException;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -53,10 +69,12 @@ public final class HDICommandLine {
 
   private void kill(final String applicationId) {
     LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
+    this.hdInsightInstance.killApplication(applicationId);
   }
 
   private void logs(final String applicationId) {
     LOG.log(Level.INFO, "Fetching logs for application [{0}]", applicationId);
+    throw new NotImplementedException();
   }
 
   private void list() throws IOException {
@@ -65,7 +83,9 @@ public final class HDICommandLine {
     System.out.println(applicationID);
     final List<ApplicationState> applications = this.hdInsightInstance.listApplications();
     for (final ApplicationState appState : applications) {
-      System.out.println(appState.getId() + "\t" + appState.getName());
+      if (appState.getState().equals("RUNNING")) {
+        System.out.println(appState.getId() + "\t" + appState.getName());
+      }
     }
   }
 

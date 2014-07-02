@@ -15,26 +15,34 @@
  */
 package com.microsoft.reef.runtime.hdinsight.client.yarnrest;
 
-import com.microsoft.reef.runtime.hdinsight.client.sslhacks.ClientProvider;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightInstanceURL;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightPassword;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightUsername;
 import com.microsoft.tang.annotations.Parameter;
-import org.apache.cxf.common.util.Base64Utility;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,31 +56,42 @@ public final class HDInsightInstance {
   private static final String APPLICATION_KILL_MESSAGE = "{\"app:{\"state\":\"KILLED\"}}";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+  private final Header[] headers;
+  private final HttpClientContext httpClientContext;
 
   private final String instanceUrl;
-  private final ClientProvider clientProvider;
   private final String username;
+  private final CloseableHttpClient httpClient;
 
   @Inject
   HDInsightInstance(final @Parameter(HDInsightUsername.class) String username,
                     final @Parameter(HDInsightPassword.class) String password,
                     final @Parameter(HDInsightInstanceURL.class) String instanceUrl,
-                    final ClientProvider clientProvider) {
-    this.clientProvider = clientProvider;
+                    final CloseableHttpClient client) throws URISyntaxException, IOException {
+    this.httpClient = client;
     this.instanceUrl = instanceUrl.endsWith("/") ? instanceUrl : instanceUrl + "/";
     this.username = username;
-    this.headers.add("Authorization",
-        "Basic " + Base64Utility.encode((username + ":" + password).getBytes()));
+    final String host = this.getHost();
+    this.headers = new Header[]{
+        new BasicHeader("Host", host)
+    };
+    this.httpClientContext = getClientContext(host, username, password);
   }
 
-
+  /**
+   * Request an ApplicationId from the cluster.
+   *
+   * @return
+   * @throws IOException
+   */
   public ApplicationID getApplicationID() throws IOException {
-    LOG.log(Level.INFO, "Creating Invocation builder");
-    final Invocation.Builder b = getInvocationBuilder("ws/v1/cluster/appids?user.name=" + this.username);
-    LOG.log(Level.INFO, "Posting query");
-    final Response response = b.post(Entity.json("{}"));
-    return this.objectMapper.readValue((InputStream) response.getEntity(), ApplicationID.class);
+    final String url = "ws/v1/cluster/appids?user.name=" + this.username;
+    final HttpPost post = preparePost(url);
+    try (final CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
+      final String message = readAll(response.getEntity().getContent());
+      final ApplicationID result = this.objectMapper.readValue(message, ApplicationID.class);
+      return result;
+    }
   }
 
   /**
@@ -85,21 +104,22 @@ public final class HDInsightInstance {
 
     final String applicationId = applicationSubmission.getApplicationId();
     final String url = "ws/v1/cluster/apps/" + applicationId + "?user.name=" + this.username;
-    final Invocation.Builder b = getInvocationBuilder(url);
+    final HttpPost post = preparePost(url);
 
     final StringWriter writer = new StringWriter();
-
     try {
       this.objectMapper.writeValue(writer, applicationSubmission);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
     final String message = writer.toString();
     LOG.log(Level.FINE, "Sending:\n{0}", message.replace("\n", "\n\t"));
+    post.setEntity(new StringEntity(message, ContentType.APPLICATION_JSON));
 
-    final Response response = b.post(Entity.entity(message, MediaType.APPLICATION_JSON_TYPE));
-    LOG.log(Level.FINEST, "Response: {0}", response);
+    try (final CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
+      final String responseMessage = readAll(response.getEntity().getContent());
+      LOG.log(Level.INFO, "Response: {0}", responseMessage.replace("\n", "\n\t"));
+    }
   }
 
   /**
@@ -108,14 +128,17 @@ public final class HDInsightInstance {
    * @param applicationId
    */
   public void killApplication(final String applicationId) {
-    LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
-    getInvocationBuilder(getApplicationURL(applicationId)).post(Entity.entity(APPLICATION_KILL_MESSAGE, MediaType.APPLICATION_JSON_TYPE));
+    throw new NotImplementedException();
   }
 
   public List<ApplicationState> listApplications() throws IOException {
-    final String url = "ws/v1/cluster/apps/";
-    final Response response = getInvocationBuilder(url).get();
-    return this.objectMapper.readValue((InputStream) response.getEntity(), ApplicationResponse.class).getApplicationStates();
+    final String url = "ws/v1/cluster/apps";
+    final HttpGet get = prepareGet(url);
+    try (final CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
+      final String message = readAll(response.getEntity().getContent());
+      final ApplicationResponse result = this.objectMapper.readValue(message, ApplicationResponse.class);
+      return result.getApplicationStates();
+    }
   }
 
   /**
@@ -126,18 +149,82 @@ public final class HDInsightInstance {
     return "ws/v1/cluster/apps/" + applicationId;
   }
 
+  private final String getHost() throws URISyntaxException {
+    final URI uri = new URI(this.instanceUrl);
+    return uri.getHost();
+  }
 
-  private Invocation.Builder getInvocationBuilder(final String path) {
-    final Client client = this.clientProvider.getNewClient();
-    LOG.log(Level.INFO, "Building InvocationBuilder with client [{0}], SSLContext [{1}], HostNameVerifier [{2}]",
-        new Object[]{client, client.getSslContext(), client.getHostnameVerifier(), client.getSslContext()});
-    LOG.log(Level.INFO, "Setting up target.");
-    final WebTarget target = client.target(this.instanceUrl + path);
-    LOG.log(Level.INFO, "Setting up Builder.");
-    final Invocation.Builder b = target.request();
-    b.headers(this.headers);
-    LOG.log(Level.INFO, "Built InvocationBuilder with client [{0}], SSLContext [{1}], HostNameVerifier [{2}]",
-        new Object[]{client, client.getSslContext(), client.getHostnameVerifier(), client.getSslContext()});
-    return b;
+  /**
+   * Creates a HttpGet request with all the common headers.
+   *
+   * @param url
+   * @return
+   */
+  private HttpGet prepareGet(final String url) {
+    final HttpGet httpGet = new HttpGet(this.instanceUrl + url);
+    for (final Header header : this.headers) {
+      httpGet.addHeader(header);
+    }
+    return httpGet;
+  }
+
+  /**
+   * Creates a HttpPost request with all the common headers.
+   *
+   * @param url
+   * @return
+   */
+  private HttpPost preparePost(final String url) {
+    final HttpPost httpPost = new HttpPost(this.instanceUrl + url);
+    for (final Header header : this.headers) {
+      httpPost.addHeader(header);
+    }
+    return httpPost;
+  }
+
+
+  private static String readAll(final InputStream inputStream) throws IOException {
+    try (final InputStreamReader reader = new InputStreamReader(inputStream)) {
+      return readAll(reader);
+    }
+  }
+
+  private static String readAll(final Reader reader) throws IOException {
+    return readAll(new BufferedReader(reader));
+  }
+
+  private static String readAll(final BufferedReader reader) throws IOException {
+    final StringBuilder result = new StringBuilder();
+
+    String line = reader.readLine();
+    while (null != line) {
+      result.append(line);
+      result.append("\n");
+      line = reader.readLine();
+    }
+
+    return result.toString();
+  }
+
+
+  private HttpClientContext getClientContext(final String hostname, final String username, final String password) throws IOException {
+    final HttpHost targetHost = new HttpHost(hostname, 443, "https");
+    final HttpClientContext result = HttpClientContext.create();
+    // Setup credentials provider
+    final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+    credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+    result.setCredentialsProvider(credentialsProvider);
+
+    // Setup preemptive authentication
+    final AuthCache authCache = new BasicAuthCache();
+    final BasicScheme basicAuth = new BasicScheme();
+    authCache.put(targetHost, basicAuth);
+    result.setAuthCache(authCache);
+    final HttpGet httpget = new HttpGet("/");
+
+    // Prime the cache
+    try (final CloseableHttpResponse response = this.httpClient.execute(targetHost, httpget, result)) {
+    }
+    return result;
   }
 }

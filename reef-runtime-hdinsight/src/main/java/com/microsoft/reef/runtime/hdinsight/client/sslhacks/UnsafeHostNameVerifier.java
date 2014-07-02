@@ -15,17 +15,33 @@
  */
 package com.microsoft.reef.runtime.hdinsight.client.sslhacks;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 
-final class IgnoringHostnameVerifier implements HostnameVerifier {
-  private static final Logger LOG = Logger.getLogger(IgnoringHostnameVerifier.class.getName());
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+
+final class UnsafeHostNameVerifier implements X509HostnameVerifier {
 
   @Override
-  public boolean verify(final String hostName, final SSLSession sslSession) {
-    LOG.log(Level.INFO, "Ignoring verfication of: {0}", hostName);
+  public void verify(String host, SSLSocket ssl) throws IOException {
+
+  }
+
+  @Override
+  public void verify(String host, X509Certificate cert) throws SSLException {
+
+  }
+
+  @Override
+  public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
+
+  }
+
+  @Override
+  public boolean verify(String s, SSLSession sslSession) {
     return true;
   }
 }
