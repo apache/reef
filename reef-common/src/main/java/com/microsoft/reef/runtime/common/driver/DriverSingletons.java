@@ -27,6 +27,8 @@ import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
+import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
+import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 
@@ -71,6 +73,15 @@ final class DriverSingletons {
       final @Parameter(ServiceEvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
 
       // Client event handler
-      final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlHandler) {
+      final @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlHandler,
+    
+      // Resource*Handlers - Should be invoked once
+      // The YarnResourceLaunchHandler creates and uploads
+      // the global jar file. If these handlers are
+      // instantiated for each container allocation
+      // we get container failures dure to modifications
+      // to already submitted global jar file
+      final ResourceLaunchHandler resourceLaunchHandler,
+      final ResourceReleaseHandler resourceReleaseHandler ) {
   }
 }
