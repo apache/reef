@@ -32,8 +32,8 @@ import java.util.logging.Logger;
 /**
  * Main class for the HDInsight REST commandline
  */
-public final class HDICommandLine {
-  private static final Logger LOG = Logger.getLogger(HDICommandLine.class.getName());
+public final class HDICLI {
+  private static final Logger LOG = Logger.getLogger(HDICLI.class.getName());
   private static final String KILL = "kill";
   private static final String LOGS = "logs";
   private static final String LIST = "list";
@@ -42,7 +42,7 @@ public final class HDICommandLine {
   private final Options options;
 
   @Inject
-  public HDICommandLine(final HDInsightInstance hdInsightInstance) {
+  public HDICLI(final HDInsightInstance hdInsightInstance) {
     this.hdInsightInstance = hdInsightInstance;
     final OptionGroup commands = new OptionGroup()
         .addOption(OptionBuilder.withArgName(KILL).hasArg().withDescription("Kills the given application").create(KILL))
@@ -93,7 +93,7 @@ public final class HDICommandLine {
   public static void main(final String[] args) throws Exception {
     Tang.Factory.getTang()
         .newInjector(UnsafeHDInsightRuntimeConfiguration.fromEnvironment())
-        .getInstance(HDICommandLine.class).run(args);
+        .getInstance(HDICLI.class).run(args);
   }
 
 }
