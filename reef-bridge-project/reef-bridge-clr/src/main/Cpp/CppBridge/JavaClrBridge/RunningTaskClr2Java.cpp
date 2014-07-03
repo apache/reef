@@ -27,6 +27,7 @@ namespace Microsoft
 					_jstringId = (jstring)env -> CallObjectMethod(
 						_jobjectRunningTask, 
 						jmidGetId);
+					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
 				}
 
 				IActiveContextClr2Java^ RunningTaskClr2Java::GetActiveContext()
