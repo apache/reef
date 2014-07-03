@@ -17,7 +17,9 @@ package com.microsoft.reef.runtime.yarn.driver;
 
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
+import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
+import com.microsoft.reef.runtime.common.files.YarnClasspath;
 import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
@@ -45,18 +47,21 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
   private final Containers containers;
   private final InjectionFuture<YarnContainerManager> yarnContainerManager;
   private final EvaluatorSetupHelper evaluatorSetupHelper;
-  private final REEFFileNames fileNames;
+  private final REEFFileNames filenames;
+  private final REEFClasspath classpath;
 
   @Inject
   YARNResourceLaunchHandler(final Containers containers,
                             final InjectionFuture<YarnContainerManager> yarnContainerManager,
                             final EvaluatorSetupHelper evaluatorSetupHelper,
-                            final REEFFileNames fileNames) {
+                            final REEFFileNames filenames,
+                            final YarnClasspath classpath) {
     LOG.log(Level.FINEST, "Instantiating 'YARNResourceLaunchHandler'");
-    this.fileNames = fileNames;
-    this.yarnContainerManager = yarnContainerManager;
     this.containers = containers;
+    this.yarnContainerManager = yarnContainerManager;
     this.evaluatorSetupHelper = evaluatorSetupHelper;
+    this.filenames = filenames;
+    this.classpath = classpath;
     LOG.log(Level.INFO, "Instantiated 'YARNResourceLaunchHandler'");
   }
 
@@ -68,27 +73,30 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
       LOG.log(Level.FINEST, "TIME: Start ResourceLaunchProto {0}", containerId);
       final Container container = this.containers.get(containerId);
       LOG.log(Level.FINEST, "Setting up container launch container for id={0}", container.getId());
-      final Map<String, LocalResource> localResources = this.evaluatorSetupHelper.getResources(resourceLaunchProto);
+      final Map<String, LocalResource> localResources =
+          this.evaluatorSetupHelper.getResources(resourceLaunchProto);
 
       final LaunchCommandBuilder commandBuilder;
       switch (resourceLaunchProto.getType()) {
         case JVM:
-          commandBuilder = new JavaLaunchCommandBuilder().setClassPath(this.fileNames.getClasspath());
+          commandBuilder = new JavaLaunchCommandBuilder()
+              .setClassPath(this.classpath.getClasspath());
           break;
         case CLR:
           commandBuilder = new CLRLaunchCommandBuilder();
           break;
         default:
-          throw new IllegalArgumentException("Unsupported container type: " + resourceLaunchProto.getType());
+          throw new IllegalArgumentException(
+              "Unsupported container type: " + resourceLaunchProto.getType());
       }
 
       final List<String> command = commandBuilder
           .setErrorHandlerRID(resourceLaunchProto.getRemoteId())
           .setLaunchID(resourceLaunchProto.getIdentifier())
-          .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
+          .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
           .setMemory(container.getResource().getMemory())
-          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getEvaluatorStderrFileName())
-          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getEvaluatorStdoutFileName())
+          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStderrFileName())
+          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStdoutFileName())
           .build();
 
       if (LOG.isLoggable(Level.FINEST)) {

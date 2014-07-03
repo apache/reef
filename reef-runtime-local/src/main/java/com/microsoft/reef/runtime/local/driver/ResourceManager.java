@@ -20,7 +20,9 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
+import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
+import com.microsoft.reef.runtime.common.files.YarnClasspath;
 import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
@@ -57,7 +59,8 @@ public final class ResourceManager {
   private final int defaultMemorySize;
   private final ConfigurationSerializer configurationSerializer;
   private final RemoteManager remoteManager;
-  private final REEFFileNames fileNames;
+  private final REEFFileNames filenames;
+  private final REEFClasspath classpath;
 
   @Inject
   ResourceManager(
@@ -69,7 +72,8 @@ public final class ResourceManager {
       final @Parameter(LocalRuntimeConfiguration.DefaultMemorySize.class) int defaultMemorySize,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
-      final REEFFileNames fileNames) {
+      final REEFFileNames filenames,
+      final YarnClasspath classpath) {
 
     this.theContainers = containerManager;
     this.allocationHandler = allocationHandler;
@@ -77,7 +81,8 @@ public final class ResourceManager {
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
     this.defaultMemorySize = defaultMemorySize;
-    this.fileNames = fileNames;
+    this.filenames = filenames;
+    this.classpath = classpath;
 
     LOG.log(Level.INFO, "Instantiated 'ResourceManager'");
   }
@@ -123,12 +128,12 @@ public final class ResourceManager {
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
       // Add the global files and libraries.
-      c.addGlobalFiles(this.fileNames.getGlobalFolder());
+      c.addGlobalFiles(this.filenames.getGlobalFolder());
       c.addLocalFiles(getLocalFiles(launchRequest));
 
       // Make the configuration file of the evaluator.
       final File evaluatorConfigurationFile = new File(
-          c.getFolder(), fileNames.getEvaluatorConfigurationPath());
+          c.getFolder(), filenames.getEvaluatorConfigurationPath());
 
       try {
         this.configurationSerializer.toFile(
@@ -143,7 +148,7 @@ public final class ResourceManager {
       switch (launchRequest.getType()) {
         case JVM:
           commandBuilder = new JavaLaunchCommandBuilder()
-              .setClassPath(this.fileNames.getClasspathList());
+              .setClassPath(this.classpath.getClasspathList());
           break;
         case CLR:
           commandBuilder = new CLRLaunchCommandBuilder();
@@ -156,7 +161,7 @@ public final class ResourceManager {
       final List<String> command = commandBuilder
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(c.getNodeID())
-          .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
+          .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
           .setMemory(c.getMemory())
           .build();
 
