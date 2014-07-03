@@ -19,6 +19,8 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.files.LocalClasspath;
+import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.local.driver.LocalDriverConfiguration;
@@ -60,7 +62,8 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final int nThreads;
   private final String rootFolderName;
   private final ConfigurationSerializer configurationSerializer;
-  private final REEFFileNames fileNames;
+  private final REEFFileNames filenames;
+  private final REEFClasspath classpath;
 
   @Inject
   public LocalJobSubmissionHandler(
@@ -68,12 +71,14 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final @Parameter(LocalRuntimeConfiguration.RootFolder.class) String rootFolderName,
       final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads,
       final ConfigurationSerializer configurationSerializer,
-      final REEFFileNames fileNames) {
+      final REEFFileNames filenames,
+      final LocalClasspath classpath) {
 
     this.executor = executor;
     this.nThreads = nThreads;
     this.configurationSerializer = configurationSerializer;
-    this.fileNames = fileNames;
+    this.filenames = filenames;
+    this.classpath = classpath;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
 
     LOG.log(Level.INFO, "Instantiated 'LocalJobSubmissionHandler'");
@@ -97,7 +102,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
       driverFolder.mkdirs();
 
-      final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.fileNames);
+      final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.filenames);
       driverFiles.copyTo(driverFolder);
 
       final Configuration driverConfigurationPart1 = driverFiles
@@ -117,14 +122,14 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
       final Configuration driverConfiguration = Tang.Factory.getTang()
           .newConfigurationBuilder(driverConfigurationPart1, driverConfigurationPart2).build();
-      final File runtimeConfigurationFile = new File(driverFolder, fileNames.getDriverConfigurationPath());
+      final File runtimeConfigurationFile = new File(driverFolder, this.filenames.getDriverConfigurationPath());
       this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
       final List<String> command = new JavaLaunchCommandBuilder()
           .setErrorHandlerRID(t.getRemoteId())
           .setLaunchID(t.getIdentifier())
-          .setConfigurationFileName(fileNames.getDriverConfigurationPath())
-          .setClassPath(fileNames.getClasspath())
+          .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
+          .setClassPath(this.classpath.getClasspath())
           .setMemory(DRIVER_MEMORY)
           .build();
 

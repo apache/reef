@@ -15,12 +15,12 @@
  */
 package com.microsoft.reef.runtime.common.files;
 
-import com.google.common.base.Joiner;
+import com.microsoft.reef.util.OSUtils;
 import net.jcip.annotations.Immutable;
+import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +42,15 @@ public final class REEFFileNames {
   private static final String DRIVER_STDOUT = "driver.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
+
+  static final String GLOBAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + GLOBAL_FOLDER;
+  static final String LOCAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + LOCAL_FOLDER;
+
+  private static final String DRIVER_CONFIGURATION_PATH =
+      LOCAL_FOLDER_PATH + '/' + DRIVER_CONFIGURATION_NAME;
+
+  private static final String EVALUATOR_CONFIGURATION_PATH =
+      LOCAL_FOLDER_PATH + '/' + EVALUATOR_CONFIGURATION_NAME;
 
   @Inject
   public REEFFileNames() {
@@ -73,7 +82,7 @@ public final class REEFFileNames {
    * @return the path to the global folder: REEF_BASE_FOLDER/GLOBAL_FOLDER
    */
   public String getGlobalFolderPath() {
-    return getREEFFolderName() + "/" + getGlobalFolderName();
+    return GLOBAL_FOLDER_PATH;
   }
 
   /**
@@ -95,7 +104,7 @@ public final class REEFFileNames {
    * @return the path to the local folder: REEF_BASE_FOLDER/LOCAL_FOLDER
    */
   public String getLocalFolderPath() {
-    return getREEFFolderName() + "/" + getLocalFolderName();
+    return LOCAL_FOLDER_PATH;
   }
 
   /**
@@ -117,7 +126,7 @@ public final class REEFFileNames {
    * @return The path to the driver configuration: GLOBAL_FOLDER/LOCAL_FOLDER/DRIVER_CONFIGURATION_NAME
    */
   public String getDriverConfigurationPath() {
-    return getLocalFolderPath() + "/" + DRIVER_CONFIGURATION_NAME;
+    return DRIVER_CONFIGURATION_PATH;
   }
 
   /**
@@ -131,7 +140,7 @@ public final class REEFFileNames {
    * @return the path to the evaluator configuration.
    */
   public String getEvaluatorConfigurationPath() {
-    return getLocalFolderPath() + "/" + getEvaluatorConfigurationName();
+    return EVALUATOR_CONFIGURATION_PATH;
   }
 
   /**
@@ -169,19 +178,6 @@ public final class REEFFileNames {
    */
   public String getEvaluatorFolderPrefix() {
     return EVALUATOR_FOLDER_PREFIX;
-  }
-
-  /**
-   * @return the class path for the process.
-   */
-  public String getClasspath() {
-    return Joiner.on(File.pathSeparator).join(getClassPathList());
-  }
-
-  public List<String> getClassPathList() {
-    return Arrays.asList(
-        getLocalFolderPath() + "/*",
-        getGlobalFolderPath() + "/*");
   }
 
   /**
