@@ -21,10 +21,10 @@ import com.microsoft.reef.runtime.hdinsight.client.yarnrest.ApplicationState;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.HDInsightInstance;
 import com.microsoft.tang.Tang;
 import org.apache.commons.cli.*;
-import org.apache.commons.lang.NotImplementedException;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,10 +40,13 @@ public final class HDICLI {
 
   private final HDInsightInstance hdInsightInstance;
   private final Options options;
+  private final LogFetcher logFetcher;
 
   @Inject
-  public HDICLI(final HDInsightInstance hdInsightInstance) {
+  public HDICLI(final HDInsightInstance hdInsightInstance,
+                final LogFetcher logFetcher) {
     this.hdInsightInstance = hdInsightInstance;
+    this.logFetcher = logFetcher;
     final OptionGroup commands = new OptionGroup()
         .addOption(OptionBuilder.withArgName(KILL).hasArg().withDescription("Kills the given application").create(KILL))
         .addOption(OptionBuilder.withArgName(LOGS).hasArg().withDescription("Kills the given application").create(LOGS))
@@ -72,9 +75,9 @@ public final class HDICLI {
     this.hdInsightInstance.killApplication(applicationId);
   }
 
-  private void logs(final String applicationId) {
+  private void logs(final String applicationId) throws IOException {
     LOG.log(Level.INFO, "Fetching logs for application [{0}]", applicationId);
-    throw new NotImplementedException();
+    this.logFetcher.fetch(applicationId, new OutputStreamWriter(System.out));
   }
 
   private void list() throws IOException {
