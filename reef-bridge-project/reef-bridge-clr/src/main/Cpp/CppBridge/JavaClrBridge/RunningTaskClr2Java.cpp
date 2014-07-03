@@ -17,6 +17,17 @@ namespace Microsoft
 					fprintf(stdout, "RunningTaskClr2Java env %p\n", env); fflush (stdout);
 					fprintf(stdout, "RunningTaskClr2Java _jvm %p\n", _jvm); fflush (stdout);
 					fprintf(stdout, "RunningTaskClr2Java _jobjectRunningTask %p\n", _jobjectRunningTask); fflush (stdout);
+
+					jclass jclassRunningTask = env->GetObjectClass (_jobjectRunningTask);
+					jmethodID jmidGetId= env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");	
+
+					fprintf(stdout, "RunningTaskClr2Java jclassRunningTask %p\n", jclassRunningTask); fflush (stdout);
+					fprintf(stdout, "RunningTaskClr2Java jmidGetId %p\n", jmidGetId); fflush (stdout);
+
+					_jstringId = (jstring)env -> CallObjectMethod(
+						_jobjectRunningTask, 
+						jmidGetId);
+					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
 				}
 
 				IActiveContextClr2Java^ RunningTaskClr2Java::GetActiveContext()
@@ -38,22 +49,7 @@ namespace Microsoft
 				{
 					fprintf(stdout, "RunningTaskClr2Java::GetId\n"); fflush (stdout);															
 					JNIEnv *env = RetrieveEnv(_jvm);
-
-					jclass jclassRunningTask = env->GetObjectClass (_jobjectRunningTask);
-					jmethodID jmidGetId= env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");	
-
-					fprintf(stdout, "RunningTaskClr2Java jclassRunningTask %p\n", jclassRunningTask); fflush (stdout);
-					fprintf(stdout, "RunningTaskClr2Java jmidGetId %p\n", jmidGetId); fflush (stdout);
-
-					if(jmidGetId == NULL)
-					{
-						fprintf(stdout, " jmidGetId is NULL\n"); fflush (stdout);
-						return nullptr;
-					}
-					jstring jRunningTaskId = (jstring)env -> CallObjectMethod(
-						_jobjectRunningTask, 
-						jmidGetId);
-					return ManagedStringFromJavaString(env, jRunningTaskId);
+					return ManagedStringFromJavaString(env, _jstringId);
 				}
 
 				void RunningTaskClr2Java::Send(array<byte>^ message)

@@ -70,9 +70,11 @@ namespace Microsoft
 				{
 					jobject  _jobjectTaskMessage;
 					JavaVM* _jvm;
+					jstring _jstringId;
 				public:
 					TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage);
 					virtual void OnError(String^ message);
+					virtual String^ GetId();
 				};
 
 				public ref class FailedTaskClr2Java : public IFailedTaskClr2Java
@@ -90,6 +92,7 @@ namespace Microsoft
 				{
 					jobject  _jobjectRunningTask;
 					JavaVM* _jvm;
+					jstring _jstringId;
 				public:
 					RunningTaskClr2Java(JNIEnv *env, jobject jrunningTask);
 					virtual void OnError(String^ message);
