@@ -74,7 +74,6 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       if (start) {
         //LOG.log(Level.FINEST, "{0} Starting dechunking of a chunked write", curThrName);
         expectedSize = getSize(data);
-        System.out.println("@@@@@@ Chunk size: " + expectedSize);
         // LOG.log(Level.FINEST, "Expected Size = {0}. Wrapping byte[{1}] into a ChannelBuffer", new Object[]{expectedSize,expectedSize});
         retArr = new byte[expectedSize];
         readBuffer = Unpooled.wrappedBuffer(retArr);
