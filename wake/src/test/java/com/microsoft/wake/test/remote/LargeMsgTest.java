@@ -63,7 +63,7 @@ public class LargeMsgTest {
     }
   }
 
-  //@Test
+  @Test
   public void testLargeWrite() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
     Monitor monitor = new Monitor();
