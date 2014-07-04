@@ -24,6 +24,7 @@ import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.runtime.yarn.util.YarnConfigurationConstructor;
+import com.microsoft.reef.util.logging.LoggingSetup;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.formats.ConfigurationModule;
@@ -37,6 +38,10 @@ import com.microsoft.wake.remote.RemoteConfiguration;
 @Public
 @ClientSide
 public class YarnClientConfiguration extends ConfigurationModuleBuilder {
+  static {
+    LoggingSetup.setupCommonsLogging();
+  }
+
   public static final OptionalParameter<String> YARN_QUEUE_NAME = new OptionalParameter<>();
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
   public static final ConfigurationModule CONF = new YarnClientConfiguration()

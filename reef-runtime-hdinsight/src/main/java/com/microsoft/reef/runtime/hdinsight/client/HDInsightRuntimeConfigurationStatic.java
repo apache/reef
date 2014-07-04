@@ -22,6 +22,7 @@ import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.runtime.hdinsight.client.sslhacks.DefaultClientConstructor;
+import com.microsoft.reef.util.logging.LoggingSetup;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.wake.remote.RemoteConfiguration;
@@ -31,6 +32,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
  * The static part of the HDInsightRuntimeConfiguration.
  */
 public final class HDInsightRuntimeConfigurationStatic extends ConfigurationModuleBuilder {
+  static {
+    LoggingSetup.setupCommonsLogging();
+  }
 
   public static final ConfigurationModule CONF = new HDInsightRuntimeConfigurationStatic()
       .bindImplementation(REEF.class, REEFImplementation.class)
