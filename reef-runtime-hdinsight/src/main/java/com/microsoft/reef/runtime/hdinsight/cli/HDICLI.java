@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.examples.hdinsightcli;
+package com.microsoft.reef.runtime.hdinsight.cli;
 
 import com.microsoft.reef.runtime.hdinsight.client.UnsafeHDInsightRuntimeConfiguration;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.ApplicationID;
@@ -23,6 +23,7 @@ import com.microsoft.tang.Tang;
 import org.apache.commons.cli.*;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
@@ -43,14 +44,14 @@ public final class HDICLI {
   private final LogFetcher logFetcher;
 
   @Inject
-  public HDICLI(final HDInsightInstance hdInsightInstance,
-                final LogFetcher logFetcher) {
+  HDICLI(final HDInsightInstance hdInsightInstance,
+         final LogFetcher logFetcher) {
     this.hdInsightInstance = hdInsightInstance;
     this.logFetcher = logFetcher;
     final OptionGroup commands = new OptionGroup()
-        .addOption(OptionBuilder.withArgName(KILL).hasArg().withDescription("Kills the given application").create(KILL))
-        .addOption(OptionBuilder.withArgName(LOGS).hasArg().withDescription("Kills the given application").create(LOGS))
-        .addOption(OptionBuilder.withArgName(LIST).withDescription("Kills the given application").create(LIST));
+        .addOption(OptionBuilder.withArgName(KILL).hasArg().withDescription("Kills the given application.").create(KILL))
+        .addOption(OptionBuilder.withArgName(LOGS).hasArg().withDescription("Fetches the logs for the given application.").create(LOGS))
+        .addOption(OptionBuilder.withArgName(LIST).withDescription("Lists the application on the cluster.").create(LIST));
     this.options = new Options().addOptionGroup(commands);
   }
 
@@ -58,10 +59,16 @@ public final class HDICLI {
     final CommandLineParser parser = new PosixParser();
 
     final CommandLine line = parser.parse(options, args);
+    final List<String> positionalArguments = line.getArgList();
     if (line.hasOption(KILL)) {
       this.kill(line.getOptionValue(KILL));
     } else if (line.hasOption(LOGS)) {
-      this.logs(line.getOptionValue(LOGS));
+      final String applicationId = line.getOptionValue(LOGS);
+      if (positionalArguments.isEmpty()) {
+        this.logs(applicationId);
+      } else {
+        this.logs(applicationId, new File(positionalArguments.get(0)));
+      }
     } else if (line.hasOption(LIST)) {
       this.list();
     } else {
@@ -70,18 +77,48 @@ public final class HDICLI {
 
   }
 
+  /**
+   * Kills the application with the given id.
+   *
+   * @param applicationId
+   */
   private void kill(final String applicationId) {
     LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
     this.hdInsightInstance.killApplication(applicationId);
   }
 
+  /**
+   * Fetches the logs for the application with the given id and prints them to System.out.
+   *
+   * @param applicationId
+   * @throws IOException
+   */
   private void logs(final String applicationId) throws IOException {
     LOG.log(Level.INFO, "Fetching logs for application [{0}]", applicationId);
     this.logFetcher.fetch(applicationId, new OutputStreamWriter(System.out));
   }
 
+  /**
+   * Fetches the logs for the application with the given id and stores them in the given folder. One file per container.
+   *
+   * @param applicationId
+   * @param folder
+   * @throws IOException
+   */
+  private void logs(final String applicationId, final File folder) throws IOException {
+    LOG.log(Level.FINE, "Fetching logs for application [{0}] and storing them in folder [{1}]",
+        new Object[]{applicationId, folder.getAbsolutePath()});
+    folder.mkdirs();
+    this.logFetcher.fetch(applicationId, folder);
+  }
+
+  /**
+   * Fetches a list of all running applications.
+   *
+   * @throws IOException
+   */
   private void list() throws IOException {
-    LOG.log(Level.INFO, "Listing applications");
+    LOG.log(Level.FINE, "Listing applications");
     final ApplicationID applicationID = this.hdInsightInstance.getApplicationID();
     System.out.println(applicationID);
     final List<ApplicationState> applications = this.hdInsightInstance.listApplications();
@@ -92,8 +129,16 @@ public final class HDICLI {
     }
   }
 
+  /**
+   * Helper method to setup apache commons logging.
+   */
+  private static final void setupLogging() {
+    System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.Jdk14Logger");
+    System.setProperty(".level", "INFO");
+  }
 
   public static void main(final String[] args) throws Exception {
+    setupLogging();
     Tang.Factory.getTang()
         .newInjector(UnsafeHDInsightRuntimeConfiguration.fromEnvironment())
         .getInstance(HDICLI.class).run(args);

@@ -16,4 +16,4 @@
 /**
  * A command line interface for HDInsight
  */
-package com.microsoft.reef.examples.hdinsightcli;
+package com.microsoft.reef.runtime.hdinsight.cli;

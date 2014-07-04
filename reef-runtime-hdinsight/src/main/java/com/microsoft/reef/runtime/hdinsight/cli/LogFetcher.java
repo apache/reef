@@ -1,4 +1,4 @@
-package com.microsoft.reef.examples.hdinsightcli;
+package com.microsoft.reef.runtime.hdinsight.cli;
 
 import com.microsoft.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
 import com.microsoft.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
@@ -21,10 +21,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by marku_000 on 2014-07-03.
+ * Helper class to fetch logs from an HDInsight cluster.
  */
-public final class LogFetcher {
+final class LogFetcher {
   private final CloudBlobContainer container;
+  private final FileSystem fileSystem;
+  private final Configuration hadoopConfiguration;
+  private final TFileParser tFileParser;
   private static final String LOG_FOLDER_PREFIX = "app-logs/gopher/logs/";
   private static final Logger LOG = Logger.getLogger(LogFetcher.class.getName());
 
@@ -33,28 +36,37 @@ public final class LogFetcher {
   LogFetcher(final @Parameter(AzureStorageAccountName.class) String accountName,
              final @Parameter(AzureStorageAccountKey.class) String accountKey,
              final @Parameter(AzureStorageAccountContainerName.class) String azureStorageContainerName)
-      throws URISyntaxException, InvalidKeyException, StorageException {
+      throws URISyntaxException, InvalidKeyException, StorageException, IOException {
     this.container = getContainer(accountName, accountKey, azureStorageContainerName);
+    this.hadoopConfiguration = new Configuration();
+    this.fileSystem = FileSystem.get(hadoopConfiguration);
+    this.tFileParser = new TFileParser(hadoopConfiguration, fileSystem);
   }
 
-  public void fetch(final String applicationId, final Writer outputWriter) throws IOException {
+  void fetch(final String applicationId, final Writer outputWriter) throws IOException {
     try {
-      final File localFolder = downloadToTempFolder(applicationId);
-
-      final Configuration hadoopConfiguration = new Configuration();
-      final FileSystem fileSystem = FileSystem.get(hadoopConfiguration);
-      final TFileParser tFileParser = new TFileParser(hadoopConfiguration, fileSystem);
-
-      final Path localFolderPath = new Path(localFolder.getAbsolutePath());
-      for (final FileStatus fileStatus : fileSystem.listStatus(localFolderPath)) {
+      for (final FileStatus fileStatus : downloadLogs(applicationId)) {
         tFileParser.parseOneFile(fileStatus.getPath(), outputWriter);
       }
-
-
     } catch (final Exception e) {
       throw new IOException(e);
     }
+  }
 
+  void fetch(final String applicationId, final File folder) throws IOException {
+    try {
+      for (final FileStatus fileStatus : downloadLogs(applicationId)) {
+        tFileParser.parseOneFile(fileStatus.getPath(), folder);
+      }
+    } catch (final Exception e) {
+      throw new IOException(e);
+    }
+  }
+
+  private FileStatus[] downloadLogs(final String applicationId) throws StorageException, IOException, URISyntaxException {
+    final File localFolder = downloadToTempFolder(applicationId);
+    final Path localFolderPath = new Path(localFolder.getAbsolutePath());
+    return this.fileSystem.listStatus(localFolderPath);
   }
 
   /**
@@ -79,7 +91,7 @@ public final class LogFetcher {
         }
       }
     }
-    LOG.log(Level.INFO, "Downloaded logs to: {0}", outputFolder.getAbsolutePath());
+    LOG.log(Level.FINE, "Downloadeded logs to: {0}", outputFolder.getAbsolutePath());
     return outputFolder;
   }
 
