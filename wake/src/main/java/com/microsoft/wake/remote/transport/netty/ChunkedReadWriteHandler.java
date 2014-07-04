@@ -15,13 +15,17 @@
  */
 package com.microsoft.wake.remote.transport.netty;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledHeapByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Thin wrapper around ChunkedWriteHandler
@@ -57,25 +61,21 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   private byte[] retArr;
   
   /**
+   * @throws Exception 
    * @see org.jboss.netty.handler.stream.ChunkedWriteHandler#handleUpstream(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
    */
-  /*
+  
+
   @Override
-  public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent chEvent) throws Exception {
-    if (chEvent instanceof MessageEvent) {
-      String curThrName = Thread.currentThread().getName() + ": ";
-      final MessageEvent msgEvent = (MessageEvent) chEvent;
-      final byte[] data = (byte[]) msgEvent.getMessage();
-
-      if (null == data || data.length == 0) {
-        super.handleUpstream(ctx, chEvent);
-        return;
-      }
-
+  public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    if ( msg instanceof byte[] ){
+      byte[] data = (byte[])msg;
+      
       if (start) {
         //LOG.log(Level.FINEST, "{0} Starting dechunking of a chunked write", curThrName);
         expectedSize = getSize(data);
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "Expected Size = {0}. Wrapping byte[{1}] into a ChannelBuffer", new Object[]{expectedSize,expectedSize});
+        System.out.println("@@@@@@ Chunk size: " + expectedSize);
+        // LOG.log(Level.FINEST, "Expected Size = {0}. Wrapping byte[{1}] into a ChannelBuffer", new Object[]{expectedSize,expectedSize});
         retArr = new byte[expectedSize];
         readBuffer = Unpooled.wrappedBuffer(retArr);
         readBuffer.clear();
@@ -84,29 +84,27 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: new sz = " + readBuffer.writerIndex());
         start = false;
       } else {
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "In the middle of dechunking of a chunked write");
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: cur sz = " + readBuffer.writerIndex() + " + " + data.length + " bytes will added by current chunk");
         readBuffer.writeBytes(data);
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: new sz = " + readBuffer.writerIndex());
       }
+      
 
       if (readBuffer.writerIndex() == expectedSize) {
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} Dechunking complete. Creating upstream msg event with the dechunked byte[{1}]", new Object[]{curThrName, expectedSize});
-        final MessageEvent ret = new UpstreamMessageEvent(
-            msgEvent.getChannel(), retArr, msgEvent.getRemoteAddress());
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "Resetting state to begin another dechunking", curThrName);
+        byte[] temp = retArr;
         start = true;
         expectedSize = 0;
         readBuffer = null;
         retArr = null;
         //LOG.log(Level.FINEST, "{0} Sending dechunked message upstream", curThrName);
-        super.handleUpstream(ctx, ret);
+        super.channelRead(ctx, temp);
       }
     } else {
-      super.handleUpstream(ctx, chEvent);
+      super.channelRead(ctx, msg);
     }
   }
-  */
+
+  
   /**
    * Thread-safe since there is no shared instance state.
    * Just prepend size to the message and stream it through
@@ -117,41 +115,29 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * serializes access to the channel and first write will complete before
    * the second begins.
    */
-  /*
+  
   @Override
-  public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent event) throws Exception {
-
-    if (event instanceof MessageEvent) {
-
-      final MessageEvent msgEvent = (MessageEvent) event;
-      final Object msg = msgEvent.getMessage();
-
-      if (msg instanceof byte[]) {
-        String curThrName = Thread.currentThread().getName() + ": ";
-        final byte[] data = (byte[]) msg;
+  public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+    if (msg instanceof ByteBuf) {
+      ByteBuf bf = (ByteBuf)msg;
+      
+      if ( bf.hasArray() ){
+        final byte[] data = bf.array();
         final byte[] size = sizeAsByteArr(data.length);
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} Setting size={1}", new Object[] {curThrName, data.length});
         final ByteBuf buffer = Unpooled.wrappedBuffer(size, data);
         final ByteBufInputStream stream = new ByteBufInputStream(buffer);
 
         final ChunkedStream chunkedStream = new ChunkedStream(
-            stream, NettyChannelPipelineFactory.MAXFRAMELENGTH - 1024);
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} Created chunkedstream {1}", new Object[]{curThrName, chunkedStream});
-        final MessageEvent dwnStrmMsgEvent = new DownstreamMessageEvent(
-            msgEvent.getChannel(), msgEvent.getFuture(), chunkedStream,
-            msgEvent.getRemoteAddress());
-        //LOG.log(Level.FINEST, "{0} Sending downstream", curThrName);
-        super.handleDownstream(ctx, dwnStrmMsgEvent);
-
+            stream, NettyChannelInitializer.MAXFRAMELENGTH - 1024);
+        super.write(ctx, chunkedStream, promise);
       } else {
-        super.handleDownstream(ctx, msgEvent);
+        super.write(ctx, msg, promise);
       }
-
     } else {
-      super.handleDownstream(ctx, event);
+      super.write(ctx, msg, promise);
     }
   }
-  */
+  
   
   /**
    * Converts the int size into a byte[]

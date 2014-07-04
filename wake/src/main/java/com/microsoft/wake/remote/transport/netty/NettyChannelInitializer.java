@@ -45,7 +45,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
     pipeline.addLast("bytesDecoder", new ByteArrayDecoder());
     pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
     pipeline.addLast("bytesEncoder", new ByteArrayEncoder());
-    //pipeline.addLast("chunker", new ChunkedReadWriteHandler());
+    pipeline.addLast("chunker", new ChunkedReadWriteHandler());
     pipeline.addLast("handler", handlerFactory.createChannelInboundHandler());
 
   }
