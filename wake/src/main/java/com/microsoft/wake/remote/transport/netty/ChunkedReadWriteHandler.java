@@ -18,13 +18,11 @@ package com.microsoft.wake.remote.transport.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledHeapByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -65,6 +63,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * @see org.jboss.netty.handler.stream.ChunkedWriteHandler#handleUpstream(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
    */
   
+
 
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -125,7 +124,6 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
         final byte[] size = sizeAsByteArr(data.length);
         final ByteBuf buffer = Unpooled.wrappedBuffer(size, data);
         final ByteBufInputStream stream = new ByteBufInputStream(buffer);
-
         final ChunkedStream chunkedStream = new ChunkedStream(
             stream, NettyChannelInitializer.MAXFRAMELENGTH - 1024);
         super.write(ctx, chunkedStream, promise);
@@ -148,6 +146,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
     final ByteBuf intBuffer = Unpooled.wrappedBuffer(ret).order(Unpooled.LITTLE_ENDIAN);
     intBuffer.clear();
     intBuffer.writeInt(size);
+    intBuffer.release();
     return ret;
   }
   
@@ -177,6 +176,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
     } else {
       final ByteBuf intBuffer = Unpooled.wrappedBuffer(data, offset, INT_SIZE).order(Unpooled.LITTLE_ENDIAN);
       final int ret = intBuffer.readInt();
+      intBuffer.release();
       return ret;
     }
   }
