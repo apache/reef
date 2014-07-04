@@ -25,24 +25,22 @@ import java.security.cert.X509Certificate;
  * <p/>
  * Hence: DO NOT USE THIS CLASS UNLESS DEBUGGING.
  */
-final class TrustingTrustManager implements X509TrustManager {
-
+final class UnsafeTrustManager implements X509TrustManager {
   @Inject
-  public TrustingTrustManager() {
+  UnsafeTrustManager() {
   }
 
   @Override
-  public void checkClientTrusted(
-      final X509Certificate[] x509Certificates, final String s) throws CertificateException {
+  public void checkClientTrusted(final X509Certificate[] x509Certificates, final String s) throws CertificateException {
   }
 
   @Override
-  public void checkServerTrusted(
-      final X509Certificate[] x509Certificates, final String s) throws CertificateException {
+  public void checkServerTrusted(final X509Certificate[] x509Certificates, final String s) throws CertificateException {
   }
 
   @Override
   public X509Certificate[] getAcceptedIssuers() {
     return new X509Certificate[0];
   }
+
 }

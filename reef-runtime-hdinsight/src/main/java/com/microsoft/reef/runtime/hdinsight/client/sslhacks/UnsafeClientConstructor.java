@@ -16,13 +16,18 @@
 package com.microsoft.reef.runtime.hdinsight.client.sslhacks;
 
 import com.microsoft.tang.ExternalConstructor;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.BasicClientConnectionManager;
 
 import javax.inject.Inject;
-import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -30,35 +35,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * ExternalConstructor for the Client of the javax.ws API
+ * A Client constructor that produces Clients that do not check SSL.
  */
-public final class TrustingClientConstructor implements ExternalConstructor<Client> {
-
-  private static final Logger LOG = Logger.getLogger(TrustingClientConstructor.class.getName());
+public final class UnsafeClientConstructor implements ExternalConstructor<CloseableHttpClient> {
 
   @Inject
-  TrustingClientConstructor() {
-    LOG.log(Level.SEVERE, "DANGER: INSTANTIATING HTTP CLIENTS WITH NO SSL CHECKS.");
+  UnsafeClientConstructor() {
+    Logger.getLogger(UnsafeClientConstructor.class.getName())
+        .log(Level.SEVERE, "DANGER: INSTANTIATING HTTP CLIENT WITH NO SSL CHECKS.");
   }
 
   @Override
-  public Client newInstance() {
+  public CloseableHttpClient newInstance() {
     try {
-      final SSLContext sslContext = this.getSSLContext();
-      HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-      return ClientBuilder.newBuilder()
-          .sslContext(sslContext)
-          .hostnameVerifier(new IgnoringHostnameVerifier())
-          .build();
+      final SSLSocketFactory socketFactory = new SSLSocketFactory(this.getSSLContext());
+      socketFactory.setHostnameVerifier(new UnsafeHostNameVerifier());
+      final SchemeRegistry schemeRegistry = new SchemeRegistry();
+      schemeRegistry.register(new Scheme("https", 443, socketFactory));
+      final ClientConnectionManager clientConnectionManager = new BasicClientConnectionManager(schemeRegistry);
+      return new DefaultHttpClient(clientConnectionManager);
     } catch (final KeyManagementException | NoSuchAlgorithmException ex) {
-      LOG.log(Level.SEVERE, "SSL context error. Cannot instantiate HTTP client", ex);
       throw new RuntimeException("Unable to instantiate HTTP Client", ex);
     }
   }
 
   private SSLContext getSSLContext() throws KeyManagementException, NoSuchAlgorithmException {
     final SSLContext sc = SSLContext.getInstance("TLS");
-    sc.init(null, new TrustManager[]{new TrustingTrustManager()}, new SecureRandom());
+    sc.init(new KeyManager[0], new TrustManager[]{new UnsafeTrustManager()}, new SecureRandom());
     return sc;
   }
+
+
 }

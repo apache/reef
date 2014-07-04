@@ -13,14 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.hdinsight.client.sslhacks;
+package com.microsoft.reef.runtime.hdinsight.client.yarnrest;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
+import java.util.List;
+import java.util.Map;
 
-final class IgnoringHostnameVerifier implements HostnameVerifier {
-  @Override
-  public boolean verify(final String hostName, final SSLSession sslSession) {
-    return true;
+/**
+ * Created by marku_000 on 2014-06-30.
+ */
+public class ApplicationResponse {
+
+  private Map<String, List<ApplicationState>> apps;
+
+  public Map<String, List<ApplicationState>> getApps() {
+    return apps;
   }
+
+  public void setApps(Map<String, List<ApplicationState>> apps) {
+    this.apps = apps;
+  }
+
+  public List<ApplicationState> getApplicationStates() {
+    return apps.get("app");
+  }
+
+
 }

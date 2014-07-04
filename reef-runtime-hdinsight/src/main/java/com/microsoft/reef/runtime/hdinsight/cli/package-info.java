@@ -13,24 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.hdinsight.client.sslhacks;
-
-import com.microsoft.tang.ExternalConstructor;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-
-import javax.inject.Inject;
-
 /**
- * Default Client constructor with default SSL checks.
+ * A command line interface for HDInsight
  */
-public final class DefaultClientConstructor implements ExternalConstructor<CloseableHttpClient> {
-  @Inject
-  DefaultClientConstructor() {
-  }
-
-  @Override
-  public CloseableHttpClient newInstance() {
-    return HttpClients.createDefault();
-  }
-}
+package com.microsoft.reef.runtime.hdinsight.cli;

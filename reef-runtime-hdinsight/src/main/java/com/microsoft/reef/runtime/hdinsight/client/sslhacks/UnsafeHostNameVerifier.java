@@ -15,22 +15,33 @@
  */
 package com.microsoft.reef.runtime.hdinsight.client.sslhacks;
 
-import com.microsoft.tang.ExternalConstructor;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 
-import javax.inject.Inject;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
 
-/**
- * Default Client constructor with default SSL checks.
- */
-public final class DefaultClientConstructor implements ExternalConstructor<CloseableHttpClient> {
-  @Inject
-  DefaultClientConstructor() {
+final class UnsafeHostNameVerifier implements X509HostnameVerifier {
+
+  @Override
+  public void verify(String host, SSLSocket ssl) throws IOException {
+
   }
 
   @Override
-  public CloseableHttpClient newInstance() {
-    return HttpClients.createDefault();
+  public void verify(String host, X509Certificate cert) throws SSLException {
+
+  }
+
+  @Override
+  public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
+
+  }
+
+  @Override
+  public boolean verify(String s, SSLSession sslSession) {
+    return true;
   }
 }
