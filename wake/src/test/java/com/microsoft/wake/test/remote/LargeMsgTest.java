@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class LargeMsgTest {
     }
   }
 
-  //@Test
+  @Test
   public void testLargeWrite() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
     Monitor monitor = new Monitor();
@@ -78,7 +78,7 @@ public class LargeMsgTest {
 
     String hostAddress = NetUtils.getLocalAddress();
     int port = 7001;
-    NettyMessagingTransport transport = new NettyMessagingTransport(hostAddress, port, clientStage, serverStage);
+    NettyMessagingTransport transport = new NettyMessagingTransport(hostAddress, port, clientStage, serverStage, 1, 10000);
     final Link<byte[]> link = transport.open(new InetSocketAddress(hostAddress, port), new PassThroughEncoder(), null);
     EStage<byte[]> writeSubmitter = new ThreadPoolStage<>("Submitter", new EventHandler<byte[]>() {
 

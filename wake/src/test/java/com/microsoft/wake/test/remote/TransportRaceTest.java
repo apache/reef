@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class TransportRaceTest {
     String hostAddress = NetUtils.getLocalAddress();
     int port = 7001;
     NettyMessagingTransport transport = new NettyMessagingTransport(
-        hostAddress, port, clientStage, serverStage);
+        hostAddress, port, clientStage, serverStage, 1, 10000);
 
     String value = "Test Race";
 

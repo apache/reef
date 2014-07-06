@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.wake</groupId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Wake-Project</name>
     <artifactId>wake-project</artifactId>
@@ -34,7 +34,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <tang.version>0.4-SNAPSHOT</tang.version>
+        <tang.version>${project.version}</tang.version>
     </properties>
 
     <prerequisites>
@@ -169,7 +169,7 @@
             <dependency>
                 <groupId>com.microsoft.tang</groupId>
                 <artifactId>tang</artifactId>
-                <version>${tang.version}</version>
+                <version>0.6-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

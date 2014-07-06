@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class RemoteIdentifierFactoryTest {
     String hostAddress = NetUtils.getLocalAddress();
     
     RemoteManager rm = new DefaultRemoteManagerImplementation("TestRemoteManager", 
-        hostAddress, port, codec, new LoggingEventHandler<Throwable> (), false);
+        hostAddress, port, codec, new LoggingEventHandler<Throwable> (), false, 1, 10000);
     RemoteIdentifier id = rm.getMyIdentifier();
     System.out.println(id.toString());
     

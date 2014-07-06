@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,32 @@
  */
 package com.microsoft.wake.test.remote;
 
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.impl.LoggingEventHandler;
 import com.microsoft.wake.impl.LoggingUtils;
 import com.microsoft.wake.impl.TimerStage;
-import com.microsoft.wake.remote.*;
+import com.microsoft.wake.remote.Codec;
+import com.microsoft.wake.remote.NetUtils;
+import com.microsoft.wake.remote.RemoteIdentifier;
+import com.microsoft.wake.remote.RemoteIdentifierFactory;
+import com.microsoft.wake.remote.RemoteManager;
+import com.microsoft.wake.remote.RemoteMessage;
 import com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 import com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation;
 import com.microsoft.wake.remote.impl.MultiCodec;
@@ -101,12 +122,12 @@ public class RemoteManagerTest {
   public void testRemoteManagerConnectionRetryTest() throws Exception {
     ExecutorService smExecutor = Executors.newFixedThreadPool(1);
     ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
-
+    
     RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 2000);
-
+    
     Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000));
     Thread.sleep(1000);
-
+    
     RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
     Future<Integer> rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, 1, 2));
 
@@ -115,12 +136,47 @@ public class RemoteManagerTest {
 
     receivingManager.close();
     sendingManager.close();
-
+    
     Assert.assertEquals(0, smCnt);
     Assert.assertEquals(2, rmCnt);
+    
   }
 
   
+  @Test
+  public void testRemoteManagerConnectionRetryWithMultipleSenderTest() throws Exception {
+    int numOfSenderThreads = 5;
+    ExecutorService smExecutor = Executors.newFixedThreadPool(numOfSenderThreads);
+    ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
+    ArrayList<Future<Integer>> smFutures = new ArrayList<Future<Integer>>(numOfSenderThreads);
+    
+    RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 5000);
+
+    for (int i = 0; i < numOfSenderThreads; i++) {
+      smFutures.add(smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000)));
+    }
+    
+    Thread.sleep(2000);
+    
+    RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
+    Future<Integer> receivingFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, numOfSenderThreads, 2));
+    
+    // waiting sending remote manager.
+    for (Future<Integer> future : smFutures) {
+      future.get();
+    }
+    
+    // waiting receiving remote manager
+    int rmCnt = receivingFuture.get();
+    
+    sendingManager.close();
+    receivingManager.close();
+    
+    // get the result
+    Assert.assertEquals(2 * numOfSenderThreads, rmCnt);
+  }
+  
+
   @Test
   public void testRemoteManagerOrderingGuaranteeTest() throws Exception {
     System.out.println(logPrefix + name.getMethodName());

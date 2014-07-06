@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import java.net.SocketAddress;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,7 +91,8 @@ public class NettyMessagingTransport implements Transport {
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout the timeout of reconnection
    */
-  public NettyMessagingTransport(final String hostAddress, int port,
+  @Deprecated
+  public NettyMessagingTransport(final String hostAddress, final int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage) {
     this(hostAddress, port, clientStage, serverStage, 3, 10000);
@@ -230,12 +231,12 @@ public class NettyMessagingTransport implements Transport {
       // no linkRef
       final LinkReference newLinkRef = new LinkReference();
       final LinkReference prior = this.addrToLinkRefMap.putIfAbsent(remoteAddr, newLinkRef);
-      final AtomicBoolean flag = prior != null ?
+      final AtomicInteger flag = prior != null ?
           prior.getConnectInProgress() : newLinkRef.getConnectInProgress();
 
       synchronized (flag) {
-        if (!flag.compareAndSet(false, true)) {
-          while (flag.get()) {
+        if (!flag.compareAndSet(0, 1)) {
+          while (flag.get()==1) {
             try {
               flag.wait();
             } catch (final InterruptedException ex) {
@@ -261,7 +262,7 @@ public class NettyMessagingTransport implements Transport {
         linkRef.setLink(link);
 
         synchronized (flag) {
-          flag.compareAndSet(true, false);
+          flag.compareAndSet(1, 2);
           flag.notifyAll();
         }
         break;
@@ -270,7 +271,7 @@ public class NettyMessagingTransport implements Transport {
           LOG.log(Level.WARNING, "Connection refused. Retry {0} of {1}", 
               new Object[]{i+1, this.numberOfTries});
           synchronized(flag) {
-            flag.compareAndSet(true, false);
+            flag.compareAndSet(1, 0);
             flag.notifyAll();
           }
           

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,10 +96,10 @@ public class RemoteTest {
     String hostAddress = NetUtils.getLocalAddress();
 
     // transport
-    Transport transport1 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage);    
+    Transport transport1 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);    
     int port1 = transport1.getListeningPort();
     
-    Transport transport2 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage);
+    Transport transport2 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
     int port2 = transport2.getListeningPort();
 
     transport1.close();
@@ -142,7 +142,7 @@ public class RemoteTest {
     String hostAddress = NetUtils.getLocalAddress();
 
     // transport
-    Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage);
+    Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
     
     // mux encoder with encoder map
     Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();

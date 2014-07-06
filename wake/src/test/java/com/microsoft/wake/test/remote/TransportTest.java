@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class TransportTest {
 
     // Codec<String>
     ReceiverStage<String> stage = new ReceiverStage<String>(new ObjectSerializableCodec<String>(), monitor, expected);
-    Transport transport = new NettyMessagingTransport(hostAddress, port, stage, stage);
+    Transport transport = new NettyMessagingTransport(hostAddress, port, stage, stage, 1, 10000);
     
     // sending side
     Link<String> link = transport.open( 
@@ -92,7 +92,7 @@ public class TransportTest {
 
     // Codec<TestEvent>
     ReceiverStage<TestEvent> stage = new ReceiverStage<TestEvent>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
-    Transport transport = new NettyMessagingTransport(hostAddress, port, stage, stage);
+    Transport transport = new NettyMessagingTransport(hostAddress, port, stage, stage, 1, 10000);
         
     // sending side
     Link<TestEvent> link = transport.open(

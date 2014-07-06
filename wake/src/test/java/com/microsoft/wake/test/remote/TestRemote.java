@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Microsoft Corporation
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class TestRemote {
     int remotePort = 10001;
     Codec<TestEvent> codec = new TestEventCodec();
     try (RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress,
-        myPort, codec, new LoggingEventHandler<Throwable>(), false)) {
+        myPort, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000)) {
       // proxy handler
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
