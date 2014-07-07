@@ -57,7 +57,7 @@ public final class JobJarMaker {
 
     // Copy all files to a local job submission folder
     final File jobSubmissionFolder = makejobSubmissionFolder();
-    LOG.log(Level.INFO, "Staging submission in {0}", jobSubmissionFolder);
+    LOG.log(Level.FINE, "Staging submission in {0}", jobSubmissionFolder);
 
     final File localFolder = new File(jobSubmissionFolder, this.fileNames.getLocalFolderName());
     final File globalFolder = new File(jobSubmissionFolder, this.fileNames.getGlobalFolderName());
@@ -73,7 +73,7 @@ public final class JobJarMaker {
     final File jarFile = File.createTempFile(
         this.fileNames.getJobFolderPrefix(), this.fileNames.getJarFileSuffix());
 
-    LOG.log(Level.INFO, "Creating job submission jar file: {0}", jarFile);
+    LOG.log(Level.FINE, "Creating job submission jar file: {0}", jarFile);
     new JARFileMaker(jarFile).addChildren(jobSubmissionFolder).close();
 
     return jarFile;

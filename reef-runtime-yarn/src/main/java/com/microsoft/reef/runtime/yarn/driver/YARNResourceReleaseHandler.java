@@ -15,14 +15,13 @@
  */
 package com.microsoft.reef.runtime.yarn.driver;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.tang.InjectionFuture;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * ResourceReleaseHandler for YARN.
@@ -36,7 +35,7 @@ public final class YARNResourceReleaseHandler implements ResourceReleaseHandler 
   @Inject
   YARNResourceReleaseHandler(final InjectionFuture<YarnContainerManager> yarnContainerManager) {
     this.yarnContainerManager = yarnContainerManager;
-    LOG.log(Level.INFO, "Instantiated 'YARNResourceReleaseHandler'");
+    LOG.log(Level.FINE, "Instantiated 'YARNResourceReleaseHandler'");
   }
 
   @Override

@@ -87,7 +87,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
     this.jvmHeapSlack = jvmHeapSlack;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
 
-    LOG.log(Level.INFO, "Instantiated 'LocalJobSubmissionHandler'");
+    LOG.log(Level.FINE, "Instantiated 'LocalJobSubmissionHandler'");
   }
 
   @Override

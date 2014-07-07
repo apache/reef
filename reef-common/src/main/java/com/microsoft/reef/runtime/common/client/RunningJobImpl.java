@@ -78,7 +78,7 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
     this.jobControlHandler = remoteManager.getHandler(driverRID, JobControlProto.class);
 
     this.runningJobEventHandler.onNext(this);
-    LOG.log(Level.INFO, "Instantiated 'RunningJobImpl'");
+    LOG.log(Level.FINE, "Instantiated 'RunningJobImpl'");
   }
 
   @Override

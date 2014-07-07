@@ -19,6 +19,7 @@ import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightInstanceURL;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightPassword;
 import com.microsoft.reef.runtime.hdinsight.parameters.HDInsightUsername;
 import com.microsoft.tang.annotations.Parameter;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -40,7 +41,8 @@ import org.apache.http.message.BasicHeader;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -88,7 +90,7 @@ public final class HDInsightInstance {
     final String url = "ws/v1/cluster/appids?user.name=" + this.username;
     final HttpPost post = preparePost(url);
     try (final CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
-      final String message = readAll(response.getEntity().getContent());
+      final String message = IOUtils.toString(response.getEntity().getContent());
       final ApplicationID result = this.objectMapper.readValue(message, ApplicationID.class);
       return result;
     }
@@ -109,7 +111,7 @@ public final class HDInsightInstance {
     final StringWriter writer = new StringWriter();
     try {
       this.objectMapper.writeValue(writer, applicationSubmission);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
     final String message = writer.toString();
@@ -117,8 +119,8 @@ public final class HDInsightInstance {
     post.setEntity(new StringEntity(message, ContentType.APPLICATION_JSON));
 
     try (final CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
-      final String responseMessage = readAll(response.getEntity().getContent());
-      LOG.log(Level.INFO, "Response: {0}", responseMessage.replace("\n", "\n\t"));
+      final String responseMessage = IOUtils.toString(response.getEntity().getContent());
+      LOG.log(Level.FINE, "Response: {0}", responseMessage.replace("\n", "\n\t"));
     }
   }
 
@@ -135,7 +137,7 @@ public final class HDInsightInstance {
     final String url = "ws/v1/cluster/apps";
     final HttpGet get = prepareGet(url);
     try (final CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
-      final String message = readAll(response.getEntity().getContent());
+      final String message = IOUtils.toString(response.getEntity().getContent());
       final ApplicationResponse result = this.objectMapper.readValue(message, ApplicationResponse.class);
       return result.getApplicationStates();
     }
@@ -180,30 +182,6 @@ public final class HDInsightInstance {
       httpPost.addHeader(header);
     }
     return httpPost;
-  }
-
-
-  private static String readAll(final InputStream inputStream) throws IOException {
-    try (final InputStreamReader reader = new InputStreamReader(inputStream)) {
-      return readAll(reader);
-    }
-  }
-
-  private static String readAll(final Reader reader) throws IOException {
-    return readAll(new BufferedReader(reader));
-  }
-
-  private static String readAll(final BufferedReader reader) throws IOException {
-    final StringBuilder result = new StringBuilder();
-
-    String line = reader.readLine();
-    while (null != line) {
-      result.append(line);
-      result.append("\n");
-      line = reader.readLine();
-    }
-
-    return result.toString();
   }
 
 

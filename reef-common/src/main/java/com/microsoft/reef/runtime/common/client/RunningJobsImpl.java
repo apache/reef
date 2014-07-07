@@ -48,7 +48,7 @@ final class RunningJobsImpl implements RunningJobs {
                   final @Parameter(ResourceManagerErrorHandler.class) InjectionFuture<EventHandler<FailedRuntime>> failedRuntimeEventHandler) {
     this.injector = injector;
     this.failedRuntimeEventHandler = failedRuntimeEventHandler;
-    LOG.log(Level.INFO, "Instantiated 'RunningJobImpl'");
+    LOG.log(Level.FINE, "Instantiated 'RunningJobImpl'");
   }
 
 
@@ -64,7 +64,7 @@ final class RunningJobsImpl implements RunningJobs {
   public synchronized void onJobStatusMessage(final RemoteMessage<ReefServiceProtos.JobStatusProto> message) {
     final ReefServiceProtos.JobStatusProto status = message.getMessage();
     final String jobIdentifier = status.getIdentifier();
-    LOG.log(Level.INFO, "Processing message from Job: " + jobIdentifier);
+    LOG.log(Level.FINE, "Processing message from Job: " + jobIdentifier);
 
     if (status.getState() == ReefServiceProtos.State.INIT) {
       try {
@@ -80,7 +80,7 @@ final class RunningJobsImpl implements RunningJobs {
         (status.getState() != ReefServiceProtos.State.INIT)) {
       this.remove(status.getIdentifier());
     }
-    LOG.log(Level.INFO, "Done processing message from Job " + jobIdentifier);
+    LOG.log(Level.FINE, "Done processing message from Job " + jobIdentifier);
   }
 
   @Override
@@ -125,7 +125,7 @@ final class RunningJobsImpl implements RunningJobs {
     if (this.jobs.containsKey(jobIdentifier)) {
       throw new IllegalStateException("Trying to re-add a job that is already known: " + jobIdentifier);
     }
-    LOG.log(Level.INFO, "Adding Job with ID: " + jobIdentifier);
+    LOG.log(Level.FINE, "Adding Job with ID: " + jobIdentifier);
     this.jobs.put(jobIdentifier, runningJob);
   }
 

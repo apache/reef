@@ -57,7 +57,7 @@ public final class DriverStatusManager {
     this.clientConnection = clientConnection;
     this.jobIdentifier = jobIdentifier;
     this.exceptionCodec = exceptionCodec;
-    LOG.log(Level.INFO, "Instantiated 'DriverStatusManager'");
+    LOG.log(Level.FINE, "Instantiated 'DriverStatusManager'");
   }
 
   /**

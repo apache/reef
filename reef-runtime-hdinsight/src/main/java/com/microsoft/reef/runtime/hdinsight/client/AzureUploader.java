@@ -73,7 +73,7 @@ final class AzureUploader {
     this.container.createIfNotExists();
     this.baseFolder = baseFolder;
 
-    LOG.log(Level.INFO, "Instantiated AzureUploader connected to azure storage account: {0}", accountName);
+    LOG.log(Level.FINE, "Instantiated AzureUploader connected to azure storage account: {0}", accountName);
   }
 
   public String createJobFolder(final String applicationID) throws IOException {
@@ -91,12 +91,12 @@ final class AzureUploader {
 
   public FileResource uploadFile(final File file) throws IOException {
 
-    LOG.log(Level.INFO, "Uploading: {0}, length: {1}", new Object[]{file, file.length()});
+    final String destination = this.jobFolderName + "/" + file.getName();
+    LOG.log(Level.INFO, "Uploading [{0}] to [{1}]", new Object[]{file, destination});
 
     try {
 
-      final CloudBlockBlob jobJarBlob =
-          this.container.getBlockBlobReference(this.jobFolderName + "/" + file.getName());
+      final CloudBlockBlob jobJarBlob = this.container.getBlockBlobReference(destination);
 
       try (final BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
         jobJarBlob.upload(in, file.length());
@@ -107,7 +107,7 @@ final class AzureUploader {
         LOG.log(Level.WARNING, "Blob doesn't exist!");
       }
 
-      LOG.log(Level.INFO, "Uploaded to: {0}",
+      LOG.log(Level.FINE, "Uploaded to: {0}",
           jobJarBlob.getStorageUri().getPrimaryUri());
 
       // Assemble the FileResource

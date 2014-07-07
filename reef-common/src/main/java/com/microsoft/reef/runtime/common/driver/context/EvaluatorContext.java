@@ -76,7 +76,7 @@ public final class EvaluatorContext implements ActiveContext {
     this.messageDispatcher = messageDispatcher;
     this.exceptionCodec = exceptionCodec;
 
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorContext'");
+    LOG.log(Level.FINE, "Instantiated 'EvaluatorContext'");
   }
 
   @Override
@@ -87,7 +87,7 @@ public final class EvaluatorContext implements ActiveContext {
     }
 
     LOG.log(Level.FINEST, "Submit close context: RunningEvaluator id[{0}] for context id[{1}]",
-        new Object[] { getEvaluatorId(), getId() });
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -109,7 +109,7 @@ public final class EvaluatorContext implements ActiveContext {
     }
 
     LOG.log(Level.FINEST, "Send message: RunningEvaluator id[{0}] for context id[{1}]",
-        new Object[] { getEvaluatorId(), getId() });
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -130,7 +130,7 @@ public final class EvaluatorContext implements ActiveContext {
     }
 
     LOG.log(Level.FINEST, "Submit task: RunningEvaluator id[{0}] for context id[{1}]",
-        new Object[] { getEvaluatorId(), getId() });
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -152,7 +152,7 @@ public final class EvaluatorContext implements ActiveContext {
     }
 
     LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[{0}] for context id[{1}]",
-        new Object[] { getEvaluatorId(), getId() });
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -175,7 +175,7 @@ public final class EvaluatorContext implements ActiveContext {
     }
 
     LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[{0}] for context id[{1}]",
-        new Object[] { getEvaluatorId(), getId() });
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
