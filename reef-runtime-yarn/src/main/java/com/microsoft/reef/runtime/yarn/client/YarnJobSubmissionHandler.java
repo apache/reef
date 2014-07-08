@@ -24,9 +24,12 @@ import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.files.YarnClasspath;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import com.microsoft.reef.runtime.yarn.util.YarnTypes;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileContext;
@@ -65,6 +68,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final REEFClasspath classpath;
   private final FileSystem fileSystem;
   private final ConfigurationSerializer configurationSerializer;
+  private final double jvmSlack;
 
   @Inject
   YarnJobSubmissionHandler(
@@ -72,13 +76,15 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final JobJarMaker jobJarMaker,
       final REEFFileNames filenames,
       final YarnClasspath classpath,
-      final ConfigurationSerializer configurationSerializer) throws IOException {
+      final ConfigurationSerializer configurationSerializer,
+      final @Parameter(JVMHeapSlack.class) double jvmSlack) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
     this.filenames = filenames;
     this.classpath = classpath;
     this.configurationSerializer = configurationSerializer;
+    this.jvmSlack = jvmSlack;
 
     this.fileSystem = FileSystem.get(yarnConfiguration);
 
@@ -175,13 +181,14 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
       final Path jobFolderPath) throws IOException {
 
-    return new YarnMasterConfiguration()
-        .setJobSubmissionDirectory(jobFolderPath.toString())
-        .setJobIdentifier(jobSubmissionProto.getIdentifier())
-        .setClientRemoteIdentifier(jobSubmissionProto.getRemoteId())
-        .addClientConfiguration(
-            this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()))
-        .build();
+    return Configurations.merge(
+        YarnDriverConfiguration.CONF
+            .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderPath.toString())
+            .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobSubmissionProto.getIdentifier())
+            .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionProto.getRemoteId())
+            .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+            .build(),
+        this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()));
   }
 
   private final Path uploadToJobFolder(final File file, final Path jobFolder) throws IOException {
@@ -199,7 +206,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   /**
    * Extract the queue name from the jobSubmissionProto or return default if none is set.
-   *
+   * <p/>
    * TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration.
    */
   private final String getQueue(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
@@ -222,9 +229,9 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     } else {
       LOG.log(Level.WARNING,
           "Requested {0}MB of memory for the driver. " +
-          "The max on this YARN installation is {1}. " +
-          "Using {1} as the memory for the driver.",
-          new Object[] { requestedMemory, maxMemory });
+              "The max on this YARN installation is {1}. " +
+              "Using {1} as the memory for the driver.",
+          new Object[]{requestedMemory, maxMemory});
       amMemory = maxMemory;
     }
     return amMemory;

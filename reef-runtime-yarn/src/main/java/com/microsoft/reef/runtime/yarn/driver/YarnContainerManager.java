@@ -23,6 +23,7 @@ import com.microsoft.reef.proto.DriverRuntimeProtocol.ResourceStatusProto;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
+import com.microsoft.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.remote.Encoder;
@@ -74,7 +75,7 @@ final class YarnContainerManager
   @Inject
   YarnContainerManager(
       final YarnConfiguration yarnConf,
-      final @Parameter(YarnMasterConfiguration.YarnHeartbeatPeriod.class) int yarnRMHeartbeatPeriod,
+      final @Parameter(YarnHeartbeatPeriod.class) int yarnRMHeartbeatPeriod,
       final REEFEventHandlers reefEventHandlers,
       final Containers containers,
       final ApplicationMasterRegistration registration,

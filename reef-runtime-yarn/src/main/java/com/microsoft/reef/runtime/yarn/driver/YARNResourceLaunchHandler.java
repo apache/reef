@@ -15,6 +15,19 @@
  */
 package com.microsoft.reef.runtime.yarn.driver;
 
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.yarn.api.ApplicationConstants;
+import org.apache.hadoop.yarn.api.records.Container;
+import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.LocalResource;
+
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.files.REEFClasspath;
@@ -23,19 +36,10 @@ import com.microsoft.reef.runtime.common.files.YarnClasspath;
 import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
 import com.microsoft.reef.runtime.yarn.util.YarnTypes;
 import com.microsoft.tang.InjectionFuture;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.yarn.api.ApplicationConstants;
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
-import org.apache.hadoop.yarn.api.records.LocalResource;
-
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.microsoft.tang.annotations.Parameter;
 
 /**
  * Resource launch handler for YARN.
@@ -49,13 +53,16 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
   private final EvaluatorSetupHelper evaluatorSetupHelper;
   private final REEFFileNames filenames;
   private final REEFClasspath classpath;
+  private final double jvmHeapFactor;
 
   @Inject
   YARNResourceLaunchHandler(final Containers containers,
                             final InjectionFuture<YarnContainerManager> yarnContainerManager,
                             final EvaluatorSetupHelper evaluatorSetupHelper,
                             final REEFFileNames filenames,
-                            final YarnClasspath classpath) {
+                            final YarnClasspath classpath,
+                            final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
+    this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     LOG.log(Level.FINEST, "Instantiating 'YARNResourceLaunchHandler'");
     this.containers = containers;
     this.yarnContainerManager = yarnContainerManager;
@@ -94,7 +101,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
           .setErrorHandlerRID(resourceLaunchProto.getRemoteId())
           .setLaunchID(resourceLaunchProto.getIdentifier())
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
-          .setMemory(container.getResource().getMemory())
+          .setMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStderrFileName())
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStdoutFileName())
           .build();
@@ -102,7 +109,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
       if (LOG.isLoggable(Level.FINEST)) {
         LOG.log(Level.FINEST,
             "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
-            new Object[] { containerId, StringUtils.join(command, ' '), localResources });
+            new Object[]{containerId, StringUtils.join(command, ' '), localResources});
       }
 
       final ContainerLaunchContext ctx = YarnTypes.getContainerLaunchContext(command, localResources);

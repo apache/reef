@@ -15,10 +15,8 @@
  */
 package com.microsoft.reef.runtime.yarn.util;
 
-import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.ExternalConstructor;
-import com.microsoft.tang.annotations.Parameter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -44,10 +42,6 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
     this(Optional.<Path>empty());
   }
 
-  @Inject
-  YarnConfigurationConstructor(@Parameter(YarnMasterConfiguration.YarnConfigurationFile.class) final String file) {
-    this(Optional.of(new Path(file)));
-  }
 
   private YarnConfigurationConstructor(final Optional<Path> configurationFilePath) {
     this.configurationPath = configurationFilePath;

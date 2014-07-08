@@ -23,7 +23,8 @@ import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
+import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
+import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.NetUtils;
@@ -72,10 +73,10 @@ final class ContainerManager implements AutoCloseable {
       final RemoteManager remoteManager,
       final RuntimeClock clock,
       final REEFFileNames fileNames,
-      final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int capacity,
-      final @Parameter(LocalRuntimeConfiguration.RootFolder.class) String rootFolderName,
+      final @Parameter(NumberOfProcesses.class) int capacity,
+      final @Parameter(RootFolder.class) String rootFolderName,
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
-          EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler) {
+      EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler) {
 
     this.capacity = capacity;
     this.fileNames = fileNames;
