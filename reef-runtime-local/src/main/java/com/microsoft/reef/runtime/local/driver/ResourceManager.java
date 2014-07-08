@@ -15,6 +15,16 @@
  */
 package com.microsoft.reef.runtime.local.driver;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
@@ -35,15 +45,6 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A resource manager that uses threads to execute containers.
@@ -168,7 +169,7 @@ public final class ResourceManager {
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(c.getNodeID())
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
-          .setMemory(((int) this.jvmHeapFactor * c.getMemory()))
+          .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
           .build();
 
       LOG.log(Level.FINEST, "Launching container: {0}", c);
