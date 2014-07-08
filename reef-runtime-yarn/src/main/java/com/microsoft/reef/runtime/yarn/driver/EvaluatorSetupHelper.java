@@ -21,6 +21,7 @@ import com.microsoft.reef.io.WorkingDirectoryTempFileCreator;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.files.JobJarMaker;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
+import com.microsoft.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import com.microsoft.reef.util.JARFileMaker;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
@@ -62,7 +63,7 @@ final class EvaluatorSetupHelper {
 
   @Inject
   EvaluatorSetupHelper(
-      final @Parameter(YarnMasterConfiguration.JobSubmissionDirectory.class) String jobSubmissionDirectory,
+      final @Parameter(JobSubmissionDirectory.class) String jobSubmissionDirectory,
       final YarnConfiguration yarnConfiguration,
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer) throws IOException {

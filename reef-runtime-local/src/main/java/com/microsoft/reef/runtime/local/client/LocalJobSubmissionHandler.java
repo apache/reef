@@ -23,6 +23,9 @@ import com.microsoft.reef.runtime.common.files.LocalClasspath;
 import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
+import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
 import com.microsoft.reef.runtime.local.driver.LocalDriverConfiguration;
 import com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration;
 import com.microsoft.reef.runtime.local.driver.RunnableProcess;
@@ -64,21 +67,24 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames filenames;
   private final REEFClasspath classpath;
+  private final double jvmHeapSlack;
 
   @Inject
   public LocalJobSubmissionHandler(
       final ExecutorService executor,
-      final @Parameter(LocalRuntimeConfiguration.RootFolder.class) String rootFolderName,
-      final @Parameter(LocalRuntimeConfiguration.NumberOfThreads.class) int nThreads,
+      final @Parameter(RootFolder.class) String rootFolderName,
+      final @Parameter(NumberOfProcesses.class) int nThreads,
       final ConfigurationSerializer configurationSerializer,
       final REEFFileNames filenames,
-      final LocalClasspath classpath) {
+      final LocalClasspath classpath,
+      final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
 
     this.executor = executor;
     this.nThreads = nThreads;
     this.configurationSerializer = configurationSerializer;
     this.filenames = filenames;
     this.classpath = classpath;
+    this.jvmHeapSlack = jvmHeapSlack;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
 
     LOG.log(Level.INFO, "Instantiated 'LocalJobSubmissionHandler'");
@@ -113,6 +119,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
               LocalDriverConfiguration.LOCAL_LIBRARIES)
           .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
           .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
+          .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
           .build();
 
       final Configuration driverConfigurationPart2 = new LocalDriverRuntimeConfiguration()

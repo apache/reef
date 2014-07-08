@@ -23,10 +23,11 @@ import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.yarn.client.parameters.JobPriority;
+import com.microsoft.reef.runtime.yarn.client.parameters.JobQueue;
 import com.microsoft.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import com.microsoft.reef.util.logging.LoggingSetup;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
@@ -44,6 +45,9 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
 
   public static final OptionalParameter<String> YARN_QUEUE_NAME = new OptionalParameter<>();
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
+
+  public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
+
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
       // Bind the common resourcemanager
       .bindImplementation(REEF.class, REEFImplementation.class)
@@ -55,17 +59,9 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
           // Bind the parameters given by the user
       .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
       .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
+      .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
       .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
       .build();
-  // TODO: This has only one user and should be moved there.
-  private final static String REEF_CLASSPATH = System.getenv("REEF_CLASSPATH");
 
-  @NamedParameter(doc = "The job priority.", default_value = "0", short_name = "yarn_priority")
-  public final static class JobPriority implements Name<Integer> {
-  }
-
-  @NamedParameter(doc = "The job queue.", default_value = "default", short_name = "yarn_queue")
-  public final static class JobQueue implements Name<String> {
-  }
 }

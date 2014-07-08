@@ -24,9 +24,11 @@ import com.microsoft.reef.runtime.common.files.JobJarMaker;
 import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.*;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -53,6 +55,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames filenames;
   private final REEFClasspath classpath;
+  private final double jvmHeapSlack;
 
   @Inject
   HDInsightJobSubmissionHandler(final AzureUploader uploader,
@@ -60,13 +63,15 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
                                 final HDInsightInstance hdInsightInstance,
                                 final ConfigurationSerializer configurationSerializer,
                                 final REEFFileNames filenames,
-                                final HDInsightClasspath classpath) {
+                                final HDInsightClasspath classpath,
+                                final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
     this.uploader = uploader;
     this.jobJarMaker = jobJarMaker;
     this.hdInsightInstance = hdInsightInstance;
     this.configurationSerializer = configurationSerializer;
     this.filenames = filenames;
     this.classpath = classpath;
+    this.jvmHeapSlack = jvmHeapSlack;
   }
 
   @Override
@@ -166,6 +171,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
     final Configuration hdinsightDriverConfiguration = HDInsightDriverConfiguration.CONF
         .set(HDInsightDriverConfiguration.JOB_IDENTIFIER, applicationId)
         .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderURL)
+        .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
         .build();
 
     return Configurations.merge(

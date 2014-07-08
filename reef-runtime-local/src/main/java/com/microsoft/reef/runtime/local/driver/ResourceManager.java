@@ -26,8 +26,11 @@ import com.microsoft.reef.runtime.common.files.YarnClasspath;
 import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
+import com.microsoft.reef.runtime.local.client.parameters.DefaultMemorySize;
+import com.microsoft.reef.runtime.local.driver.parameters.GlobalFiles;
+import com.microsoft.reef.runtime.local.driver.parameters.GlobalLibraries;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationSerializer;
@@ -61,15 +64,17 @@ public final class ResourceManager {
   private final RemoteManager remoteManager;
   private final REEFFileNames filenames;
   private final REEFClasspath classpath;
+  private final double jvmHeapFactor;
 
   @Inject
   ResourceManager(
       final ContainerManager containerManager,
       final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
       final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
-      final @Parameter(LocalDriverConfiguration.GlobalLibraries.class) Set<String> globalLibraries,
-      final @Parameter(LocalDriverConfiguration.GlobalFiles.class) Set<String> globalFiles,
-      final @Parameter(LocalRuntimeConfiguration.DefaultMemorySize.class) int defaultMemorySize,
+      final @Parameter(GlobalLibraries.class) Set<String> globalLibraries,
+      final @Parameter(GlobalFiles.class) Set<String> globalFiles,
+      final @Parameter(DefaultMemorySize.class) int defaultMemorySize,
+      final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
       final REEFFileNames filenames,
@@ -83,6 +88,7 @@ public final class ResourceManager {
     this.defaultMemorySize = defaultMemorySize;
     this.filenames = filenames;
     this.classpath = classpath;
+    this.jvmHeapFactor = 1.0 - jvmHeapSlack;
 
     LOG.log(Level.INFO, "Instantiated 'ResourceManager'");
   }
@@ -162,7 +168,7 @@ public final class ResourceManager {
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(c.getNodeID())
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
-          .setMemory(c.getMemory())
+          .setMemory(((int) this.jvmHeapFactor * c.getMemory()))
           .build();
 
       LOG.log(Level.FINEST, "Launching container: {0}", c);
@@ -219,7 +225,7 @@ public final class ResourceManager {
 
     final String logMessage =
         "Outstanding Container Requests: " + msg.getOutstandingContainerRequests() +
-        ", AllocatedContainers: " + msg.getContainerAllocationCount();
+            ", AllocatedContainers: " + msg.getContainerAllocationCount();
 
     LOG.log(Level.FINEST, logMessage);
     this.runtimeStatusHandlerEventHandler.onNext(msg);
