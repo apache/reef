@@ -45,7 +45,7 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
 
   private YarnConfigurationConstructor(final Optional<Path> configurationFilePath) {
     this.configurationPath = configurationFilePath;
-    LOG.log(Level.INFO, "Instantiated 'YarnConfigurationConstructor' with path {0}", configurationFilePath);
+    LOG.log(Level.FINE, "Instantiated 'YarnConfigurationConstructor' with path {0}", configurationFilePath);
   }
 
 
@@ -58,7 +58,7 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
     // TODO: This should not be needed.
     yarnConfiguration.reloadConfiguration();
 
-    LOG.log(Level.INFO, "Instantiated 'YarnConfiguration' with path [{0}] and contents [{1}] ",
+    LOG.log(Level.FINE, "Instantiated 'YarnConfiguration' with path [{0}] and contents [{1}] ",
         new Object[]{this.configurationPath, yarnConfiguration});
     return yarnConfiguration;
   }

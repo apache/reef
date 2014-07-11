@@ -84,24 +84,26 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
     try {
 
-      LOG.log(Level.INFO, "Requesting Application ID from YARN.");
+      LOG.log(Level.FINE, "Requesting Application ID from HDInsight.");
       final ApplicationID applicationID = this.hdInsightInstance.getApplicationID();
 
-      LOG.log(Level.INFO, "Creating a job folder on Azure.");
+      LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getId());
+
+      LOG.log(Level.FINE, "Creating a job folder on Azure.");
       final String jobFolderURL = this.uploader.createJobFolder(applicationID.getId());
 
-      LOG.log(Level.INFO, "Assembling Configuration for the Driver.");
+      LOG.log(Level.FINE, "Assembling Configuration for the Driver.");
       final Configuration driverConfiguration =
           makeDriverConfiguration(jobSubmissionProto, applicationID.getId(), jobFolderURL);
 
-      LOG.log(Level.INFO, "Making Job JAR.");
+      LOG.log(Level.FINE, "Making Job JAR.");
       final File jobSubmissionJarFile =
           this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
 
-      LOG.log(Level.INFO, "Uploading Job JAR to Azure.");
+      LOG.log(Level.FINE, "Uploading Job JAR to Azure.");
       final FileResource uploadedFile = this.uploader.uploadFile(jobSubmissionJarFile);
 
-      LOG.log(Level.INFO, "Assembling application submission.");
+      LOG.log(Level.FINE, "Assembling application submission.");
       final String command = getCommandString(jobSubmissionProto);
       final ApplicationSubmission applicationSubmission = new ApplicationSubmission()
           .setApplicationId(applicationID.getId())
@@ -112,13 +114,9 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
               .addCommand(command)
               .addEnvironment("CLASSPATH", this.classpath.getClasspath()));
 
-      LOG.log(Level.INFO, "Submitting application {0} to YARN.", applicationID.getId());
-
-      if (LOG.isLoggable(Level.FINEST)) {
-        LOG.log(Level.FINEST, "REEF app command: {0}", command);
-      }
 
       this.hdInsightInstance.submitApplication(applicationSubmission);
+      LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}", applicationID.getId());
 
     } catch (final IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting HDInsight request", ex);

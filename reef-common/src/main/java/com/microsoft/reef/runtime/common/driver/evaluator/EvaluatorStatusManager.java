@@ -36,7 +36,7 @@ final class EvaluatorStatusManager {
 
   @Inject
   private EvaluatorStatusManager() {
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorStatusManager'");
+    LOG.log(Level.FINE, "Instantiated 'EvaluatorStatusManager'");
   }
 
   synchronized void setRunning() {

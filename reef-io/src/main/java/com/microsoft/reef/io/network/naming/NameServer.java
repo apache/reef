@@ -65,8 +65,8 @@ public class NameServer implements Stage {
     transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), port, null, new SyncStage<TransportEvent>(new NamingServerHandler(handler, codec)));
     this.port = transport.getListeningPort();
     idToAddrMap = Collections.synchronizedMap(new HashMap<Identifier, InetSocketAddress> ());
-    
-    LOG.log(Level.INFO, "NameServer starting, listening at port " + this.port);
+
+    LOG.log(Level.FINE, "NameServer starting, listening at port " + this.port);
   }
 
   private EventHandler<NamingMessage> createEventHandler(Codec<NamingMessage> codec) {

@@ -37,7 +37,7 @@ final class JobStatusMessageHandler implements EventHandler<RemoteMessage<ReefSe
   @Inject
   JobStatusMessageHandler(final RunningJobs runningJobs) {
     this.runningJobs = runningJobs;
-    LOG.log(Level.INFO, "Instantiated 'JobStatusMessageHandler'");
+    LOG.log(Level.FINE, "Instantiated 'JobStatusMessageHandler'");
   }
 
   @Override

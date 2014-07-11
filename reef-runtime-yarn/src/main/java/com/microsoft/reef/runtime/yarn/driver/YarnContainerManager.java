@@ -229,7 +229,7 @@ final class YarnContainerManager
     try {
       this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
           "", 0, this.trackingURLProvider.getTrackingUrl()));
-      LOG.log(Level.INFO, "YARN registration: {0}", registration);
+      LOG.log(Level.FINE, "YARN registration: {0}", registration);
 
     } catch (final YarnException | IOException e) {
       LOG.log(Level.WARNING, "Unable to register application master.", e);
@@ -344,7 +344,7 @@ final class YarnContainerManager
 
       switch (value.getState()) {
         case COMPLETE:
-          LOG.log(Level.INFO, "Container completed: status {0}", value.getExitStatus());
+          LOG.log(Level.FINE, "Container completed: status {0}", value.getExitStatus());
           switch (value.getExitStatus()) {
             case 0:
               status.setState(ReefServiceProtos.State.DONE);
@@ -390,7 +390,7 @@ final class YarnContainerManager
           queueWasEmpty = false;
         }
 
-        LOG.log(Level.INFO, "Done adding container requests to local request queue.");
+        LOG.log(Level.FINE, "Done adding container requests to local request queue.");
       }
     }
 

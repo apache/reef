@@ -86,7 +86,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final EventHandler<Message<T>> recvHandler,
                         final EventHandler<Exception> exHandler) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
-         retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler);
+        retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler);
   }
 
   @Inject
@@ -147,14 +147,14 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
     final Tuple<Identifier, InetSocketAddress> tuple =
         new Tuple<>(id, (InetSocketAddress) this.transport.getLocalAddress());
     LOG.log(Level.FINEST, "Binding {0} to NetworkService@({1})",
-        new Object[] { tuple.getKey(), tuple.getValue() });
+        new Object[]{tuple.getKey(), tuple.getValue()});
     this.nameServiceRegisteringStage.onNext(tuple);
   }
 
   public void unregisterId(Identifier id) {
     this.myId = null;
     LOG.log(Level.FINEST, "Unbinding {0} to NetworkService@({1})",
-        new Object[] { id, this.transport.getLocalAddress() });
+        new Object[]{id, this.transport.getLocalAddress()});
     this.nameServiceUnregisteringStage.onNext(id);
   }
 
@@ -184,7 +184,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   @Override
   public void close() throws Exception {
-    LOG.log(Level.INFO, "Shutting down");
+    LOG.log(Level.FINE, "Shutting down");
     this.transport.close();
     this.nameClient.close();
   }
@@ -205,7 +205,8 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
     final Connection<T> newConnection = new NSConnection<T>(
         this.myId, destId, new LinkListener<T>() {
       @Override
-      public void messageReceived(final Object message) {}
+      public void messageReceived(final Object message) {
+      }
     }, this);
 
     final Connection<T> existing = this.idToConnMap.putIfAbsent(destId, newConnection);

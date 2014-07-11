@@ -91,7 +91,7 @@ public final class ResourceManager {
     this.classpath = classpath;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
 
-    LOG.log(Level.INFO, "Instantiated 'ResourceManager'");
+    LOG.log(Level.FINE, "Instantiated 'ResourceManager'");
   }
 
   /**

@@ -23,6 +23,6 @@ public interface DriverConnection extends AutoCloseable {
   /**
    * @return driver remove identifier to facilitate reconnection to the (restarted) driver
    */
-  String GetDriverRemoteIdentifier();
+  String getDriverRemoteIdentifier();
 }
 

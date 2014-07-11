@@ -113,7 +113,7 @@ final class ContainerManager implements AutoCloseable {
       }
     });
 
-    LOG.log(Level.INFO, "Initialized Container Manager with {0} containers", capacity);
+    LOG.log(Level.FINE, "Initialized Container Manager with {0} containers", capacity);
   }
 
   private void sendNodeDescriptors() {
@@ -151,7 +151,7 @@ final class ContainerManager implements AutoCloseable {
   final void release(final String containerID) {
     synchronized (this.containers) {
       final Container ctr = this.containers.get(containerID);
-      LOG.log(Level.INFO, "Releasing: {0}", ctr);
+      LOG.log(Level.FINE, "Releasing: {0}", ctr);
       ctr.close();
       this.freeNodeList.add(ctr.getNodeID());
       this.containers.remove(ctr.getContainerID());

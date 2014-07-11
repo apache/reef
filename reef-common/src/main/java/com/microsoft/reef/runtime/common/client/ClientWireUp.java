@@ -50,7 +50,7 @@ final class ClientWireUp {
     this.runtimeErrorProtoHandler = runtimeErrorProtoHandler;
     this.jobStatusMessageHandler = jobStatusMessageHandler;
     this.isClientPresent = clientPresent.equals(ClientPresent.YES);
-    LOG.log(Level.INFO, "Instantiated 'ClientWireUp'. Client present: " + this.isClientPresent());
+    LOG.log(Level.FINE, "Instantiated 'ClientWireUp'. Client present: " + this.isClientPresent());
   }
 
   @Inject
@@ -65,11 +65,11 @@ final class ClientWireUp {
       throw new IllegalStateException("performWireUp is only to be called once.");
     }
     if (this.remoteManager.isPresent()) {
-      LOG.log(Level.INFO, "Wiring up communications channels to the Driver.");
+      LOG.log(Level.FINEST, "Wiring up communications channels to the Driver.");
       final RemoteManager rm = this.remoteManager.get();
       rm.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, this.runtimeErrorProtoHandler);
       rm.registerHandler(ReefServiceProtos.JobStatusProto.class, this.jobStatusMessageHandler);
-      LOG.log(Level.INFO, "Wired up communications channels to the Driver.");
+      LOG.log(Level.FINE, "Wired up communications channels to the Driver.");
     }
     this.isWired = true;
   }

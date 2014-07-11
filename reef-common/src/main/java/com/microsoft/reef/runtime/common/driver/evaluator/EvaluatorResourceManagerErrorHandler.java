@@ -40,7 +40,7 @@ public final class EvaluatorResourceManagerErrorHandler implements EventHandler<
   @Inject
   EvaluatorResourceManagerErrorHandler(final Evaluators evaluators) {
     this.evaluators = evaluators;
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorResourceManagerErrorHandler'");
+    LOG.log(Level.FINE, "Instantiated 'EvaluatorResourceManagerErrorHandler'");
   }
 
   @Override

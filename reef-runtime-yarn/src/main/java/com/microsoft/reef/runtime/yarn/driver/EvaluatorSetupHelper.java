@@ -155,7 +155,7 @@ final class EvaluatorSetupHelper {
   private Path uploadToJobFolder(final File file) throws IOException {
     final Path source = new Path(file.getAbsolutePath());
     final Path destination = new Path(this.jobSubmissionDirectory + "/" + file.getName());
-    LOG.log(Level.INFO, "Uploading {0} to {1}", new Object[]{source, destination});
+    LOG.log(Level.FINE, "Uploading {0} to {1}", new Object[]{source, destination});
     this.fileSystem.copyFromLocalFile(false, true, source, destination);
     return destination;
   }

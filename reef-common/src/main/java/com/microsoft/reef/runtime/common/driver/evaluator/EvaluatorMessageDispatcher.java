@@ -127,7 +127,7 @@ public final class EvaluatorMessageDispatcher {
       this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
     }
 
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorMessageDispatcher'");
+    LOG.log(Level.FINE, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
   public void onEvaluatorAllocated(final AllocatedEvaluator allocatedEvaluator) {

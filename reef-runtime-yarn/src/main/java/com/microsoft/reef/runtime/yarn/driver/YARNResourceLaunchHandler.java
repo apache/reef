@@ -69,7 +69,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
     this.evaluatorSetupHelper = evaluatorSetupHelper;
     this.filenames = filenames;
     this.classpath = classpath;
-    LOG.log(Level.INFO, "Instantiated 'YARNResourceLaunchHandler'");
+    LOG.log(Level.FINE, "Instantiated 'YARNResourceLaunchHandler'");
   }
 
   @Override

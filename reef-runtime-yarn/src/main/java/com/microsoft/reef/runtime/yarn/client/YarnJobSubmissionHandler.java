@@ -121,7 +121,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       applicationSubmissionContext.setApplicationName(
           "reef-job-" + jobSubmissionProto.getIdentifier());
 
-      LOG.log(Level.INFO, "Assembling submission JAR for the Driver.");
+      LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
 
       final Path submissionFolder = new Path(
           "/tmp/" + this.filenames.getJobFolderPrefix() + applicationId.getId() + "/");
@@ -194,7 +194,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final Path uploadToJobFolder(final File file, final Path jobFolder) throws IOException {
     final Path source = new Path(file.getAbsolutePath());
     final Path destination = new Path(jobFolder, file.getName());
-    LOG.log(Level.INFO, "Uploading {0} to {1}", new Object[]{source, destination});
+    LOG.log(Level.FINE, "Uploading {0} to {1}", new Object[]{source, destination});
     this.fileSystem.copyFromLocalFile(false, true, source, destination);
     return destination;
   }
