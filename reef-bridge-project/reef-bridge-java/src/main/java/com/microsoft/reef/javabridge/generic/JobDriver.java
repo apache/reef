@@ -438,7 +438,13 @@ public final class JobDriver {
           LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null) {
-            assert (handlers.length == NativeInterop.nHandlers);
+            if(handlers.length != NativeInterop.nHandlers) {
+                throw new RuntimeException(
+                        String.format("%s handlers initialized in CLR while native bridge is expecting %s handlers",
+                                String.valueOf(handlers.length),
+                                String.valueOf(NativeInterop.nHandlers)));
+            }
+
             evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
             allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
             activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
