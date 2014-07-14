@@ -18,6 +18,7 @@ package com.microsoft.reef.examples.groupcomm.matmul;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.io.network.group.config.GroupOperators;
+import com.microsoft.reef.io.network.impl.BindNSToTask;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifier;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
@@ -215,9 +216,10 @@ public class TaskSubmitter implements EventHandler<Iterable<ActiveContext>> {
       final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
       b.addConfiguration(operators.getConfig(compTaskId));
       b.addConfiguration(TaskConfiguration.CONF
-          .set(TaskConfiguration.IDENTIFIER, compTaskId.toString())
-          .set(TaskConfiguration.TASK, ComputeTask.class)
-          .build());
+        .set(TaskConfiguration.IDENTIFIER, compTaskId.toString())
+        .set(TaskConfiguration.TASK, ComputeTask.class)
+        .set(TaskConfiguration.ON_TASK_STARTED, BindNSToTask.class)
+        .build());
       return b.build();
     } catch (BindException e) {
       logger.log(
@@ -240,6 +242,7 @@ public class TaskSubmitter implements EventHandler<Iterable<ActiveContext>> {
       b.addConfiguration(TaskConfiguration.CONF
           .set(TaskConfiguration.IDENTIFIER, controllerId.toString())
           .set(TaskConfiguration.TASK, ControllerTask.class)
+          .set(TaskConfiguration.ON_TASK_STARTED, BindNSToTask.class)
           .build());
       controlerContext.submitTask(b.build());
     } catch (BindException e) {
