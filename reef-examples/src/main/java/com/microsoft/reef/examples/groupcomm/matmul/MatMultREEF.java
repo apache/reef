@@ -19,6 +19,7 @@ import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
+import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -35,7 +36,8 @@ public final class MatMultREEF {
 
   public static LauncherStatus run(final Configuration runtimeConfiguration) {
     try {
-      final Configuration driverConfiguration = DriverConfiguration.CONF
+      final Configuration driverConfiguration =
+        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
           .set(DriverConfiguration.ON_DRIVER_STARTED, MatMultDriver.StartHandler.class)
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "MatrixMultiply")
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, MatMultDriver.AllocatedEvaluatorHandler.class)
