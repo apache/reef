@@ -380,15 +380,14 @@ public final class JobDriver {
     @Override
     public void onNext(final RunningTask task) {
 
-      LOG.log(Level.INFO, "RunningTask received, will be handle in CLR handler. Task Id: {0}", task.getId());
       if (runningTaskHandler == 0) {
-        LOG.log(Level.INFO, "No CLR handler bound to handle running task.");
+          LOG.log(Level.INFO, "RunningTask event received but no CLR handler was bound. Exiting handler.");
       } else {
-        try {
+          LOG.log(Level.INFO, "RunningTask will be handled by CLR handler. Task Id: {0}", task.getId());
+          try {
           final InteropLogger interopLogger = new InteropLogger();
           final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task);
           NativeInterop.ClrSystemRunningTaskHandlerOnNext(runningTaskHandler, runningTaskBridge, interopLogger);
-          LOG.log(Level.INFO, "RunningTaskHandler onNext is returned from bridge.");
         } catch (final Exception ex) {
           LOG.log(Level.WARNING, "Fail to invoke CLR running task handler");
           throw new RuntimeException(ex);
@@ -439,7 +438,13 @@ public final class JobDriver {
           LOG.log(Level.INFO, "StartTime: {0}", new Object[]{ startTime});
           long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
           if (handlers != null) {
-            assert (handlers.length == NativeInterop.nHandlers);
+            if(handlers.length != NativeInterop.nHandlers) {
+                throw new RuntimeException(
+                        String.format("%s handlers initialized in CLR while native bridge is expecting %s handlers",
+                                String.valueOf(handlers.length),
+                                String.valueOf(NativeInterop.nHandlers)));
+            }
+
             evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
             allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
             activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
