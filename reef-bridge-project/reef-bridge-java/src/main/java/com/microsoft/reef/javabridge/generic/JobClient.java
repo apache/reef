@@ -78,23 +78,27 @@ public class JobClient {
 
         this.reef = reef;
 
-        this.driverConfigModule =
-                EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-                        .set(DriverConfiguration.DRIVER_IDENTIFIER, "clrBridge")
-                        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
-                        .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
-                        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
-                        .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
-                        .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
-                        .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
-                        .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
-                        .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
-                        .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
-                        .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class);
-                        //.set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class);
+        this.driverConfigModule =  getDriverConfiguration();
     }
 
-    private void addCLRFiles( final File folder) throws BindException{
+    public static ConfigurationModule getDriverConfiguration()
+    {
+        return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+                .set(DriverConfiguration.DRIVER_IDENTIFIER, "clrBridge")
+                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
+                .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
+                .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
+                .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
+                .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
+                .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
+                .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
+                .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class);
+                //.set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class);
+    }
+
+    public void addCLRFiles( final File folder) throws BindException{
         ConfigurationModule result = this.driverConfigModule;
         for (final File f : folder.listFiles()) {
             if (f.canRead() && f.exists() && f.isFile()) {
@@ -113,6 +117,7 @@ public class JobClient {
         Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
                 .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
                 .build();
+
         Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
                 .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
                 .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
