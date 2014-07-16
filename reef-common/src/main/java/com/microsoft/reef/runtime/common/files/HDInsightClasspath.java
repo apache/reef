@@ -19,7 +19,6 @@ import net.jcip.annotations.Immutable;
 import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public final class HDInsightClasspath implements REEFClasspath {
       REEFFileNames.LOCAL_FOLDER_PATH + "/*",
       REEFFileNames.GLOBAL_FOLDER_PATH + "/*");
 
-  private static final String CLASSPATH = StringUtils.join(CLASSPATH_LIST, File.pathSeparatorChar);
+  private static final String CLASSPATH = StringUtils.join(CLASSPATH_LIST, ";");
 
   @Inject
   public HDInsightClasspath() {

@@ -105,15 +105,14 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
       LOG.log(Level.FINE, "Assembling application submission.");
       final String command = getCommandString(jobSubmissionProto);
+
       final ApplicationSubmission applicationSubmission = new ApplicationSubmission()
           .setApplicationId(applicationID.getId())
           .setApplicationName(jobSubmissionProto.getIdentifier())
           .setResource(getResource(jobSubmissionProto))
           .setContainerInfo(new ContainerInfo()
               .addFileResource(this.filenames.getREEFFolderName(), uploadedFile)
-              .addCommand(command)
-              .addEnvironment("CLASSPATH", this.classpath.getClasspath()));
-
+              .addCommand(command));
 
       this.hdInsightInstance.submitApplication(applicationSubmission);
       LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}", applicationID.getId());
@@ -154,7 +153,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
         .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
         .setLaunchID(jobSubmissionProto.getIdentifier())
         .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
-        .setClassPath(this.classpath.getClasspathList())
+        .setClassPath(this.classpath.getClasspath())
         .setMemory(jobSubmissionProto.getDriverMemory())
         .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStderrFileName())
         .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStdoutFileName())

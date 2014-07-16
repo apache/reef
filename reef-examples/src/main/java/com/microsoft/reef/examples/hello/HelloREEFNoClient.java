@@ -17,7 +17,6 @@ package com.microsoft.reef.examples.hello;
 
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.REEF;
-import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
@@ -38,7 +37,7 @@ public final class HelloREEFNoClient {
   public static void runHelloReefWithoutClient(
       final Configuration runtimeConf) throws InjectionException {
 
-    final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEFImplementation.class);
+    final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEF.class);
 
     final Configuration driverConf =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
