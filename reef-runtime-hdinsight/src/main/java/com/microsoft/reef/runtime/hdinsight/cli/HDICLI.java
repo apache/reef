@@ -16,11 +16,11 @@
 package com.microsoft.reef.runtime.hdinsight.cli;
 
 import com.microsoft.reef.runtime.hdinsight.client.UnsafeHDInsightRuntimeConfiguration;
-import com.microsoft.reef.runtime.hdinsight.client.yarnrest.ApplicationID;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.ApplicationState;
 import com.microsoft.reef.runtime.hdinsight.client.yarnrest.HDInsightInstance;
 import com.microsoft.tang.Tang;
 import org.apache.commons.cli.*;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -38,6 +38,7 @@ public final class HDICLI {
   private static final String KILL = "kill";
   private static final String LOGS = "logs";
   private static final String LIST = "list";
+  private static final String STATUS = "status";
 
   private final HDInsightInstance hdInsightInstance;
   private final Options options;
@@ -51,6 +52,7 @@ public final class HDICLI {
     final OptionGroup commands = new OptionGroup()
         .addOption(OptionBuilder.withArgName(KILL).hasArg().withDescription("Kills the given application.").create(KILL))
         .addOption(OptionBuilder.withArgName(LOGS).hasArg().withDescription("Fetches the logs for the given application.").create(LOGS))
+        .addOption(OptionBuilder.withArgName(STATUS).hasArg().withDescription("Fetches the status for the given application.").create(STATUS))
         .addOption(OptionBuilder.withArgName(LIST).withDescription("Lists the application on the cluster.").create(LIST));
     this.options = new Options().addOptionGroup(commands);
   }
@@ -71,6 +73,8 @@ public final class HDICLI {
       }
     } else if (line.hasOption(LIST)) {
       this.list();
+    } else if (line.hasOption(STATUS)) {
+      this.status(line.getOptionValue(STATUS));
     } else {
       throw new Exception("Unable to parse command line");
     }
@@ -119,14 +123,33 @@ public final class HDICLI {
    */
   private void list() throws IOException {
     LOG.log(Level.FINE, "Listing applications");
-    final ApplicationID applicationID = this.hdInsightInstance.getApplicationID();
-    System.out.println(applicationID);
     final List<ApplicationState> applications = this.hdInsightInstance.listApplications();
     for (final ApplicationState appState : applications) {
       if (appState.getState().equals("RUNNING")) {
         System.out.println(appState.getId() + "\t" + appState.getName());
       }
     }
+  }
+
+  private void status(final String applicationId) throws IOException {
+    final List<ApplicationState> applications = this.hdInsightInstance.listApplications();
+    ApplicationState applicationState = null;
+    for (final ApplicationState appState : applications) {
+      if (appState.getId().equals(applicationId)) {
+        applicationState = appState;
+        break;
+      }
+    }
+
+    if (applicationState == null) {
+      throw new IOException("Unknown application: " + applicationId);
+    }
+    final ObjectMapper objectMapper = new ObjectMapper();
+    final String status = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(applicationState);
+
+    System.out.println(status);
+
+
   }
 
   /**
