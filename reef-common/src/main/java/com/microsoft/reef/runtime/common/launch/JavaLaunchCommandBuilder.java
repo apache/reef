@@ -19,7 +19,6 @@ import com.microsoft.reef.runtime.common.Launcher;
 import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPath;
 import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
-import com.microsoft.reef.runtime.common.utils.JavaUtils;
 import com.microsoft.reef.util.EnvironmentUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -29,7 +28,7 @@ import java.util.Collection;
 import java.util.List;
 
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
-
+  private static final String DEFAULT_JAVA_PATH = "java";
   private String stderrPath = null;
   private String stdoutPath = null;
   private String errorHandlerRID = null;
@@ -45,7 +44,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     return new ArrayList<String>() {{
 
       if (javaPath == null || javaPath.isEmpty()) {
-        add(JavaUtils.getJavaBinary());
+        add(DEFAULT_JAVA_PATH);
       } else {
         add(javaPath);
       }
@@ -60,10 +59,10 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
         add("-ea");
       }
 
-      add("-classpath");
-      add(classPath != null ? classPath : JavaUtils.getClasspath());
-
-      // add("-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000");
+      if (classPath != null && !classPath.isEmpty()) {
+        add("-classpath");
+        add(classPath);
+      }
 
       Launcher.propagateProperties(this, true, "proc_reef");
       Launcher.propagateProperties(this, false,
