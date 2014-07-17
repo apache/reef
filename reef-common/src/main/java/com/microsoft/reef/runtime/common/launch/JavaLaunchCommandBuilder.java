@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.List;
 
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
-  private static final String DEFAULT_JAVA_PATH = "java";
+  private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" +  "java";
   private String stderrPath = null;
   private String stdoutPath = null;
   private String errorHandlerRID = null;
