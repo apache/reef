@@ -51,7 +51,7 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
    */
   public RemoteReceiverStage(EventHandler<RemoteEvent<byte[]>> handler, EventHandler<Throwable> errorHandler) {
     this.handler = new RemoteReceiverEventHandler(handler);
-    this.executor = Executors.newCachedThreadPool(new DefaultThreadFactory(RemoteReceiverStage.class.getName()));
+    this.executor = Executors.newFixedThreadPool(10, new DefaultThreadFactory(RemoteReceiverStage.class.getName()));
     this.stage = new ThreadPoolStage<TransportEvent>(this.handler, this.executor, errorHandler);
   }
   

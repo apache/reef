@@ -51,7 +51,7 @@ public class RemoteSenderStage implements Stage {
    * @param transport the transport to send events
    */
   public RemoteSenderStage(Encoder encoder, Transport transport) {
-    this.executor = Executors.newCachedThreadPool(new DefaultThreadFactory(RemoteSenderStage.class.getName()));
+    this.executor = Executors.newFixedThreadPool(10, new DefaultThreadFactory(RemoteSenderStage.class.getName()));
     this.encoder = encoder;
     this.transport = transport;
   }
