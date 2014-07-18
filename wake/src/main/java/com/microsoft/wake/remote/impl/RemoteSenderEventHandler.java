@@ -68,6 +68,8 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
     LOG.log(Level.FINEST, "thread {0} link {1}", new Object[]{Thread.currentThread(), link});
     if (linkRef.compareAndSet(null, link)) {
       consumeQueue();
+    } else {
+      consumeQueue();
     }
   }
   
