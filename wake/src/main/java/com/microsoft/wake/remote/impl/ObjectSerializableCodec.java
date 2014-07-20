@@ -20,7 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
+import javax.inject.Inject;
 import com.microsoft.wake.remote.Codec;
 import com.microsoft.wake.remote.exception.RemoteRuntimeException;
 
@@ -30,6 +30,10 @@ import com.microsoft.wake.remote.exception.RemoteRuntimeException;
  * @param <T>
  */
 public class ObjectSerializableCodec<T> implements Codec<T> {
+  
+  @Inject
+  public ObjectSerializableCodec() {
+  }
   
   /**
    * Encodes the object to bytes
