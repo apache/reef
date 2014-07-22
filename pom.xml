@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.reef</groupId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
@@ -248,12 +248,12 @@
             <dependency>
                 <groupId>com.microsoft.tang</groupId>
                 <artifactId>tang</artifactId>
-                <version>0.6</version>
+                <version>0.7-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.wake</groupId>
                 <artifactId>wake</artifactId>
-                <version>0.6</version>
+                <version>0.7-SNAPSHOT</version>
             </dependency>
 
             <!-- Testing -->
