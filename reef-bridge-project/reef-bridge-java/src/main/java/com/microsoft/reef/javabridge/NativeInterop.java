@@ -93,23 +93,16 @@ public class NativeInterop {
     private static final String DLL_EXTENSION = ".dll";
     private final static String CPP_BRIDGE = "JavaClrBridge";
 
-    private static final String tmpLoadingDirectory = System.getProperty("user.dir") + "/TmpDlls";
+    private static final String tmpLoadingDirectory = System.getProperty("user.dir") + "/reef/CLRLoadingDirectory";
 ;
 
-    static String[] managedDlls =		{
+    static String[] managedDlls ={
             "ClrHandler",
-             "msvcr110",
+            "msvcr110",
     };
 
     static {
       System.out.println("============== Driver Bridge initiated, loading DLLs ============== ");
-     /* try {
-            System.loadLibrary(CPP_BRIDGE);
-            System.out.println("DLL is loaded from memory");
-            loadFromJar();
-        } catch (UnsatisfiedLinkError e) {
-            loadFromJar();
-        }*/
       boolean status = new File(tmpLoadingDirectory).mkdir();
       loadFromJar();
       System.out.println("================== Done loading dlls for Driver  ================== \n");
@@ -142,7 +135,7 @@ public class NativeInterop {
     private static void loadFromJar() {
         // we need to put both DLLs to temp dir
         loadLib(CPP_BRIDGE, false);
-        File[]  files =  new File(System.getProperty("user.dir")).listFiles(new FilenameFilter() {
+        File[]  files =  new File(System.getProperty("user.dir") + "/reef/global").listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(DLL_EXTENSION);
             }
