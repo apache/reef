@@ -42,34 +42,44 @@ import java.util.logging.Logger;
 @Private
 @EvaluatorSide
 public final class ContextRuntime {
+
   private static final Logger LOG = Logger.getLogger(ContextRuntime.class.getName());
+
   /**
    * Context-local injector. This contains information that will not be available in child injectors.
    */
   private final Injector contextInjector;
+
   /**
    * Service injector. State in this injector moves to child injectors.
    */
   private final Injector serviceInjector;
+
   /**
    * Convenience class to hold all the event handlers for the context as well as the service instances.
    */
   private final ContextLifeCycle contextLifeCycle;
+
   /**
    * The child context, if there is any.
    */
   private Optional<ContextRuntime> childContext = Optional.empty(); // guarded by this
+
   /**
    * The parent context, if there is any.
    */
   private final Optional<ContextRuntime> parentContext; // guarded by this
+
   /**
    * The currently running task, if there is any.
    */
   private Optional<TaskRuntime> task = Optional.empty(); // guarded by this
 
+  private Thread taskRuntimeThread = null;
+
   // TODO: Which lock guards this?
-  private ReefServiceProtos.ContextStatusProto.State contextState = ReefServiceProtos.ContextStatusProto.State.READY;
+  private ReefServiceProtos.ContextStatusProto.State contextState =
+      ReefServiceProtos.ContextStatusProto.State.READY;
 
   /**
    * Create a new ContextRuntime.
@@ -78,21 +88,29 @@ public final class ContextRuntime {
    * @param contextConfiguration the Configuration for this context.
    * @throws ContextClientCodeException if the context cannot be instantiated.
    */
-  ContextRuntime(final Injector serviceInjector, final Configuration contextConfiguration, final Optional<ContextRuntime> parentContext)
-      throws ContextClientCodeException {
+  ContextRuntime(final Injector serviceInjector, final Configuration contextConfiguration,
+                 final Optional<ContextRuntime> parentContext) throws ContextClientCodeException {
+
     this.serviceInjector = serviceInjector;
     this.parentContext = parentContext;
+
     // Trigger the instantiation of the services
     try {
+
       final Set<Object> services = serviceInjector.getNamedInstance(Services.class);
       this.contextInjector = serviceInjector.forkInjector(contextConfiguration);
 
       this.contextLifeCycle = this.contextInjector.getInstance(ContextLifeCycle.class);
+
     } catch (BindException | InjectionException e) {
+
       final Optional<String> parentID = this.getParentContext().isPresent() ?
           Optional.of(this.getParentContext().get().getIdentifier()) :
           Optional.<String>empty();
-      throw new ContextClientCodeException(ContextClientCodeException.getIdentifier(contextConfiguration), parentID, "Unable to spawn context", e);
+
+      throw new ContextClientCodeException(
+          ContextClientCodeException.getIdentifier(contextConfiguration),
+          parentID, "Unable to spawn context", e);
     }
 
     // Trigger the context start events on contextInjector.
@@ -106,7 +124,8 @@ public final class ContextRuntime {
    * @param contextConfiguration the Configuration for this context.
    * @throws ContextClientCodeException if the context cannot be instantiated.
    */
-  ContextRuntime(final Injector serviceInjector, final Configuration contextConfiguration) throws ContextClientCodeException {
+  ContextRuntime(final Injector serviceInjector,
+                 final Configuration contextConfiguration) throws ContextClientCodeException {
     this(serviceInjector, contextConfiguration, Optional.<ContextRuntime>empty());
     LOG.log(Level.FINEST, "Instantiating root context");
   }
@@ -125,27 +144,43 @@ public final class ContextRuntime {
    * @throws IllegalStateException      If this method is called when there is either a task or child context already
    *                                    present.
    */
-  ContextRuntime spawnChildContext(final Configuration contextConfiguration, final Configuration serviceConfiguration)
-      throws ContextClientCodeException {
+  ContextRuntime spawnChildContext(
+      final Configuration contextConfiguration,
+      final Configuration serviceConfiguration) throws ContextClientCodeException {
 
     synchronized (this.contextLifeCycle) {
+
       if (this.task.isPresent()) {
-        throw new IllegalStateException("Attempting to spawn a child context when a Task with id '" +
+        throw new IllegalStateException(
+            "Attempting to spawn a child context when a Task with id '" +
             this.task.get().getId() + "' is running.");
       }
+
       if (this.childContext.isPresent()) {
-        throw new IllegalStateException("Attempting to instantiate a child context on a context that is not the topmost active context");
+        throw new IllegalStateException(
+            "Attempting to instantiate a child context on a context that is not the topmost active context");
       }
+
       try {
-        final Injector childServiceInjector = this.serviceInjector.forkInjector(serviceConfiguration);
-        final ContextRuntime childContext = new ContextRuntime(childServiceInjector, contextConfiguration, Optional.of(this));
+
+        final Injector childServiceInjector =
+            this.serviceInjector.forkInjector(serviceConfiguration);
+
+        final ContextRuntime childContext =
+            new ContextRuntime(childServiceInjector, contextConfiguration, Optional.of(this));
+
         this.childContext = Optional.of(childContext);
         return childContext;
+
       } catch (final BindException e) {
+
         final Optional<String> parentID = this.getParentContext().isPresent() ?
             Optional.of(this.getParentContext().get().getIdentifier()) :
             Optional.<String>empty();
-        throw new ContextClientCodeException(ContextClientCodeException.getIdentifier(contextConfiguration), parentID, "Unable to spawn context", e);
+
+        throw new ContextClientCodeException(
+            ContextClientCodeException.getIdentifier(contextConfiguration),
+            parentID, "Unable to spawn context", e);
       }
     }
   }
@@ -162,18 +197,26 @@ public final class ContextRuntime {
    * @throws IllegalStateException      If this method is called when there is either a task or child context already
    *                                    present.
    */
-  ContextRuntime spawnChildContext(final Configuration contextConfiguration) throws ContextClientCodeException {
+  ContextRuntime spawnChildContext(
+      final Configuration contextConfiguration) throws ContextClientCodeException {
 
     synchronized (this.contextLifeCycle) {
+
       if (this.task.isPresent()) {
-        throw new IllegalStateException("Attempting to to spawn a child context while a Task with id '" +
+        throw new IllegalStateException(
+            "Attempting to to spawn a child context while a Task with id '" +
             this.task.get().getId() + "' is running.");
       }
+
       if (this.childContext.isPresent()) {
-        throw new IllegalStateException("Attempting to spawn a child context on a context that is not the topmost active context");
+        throw new IllegalStateException(
+            "Attempting to spawn a child context on a context that is not the topmost active context");
       }
+
       final Injector childServiceInjector = this.serviceInjector.forkInjector();
-      final ContextRuntime childContext = new ContextRuntime(childServiceInjector, contextConfiguration, Optional.of(this));
+      final ContextRuntime childContext =
+          new ContextRuntime(childServiceInjector, contextConfiguration, Optional.of(this));
+
       this.childContext = Optional.of(childContext);
       return childContext;
     }
@@ -183,12 +226,15 @@ public final class ContextRuntime {
    * Launches a Task on this context.
    *
    * @param taskConfig the configuration to be used for the task.
-   * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException If the Task cannot be instantiated due to user code / configuration issues.
-   * @throws IllegalStateException                                                    If this method is called when there is either a task or child context already
-   *                                                                                  present.
+   * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException
+   *   If the Task cannot be instantiated due to user code / configuration issues.
+   * @throws IllegalStateException
+   *   If this method is called when there is either a task or child context already present.
    */
   void startTask(final Configuration taskConfig) throws TaskClientCodeException {
+
     synchronized (this.contextLifeCycle) {
+
       if (this.task.isPresent() && this.task.get().hasEnded()) {
         // clean up state
         this.task = Optional.empty();
@@ -198,26 +244,28 @@ public final class ContextRuntime {
         throw new IllegalStateException("Attempting to start a Task when a Task with id '" +
             this.task.get().getId() + "' is running.");
       }
+
       if (this.childContext.isPresent()) {
-        throw new IllegalStateException("Attempting to start a Task on a context that is not the topmost active context");
+        throw new IllegalStateException(
+            "Attempting to start a Task on a context that is not the topmost active context");
       }
+
       try {
         final Injector taskInjector = this.contextInjector.forkInjector(taskConfig);
         final TaskRuntime taskRuntime = taskInjector.getInstance(TaskRuntime.class);
         taskRuntime.initialize();
-        taskRuntime.start();
+        this.taskRuntimeThread = new Thread(taskRuntime, taskRuntime.getId());
+        this.taskRuntimeThread.start();
         this.task = Optional.of(taskRuntime);
-        LOG.log(Level.FINEST, "Started task '" + taskRuntime.getTaskId());
+        LOG.log(Level.FINEST, "Started task: {0}", taskRuntime.getTaskId());
       } catch (final BindException | InjectionException e) {
         throw new TaskClientCodeException(TaskClientCodeException.getTaskId(taskConfig),
             this.getIdentifier(),
-            "Unable to instantiate the new task",
-            e);
+            "Unable to instantiate the new task", e);
       } catch (final Throwable t) {
         throw new TaskClientCodeException(TaskClientCodeException.getTaskId(taskConfig),
             this.getIdentifier(),
-            "Unable to start the new task",
-            t);
+            "Unable to start the new task", t);
       }
     }
   }
@@ -227,16 +275,21 @@ public final class ContextRuntime {
    * there is a Task currently running, that will be closed.
    */
   final void close() {
+
     synchronized (this.contextLifeCycle) {
+
       this.contextState = ReefServiceProtos.ContextStatusProto.State.DONE;
+
       if (this.task.isPresent()) {
         LOG.log(Level.WARNING, "Shutting down a task because the underlying context is being closed.");
         this.task.get().close(null);
       }
+
       if (this.childContext.isPresent()) {
         LOG.log(Level.WARNING, "Closing a context because its parent context is being closed.");
         this.childContext.get().close();
       }
+
       this.contextLifeCycle.close();
 
       if (this.parentContext.isPresent()) {
@@ -357,9 +410,13 @@ public final class ContextRuntime {
    * @return this context's status in protocol buffer form.
    */
   ReefServiceProtos.ContextStatusProto getContextStatus() {
+
     synchronized (this.contextLifeCycle) {
+
       final ReefServiceProtos.ContextStatusProto.Builder builder =
-          ReefServiceProtos.ContextStatusProto.newBuilder().setContextId(this.getIdentifier()).setContextState(this.contextState);
+          ReefServiceProtos.ContextStatusProto.newBuilder()
+              .setContextId(this.getIdentifier())
+              .setContextState(this.contextState);
 
       if (this.parentContext.isPresent()) {
         builder.setParentId(this.parentContext.get().getIdentifier());
@@ -378,5 +435,4 @@ public final class ContextRuntime {
       return builder.build();
     }
   }
-
 }

@@ -17,6 +17,7 @@ package com.microsoft.reef.tests;
 
 import com.microsoft.reef.tests.close_eval.CloseEvaluatorTest;
 import com.microsoft.reef.tests.driver.DriverTest;
+import com.microsoft.reef.tests.evaluatorfailure.EvaluatorFailureTest;
 import com.microsoft.reef.tests.evaluatorreuse.EvaluatorReuseTest;
 import com.microsoft.reef.tests.evaluatorsize.EvaluatorSizeTest;
 import com.microsoft.reef.tests.fail.FailTestSuite;
@@ -41,7 +42,8 @@ import org.junit.runners.Suite;
     StatePassingTest.class,
     SubContextTest.class,
     TaskResubmitTest.class,
-    CloseEvaluatorTest.class
+    CloseEvaluatorTest.class,
+    EvaluatorFailureTest.class
 })
 public final class AllTestsSuite {
 }

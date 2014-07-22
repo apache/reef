@@ -22,6 +22,7 @@ import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPat
 import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
 import com.microsoft.reef.util.EnvironmentUtils;
+import com.microsoft.reef.util.logging.LoggingSetup;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.JavaConfigurationBuilder;
@@ -42,6 +43,10 @@ import java.util.logging.Logger;
 public final class Launcher {
 
   private final static Logger LOG = Logger.getLogger(Launcher.class.getName());
+
+  static {
+    LoggingSetup.setupCommonsLogging();
+  }
 
   private Launcher() {
   }
@@ -86,7 +91,7 @@ public final class Launcher {
    * @throws Exception
    */
   public static void main(final String[] args) {
-    LOG.log(Level.INFO, "Launcher started with user name [{0}]", System.getProperty("user.name"));
+    LOG.log(Level.FINE, "Launcher started with user name [{0}]", System.getProperty("user.name"));
 
     LOG.log(Level.FINE, "Launcher started. Assertions are {0} in this process.",
         EnvironmentUtils.areAssertionsEnabled() ? "ENABLED" : "DISABLED");

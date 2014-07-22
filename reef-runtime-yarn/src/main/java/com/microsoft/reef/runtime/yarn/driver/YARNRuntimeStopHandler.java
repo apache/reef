@@ -23,7 +23,7 @@ import javax.inject.Inject;
 /**
  * Shuts down the YARN resource manager.
  */
-final class YARNRuntimeStopHandler implements EventHandler<RuntimeStop> {
+public final class YARNRuntimeStopHandler implements EventHandler<RuntimeStop> {
 
   private final YarnContainerManager yarnContainerManager;
 

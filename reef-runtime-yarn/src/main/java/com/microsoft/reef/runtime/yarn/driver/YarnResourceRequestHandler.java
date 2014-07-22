@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  */
 @DriverSide
 @Private
-final class YarnResourceRequestHandler implements ResourceRequestHandler {
+public final class YarnResourceRequestHandler implements ResourceRequestHandler {
 
   private static final Logger LOG = Logger.getLogger(YarnResourceRequestHandler.class.getName());
   private final YarnContainerRequestHandler yarnContainerRequestHandler;

@@ -22,6 +22,6 @@ import javax.inject.Inject;
 public class LocalDriverRuntimeConfiguration extends AbstractDriverRuntimeConfiguration {
   @Inject
   public LocalDriverRuntimeConfiguration() {
-    super(ResourceManager.LocalResourceLaunchHandler.class, ResourceManager.LocalResourceReleaseHandler.class, ResourceManager.LocalResourceRequestHandler.class);
+    super(LocalResourceLaunchHandler.class, LocalResourceReleaseHandler.class, LocalResourceRequestHandler.class);
   }
 }

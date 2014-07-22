@@ -20,6 +20,7 @@ import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.TaskConfiguration;
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.tests.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
@@ -43,14 +44,19 @@ final class Driver {
   private final Set<String> fileNamesToExpect;
   private final Clock clock;
   private final EvaluatorRequestor requestor;
+  private final REEFFileNames fileNames;
+  private final File localFolder;
 
   @Inject
   public Driver(@Parameter(TestDriverConfiguration.FileNamesToExpect.class) final Set<String> fileNamesToExpect,
                 final Clock clock,
-                final EvaluatorRequestor requestor) {
+                final EvaluatorRequestor requestor,
+                final REEFFileNames fileNames) {
     this.fileNamesToExpect = fileNamesToExpect;
     this.clock = clock;
     this.requestor = requestor;
+    this.fileNames = fileNames;
+    this.localFolder = fileNames.getLocalFolder();
   }
 
   /**
@@ -64,7 +70,7 @@ final class Driver {
 
       // Check whether the files made it
       for (final String fileName : Driver.this.fileNamesToExpect) {
-        final File file = new File(fileName);
+        final File file = new File(localFolder, fileName);
         LOG.log(Level.INFO, "Testing file: " + file.getAbsolutePath());
         if (!file.exists()) {
           throw new DriverSideFailure("Cannot find file: " + fileName);
@@ -91,7 +97,7 @@ final class Driver {
       try {
         // Add the files to the Evaluator.
         for (final String fileName : Driver.this.fileNamesToExpect) {
-          allocatedEvaluator.addFile(new File(fileName));
+          allocatedEvaluator.addFile(new File(localFolder, fileName));
         }
 
         // Trivial context Configuration

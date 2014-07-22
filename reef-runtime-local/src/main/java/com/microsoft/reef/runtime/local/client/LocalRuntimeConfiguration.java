@@ -21,8 +21,9 @@ import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
+import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
@@ -50,6 +51,12 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
    * If none is given, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
    */
   public static final OptionalParameter<String> RUNTIME_ROOT_FOLDER = new OptionalParameter<>();
+
+  /**
+   * The fraction of the container memory NOT to use for the Java Heap.
+   */
+  public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
+
   /**
    * The ConfigurationModule for the local resourcemanager.
    */
@@ -60,21 +67,10 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
           // Bind the message codec for REEF.
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-      .bindNamedParameter(NumberOfThreads.class, NUMBER_OF_THREADS)
+      .bindNamedParameter(NumberOfProcesses.class, NUMBER_OF_THREADS)
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
+      .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .build();
-
-  @NamedParameter(default_value = "4", doc = "The number of threads to use", short_name = "nThreads")
-  public static final class NumberOfThreads implements Name<Integer> {
-  }
-
-  @NamedParameter(default_value = "REEF_LOCAL_RUNTIME", doc = "The folder where logs etc. shall be stored.")
-  public static class RootFolder implements Name<String> {
-  }
-
-  @NamedParameter(doc = "The size of the default container returned in MB", default_value = "512")
-  public static class DefaultMemorySize implements Name<Integer> {
-  }
 
 
 }

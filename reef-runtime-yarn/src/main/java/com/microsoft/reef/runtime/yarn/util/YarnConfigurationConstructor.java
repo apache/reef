@@ -15,10 +15,8 @@
  */
 package com.microsoft.reef.runtime.yarn.util;
 
-import com.microsoft.reef.runtime.yarn.driver.YarnMasterConfiguration;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.ExternalConstructor;
-import com.microsoft.tang.annotations.Parameter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -44,14 +42,10 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
     this(Optional.<Path>empty());
   }
 
-  @Inject
-  YarnConfigurationConstructor(@Parameter(YarnMasterConfiguration.YarnConfigurationFile.class) final String file) {
-    this(Optional.of(new Path(file)));
-  }
 
   private YarnConfigurationConstructor(final Optional<Path> configurationFilePath) {
     this.configurationPath = configurationFilePath;
-    LOG.log(Level.INFO, "Instantiated 'YarnConfigurationConstructor' with path {0}", configurationFilePath);
+    LOG.log(Level.FINE, "Instantiated 'YarnConfigurationConstructor' with path {0}", configurationFilePath);
   }
 
 
@@ -64,7 +58,7 @@ public final class YarnConfigurationConstructor implements ExternalConstructor<Y
     // TODO: This should not be needed.
     yarnConfiguration.reloadConfiguration();
 
-    LOG.log(Level.INFO, "Instantiated 'YarnConfiguration' with path [{0}] and contents [{1}] ",
+    LOG.log(Level.FINE, "Instantiated 'YarnConfiguration' with path [{0}] and contents [{1}] ",
         new Object[]{this.configurationPath, yarnConfiguration});
     return yarnConfiguration;
   }

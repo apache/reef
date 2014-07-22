@@ -21,6 +21,9 @@ import com.microsoft.reef.proto.EvaluatorRuntimeProtocol.EvaluatorControlProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.proto.ReefServiceProtos.EvaluatorStatusProto;
 import com.microsoft.reef.runtime.common.evaluator.context.ContextManager;
+import com.microsoft.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier;
+import com.microsoft.reef.runtime.common.evaluator.parameters.EvaluatorIdentifier;
+import com.microsoft.reef.runtime.common.evaluator.parameters.HeartbeatPeriod;
 import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Parameter;
@@ -40,28 +43,27 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
 
   private final static Logger LOG = Logger.getLogger(EvaluatorRuntime.class.getName());
 
-  private final String evaluatorIdentifier;
-
-  private final ContextManager contextManager;
-
   private final HeartBeatManager heartBeatManager;
-
-  private final AutoCloseable evaluatorControlChannel;
+  private final ContextManager contextManager;
   private final Clock clock;
+
+  private final String evaluatorIdentifier;
   private final ExceptionCodec exceptionCodec;
+  private final AutoCloseable evaluatorControlChannel;
 
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
 
   @Inject
-  private EvaluatorRuntime(final Clock clock,
-                           final HeartBeatManager.HeartbeatAlarmHandler heartbeatAlarmHandler,
-                           final @Parameter(EvaluatorConfigurationModule.HeartbeatPeriod.class) int heartbeatPeriod,
-                           final RemoteManager remoteManager,
-                           final ContextManager contextManagerFuture,
-                           final HeartBeatManager heartBeatManager,
-                           final @Parameter(EvaluatorConfigurationModule.EvaluatorIdentifier.class) String evaluatorIdentifier,
-                           final @Parameter(EvaluatorConfigurationModule.DriverRemoteIdentifier.class) String driverRID,
-                           final ExceptionCodec exceptionCodec) {
+  private EvaluatorRuntime(
+      final @Parameter(HeartbeatPeriod.class) int heartbeatPeriod,
+      final @Parameter(EvaluatorIdentifier.class) String evaluatorIdentifier,
+      final @Parameter(DriverRemoteIdentifier.class) String driverRID,
+      final HeartBeatManager.HeartbeatAlarmHandler heartbeatAlarmHandler,
+      final HeartBeatManager heartBeatManager,
+      final Clock clock,
+      final ContextManager contextManagerFuture,
+      final RemoteManager remoteManager,
+      final ExceptionCodec exceptionCodec) {
 
     this.heartBeatManager = heartBeatManager;
     this.contextManager = contextManagerFuture;
@@ -69,17 +71,20 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
 
     this.evaluatorIdentifier = evaluatorIdentifier;
     this.exceptionCodec = exceptionCodec;
-    this.evaluatorControlChannel = remoteManager.registerHandler(driverRID, EvaluatorControlProto.class, this);
+    this.evaluatorControlChannel =
+        remoteManager.registerHandler(driverRID, EvaluatorControlProto.class, this);
 
-    /* start the heartbeats */
+    // start the heartbeats
     clock.scheduleAlarm(heartbeatPeriod, heartbeatAlarmHandler);
   }
 
   private void onEvaluatorControlMessage(final EvaluatorControlProto message) {
+
     synchronized (this.heartBeatManager) {
+
       LOG.log(Level.FINEST, "Evaluator control message");
 
-      if (!message.getIdentifier().equals(this.evaluatorIdentifier.toString())) {
+      if (!message.getIdentifier().equals(this.evaluatorIdentifier)) {
         this.onException(new RuntimeException(
             "Identifier mismatch: message for evaluator id[" + message.getIdentifier()
                 + "] sent to evaluator id[" + this.evaluatorIdentifier + "]"
@@ -92,12 +97,14 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
       } else {
 
         if (message.hasContextControl()) {
+
           LOG.log(Level.FINEST, "Send task control message to ContextManager");
+
           try {
             this.contextManager.handleContextControlProtocol(message.getContextControl());
             if (this.contextManager.contextStackIsEmpty() && this.state == ReefServiceProtos.State.RUNNING) {
               this.state = ReefServiceProtos.State.DONE;
-              this.heartBeatManager.onNext(this.getEvaluatorStatus());
+              this.heartBeatManager.sendEvaluatorStatus(this.getEvaluatorStatus());
               this.clock.close();
             }
           } catch (final Throwable e) {
@@ -120,11 +127,11 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
       this.state = ReefServiceProtos.State.FAILED;
 
       final EvaluatorStatusProto evaluatorStatusProto = EvaluatorStatusProto.newBuilder()
-          .setEvaluatorId(this.evaluatorIdentifier.toString())
+          .setEvaluatorId(this.evaluatorIdentifier)
           .setError(ByteString.copyFrom(this.exceptionCodec.toBytes(exception)))
           .setState(this.state)
           .build();
-      this.heartBeatManager.onNext(evaluatorStatusProto);
+      this.heartBeatManager.sendEvaluatorStatus(evaluatorStatusProto);
       this.contextManager.close();
     }
   }
@@ -134,7 +141,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
       LOG.log(Level.FINEST, "Evaluator heartbeat: state = {0}", this.state);
       final EvaluatorStatusProto.Builder evaluatorStatus =
           EvaluatorStatusProto.newBuilder()
-              .setEvaluatorId(this.evaluatorIdentifier.toString())
+              .setEvaluatorId(this.evaluatorIdentifier)
               .setState(this.state);
       return evaluatorStatus.build();
     }
@@ -142,6 +149,10 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
 
   final ReefServiceProtos.State getState() {
     return this.state;
+  }
+
+  boolean isRunning() {
+    return this.state == ReefServiceProtos.State.RUNNING;
   }
 
   @Override
@@ -159,7 +170,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
           assert (ReefServiceProtos.State.INIT == EvaluatorRuntime.this.state);
           EvaluatorRuntime.this.state = ReefServiceProtos.State.RUNNING;
           EvaluatorRuntime.this.contextManager.start();
-          EvaluatorRuntime.this.heartBeatManager.onNext();
+          EvaluatorRuntime.this.heartBeatManager.sendHeartbeat();
         } catch (final Throwable e) {
           EvaluatorRuntime.this.onException(e);
         }
@@ -172,19 +183,21 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     @Override
     public final void onNext(final RuntimeStop runtimeStop) {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
-        LOG.log(Level.FINEST, "runtime stop");
-        EvaluatorRuntime.this.contextManager.close();
+        LOG.log(Level.FINEST, "EvaluatorRuntime shutdown invoked for Evaluator {0} in state {1}",
+            new Object[]{evaluatorIdentifier, state});
 
-        if (ReefServiceProtos.State.RUNNING == EvaluatorRuntime.this.state) {
-          throw new RuntimeException("RuntimeStopHandler invoked in state RUNNING.");
+        if (EvaluatorRuntime.this.isRunning()) {
+          EvaluatorRuntime.this.onException(new RuntimeException(
+              "RuntimeStopHandler invoked in state RUNNING.", runtimeStop.getException()));
+        } else {
+          EvaluatorRuntime.this.contextManager.close();
+          try {
+            EvaluatorRuntime.this.evaluatorControlChannel.close();
+          } catch (final Exception e) {
+            LOG.log(Level.SEVERE, "Exception during shutdown of evaluatorControlChannel.", e);
+          }
+          LOG.log(Level.FINEST, "EvaluatorRuntime shutdown complete");
         }
-
-        try {
-          EvaluatorRuntime.this.evaluatorControlChannel.close();
-        } catch (final Exception e) {
-          LOG.log(Level.SEVERE, "Exception during shutdown of evaluatorControlChannel.", e);
-        }
-        LOG.log(Level.FINEST, "EvaluatorRuntime shutdown complete");
       }
     }
   }

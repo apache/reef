@@ -51,7 +51,7 @@ public final class EvaluatorControlHandler {
     this.stateManager = stateManager;
     this.remoteManager = remoteManager;
     this.evaluatorId = evaluatorId;
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorControlHandler'");
+    LOG.log(Level.FINE, "Instantiated 'EvaluatorControlHandler'");
   }
 
   /**
@@ -81,7 +81,7 @@ public final class EvaluatorControlHandler {
     if (this.wrapped.isPresent()) {
       throw new IllegalStateException("Trying to reset the evaluator ID. This isn't supported.");
     } else {
-      LOG.log(Level.INFO, "Registering remoteId [{0}] for Evaluator [{1}]", new Object[]{evaluatorRID, evaluatorId});
+      LOG.log(Level.FINE, "Registering remoteId [{0}] for Evaluator [{1}]", new Object[]{evaluatorRID, evaluatorId});
       this.wrapped = Optional.of(remoteManager.getHandler(evaluatorRID, EvaluatorRuntimeProtocol.EvaluatorControlProto.class));
     }
   }

@@ -45,7 +45,7 @@ public class ContextControlHandler {
                         final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorId) {
     this.evaluatorControlHandler = evaluatorControlHandler;
     this.evaluatorId = evaluatorId;
-    LOG.log(Level.INFO, "Instantiated 'ContextControlHandler'");
+    LOG.log(Level.FINE, "Instantiated 'ContextControlHandler'");
   }
 
   public synchronized void send(final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto) {

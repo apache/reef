@@ -46,15 +46,19 @@ import java.util.logging.Logger;
 @EvaluatorSide
 @Provided
 public final class ContextManager implements AutoCloseable {
+
   private static final Logger LOG = Logger.getLogger(ContextManager.class.getName());
+
   /**
    * The stack of context.
    */
   private final Stack<ContextRuntime> contextStack = new Stack<>();
+
   /**
    * Used to instantiate the root context.
    */
   private final InjectionFuture<RootContextLauncher> launchContext;
+
   /**
    * Used for status reporting to the Driver.
    */
@@ -66,7 +70,6 @@ public final class ContextManager implements AutoCloseable {
   private final ConfigurationSerializer configurationSerializer;
 
   private final ExceptionCodec exceptionCodec;
-
 
   /**
    * @param launchContext           to instantiate the root context.
@@ -135,15 +138,18 @@ public final class ContextManager implements AutoCloseable {
    *
    * @param controlMessage the message to process
    */
-  public void handleContextControlProtocol(final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
+  public void handleContextControlProtocol(
+      final EvaluatorRuntimeProtocol.ContextControlProto controlMessage) {
 
     synchronized (this.heartBeatManager) {
       try {
         if (controlMessage.hasAddContext() && controlMessage.hasRemoveContext()) {
-          throw new IllegalArgumentException("Received a message with both add and remove context. This is unsupported.");
+          throw new IllegalArgumentException(
+              "Received a message with both add and remove context. This is unsupported.");
         }
 
-        final byte[] message = controlMessage.hasTaskMessage() ? controlMessage.getTaskMessage().toByteArray() : null;
+        final byte[] message = controlMessage.hasTaskMessage() ?
+            controlMessage.getTaskMessage().toByteArray() : null;
 
         if (controlMessage.hasAddContext()) {
           this.addContext(controlMessage.getAddContext());
@@ -151,9 +157,10 @@ public final class ContextManager implements AutoCloseable {
             // We support submitContextAndTask()
             this.startTask(controlMessage.getStartTask());
           } else {
-            // We need to trigger a heartbeat here. In other cases, the heartbeat will be triggered by the TaskRuntime
-            // Therefore this call can not go into addContext
-            this.heartBeatManager.onNext();
+            // We need to trigger a heartbeat here.
+            // In other cases, the heartbeat will be triggered by the TaskRuntime
+            // Therefore this call can not go into addContext.
+            this.heartBeatManager.sendHeartbeat();
           }
         } else if (controlMessage.hasRemoveContext()) {
           this.removeContext(controlMessage.getRemoveContext().getContextId());
@@ -176,10 +183,11 @@ public final class ContextManager implements AutoCloseable {
             }
           }
           if (!deliveredMessage) {
-            throw new IllegalStateException("Sent message to unknown context " + contextMessageProto.getContextId());
+            throw new IllegalStateException(
+                "Sent message to unknown context " + contextMessageProto.getContextId());
           }
         } else {
-          throw new RuntimeException("Unknown task control message: " + controlMessage.toString());
+          throw new RuntimeException("Unknown task control message: " + controlMessage);
         }
       } catch (final TaskClientCodeException e) {
         this.handleTaskException(e);
@@ -196,7 +204,8 @@ public final class ContextManager implements AutoCloseable {
   public Optional<ReefServiceProtos.TaskStatusProto> getTaskStatus() {
     synchronized (this.contextStack) {
       if (this.contextStack.isEmpty()) {
-        throw new RuntimeException("Asked for a Task status while there isn't even a context running.");
+        throw new RuntimeException(
+            "Asked for a Task status while there isn't even a context running.");
       }
       return this.contextStack.peek().getTaskStatus();
     }
@@ -210,7 +219,7 @@ public final class ContextManager implements AutoCloseable {
       final List<ReefServiceProtos.ContextStatusProto> result = new ArrayList<>(this.contextStack.size());
       for (final ContextRuntime contextRuntime : this.contextStack) {
         final ReefServiceProtos.ContextStatusProto contextStatusProto = contextRuntime.getContextStatus();
-        LOG.log(Level.FINEST, "Add context status: " + contextStatusProto);
+        LOG.log(Level.FINEST, "Add context status: {0}", contextStatusProto);
         result.add(contextStatusProto);
       }
       return result;
@@ -223,26 +232,34 @@ public final class ContextManager implements AutoCloseable {
    * @param addContextProto
    * @throws ContextClientCodeException if there is a client code related issue.
    */
-  private void addContext(final EvaluatorRuntimeProtocol.AddContextProto addContextProto) throws ContextClientCodeException {
+  private void addContext(
+      final EvaluatorRuntimeProtocol.AddContextProto addContextProto)
+      throws ContextClientCodeException {
+
     synchronized (this.contextStack) {
       try {
+
         final ContextRuntime currentTopContext = this.contextStack.peek();
+
         if (!currentTopContext.getIdentifier().equals(addContextProto.getParentContextId())) {
           throw new IllegalStateException("Trying to instantiate a child context on context with id `" +
               addContextProto.getParentContextId() + "` while the current top context id is `" +
-              currentTopContext.getIdentifier() +
-              "`");
+              currentTopContext.getIdentifier() + "`");
         }
-        final Configuration contextConfiguration = this.configurationSerializer.fromString(addContextProto.getContextConfiguration());
+
+        final Configuration contextConfiguration =
+            this.configurationSerializer.fromString(addContextProto.getContextConfiguration());
+
         final ContextRuntime newTopContext;
         if (addContextProto.hasServiceConfiguration()) {
           newTopContext = currentTopContext.spawnChildContext(contextConfiguration,
               this.configurationSerializer.fromString(addContextProto.getServiceConfiguration()));
-
         } else {
           newTopContext = currentTopContext.spawnChildContext(contextConfiguration);
         }
+
         this.contextStack.push(newTopContext);
+
       } catch (final IOException | BindException e) {
         throw new RuntimeException("Unable to read configuration.", e);
       }
@@ -252,12 +269,12 @@ public final class ContextManager implements AutoCloseable {
 
   /**
    * Remove the context with the given ID from the stack.
-   *
-   * @param contextID
    * @throws IllegalStateException if the given ID does not refer to the top of stack.
    */
   private void removeContext(final String contextID) {
+
     synchronized (this.contextStack) {
+
       if (!contextID.equals(this.contextStack.peek().getIdentifier())) {
         throw new IllegalStateException("Trying to close context with id `" + contextID +
             "`. But the top context has id `" +
@@ -270,7 +287,7 @@ public final class ContextManager implements AutoCloseable {
          * driver explicitly that this context is closed. The root context notification
          * is implicit in the Evaluator close/done notification.
          */
-        this.heartBeatManager.onNext(); // Ensure Driver gets notified of context DONE state
+        this.heartBeatManager.sendHeartbeat(); // Ensure Driver gets notified of context DONE state
       }
       this.contextStack.pop();
       System.gc(); // TODO sure??
@@ -279,12 +296,12 @@ public final class ContextManager implements AutoCloseable {
 
   /**
    * Launch a Task.
-   *
-   * @param startTaskProto
-   * @throws com.microsoft.reef.runtime.common.evaluator.task.TaskClientCodeException
    */
-  private void startTask(final EvaluatorRuntimeProtocol.StartTaskProto startTaskProto) throws TaskClientCodeException {
+  private void startTask(
+      final EvaluatorRuntimeProtocol.StartTaskProto startTaskProto) throws TaskClientCodeException {
+
     synchronized (this.contextStack) {
+
       final ContextRuntime currentActiveContext = this.contextStack.peek();
 
       final String expectedContextId = startTaskProto.getContextId();
@@ -294,46 +311,51 @@ public final class ContextManager implements AutoCloseable {
       }
 
       try {
-        final Configuration taskConfig = this.configurationSerializer.fromString(startTaskProto.getConfiguration());
+        final Configuration taskConfig =
+            this.configurationSerializer.fromString(startTaskProto.getConfiguration());
         currentActiveContext.startTask(taskConfig);
       } catch (IOException | BindException e) {
         throw new RuntimeException("Unable to read configuration.", e);
       }
-
     }
   }
 
   /**
    * THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager
-   *
-   * @param e
    */
   private void handleTaskException(final TaskClientCodeException e) {
+
     LOG.log(Level.SEVERE, "TaskClientCodeException", e);
+
     final ByteString exception = ByteString.copyFrom(this.exceptionCodec.toBytes(e.getCause()));
-    final ReefServiceProtos.TaskStatusProto taskStatus = ReefServiceProtos.TaskStatusProto.newBuilder()
-        .setContextId(e.getContextId())
-        .setTaskId(e.getTaskId())
-        .setResult(exception)
-        .setState(ReefServiceProtos.State.FAILED)
-        .build();
-    LOG.log(Level.SEVERE, "Sending heartbeat: " + taskStatus.toString());
-    this.heartBeatManager.onNext(taskStatus);
+
+    final ReefServiceProtos.TaskStatusProto taskStatus =
+        ReefServiceProtos.TaskStatusProto.newBuilder()
+            .setContextId(e.getContextId())
+            .setTaskId(e.getTaskId())
+            .setResult(exception)
+            .setState(ReefServiceProtos.State.FAILED)
+            .build();
+
+    LOG.log(Level.SEVERE, "Sending heartbeat: {0}", taskStatus);
+
+    this.heartBeatManager.sendTaskStatus(taskStatus);
   }
 
   /**
    * THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager
-   *
-   * @param e
    */
   private void handleContextException(final ContextClientCodeException e) {
+
     LOG.log(Level.SEVERE, "ContextClientCodeException", e);
 
     final ByteString exception = ByteString.copyFrom(this.exceptionCodec.toBytes(e.getCause()));
-    final ReefServiceProtos.ContextStatusProto.Builder contextStatusBuilder = ReefServiceProtos.ContextStatusProto.newBuilder()
-        .setContextId(e.getContextID())
-        .setContextState(ReefServiceProtos.ContextStatusProto.State.FAIL)
-        .setError(exception);
+
+    final ReefServiceProtos.ContextStatusProto.Builder contextStatusBuilder =
+        ReefServiceProtos.ContextStatusProto.newBuilder()
+            .setContextId(e.getContextID())
+            .setContextState(ReefServiceProtos.ContextStatusProto.State.FAIL)
+            .setError(exception);
 
     if (e.getParentID().isPresent()) {
       contextStatusBuilder.setParentId(e.getParentID().get());
@@ -341,9 +363,8 @@ public final class ContextManager implements AutoCloseable {
 
     final ReefServiceProtos.ContextStatusProto contextStatus = contextStatusBuilder.build();
 
-    LOG.log(Level.SEVERE, "Sending heartbeat: " + contextStatus.toString());
+    LOG.log(Level.SEVERE, "Sending heartbeat: {0}", contextStatus);
 
-    this.heartBeatManager.onNext(contextStatus);
+    this.heartBeatManager.sendContextStatus(contextStatus);
   }
-
 }

@@ -48,7 +48,7 @@ public final class HelloDriver {
   @Inject
   public HelloDriver(final EvaluatorRequestor requestor) {
     this.requestor = requestor;
-    LOG.log(Level.INFO, "Instantiated 'HelloDriver'");
+    LOG.log(Level.FINE, "Instantiated 'HelloDriver'");
   }
 
   /**

@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.yarn.driver;
 
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
+import com.microsoft.tang.InjectionFuture;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -25,20 +26,22 @@ import java.util.logging.Logger;
 /**
  * ResourceReleaseHandler for YARN.
  */
-final class YARNResourceReleaseHandler implements ResourceReleaseHandler {
+public final class YARNResourceReleaseHandler implements ResourceReleaseHandler {
+
   private static final Logger LOG = Logger.getLogger(YARNResourceReleaseHandler.class.getName());
-  private final YarnContainerManager yarnContainerManager;
+
+  private final InjectionFuture<YarnContainerManager> yarnContainerManager;
 
   @Inject
-  YARNResourceReleaseHandler(final YarnContainerManager yarnContainerManager) {
+  YARNResourceReleaseHandler(final InjectionFuture<YarnContainerManager> yarnContainerManager) {
     this.yarnContainerManager = yarnContainerManager;
-    LOG.log(Level.INFO, "Instantiated 'YARNResourceReleaseHandler'");
+    LOG.log(Level.FINE, "Instantiated 'YARNResourceReleaseHandler'");
   }
 
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceReleaseProto resourceReleaseProto) {
     final String containerId = resourceReleaseProto.getIdentifier();
     LOG.log(Level.FINEST, "Releasing container {0}", containerId);
-    this.yarnContainerManager.release(containerId);
+    this.yarnContainerManager.get().release(containerId);
   }
 }

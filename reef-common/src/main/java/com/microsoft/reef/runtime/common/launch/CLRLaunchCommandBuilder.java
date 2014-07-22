@@ -49,7 +49,7 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
     if ((null != this.standardErrPath) && (!standardErrPath.isEmpty())) {
       result.add("2>" + this.standardErrPath);
     }
-    LOG.log(Level.INFO, "Launch Exe: {0}", StringUtils.join(result, ' '));
+    LOG.log(Level.FINE, "Launch Exe: {0}", StringUtils.join(result, ' '));
     return result;
   }
 

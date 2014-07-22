@@ -17,7 +17,6 @@ package com.microsoft.reef.examples.hello;
 
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.REEF;
-import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
@@ -32,11 +31,13 @@ import java.util.logging.Logger;
  * A main() for running hello REEF without a persistent client connection.
  */
 public final class HelloREEFNoClient {
+
   private static final Logger LOG = Logger.getLogger(HelloREEFNoClient.class.getName());
 
-  static void runHelloReefWithoutClient(final Configuration runtimeConf)
-      throws BindException, InjectionException {
-    final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEFImplementation.class);
+  public static void runHelloReefWithoutClient(
+      final Configuration runtimeConf) throws InjectionException {
+
+    final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEF.class);
 
     final Configuration driverConf =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
@@ -48,11 +49,12 @@ public final class HelloREEFNoClient {
     reef.submit(driverConf);
   }
 
-
   public static void main(final String[] args) throws BindException, InjectionException {
+
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
         .build();
+
     runHelloReefWithoutClient(runtimeConfiguration);
     LOG.log(Level.INFO, "Job Submitted");
   }
