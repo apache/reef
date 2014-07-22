@@ -140,7 +140,7 @@ public class NativeInterop {
                 return name.toLowerCase().endsWith(DLL_EXTENSION);
             }
         });
-      //System.out.println("Total dll files to load from " + System.getProperty("user.dir") + "  are: " + files.length );
+      //System.out.println("Total dll files to load from " + System.getProperty("user.dir") + "/reef/global" + "  are: " + files.length );
 
       for (int i=0; i<files.length; i++)
         {
@@ -150,7 +150,7 @@ public class NativeInterop {
                 if (fileName.indexOf(".") > 0) {
                     fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
                 }
-                loadLib(fileNameWithoutExtension, true);
+              loadLib(fileNameWithoutExtension, true);
             } catch (Exception e) {
                 System.out.println("exception " + e);
                 throw e;
@@ -168,8 +168,10 @@ public class NativeInterop {
      */
 
     private static void loadLib(String name, boolean copyOnly) {
-        name = name + DLL_EXTENSION;
-        try {
+      name = name + DLL_EXTENSION;
+      //System.out.println("LOADING " + System.getProperty("user.dir") + "/reef/global/" + name );
+
+      try {
             String path = "/ReefDriverAppDlls/" + name;
 
             //System.out.println("trying to load: " +  NativeInterop.class.getClass().getResource(path).getPath());
@@ -181,7 +183,7 @@ public class NativeInterop {
             //System.out.println("after new FileOutputStream(fileOut)");
             if (null == in)
             {
-              //System.out.println("Cannot find " + name);
+             // System.out.println("Cannot find " + path);
               return;
             }
             if (out == null)

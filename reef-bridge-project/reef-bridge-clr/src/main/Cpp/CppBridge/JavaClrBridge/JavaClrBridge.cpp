@@ -69,7 +69,7 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_loadClrA
 		memcpy(fileName, charAsmName, (len+2)* sizeof(wchar_t));
 		fileName[len] = 0;
 		String^ asmName = ManagedStringFromJavaString(env, jfileName);
-		Console::WriteLine(asmName);
+		Console::WriteLine("loading " + asmName);
 
 		BINARY_TYPE binaryType = IsManagedBinary(fileName);
 		if (binaryType == BINARY_TYPE_CLR)

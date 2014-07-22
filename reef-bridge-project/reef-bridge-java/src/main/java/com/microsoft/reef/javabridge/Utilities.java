@@ -22,10 +22,22 @@ import com.microsoft.tang.proto.ClassHierarchyProto;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Utilities {
     public static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
-        try (final InputStream chin = new FileInputStream(classHierarchyFile)) {
+      Path p = Paths.get(classHierarchyFile);
+      if (!Files.exists(p))
+      {
+          p = Paths.get(System.getProperty("user.dir") + "/reef/global/" + classHierarchyFile);
+      }
+      if(!Files.exists(p))
+      {
+        throw new RuntimeException("cannot find file " + p.toAbsolutePath());
+      }
+      try (final InputStream chin = new FileInputStream(p.toAbsolutePath().toString())) {
             final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
             final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
             return ch;
