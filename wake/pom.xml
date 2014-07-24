@@ -1,16 +1,20 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.microsoft.wake</groupId>
-        <artifactId>wake-project</artifactId>
-        <version>0.6-SNAPSHOT</version>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>wake</artifactId>
     <name>Wake</name>
 
+    <parent>
+        <groupId>com.microsoft.wake</groupId>
+        <artifactId>wake-project</artifactId>
+        <version>0.7-SNAPSHOT</version>
+    </parent>
+
     <build>
+
         <resources>
             <resource>
                 <targetPath>META-INF/conf</targetPath>
@@ -24,6 +28,7 @@
                 </excludes>
             </resource>
         </resources>
+
         <plugins>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -33,16 +38,16 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="target/generated-sources/proto" />
+                                <mkdir dir="target/generated-sources/proto"/>
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/" />
-                                    <arg value="--java_out=target/generated-sources/proto" />
-                                    <arg value="src/main/proto/RemoteProtocol.proto" />
+                                    <arg value="--proto_path=src/main/proto/"/>
+                                    <arg value="--java_out=target/generated-sources/proto"/>
+                                    <arg value="src/main/proto/RemoteProtocol.proto"/>
                                 </exec>
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/test/proto/" />
-                                    <arg value="--java_out=target/generated-sources/proto" />
-                                    <arg value="src/test/proto/TestProtocol.proto" />
+                                    <arg value="--proto_path=src/test/proto/"/>
+                                    <arg value="--java_out=target/generated-sources/proto"/>
+                                    <arg value="src/test/proto/TestProtocol.proto"/>
                                 </exec>
                             </tasks>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
@@ -72,6 +77,7 @@
                 </executions>
             </plugin>
         </plugins>
+
         <pluginManagement>
             <plugins>
                 <!--This plugin's configuration is used to store Eclipse m2e settings
@@ -99,7 +105,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
@@ -118,7 +124,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -127,7 +133,9 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
     </build>
+
     <dependencies>
         <dependency>
             <groupId>cglib</groupId>
@@ -151,4 +159,5 @@
             <artifactId>tang</artifactId>
         </dependency>
     </dependencies>
+
 </project>
