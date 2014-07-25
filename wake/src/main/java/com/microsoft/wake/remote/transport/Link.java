@@ -20,33 +20,30 @@ import java.net.SocketAddress;
 
 /**
  * Link between two end physical endpoints.
- * 
+ *
  * @param <T> type of the message.
  */
 public interface Link<T> extends LinkListener<T> {
 
   /**
    * Gets its local address.
-   * 
+   *
    * @return a local socket address.
    */
   SocketAddress getLocalAddress();
-  
+
   /**
    * Gets its remote address.
-   * 
+   *
    * @return a remote socket address.
    */
   SocketAddress getRemoteAddress();
-  
+
   /**
    * Writes the value to this link.
-   * 
+   *
    * @param value the data value.
    * @throws IOException
    */
   void write(T value) throws IOException;
-
-  @Deprecated
-  void close() throws Exception;
 }

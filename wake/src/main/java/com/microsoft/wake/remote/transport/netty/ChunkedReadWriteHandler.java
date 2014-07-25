@@ -27,24 +27,23 @@ import java.util.logging.Logger;
 
 /**
  * Thin wrapper around ChunkedWriteHandler
- * 
+ *
  * ChunkedWriteHandler only handles the down stream parts
  * and just emits the chunks up stream. So we add an upstream
  * handler that aggregates the chunks into its original form. This
- * is guaranteed to be thread serial so state can be shared. 
- * 
+ * is guaranteed to be thread serial so state can be shared.
+ *
  * On the down stream side, we just decorate the original message
  * with its size and allow the thread-serial base class to actually
  * handle the chunking. We need to be careful since the decoration
  * itself has to be thread-safe since netty does not guarantee thread
  * serial access to down stream handlers.
- * 
+ *
  * We do not need to tag the writes since the base class ChunkedWriteHandler
  * serializes access to the channel and first write will complete before
  * the second begins.
  *
  */
-
 public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
 
   public static final int INT_SIZE = Integer.SIZE / Byte.SIZE;
@@ -57,19 +56,17 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   private ByteBuf readBuffer;
 
   private byte[] retArr;
-  
+
   /**
-   * @throws Exception 
    * @see org.jboss.netty.handler.stream.ChunkedWriteHandler#handleUpstream(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
    */
-  
-
-
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    if ( msg instanceof byte[] ){
+
+    if (msg instanceof byte[]) {
+
       byte[] data = (byte[])msg;
-      
+
       if (start) {
         //LOG.log(Level.FINEST, "{0} Starting dechunking of a chunked write", curThrName);
         expectedSize = getSize(data);
@@ -84,7 +81,6 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       } else {
         readBuffer.writeBytes(data);
       }
-      
 
       if (readBuffer.writerIndex() == expectedSize) {
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} Dechunking complete. Creating upstream msg event with the dechunked byte[{1}]", new Object[]{curThrName, expectedSize});
@@ -102,24 +98,24 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
     }
   }
 
-  
   /**
    * Thread-safe since there is no shared instance state.
    * Just prepend size to the message and stream it through
    * a chunked stream and let the base method handle the actual
    * chunking.
-   * 
+   *
    * We do not need to tag the writes since the base class ChunkedWriteHandler
    * serializes access to the channel and first write will complete before
    * the second begins.
    */
-  
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+
     if (msg instanceof ByteBuf) {
-      ByteBuf bf = (ByteBuf)msg;
-      
-      if ( bf.hasArray() ){
+
+      final ByteBuf bf = (ByteBuf)msg;
+
+      if (bf.hasArray()) {
         final byte[] data = bf.array();
         final byte[] size = sizeAsByteArr(data.length);
         final ByteBuf buffer = Unpooled.wrappedBuffer(size, data);
@@ -130,15 +126,14 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       } else {
         super.write(ctx, msg, promise);
       }
+
     } else {
       super.write(ctx, msg, promise);
     }
   }
-  
-  
+
   /**
    * Converts the int size into a byte[]
-   * @param size
    * @return the bit representation of size
    */
   private byte[] sizeAsByteArr(final int size) {
@@ -149,35 +144,27 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
     intBuffer.release();
     return ret;
   }
-  
+
   /**
-   * Get expected size encoded as the first
-   * 4 bytes of data
-   * 
-   * @param data
-   * @return size
+   * Get expected size encoded as the first 4 bytes of data
    */
   private int getSize(final byte[] data) {
     return getSize(data, 0);
   }
-  
-  
+
   /**
-   * Get expected size encoded as offset + 4 bytes 
-   * of data
-   * 
-   * @param data
-   * @param offset
-   * @return size
+   * Get expected size encoded as offset + 4 bytes of data
    */
   private int getSize(final byte[] data, final int offset) {
+
     if (data.length - offset < INT_SIZE) {
       return 0;
-    } else {
-      final ByteBuf intBuffer = Unpooled.wrappedBuffer(data, offset, INT_SIZE).order(Unpooled.LITTLE_ENDIAN);
-      final int ret = intBuffer.readInt();
-      intBuffer.release();
-      return ret;
     }
+
+    final ByteBuf intBuffer = Unpooled.wrappedBuffer(data, offset, INT_SIZE).order(Unpooled.LITTLE_ENDIAN);
+    final int ret = intBuffer.readInt();
+    intBuffer.release();
+
+    return ret;
   }
 }

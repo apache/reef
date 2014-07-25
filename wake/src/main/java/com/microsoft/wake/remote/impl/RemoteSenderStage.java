@@ -31,40 +31,35 @@ import com.microsoft.wake.remote.exception.RemoteRuntimeException;
 import com.microsoft.wake.remote.transport.Transport;
 
 /**
- * Stage to manage resources related to sending event remotely
- * 
- * @param <T> type
+ * Stage to manage resources related to sending event remotely.
  */
 public class RemoteSenderStage implements Stage {
 
+  private static final long SHUTDOWN_TIMEOUT = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
+
   private static final Logger LOG = Logger.getLogger(RemoteSenderStage.class.getName());
-  
+
   private final ExecutorService executor;
   private final Encoder encoder;
   private final Transport transport;
-  private final long shutdownTimeout = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
-  
+
   /**
    * Constructs a remote sender stage
-   * 
+   *
    * @param encoder the encoder of the event
    * @param transport the transport to send events
-   * @param numOfThreads the number of threads
+   * @param numThreads the number of threads
    */
-  public RemoteSenderStage(Encoder encoder, Transport transport, int numThreads) {
-    this.executor = Executors.newFixedThreadPool(numThreads, new DefaultThreadFactory(RemoteSenderStage.class.getName()));
+  public RemoteSenderStage(final Encoder encoder, final Transport transport, final int numThreads) {
     this.encoder = encoder;
     this.transport = transport;
+    this.executor = Executors.newFixedThreadPool(
+        numThreads, new DefaultThreadFactory(RemoteSenderStage.class.getName()));
   }
-  
-  @Deprecated
-  public RemoteSenderStage(Encoder encoder, Transport transport) {
-    this(encoder, transport, 10);
-  }
-  
+
   /**
    * Returns a new remote sender event handler
-   * 
+   *
    * @return a remote sender event handler
    */
   public <T> EventHandler<RemoteEvent<T>> getHandler() {
@@ -73,8 +68,6 @@ public class RemoteSenderStage implements Stage {
 
   /**
    * Closes the stage
-   * 
-   * @throws Exception
    */
   @Override
   public void close() throws Exception {
@@ -82,13 +75,13 @@ public class RemoteSenderStage implements Stage {
     executor.shutdown();
     try {
       // wait for threads to finish for timeout
-      if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
-        LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-        List<Runnable> droppedRunnables = executor.shutdownNow();
-        LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
+      if (!executor.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS)) {
+        LOG.log(Level.WARNING, "Executor did not terminate in {0} ms.", SHUTDOWN_TIMEOUT);
+        final List<Runnable> droppedRunnables = executor.shutdownNow();
+        LOG.log(Level.WARNING, "Executor dropped {0} tasks.", droppedRunnables.size());
       }
-    } catch (InterruptedException e) {
-      LOG.log(Level.WARNING, "Close interrupted");
+    } catch (final InterruptedException e) {
+      LOG.log(Level.WARNING, "Close interrupted", e);
       throw new RemoteRuntimeException(e);
     }
   }

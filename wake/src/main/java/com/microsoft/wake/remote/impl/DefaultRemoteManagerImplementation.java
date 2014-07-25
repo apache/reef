@@ -58,39 +58,6 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   private final HandlerContainer handlerContainer;
   private final RemoteSeqNumGenerator seqGen = new RemoteSeqNumGenerator();
 
-  /**
-   * Constructs a remote manager
-   *
-   * @param hostAddress
-   * @param listeningPort
-   * @param codec
-   * @param errorHandler
-   * @param orderingGuarantee
-   * @deprecated in 0.4. Please use the other constructor or rely on Tang for default implementation.
-   */
-  @Inject
-  @Deprecated
-  public <T> DefaultRemoteManagerImplementation(
-      final @Parameter(RemoteConfiguration.ManagerName.class) String name,
-      final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
-      final @Parameter(RemoteConfiguration.Port.class) int listeningPort,
-      final @Parameter(RemoteConfiguration.MessageCodec.class) Codec<T> codec,
-      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
-      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee) {
-    this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, 3, 10000);
-  }
-  
-  /**
-   * Constructs a remote manager
-   *
-   * @param hostAddress
-   * @param listeningPort
-   * @param codec
-   * @param errorHandler
-   * @param orderingGuarantee
-   * @param numberOfTries
-   * @param retryTimeout
-   */
   @Inject
   public <T> DefaultRemoteManagerImplementation(
       final @Parameter(RemoteConfiguration.ManagerName.class) String name,
@@ -107,7 +74,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
     this.reRecvStage = orderingGuarantee ?
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
-        new RemoteReceiverStage(this.handlerContainer, errorHandler);
+        new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
 
     if ("##UNKNOWN##".equals(hostAddress)) {
       this.transport = new NettyMessagingTransport(
@@ -122,7 +89,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
     this.myIdentifier = new SocketRemoteIdentifier(
         (InetSocketAddress) this.transport.getLocalAddress());
 
-    this.reSendStage = new RemoteSenderStage(codec, this.transport);
+    this.reSendStage = new RemoteSenderStage(codec, this.transport, 10);
 
     StageManager.instance().register(this);
 
@@ -135,10 +102,6 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
   /**
    * Returns a proxy event handler for a remote identifier and a message type
-   *
-   * @param <T>
-   * @param destinationIdentifier
-   * @param messageType
    */
   @Override
   public <T> EventHandler<T> getHandler(
@@ -156,11 +119,6 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   /**
    * Registers an event handler for a remote identifier and a message type and
    * returns a subscription
-   *
-   * @param <T,              U extends T>
-   * @param sourceIdentifier
-   * @param messageType
-   * @param theHandler
    */
   @Override
   public <T, U extends T> AutoCloseable registerHandler(
@@ -169,18 +127,13 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
     if (LOG.isLoggable(Level.FINE)) {
       LOG.log(Level.FINE, "RemoteManager: {0} remoteid: {1} messageType: {2} handler: {3}",
           new Object[]{this.name, sourceIdentifier, messageType.getName(),
-              theHandler.getClass().getName()}
-      );
+              theHandler.getClass().getName()});
     }
     return this.handlerContainer.registerHandler(sourceIdentifier, messageType, theHandler);
   }
 
   /**
    * Registers an event handler for a message type and returns a subscription
-   *
-   * @param <T,         U extends T>
-   * @param messageType
-   * @param theHandler
    */
   @Override
   public <T, U extends T> AutoCloseable registerHandler(
@@ -194,8 +147,6 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
   /**
    * Registers an exception handler and returns a subscription
-   *
-   * @param theHandler
    */
   @Override
   public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
@@ -264,7 +215,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
           final long waitTime = endTime - System.currentTimeMillis();
           closeExecutor.awaitTermination(waitTime, TimeUnit.MILLISECONDS);
         } catch (final InterruptedException e) {
-          LOG.log(Level.FINE, "Interrupted: {0}", e);
+          LOG.log(Level.FINE, "Interrupted", e);
         }
       }
 

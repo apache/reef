@@ -22,20 +22,19 @@ import com.microsoft.tang.annotations.NamedParameter;
  * Default parameters for Wake
  */
 public final class WakeParameters {
-  
-  @NamedParameter(doc="Maximum frame length unit", default_value=""+(1*1024*1024))
-  public final static class MaxFrameLength implements Name<Integer> {}
 
-  @NamedParameter(doc="Executor shutdown timeout", default_value=""+1000)
-  public final static class ExecutorShutdownTimeout implements Name<Integer> {}
-  
-  @NamedParameter(doc="Remote send timeout", default_value=""+10000)
-  public final static class RemoteSendTimeout implements Name<Integer> {}
-  
   public final static int MAX_FRAME_LENGTH = 1*1024*1024;
-  
+
   public final static long EXECUTOR_SHUTDOWN_TIMEOUT = 1000;
-  
+
   public final static long REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT = 10000;
 
+  @NamedParameter(doc="Maximum frame length unit", default_value="" + MAX_FRAME_LENGTH)
+  public final static class MaxFrameLength implements Name<Integer> {}
+
+  @NamedParameter(doc="Executor shutdown timeout", default_value="" + EXECUTOR_SHUTDOWN_TIMEOUT)
+  public final static class ExecutorShutdownTimeout implements Name<Integer> {}
+
+  @NamedParameter(doc="Remote send timeout", default_value="" + REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT)
+  public final static class RemoteSendTimeout implements Name<Integer> {}
 }
