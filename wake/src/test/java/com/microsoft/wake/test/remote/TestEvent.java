@@ -23,26 +23,22 @@ public class TestEvent implements Serializable {
   private String message;
 
   private double load;
-  
+
   public TestEvent(String message, double load) {
     this.message = message;
     this.load = load;
   }
-  
+
   public String getMessage() {
     return message;
   }
-  
+
   public double getLoad() {
     return load;
   }
-  
+
+  @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder()
-      .append("message=")
-      .append(message)
-      .append(" load=")
-      .append(load);
-    return builder.toString();
+    return "message=" + message + " load=" + load;
   }
 }

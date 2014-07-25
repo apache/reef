@@ -58,13 +58,13 @@ public class NettyMessagingTransport implements Transport {
   private static final int SERVER_BOSS_NUM_THREADS = 3;
   private static final int SERVER_WORKER_NUM_THREADS = 20;
   private static final int CLIENT_WORKER_NUM_THREADS = 10;
-  
+
   private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap = new ConcurrentHashMap<>();
 
   private final EventLoopGroup clientWorkerGroup;
   private final EventLoopGroup serverBossGroup;
   private final EventLoopGroup serverWorkerGroup;
-  
+
   private final Bootstrap clientBootstrap;
   private final ServerBootstrap serverBootstrap;
   private final Channel acceptor;
@@ -77,27 +77,10 @@ public class NettyMessagingTransport implements Transport {
 
   private final NettyClientEventListener clientEventListener;
   private final NettyServerEventListener serverEventListener;
-  
+
   private final int numberOfTries;
   private final int retryTimeout;
 
-  /**
-   * Constructs a messaging transport
-   *
-   * @param hostAddress the server host address
-   * @param port  the server listening port; when it is 0, randomly assign a port number
-   * @param clientStage the client-side stage that handles transport events
-   * @param serverStage the server-side stage that handles transport events
-   * @param numberOfTries the number of tries of connection
-   * @param retryTimeout the timeout of reconnection
-   */
-  @Deprecated
-  public NettyMessagingTransport(final String hostAddress, final int port,
-                                 final EStage<TransportEvent> clientStage,
-                                 final EStage<TransportEvent> serverStage) {
-    this(hostAddress, port, clientStage, serverStage, 3, 10000);
-  }
-  
   /**
    * Constructs a messaging transport
    *
@@ -126,7 +109,7 @@ public class NettyMessagingTransport implements Transport {
     this.serverBossGroup = new NioEventLoopGroup(SERVER_BOSS_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerBoss"));
     this.serverWorkerGroup = new NioEventLoopGroup(SERVER_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerWorker"));
     this.clientWorkerGroup = new NioEventLoopGroup(CLIENT_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ClientWorker"));
-    
+
     this.clientBootstrap = new Bootstrap();
     this.clientBootstrap.group(this.clientWorkerGroup)
       .channel(NioSocketChannel.class)
@@ -134,7 +117,7 @@ public class NettyMessagingTransport implements Transport {
         this.clientChannelGroup, this.clientEventListener)))
       .option(ChannelOption.SO_REUSEADDR, true)
       .option(ChannelOption.SO_KEEPALIVE, true);
-    
+
     this.serverBootstrap = new ServerBootstrap();
     this.serverBootstrap.group(this.serverBossGroup, this.serverWorkerGroup)
       .channel(NioServerSocketChannel.class)
@@ -142,10 +125,10 @@ public class NettyMessagingTransport implements Transport {
           this.serverChannelGroup, this.serverEventListener)))
       .option(ChannelOption.SO_BACKLOG, 128)
       .option(ChannelOption.SO_REUSEADDR, true)
-      .childOption(ChannelOption.SO_KEEPALIVE, true);    
+      .childOption(ChannelOption.SO_KEEPALIVE, true);
 
     LOG.log(Level.FINE, "Binding to {0}", port);
-    
+
     Channel acceptor = null;
     try {
       if (port > 0) {
@@ -158,16 +141,16 @@ public class NettyMessagingTransport implements Transport {
           acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
         }
       }
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       final RuntimeException transportException =
-          new TransportRuntimeException("Cannot bind to " + this.serverPort);
-      LOG.log(Level.SEVERE, "Cannot bind to " + this.serverPort, transportException);
+          new TransportRuntimeException("Cannot bind to port " + port);
+      LOG.log(Level.SEVERE, "Cannot bind to port " + port, transportException);
       this.clientWorkerGroup.shutdownGracefully();
       this.serverBossGroup.shutdownGracefully();
       this.serverWorkerGroup.shutdownGracefully();
       throw transportException;
     }
-    
+
     this.acceptor = acceptor;
     this.serverPort = port;
     this.localAddress = new InetSocketAddress(hostAddress, this.serverPort);
@@ -177,8 +160,6 @@ public class NettyMessagingTransport implements Transport {
 
   /**
    * Closes all channels and releases all resources
-   *
-   * @throws Exception
    */
   @Override
   public void close() throws Exception {
@@ -192,7 +173,7 @@ public class NettyMessagingTransport implements Transport {
     this.clientWorkerGroup.shutdownGracefully();
     this.serverBossGroup.shutdownGracefully();
     this.serverWorkerGroup.shutdownGracefully();
-    
+
     LOG.log(Level.FINE, "Closing netty transport socket address: {0} done", this.localAddress);
   }
 
@@ -204,17 +185,16 @@ public class NettyMessagingTransport implements Transport {
    * @param encoder    the encoder
    * @param listener   the link listener
    * @return a link associated with the address
-   * @throws IOException
    */
   @Override
   public <T> Link<T> open(final SocketAddress remoteAddr, final Encoder<? super T> encoder,
                           final LinkListener<? super T> listener) throws IOException {
 
     Link<T> link = null;
-    
+
     for(int i=0; i < this.numberOfTries; ++i) {
       LinkReference linkRef = this.addrToLinkRefMap.get(remoteAddr);
-      
+
       if (linkRef != null) {
         link = (Link<T>) linkRef.getLink();
         if (LOG.isLoggable(Level.FINE)) {
@@ -268,13 +248,13 @@ public class NettyMessagingTransport implements Transport {
         break;
       } catch (final Exception e) {
         if (e.getClass().getSimpleName().compareTo("ConnectException") == 0) {
-          LOG.log(Level.WARNING, "Connection refused. Retry {0} of {1}", 
+          LOG.log(Level.WARNING, "Connection refused. Retry {0} of {1}",
               new Object[]{i+1, this.numberOfTries});
           synchronized(flag) {
             flag.compareAndSet(1, 0);
             flag.notifyAll();
           }
-          
+
           if (i < this.numberOfTries) {
             try {
               Thread.sleep(retryTimeout);
