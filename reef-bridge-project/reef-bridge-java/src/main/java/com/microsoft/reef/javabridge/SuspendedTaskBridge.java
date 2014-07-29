@@ -17,31 +17,30 @@
 package com.microsoft.reef.javabridge;
 
 import com.microsoft.reef.driver.context.ActiveContext;
-import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.driver.task.SuspendedTask;
+import com.microsoft.reef.io.naming.Identifiable;
 
-import java.util.logging.Logger;
+public class SuspendedTaskBridge extends NativeBridge implements Identifiable {
 
-public class RunningTaskBridge extends NativeBridge {
-  private static final Logger LOG = Logger.getLogger(RunningTaskBridge.class.getName());
+  private final SuspendedTask jsuspendedTask;
 
-  final private RunningTask jrunningTask;
-  final private ActiveContextBridge jactiveContext;
-
-  public RunningTaskBridge(RunningTask runningTask) {
-    jrunningTask = runningTask;
-    final ActiveContext activeContext = runningTask.getActiveContext();
-    jactiveContext = new ActiveContextBridge(activeContext);
+  public SuspendedTaskBridge(SuspendedTask suspendedTask)
+  {
+    jsuspendedTask = suspendedTask;
   }
 
-  public final String getId() {
-    return jrunningTask.getId();
-  }
-
-  public final void send(final byte[] message) {
-    jrunningTask.send(message);
+  public ActiveContextBridge getActiveContext()
+  {
+    return new ActiveContextBridge(jsuspendedTask.getActiveContext());
   }
 
   @Override
-  public void close() {
+  public void close()
+  {
+  }
+
+  @Override
+  public String getId() {
+    return jsuspendedTask.getId();
   }
 }

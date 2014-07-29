@@ -16,16 +16,26 @@
 
 package com.microsoft.reef.javabridge;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
+import com.microsoft.reef.io.naming.Identifiable;
 
-public abstract class NativeBridge implements AutoCloseable {
+public class CompletedEvaluatorBridge extends NativeBridge implements Identifiable{
 
-  private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
+  private final CompletedEvaluator jcompletedEvaluator;
 
-  public void onError(String errorMessage)
+  public CompletedEvaluatorBridge(CompletedEvaluator completedEvaluator)
   {
-    LOG.log(Level.SEVERE, "Bridge received error from CLR: " + errorMessage );
-    throw new RuntimeException("Bridge received error from CLR: " + errorMessage);
+    jcompletedEvaluator = completedEvaluator;
+  }
+
+  @Override
+  public String getId()
+  {
+    return jcompletedEvaluator.getId();
+  }
+
+  @Override
+  public void close()
+  {
   }
 }
