@@ -1,3 +1,19 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "Clr2JavaImpl.h"
 
 namespace Microsoft
@@ -8,47 +24,48 @@ namespace Microsoft
 		{
 			namespace Bridge
 			{
+				ref class ManagedLog
+				{
+				internal:
+					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>CompletedTaskClr2Java");
+				};
+
 				CompletedTaskClr2Java::CompletedTaskClr2Java(JNIEnv *env, jobject jobjectCompletedTask)
 				{
+					ManagedLog::LOGGER->LogStart("CompletedTaskClr2Java::CompletedTaskClr2Java");
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
 					_jobjectCompletedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectCompletedTask));
-
-					fprintf(stdout, "CompletedTaskClr2Java env %p\n", env); fflush (stdout);
-					fprintf(stdout, "CompletedTaskClr2Java _jvm %p\n", _jvm); fflush (stdout);
-					fprintf(stdout, "CompletedTaskClr2Java _jobjectCompletedTask %p\n", _jobjectCompletedTask); fflush (stdout);
 
 					jclass jclassCompletedTask = env->GetObjectClass (_jobjectCompletedTask);
 					jfieldID jidTaskId = env->GetFieldID(jclassCompletedTask, "taskId", "Ljava/lang/String;");
 					_jstringId = (jstring)env->GetObjectField(_jobjectCompletedTask, jidTaskId);
 					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+					ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::CompletedTaskClr2Java");
 				}
 
 				void CompletedTaskClr2Java::OnError(String^ message)
 				{
-					fprintf(stdout, "CompletedTaskClr2Java::OnError\n"); fflush (stdout);										
+					ManagedLog::LOGGER->Log("CompletedTaskClr2Java::OnError");
 					JNIEnv *env = RetrieveEnv(_jvm);	
 					HandleClr2JavaError(env, message, _jobjectCompletedTask);
 				}
 
 				IActiveContextClr2Java^ CompletedTaskClr2Java::GetActiveContext()
 				{
-					fprintf(stdout, "CompletedTaskClr2Java::GetActiveContext\n"); fflush (stdout);																				
+					ManagedLog::LOGGER->LogStart("CompletedTaskClr2Java::GetActiveContext");
 					JNIEnv *env = RetrieveEnv(_jvm);
-
 
 					jclass jclassCompletedTask = env->GetObjectClass (_jobjectCompletedTask);
 					jfieldID jidActiveContext = env->GetFieldID(jclassCompletedTask, "jactiveContext", "Lcom/microsoft/reef/javabridge/ActiveContextBridge;");
 					jobject jobjectActiveContext = env->GetObjectField(_jobjectCompletedTask, jidActiveContext);
-
-					fprintf(stdout, "CompletedTaskClr2Java jobjectActiveContext %p\n", jobjectActiveContext); fflush (stdout);
+					ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::GetActiveContext");
 					return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 				}
 
 				String^ CompletedTaskClr2Java::GetId()
 				{
-					fprintf(stdout, "CompletedTaskClr2Java::GetId\n"); fflush (stdout);															
-					
+					ManagedLog::LOGGER->Log("CompletedTaskClr2Java::GetId");
 					JNIEnv *env = RetrieveEnv(_jvm);
 					return ManagedStringFromJavaString(env, _jstringId);
 				}

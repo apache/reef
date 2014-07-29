@@ -1,6 +1,29 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "InteropUtil.h"
+#include "Clr2JavaImpl.h"
 
 using namespace System::Runtime::InteropServices;
+
+ref class ManagedLog
+{
+internal:
+	static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>InteropUtil");
+};
 
 const wchar_t* UnicodeCppStringFromJavaString (
 	JNIEnv *env,
@@ -53,20 +76,21 @@ void HandleClr2JavaError(
 	String^ errorMessage,
 	jobject javaObject)
 {
+	ManagedLog::LOGGER->LogStart("InteropUtil::HandleClr2JavaError");
+
 	jclass javaClass = env->GetObjectClass (javaObject);
 	jmethodID jmidOnError = env->GetMethodID(javaClass, "onError", "(Ljava/lang/String;)V");	
 
-	fprintf(stdout, "AllocatedEvaluatorClr2Java jmidOnError %p\n", jmidOnError); fflush (stdout);
-
 	if(jmidOnError == NULL)
 	{
-		fprintf(stdout, " jmidOnError is NULL\n"); fflush (stdout);
+		ManagedLog::LOGGER->Log("jmidOnError is NULL");
 		return;
 	}
 	env -> CallObjectMethod(
 		javaObject, 
 		jmidOnError, 
 		JavaStringFromManagedString(env, errorMessage));
+	ManagedLog::LOGGER->LogStop("InteropUtil::HandleClr2JavaError");
 }
 
 array<byte>^ ManagedByteArrayFromJavaByteArray(
@@ -112,7 +136,7 @@ JNIEnv* RetrieveEnv(JavaVM* jvm)
 {
 	JNIEnv *env;
 	if (jvm->AttachCurrentThread((void **) &env, NULL) != 0) {
-		fprintf(stdout, "cannot attach jni env to current jvm thread.\n"); fflush (stdout);
+		ManagedLog::LOGGER->Log("cannot attach jni env to current jvm thread.");
 		throw;
     }
 	return env;

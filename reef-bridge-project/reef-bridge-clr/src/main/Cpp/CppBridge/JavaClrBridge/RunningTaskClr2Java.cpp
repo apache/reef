@@ -1,3 +1,19 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "Clr2JavaImpl.h"
 
 namespace Microsoft
@@ -8,73 +24,73 @@ namespace Microsoft
 		{
 			namespace Bridge
 			{
+				ref class ManagedLog
+				{
+				internal:
+					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>RunningTaskClr2Java");
+				};
 				RunningTaskClr2Java::RunningTaskClr2Java(JNIEnv *env, jobject jobjectRunningTask)
 				{
+					ManagedLog::LOGGER->LogStart("RunningTaskClr2Java::RunningTaskClr2Java");
+
 					pin_ptr<JavaVM*> pJavaVm = &_jvm;
 					int gotVm = env -> GetJavaVM(pJavaVm);
 					_jobjectRunningTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectRunningTask));
 
-					fprintf(stdout, "RunningTaskClr2Java env %p\n", env); fflush (stdout);
-					fprintf(stdout, "RunningTaskClr2Java _jvm %p\n", _jvm); fflush (stdout);
-					fprintf(stdout, "RunningTaskClr2Java _jobjectRunningTask %p\n", _jobjectRunningTask); fflush (stdout);
-
 					jclass jclassRunningTask = env->GetObjectClass (_jobjectRunningTask);
 					jmethodID jmidGetId= env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");	
-
-					fprintf(stdout, "RunningTaskClr2Java jclassRunningTask %p\n", jclassRunningTask); fflush (stdout);
-					fprintf(stdout, "RunningTaskClr2Java jmidGetId %p\n", jmidGetId); fflush (stdout);
 
 					_jstringId = (jstring)env -> CallObjectMethod(
 						_jobjectRunningTask, 
 						jmidGetId);
 					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+					ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::RunningTaskClr2Java");
 				}
 
 				IActiveContextClr2Java^ RunningTaskClr2Java::GetActiveContext()
 				{
-					fprintf(stdout, "RunningTaskClr2Java::GetActiveContext\n"); fflush (stdout);															
+					ManagedLog::LOGGER->LogStart("RunningTaskClr2Java::GetActiveContext");														
 					
 					JNIEnv *env = RetrieveEnv(_jvm);
 
 					jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
 					jfieldID jidActiveContext = env->GetFieldID(jclassRunningTask, "jactiveContext", "Lcom/microsoft/reef/javabridge/ActiveContextBridge;");
 					jobject jobjectActiveContext = env->GetObjectField(_jobjectRunningTask, jidActiveContext);
+					ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::GetActiveContext");		
 
-					fprintf(stdout, "RunningTaskClr2Java jidActiveContext %p\n", jidActiveContext); fflush (stdout);
-					fprintf(stdout, "RunningTaskClr2Java jobjectActiveContext %p\n", jobjectActiveContext); fflush (stdout);
 					return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 				}
 
 				String^ RunningTaskClr2Java::GetId()
 				{
-					fprintf(stdout, "RunningTaskClr2Java::GetId\n"); fflush (stdout);															
+					ManagedLog::LOGGER->Log("RunningTaskClr2Java::GetId");															
 					JNIEnv *env = RetrieveEnv(_jvm);
 					return ManagedStringFromJavaString(env, _jstringId);
 				}
 
 				void RunningTaskClr2Java::Send(array<byte>^ message)
 				{					
+					ManagedLog::LOGGER->LogStart("RunningTaskClr2Java::Send");														
 					JNIEnv *env = RetrieveEnv(_jvm);
 					jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
-					jmethodID jmidsend = env->GetMethodID(jclassRunningTask, "send", "([B)V");
+					jmethodID jmidSend = env->GetMethodID(jclassRunningTask, "send", "([B)V");
 
-					fprintf(stdout, "RunningTaskClr2Java jclassRunningTask %p\n", jclassRunningTask); fflush (stdout);
-					fprintf(stdout, "RunningTaskClr2Java jmidsend %p\n", jmidsend); fflush (stdout);
 
-					if(jmidsend == NULL)
+					if(jmidSend == NULL)
 					{
-						fprintf(stdout, " jmidsend is NULL\n"); fflush (stdout);
+						ManagedLog::LOGGER->Log("jmidSend is NULL");
 						return;
 					}
 					env->CallObjectMethod(
 						_jobjectRunningTask, 
-						jmidsend,
-						JavaByteArrayFromManagedByteArray(env, message));					
+						jmidSend,
+						JavaByteArrayFromManagedByteArray(env, message));	
+					ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::Send");														
 				}
 
 				void RunningTaskClr2Java::OnError(String^ message)
 				{
-					fprintf(stdout, "RunningTaskClr2Java::OnError\n"); fflush (stdout);										
+					ManagedLog::LOGGER->Log("RunningTaskClr2Java::OnError");										
 					JNIEnv *env = RetrieveEnv(_jvm);	
 					HandleClr2JavaError(env, message, _jobjectRunningTask);
 				}
