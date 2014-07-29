@@ -91,9 +91,6 @@
                   <arg value="${project.build.directory}/classes"/>
                   <arg value="com.microsoft.reef.javabridge.NativeInterop"/>
               </exec>
-                  <exec executable="mkdir">
-                      <arg value="/target/generated-sources/avro"/>
-                  </exec>
               </target>
             </configuration>
           </execution>
