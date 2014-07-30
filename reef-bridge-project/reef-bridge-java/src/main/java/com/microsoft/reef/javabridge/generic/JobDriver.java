@@ -506,7 +506,7 @@ public final class JobDriver {
       LOG.log(Level.INFO, message);
       if (suspendedTaskHandler != 0) {
         SuspendedTaskBridge suspendedTaskBridge = new SuspendedTaskBridge(task);
-        // if CLR implements the suspended task handler, handle it in CLR handler
+        // if CLR implements the suspended task handler, handle it in CLR
         LOG.log(Level.INFO, "Handling the event of suspended task in CLR bridge.");
         NativeInterop.ClrSystemSupendedTaskHandlerOnNext(suspendedTaskHandler, suspendedTaskBridge);
       }
@@ -523,8 +523,8 @@ public final class JobDriver {
       LOG.log(Level.INFO, " Completed Evaluator {0}", evaluator.getId());
       if (suspendedTaskHandler != 0) {
         CompletedEvaluatorBridge completedEvaluatorBridge = new CompletedEvaluatorBridge(evaluator);
-        // if CLR implements the suspended task handler, handle it in CLR handler
-        LOG.log(Level.INFO, "Handling the event of suspended task in CLR bridge.");
+        // if CLR implements the completed evaluator handler, handle it in CLR
+        LOG.log(Level.INFO, "Handling the event of completed evaluator in CLR bridge.");
         NativeInterop.ClrSystemCompletdEvaluatorHandlerOnNext(completedEvaluatorHandler, completedEvaluatorBridge);
       }
     }
