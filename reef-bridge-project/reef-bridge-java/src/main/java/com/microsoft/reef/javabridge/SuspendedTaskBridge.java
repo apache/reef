@@ -16,7 +16,6 @@
 
 package com.microsoft.reef.javabridge;
 
-import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.task.SuspendedTask;
 import com.microsoft.reef.io.naming.Identifiable;
 
@@ -24,19 +23,16 @@ public class SuspendedTaskBridge extends NativeBridge implements Identifiable {
 
   private final SuspendedTask jsuspendedTask;
 
-  public SuspendedTaskBridge(SuspendedTask suspendedTask)
-  {
+  public SuspendedTaskBridge(SuspendedTask suspendedTask) {
     jsuspendedTask = suspendedTask;
   }
 
-  public ActiveContextBridge getActiveContext()
-  {
+  public ActiveContextBridge getActiveContext() {
     return new ActiveContextBridge(jsuspendedTask.getActiveContext());
   }
 
   @Override
-  public void close()
-  {
+  public void close() {
   }
 
   @Override
