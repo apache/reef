@@ -33,9 +33,6 @@
     <ClInclude Include="Clr2JavaImpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ILogger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BinaryUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -87,6 +84,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RunningTaskClr2Java.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SuspendedTaskClr2Java.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CompletedEvaluatorClr2Java.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

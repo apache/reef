@@ -153,7 +153,31 @@ namespace Microsoft
 					virtual void OnError(String^ message);
 					virtual IActiveContextClr2Java^ GetActiveContext();
 					virtual String^ GetId();
-				};			
+				};	
+
+				public ref class SuspendedTaskClr2Java : public ISuspendedTaskClr2Java
+				{
+					jobject  _jobjectSuspendedTask;
+					JavaVM* _jvm;
+					jstring _jstringId;
+				public:
+					SuspendedTaskClr2Java(JNIEnv *env, jobject jobjectSuspendedTask);
+					virtual void OnError(String^ message);
+					virtual IActiveContextClr2Java^ GetActiveContext();
+					virtual String^ GetId();
+					virtual array<byte>^ Get();
+				};
+
+				public ref class CompletedEvaluatorClr2Java : public ICompletedEvaluatorClr2Java
+				{
+					jobject  _jobjectCompletedEvaluator;
+					JavaVM* _jvm;
+					jstring _jstringId;
+				public:
+					CompletedEvaluatorClr2Java(JNIEnv *env, jobject jobjectCompletedEvaluator);
+					virtual void OnError(String^ message);
+					virtual String^ GetId();
+				};
 			}
 		}
 	}

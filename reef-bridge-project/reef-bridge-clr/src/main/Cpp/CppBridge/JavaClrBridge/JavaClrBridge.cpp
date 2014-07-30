@@ -350,4 +350,45 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrBuffe
     }
 }
 
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemSupendedTaskHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/javabridge/SuspendedTaskBridge;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemSupendedTaskHandlerOnNext
+	(JNIEnv *env , jclass cls, jlong handler, jobject jsuspendedTask)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemSupendedTaskHandlerOnNext");
+	SuspendedTaskClr2Java^ suspendedTaskBridge = gcnew SuspendedTaskClr2Java(env, jsuspendedTask);
+	try{
+		ClrSystemHandlerWrapper::Call_ClrSystemSuspendedTask_OnNext(handler, suspendedTaskBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemSuspendedTask_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+		suspendedTaskBridge -> OnError(errorMessage);
+	}
+}
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemCompletdEvaluatorHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/javabridge/CompletedEvaluatorBridge;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemCompletdEvaluatorHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jcompletedEvaluator)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemCompletdEvaluatorHandlerOnNext");
+	CompletedEvaluatorClr2Java^ completedEvaluatorBridge = gcnew CompletedEvaluatorClr2Java(env, jcompletedEvaluator);
+	try{
+		ClrSystemHandlerWrapper::Call_ClrSystemCompletedEvaluator_OnNext(handler, completedEvaluatorBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemSuspendedTask_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+		completedEvaluatorBridge -> OnError(errorMessage);
+	}
+}
 

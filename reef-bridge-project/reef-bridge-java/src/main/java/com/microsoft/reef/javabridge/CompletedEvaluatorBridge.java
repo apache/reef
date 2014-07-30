@@ -23,15 +23,18 @@ public class CompletedEvaluatorBridge extends NativeBridge implements Identifiab
 
   private final CompletedEvaluator jcompletedEvaluator;
 
+  private final String evaluatorId;
+
   public CompletedEvaluatorBridge(CompletedEvaluator completedEvaluator)
   {
     jcompletedEvaluator = completedEvaluator;
+    evaluatorId = completedEvaluator.getId();
   }
 
   @Override
   public String getId()
   {
-    return jcompletedEvaluator.getId();
+    return evaluatorId;
   }
 
   @Override

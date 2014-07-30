@@ -89,7 +89,7 @@ public class NativeInterop {
       SuspendedTaskBridge suspendedTaskBridge
   );
 
-  public static native void ClrSysteCompletdEvaluatorHandlerOnNext (
+  public static native void ClrSystemCompletdEvaluatorHandlerOnNext (
       long handle,
       CompletedEvaluatorBridge completedEvaluatorBridge
   );

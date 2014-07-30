@@ -135,7 +135,6 @@
   <ItemGroup>
     <ClInclude Include="BinaryUtil.h" />
     <ClInclude Include="Clr2JavaImpl.h" />
-    <ClInclude Include="ILogger.h" />
     <ClInclude Include="InteropAssemblies.h" />
     <ClInclude Include="InteropLogger.h" />
     <ClInclude Include="InteropReturnInfo.h" />
@@ -148,6 +147,7 @@
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
     <ClCompile Include="BinaryUtil.cpp" />
+    <ClCompile Include="CompletedEvaluatorClr2Java.cpp" />
     <ClCompile Include="CompletedTaskClr2Java.cpp" />
     <ClCompile Include="EvaluatorRequestorClr2Java.cpp" />
     <ClCompile Include="FailedEvaluatorClr2Java.cpp" />
@@ -158,6 +158,7 @@
     <ClCompile Include="InteropUtil.cpp" />
     <ClCompile Include="JavaClrBridge.cpp" />
     <ClCompile Include="RunningTaskClr2Java.cpp" />
+    <ClCompile Include="SuspendedTaskClr2Java.cpp" />
     <ClCompile Include="TaskMessageClr2Java.cpp" />
   </ItemGroup>
   <ItemGroup>

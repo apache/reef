@@ -525,7 +525,7 @@ public final class JobDriver {
         CompletedEvaluatorBridge completedEvaluatorBridge = new CompletedEvaluatorBridge(evaluator);
         // if CLR implements the suspended task handler, handle it in CLR handler
         LOG.log(Level.INFO, "Handling the event of suspended task in CLR bridge.");
-        NativeInterop.ClrSysteCompletdEvaluatorHandlerOnNext(completedEvaluatorHandler, completedEvaluatorBridge);
+        NativeInterop.ClrSystemCompletdEvaluatorHandlerOnNext(completedEvaluatorHandler, completedEvaluatorBridge);
       }
     }
   }
