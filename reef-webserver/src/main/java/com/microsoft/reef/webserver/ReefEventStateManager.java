@@ -238,10 +238,10 @@ public final class ReefEventStateManager {
    */
   public final class TaskRunningStateHandler implements EventHandler<RunningTask> {
     @Override
-    public void onNext(final RunningTask runningTask) {
-      final String evaluatorId = runningTask.getActiveContext().getEvaluatorId();
-      final String id = runningTask.getId();
-      LOG.log(Level.INFO, "Task " + id + " is running within Evaluator  " + evaluatorId);
+    public void onNext(final RunningTask runningActivity) {
+      final String ip = runningActivity.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor().getInetSocketAddress().toString();
+      final String id = runningActivity.getActiveContext().getId();
+      LOG.log(Level.INFO, "RunningActivity on address: " + ip + " for id " + id);
     }
   }
 
