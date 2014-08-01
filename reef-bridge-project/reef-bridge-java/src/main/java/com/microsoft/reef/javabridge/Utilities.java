@@ -16,34 +16,42 @@
 
 package com.microsoft.reef.javabridge;
 
+import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import com.microsoft.tang.proto.ClassHierarchyProto;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Utilities {
-    public static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
-      Path p = Paths.get(classHierarchyFile);
-      if (!Files.exists(p))
-      {
-          p = Paths.get(System.getProperty("user.dir") + "/reef/global/" + classHierarchyFile);
-      }
-      if(!Files.exists(p))
-      {
-        throw new RuntimeException("cannot find file " + p.toAbsolutePath());
-      }
-      try (final InputStream chin = new FileInputStream(p.toAbsolutePath().toString())) {
-            final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
-            final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-            return ch;
-        } catch (final IOException e) {
-            final String message = "Unable to load class hierarchy from " + classHierarchyFile;
-            throw new RuntimeException(message, e);
-        }
+  public static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
+    Path p = Paths.get(classHierarchyFile);
+    if (!Files.exists(p))
+    {
+      p = Paths.get(System.getProperty("user.dir") + "/reef/global/" + classHierarchyFile);
     }
+    if(!Files.exists(p))
+    {
+      throw new RuntimeException("cannot find file " + p.toAbsolutePath());
+    }
+    try (final InputStream chin = new FileInputStream(p.toAbsolutePath().toString())) {
+      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
+      final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
+      return ch;
+    } catch (final IOException e) {
+      final String message = "Unable to load class hierarchy from " + classHierarchyFile;
+      throw new RuntimeException(message, e);
+    }
+  }
+
+  public static String getEvaluatorDescriptorString(EvaluatorDescriptor evaluatorDescriptor)
+  {
+    InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+    return "IP=" + socketAddress.getAddress() + ", Port=" +  socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory();
+  }
 }

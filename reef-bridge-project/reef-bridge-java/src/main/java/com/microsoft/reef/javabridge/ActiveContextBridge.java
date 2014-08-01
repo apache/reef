@@ -18,6 +18,7 @@ package com.microsoft.reef.javabridge;
 
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
+import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
@@ -25,7 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ActiveContextBridge extends NativeBridge {
+public class ActiveContextBridge extends NativeBridge implements Identifiable {
     private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 
     private ActiveContext jactiveContext;
@@ -77,4 +78,9 @@ public class ActiveContextBridge extends NativeBridge {
     {
         jactiveContext.close();
     }
+
+  @Override
+  public String getId() {
+    return contextId;
+  }
 }

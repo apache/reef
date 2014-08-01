@@ -16,6 +16,7 @@
 
 package com.microsoft.reef.javabridge;
 
+import com.microsoft.reef.driver.context.ContextMessage;
 import com.microsoft.reef.driver.task.SuspendedTask;
 
 import java.io.*;
@@ -94,6 +95,21 @@ public class NativeInterop {
       CompletedEvaluatorBridge completedEvaluatorBridge
   );
 
+  public static native void ClrSystemClosedContextHandlerOnNext (
+      long handle,
+      ClosedContextBridge closedContextBridge
+  );
+
+  public static native void ClrSystemFailedContextHandlerOnNext (
+      long handle,
+      FailedContextBridge failedContextBridge
+  );
+
+  public static native void ClrSystemContextMessageHandlerOnNext (
+      long handle,
+      ContextMessageBridge contextMessageBridge
+  );
+
   private static final String LIB_BIN = "/";
   private static final String DLL_EXTENSION = ".dll";
   private static final String CPP_BRIDGE = "JavaClrBridge";
@@ -116,8 +132,11 @@ public class NativeInterop {
   public static final String RunningTaskKey = "RunningTask";
   public static final String SuspendedTaskKey = "SuspendedTask";
   public static final String CompletedEvaluatorKey = "CompletedEvaluator";
+  public static final String ClosedContextKey= "ClosedContext";
+  public static final String FailedContextKey = "FailedContext";
+  public static final String ContextMessageKey = "ContextMessage";
 
-  public static final int nHandlers = 11;
+  public static final int nHandlers = 14;
   public static final HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
     put(EvaluatorRequestorKey, 0);
     put(AllocatedEvaluatorKey, 1);
@@ -130,6 +149,9 @@ public class NativeInterop {
     put(RunningTaskKey, 8);
     put(SuspendedTaskKey, 9);
     put(CompletedEvaluatorKey, 10);
+    put(ClosedContextKey, 11);
+    put(FailedContextKey, 12);
+    put(ContextMessageKey, 13);
     }
   };
 

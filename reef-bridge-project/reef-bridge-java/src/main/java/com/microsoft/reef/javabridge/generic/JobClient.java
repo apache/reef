@@ -86,6 +86,7 @@ public class JobClient {
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_MESSAGE, JobDriver.ContextMessageHandler.class)
         .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
         .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
         .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)

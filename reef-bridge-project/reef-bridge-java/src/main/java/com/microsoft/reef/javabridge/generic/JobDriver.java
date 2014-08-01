@@ -19,12 +19,14 @@ package com.microsoft.reef.javabridge.generic;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
+import com.microsoft.reef.driver.context.ContextMessage;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.*;
 import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.javabridge.*;
+import com.microsoft.reef.util.Optional;
 import com.microsoft.reef.util.logging.CLRBufferedLogHandler;
 import com.microsoft.reef.webserver.*;
 import com.microsoft.tang.annotations.Unit;
@@ -66,6 +68,9 @@ public final class JobDriver {
   private long runningTaskHandler = 0;
   private long suspendedTaskHandler = 0;
   private long completedEvaluatorHandler = 0;
+  private long closedContextHandler = 0;
+  private long failedContextHandler = 0;
+  private long contextMessageHandler = 0;
 
   private int nCLREvaluators = 0;
 
@@ -209,38 +214,6 @@ public final class JobDriver {
         InteropLogger interopLogger = new InteropLogger();
         CompletedTaskBridge completedTaskBridge = new CompletedTaskBridge(task);
         NativeInterop.ClrSystemCompletedTaskHandlerOnNext(completedTaskHandler, completedTaskBridge, interopLogger);
-      }
-    }
-  }
-
-  /**
-   * Receive notification that the Context had completed.
-   * Remove context from the list of active context.
-   */
-  final class ClosedContextHandler implements EventHandler<ClosedContext> {
-    @Override
-    public void onNext(final ClosedContext context) {
-      LOG.log(Level.INFO, "Completed Context: {0}", context.getId());
-      synchronized (JobDriver.this) {
-        JobDriver.this.contexts.remove(context.getId());
-      }
-    }
-  }
-
-  /**
-   * Receive notification that the Context had failed.
-   * Remove context from the list of active context and notify the client.
-   */
-  final class FailedContextHandler implements EventHandler<FailedContext> {
-    @Override
-    public void onNext(final FailedContext context) {
-      LOG.log(Level.SEVERE, "FailedContext", context);
-      synchronized (JobDriver.this) {
-        JobDriver.this.contexts.remove(context.getId());
-      }
-      com.microsoft.reef.util.Optional<byte[]> err = context.getData();
-      if (err.isPresent()) {
-        JobDriver.this.jobMessageObserver.sendMessageToClient(err.get());
       }
     }
   }
@@ -423,7 +396,6 @@ public final class JobDriver {
                     String.valueOf(handlers.length),
                     String.valueOf(NativeInterop.nHandlers)));
           }
-
           evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
           allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
           activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
@@ -435,6 +407,9 @@ public final class JobDriver {
           runningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.RunningTaskKey)];
           suspendedTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.SuspendedTaskKey)];
           completedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.CompletedEvaluatorKey)];
+          closedContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ClosedContextKey)];
+          failedContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedContextKey)];
+          contextMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ContextMessageKey)];
         }
 
         final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
@@ -529,4 +504,68 @@ public final class JobDriver {
       }
     }
   }
+
+
+  /**
+   * Receive notification that the Context had completed.
+   * Remove context from the list of active context.
+   */
+  final class ClosedContextHandler implements EventHandler<ClosedContext> {
+    @Override
+    public void onNext(final ClosedContext context) {
+      LOG.log(Level.INFO, "Completed Context: {0}", context.getId());
+      if (closedContextHandler != 0) {
+        ClosedContextBridge closedContextBridge = new ClosedContextBridge(context);
+        // if CLR implements the closed context handler, handle it in CLR
+        LOG.log(Level.INFO, "Handling the event of closed context in CLR bridge.");
+        NativeInterop.ClrSystemClosedContextHandlerOnNext(closedContextHandler, closedContextBridge);
+      }
+      synchronized (JobDriver.this) {
+        JobDriver.this.contexts.remove(context.getId());
+      }
+    }
+  }
+
+
+  /**
+   * Receive notification that the Context had failed.
+   * Remove context from the list of active context and notify the client.
+   */
+  final class FailedContextHandler implements EventHandler<FailedContext> {
+    @Override
+    public void onNext(final FailedContext context) {
+      LOG.log(Level.SEVERE, "FailedContext", context);
+      if (failedContextHandler != 0) {
+        FailedContextBridge failedContextBridge = new FailedContextBridge(context);
+        // if CLR implements the failed context handler, handle it in CLR
+        LOG.log(Level.INFO, "Handling the event of failed context in CLR bridge.");
+        NativeInterop.ClrSystemFailedContextHandlerOnNext(failedContextHandler, failedContextBridge);
+      }
+      synchronized (JobDriver.this) {
+        JobDriver.this.contexts.remove(context.getId());
+      }
+      Optional<byte[]> err = context.getData();
+      if (err.isPresent()) {
+        JobDriver.this.jobMessageObserver.sendMessageToClient(err.get());
+      }
+    }
+  }
+
+
+  /**
+   * Receive notification that a ContextMessage has been received
+   */
+  final class ContextMessageHandler implements EventHandler<ContextMessage> {
+    @Override
+    public void onNext(final ContextMessage message) {
+      LOG.log(Level.SEVERE, "Received ContextMessage:", message.get());
+      if (contextMessageHandler != 0) {
+        ContextMessageBridge contextMessageBridge = new ContextMessageBridge(message);
+        // if CLR implements the context message handler, handle it in CLR
+        LOG.log(Level.INFO, "Handling the event of context message in CLR bridge.");
+        NativeInterop.ClrSystemContextMessageHandlerOnNext(contextMessageHandler, contextMessageBridge);
+      }
+    }
+  }
+
 }

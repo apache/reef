@@ -107,23 +107,8 @@ namespace Microsoft
 
 				IEvaluatorDescriptor^ ActiveContextClr2Java::GetEvaluatorDescriptor()
 				{
-					ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::GetEvaluatorDescriptor");														
-					JNIEnv *env = RetrieveEnv(_jvm);	
-					jclass jclassActiveContext = env->GetObjectClass (_jobjectActiveContext);
-					jmethodID jmidGetEvaluatorDescriptor= env->GetMethodID(jclassActiveContext, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");	
-
-					if(jmidGetEvaluatorDescriptor == NULL)
-					{
-						ManagedLog::LOGGER->Log("jmidGetEvaluatorDescriptor is NULL");
-						return nullptr;
-					}
-					jstring jevaluatorDescriptorString = (jstring)env -> CallObjectMethod(
-						_jobjectActiveContext, 
-						jmidGetEvaluatorDescriptor);
-					String^ evaluatorDescriptorString = ManagedStringFromJavaString(env, jevaluatorDescriptorString);
-					EvaluatorDescriptorImpl^ descriptor = gcnew EvaluatorDescriptorImpl(evaluatorDescriptorString);
-					ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::GetEvaluatorDescriptor");
-					return descriptor;
+					ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::GetEvaluatorDescriptor");	
+					return CommonUtilities::RetrieveEvaluatorDescriptor(_jobjectActiveContext, _jvm);
 				}
 			}
 		}

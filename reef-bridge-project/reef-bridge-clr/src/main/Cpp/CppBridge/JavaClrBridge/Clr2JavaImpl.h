@@ -37,6 +37,12 @@ namespace Microsoft
 		{
 			namespace Bridge
 			{
+				public ref class CommonUtilities
+				{
+				public:
+					static IEvaluatorDescriptor^ RetrieveEvaluatorDescriptor(jobject object, JavaVM* jvm);
+				};
+
 				public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluaotrClr2Java
 				{
 					jobject  _jobjectAllocatedEvaluator;
@@ -177,6 +183,53 @@ namespace Microsoft
 					CompletedEvaluatorClr2Java(JNIEnv *env, jobject jobjectCompletedEvaluator);
 					virtual void OnError(String^ message);
 					virtual String^ GetId();
+				};
+
+				public ref class ClosedContextClr2Java : public IClosedContextClr2Java
+				{
+					jobject  _jobjectClosedContext;
+					JavaVM* _jvm;
+					jstring _jstringContextId;
+					jstring _jstringEvaluatorId;
+				public:
+					ClosedContextClr2Java(JNIEnv *env, jobject jobjectClosedContext);
+					virtual void OnError(String^ message);
+					virtual String^ GetId();
+					virtual String^ GetEvaluatorId();
+					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
+					virtual IActiveContextClr2Java^ GetParentContext();
+				};
+
+				public ref class FailedContextClr2Java : public IFailedContextClr2Java
+				{
+					jobject  _jobjectFailedContext;
+					JavaVM* _jvm;
+					jstring _jstringContextId;
+					jstring _jstringEvaluatorId;
+					jstring _jstringParentContextId;
+				public:
+					FailedContextClr2Java(JNIEnv *env, jobject jobjectFailedContext);
+					virtual void OnError(String^ message);
+					virtual String^ GetId();
+					virtual String^ GetEvaluatorId();
+					virtual String^ GetParentId();
+					virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
+					virtual IActiveContextClr2Java^ GetParentContext();
+				};
+
+				public ref class ContextMessageClr2Java : public IContextMessageClr2Java
+				{
+					jobject  _jobjectContextMessage;
+					JavaVM* _jvm;
+					jbyteArray _jarrayMessage;
+					jstring _jstringId;
+					jstring _jstringSourceId;
+				public:
+					ContextMessageClr2Java(JNIEnv *env, jobject jobjectContextMessage);
+					virtual void OnError(String^ message);
+					virtual array<byte>^ Get();
+					virtual String^ GetId();
+					virtual String^ GetMessageSourceId();
 				};
 			}
 		}
