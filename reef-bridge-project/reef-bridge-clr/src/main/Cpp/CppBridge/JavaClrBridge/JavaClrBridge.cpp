@@ -392,3 +392,65 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 	}
 }
 
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemClosedContextHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/javabridge/ClosedContextBridge;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemClosedContextHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jclosedContext)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemClosedContextHandlerOnNext");
+	ClosedContextClr2Java^ closedContextBridge = gcnew ClosedContextClr2Java(env, jclosedContext);
+	try{
+		ClrSystemHandlerWrapper::Call_ClrSystemClosedContext_OnNext(handler, closedContextBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemClosedContext_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+		closedContextBridge -> OnError(errorMessage);
+	}
+}
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemFailedContextHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/javabridge/FailedContextBridge;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedContextHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jfailedContext)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedContextHandlerOnNext");
+	FailedContextClr2Java^ failedContextBridge = gcnew FailedContextClr2Java(env, jfailedContext);
+	try{
+		ClrSystemHandlerWrapper::Call_ClrSystemFailedContext_OnNext(handler, failedContextBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemFailedContext_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+		failedContextBridge -> OnError(errorMessage);
+	}
+}
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemContextMessageHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/javabridge/ContextMessageBridge;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemContextMessageHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jcontextMessage)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemContextMessageHandlerOnNext");
+	ContextMessageClr2Java^ contextMessageBridge = gcnew ContextMessageClr2Java(env, jcontextMessage);
+	try{
+		ClrSystemHandlerWrapper::Call_ClrSystemContextMessage_OnNext(handler, contextMessageBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemContextMessage_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+		contextMessageBridge -> OnError(errorMessage);
+	}
+}

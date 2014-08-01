@@ -17,11 +17,9 @@
 package com.microsoft.reef.javabridge;
 
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
-import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -142,15 +140,13 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
 
   public String getEvaluatorDescriptorSring()
   {
-    EvaluatorDescriptor evaluatorDescriptor = jallocatedEvaluator.getEvaluatorDescriptor();
-    InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
-    String poorString = "IP=" + socketAddress.getAddress() + ", Port=" +  socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory();
-    LOG.log(Level.INFO, "allocated evaluator - serialized evaluator descriptor: " + poorString);
-    return poorString;
+    String descriptorString = Utilities.getEvaluatorDescriptorString(jallocatedEvaluator.getEvaluatorDescriptor());
+    LOG.log(Level.INFO, "allocated evaluator - serialized evaluator descriptor: " + descriptorString);
+    return descriptorString;
   }
 
-    @Override
-    public void close()
+  @Override
+  public void close()
     {
         jallocatedEvaluator.close();
     }

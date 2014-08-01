@@ -147,9 +147,13 @@
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="AssemblyUtil.cpp" />
     <ClCompile Include="BinaryUtil.cpp" />
+    <ClCompile Include="ClosedContextClr2Java.cpp" />
+    <ClCompile Include="CommonUtilities.cpp" />
     <ClCompile Include="CompletedEvaluatorClr2Java.cpp" />
     <ClCompile Include="CompletedTaskClr2Java.cpp" />
+    <ClCompile Include="ContextMessageClr2Java.cpp" />
     <ClCompile Include="EvaluatorRequestorClr2Java.cpp" />
+    <ClCompile Include="FailedContextClr2Java.cpp" />
     <ClCompile Include="FailedEvaluatorClr2Java.cpp" />
     <ClCompile Include="FailedTaskClr2Java.cpp" />
     <ClCompile Include="HttpServerClr2Java.cpp" />
