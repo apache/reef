@@ -80,7 +80,7 @@ public class JobClient {
 
   public static ConfigurationModule getDriverConfiguration() {
     return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "clrBridge")
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "ReefClrBridge")
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
