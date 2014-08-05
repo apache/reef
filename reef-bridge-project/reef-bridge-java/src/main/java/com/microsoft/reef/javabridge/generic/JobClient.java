@@ -17,6 +17,7 @@
 package com.microsoft.reef.javabridge.generic;
 
 import com.microsoft.reef.client.*;
+import com.microsoft.reef.javabridge.NativeInterop;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.reef.webserver.HttpHandlerConfiguration;
 import com.microsoft.reef.webserver.HttpServerReefEventHandler;
@@ -30,6 +31,9 @@ import com.microsoft.wake.EventHandler;
 import javax.inject.Inject;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,8 +107,32 @@ public class JobClient {
         result = result.set(DriverConfiguration.GLOBAL_FILES, f.getAbsolutePath());
       }
     }
-
     this.driverConfigModule  = result;
+
+    Path globalLibFile =  Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
+    if (!Files.exists(globalLibFile))
+    {
+      LOG.log(Level.FINE, "Cannot find global classpath file at: {0}, assume there is none.", globalLibFile.toAbsolutePath());
+    }
+    else
+    {
+      String globalLibString = "";
+      try
+      {
+        globalLibString = new String(Files.readAllBytes(globalLibFile));
+      }
+      catch(final Exception e)
+      {
+        LOG.log(Level.WARNING, "Cannot read from {0}, global libraries not added  " + globalLibFile.toAbsolutePath());
+      }
+
+      for (final String s : globalLibString.split(","))
+      {
+        File f = new File(s);
+        this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getAbsolutePath());
+      }
+    }
+
     this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration());
   }
 
