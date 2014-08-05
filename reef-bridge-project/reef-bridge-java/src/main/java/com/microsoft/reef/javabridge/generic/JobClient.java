@@ -128,7 +128,8 @@ public class JobClient {
 
       for (final String s : globalLibString.split(","))
       {
-        this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, s);
+        File f = new File(s);
+        this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getAbsolutePath());
       }
     }
 
