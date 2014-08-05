@@ -120,6 +120,7 @@ public class NativeInterop {
   };
 
   public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
+  public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
 
   public static final String EvaluatorRequestorKey = "EvaluatorRequestor";
   public static final String AllocatedEvaluatorKey = "AllocatedEvaluator";
