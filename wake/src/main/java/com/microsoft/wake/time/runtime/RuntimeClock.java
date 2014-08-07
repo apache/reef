@@ -118,6 +118,7 @@ public final class RuntimeClock implements Clock {
   /**
    * Finds an acceptable stop time, which is the
    * a time beyond that of any client alarm.
+   *
    * @return an acceptable stop time
    */
   private final long findAcceptableStopTime() {
@@ -162,7 +163,7 @@ public final class RuntimeClock implements Clock {
     }
     LOG.log(level, sb.toString());
   }
-  
+
   @Override
   public final void run() {
 
@@ -182,6 +183,7 @@ public final class RuntimeClock implements Clock {
       this.handlers.onNext(start);
 
       while (true) {
+        LOG.log(Level.FINEST, "Entering clock main loop iteration.");
         try {
           Time time = null;
           synchronized (this.schedule) {
