@@ -42,6 +42,8 @@ public final class YarnClasspath implements REEFClasspath {
   private static final String HADOOP_MAPRED_HOME = wrapVar("HADOOP_MAPRED_HOME");
 
   private static final List<String> CLASSPATH_LIST = Arrays.asList(
+      REEFFileNames.LOCAL_FOLDER_PATH + "/*",
+      REEFFileNames.GLOBAL_FOLDER_PATH + "/*",
       HADOOP_CONF_DIR,
       HADOOP_HOME + "/*",
       HADOOP_HOME + "/lib/*",
@@ -61,9 +63,7 @@ public final class YarnClasspath implements REEFClasspath {
       HADOOP_HOME + "/share/hadoop/hdfs/*",
       HADOOP_HOME + "/share/hadoop/hdfs/lib/*",
       HADOOP_HOME + "/share/hadoop/mapreduce/*",
-      HADOOP_HOME + "/share/hadoop/mapreduce/lib/*",
-      REEFFileNames.LOCAL_FOLDER_PATH + "/*",
-      REEFFileNames.GLOBAL_FOLDER_PATH + "/*");
+      HADOOP_HOME + "/share/hadoop/mapreduce/lib/*");
 
   private static final String CLASSPATH = StringUtils.join(CLASSPATH_LIST, File.pathSeparatorChar);
 
