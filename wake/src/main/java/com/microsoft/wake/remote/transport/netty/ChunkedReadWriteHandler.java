@@ -20,9 +20,11 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -54,7 +56,6 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   private int expectedSize = 0;
 
   private ByteBuf readBuffer;
-
   private byte[] retArr;
 
   /**
@@ -88,7 +89,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
         byte[] temp = retArr;
         start = true;
         expectedSize = 0;
-        readBuffer = null;
+        readBuffer.release();
         retArr = null;
         //LOG.log(Level.FINEST, "{0} Sending dechunked message upstream", curThrName);
         super.channelRead(ctx, temp);
@@ -118,8 +119,8 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       if (bf.hasArray()) {
         final byte[] data = bf.array();
         final byte[] size = sizeAsByteArr(data.length);
-        final ByteBuf buffer = Unpooled.wrappedBuffer(size, data);
-        final ByteBufInputStream stream = new ByteBufInputStream(buffer);
+        final ByteBuf writeBuffer = Unpooled.wrappedBuffer(size, data);
+        final ByteBufCloseableStream stream = new ByteBufCloseableStream(writeBuffer);
         final ChunkedStream chunkedStream = new ChunkedStream(
             stream, NettyChannelInitializer.MAXFRAMELENGTH - 1024);
         super.write(ctx, chunkedStream, promise);
@@ -166,5 +167,23 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
     intBuffer.release();
 
     return ret;
+  }
+
+  /*
+   * Release Bytebuf when the stream closes
+   */
+  private class ByteBufCloseableStream extends ByteBufInputStream {
+    private final ByteBuf buffer;
+
+    public ByteBufCloseableStream(ByteBuf buffer) {
+      super(buffer);
+      this.buffer = buffer;
+    }
+
+    @Override
+    public void close() throws IOException {
+      super.close();
+      buffer.release();
+    }
   }
 }
