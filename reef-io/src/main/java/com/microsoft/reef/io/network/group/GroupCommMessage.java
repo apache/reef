@@ -15,16 +15,14 @@
  */
 package com.microsoft.reef.io.network.group;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
 import com.microsoft.tang.annotations.Name;
 
-/**
- *
- */
 public class GroupCommMessage<T> {
+
   private final Class<? extends Name<String>> groupName;
   private final Class<? extends Name<String>> operName;
   private final Type msgType;
@@ -32,7 +30,7 @@ public class GroupCommMessage<T> {
   private final int srcVersion;
   private final String to;
   private final int dstVersion;
-  private final List<T> data = new ArrayList<>();
+  private final List<T> data;
 
   public GroupCommMessage(
           final Class<? extends Name<String>> groupName,
@@ -43,7 +41,9 @@ public class GroupCommMessage<T> {
           final String to,
           final int dstVersion,
           final T... data) {
+
     super();
+
     this.groupName = groupName;
     this.operName = operName;
     this.msgType = msgType;
@@ -51,9 +51,7 @@ public class GroupCommMessage<T> {
     this.srcVersion = srcVersion;
     this.to = to;
     this.dstVersion = dstVersion;
-    for(final T datum : data) {
-      this.data.add(datum);
-    }
+    this.data = Arrays.asList(data);
   }
 
   public Class<? extends Name<String>> getGroupName() {
@@ -87,7 +85,4 @@ public class GroupCommMessage<T> {
   public List<T> getData() {
     return data;
   }
-
-
-
 }

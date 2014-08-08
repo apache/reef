@@ -17,9 +17,6 @@ package com.microsoft.reef.io.network.group.operators;
 
 import com.microsoft.tang.annotations.Name;
 
-/**
- *
- */
 public abstract class AbstractGroupCommOperator implements GroupCommOperator {
 
   @Override

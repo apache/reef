@@ -17,29 +17,13 @@ package com.microsoft.reef.io.network.group.operators;
 
 import com.microsoft.tang.annotations.Name;
 
-/**
- *
- */
 public interface GroupCommOperator {
 
-  /**
-   * @return
-   */
   Class<? extends Name<String>> getOperName();
 
-  /**
-   * @return
-   */
   Class<? extends Name<String>> getGroupName();
 
-  /**
-   *
-   */
   void initialize();
 
-  /**
-   * @return
-   */
   int getVersion();
-
 }
