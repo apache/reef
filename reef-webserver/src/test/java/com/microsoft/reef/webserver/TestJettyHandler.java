@@ -16,10 +16,14 @@
 
 package com.microsoft.reef.webserver;
 
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.remote.RemoteConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,85 +40,109 @@ import java.io.IOException;
  * Unit Test for Jetty Handler
  */
 public class TestJettyHandler {
+
   private Request request;
   private Response response;
   private JettyHandler handler;
 
   @Before
   public void setUp() throws InjectionException, IOException, ServletException {
+
     this.request = new Request(
         new HttpConnection(new LocalConnector(), new StringEndPoint(), new Server()));
+
+    this.request.setContentType("text/json");
+
     this.response = new Response(
         new HttpConnection(new LocalConnector(), new StringEndPoint(), new Server()));
-    this.request.setContentType("text/json");
 
     final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
-    final Injector injector = Tang.Factory.getTang().newInjector(httpHandlerConfiguration);
 
-    handler = injector.getInstance(JettyHandler.class);
+    final Tang tang = Tang.Factory.getTang();
+
+    final Configuration remoteConfiguration = tang.newConfigurationBuilder()
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .build();
+
+    final Configuration finalConfig =
+        Configurations.merge(httpHandlerConfiguration, remoteConfiguration);
+
+    final Injector injector = tang.newInjector(finalConfig);
+
+    this.handler = injector.getInstance(JettyHandler.class);
   }
 
   @Test
   public void testWithoutQueryString() throws IOException, ServletException {
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/Evaluators"));
-    handler.handle("target", request, response, 0);
-    Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/v1/Evaluators/"));
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }
 
   @Test
   public void testWithoutSpecification() throws IOException, ServletException {
     this.request.setUri(new HttpURI("http://microsoft.com:8080/"));
-    handler.handle("target", request, response, 0);
-    Assert.assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_BAD_REQUEST, this.response.getStatus());
+  }
+
+  @Test
+  public void testWithoutVersion() throws IOException, ServletException {
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/reef"));
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_BAD_REQUEST, this.response.getStatus());
   }
 
   @Test
   public void testWithQueryString() throws IOException, ServletException {
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/Evaluators"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Reef/v1/Evaluators"));
     this.request.setQueryString("id=12345");
-    handler.handle("target", request, response, 0);
-    Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }
 
   @Test
   public void testWithUnSupportedSpec() throws IOException, ServletException {
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/abc"));
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/abc/v2"));
     this.request.setQueryString("id=12345");
-    handler.handle("target", request, response, 0);
-    Assert.assertEquals(HttpServletResponse.SC_NOT_FOUND, response.getStatus());
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_NOT_FOUND, this.response.getStatus());
   }
 
   @Test
   public void testAddHandler() throws InjectionException, IOException, ServletException {
     final Injector injector = Tang.Factory.getTang().newInjector();
     final HttpAbcEventHandler abcEventHandler = injector.getInstance(HttpAbcEventHandler.class);
-    handler.addHandler(abcEventHandler);
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc"));
-    handler.handle("target", request, response, 0);
-    Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    this.handler.addHandler(abcEventHandler);
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc/v1"));
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }
 
   @Test
   public void testAddDuplicatedHandler() throws InjectionException, IOException, ServletException {
     final Injector injector = Tang.Factory.getTang().newInjector();
     final HttpAbcEventHandler abcEventHandler = injector.getInstance(HttpAbcEventHandler.class);
-    handler.addHandler(abcEventHandler);
-    handler.addHandler(abcEventHandler);  // it will be ignored
-    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc"));
-    handler.handle("target", request, response, 0);
-    Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    this.handler.addHandler(abcEventHandler);
+    this.handler.addHandler(abcEventHandler);  // it will be ignored
+    this.request.setUri(new HttpURI("http://microsoft.com:8080/Abc/v1"));
+    this.handler.handle("target", this.request, this.response, 0);
+    Assert.assertEquals(HttpServletResponse.SC_OK, this.response.getStatus());
   }
 
   @Test
   public void testAddNullHandler() {
-    handler.addHandler(null); //nothing will be added
+    this.handler.addHandler(null); //nothing will be added
     Assert.assertTrue(true);
   }
 }
 
 final class HttpAbcEventHandler implements HttpHandler {
+
   @Inject
   public HttpAbcEventHandler() {
   }
@@ -129,7 +157,9 @@ final class HttpAbcEventHandler implements HttpHandler {
   }
 
   @Override
-  public void onHttpRequest(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
+  public void onHttpRequest(
+      final HttpServletRequest request,
+      final HttpServletResponse response) throws IOException, ServletException {
     response.getWriter().println("OnRequest in HttpAbcEventHandler is called");
   }
 }

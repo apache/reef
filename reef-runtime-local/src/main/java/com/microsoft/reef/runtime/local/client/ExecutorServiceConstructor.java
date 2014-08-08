@@ -35,7 +35,7 @@ public final class ExecutorServiceConstructor implements ExternalConstructor<Exe
 
   @Override
   public ExecutorService newInstance() {
-    LOG.log(Level.INFO, "Instantiating new 'ExecutorService'.");
+    LOG.log(Level.FINEST, "Instantiating new 'ExecutorService'.");
     return Executors.newCachedThreadPool();
   }
 }

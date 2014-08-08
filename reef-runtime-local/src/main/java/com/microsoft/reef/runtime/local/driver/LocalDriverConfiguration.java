@@ -15,37 +15,23 @@
  */
 package com.microsoft.reef.runtime.local.driver;
 
-import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
+import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
+import com.microsoft.reef.runtime.local.driver.parameters.GlobalFiles;
+import com.microsoft.reef.runtime.local.driver.parameters.GlobalLibraries;
+import com.microsoft.reef.runtime.local.driver.parameters.LocalFiles;
+import com.microsoft.reef.runtime.local.driver.parameters.LocalLibraries;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.tang.formats.RequiredParameter;
-
-import java.util.Set;
 
 /**
  * ConfigurationModule for the Driver executed in the local resourcemanager. This is meant to eventually replace
  * LocalDriverRuntimeConfiguration.
  */
 public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
-
-  @NamedParameter(doc = "The names of files that are to be kept on the driver only.")
-  public static final class LocalFiles implements Name<Set<String>> {
-  }
-
-  @NamedParameter(doc = "The names of files that are to be copied to all evaluators.")
-  public static final class GlobalFiles implements Name<Set<String>> {
-  }
-
-  @NamedParameter(doc = "The names of files that are to be kept on the driver only.")
-  public static final class LocalLibraries implements Name<Set<String>> {
-  }
-
-  @NamedParameter(doc = "The names of files that are to be copied to all evaluators.")
-  public static final class GlobalLibraries implements Name<Set<String>> {
-  }
 
   /**
    * Files for the driver only.
@@ -71,6 +57,10 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
    * The root folder of the job. Assumed to be an absolute path.
    */
   public static final RequiredParameter<String> ROOT_FOLDER = new RequiredParameter<>();
+  /**
+   * The fraction of the container memory NOT to use for the Java Heap.
+   */
+  public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
 
   public static final ConfigurationModule CONF = new LocalDriverConfiguration()
@@ -78,7 +68,8 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(LocalLibraries.class, LOCAL_LIBRARIES)
       .bindSetEntry(GlobalFiles.class, GLOBAL_FILES)
       .bindSetEntry(GlobalLibraries.class, GLOBAL_LIBRARIES)
-      .bindNamedParameter(LocalRuntimeConfiguration.NumberOfThreads.class, NUMBER_OF_PROCESSES)
-      .bindNamedParameter(LocalRuntimeConfiguration.RootFolder.class, ROOT_FOLDER)
+      .bindNamedParameter(NumberOfProcesses.class, NUMBER_OF_PROCESSES)
+      .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
+      .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .build();
 }

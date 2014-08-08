@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.io.network.group.impl;
 
-
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage;
 import com.microsoft.wake.remote.Codec;
@@ -24,28 +23,24 @@ import javax.inject.Inject;
 
 /**
  * Codec for {@link GroupCommMessage}
- *
- * @author shravan
  */
 public class GCMCodec implements Codec<GroupCommMessage> {
 
   @Inject
   public GCMCodec() {
-    // Intentionally Blank
   }
 
   @Override
-  public GroupCommMessage decode(byte[] data) {
+  public GroupCommMessage decode(final byte[] data) {
     try {
       return GroupCommMessage.parseFrom(data);
-    } catch (InvalidProtocolBufferException e) {
+    } catch (final InvalidProtocolBufferException e) {
       throw new RuntimeException(e.getCause());
     }
   }
 
   @Override
-  public byte[] encode(GroupCommMessage msg) {
+  public byte[] encode(final GroupCommMessage msg) {
     return msg.toByteArray();
   }
-
 }

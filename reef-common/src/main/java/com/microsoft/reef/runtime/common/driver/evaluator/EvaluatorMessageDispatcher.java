@@ -38,12 +38,17 @@ import java.util.logging.Logger;
  * Central dispatcher for all Evaluator related events. This exists once per Evaluator.
  */
 public final class EvaluatorMessageDispatcher {
-  private static final Logger LOG = Logger.getLogger(EvaluatorMessageDispatcher.class.getName());
-  /**
-   * The actual dispatcher used.
-   */
-  private final DispatchingEStage dispatcher;
 
+  private static final Logger LOG = Logger.getLogger(EvaluatorMessageDispatcher.class.getName());
+
+  /**
+   * Dispatcher used for application provided event handlers.
+   */
+  private final DispatchingEStage applicationDispatcher;
+
+  /**
+   * Dispatcher used for service provided event handlers.
+   */
   private final DispatchingEStage serviceDispatcher;
 
   @Inject
@@ -81,28 +86,28 @@ public final class EvaluatorMessageDispatcher {
 
       final @Parameter(EvaluatorDispatcherThreads.class) int numberOfThreads,
       final DriverExceptionHandler driverExceptionHandler) {
-    this.dispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads);
+
     this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads);
+    this.applicationDispatcher = new DispatchingEStage(this.serviceDispatcher);
 
     { // Application Context event handlers
-      this.dispatcher.register(ActiveContext.class, contextActiveHandlers);
-      this.dispatcher.register(ClosedContext.class, contextClosedHandlers);
-      this.dispatcher.register(FailedContext.class, contextFailedHandlers);
-      this.dispatcher.register(ContextMessage.class, contextMessageHandlers);
+      this.applicationDispatcher.register(ActiveContext.class, contextActiveHandlers);
+      this.applicationDispatcher.register(ClosedContext.class, contextClosedHandlers);
+      this.applicationDispatcher.register(FailedContext.class, contextFailedHandlers);
+      this.applicationDispatcher.register(ContextMessage.class, contextMessageHandlers);
     }
     { // Service Context event handlers
       this.serviceDispatcher.register(ActiveContext.class, serviceContextActiveHandlers);
       this.serviceDispatcher.register(ClosedContext.class, serviceContextClosedHandlers);
       this.serviceDispatcher.register(FailedContext.class, serviceContextFailedHandlers);
       this.serviceDispatcher.register(ContextMessage.class, serviceContextMessageHandlers);
-
     }
     { // Application Task event handlers.
-      this.dispatcher.register(RunningTask.class, taskRunningHandlers);
-      this.dispatcher.register(CompletedTask.class, taskCompletedHandlers);
-      this.dispatcher.register(SuspendedTask.class, taskSuspendedHandlers);
-      this.dispatcher.register(TaskMessage.class, taskMessageEventHandlers);
-      this.dispatcher.register(FailedTask.class, taskExceptionEventHandlers);
+      this.applicationDispatcher.register(RunningTask.class, taskRunningHandlers);
+      this.applicationDispatcher.register(CompletedTask.class, taskCompletedHandlers);
+      this.applicationDispatcher.register(SuspendedTask.class, taskSuspendedHandlers);
+      this.applicationDispatcher.register(TaskMessage.class, taskMessageEventHandlers);
+      this.applicationDispatcher.register(FailedTask.class, taskExceptionEventHandlers);
     }
     { // Service Task event handlers
       this.serviceDispatcher.register(RunningTask.class, serviceTaskRunningEventHandlers);
@@ -111,19 +116,18 @@ public final class EvaluatorMessageDispatcher {
       this.serviceDispatcher.register(TaskMessage.class, serviceTaskMessageEventHandlers);
       this.serviceDispatcher.register(FailedTask.class, serviceTaskExceptionEventHandlers);
     }
-
     { // Application Evaluator event handlers
-      this.dispatcher.register(FailedEvaluator.class, evaluatorFailedHandlers);
-      this.dispatcher.register(CompletedEvaluator.class, evaluatorCompletedHandlers);
-      this.dispatcher.register(AllocatedEvaluator.class, evaluatorAllocatedHandlers);
+      this.applicationDispatcher.register(FailedEvaluator.class, evaluatorFailedHandlers);
+      this.applicationDispatcher.register(CompletedEvaluator.class, evaluatorCompletedHandlers);
+      this.applicationDispatcher.register(AllocatedEvaluator.class, evaluatorAllocatedHandlers);
     }
-
     { // Service Evaluator event handlers
       this.serviceDispatcher.register(FailedEvaluator.class, serviceEvaluatorFailedHandlers);
       this.serviceDispatcher.register(CompletedEvaluator.class, serviceEvaluatorCompletedHandlers);
       this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
     }
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorMessageDispatcher'");
+
+    LOG.log(Level.FINE, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
   public void onEvaluatorAllocated(final AllocatedEvaluator allocatedEvaluator) {
@@ -175,11 +179,11 @@ public final class EvaluatorMessageDispatcher {
   }
 
   boolean isEmpty() {
-    return this.dispatcher.isEmpty();
+    return this.applicationDispatcher.isEmpty();
   }
 
   private <T, U extends T> void dispatch(final Class<T> type, final U message) {
-    this.dispatcher.onNext(type, message);
     this.serviceDispatcher.onNext(type, message);
+    this.applicationDispatcher.onNext(type, message);
   }
 }

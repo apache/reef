@@ -25,34 +25,53 @@ import com.microsoft.wake.Identifier;
  * @author shravan
  */
 public class TestUtils {
-  public static GroupCommMessage bldGCM(Type msgType, Identifier from, Identifier to, byte[]... elements) {
-    GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
+  public static GroupCommMessage bldGCM(final Type msgType, final Identifier from, final Identifier to, final byte[]... elements) {
+    final GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();
     GCMBuilder.setType(msgType);
     GCMBuilder.setSrcid(from.toString());
     GCMBuilder.setDestid(to.toString());
-    GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
-    for (byte[] element : elements) {
+    final GroupMessageBody.Builder bodyBuilder = GroupMessageBody.newBuilder();
+    for (final byte[] element : elements) {
       bodyBuilder.setData(ByteString.copyFrom(element));
       GCMBuilder.addMsgs(bodyBuilder.build());
     }
-    GroupCommMessage msg = GCMBuilder.build();
+    final GroupCommMessage msg = GCMBuilder.build();
     return msg;
   }
-  
+
   /**
    * @param type
    * @return
    */
-  public static boolean controlMessage(GroupCommMessage.Type type) {
+  public static boolean controlMessage(final GroupCommMessage.Type type) {
     switch(type){
-    case SourceAdd:
-      return true;
-    
+    /*case SourceAdd:
     case SourceDead:
-      return true;
-      
-    default:
-        return false;
+    case ParentAdd:
+    case ParentDead:
+    case ChildAdd:
+    case ChildDead:
+    case ChildRemoved:
+    case ParentRemoved:
+    case ChildAdded:
+    case ParentAdded:
+    case TopologyChanges:
+    case TopologySetup:
+    case TopologyUpdated:
+    case UpdateTopology:
+      return true;*/
+
+    case AllGather:
+    case AllReduce:
+    case Broadcast:
+    case Gather:
+    case Reduce:
+    case ReduceScatter:
+    case Scatter:
+      return false;
+
+      default:
+        return true;
     }
   }
 }

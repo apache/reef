@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.tests.files;
 
+import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.task.Task;
 import com.microsoft.reef.tests.exceptions.TaskSideFailure;
 import com.microsoft.tang.annotations.Parameter;
@@ -33,18 +34,21 @@ final class TestTask implements Task {
   private final Logger LOG = Logger.getLogger(TestTask.class.getName());
   private final Set<String> expectedFileNames;
   private final Clock clock;
+  private final File localFolder;
 
   @Inject
   TestTask(@Parameter(TestTaskConfiguration.FileNamesToExpect.class) final Set<String> expectedFileNames,
-           final Clock clock) {
+           final Clock clock,
+           final REEFFileNames fileNames) {
     this.expectedFileNames = expectedFileNames;
     this.clock = clock;
+    this.localFolder = fileNames.getLocalFolder();
   }
 
   @Override
   public byte[] call(byte[] memento) throws Exception {
     for (final String fileName : expectedFileNames) {
-      final File file = new File(fileName);
+      final File file = new File(localFolder, fileName);
       LOG.log(Level.INFO, "Testing file: " + file.getAbsolutePath());
       if (!file.exists()) {
         throw new TaskSideFailure("Cannot find file: " + fileName);

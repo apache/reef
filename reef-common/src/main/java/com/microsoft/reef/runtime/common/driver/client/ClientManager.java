@@ -74,7 +74,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
     if (!clientRID.equals(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)) {
       remoteManager.registerHandler(clientRID, ClientRuntimeProtocol.JobControlProto.class, this);
     } else {
-      LOG.log(Level.INFO, "Not registering a handler for JobControlProto, as there is no client.");
+      LOG.log(Level.FINE, "Not registering a handler for JobControlProto, as there is no client.");
     }
   }
 

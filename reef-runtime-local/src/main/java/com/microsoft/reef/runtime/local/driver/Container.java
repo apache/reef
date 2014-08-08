@@ -40,7 +40,9 @@ interface Container extends AutoCloseable {
    *
    * @param files the files to be added to the container.
    */
-  public void addFiles(final Iterable<File> files);
+  public void addLocalFiles(final Iterable<File> files);
+
+  public void addGlobalFiles(final File globalFolder);
 
   /**
    * @return true if the Container is currently executing, false otherwise.

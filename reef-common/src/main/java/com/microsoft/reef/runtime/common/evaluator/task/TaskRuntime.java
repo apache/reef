@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  */
 @Private
 @EvaluatorSide
-public final class TaskRuntime extends Thread {
+public final class TaskRuntime implements Runnable {
 
   private final static Logger LOG = Logger.getLogger(TaskRuntime.class.getName());
 
@@ -100,7 +100,8 @@ public final class TaskRuntime extends Thread {
   }
 
   /**
-   * This method needs to be called before a Task can be run(). It informs the Driver that the Task is initializing.
+   * This method needs to be called before a Task can be run().
+   * It informs the Driver that the Task is initializing.
    */
   public void initialize() {
     this.currentStatus.setInit();
@@ -160,6 +161,10 @@ public final class TaskRuntime extends Thread {
    */
   public String getTaskId() {
     return this.currentStatus.getTaskId();
+  }
+
+  public String getId() {
+    return "TASK:" + this.task.getClass().getSimpleName() + ':' + this.currentStatus.getTaskId();
   }
 
   /**
@@ -265,9 +270,6 @@ public final class TaskRuntime extends Thread {
 
   /**
    * Calls the configured Task close handler and catches exceptions it may throw.
-   *
-   * @param message
-   * @throws TaskCloseHandlerFailure
    */
   private void closeTask(final byte[] message) throws TaskCloseHandlerFailure {
     LOG.log(Level.FINEST, "Invoking close handler.");
@@ -280,9 +282,6 @@ public final class TaskRuntime extends Thread {
 
   /**
    * Calls the configured Task message handler and catches exceptions it may throw.
-   *
-   * @param message
-   * @throws TaskMessageHandlerFailure
    */
   private void deliverMessageToTask(final byte[] message) throws TaskMessageHandlerFailure {
     try {
@@ -294,9 +293,6 @@ public final class TaskRuntime extends Thread {
 
   /**
    * Calls the configured Task suspend handler and catches exceptions it may throw.
-   *
-   * @param message
-   * @throws TaskSuspendHandlerFailure
    */
   private void suspendTask(final byte[] message) throws TaskSuspendHandlerFailure {
     try {

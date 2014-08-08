@@ -45,11 +45,11 @@ public final class ClientConnection {
       final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier) {
     this.jobIdentifier = jobIdentifier;
     if (clientRID.equals(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)) {
-      LOG.log(Level.INFO, "Unable to establish a connection with the client");
+      LOG.log(Level.FINE, "Instantiated 'ClientConnection' without an actual connection to the client.");
       this.jobStatusHandler = new LoggingJobStatusHandler();
     } else {
       this.jobStatusHandler = remoteManager.getHandler(clientRID, ReefServiceProtos.JobStatusProto.class);
-      LOG.log(Level.INFO, "Instantiated 'ClientConnection'");
+      LOG.log(Level.FINE, "Instantiated 'ClientConnection'");
     }
   }
 

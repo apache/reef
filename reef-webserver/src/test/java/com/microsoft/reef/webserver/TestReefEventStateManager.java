@@ -20,11 +20,13 @@ import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.RackDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
+import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Injector;
-import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.InjectionException;
+import com.microsoft.wake.remote.RemoteConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,11 +44,17 @@ public class TestReefEventStateManager {
 
   @Before
   public void setUp() throws InjectionException {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class);
-    cb.bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class);
-    final Configuration configuration = cb.build();
-    injector = Tang.Factory.getTang().newInjector(configuration);
+    final Tang tang = Tang.Factory.getTang();
+
+    final Configuration configuration = tang.newConfigurationBuilder()
+        .bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class)
+        .bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class)
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .build();
+
+    injector = tang.newInjector(configuration);
     reefEventStateManager = injector.getInstance(ReefEventStateManager.class);
   }
 
@@ -81,10 +89,10 @@ public class TestReefEventStateManager {
 }
 
 final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
-  private NodeDescriptor nodeDescriptor;
+  final private NodeDescriptor nodeDescriptor;
 
   @Inject
-  public MockEvaluatorDescriptor(NodeDescriptor nodeDescriptor) {
+  public MockEvaluatorDescriptor(final NodeDescriptor nodeDescriptor) {
     this.nodeDescriptor = nodeDescriptor;
   }
 

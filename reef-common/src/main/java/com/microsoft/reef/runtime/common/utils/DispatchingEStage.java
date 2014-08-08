@@ -19,14 +19,12 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.util.ExceptionHandlingEventHandler;
 import com.microsoft.tang.util.MonotonicHashMap;
-import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.impl.ThreadPoolStage;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Delayed event router that dispatches messages to the proper event handler by type.
@@ -66,15 +64,7 @@ public final class DispatchingEStage implements AutoCloseable {
   /**
    * Thread pool to process delayed event handler invocations.
    */
-  private final EStage<DelayedOnNext> stage;
-
-  /**
-   * Number of messages still being processed by all handlers registered
-   * with the dispatcher.
-   * The counter is incremented at the beginning of each DispatchingEStage.onNext()
-   * call and decremented upon completion of the DelayedOnNext.onNext() method.
-   */
-  private final AtomicInteger queueLength = new AtomicInteger(0);
+  private final ThreadPoolStage<DelayedOnNext> stage;
 
   public DispatchingEStage(final EventHandler<Throwable> errorHandler, final int numThreads) {
     this.errorHandler = errorHandler;
@@ -82,14 +72,20 @@ public final class DispatchingEStage implements AutoCloseable {
         new EventHandler<DelayedOnNext>() {
           @Override
           public void onNext(final DelayedOnNext promise) {
-            try {
-              promise.handler.onNext(promise.message);
-            } finally {
-              queueLength.decrementAndGet();
-            }
+            promise.handler.onNext(promise.message);
           }
         }, numThreads
     );
+  }
+
+  /**
+   * Constructs a DispatchingEStage that uses the Thread pool and ErrorHandler of another one.
+   *
+   * @param other
+   */
+  public DispatchingEStage(final DispatchingEStage other) {
+    this.errorHandler = other.errorHandler;
+    this.stage = other.stage;
   }
 
   /**
@@ -116,7 +112,6 @@ public final class DispatchingEStage implements AutoCloseable {
   @SuppressWarnings("unchecked")
   public <T, U extends T> void onNext(final Class<T> type, final U message) {
     final EventHandler<T> handler = (EventHandler<T>) this.handlers.get(type);
-    this.queueLength.incrementAndGet();
     this.stage.onNext(new DelayedOnNext(handler, message));
   }
 
@@ -124,7 +119,7 @@ public final class DispatchingEStage implements AutoCloseable {
    * Return true if there are no messages queued or in processing, false otherwise.
    */
   public boolean isEmpty() {
-    return this.queueLength.get() == 0;
+    return this.stage.getQueueLength() == 0;
   }
 
   /**

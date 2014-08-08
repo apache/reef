@@ -21,50 +21,35 @@ import com.microsoft.tang.annotations.DefaultImplementation;
 
 /**
  * MPI Broadcast operator.
- * 
- * The sender or root send's an element that is received by all the receivers or
- * other tasks.
- * 
- * This is an asymmetric operation and hence the differentiation b/w Sender and
- * Receiver.
- * 
- * @author shravan
- * 
+ *
+ * The sender or root send's an element that is received by all the receivers or other tasks.
+ *
+ * This is an asymmetric operation and hence the differentiation b/w Sender and Receiver.
  */
 public interface Broadcast {
 
   /**
    * Sender or Root.
-   * 
-   * @param <T>
    */
   @DefaultImplementation(BroadcastOp.Sender.class)
-  public static interface Sender<T> {
+  static interface Sender<T> extends GroupCommOperator {
 
     /**
      * Send element to all receivers.
-     * 
-     * @param element
-     * @throws NetworkException
-     * @throws InterruptedException
      */
     void send(T element) throws NetworkException, InterruptedException;
   }
 
   /**
    * Receivers or Non-roots
-   * 
-   * @param <T>
    */
   @DefaultImplementation(BroadcastOp.Receiver.class)
-  public static interface Receiver<T> {
+  static interface Receiver<T> extends GroupCommOperator {
 
     /**
      * Receiver the element broadcasted by sender.
-     * 
+     *
      * @return the element broadcasted by sender
-     * @throws NetworkException
-     * @throws InterruptedException
      */
     T receive() throws NetworkException, InterruptedException;
   }

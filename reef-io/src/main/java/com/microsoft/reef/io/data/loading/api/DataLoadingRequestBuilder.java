@@ -17,15 +17,15 @@ package com.microsoft.reef.io.data.loading.api;
 
 import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.TextInputFormat;
 
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.io.data.loading.impl.EvaluatorRequestSerializer;
 import com.microsoft.reef.io.data.loading.impl.InputFormatExternalConstructor;
 import com.microsoft.reef.io.data.loading.impl.InputFormatLoadingService;
-import com.microsoft.reef.io.data.loading.impl.WritableSerializer;
+import com.microsoft.reef.io.data.loading.impl.JobConfExternalConstructor;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.ExternalConstructor;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Name;
@@ -36,7 +36,8 @@ import com.microsoft.tang.formats.ConfigurationModule;
 /**
  * Builder to create a request to the DataLoadingService.
  */
-public final class DataLoadingRequestBuilder implements com.microsoft.reef.util.Builder<Configuration> {
+public final class DataLoadingRequestBuilder
+    implements com.microsoft.reef.util.Builder<Configuration> {
 
   @NamedParameter(short_name = "num_splits", default_value = "0")
   public static final class NumberOfDesiredSplits implements Name<Integer> {
@@ -45,23 +46,24 @@ public final class DataLoadingRequestBuilder implements com.microsoft.reef.util.
   @NamedParameter(short_name = "dataLoadingEvaluatorMemoryMB", default_value = "4096")
   public static final class DataLoadingEvaluatorMemoryMB implements Name<Integer> {
   }
-  
-  @NamedParameter(default_value="NULL")
+
+  @NamedParameter(default_value = "NULL")
   public static final class DataLoadingComputeRequest implements Name<String> {
   }
-  
-  @NamedParameter(default_value="false")
+
+  @NamedParameter(default_value = "false")
   public static final class LoadDataIntoMemory implements Name<Boolean> {
   }
-  
+
   private int memoryMB = -1;
-  private JobConf jobConf = null;
   private int numberOfDesiredSplits = -1;
   private EvaluatorRequest computeRequest = null;
   private boolean inMemory = false;
   private ConfigurationModule driverConfigurationModule = null;
+  private String inputFormatClass;
+  private String inputPath;
 
-  public DataLoadingRequestBuilder setNumberOfDesiredSplits(int numberOfDesiredSplits) {
+  public DataLoadingRequestBuilder setNumberOfDesiredSplits(final int numberOfDesiredSplits) {
     this.numberOfDesiredSplits = numberOfDesiredSplits;
     return this;
   }
@@ -72,80 +74,81 @@ public final class DataLoadingRequestBuilder implements com.microsoft.reef.util.
    * @param memoryMB the amount of memory in MB
    * @return this
    */
-  public DataLoadingRequestBuilder setMemoryMB(int memoryMB) {
+  public DataLoadingRequestBuilder setMemoryMB(final int memoryMB) {
     this.memoryMB = memoryMB;
     return this;
   }
 
-
-  /**
-   * Set the jobConf to use for the InputFormat configuration.
-   *
-   * @param jobConf
-   * @return this
-   */
-  public DataLoadingRequestBuilder setJobConf(JobConf jobConf) {
-    this.jobConf = jobConf;
-    return this;
-  }
-
-  public DataLoadingRequestBuilder setComputeRequest(EvaluatorRequest computeRequest){
+  public DataLoadingRequestBuilder setComputeRequest(final EvaluatorRequest computeRequest) {
     this.computeRequest = computeRequest;
     return this;
   }
-  
-  public DataLoadingRequestBuilder loadIntoMemory(boolean inMemory){
+
+  public DataLoadingRequestBuilder loadIntoMemory(final boolean inMemory) {
     this.inMemory = inMemory;
     return this;
   }
-  
-  public DataLoadingRequestBuilder setDriverConfigurationModule(ConfigurationModule driverConfigurationModule){
+
+  public DataLoadingRequestBuilder setDriverConfigurationModule(
+      final ConfigurationModule driverConfigurationModule) {
     this.driverConfigurationModule = driverConfigurationModule;
     return this;
   }
 
-  @Override
-  public Configuration build() {
-    jobConf.set("fs.hdfs.impl",
-        org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
-    jobConf.set("fs.file.impl",
-        org.apache.hadoop.fs.LocalFileSystem.class.getName());
-    try {
-      if(driverConfigurationModule==null){
-        throw new IllegalStateException("Missing Driver Configuration Module is a required parameter.");
-      }
-      final Configuration driverConfiguration = driverConfigurationModule
-          .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
-          .build();
+  public DataLoadingRequestBuilder setInputFormatClass(
+      final Class<? extends InputFormat> inputFormatClass) {
+    this.inputFormatClass = inputFormatClass.getName();
+    return this;
+  }
 
-      JavaConfigurationBuilder jcb = Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration);
-      if(numberOfDesiredSplits>0){
-        jcb.bindNamedParameter(NumberOfDesiredSplits.class,
-            Integer.toString(numberOfDesiredSplits));
-      }
-      if(memoryMB>0){
-        jcb.bindNamedParameter(DataLoadingEvaluatorMemoryMB.class,
-            Integer.toString(memoryMB));
-      }
-      if(computeRequest!=null){
-        jcb.bindNamedParameter(DataLoadingComputeRequest.class, 
-            EvaluatorRequestSerializer.serialize(computeRequest));
-      }
-      jcb.bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(inMemory));
-      final Class<? extends ExternalConstructor<InputFormat<?, ?>>> inputFormatExternalConstructorClass =
-          (Class<? extends ExternalConstructor<InputFormat<?, ?>>>) InputFormatExternalConstructor.class;
-      jcb.bindConstructor(
-          InputFormat.class,
-          inputFormatExternalConstructorClass);
-      return jcb            
-          .bindNamedParameter(InputFormatExternalConstructor.SerializedJobConf.class,
-              WritableSerializer.serialize(jobConf))
-          .bindImplementation(DataLoadingService.class,
-              InputFormatLoadingService.class)
-          .build();
-    } catch (BindException e) {
-      throw new RuntimeException("Unable to convert JobConf to TangConf", e);
+  public DataLoadingRequestBuilder setInputPath(final String inputPath) {
+    this.inputPath = inputPath;
+    return this;
+  }
+
+  @Override
+  public Configuration build() throws BindException {
+    if (this.driverConfigurationModule == null) {
+      throw new BindException("Driver Configuration Module is a required parameter.");
     }
+
+    if(this.inputPath == null) {
+      throw new BindException("InputPath is a required parameter.");
+    }
+
+    if(this.inputFormatClass == null) {
+      this.inputFormatClass = TextInputFormat.class.getName();
+    }
+
+    final Configuration driverConfiguration = this.driverConfigurationModule
+        .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_FAILED, DataLoader.EvaluatorFailedHandler.class)
+        .build();
+
+    final JavaConfigurationBuilder jcb =
+        Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration);
+
+    if (this.numberOfDesiredSplits > 0) {
+      jcb.bindNamedParameter(NumberOfDesiredSplits.class, "" + this.numberOfDesiredSplits);
+    }
+
+    if (this.memoryMB > 0) {
+      jcb.bindNamedParameter(DataLoadingEvaluatorMemoryMB.class, "" + this.memoryMB);
+    }
+
+    if (this.computeRequest != null) {
+      jcb.bindNamedParameter(DataLoadingComputeRequest.class,
+          EvaluatorRequestSerializer.serialize(this.computeRequest));
+    }
+
+    return jcb
+        .bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
+        .bindConstructor(InputFormat.class, InputFormatExternalConstructor.class)
+        .bindConstructor(JobConf.class, JobConfExternalConstructor.class)
+        .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass)
+        .bindNamedParameter(JobConfExternalConstructor.InputPath.class, inputPath)
+        .bindImplementation(DataLoadingService.class, InputFormatLoadingService.class)
+        .build();
   }
 }

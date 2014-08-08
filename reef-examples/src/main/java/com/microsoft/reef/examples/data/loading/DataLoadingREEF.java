@@ -15,13 +15,17 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.hadoop.mapred.TextInputFormat;
+
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.io.data.loading.api.DataLoader;
-import com.microsoft.reef.io.data.loading.api.DataLoadingDriverConfiguration;
 import com.microsoft.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -35,79 +39,57 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.CommandLine;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.TextInputFormat;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Client for the data loading demo app
  */
 @ClientSide
 public class DataLoadingREEF {
-  /**
-   * Standard Java logger object.
-   */
+
   private static final Logger LOG = Logger.getLogger(DataLoadingREEF.class.getName());
 
-  private static final String NUM_LOCAL_THREADS = "20";
-
-  /**
-   * Number of milliseconds to wait for the job to complete.
-   */
-  private static final int JOB_TIMEOUT = 10 * 60 * 1000;
+  private static final int NUM_LOCAL_THREADS = 16;
+  private static final int NUM_SPLITS = 6;
+  private static final int NUM_COMPUTE_EVALUATORS = 2;
 
   /**
    * Command line parameter = true to run locally, or false to run on YARN.
    */
-  @NamedParameter(doc = "Whether or not to run on the local runtime", short_name = "local", default_value = "true")
+  @NamedParameter(doc = "Whether or not to run on the local runtime",
+                  short_name = "local", default_value = "true")
   public static final class Local implements Name<Boolean> {
+  }
+
+  @NamedParameter(doc = "Number of minutes before timeout",
+                  short_name = "timeout", default_value = "2")
+  public static final class TimeOut implements Name<Integer> {
   }
 
   @NamedParameter(short_name = "input")
   public static final class InputDir implements Name<String> {
   }
 
-  private static boolean local;
-  private static String input;
+  public static void main(final String[] args)
+      throws InjectionException, BindException, IOException {
 
-  private static Configuration parseCommandLine(final String[] aArgs) {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    try {
-      final CommandLine cl = new CommandLine(cb);
-      cl.registerShortNameOfClass(Local.class);
-      cl.registerShortNameOfClass(DataLoadingREEF.InputDir.class);
-      cl.processCommandLine(aArgs);
-    } catch (final BindException | IOException ex) {
-      final String msg = "Unable to parse command line";
-      LOG.log(Level.SEVERE, msg, ex);
-      throw new RuntimeException(msg, ex);
-    }
-    return cb.build();
-  }
+    final Tang tang = Tang.Factory.getTang();
 
-  /**
-   * copy the parameters from the command line required for the Client configuration
-   */
-  private static void storeCommandLineArgs(final Configuration commandLineConf)
-      throws InjectionException, BindException {
-    final Injector injector = Tang.Factory.getTang().newInjector(commandLineConf);
-    local = injector.getNamedInstance(Local.class);
-    input = injector.getNamedInstance(DataLoadingREEF.InputDir.class);
-  }
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
 
-  /**
-   * @param commandLineConf Command line arguments, as passed into main().
-   * @return (immutable) TANG Configuration object.
-   * @throws BindException      if configuration injector fails.
-   * @throws InjectionException if the Local.class parameter is not injected.
-   */
-  private static Configuration getRunTimeConfiguration() throws BindException {
+    new CommandLine(cb)
+        .registerShortNameOfClass(Local.class)
+        .registerShortNameOfClass(TimeOut.class)
+        .registerShortNameOfClass(DataLoadingREEF.InputDir.class)
+        .processCommandLine(args);
+
+    final Injector injector = tang.newInjector(cb.build());
+
+    final boolean isLocal = injector.getNamedInstance(Local.class);
+    final int jobTimeout = injector.getNamedInstance(TimeOut.class) * 60 * 1000;
+    final String inputDir = injector.getNamedInstance(DataLoadingREEF.InputDir.class);
+
     final Configuration runtimeConfiguration;
-    if (local) {
+    if (isLocal) {
       LOG.log(Level.INFO, "Running Data Loading demo on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
           .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
@@ -116,23 +98,17 @@ public class DataLoadingREEF {
       LOG.log(Level.INFO, "Running Data Loading demo on YARN");
       runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
-    return runtimeConfiguration;
-  }
 
-  public static LauncherStatus runDataLoadingReef(
-      final Configuration runtimeConfiguration
-  ) throws BindException, InjectionException {
-    final JobConf jobConf = new JobConf();
-    jobConf.setInputFormat(TextInputFormat.class);
-    TextInputFormat.addInputPath(jobConf, new Path(input));
-    EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
-        .setNumber(2)
-        .setMemory(2048)
+    final EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
+        .setNumber(NUM_COMPUTE_EVALUATORS)
+        .setMemory(512)
         .build();
+
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
-        .setMemoryMB(4096)
-        .setJobConf(jobConf)
-        .setNumberOfDesiredSplits(12)
+        .setMemoryMB(1024)
+        .setInputFormatClass(TextInputFormat.class)
+        .setInputPath(inputDir)
+        .setNumberOfDesiredSplits(NUM_SPLITS)
         .setComputeRequest(computeRequest)
         .setDriverConfigurationModule(EnvironmentUtils
             .addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
@@ -141,25 +117,9 @@ public class DataLoadingREEF {
             .set(DriverConfiguration.DRIVER_IDENTIFIER, "DataLoadingREEF"))
         .build();
 
-    final Configuration mergedDriverConfiguration = Tang.Factory.getTang()
-        .newConfigurationBuilder(dataLoadConfiguration)//, driverConfiguration)
-        .build();
+    final LauncherStatus state =
+        DriverLauncher.getLauncher(runtimeConfiguration).run(dataLoadConfiguration, jobTimeout);
 
-    return DriverLauncher.getLauncher(runtimeConfiguration).run(mergedDriverConfiguration, JOB_TIMEOUT);
-  }
-
-
-  /**
-   * @param args
-   * @throws BindException
-   * @throws InjectionException
-   */
-  public static void main(String[] args) throws InjectionException, BindException {
-    final Configuration commandLineConf = parseCommandLine(args);
-    storeCommandLineArgs(commandLineConf);
-    final Configuration runtimeConfiguration = getRunTimeConfiguration();
-    final LauncherStatus state = runDataLoadingReef(runtimeConfiguration);
     LOG.log(Level.INFO, "REEF job completed: {0}", state);
   }
-
 }

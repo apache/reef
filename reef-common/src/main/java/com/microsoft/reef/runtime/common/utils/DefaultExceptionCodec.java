@@ -40,7 +40,7 @@ final class DefaultExceptionCodec implements ExceptionCodec {
     try {
       return Optional.<Throwable>of((Throwable) SerializationUtils.deserialize(bytes));
     } catch (SerializationException | IllegalArgumentException e) {
-      LOG.log(Level.INFO, "Unable to deserialize a Throwable.", e);
+      LOG.log(Level.FINE, "Unable to deserialize a Throwable.", e);
       return Optional.empty();
     }
   }

@@ -35,7 +35,7 @@ public class RemoteManager {
                        final RemoteIdentifierFactory factory) {
     this.raw = raw;
     this.factory = factory;
-    LOG.log(Level.INFO, "Instantiated 'RemoteManager' with remoteId: {0}", this.getMyIdentifier());
+    LOG.log(Level.FINE, "Instantiated 'RemoteManager' with remoteId: {0}", this.getMyIdentifier());
   }
 
   public final com.microsoft.wake.remote.RemoteManager raw() {

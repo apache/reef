@@ -23,41 +23,28 @@ import com.microsoft.wake.Identifier;
 import java.util.List;
 
 /**
- * MPI AllGather Operator
- * 
+ * MPI AllGather Operator.
+ *
  * Each task applies this operator on an element of type T. The result will be
  * a list of elements constructed using the elements all-gathered at each
  * task.
- * 
- * @author shravan
- * 
- * @param <T>
  */
 @DefaultImplementation(AllGatherOp.class)
-public interface AllGather<T> {
+public interface AllGather<T> extends GroupCommOperator {
 
-	/**
-	 * Apply the operation on element
-	 * 
-	 * @param element
-	 * @return List of all elements on which the operation was applied using
-	 *         default order
-	 * @throws NetworkException
-	 * @throws InterruptedException
-	 */
-	public List<T> apply(T element) throws NetworkException,
-			InterruptedException;
+  /**
+   * Apply the operation on element.
+   *
+   * @return List of all elements on which the operation was applied using default order
+   */
+  List<T> apply(T element) throws NetworkException,
+      InterruptedException;
 
-	/**
-	 * Apply the operation on element
-	 * 
-	 * @param element
-	 * @param order
-	 * @return List of all elements on which the operation was applied using
-	 *         order specified
-	 * @throws NetworkException
-	 * @throws InterruptedException
-	 */
-	public List<T> apply(T element, List<? extends Identifier> order)
-			throws NetworkException, InterruptedException;
+  /**
+   * Apply the operation on element.
+   *
+   * @return List of all elements on which the operation was applied using order specified
+   */
+  List<T> apply(T element, List<? extends Identifier> order)
+      throws NetworkException, InterruptedException;
 }

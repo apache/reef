@@ -165,7 +165,7 @@ public final class TaskStatus {
   }
 
   private void heartbeat() {
-    this.heartBeatManager.onNext(this.toProto());
+    this.heartBeatManager.sendTaskStatus(this.toProto());
   }
 
   /**

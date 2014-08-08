@@ -23,93 +23,73 @@ import com.microsoft.wake.Identifier;
 import java.util.List;
 
 /**
- * MPI Reduce operator
- * 
+ * MPI Reduce operator.
+ *
  * This is another operator with root being receiver All senders send an element
  * to the receiver. These elements are passed through a reduce function and its
  * result is made available at the root
- * 
- * @author shravan
- * 
  */
 public interface Reduce {
-	/**
-	 * Receiver or Root
-	 * 
-	 * @param <T>
-	 */
+
+  /**
+   * Receiver or Root
+   */
   @DefaultImplementation(ReduceOp.Receiver.class)
-	public static interface Receiver<T> {
-		/**
-		 * Receive values sent by senders and pass them through the reduce
-		 * function in default order
-		 * 
-		 * @return Result of applying reduce function on the elements gathered
-		 *         in default order
-		 * @throws InterruptedException
-		 * @throws NetworkException
-		 */
-		public T reduce() throws InterruptedException, NetworkException;
+  static interface Receiver<T> extends GroupCommOperator {
 
-		/**
-		 * Receive values sent by senders and pass them through the reduce
-		 * function in specified order
-		 * 
-		 * @param order
-		 * @return Result of applying reduce function on the elements gathered
-		 *         in specified order
-		 * @throws InterruptedException
-		 * @throws NetworkException
-		 */
-		public T reduce(List<? extends Identifier> order)
-				throws InterruptedException, NetworkException;
+    /**
+     * Receive values sent by senders and pass them through the reduce
+     * function in default order.
+     *
+     * @return Result of applying reduce function on the elements gathered in default order.
+     */
+    T reduce() throws InterruptedException, NetworkException;
 
-		/**
-		 * The reduce function to be applied on the set of received values
-		 * 
-		 * @return {@link ReduceFunction}
-		 */
-		public Reduce.ReduceFunction<T> getReduceFunction();
-	}
+    /**
+     * Receive values sent by senders and pass them through the reduce
+     * function in specified order.
+     *
+     * @return Result of applying reduce function on the elements gathered in specified order.
+     */
+    T reduce(List<? extends Identifier> order) throws InterruptedException, NetworkException;
 
-	/**
-	 * Senders or non roots
-	 * 
-	 * @param <T>
-	 */
+    /**
+     * The reduce function to be applied on the set of received values
+     *
+     * @return {@link ReduceFunction}
+     */
+    Reduce.ReduceFunction<T> getReduceFunction();
+  }
+
+  /**
+   * Senders or non roots
+   */
   @DefaultImplementation(ReduceOp.Sender.class)
-	public static interface Sender<T> {
-		/**
-		 * Send the element to the root
-		 * 
-		 * @param element
-		 * @throws NetworkException
-		 * @throws InterruptedException
-		 */
-		public void send(T element) throws NetworkException,
-				InterruptedException;
+  static interface Sender<T> extends GroupCommOperator {
 
-		/**
-		 * The {@link ReduceFunction} to be applied on the set of received values
-		 * 
-		 * @return {@link ReduceFunction}
-		 */
-		public Reduce.ReduceFunction<T> getReduceFunction();
-	}
+    /**
+     * Send the element to the root.
+     */
+    void send(T element) throws NetworkException, InterruptedException;
 
-	/**
-	 * Interface for a Reduce Function takes in an {@link Iterable} returns an
-	 * aggregate value computed from the {@link Iterable}
-	 * 
-	 * @param <T>
-	 */
-	public static interface ReduceFunction<T> {
-		/**
-		 * Apply the function on elements
-		 * 
-		 * @param elements
-		 * @return aggregate value computed from elements
-		 */
-		public T apply(Iterable<T> elements);
-	}
+    /**
+     * The {@link ReduceFunction} to be applied on the set of received values.
+     *
+     * @return {@link ReduceFunction}
+     */
+    Reduce.ReduceFunction<T> getReduceFunction();
+  }
+
+  /**
+   * Interface for a Reduce Function takes in an {@link Iterable} returns an
+   * aggregate value computed from the {@link Iterable}
+   */
+  static interface ReduceFunction<T> {
+    /**
+     * Apply the function on elements.
+     *
+     * @return aggregate value computed from elements.
+     */
+    T apply(Iterable<T> elements);
+  }
 }

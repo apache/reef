@@ -32,6 +32,7 @@ public final class ParsedHttpRequest {
   private final String requestUrl;
   private final byte[] inputStream;
   private final String targetSpecification;
+  private final String version;
   private final String targetEntity;
 
   private final Map<String, String> headers = new HashMap();
@@ -44,7 +45,7 @@ public final class ParsedHttpRequest {
    * @throws IOException
    * @throws ServletException
    */
-  public ParsedHttpRequest(final HttpServletRequest request) throws IOException, ServletException {
+  public ParsedHttpRequest(final HttpServletRequest request) throws IOException {
     this.pathInfo = request.getPathInfo() != null ? request.getPathInfo() : "";
     this.method = request.getMethod() != null ? request.getMethod() : "";
     this.queryString = request.getQueryString() != null ? request.getQueryString() : "";
@@ -64,16 +65,12 @@ public final class ParsedHttpRequest {
       this.inputStream = new byte[0];
     }
 
-    if (this.requestUri != null) {
-      final String[] parts = this.requestUri.split("/");
-      this.targetSpecification = parts.length > 1 ? parts[1] : null;
-      this.targetEntity = parts.length > 2 ? parts[2] : null;
-    } else {
-      this.targetSpecification = null;
-      this.targetEntity = null;
-    }
+    final String[] parts = this.requestUri.split("/");
+    this.targetSpecification = parts.length > 1 ? parts[1] : null;
+    this.version = parts.length > 2 ? parts[2] : null;
+    this.targetEntity = parts.length > 3 ? parts[3] : null;
 
-    if (this.queryString != null && this.queryString.length() != 0) {
+    if (this.queryString != null && !this.queryString.isEmpty()) {
       final String[] pairs = this.queryString.split("&");
       for (final String pair : pairs) {
         final int idx = pair.indexOf("=");
@@ -181,5 +178,14 @@ public final class ParsedHttpRequest {
    */
   public String getRequestUri() {
     return this.requestUri;
+  }
+
+  /**
+   * get version of the request for Rest API
+   *
+   * @return
+   */
+  public String getVersion() {
+    return version;
   }
 }

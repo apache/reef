@@ -22,88 +22,54 @@ import com.microsoft.wake.Identifier;
 
 import java.util.List;
 
-
 /**
  * MPI Scatter operator
- * 
+ *
  * Scatter a list of elements to the receivers The receivers will receive a
  * sub-list of elements targeted for them. Supports non-uniform distribution
  * through the specification of counts
- * 
- * @author shravan
- * 
  */
 public interface Scatter {
-	/**
-	 * Sender or Root
-	 * 
-	 * @param <T>
-	 */
+
+  /**
+   * Sender or Root.
+   */
   @DefaultImplementation(ScatterOp.Sender.class)
-	public static interface Sender<T> {
-		/**
-		 * Distributes evenly across task ids sorted lexicographically
-		 * 
-		 * @param elements
-		 * @throws NetworkException
-		 * @throws InterruptedException
-		 */
-		public void send(List<T> elements) throws NetworkException,
-				InterruptedException;
+  static interface Sender<T> extends GroupCommOperator {
 
-		/**
-		 * Distributes as per counts across task ids sorted
-		 * lexicographically
-		 * 
-		 * @param elements
-		 * @param counts
-		 * @throws NetworkException
-		 * @throws InterruptedException
-		 */
-		public void send(List<T> elements, Integer... counts)
-				throws NetworkException, InterruptedException;
+    /**
+     * Distributes evenly across task ids sorted lexicographically.
+     */
+    void send(List<T> elements) throws NetworkException, InterruptedException;
 
-		/**
-		 * Distributes evenly across task ids sorted using order
-		 * 
-		 * @param elements
-		 * @param order
-		 * @throws NetworkException
-		 * @throws InterruptedException
-		 */
-		public void send(List<T> elements, List<? extends Identifier> order)
-				throws NetworkException, InterruptedException;
+    /**
+     * Distributes as per counts across task ids sorted lexicographically.
+     */
+    void send(List<T> elements, Integer... counts) throws NetworkException, InterruptedException;
 
-		/**
-		 * Distributes as per counts across task ids sorted using order
-		 * 
-		 * @param elements
-		 * @param counts
-		 * @param order
-		 * @throws NetworkException
-		 * @throws InterruptedException
-		 */
-		public void send(List<T> elements, List<Integer> counts,
-				List<? extends Identifier> order) throws NetworkException,
-				InterruptedException;
+    /**
+     * Distributes evenly across task ids sorted using order.
+     */
+    void send(List<T> elements, List<? extends Identifier> order)
+        throws NetworkException, InterruptedException;
 
-	}
+    /**
+     * Distributes as per counts across task ids sorted using order.
+     */
+    void send(List<T> elements, List<Integer> counts,
+        List<? extends Identifier> order) throws NetworkException, InterruptedException;
+  }
 
-	/**
-	 * Receiver or non-roots
-	 * 
-	 * @param <T>
-	 */
-	@DefaultImplementation(ScatterOp.Receiver.class)
-	public static interface Receiver<T> {
-		/**
-		 * Receive the sub-list of elements targeted for the current receiver
-		 * 
-		 * @return list of elements targeted for the current receiver
-		 * @throws InterruptedException
-		 * @throws NetworkException
-		 */
-		public List<T> receive() throws InterruptedException, NetworkException;
-	}
-
+  /**
+   * Receiver or non-roots.
+   */
+  @DefaultImplementation(ScatterOp.Receiver.class)
+  static interface Receiver<T> extends GroupCommOperator {
+    /**
+     * Receive the sub-list of elements targeted for the current receiver.
+     *
+     * @return list of elements targeted for the current receiver.
+     */
+    List<T> receive() throws InterruptedException, NetworkException;
+  }
 }

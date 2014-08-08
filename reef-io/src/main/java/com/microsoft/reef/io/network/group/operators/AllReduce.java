@@ -27,42 +27,29 @@ import java.util.List;
  * MPI All Reduce Operator. Each task applies this operator on an element of
  * type T. The result will be an element which is result of applying a reduce
  * function on the list of all elements on which this operator has been applied
- * 
- * @author shravan
- * @param <T>
  */
 @DefaultImplementation(AllReduceOp.class)
-public interface AllReduce<T> {
+public interface AllReduce<T> extends GroupCommOperator{
 
   /**
    * Apply the operation on element.
-   * 
-   * @param aElement
+   *
    * @return result of all-reduce on all elements operation was applied on.
    *         Reduce function is applied based on default order.
-   * 
-   * @throws InterruptedException
-   * 
-   * @throws NetworkException
    */
   T apply(T aElement) throws InterruptedException, NetworkException;
 
   /**
    * Apply the operation on element.
-   * 
-   * @param element
-   * @param order
+   *
    * @return result of all-reduce on all elements operation was applied on.
    *         Reduce function is applied based on specified order.
-   * @throws InterruptedException
-   * @throws NetworkException
    */
-  T apply(T element, List<? extends Identifier> order)
-      throws InterruptedException, NetworkException;
+  T apply(T element, List<? extends Identifier> order) throws InterruptedException, NetworkException;
 
   /**
    * Get the {@link ReduceFunction} configured.
-   * 
+   *
    * @return {@link ReduceFunction}
    */
   Reduce.ReduceFunction<T> getReduceFunction();

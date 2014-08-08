@@ -15,18 +15,22 @@
  */
 package com.microsoft.reef.driver.context;
 
-import com.microsoft.reef.evaluator.context.parameters.*;
-import com.microsoft.reef.driver.task.TaskConfigurationOptions;
-import com.microsoft.reef.task.events.TaskStart;
-import com.microsoft.reef.task.events.TaskStop;
 import com.microsoft.reef.annotations.Provided;
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
+import com.microsoft.reef.driver.task.TaskConfigurationOptions;
 import com.microsoft.reef.evaluator.context.ContextMessageHandler;
 import com.microsoft.reef.evaluator.context.ContextMessageSource;
 import com.microsoft.reef.evaluator.context.events.ContextStart;
 import com.microsoft.reef.evaluator.context.events.ContextStop;
 import com.microsoft.tang.formats.*;
+import com.microsoft.reef.evaluator.context.parameters.*;
+import com.microsoft.reef.runtime.common.evaluator.DefaultDriverConnection;
+import com.microsoft.reef.runtime.common.evaluator.DriverConnection;
+import com.microsoft.reef.task.events.TaskStart;
+import com.microsoft.reef.task.events.TaskStop;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
 
 /**
@@ -74,10 +78,16 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<ContextMessageHandler> ON_MESSAGE = new OptionalImpl<>();
 
   /**
+   * Implementation for reconnecting to driver after driver restart
+   */
+  public static final OptionalImpl<DriverConnection> ON_DRIVER_RECONNECT = new OptionalImpl<>();
+
+  /**
    * A ConfigurationModule for context.
    */
   public static final ConfigurationModule CONF = new ContextConfiguration()
       .bindNamedParameter(ContextIdentifier.class, IDENTIFIER)
+      .bindNamedParameter(DriverReconnect.class, ON_DRIVER_RECONNECT)
       .bindSetEntry(ContextStartHandlers.class, ON_CONTEXT_STARTED)
       .bindSetEntry(ContextStopHandlers.class, ON_CONTEXT_STOP)
       .bindSetEntry(ContextMessageSources.class, ON_SEND_MESSAGE)
@@ -85,4 +95,9 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, ON_TASK_STARTED)
       .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, ON_TASK_STOP)
       .build();
+
+  @NamedParameter(doc = "House the implementation for re-connecting to driver after driver restart",
+          default_classes = DefaultDriverConnection.class)
+  public static final class DriverReconnect implements Name<DriverConnection> {
+  }
 }

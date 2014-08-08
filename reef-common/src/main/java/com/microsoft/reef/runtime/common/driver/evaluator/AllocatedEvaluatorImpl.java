@@ -22,7 +22,7 @@ import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfigurationModule;
+import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
@@ -47,6 +47,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private final EvaluatorManager evaluatorManager;
   private final String remoteID;
   private final ConfigurationSerializer configurationSerializer;
+  private final String jobIdentifier;
 
   /**
    * The set of files to be places on the Evaluator.
@@ -59,10 +60,12 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   AllocatedEvaluatorImpl(final EvaluatorManager evaluatorManager,
                          final String remoteID,
-                         final ConfigurationSerializer configurationSerializer) {
+                         final ConfigurationSerializer configurationSerializer,
+                         final String jobIdentifier) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
     this.configurationSerializer = configurationSerializer;
+    this.jobIdentifier = jobIdentifier;
   }
 
   @Override
@@ -123,9 +126,10 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                             final Optional<Configuration> serviceConfiguration,
                             final Optional<Configuration> taskConfiguration) {
     try {
-      final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfigurationModule.CONF
-          .set(EvaluatorConfigurationModule.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
-          .set(EvaluatorConfigurationModule.EVALUATOR_IDENTIFIER, this.getId());
+      final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfiguration.CONF
+          .set(EvaluatorConfiguration.APPLICATION_IDENTIFIER, this.jobIdentifier)
+          .set(EvaluatorConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
+          .set(EvaluatorConfiguration.EVALUATOR_IDENTIFIER, this.getId());
 
       final String encodedContextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
       // Add the (optional) service configuration
@@ -134,12 +138,12 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
         // With service configuration
         final String encodedServiceConfigurationString = this.configurationSerializer.toString(serviceConfiguration.get());
         contextConfigurationModule = evaluatorConfigurationModule
-            .set(EvaluatorConfigurationModule.ROOT_SERVICE_CONFIGURATION, encodedServiceConfigurationString)
-            .set(EvaluatorConfigurationModule.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
+            .set(EvaluatorConfiguration.ROOT_SERVICE_CONFIGURATION, encodedServiceConfigurationString)
+            .set(EvaluatorConfiguration.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
       } else {
         // No service configuration
         contextConfigurationModule = evaluatorConfigurationModule
-            .set(EvaluatorConfigurationModule.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
+            .set(EvaluatorConfiguration.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
       }
 
       // Add the (optional) task configuration
@@ -147,7 +151,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
       if (taskConfiguration.isPresent()) {
         final String encodedTaskConfigurationString = this.configurationSerializer.toString(taskConfiguration.get());
         evaluatorConfiguration = contextConfigurationModule
-            .set(EvaluatorConfigurationModule.TASK_CONFIGURATION, encodedTaskConfigurationString).build();
+            .set(EvaluatorConfiguration.TASK_CONFIGURATION, encodedTaskConfigurationString).build();
       } else {
         evaluatorConfiguration = contextConfigurationModule.build();
       }

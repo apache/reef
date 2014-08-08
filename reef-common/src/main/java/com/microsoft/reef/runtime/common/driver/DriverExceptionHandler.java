@@ -39,7 +39,7 @@ public final class DriverExceptionHandler implements EventHandler<Throwable> {
   @Inject
   public DriverExceptionHandler(final DriverStatusManager driverStatusManager) {
     this.driverStatusManager = driverStatusManager;
-    LOG.log(Level.INFO, "Instantiated 'DriverExceptionHandler'");
+    LOG.log(Level.FINE, "Instantiated 'DriverExceptionHandler'");
   }
 
 

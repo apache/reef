@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(CLRLaunchCommandBuilder.class.getName());
-  private static final String EVALUATOR_PATH = "Microsoft.Reef.Evaluator.exe";
+  private static final String EVALUATOR_PATH = "reef/global/Microsoft.Reef.Evaluator.exe";
 
 
   private String standardErrPath = null;
@@ -49,7 +49,7 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
     if ((null != this.standardErrPath) && (!standardErrPath.isEmpty())) {
       result.add("2>" + this.standardErrPath);
     }
-    LOG.log(Level.INFO, "Launch Exe: {0}", StringUtils.join(result, ' '));
+    LOG.log(Level.FINE, "Launch Exe: {0}", StringUtils.join(result, ' '));
     return result;
   }
 

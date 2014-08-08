@@ -47,7 +47,6 @@ public final class EvaluatorContext implements ActiveContext {
   private final String evaluatorIdentifier;
   private final EvaluatorDescriptor evaluatorDescriptor;
 
-
   private final Optional<String> parentID;
   private final ConfigurationSerializer configurationSerializer;
   private final ContextControlHandler contextControlHandler;
@@ -55,7 +54,7 @@ public final class EvaluatorContext implements ActiveContext {
   private final EvaluatorMessageDispatcher messageDispatcher;
   private final ExceptionCodec exceptionCodec;
 
-  private boolean closed = false;
+  private boolean isClosed = false;
 
   public EvaluatorContext(final String contextIdentifier,
                           final String evaluatorIdentifier,
@@ -66,6 +65,7 @@ public final class EvaluatorContext implements ActiveContext {
                           final EvaluatorManager evaluatorManager,
                           final EvaluatorMessageDispatcher messageDispatcher,
                           final ExceptionCodec exceptionCodec) {
+
     this.contextIdentifier = contextIdentifier;
     this.evaluatorIdentifier = evaluatorIdentifier;
     this.evaluatorDescriptor = evaluatorDescriptor;
@@ -75,33 +75,41 @@ public final class EvaluatorContext implements ActiveContext {
     this.evaluatorManager = evaluatorManager;
     this.messageDispatcher = messageDispatcher;
     this.exceptionCodec = exceptionCodec;
-    LOG.log(Level.INFO, "Instantiated 'EvaluatorContext'");
+
+    LOG.log(Level.FINE, "Instantiated 'EvaluatorContext'");
   }
 
   @Override
   public synchronized void close() {
-    if (this.closed) {
+
+    if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
-    LOG.log(Level.FINEST, "Submit close context: RunningEvaluator id[" + getEvaluatorId() + "] for context id[" + getId() + "]");
+
+    LOG.log(Level.FINEST, "Submit close context: RunningEvaluator id[{0}] for context id[{1}]",
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
             .setRemoveContext(
                 EvaluatorRuntimeProtocol.RemoveContextProto.newBuilder()
                     .setContextId(getId())
-                    .build()
-            ).build();
+                    .build())
+            .build();
+
     this.contextControlHandler.send(contextControlProto);
-    this.closed = true;
+    this.isClosed = true;
   }
 
   @Override
   public synchronized void sendMessage(final byte[] message) {
-    if (this.closed) {
+
+    if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
-    LOG.log(Level.FINEST, "Send message: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
+
+    LOG.log(Level.FINEST, "Send message: RunningEvaluator id[{0}] for context id[{1}]",
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -110,15 +118,19 @@ public final class EvaluatorContext implements ActiveContext {
                 .setMessage(ByteString.copyFrom(message))
                 .build())
             .build();
+
     this.contextControlHandler.send(contextControlProto);
   }
 
   @Override
   public synchronized void submitTask(final Configuration taskConf) {
-    if (this.closed) {
+
+    if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
-    LOG.log(Level.FINEST, "Submit task: RunningEvaluator id[" + getEvaluatorId() + "] context id[" + getId() + "]");
+
+    LOG.log(Level.FINEST, "Submit task: RunningEvaluator id[{0}] for context id[{1}]",
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -126,17 +138,21 @@ public final class EvaluatorContext implements ActiveContext {
                 EvaluatorRuntimeProtocol.StartTaskProto.newBuilder()
                     .setContextId(this.contextIdentifier)
                     .setConfiguration(this.configurationSerializer.toString(taskConf))
-                    .build()
-            ).build();
+                    .build())
+            .build();
+
     this.contextControlHandler.send(contextControlProto);
   }
 
   @Override
   public synchronized void submitContext(final Configuration contextConfiguration) {
-    if (this.closed) {
+
+    if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
-    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
+
+    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[{0}] for context id[{1}]",
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -144,17 +160,22 @@ public final class EvaluatorContext implements ActiveContext {
                 EvaluatorRuntimeProtocol.AddContextProto.newBuilder()
                     .setParentContextId(getId())
                     .setContextConfiguration(this.configurationSerializer.toString(contextConfiguration))
-                    .build()
-            ).build();
+                    .build())
+            .build();
+
     this.contextControlHandler.send(contextControlProto);
   }
 
   @Override
-  public synchronized void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration) {
-    if (this.closed) {
+  public synchronized void submitContextAndService(
+      final Configuration contextConfiguration, final Configuration serviceConfiguration) {
+
+    if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
-    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[" + getEvaluatorId() + "] parent context id[" + getId() + "]");
+
+    LOG.log(Level.FINEST, "Submit new context: RunningEvaluator id[{0}] for context id[{1}]",
+        new Object[]{getEvaluatorId(), getId()});
 
     final EvaluatorRuntimeProtocol.ContextControlProto contextControlProto =
         EvaluatorRuntimeProtocol.ContextControlProto.newBuilder()
@@ -163,8 +184,9 @@ public final class EvaluatorContext implements ActiveContext {
                     .setParentContextId(getId())
                     .setContextConfiguration(this.configurationSerializer.toString(contextConfiguration))
                     .setServiceConfiguration(this.configurationSerializer.toString(serviceConfiguration))
-                    .build()
-            ).build();
+                    .build())
+            .build();
+
     this.contextControlHandler.send(contextControlProto);
   }
 
@@ -188,62 +210,72 @@ public final class EvaluatorContext implements ActiveContext {
     return this.contextIdentifier;
   }
 
-
   @Override
   public String toString() {
     return "EvaluatorContext{" +
-        "contextIdentifier='" + contextIdentifier + '\'' +
-        ", evaluatorIdentifier='" + evaluatorIdentifier + '\'' +
-        ", parentID=" + parentID +
-        '}';
+        "contextIdentifier='" + this.contextIdentifier + '\'' +
+        ", evaluatorIdentifier='" + this.evaluatorIdentifier + '\'' +
+        ", parentID=" + this.parentID + '}';
   }
 
   public synchronized final ClosedContext getClosedContext(final ActiveContext parentContext) {
-    return new ClosedContextImpl(parentContext, this.getId(), this.getEvaluatorId(), this.getEvaluatorDescriptor());
+    return new ClosedContextImpl(
+        parentContext, this.getId(), this.getEvaluatorId(), this.getEvaluatorDescriptor());
   }
 
   /**
    * @return a FailedContext for the case of an EvaluatorFailure.
    */
   public synchronized FailedContext getFailedContextForEvaluatorFailure() {
+
     final String id = this.getId();
     final Optional<String> description = Optional.empty();
-    final Optional<byte[]> data = Optional.<byte[]>empty();
-    final Optional<Throwable> cause = Optional.<Throwable>empty();
+    final Optional<byte[]> data = Optional.empty();
+    final Optional<Throwable> cause = Optional.empty();
     final String message = "Evaluator Failure";
+
     final Optional<ActiveContext> parentContext = getParentId().isPresent() ?
         Optional.<ActiveContext>of(this.evaluatorManager.getEvaluatorContext(getParentId().get())) :
         Optional.<ActiveContext>empty();
+
     final EvaluatorDescriptor evaluatorDescriptor = getEvaluatorDescriptor();
     final String evaluatorID = getEvaluatorId();
 
-    return new FailedContextImpl(id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
+    return new FailedContextImpl(
+        id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
   }
 
-  private synchronized FailedContext getFailedContext(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
+  private synchronized FailedContext getFailedContext(
+      final ReefServiceProtos.ContextStatusProto contextStatusProto) {
+
     assert (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState());
 
     final String id = this.getId();
     final Optional<String> description = Optional.empty();
+
     final Optional<byte[]> data = contextStatusProto.hasError() ?
-        Optional.<byte[]>of(contextStatusProto.getError().toByteArray()) :
+        Optional.of(contextStatusProto.getError().toByteArray()) :
         Optional.<byte[]>empty();
+
     final Optional<Throwable> cause = data.isPresent() ?
         this.exceptionCodec.fromBytes(data) :
         Optional.<Throwable>empty();
-    final String message = cause.isPresent() ?
-        cause.get().getMessage() :
-        "No message given";
+
+    final String message = cause.isPresent() ? cause.get().getMessage() : "No message given";
+
     final Optional<ActiveContext> parentContext = getParentId().isPresent() ?
         Optional.<ActiveContext>of(this.evaluatorManager.getEvaluatorContext(getParentId().get())) :
         Optional.<ActiveContext>empty();
+
     final EvaluatorDescriptor evaluatorDescriptor = getEvaluatorDescriptor();
     final String evaluatorID = getEvaluatorId();
 
-    return new FailedContextImpl(id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
+    return new FailedContextImpl(
+        id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
   }
 
-  public synchronized void onContextFailure(ReefServiceProtos.ContextStatusProto contextStatusProto) {
+  public synchronized void onContextFailure(
+      final ReefServiceProtos.ContextStatusProto contextStatusProto) {
     this.messageDispatcher.onContextFailed(getFailedContext(contextStatusProto));
   }
 }

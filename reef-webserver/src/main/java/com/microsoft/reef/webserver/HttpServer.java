@@ -46,7 +46,8 @@ public interface HttpServer {
 
   /**
    * Add a httpHandler to the server
+   *
    * @param httpHandler
    */
-  public void addHttpHandler(HttpHandler httpHandler);
+  public void addHttpHandler(final HttpHandler httpHandler);
 }
