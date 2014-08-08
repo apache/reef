@@ -39,7 +39,7 @@ public interface Broadcast {
    * @param <T>
    */
   @DefaultImplementation(BroadcastOp.Sender.class)
-  public static interface Sender<T> {
+  public static interface Sender<T> extends GroupCommOperator{
 
     /**
      * Send element to all receivers.
@@ -57,7 +57,7 @@ public interface Broadcast {
    * @param <T>
    */
   @DefaultImplementation(BroadcastOp.Receiver.class)
-  public static interface Receiver<T> {
+  public static interface Receiver<T> extends GroupCommOperator{
 
     /**
      * Receiver the element broadcasted by sender.

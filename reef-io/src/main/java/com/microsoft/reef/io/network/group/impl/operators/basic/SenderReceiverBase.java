@@ -15,6 +15,10 @@
  */
 package com.microsoft.reef.io.network.group.impl.operators.basic;
 
+import java.util.Collections;
+import java.util.List;
+
+import com.microsoft.reef.io.network.group.operators.AbstractGroupCommOperator;
 import com.microsoft.reef.io.network.group.operators.Broadcast;
 import com.microsoft.reef.io.network.group.operators.Gather;
 import com.microsoft.reef.io.network.group.operators.Reduce;
@@ -22,16 +26,13 @@ import com.microsoft.reef.io.network.group.operators.Scatter;
 import com.microsoft.wake.ComparableIdentifier;
 import com.microsoft.wake.Identifier;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Base class for all asymmetric operators
  * {@link Scatter}, {@link Broadcast}, {@link Gather}, {@link Reduce}
  *
  * @author shravan
  */
-public class SenderReceiverBase {
+public class SenderReceiverBase extends AbstractGroupCommOperator{
 
   private Identifier self;
   private Identifier parent;
@@ -41,21 +42,22 @@ public class SenderReceiverBase {
     super();
   }
 
-  public SenderReceiverBase(Identifier self, Identifier parent,
-                            List<ComparableIdentifier> children) {
+  public SenderReceiverBase(final Identifier self, final Identifier parent,
+                            final List<ComparableIdentifier> children) {
     super();
     this.setSelf(self);
     this.setParent(parent);
     this.setChildren(children);
-    if (children != null)
+    if (children != null) {
       Collections.sort(children);
+    }
   }
 
   public Identifier getParent() {
     return parent;
   }
 
-  public void setParent(Identifier parent) {
+  public void setParent(final Identifier parent) {
     this.parent = parent;
   }
 
@@ -63,7 +65,7 @@ public class SenderReceiverBase {
     return self;
   }
 
-  public void setSelf(Identifier self) {
+  public void setSelf(final Identifier self) {
     this.self = self;
   }
 
@@ -71,7 +73,7 @@ public class SenderReceiverBase {
     return children;
   }
 
-  public void setChildren(List<ComparableIdentifier> children) {
+  public void setChildren(final List<ComparableIdentifier> children) {
     this.children = children;
   }
 

@@ -15,6 +15,12 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.hadoop.mapred.TextInputFormat;
+
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
@@ -33,13 +39,6 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.CommandLine;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.TextInputFormat;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Client for the data loading demo app
@@ -100,10 +99,6 @@ public class DataLoadingREEF {
       runtimeConfiguration = YarnClientConfiguration.CONF.build();
     }
 
-    final JobConf jobConf = new JobConf();
-    jobConf.setInputFormat(TextInputFormat.class);
-    TextInputFormat.addInputPath(jobConf, new Path(inputDir));
-
     final EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
         .setNumber(NUM_COMPUTE_EVALUATORS)
         .setMemory(512)
@@ -111,7 +106,8 @@ public class DataLoadingREEF {
 
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
         .setMemoryMB(1024)
-        .setJobConf(jobConf)
+        .setInputFormatClass(TextInputFormat.class)
+        .setInputPath(inputDir)
         .setNumberOfDesiredSplits(NUM_SPLITS)
         .setComputeRequest(computeRequest)
         .setDriverConfigurationModule(EnvironmentUtils

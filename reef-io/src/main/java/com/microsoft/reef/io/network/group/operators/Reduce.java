@@ -39,7 +39,7 @@ public interface Reduce {
 	 * @param <T>
 	 */
   @DefaultImplementation(ReduceOp.Receiver.class)
-	public static interface Receiver<T> {
+	public static interface Receiver<T> extends GroupCommOperator {
 		/**
 		 * Receive values sent by senders and pass them through the reduce
 		 * function in default order
@@ -78,7 +78,7 @@ public interface Reduce {
 	 * @param <T>
 	 */
   @DefaultImplementation(ReduceOp.Sender.class)
-	public static interface Sender<T> {
+	public static interface Sender<T> extends GroupCommOperator {
 		/**
 		 * Send the element to the root
 		 * 

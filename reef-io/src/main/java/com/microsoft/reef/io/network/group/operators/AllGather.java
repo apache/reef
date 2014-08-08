@@ -34,7 +34,7 @@ import java.util.List;
  * @param <T>
  */
 @DefaultImplementation(AllGatherOp.class)
-public interface AllGather<T> {
+public interface AllGather<T> extends GroupCommOperator{
 
 	/**
 	 * Apply the operation on element

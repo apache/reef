@@ -15,18 +15,23 @@
  */
 package com.microsoft.reef.io.data.loading.impl;
 
+import java.io.IOException;
+import java.util.Iterator;
+
+import javax.inject.Inject;
+
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.mapred.InputFormat;
+import org.apache.hadoop.mapred.InputSplit;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.mapred.Reporter;
+
 import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.io.data.loading.api.DataSet;
 import com.microsoft.reef.io.network.util.Utils.Pair;
-import com.microsoft.tang.annotations.Parameter;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.mapred.Counters.Counter;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Iterator;
 
 /**
  * An implementation of {@link DataSet} that reads records using a RecordReader
@@ -51,9 +56,8 @@ public final class
   private final InputSplit split;
 
   @Inject
-  public InputFormatDataSet(final InputSplit split,
-      final @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf) {
-    this.jobConf = WritableSerializer.deserialize(serializedJobConf);
+  public InputFormatDataSet(final InputSplit split, final JobConf jobConf) {
+    this.jobConf = jobConf;
     this.inputFormat = this.jobConf.getInputFormat();
     this.split = split;
   }

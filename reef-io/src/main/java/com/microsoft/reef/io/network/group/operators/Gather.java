@@ -40,7 +40,7 @@ public interface Gather {
 	 * @param <T>
 	 */
   @DefaultImplementation(GatherOp.Sender.class)
-	public static interface Sender<T> {
+	public static interface Sender<T> extends GroupCommOperator{
 		/**
 		 * Send the element to the root/receiver
 		 * 
@@ -58,7 +58,7 @@ public interface Gather {
 	 * @param <T>
 	 */
 	@DefaultImplementation(GatherOp.Receiver.class)
-	public static interface Receiver<T> {
+	public static interface Receiver<T> extends GroupCommOperator {
 		/**
 		 * Receive the elements sent by the senders in default order
 		 * 

@@ -36,7 +36,7 @@ import java.util.List;
  * @param <T>
  */
 @DefaultImplementation(ReduceScatterOp.class)
-public interface ReduceScatter<T> {
+public interface ReduceScatter<T> extends GroupCommOperator {
   /**
    * Apply this operation on elements where counts specify the distribution of
    * elements to each task. Ordering is assumed to be default

@@ -40,7 +40,7 @@ public interface Scatter {
 	 * @param <T>
 	 */
   @DefaultImplementation(ScatterOp.Sender.class)
-	public static interface Sender<T> {
+	public static interface Sender<T> extends GroupCommOperator {
 		/**
 		 * Distributes evenly across task ids sorted lexicographically
 		 * 
@@ -95,7 +95,7 @@ public interface Scatter {
 	 * @param <T>
 	 */
 	@DefaultImplementation(ScatterOp.Receiver.class)
-	public static interface Receiver<T> {
+	public static interface Receiver<T> extends GroupCommOperator {
 		/**
 		 * Receive the sub-list of elements targeted for the current receiver
 		 * 

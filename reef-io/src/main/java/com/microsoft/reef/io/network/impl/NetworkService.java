@@ -72,7 +72,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   private final Transport transport;
   private final NameClient nameClient;
 
-  private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<Identifier, Connection<T>>();
+  private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<>();
 
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
   private final EStage<Identifier> nameServiceUnregisteringStage;

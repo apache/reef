@@ -32,7 +32,7 @@ import java.util.List;
  * @param <T>
  */
 @DefaultImplementation(AllReduceOp.class)
-public interface AllReduce<T> {
+public interface AllReduce<T> extends GroupCommOperator{
 
   /**
    * Apply the operation on element.
