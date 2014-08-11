@@ -24,35 +24,27 @@ import com.microsoft.wake.Identifier;
 import java.util.List;
 
 /**
- * MPI Reduce Scatter operator
+ * MPI Reduce Scatter operator.
  *
  * Each task has a list of elements. Assume that each task reduces
  * each element in the list to form a list of reduced elements at a dummy root.
  * The dummy root then keeps the portion of the list assigned to it and
  * scatters the remaining among the other tasks
- *
- * @author shravan
- *
- * @param <T>
  */
 @DefaultImplementation(ReduceScatterOp.class)
-public interface ReduceScatter<T> {
+public interface ReduceScatter<T> extends GroupCommOperator {
+
   /**
    * Apply this operation on elements where counts specify the distribution of
-   * elements to each task. Ordering is assumed to be default
+   * elements to each task. Ordering is assumed to be default.
    *
-   * Here counts is of the same size as the entire group not just children
+   * Here counts is of the same size as the entire group not just children.
    *
-   * @param elements
-   * @param counts
    * @return List of values that result from applying reduce function on
    *         corresponding elements of each list received as a result of
    *         applying scatter.
-   * @throws InterruptedException
-   * @throws NetworkException
    */
-  public List<T> apply(List<T> elements, List<Integer> counts)
-      throws InterruptedException, NetworkException;
+  List<T> apply(List<T> elements, List<Integer> counts) throws InterruptedException, NetworkException;
 
   /**
    * Apply this operation on elements where counts specify the distribution of
@@ -60,22 +52,17 @@ public interface ReduceScatter<T> {
    *
    * Here counts is of the same size as the entire group not just children
    *
-   * @param elements
-   * @param counts
    * @return List of values that result from applying reduce function on
    *         corresponding elements of each list received as a result of
    *         applying scatter.
-   * @throws InterruptedException
-   * @throws NetworkException
    */
-  public List<T> apply(List<T> elements, List<Integer> counts,
-      List<? extends Identifier> order) throws InterruptedException,
-      NetworkException;
+  List<T> apply(List<T> elements, List<Integer> counts,
+      List<? extends Identifier> order) throws InterruptedException, NetworkException;
 
   /**
    * get {@link ReduceFunction} configured
    *
    * @return {@link ReduceFunction}
    */
-  public Reduce.ReduceFunction<T> getReduceFunction();
+  Reduce.ReduceFunction<T> getReduceFunction();
 }

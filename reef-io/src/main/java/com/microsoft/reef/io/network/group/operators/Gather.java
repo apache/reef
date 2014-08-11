@@ -23,61 +23,44 @@ import com.microsoft.wake.Identifier;
 import java.util.List;
 
 /**
- * MPI Gather Operator
- * 
- * This is an operator where the root is a receiver and there are multiple
- * senders.
- * 
+ * MPI Gather Operator.
+ *
+ * This is an operator where the root is a receiver and there are multiple senders.
  * The root or receiver gathers all the elements sent by the senders in a List.
- * 
- * @author shravan
- * 
+ *
  */
 public interface Gather {
-	/**
-	 * Senders or non-roots
-	 * 
-	 * @param <T>
-	 */
+
+  /**
+   * Senders or non-roots.
+   */
   @DefaultImplementation(GatherOp.Sender.class)
-	public static interface Sender<T> {
-		/**
-		 * Send the element to the root/receiver
-		 * 
-		 * @param element
-		 * @throws InterruptedException
-		 * @throws NetworkException
-		 */
-		public void send(T element) throws InterruptedException,
-				NetworkException;
-	}
+  static interface Sender<T> extends GroupCommOperator {
 
-	/**
-	 * Receiver or Root
-	 * 
-	 * @param <T>
-	 */
-	@DefaultImplementation(GatherOp.Receiver.class)
-	public static interface Receiver<T> {
-		/**
-		 * Receive the elements sent by the senders in default order
-		 * 
-		 * @return elements sent by senders as a List in default order
-		 * @throws InterruptedException
-		 * @throws NetworkException
-		 */
-		public List<T> receive() throws InterruptedException, NetworkException;
+    /**
+     * Send the element to the root/receiver.
+     */
+    void send(T element) throws InterruptedException, NetworkException;
+  }
 
-		/**
-		 * Receive the elements sent by the senders in specified order
-		 * 
-		 * @param order
-		 * @return elements sent by senders as a List in specified order
-		 * @throws InterruptedException
-		 * @throws NetworkException
-		 */
-		public List<T> receive(List<? extends Identifier> order)
-				throws InterruptedException, NetworkException;
-	}
+  /**
+   * Receiver or Root
+   */
+  @DefaultImplementation(GatherOp.Receiver.class)
+  static interface Receiver<T> extends GroupCommOperator {
 
+    /**
+     * Receive the elements sent by the senders in default order.
+     *
+     * @return elements sent by senders as a List in default order
+     */
+    List<T> receive() throws InterruptedException, NetworkException;
+
+    /**
+     * Receive the elements sent by the senders in specified order
+     *
+     * @return elements sent by senders as a List in specified order
+     */
+    List<T> receive(List<? extends Identifier> order) throws InterruptedException, NetworkException;
+  }
 }

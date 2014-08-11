@@ -15,6 +15,18 @@
  */
 package com.microsoft.reef.io.data.loading.impl;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import org.apache.hadoop.mapred.InputFormat;
+import org.apache.hadoop.mapred.InputSplit;
+import org.apache.hadoop.mapred.JobConf;
+
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
@@ -24,20 +36,9 @@ import com.microsoft.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import com.microsoft.reef.io.data.loading.api.DataLoadingService;
 import com.microsoft.reef.io.data.loading.api.DataSet;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
-import org.apache.hadoop.mapred.InputFormat;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * An implementation of {@link DataLoadingService}
@@ -61,21 +62,26 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
 
   private final EvaluatorToPartitionMapper<InputSplit> evaluatorToPartitionMapper;
   private final int numberOfPartitions;
-  private final String serializedJobConf;
 
   private final boolean inMemory;
+
+  private final String inputFormatClass;
+
+  private final String inputPath;
 
   @Inject
   public InputFormatLoadingService(
       final InputFormat<K, V> inputFormat,
-      final @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf,
+      final JobConf jobConf,
       final @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) int numberOfDesiredSplits,
-      final @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) boolean inMemory) {
+      final @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) boolean inMemory,
+      final @Parameter(JobConfExternalConstructor.InputFormatClass.class) String inputFormatClass,
+      final @Parameter(JobConfExternalConstructor.InputPath.class) String inputPath) {
 
-    this.serializedJobConf = serializedJobConf;
     this.inMemory = inMemory;
+    this.inputFormatClass = inputFormatClass;
+    this.inputPath = inputPath;
 
-    final JobConf jobConf = WritableSerializer.deserialize(serializedJobConf);
 
     try {
 
@@ -131,12 +137,13 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
           .bindImplementation(
               DataSet.class,
               this.inMemory ? InMemoryInputFormatDataSet.class : InputFormatDataSet.class)
-          .bindNamedParameter(
-              InputFormatExternalConstructor.SerializedJobConf.class, this.serializedJobConf)
+          .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass)
+          .bindNamedParameter(JobConfExternalConstructor.InputPath.class, inputPath)
           .bindNamedParameter(
               InputSplitExternalConstructor.SerializedInputSplit.class,
               WritableSerializer.serialize(numberedSplit.getEntry()))
           .bindConstructor(InputSplit.class, InputSplitExternalConstructor.class)
+          .bindConstructor(JobConf.class, JobConfExternalConstructor.class)
           .build();
 
     } catch (final BindException ex) {

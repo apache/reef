@@ -15,12 +15,16 @@
  */
 package com.microsoft.reef.io.data.loading.api;
 
+import org.apache.hadoop.mapred.InputFormat;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.TextInputFormat;
+
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.io.data.loading.impl.EvaluatorRequestSerializer;
 import com.microsoft.reef.io.data.loading.impl.InputFormatExternalConstructor;
 import com.microsoft.reef.io.data.loading.impl.InputFormatLoadingService;
-import com.microsoft.reef.io.data.loading.impl.WritableSerializer;
+import com.microsoft.reef.io.data.loading.impl.JobConfExternalConstructor;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.JavaConfigurationBuilder;
 import com.microsoft.tang.Tang;
@@ -28,8 +32,6 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationModule;
-import org.apache.hadoop.mapred.InputFormat;
-import org.apache.hadoop.mapred.JobConf;
 
 /**
  * Builder to create a request to the DataLoadingService.
@@ -54,11 +56,12 @@ public final class DataLoadingRequestBuilder
   }
 
   private int memoryMB = -1;
-  private JobConf jobConf = null;
   private int numberOfDesiredSplits = -1;
   private EvaluatorRequest computeRequest = null;
   private boolean inMemory = false;
   private ConfigurationModule driverConfigurationModule = null;
+  private String inputFormatClass;
+  private String inputPath;
 
   public DataLoadingRequestBuilder setNumberOfDesiredSplits(final int numberOfDesiredSplits) {
     this.numberOfDesiredSplits = numberOfDesiredSplits;
@@ -73,14 +76,6 @@ public final class DataLoadingRequestBuilder
    */
   public DataLoadingRequestBuilder setMemoryMB(final int memoryMB) {
     this.memoryMB = memoryMB;
-    return this;
-  }
-
-  /**
-   * Set the jobConf to use for the InputFormat configuration.
-   */
-  public DataLoadingRequestBuilder setJobConf(final JobConf jobConf) {
-    this.jobConf = jobConf;
     return this;
   }
 
@@ -100,14 +95,29 @@ public final class DataLoadingRequestBuilder
     return this;
   }
 
+  public DataLoadingRequestBuilder setInputFormatClass(
+      final Class<? extends InputFormat> inputFormatClass) {
+    this.inputFormatClass = inputFormatClass.getName();
+    return this;
+  }
+
+  public DataLoadingRequestBuilder setInputPath(final String inputPath) {
+    this.inputPath = inputPath;
+    return this;
+  }
+
   @Override
   public Configuration build() throws BindException {
-
-    this.jobConf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
-    this.jobConf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
-
     if (this.driverConfigurationModule == null) {
       throw new BindException("Driver Configuration Module is a required parameter.");
+    }
+
+    if(this.inputPath == null) {
+      throw new BindException("InputPath is a required parameter.");
+    }
+
+    if(this.inputFormatClass == null) {
+      this.inputFormatClass = TextInputFormat.class.getName();
     }
 
     final Configuration driverConfiguration = this.driverConfigurationModule
@@ -133,11 +143,11 @@ public final class DataLoadingRequestBuilder
     }
 
     return jcb
-        .bindNamedParameter(LoadDataIntoMemory.class, "" + this.inMemory)
+        .bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
         .bindConstructor(InputFormat.class, InputFormatExternalConstructor.class)
-        .bindNamedParameter(
-            InputFormatExternalConstructor.SerializedJobConf.class,
-            WritableSerializer.serialize(this.jobConf))
+        .bindConstructor(JobConf.class, JobConfExternalConstructor.class)
+        .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass)
+        .bindNamedParameter(JobConfExternalConstructor.InputPath.class, inputPath)
         .bindImplementation(DataLoadingService.class, InputFormatLoadingService.class)
         .build();
   }

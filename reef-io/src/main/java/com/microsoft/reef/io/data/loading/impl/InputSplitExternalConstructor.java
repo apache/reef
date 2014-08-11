@@ -33,18 +33,16 @@ import com.microsoft.tang.annotations.Parameter;
  */
 @TaskSide
 public class InputSplitExternalConstructor implements ExternalConstructor<InputSplit> {
-  
+
   @NamedParameter
   public static final class SerializedInputSplit implements Name<String> { }
-  
+
   private final InputSplit inputSplit;
-  
+
   @Inject
   public InputSplitExternalConstructor(
-      @Parameter(SerializedInputSplit.class) String serializedInputSplit,
-      @Parameter(InputFormatExternalConstructor.SerializedJobConf.class) String serializedJobConf
-      ){
-    final JobConf jobConf = WritableSerializer.deserialize(serializedJobConf);
+      final JobConf jobConf,
+      @Parameter(SerializedInputSplit.class) final String serializedInputSplit){
     this.inputSplit = WritableSerializer.deserialize(serializedInputSplit, jobConf);
   }
 

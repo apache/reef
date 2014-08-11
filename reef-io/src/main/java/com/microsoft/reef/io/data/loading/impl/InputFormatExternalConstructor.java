@@ -22,9 +22,6 @@ import org.apache.hadoop.mapred.JobConf;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.tang.ExternalConstructor;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Parameter;
 
 
 /**
@@ -33,16 +30,13 @@ import com.microsoft.tang.annotations.Parameter;
  */
 @DriverSide
 public class InputFormatExternalConstructor implements ExternalConstructor<InputFormat<?,?>> {
-  
-  @NamedParameter
-  public static final class SerializedJobConf implements Name<String> { }
-  
+
   private final JobConf jobConf;
   private final InputFormat<?,?> inputFormat;
-  
+
   @Inject
-  public InputFormatExternalConstructor(@Parameter(SerializedJobConf.class) String serializedJobConf) {
-    jobConf = WritableSerializer.deserialize(serializedJobConf);
+  public InputFormatExternalConstructor(final JobConf jobConf) {
+    this.jobConf = jobConf;
     inputFormat = jobConf.getInputFormat();
   }
 

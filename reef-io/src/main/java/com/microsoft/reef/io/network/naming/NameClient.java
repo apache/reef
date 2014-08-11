@@ -51,125 +51,133 @@ public class NameClient implements Stage, Naming {
 
   /**
    * Constructs a naming client
-   * 
+   *
    * @param serverAddr a server address
    * @param serverPort a server port number
    * @param factory an identifier factory
    * @param cache a cache
    */
   public NameClient(String serverAddr, int serverPort,
-      IdentifierFactory factory, int retryCount, int retryTimeout, 
+      IdentifierFactory factory, int retryCount, int retryTimeout,
       Cache<Identifier, InetSocketAddress> cache) {
     this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache);
   }
-  
+
   /**
    * Constructs a naming client
-   * 
+   *
    * @param serverAddr a server address
    * @param serverPort a server port number
    * @param timeout timeout in ms
    * @param factory an identifier factory
    * @param cache a cache
    */
-  public NameClient(String serverAddr, int serverPort, long timeout,
-      IdentifierFactory factory, int retryCount, int retryTimeout, 
-      Cache<Identifier, InetSocketAddress> cache) {
-    BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
-    BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
-    Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
-    transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
-        new SyncStage<TransportEvent>(new NamingClientEventHandler(
-            new NamingResponseHandler(replyLookupQueue, replyRegisterQueue),
-            codec)), null);
+  public NameClient(final String serverAddr, final int serverPort, final long timeout,
+      final IdentifierFactory factory, final int retryCount, final int retryTimeout,
+      final Cache<Identifier, InetSocketAddress> cache) {
 
-    lookupClient = new NameLookupClient(serverAddr, serverPort, timeout,
-        factory, retryCount, retryTimeout, replyLookupQueue, transport, cache);
-    registryClient = new NameRegistryClient(serverAddr, serverPort, timeout,
-        factory, replyRegisterQueue, transport);
+    final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
+    final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
+    final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
+
+    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
+        new SyncStage<>(new NamingClientEventHandler(
+            new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)),
+        null, retryCount, retryTimeout);
+
+    this.lookupClient = new NameLookupClient(serverAddr, serverPort, timeout,
+        factory, retryCount, retryTimeout, replyLookupQueue, this.transport, cache);
+
+    this.registryClient = new NameRegistryClient(serverAddr, serverPort, timeout,
+        factory, replyRegisterQueue, this.transport);
   }
 
   /**
    * Registers an (identifier, address) mapping
-   * 
+   *
    * @param id an identifier
    * @param addr an Internet socket address
    */
   @Override
-  public void register(Identifier id, InetSocketAddress addr)
+  public void register(final Identifier id, final InetSocketAddress addr)
       throws Exception {
-    LOG.log(Level.FINE, id + " " + addr);
-    registryClient.register(id, addr);
+    LOG.log(Level.FINE, "Refister {0} : {1}", new Object[] { id, addr });
+    this.registryClient.register(id, addr);
   }
 
   /**
    * Unregisters an identifier
-   * 
+   *
    * @param id an identifier
    */
   @Override
-  public void unregister(Identifier id) throws IOException {
-    registryClient.unregister(id);
+  public void unregister(final Identifier id) throws IOException {
+    this.registryClient.unregister(id);
   }
 
   /**
    * Finds an address for an identifier
-   * 
+   *
    * @param id an identifier
    * @return an Internet socket address
    */
   @Override
-  public InetSocketAddress lookup(Identifier id) throws Exception {
-    return lookupClient.lookup(id);
+  public InetSocketAddress lookup(final Identifier id) throws Exception {
+    return this.lookupClient.lookup(id);
   }
-
 
   /**
    * Retrieves an address for an identifier remotely
-   * 
+   *
    * @param id an identifier
    * @return an Internet socket address
    * @throws Exception
    */
-  public InetSocketAddress remoteLookup(Identifier id) throws Exception {
-    return lookupClient.remoteLookup(id);
+  public InetSocketAddress remoteLookup(final Identifier id) throws Exception {
+    return this.lookupClient.remoteLookup(id);
   }
-  
+
   /**
    * Closes resources
    */
   @Override
   public void close() throws Exception {
-    if(lookupClient!=null)
-      lookupClient.close();
-    if(registryClient!=null)
-      registryClient.close();
-    if(transport!=null)
-      transport.close();
-  }
 
+    if (this.lookupClient != null) {
+      this.lookupClient.close();
+    }
+
+    if (this.registryClient != null) {
+      this.registryClient.close();
+    }
+
+    if (this.transport != null) {
+      this.transport.close();
+    }
+  }
 }
 
 /**
  * Naming client transport event handler
  */
 class NamingClientEventHandler implements EventHandler<TransportEvent> {
+
   private static final Logger LOG = Logger.getLogger(NamingClientEventHandler.class.getName());
 
   private final EventHandler<NamingMessage> handler;
   private final Codec<NamingMessage> codec;
-  
-  public NamingClientEventHandler(EventHandler<NamingMessage> handler, Codec<NamingMessage> codec) {
+
+  public NamingClientEventHandler(
+      final EventHandler<NamingMessage> handler, final Codec<NamingMessage> codec) {
     this.handler = handler;
     this.codec = codec;
   }
-  
+
   @Override
-  public void onNext(TransportEvent value) {
-    LOG.log(Level.FINE, value.toString());
-    handler.onNext(codec.decode(value.getData()));
+  public void onNext(final TransportEvent value) {
+    LOG.log(Level.FINE, "Transport: ", value);
+    this.handler.onNext(this.codec.decode(value.getData()));
   }
-  
 }
 
 /**
@@ -180,7 +188,7 @@ class NamingResponseHandler implements EventHandler<NamingMessage> {
   private final BlockingQueue<NamingLookupResponse> replyLookupQueue;
   private final BlockingQueue<NamingRegisterResponse> replyRegisterQueue;
 
-  NamingResponseHandler(BlockingQueue<NamingLookupResponse> replyLookupQueue, 
+  NamingResponseHandler(BlockingQueue<NamingLookupResponse> replyLookupQueue,
       BlockingQueue<NamingRegisterResponse> replyRegisterQueue) {
     this.replyLookupQueue = replyLookupQueue;
     this.replyRegisterQueue = replyRegisterQueue;
@@ -195,7 +203,7 @@ class NamingResponseHandler implements EventHandler<NamingMessage> {
     } else {
       throw new NamingRuntimeException("Unknown naming response message");
     }
-    
+
   }
-  
+
 }

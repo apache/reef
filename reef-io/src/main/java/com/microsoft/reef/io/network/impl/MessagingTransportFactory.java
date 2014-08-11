@@ -43,15 +43,15 @@ public class MessagingTransportFactory implements TransportFactory {
    * @param exHandler     a exception handler
    */
   @Override
-  public Transport create(int port,
-                          EventHandler<TransportEvent> clientHandler,
-                          EventHandler<TransportEvent> serverHandler,
-                          EventHandler<Exception> exHandler) {
-    Transport transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), port,
-        new SyncStage<TransportEvent>(clientHandler),
-        new SyncStage<TransportEvent>(serverHandler));
+  public Transport create(final int port,
+                          final EventHandler<TransportEvent> clientHandler,
+                          final EventHandler<TransportEvent> serverHandler,
+                          final EventHandler<Exception> exHandler) {
+
+    final Transport transport = new NettyMessagingTransport(NetUtils.getLocalAddress(),
+        port, new SyncStage<>(clientHandler), new SyncStage<>(serverHandler), 3, 10000);
+
     transport.registerErrorHandler(exHandler);
     return transport;
   }
-
 }

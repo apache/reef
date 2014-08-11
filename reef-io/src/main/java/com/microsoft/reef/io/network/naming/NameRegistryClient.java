@@ -48,6 +48,7 @@ import java.util.logging.Logger;
  * Naming registry client
  */
 public class NameRegistryClient implements Stage, NamingRegistry {
+
   private static final Logger LOG = Logger.getLogger(NameRegistryClient.class.getName());
 
   private final SocketAddress serverSocketAddr;
@@ -58,64 +59,73 @@ public class NameRegistryClient implements Stage, NamingRegistry {
 
   /**
    * Constructs a naming registry client
-   * 
+   *
    * @param serverAddr a name server address
    * @param serverPort a name server port
    * @param factory an identifier factory
    */
-  public NameRegistryClient(String serverAddr, int serverPort, IdentifierFactory factory) {   
+  public NameRegistryClient(
+      final String serverAddr, final int serverPort, final IdentifierFactory factory) {
     this(serverAddr, serverPort, 10000, factory);
   }
-  
+
   /**
    * Constructs a naming registry client
-   * 
+   *
    * @param serverAddr a name server address
    * @param serverPort a name server port
    * @param timeout timeout in ms
    * @param factory an identifier factory
    */
-  public NameRegistryClient(String serverAddr, int serverPort, long timeout, IdentifierFactory factory) {   
-    serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
+  public NameRegistryClient(final String serverAddr, final int serverPort,
+                            final long timeout, final IdentifierFactory factory) {
+
+    this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
     this.timeout = timeout;
-    codec = NamingCodecFactory.createRegistryCodec(factory);
-    replyQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
-    transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0, new SyncStage<TransportEvent>(new NamingRegistryClientHandler(new NamingRegistryResponseHandler(replyQueue), codec)), null);
+    this.codec = NamingCodecFactory.createRegistryCodec(factory);
+    this.replyQueue = new LinkedBlockingQueue<>();
+    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
+        new SyncStage<>(new NamingRegistryClientHandler(new NamingRegistryResponseHandler(replyQueue), codec)),
+        null, 3, 10000);
   }
-  
-  NameRegistryClient(String serverAddr, int serverPort, long timeout, IdentifierFactory factory, 
-      BlockingQueue<NamingRegisterResponse> replyQueue, Transport transport) {   
-    serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
+
+  public NameRegistryClient(final String serverAddr, final int serverPort,
+                            final long timeout, final IdentifierFactory factory,
+                            final BlockingQueue<NamingRegisterResponse> replyQueue,
+                            final Transport transport) {
+    this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
     this.timeout = timeout;
-    codec = NamingCodecFactory.createFullCodec(factory);
+    this.codec = NamingCodecFactory.createFullCodec(factory);
     this.replyQueue = replyQueue;
     this.transport = transport;
   }
-  
+
   /**
    * Registers an (identifier, address) mapping
-   * 
+   *
    * @param id an identifier
    * @param addr an Internet socket address
    */
   @Override
-  public void register(Identifier id, InetSocketAddress addr)
-      throws Exception {
-   
+  public void register(final Identifier id, final InetSocketAddress addr) throws Exception {
+
     // needed to keep threads from reading the wrong response
     // TODO: better fix matches replies to threads with a map after REEF-198
     synchronized (this) {
-      LOG.log(Level.FINE, id + " " + addr);
-      Link<NamingMessage> link = transport.open(serverSocketAddr, codec, 
-          new LoggingLinkListener<NamingMessage>());
+
+      LOG.log(Level.FINE, "Register {0} : {1}", new Object[] { id, addr });
+
+      final Link<NamingMessage> link = this.transport.open(
+          this.serverSocketAddr, this.codec, new LoggingLinkListener<NamingMessage>());
+
       link.write(new NamingRegisterRequest(new NameAssignmentTuple(id, addr)));
 
-      while(true) {
+      for (;;) {
         try {
-          replyQueue.poll(timeout, TimeUnit.MILLISECONDS);
+          this.replyQueue.poll(this.timeout, TimeUnit.MILLISECONDS);
           break;
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+        } catch (final InterruptedException e) {
+          LOG.log(Level.INFO, "Interrupted", e);
           throw new NamingException(e);
         }
       }
@@ -124,12 +134,12 @@ public class NameRegistryClient implements Stage, NamingRegistry {
 
   /**
    * Unregisters an identifier
-   * 
+   *
    * @param id an identifier
    */
   @Override
   public void unregister(Identifier id) throws IOException {
-    Link<NamingMessage> link = transport.open(serverSocketAddr, codec, 
+    Link<NamingMessage> link = transport.open(serverSocketAddr, codec,
         new LinkListener<NamingMessage>() {
           @Override
           public void messageReceived(NamingMessage message) {
@@ -146,7 +156,6 @@ public class NameRegistryClient implements Stage, NamingRegistry {
     // Should not close transport as we did not
     // create it
   }
-
 }
 
 /**
@@ -157,12 +166,12 @@ class NamingRegistryClientHandler implements EventHandler<TransportEvent> {
 
   private final EventHandler<NamingRegisterResponse> handler;
   private final Codec<NamingMessage> codec;
-  
+
   NamingRegistryClientHandler(EventHandler<NamingRegisterResponse> handler, Codec<NamingMessage> codec) {
     this.handler = handler;
     this.codec = codec;
   }
-  
+
   @Override
   public void onNext(TransportEvent value) {
     LOG.log(Level.FINE, value.toString());
@@ -180,11 +189,9 @@ class NamingRegistryResponseHandler implements EventHandler<NamingRegisterRespon
   NamingRegistryResponseHandler(BlockingQueue<NamingRegisterResponse> replyQueue) {
     this.replyQueue = replyQueue;
   }
-  
+
   @Override
   public void onNext(NamingRegisterResponse value) {
     replyQueue.offer(value);
   }
-  
 }
-

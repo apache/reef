@@ -46,10 +46,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author shravan
- */
 public class SenderTest {
+
   private static final StringIdentifierFactory idFac = new StringIdentifierFactory();
   private static final int numTasks = 5;
   private static final List<ComparableIdentifier> ids = new ArrayList<>(numTasks);
@@ -60,11 +58,9 @@ public class SenderTest {
   private static final List<BlockingQueue<GroupCommMessage>> queues = new ArrayList<>(numTasks);
   private static List<NetworkService<GroupCommMessage>> netServices = new ArrayList<>(numTasks);
 
-  /**
-   * @throws java.lang.Exception
-   */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+
     for (int i = 0; i < numTasks; i++) {
       Identifier id = idFac.getNewInstance("Task" + i);
       ids.add((ComparableIdentifier) id);
@@ -87,9 +83,6 @@ public class SenderTest {
     }
   }
 
-  /**
-   * @throws java.lang.Exception
-   */
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     for (NetworkService<GroupCommMessage> netService : netServices)
@@ -108,9 +101,6 @@ public class SenderTest {
 
   /**
    * Test method for {@link com.microsoft.reef.io.network.group.impl.operators.SenderHelperImpl#send(com.microsoft.wake.Identifier, com.microsoft.wake.Identifier, java.lang.Object, com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type)}.
-   *
-   * @throws NetworkException
-   * @throws InterruptedException
    */
   @Test
   public final void testSendIdentifierIdentifierTType() throws NetworkException, InterruptedException {
@@ -141,9 +131,6 @@ public class SenderTest {
 
   /**
    * Test method for {@link com.microsoft.reef.io.network.group.impl.operators.SenderHelperImpl#send(com.microsoft.wake.Identifier, com.microsoft.wake.Identifier, java.util.List, com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type)}.
-   *
-   * @throws NetworkException
-   * @throws InterruptedException
    */
   @Test
   public final void testSendIdentifierIdentifierListOfTType() throws NetworkException, InterruptedException {
@@ -181,9 +168,6 @@ public class SenderTest {
 
   /**
    * Test method for {@link com.microsoft.reef.io.network.group.impl.operators.SenderHelperImpl#sendListOfList(com.microsoft.wake.Identifier, com.microsoft.wake.Identifier, java.util.List, com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type)}.
-   *
-   * @throws NetworkException
-   * @throws InterruptedException
    */
   @Test
   public final void testSendListOfList() throws NetworkException, InterruptedException {
@@ -222,9 +206,6 @@ public class SenderTest {
 
   /**
    * Test method for {@link com.microsoft.reef.io.network.group.impl.operators.SenderHelperImpl#send(com.microsoft.wake.Identifier, java.util.List, java.util.List, java.util.List, com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type)}.
-   *
-   * @throws NetworkException
-   * @throws InterruptedException
    */
   @Test
   public final void testSendIdentifierListOfQextendsIdentifierListOfTListOfIntegerType() throws NetworkException, InterruptedException {
@@ -270,12 +251,6 @@ public class SenderTest {
     }
   }
 
-  /**
-   * @param size
-   * @param numMsgs
-   * @param r
-   * @return
-   */
   private List<Integer> genRndCounts(int size, int numMsgs, Random r) {
     List<Integer> retLst = new ArrayList<>(size);
     int total = size;
@@ -289,51 +264,38 @@ public class SenderTest {
     retLst.add(remSize);
     return retLst;
   }
-
 }
 
 class RcvHandler implements EventHandler<Message<GroupCommMessage>> {
+
   Identifier self;
   BlockingQueue<GroupCommMessage> queue;
 
-  /**
-   *
-   */
   public RcvHandler(Identifier self, BlockingQueue<GroupCommMessage> queue) {
     this.self = self;
     this.queue = queue;
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.wake.EventHandler#send(java.lang.Object)
-   */
   @Override
   public void onNext(Message<GroupCommMessage> msg) {
     GroupCommMessage gcm = msg.getData().iterator().next();
     queue.add(gcm);
   }
-
 }
 
 class SndExcHandler implements EventHandler<Exception> {
+
   Identifier self;
   BlockingQueue<GroupCommMessage> queue;
 
-  /**
-   *
-   */
   public SndExcHandler(Identifier self, BlockingQueue<GroupCommMessage> queue) {
     this.self = self;
     this.queue = queue;
   }
 
-  /* (non-Javadoc)
-   * @see com.microsoft.wake.EventHandler#send(java.lang.Object)
-   */
   @Override
   public void onNext(Exception exc) {
     GroupCommMessage gcm = TestUtils.bldGCM(Type.Scatter, self, self, exc.getMessage().getBytes());
     queue.add(gcm);
   }
-
 }

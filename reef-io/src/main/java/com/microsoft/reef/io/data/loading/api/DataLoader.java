@@ -15,8 +15,17 @@
  */
 package com.microsoft.reef.io.data.loading.api;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
 import com.microsoft.reef.annotations.audience.DriverSide;
-import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
@@ -33,15 +42,6 @@ import com.microsoft.wake.impl.SingleThreadStage;
 import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
-
-import javax.inject.Inject;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The driver component for the DataLoadingService
@@ -135,29 +135,23 @@ public class DataLoader {
 
       if (!failedComputeEvalConfigs.isEmpty()) {
         LOG.log(Level.FINE, "Failed Compute requests need to be satisfied for {0}", evalId);
-        if (allocatedEvaluator.getEvaluatorDescriptor().getMemory() == computeEvalMemoryMB) {
-          LOG.log(Level.FINE, "Resources match failed compute request for {0}", evalId);
-          final Configuration conf = failedComputeEvalConfigs.poll();
-          if (conf != null) {
-            LOG.log(Level.FINE, "Satisfying failed configuration for {0}", evalId);
-            allocatedEvaluator.submitContext(conf);
-            submittedComputeEvalConfigs.put(evalId, conf);
-            return;
-          }
+        final Configuration conf = failedComputeEvalConfigs.poll();
+        if (conf != null) {
+          LOG.log(Level.FINE, "Satisfying failed configuration for {0}", evalId);
+          allocatedEvaluator.submitContext(conf);
+          submittedComputeEvalConfigs.put(evalId, conf);
+          return;
         }
       }
 
       if (!failedDataEvalConfigs.isEmpty()) {
         LOG.log(Level.FINE, "Failed Data requests need to be satisfied for {0}", evalId);
-        if (allocatedEvaluator.getEvaluatorDescriptor().getMemory() == dataEvalMemoryMB) {
-          LOG.log(Level.FINE, "Resources match data request resources for {0}", evalId);
-          final Pair<Configuration, Configuration> confPair = failedDataEvalConfigs.poll();
-          if (confPair != null) {
-            LOG.log(Level.FINE, "Satisfying failed configuration for {0}", evalId);
-            allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
-            submittedDataEvalConfigs.put(evalId, confPair);
-            return;
-          }
+        final Pair<Configuration, Configuration> confPair = failedDataEvalConfigs.poll();
+        if (confPair != null) {
+          LOG.log(Level.FINE, "Satisfying failed configuration for {0}", evalId);
+          allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
+          submittedDataEvalConfigs.put(evalId, confPair);
+          return;
         }
       }
 
