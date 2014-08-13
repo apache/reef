@@ -35,10 +35,12 @@ import java.util.logging.Logger;
 public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto>> {
   private static final Logger LOG = Logger.getLogger(EvaluatorHeartbeatHandler.class.getName());
   private final Evaluators evaluators;
+  private final EvaluatorManagerFactory evaluatorManagerFactory;
 
   @Inject
-  EvaluatorHeartbeatHandler(final Evaluators evaluators) {
+  EvaluatorHeartbeatHandler(final Evaluators evaluators, final EvaluatorManagerFactory evaluatorManagerFactory) {
     this.evaluators = evaluators;
+    this.evaluatorManagerFactory = evaluatorManagerFactory;
   }
 
   @Override
@@ -50,6 +52,12 @@ public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessa
     LOG.log(Level.FINEST, "TIME: Begin Heartbeat {0}", evaluatorId);
     LOG.log(Level.FINEST, "Heartbeat from Evaluator {0} with state {1} timestamp {2} from remoteId {3}",
         new Object[]{evaluatorId, status.getState(), heartbeat.getTimestamp(), evaluatorHeartbeatMessage.getIdentifier()});
+
+    if(heartbeat.hasRecovery() && heartbeat.getRecovery())
+    {
+      EvaluatorManager recoveredEvaluator = this.evaluatorManagerFactory.recoverEvaluatorManager(heartbeat);
+      evaluators.put(recoveredEvaluator);
+    }
 
     final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(evaluatorId);
     if (evaluatorManager.isPresent()) {

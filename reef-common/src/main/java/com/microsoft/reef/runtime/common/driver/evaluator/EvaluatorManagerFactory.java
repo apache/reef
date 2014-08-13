@@ -21,6 +21,8 @@ import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
+import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
+import com.microsoft.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler;
 import com.microsoft.tang.Injector;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -41,7 +43,7 @@ public final class EvaluatorManagerFactory {
   private final ResourceCatalog resourceCatalog;
 
   @Inject
-  EvaluatorManagerFactory(final Injector injector, final ResourceCatalog resourceCatalog) {
+  EvaluatorManagerFactory(final Injector injector, final ResourceCatalog resourceCatalog, final NodeDescriptorHandler nodeDescriptorHandler) {
     this.injector = injector;
     this.resourceCatalog = resourceCatalog;
   }
@@ -74,7 +76,7 @@ public final class EvaluatorManagerFactory {
   }
 
   /**
-   * Instantiates a new EvaluatorManager beased on a resource allocation.
+   * Instantiates a new EvaluatorManager based on a resource allocation.
    *
    * @param resourceAllocationProto
    * @return
@@ -90,5 +92,20 @@ public final class EvaluatorManagerFactory {
 
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
     return this.getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
+  }
+
+  /**
+   * Recover EvaluatorManager from resilient evaluator heartbeat.
+   *
+   * @param evaluatorHeartbeatProto
+   * @return
+   */
+  public final EvaluatorManager recoverEvaluatorManager(final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto) {
+    // TODO: need to pass the node information (ip/evaluator type/memory from evaluator heartbeat, hard code it for now)
+    final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(null, EvaluatorType.UNDECIDED, 1024);
+
+    final String evaluatorId = evaluatorHeartbeatProto.getEvaluatorStatus().getEvaluatorId();
+    LOG.log(Level.FINEST, "Recovering evaluator {0}", evaluatorId);
+    return this.getNewEvaluatorManagerInstance(evaluatorId, evaluatorDescriptor);
   }
 }
