@@ -284,7 +284,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
 
     // first message from a running evaluator trying to re-establish communications
-    if(evaluatorHeartbeatProto.hasRecovery() && evaluatorHeartbeatProto.getRecovery())
+    if(evaluatorHeartbeatProto.getRecovery())
     {
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
@@ -502,7 +502,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     if (!(this.task.isPresent() && this.task.get().getId().equals(taskStatusProto.getTaskId()))) {
       if (taskStatusProto.getState() == ReefServiceProtos.State.INIT ||
           taskStatusProto.getState() == ReefServiceProtos.State.FAILED ||
-          (taskStatusProto.hasRecovery() && taskStatusProto.getRecovery()) // for task from recovered evaluators
+          taskStatusProto.getRecovery() // for task from recovered evaluators
           ) {
 
         // FAILED is a legal first state of a Task as it could have failed during construction.
