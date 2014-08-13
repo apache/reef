@@ -55,8 +55,8 @@ public final class EvaluatorHeartbeatHandler implements EventHandler<RemoteMessa
 
     if(heartbeat.hasRecovery() && heartbeat.getRecovery())
     {
-      EvaluatorManager recoveredEvaluator = this.evaluatorManagerFactory.recoverEvaluatorManager(heartbeat);
-      evaluators.put(recoveredEvaluator);
+      final EvaluatorManager recoveredEvaluator = this.evaluatorManagerFactory.recoverEvaluatorManager(heartbeat);
+      this.evaluators.put(recoveredEvaluator);
     }
 
     final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(evaluatorId);

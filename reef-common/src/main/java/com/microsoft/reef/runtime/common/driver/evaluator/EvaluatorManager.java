@@ -288,7 +288,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     {
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
-      this.evaluatorId = evaluatorRID;
+      this.evaluatorId = evaluatorHeartbeatProto.getEvaluatorStatus().getEvaluatorId();
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
     }
 
