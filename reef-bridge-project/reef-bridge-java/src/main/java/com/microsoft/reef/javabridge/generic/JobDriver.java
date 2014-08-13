@@ -34,8 +34,11 @@ import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.NetUtils;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.time.Clock;
+import com.microsoft.wake.time.event.Alarm;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,6 +76,8 @@ public final class JobDriver {
   private long contextMessageHandler = 0;
 
   private int nCLREvaluators = 0;
+
+  private boolean isRestarted;
 
   private NameServer nameServer;
   private String nameServerInfo;
@@ -424,7 +429,31 @@ public final class JobDriver {
             httpServer.addHttpHandler(h);
           }
         }
+        File file = new File (System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile();
+        file = new File(file.getAbsolutePath() + "/isRestart");
 
+        if(file.exists())
+        {
+          LOG.log(Level.INFO, "Driver restarted");
+          isRestarted = true;
+          clock.scheduleAlarm(1000, new EventHandler<Alarm>() {
+            @Override
+            public void onNext(final Alarm time) {
+              LOG.log(Level.INFO, "Checking ====================");
+              while(true){}
+              }
+            });
+        }
+
+        if(isRestarted)
+        {
+          try {
+            Thread.sleep(6000);
+          } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+          }
+          return;
+        }
         if (evaluatorRequestorHandler == 0) {
           throw new RuntimeException("Evaluator Requestor Handler not initialized by CLR.");
         }
