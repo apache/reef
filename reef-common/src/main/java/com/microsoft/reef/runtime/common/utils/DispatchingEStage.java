@@ -66,9 +66,16 @@ public final class DispatchingEStage implements AutoCloseable {
    */
   private final ThreadPoolStage<DelayedOnNext> stage;
 
-  public DispatchingEStage(final EventHandler<Throwable> errorHandler, final int numThreads) {
+  /**
+   * @param errorHandler used for exceptions thrown from the event handlers registered.
+   * @param numThreads   number of threads to allocate to dispatch events.
+   * @param stageName    the name to use for the underlying stage. It will be carried over to name the Thread(s) spawned.
+   */
+  public DispatchingEStage(final EventHandler<Throwable> errorHandler,
+                           final int numThreads,
+                           final String stageName) {
     this.errorHandler = errorHandler;
-    this.stage = new ThreadPoolStage<>(
+    this.stage = new ThreadPoolStage<>(stageName,
         new EventHandler<DelayedOnNext>() {
           @Override
           public void onNext(final DelayedOnNext promise) {
@@ -76,6 +83,7 @@ public final class DispatchingEStage implements AutoCloseable {
           }
         }, numThreads
     );
+
   }
 
   /**
