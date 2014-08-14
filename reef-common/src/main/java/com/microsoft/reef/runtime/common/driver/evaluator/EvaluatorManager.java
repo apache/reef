@@ -50,6 +50,8 @@ import com.microsoft.wake.time.event.Alarm;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,6 +94,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
   private boolean isResourceReleased = false;
+  private static int numRecoveredEvaluators;
 
   @Inject
   EvaluatorManager(
@@ -288,7 +291,37 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     {
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
+
+      // The following logic is based on some fixed file structure done by the code
+      // TODO: update with proper logic once YARN list previous containers is working
+      this.numRecoveredEvaluators++;
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
+      final File recoveryFileDirectory = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile();
+      final File recoveryFile = new File(recoveryFileDirectory.getAbsolutePath() + "/isRestart");
+      final File recoveryDoneFile = new File("driverRestartCompleted");
+      try {
+        final Scanner scanner = new Scanner(recoveryFile);
+        final int expectedEvaluatorsNumber = scanner.nextInt();
+        if (this.numRecoveredEvaluators > expectedEvaluatorsNumber)
+        {
+          LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
+              new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
+          throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
+        }
+        else if (this.numRecoveredEvaluators == expectedEvaluatorsNumber)
+        {
+          LOG.log(Level.INFO, "all [{0}] expected evaluators have checked in.", expectedEvaluatorsNumber);
+          recoveryDoneFile.createNewFile();
+          this.numRecoveredEvaluators = 0;
+        }
+        else
+        {
+          LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
+              new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
+        }
+      } catch (final IOException e) {
+        throw new RuntimeException("file not found: " + recoveryFile.getAbsolutePath() + "OR cannot create file " + recoveryDoneFile.getAbsolutePath());
+      }
     }
 
     // If this is the first message from this Evaluator, register it.
