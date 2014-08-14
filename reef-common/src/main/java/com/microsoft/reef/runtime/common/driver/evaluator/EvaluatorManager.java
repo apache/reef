@@ -77,6 +77,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final Evaluators evaluators;
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
+  private final String evaluatorId;
   private final EvaluatorDescriptorImpl evaluatorDescriptor;
   private final List<EvaluatorContext> activeContextList = new ArrayList<>();
   private final Set<String> activeContextIds = new HashSet<>();
@@ -91,7 +92,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
   private boolean isResourceReleased = false;
-  private String evaluatorId;
 
   @Inject
   EvaluatorManager(
@@ -288,7 +288,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     {
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
-      this.evaluatorId = evaluatorHeartbeatProto.getEvaluatorStatus().getEvaluatorId();
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
     }
 
