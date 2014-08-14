@@ -85,6 +85,7 @@ public class JobClient {
   public static ConfigurationModule getDriverConfiguration() {
     return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "ReefClrBridge")
+        .set(DriverConfiguration.DRIVER_MEMORY, 4096)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
@@ -96,6 +97,7 @@ public class JobClient {
         .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
         .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
         .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)
         .set(DriverConfiguration.ON_TASK_SUSPENDED, JobDriver.SuspendedTaskHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class);
   }
