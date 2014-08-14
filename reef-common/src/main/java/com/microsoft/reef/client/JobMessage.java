@@ -60,4 +60,12 @@ public final class JobMessage implements Message, Identifiable {
   public final String getId() {
     return this.id;
   }
+
+  @Override
+  public String toString() {
+    return "JobMessage{" +
+        "id='" + id + '\'' +
+        ", value.length=" + value.length +
+        '}';
+  }
 }

@@ -81,13 +81,14 @@ message TaskStatusProto {
     required string context_id = 2;
     required State state = 3;
     optional bytes result = 4; // e.g., return value from Task.call()
+    optional bool  recovery = 5;
 
     // TaskMessageSource messages
     message TaskMessageProto {
         required string source_id = 1;
         required bytes message = 2;
     }
-    repeated TaskMessageProto task_message = 5;
+    repeated TaskMessageProto task_message = 6;
 }
 
 message EvaluatorStatusProto {

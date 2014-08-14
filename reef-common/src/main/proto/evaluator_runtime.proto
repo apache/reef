@@ -62,6 +62,7 @@ message EvaluatorHeartbeatProto {
     required EvaluatorStatusProto evaluator_status = 2;
     repeated ContextStatusProto   context_status   = 3;
     optional TaskStatusProto      task_status      = 4;
+    optional bool                 recovery         = 5;  
 }
 
 message EvaluatorControlProto {

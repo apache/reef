@@ -1,11 +1,11 @@
-/*
- * Copyright 2013 Microsoft.
+/**
+ * Copyright (C) 2014 Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,11 @@
  */
 package com.microsoft.reef.io.network.group;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
 import com.microsoft.tang.annotations.Name;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class GroupCommMessage<T> {
 
@@ -33,14 +33,14 @@ public class GroupCommMessage<T> {
   private final List<T> data;
 
   public GroupCommMessage(
-          final Class<? extends Name<String>> groupName,
-          final Class<? extends Name<String>> operName,
-          final Type msgType,
-          final String from,
-          final int srcVersion,
-          final String to,
-          final int dstVersion,
-          final T... data) {
+      final Class<? extends Name<String>> groupName,
+      final Class<? extends Name<String>> operName,
+      final Type msgType,
+      final String from,
+      final int srcVersion,
+      final String to,
+      final int dstVersion,
+      final T... data) {
 
     super();
 

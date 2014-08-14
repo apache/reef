@@ -76,7 +76,13 @@ public final class TaskRepresenter {
       throw new RuntimeException("Received a message for task " + taskStatusProto.getTaskId() +
           " in the TaskRepresenter for Task " + this.taskId);
     }
-
+    if(taskStatusProto.getRecovery())
+    {
+      // when a recovered heartbeat is received, we will take its word for it
+      LOG.log(Level.INFO, "Received task status {0} for RECOVERED task {1}.",
+          new Object[]{ taskStatusProto.getState(), this.taskId });
+      this.setState(taskStatusProto.getState());
+    }
     // Dispatch the message to the right method.
     switch (taskStatusProto.getState()) {
       case INIT:

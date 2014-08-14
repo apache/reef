@@ -278,14 +278,21 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto =
         evaluatorHeartbeatProtoRemoteMessage.getMessage();
-
     LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
 
     this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
+    final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
+
+    // first message from a running evaluator trying to re-establish communications
+    if(evaluatorHeartbeatProto.getRecovery())
+    {
+      this.evaluatorControlHandler.setRemoteID(evaluatorRID);
+      this.stateManager.setRunning();
+      LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
+    }
 
     // If this is the first message from this Evaluator, register it.
     if (this.stateManager.isSubmitted()) {
-      final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
       LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
@@ -493,7 +500,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
     if (!(this.task.isPresent() && this.task.get().getId().equals(taskStatusProto.getTaskId()))) {
       if (taskStatusProto.getState() == ReefServiceProtos.State.INIT ||
-          taskStatusProto.getState() == ReefServiceProtos.State.FAILED) {
+          taskStatusProto.getState() == ReefServiceProtos.State.FAILED ||
+          taskStatusProto.getRecovery() // for task from recovered evaluators
+          ) {
 
         // FAILED is a legal first state of a Task as it could have failed during construction.
         this.task = Optional.of(
