@@ -52,7 +52,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalParameter<Integer> DRIVER_MEMORY = new OptionalParameter<>();
 
-
   /**
    * Files to be made available on the Driver and all Evaluators.
    */
@@ -77,6 +76,11 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
    * The event handler invoked right after the driver boots up.
    */
   public static final RequiredImpl<EventHandler<StartTime>> ON_DRIVER_STARTED = new RequiredImpl<>();
+
+  /**
+   * This event is fired in place of the ON_DRIVER_STARTED when the Driver is in fact restarted after failure.
+   */
+  public static final OptionalImpl<EventHandler<StartTime>> ON_DRIVER_RESTARTED = new OptionalImpl<>();
 
   /**
    * The event handler invoked right before the driver shuts down. Defaults to ignore.
@@ -185,7 +189,9 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(DriverLocalLibraries.class, LOCAL_LIBRARIES)
 
           // Driver start/stop handlers
-      .bindSetEntry(Clock.StartHandler.class, ON_DRIVER_STARTED)
+      .bindSetEntry(DriverStartHandler.class, ON_DRIVER_STARTED)
+      .bindNamedParameter(DriverRestartHandler.class, ON_DRIVER_RESTARTED)
+      .bindSetEntry(Clock.StartHandler.class, com.microsoft.reef.runtime.common.driver.DriverStartHandler.class)
       .bindSetEntry(Clock.StopHandler.class, ON_DRIVER_STOP)
 
           // Evaluator handlers
