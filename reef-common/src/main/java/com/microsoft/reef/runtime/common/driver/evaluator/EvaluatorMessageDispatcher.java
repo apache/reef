@@ -85,9 +85,10 @@ public final class EvaluatorMessageDispatcher {
       final @Parameter(ServiceEvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
 
       final @Parameter(EvaluatorDispatcherThreads.class) int numberOfThreads,
+      final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorIdentifier,
       final DriverExceptionHandler driverExceptionHandler) {
 
-    this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads);
+    this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads, evaluatorIdentifier);
     this.applicationDispatcher = new DispatchingEStage(this.serviceDispatcher);
 
     { // Application Context event handlers
