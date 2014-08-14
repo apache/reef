@@ -47,9 +47,9 @@ public final class ThreadLogger {
    * @param threadPrefix       logged before each thread, e.g. "\n\t" to create an indented list.
    * @param stackElementPrefix logged before each stack trace element, e.g. "\n\t\t" to create an indented list.
    */
-  public static void logThreads(final Logger logger, final Level level, final String prefix,
-                                final String threadPrefix,
-                                final String stackElementPrefix) {
+  public static void logThreads(
+      final Logger logger, final Level level, final String prefix,
+      final String threadPrefix, final String stackElementPrefix) {
     logger.log(level, getFormattedThreadList(prefix, threadPrefix, stackElementPrefix));
   }
 
@@ -61,9 +61,8 @@ public final class ThreadLogger {
    * @param stackElementPrefix Printed before each stack trace element, e.g. "\n\t\t" to create an indented list.
    * @return a String representation of the currently running threads.
    */
-  public static String getFormattedThreadList(final String prefix,
-                                              final String threadPrefix,
-                                              final String stackElementPrefix) {
+  public static String getFormattedThreadList(
+      final String prefix, final String threadPrefix, final String stackElementPrefix) {
     final StringBuilder message = new StringBuilder(prefix);
     for (final Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
       message.append(threadPrefix).append("Thread '").append(entry.getKey().getName()).append("':");
@@ -89,5 +88,4 @@ public final class ThreadLogger {
   public static void main(final String[] args) {
     logThreads(Logger.getAnonymousLogger(), Level.INFO, "Threads active:");
   }
-
 }

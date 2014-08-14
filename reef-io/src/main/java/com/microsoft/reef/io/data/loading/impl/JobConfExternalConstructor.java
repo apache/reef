@@ -25,13 +25,16 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextInputFormat;
 
 import javax.inject.Inject;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- *
- */
 public class JobConfExternalConstructor implements ExternalConstructor<JobConf> {
 
-  private final String inputFormatClass;
+  private static final Logger LOG = Logger.getLogger(JobConfExternalConstructor.class.getName());
+
+  private final String inputFormatClassName;
   private final String inputPath;
 
   @NamedParameter()
@@ -44,26 +47,40 @@ public class JobConfExternalConstructor implements ExternalConstructor<JobConf> 
 
   @Inject
   public JobConfExternalConstructor(
-      @Parameter(InputFormatClass.class) final String inputFormatClass,
-      @Parameter(InputPath.class) final String inputPath) {
-    this.inputFormatClass = inputFormatClass;
+      final @Parameter(InputFormatClass.class) String inputFormatClassName,
+      final @Parameter(InputPath.class) String inputPath) {
+    this.inputFormatClassName = inputFormatClassName;
     this.inputPath = inputPath;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public JobConf newInstance() {
+
     final JobConf jobConf = new JobConf();
+
     try {
-      jobConf.setInputFormat((Class<? extends InputFormat>) Class.forName(inputFormatClass));
-    } catch (final ClassNotFoundException e) {
-      throw new RuntimeException("InputFormat: " + inputFormatClass
-          + " ClassNotFoundException while creating newInstance of JobConf", e);
+
+      final Class<? extends InputFormat> inputFormatClass =
+          (Class<? extends InputFormat>) Class.forName(this.inputFormatClassName);
+
+      jobConf.setInputFormat(inputFormatClass);
+
+      final Method addInputPath =
+          inputFormatClass.getMethod("addInputPath", JobConf.class, Path.class);
+
+      addInputPath.invoke(inputFormatClass, jobConf, new Path(this.inputPath));
+
+    } catch (final ClassNotFoundException ex) {
+      throw new RuntimeException("InputFormat: " + this.inputFormatClassName
+          + " ClassNotFoundException while creating newInstance of JobConf", ex);
+    } catch (final InvocationTargetException | IllegalAccessException ex) {
+      throw new RuntimeException("InputFormat: " + this.inputFormatClassName
+          + ".addInputPath() method exists, but cannot be called.", ex);
+    } catch (final NoSuchMethodException ex) {
+      LOG.log(Level.INFO, "{0}.addInputPath() method does not exist", this.inputFormatClassName);
     }
-    if (inputFormatClass.equals(TextInputFormat.class.getName())) {
-      TextInputFormat.addInputPath(jobConf, new Path(inputPath));
-    }
+
     return jobConf;
   }
-
 }
