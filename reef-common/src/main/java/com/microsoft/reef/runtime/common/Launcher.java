@@ -31,6 +31,7 @@ import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.CommandLine;
 import com.microsoft.wake.remote.RemoteConfiguration;
+import org.apache.reef.util.ThreadLogger;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -110,13 +111,14 @@ public final class Launcher {
       fail("Unable to run LaunchClass", throwable);
     }
 
-    LOG.log(Level.FINEST, "Threads running after Launcher.close(): {0}",
-        Thread.getAllStackTraces().keySet());
-
+    LOG.log(Level.INFO, "Exiting Launcher.main()");
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after Launcher.close():"));
+    }
     System.exit(0);
-
-    LOG.log(Level.FINEST, "Threads running after System.exit(): {0}",
-        Thread.getAllStackTraces().keySet());
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after System.exit():"));
+    }
   }
 
   /**
