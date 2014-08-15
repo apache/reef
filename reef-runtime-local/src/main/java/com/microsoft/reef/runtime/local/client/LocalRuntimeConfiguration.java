@@ -20,8 +20,10 @@ import com.microsoft.reef.client.RunningJob;
 import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.local.LocalClasspathProvider;
 import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
 import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
 import com.microsoft.tang.formats.ConfigurationModule;
@@ -70,6 +72,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(NumberOfProcesses.class, NUMBER_OF_THREADS)
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
       .build();
 
 

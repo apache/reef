@@ -21,7 +21,9 @@ import com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfigu
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler;
+import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.yarn.YarnClasspathProvider;
 import com.microsoft.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import com.microsoft.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import com.microsoft.reef.runtime.yarn.util.YarnConfigurationConstructor;
@@ -85,5 +87,6 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.EvaluatorTimeout.class, EVALUATOR_TIMEOUT)
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
       .build();
 }
