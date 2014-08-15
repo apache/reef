@@ -81,11 +81,6 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
    * @return true, if the Driver is in fact being restarted.
    */
   private boolean isRestart() {
-    // the assumption is that in the client submission folder there will be a isRestart file
-    // and the isRestart file includes the number of evaluators we expect to recover
-    // TODO: once we are on hadoop 2.4.1 we may be able to do this in a better way
-    File file = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile();
-    file = new File(file.getAbsolutePath() + "/isRestart");
-    return file.exists();
+    return new File("previousContainersList").exists();
   }
 }

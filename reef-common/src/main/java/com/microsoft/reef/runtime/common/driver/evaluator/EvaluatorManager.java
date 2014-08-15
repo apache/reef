@@ -292,16 +292,23 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
 
-      // The following logic is based on some fixed file structure done by the code
-      // TODO: update with proper logic once YARN list previous containers is working
       this.numRecoveredEvaluators++;
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-      final File recoveryFileDirectory = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile();
-      final File recoveryFile = new File(recoveryFileDirectory.getAbsolutePath() + "/isRestart");
+      final File recoveryFile = new File("previousContainersList");
       final File recoveryDoneFile = new File("driverRestartCompleted");
       try {
         final Scanner scanner = new Scanner(recoveryFile);
-        final int expectedEvaluatorsNumber = scanner.nextInt();
+        List<String> lines = new ArrayList<>();
+        while (scanner.hasNextLine()) {
+          lines.add(scanner.nextLine());
+        }
+
+        if (!lines.contains(this.evaluatorId))
+        {
+          throw new RuntimeException("Recovered driver contact by unknown evaluator: " + this.evaluatorId);
+        }
+        int expectedEvaluatorsNumber = Integer.parseInt(lines.remove(0));
+
         if (this.numRecoveredEvaluators > expectedEvaluatorsNumber)
         {
           LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
@@ -312,7 +319,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         {
           LOG.log(Level.INFO, "all [{0}] expected evaluators have checked in.", expectedEvaluatorsNumber);
           recoveryDoneFile.createNewFile();
-          this.numRecoveredEvaluators = 0;
         }
         else
         {

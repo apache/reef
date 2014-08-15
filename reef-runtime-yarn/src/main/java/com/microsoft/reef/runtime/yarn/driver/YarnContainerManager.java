@@ -24,6 +24,7 @@ import com.microsoft.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
+import com.microsoft.reef.runtime.yarn.util.YarnTypes;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.remote.Encoder;
@@ -40,8 +41,11 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -235,6 +239,16 @@ final class YarnContainerManager
       LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);
     }
+
+    // TODO: this is currently being developed on a hacked 2.4.0 bits, should be 2.4.1
+    final String minVersionToGetPreviousContainer = "2.4.0";
+
+    // when supported, obtain the list of the containers previously allocated, and write info to driver folder
+    if(YarnTypes.isAtOrAfterVersion(minVersionToGetPreviousContainer))
+    {
+      LOG.log(Level.FINEST, "Hadoop version is {0} or after with support to retain previous containers, processing previous containers.", minVersionToGetPreviousContainer);
+      processPreviousContainers();
+    }
   }
 
   void onStop() {
@@ -286,6 +300,35 @@ final class YarnContainerManager
     resourceStatusBuilder.setDiagnostics(throwable.getMessage());
 
     this.reefEventHandlers.onResourceStatus(resourceStatusBuilder.build());
+  }
+
+  private void processPreviousContainers()
+  {
+    final List<Container> previousContainers = this.registration.getRegistration().getContainersFromPreviousAttempts();
+    if (previousContainers != null && !previousContainers.isEmpty())
+    {
+      LOG.log(Level.INFO, "Driver restarted, with {0} previous containers", previousContainers.size());
+      final File recoveryFile = new File("previousContainersList");
+      final List<String> containersInformation = new ArrayList<>();
+      containersInformation.add(String.valueOf(previousContainers.size()));
+      for(final Container container : previousContainers)
+      {
+        LOG.log(Level.FINE, "Previous container: [{0}]", container.toString());
+        containersInformation.add(container.getId().toString());
+      }
+      try
+      {
+        FileWriter writer = new FileWriter(recoveryFile.toString());
+        for(final String line : containersInformation)
+        {
+          writer.write(line + "\n");
+        }
+        writer.flush();
+        writer.close();
+      } catch (IOException e) {
+        throw new RuntimeException("cannot write to previous containers information to file", e);
+      }
+    }
   }
 
   /**
