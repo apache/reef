@@ -440,29 +440,7 @@ public final class JobDriver {
 
         LOG.log(Level.INFO, "Driver Restarted");
         final File restartCompleted = new File("driverRestartCompleted");
-        /*while(true)
-        {
-          LOG.log(Level.FINE, "Restart completed flag [{0}] not found, recovery still in process...", restartCompleted.getAbsolutePath());
-          try {
-            Thread.sleep(5000);
-          } catch(InterruptedException ex) {
-            Thread.currentThread().interrupt();
-          }
-          if(restartCompleted.exists())
-          {
-            break;
-          }
-        }
-        LOG.log(Level.INFO, "Driver restart completed");
-        clock.scheduleAlarm(2000, new EventHandler<Alarm>() {
-          @Override
-          public void onNext(final Alarm time) {
-            LOG.log(Level.INFO, "hanging  ====================");
-            while(true){}
-          }
-        });*/
 
-        // if running on local runtime
         LOG.log(Level.INFO, "Driver restarted");
         clock.scheduleAlarm(1000, new EventHandler<Alarm>() {
           @Override
@@ -477,6 +455,18 @@ public final class JobDriver {
         } catch(InterruptedException ex) {
           Thread.currentThread().interrupt();
         }
+
+        // this is the idea case, but now we need to fix how REEF tells that nothing is running
+
+        /*while(!restartCompleted.exists())
+        {
+          LOG.log(Level.FINE, "Restart completed flag [{0}] not found, recovery still in process...", restartCompleted.getAbsolutePath());
+          try {
+            Thread.sleep(5000);
+          } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+          }
+        }*/
       }
     }
   }
