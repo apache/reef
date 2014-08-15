@@ -17,6 +17,7 @@
 package com.microsoft.reef.javabridge.generic;
 
 import com.microsoft.reef.client.ClientConfiguration;
+import com.microsoft.reef.driver.parameters.DriverMemory;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import com.microsoft.tang.Configuration;
@@ -84,6 +85,22 @@ public final class Launch {
   }
 
   /**
+   * Command line parameter, driver memory, in MB
+   */
+  @NamedParameter(doc = "memory allocated to driver JVM",
+      short_name = "driver_memory", default_value = "512")
+  public static final class DriverMemoryInMb implements Name<Integer> {
+  }
+
+  /**
+   * Command line parameter, driver identifier
+   */
+  @NamedParameter(doc = "driver identifier for clr bridge",
+      short_name = "driver_id", default_value = "ReefClrBridge")
+  public static final class DriverIdentifier implements Name<String> {
+  }
+
+  /**
    * Parse the command line arguments.
    *
    * @param args command line arguments, as passed to main()
@@ -98,6 +115,8 @@ public final class Launch {
     cl.registerShortNameOfClass(Local.class);
     cl.registerShortNameOfClass(NumRuns.class);
     cl.registerShortNameOfClass(WaitTimeForDriver.class);
+    cl.registerShortNameOfClass(DriverMemoryInMb.class);
+    cl.registerShortNameOfClass(DriverIdentifier.class);
     cl.processCommandLine(args);
     return confBuilder.build();
   }
@@ -168,9 +187,11 @@ public final class Launch {
       final Configuration config = getClientConfiguration(removedArgs);
       final Injector commandLineInjector = Tang.Factory.getTang().newInjector(parseCommandLine(removedArgs));
       final int waitTime = commandLineInjector.getNamedInstance(WaitTimeForDriver.class);
-
+      final int driverMemory = commandLineInjector.getNamedInstance(DriverMemoryInMb.class);
+      final String driverIdentifier = commandLineInjector.getNamedInstance(DriverIdentifier.class);
       final Injector injector = Tang.Factory.getTang().newInjector(config);
       final JobClient client = injector.getInstance(JobClient.class);
+      client.setDriverIdAndMemory(driverIdentifier, driverMemory);
       client.submit(dotNetFolder);
       client.waitForCompletion(waitTime);
       LOG.info("Done!");

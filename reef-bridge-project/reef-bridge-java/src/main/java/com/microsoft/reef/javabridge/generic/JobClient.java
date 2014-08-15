@@ -70,6 +70,10 @@ public class JobClient {
    */
   private boolean isBusy = true;
 
+  private int driverMemory;
+
+  private String driverId;
+
   /**
    * Clr Bridge client.
    * Parameters are injected automatically by TANG.
@@ -84,8 +88,6 @@ public class JobClient {
 
   public static ConfigurationModule getDriverConfiguration() {
     return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "ReefClrBridge")
-        .set(DriverConfiguration.DRIVER_MEMORY, 4096)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
@@ -109,7 +111,11 @@ public class JobClient {
         result = result.set(DriverConfiguration.GLOBAL_FILES, f.getAbsolutePath());
       }
     }
-    this.driverConfigModule  = result;
+
+    // set the driver memory
+    this.driverConfigModule  = result
+        .set(DriverConfiguration.DRIVER_MEMORY, this.driverMemory)
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId);
 
     Path globalLibFile =  Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
     if (!Files.exists(globalLibFile))
@@ -171,6 +177,23 @@ public class JobClient {
       LOG.log(Level.FINE, "Failed to bind", e);
     }
     this.reef.submit(this.driverConfiguration);
+  }
+
+  /**
+   * Set the driver memory
+   */
+  public void setDriverIdAndMemory(final String identifier, final int memory)
+  {
+    if (identifier == null || identifier.isEmpty())
+    {
+      throw new RuntimeException("driver id cannot be null or empty");
+    }
+    if (memory <= 0)
+    {
+      throw new RuntimeException("driver memory cannot be negative number: " + memory);
+    }
+    this.driverMemory = memory;
+    this.driverId = identifier;
   }
 
   /**
