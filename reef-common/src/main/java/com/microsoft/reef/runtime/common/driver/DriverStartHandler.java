@@ -22,6 +22,7 @@ import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,7 +81,11 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
    * @return true, if the Driver is in fact being restarted.
    */
   private boolean isRestart() {
-    // TODO
-    return false;
+    // the assumption is that in the client submission folder there will be a isRestart file
+    // and the isRestart file includes the number of evaluators we expect to recover
+    // TODO: once we are on hadoop 2.4.1 we may be able to do this in a better way
+    File file = new File(System.getProperty("user.dir")).getParentFile().getParentFile().getParentFile();
+    file = new File(file.getAbsolutePath() + "/isRestart");
+    return file.exists();
   }
 }
