@@ -438,35 +438,25 @@ public final class JobDriver {
 
         setupBridge(startTime);
 
-        LOG.log(Level.INFO, "Driver Restarted");
-        final File restartCompleted = new File("driverRestartCompleted");
-
-        LOG.log(Level.INFO, "Driver restarted");
-        clock.scheduleAlarm(1000, new EventHandler<Alarm>() {
-          @Override
-          public void onNext(final Alarm time) {
-            LOG.log(Level.INFO, "Checking ====================");
-            while(true){}
-          }
-        });
+        LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
 
         try {
-          Thread.sleep(6000);
+          Thread.sleep(5000);
         } catch(InterruptedException ex) {
           Thread.currentThread().interrupt();
         }
 
-        // this is the idea case, but now we need to fix how REEF tells that nothing is running
-
-        /*while(!restartCompleted.exists())
-        {
-          LOG.log(Level.FINE, "Restart completed flag [{0}] not found, recovery still in process...", restartCompleted.getAbsolutePath());
-          try {
-            Thread.sleep(5000);
-          } catch(InterruptedException ex) {
-            Thread.currentThread().interrupt();
+        final File restartCompleted = new File("driverRestartCompleted");
+        clock.scheduleAlarm(2000, new EventHandler<Alarm>() {
+          @Override
+          public void onNext(final Alarm time) {
+            if (restartCompleted.exists())
+            {
+              return;
+            }
           }
-        }*/
+        });
+        // TODO: add a CLR handler
       }
     }
   }
