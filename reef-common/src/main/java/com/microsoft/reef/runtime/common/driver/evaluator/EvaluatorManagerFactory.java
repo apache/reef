@@ -93,19 +93,4 @@ public final class EvaluatorManagerFactory {
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
     return this.getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
   }
-
-  /**
-   * Recover EvaluatorManager from resilient evaluator heartbeat.
-   *
-   * @param evaluatorHeartbeatProto
-   * @return
-   */
-  public final EvaluatorManager recoverEvaluatorManager(final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto) {
-    // TODO: need to pass the node information (ip/evaluator type/memory from evaluator heartbeat, hard code it for now)
-    final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(null, EvaluatorType.UNDECIDED, 1024);
-
-    final String evaluatorId = evaluatorHeartbeatProto.getEvaluatorStatus().getEvaluatorId();
-    LOG.log(Level.FINEST, "Recovering evaluator {0}", evaluatorId);
-    return this.getNewEvaluatorManagerInstance(evaluatorId, evaluatorDescriptor);
-  }
 }
