@@ -122,7 +122,7 @@ final class YarnContainerManager
         new Object[]{id, containers.size(), this.containerRequestCounter.get()});
 
     for (final Container container : containers) {
-      handleNewContainer(container);
+      handleNewContainer(container, false);
     }
 
     LOG.log(Level.FINE, "TIME: Processed Containers {0}", id);
@@ -315,6 +315,7 @@ final class YarnContainerManager
       {
         LOG.log(Level.FINE, "Previous container: [{0}]", container.toString());
         containersInformation.add(container.getId().toString());
+        handleNewContainer(container, true);
       }
       try
       {
@@ -336,27 +337,30 @@ final class YarnContainerManager
    *
    * @param container newly allocated
    */
-  private void handleNewContainer(final Container container) {
+  private void handleNewContainer(final Container container, final boolean isRecoveredContainer) {
 
-    LOG.log(Level.FINE, "New allocated container: id[ {0} ]", container.getId());
+    LOG.log(Level.FINE, "allocated container: id[ {0} ]", container.getId());
 
     this.containers.add(container);
 
-    synchronized (this) {
+    if (!isRecoveredContainer)
+    {
+      synchronized (this) {
 
-      this.containerRequestCounter.decrement();
+        this.containerRequestCounter.decrement();
 
-      if (!this.outstandingContainerRequests.isEmpty()) {
-        // we need to make sure that the previous request is no longer in RM request queue
-        this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
+        if (!this.outstandingContainerRequests.isEmpty()) {
+          // we need to make sure that the previous request is no longer in RM request queue
+          this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
 
-        final AMRMClient.ContainerRequest requestToBeSubmitted =
-            this.outstandingContainerRequests.peek();
+          final AMRMClient.ContainerRequest requestToBeSubmitted =
+              this.outstandingContainerRequests.peek();
 
-        if (requestToBeSubmitted != null) {
-          LOG.log(Level.FINEST,
-              "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
-          this.resourceManager.addContainerRequest(requestToBeSubmitted);
+          if (requestToBeSubmitted != null) {
+            LOG.log(Level.FINEST,
+                "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
+            this.resourceManager.addContainerRequest(requestToBeSubmitted);
+          }
         }
       }
     }
