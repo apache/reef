@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-examples-clr</artifactId>
     <name>REEF Examples CLR</name>
@@ -49,9 +50,13 @@
             <version>${project.version}</version>
         </dependency>
         <!-- End of REEF -->
-
         <dependency>
-            <groupId>junit</groupId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+        <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
@@ -108,7 +113,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
@@ -140,7 +145,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
