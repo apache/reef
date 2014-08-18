@@ -40,6 +40,6 @@ public final class DefaultJobMessageHandler implements EventHandler<JobMessage> 
 
   @Override
   public void onNext(final JobMessage message) {
-    LOG.log(Level.INFO, "Received message: {0}", message);
+    LOG.log(Level.FINE, "Received message: {0}", message);
   }
 }
