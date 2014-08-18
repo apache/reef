@@ -440,23 +440,22 @@ public final class JobDriver {
 
         LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
 
-        try {
-          Thread.sleep(5000);
-        } catch(InterruptedException ex) {
-          Thread.currentThread().interrupt();
-        }
-
         final File restartCompleted = new File("driverRestartCompleted");
-        clock.scheduleAlarm(2000, new EventHandler<Alarm>() {
+        clock.scheduleAlarm(0, new EventHandler<Alarm>() {
           @Override
           public void onNext(final Alarm time) {
             if (restartCompleted.exists())
             {
-              return;
+              LOG.log(Level.INFO, "Driver Restarted Completed");
+              // TODO: add a CLR handler
+            }
+            else
+            {
+              LOG.log(Level.INFO, "Waiting for driver to complete restart process...");
+              clock.scheduleAlarm(2000, this);
             }
           }
         });
-        // TODO: add a CLR handler
       }
     }
   }
