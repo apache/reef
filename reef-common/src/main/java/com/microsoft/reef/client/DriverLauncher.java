@@ -88,7 +88,7 @@ public final class DriverLauncher {
   public final class CompletedJobHandler implements EventHandler<CompletedJob> {
     @Override
     public void onNext(final CompletedJob job) {
-      LOG.log(Level.INFO, "The Job {0} is done.", job);
+      LOG.log(Level.INFO, "The Job {0} is done.", job.getId());
       theJob = null;
       setStatusAndNotify(LauncherStatus.COMPLETED);
     }
