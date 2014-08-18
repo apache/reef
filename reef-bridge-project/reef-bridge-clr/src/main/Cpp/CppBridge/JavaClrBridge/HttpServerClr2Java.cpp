@@ -27,7 +27,7 @@ namespace Microsoft
 				ref class ManagedLog
 				{
 				internal:
-					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>HttpServerClr2Java");
+					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
 				};
 
 				HttpServerClr2Java::HttpServerClr2Java(JNIEnv *env, jobject jhttpServerEventBridge)

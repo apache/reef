@@ -27,7 +27,7 @@ namespace Microsoft
 				ref class ManagedLog
 				{
 				internal:
-					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>SuspendedTaskClr2Java");
+					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
 				};
 
 				SuspendedTaskClr2Java::SuspendedTaskClr2Java(JNIEnv *env, jobject jobjectSuspendedTask)

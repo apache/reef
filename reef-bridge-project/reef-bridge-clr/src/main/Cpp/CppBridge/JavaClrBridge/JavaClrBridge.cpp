@@ -34,7 +34,7 @@ using namespace Microsoft::Reef::Driver::Bridge;
 ref class ManagedLog
 {
 internal:
-	static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>JavaClrBrdige");
+	static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
 };
 	
 static void MarshalErrorToJava (

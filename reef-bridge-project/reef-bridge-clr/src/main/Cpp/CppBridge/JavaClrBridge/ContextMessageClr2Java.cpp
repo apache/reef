@@ -27,7 +27,7 @@ namespace Microsoft
 				ref class ManagedLog
 				{
 				internal:
-					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>ContextMessageClr2Java");
+					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
 				};
 				ContextMessageClr2Java::ContextMessageClr2Java(JNIEnv *env, jobject jobjectContextMessage)
 				{

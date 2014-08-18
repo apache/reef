@@ -27,7 +27,7 @@ namespace Microsoft
 				ref class ManagedLog
 				{
 				internal:
-					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>CompletedEvaluatorClr2Java");
+					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
 				};
 
 				CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java(JNIEnv *env, jobject jCompletedEvaluator)
