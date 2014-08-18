@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.common.files;
+package com.microsoft.reef.runtime.local;
 
+import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
+
+import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Access to the classpath according to the REEF file system standard.
+ * RuntimeClasspathProvider for the local runtime.
  */
-public interface REEFClasspath {
+public final class LocalClasspathProvider implements RuntimeClasspathProvider {
 
-  /**
-   * @return the class path for the process.
-   */
-  String getClasspath();
+  @Inject
+  LocalClasspathProvider() {
+  }
 
-  List<String> getClasspathList();
+  @Override
+  public List<String> getDriverClasspath() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspath() {
+    return Collections.emptyList();
+  }
 }

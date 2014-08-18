@@ -22,8 +22,10 @@ import com.microsoft.reef.client.RunningJob;
 import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.yarn.YarnClasspathProvider;
 import com.microsoft.reef.runtime.yarn.client.parameters.JobPriority;
 import com.microsoft.reef.runtime.yarn.client.parameters.JobQueue;
 import com.microsoft.reef.runtime.yarn.util.YarnConfigurationConstructor;
@@ -60,6 +62,7 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
       .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
       .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
       .build();

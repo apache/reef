@@ -85,4 +85,18 @@ public final class OSUtils {
     }
   }
 
+  /**
+   * Formats the given variable for expansion by Windows (<code>%VARIABE%</code>) or Linux (<code>$VARIABLE</code>)
+   *
+   * @param variableName
+   * @return
+   */
+  public static String formatVariable(final String variableName) {
+    if (isWindows()) {
+      return "%" + variableName + "%";
+    } else {
+      return "$" + variableName;
+    }
+  }
+
 }
