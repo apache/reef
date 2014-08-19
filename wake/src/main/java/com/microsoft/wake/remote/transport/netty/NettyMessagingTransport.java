@@ -58,7 +58,7 @@ public class NettyMessagingTransport implements Transport {
   private static final int SERVER_BOSS_NUM_THREADS = 3;
   private static final int SERVER_WORKER_NUM_THREADS = 20;
   private static final int CLIENT_WORKER_NUM_THREADS = 10;
-  
+  private static final Random randPort = new Random();
   private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap = new ConcurrentHashMap<>();
 
   private final EventLoopGroup clientWorkerGroup;
@@ -151,17 +151,21 @@ public class NettyMessagingTransport implements Transport {
       if (port > 0) {
         acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
       } else {
-        final Random rand = new Random();
         while (acceptor == null) {
-          port = rand.nextInt(10000) + 10000;
+          port = randPort.nextInt(10000) + 10000;
           LOG.log(Level.FINEST, "Try port {0}", port);
-          acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+          try {
+            acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+          } catch (final Exception ex) {
+            // The port is already bound. Try again. 
+            LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
+          }
         }
       }
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       final RuntimeException transportException =
-          new TransportRuntimeException("Cannot bind to " + this.serverPort);
-      LOG.log(Level.SEVERE, "Cannot bind to " + this.serverPort, transportException);
+          new TransportRuntimeException("Cannot bind to " + port);
+      LOG.log(Level.SEVERE, "Cannot bind to " + port, transportException);
       this.clientWorkerGroup.shutdownGracefully();
       this.serverBossGroup.shutdownGracefully();
       this.serverWorkerGroup.shutdownGracefully();
@@ -187,7 +191,6 @@ public class NettyMessagingTransport implements Transport {
 
     this.clientChannelGroup.close().awaitUninterruptibly();
     this.serverChannelGroup.close().awaitUninterruptibly();
-
     this.acceptor.close().sync();
     this.clientWorkerGroup.shutdownGracefully();
     this.serverBossGroup.shutdownGracefully();
