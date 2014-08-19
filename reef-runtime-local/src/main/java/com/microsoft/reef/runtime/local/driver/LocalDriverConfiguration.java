@@ -15,7 +15,9 @@
  */
 package com.microsoft.reef.runtime.local.driver;
 
+import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
+import com.microsoft.reef.runtime.local.LocalClasspathProvider;
 import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
 import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
 import com.microsoft.reef.runtime.local.driver.parameters.GlobalFiles;
@@ -71,5 +73,6 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(NumberOfProcesses.class, NUMBER_OF_PROCESSES)
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
       .build();
 }

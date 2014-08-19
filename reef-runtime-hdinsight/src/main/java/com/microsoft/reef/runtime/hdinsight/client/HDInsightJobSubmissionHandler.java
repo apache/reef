@@ -19,9 +19,8 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
-import com.microsoft.reef.runtime.common.files.HDInsightClasspath;
+import com.microsoft.reef.runtime.common.files.ClasspathProvider;
 import com.microsoft.reef.runtime.common.files.JobJarMaker;
-import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
@@ -54,7 +53,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private final HDInsightInstance hdInsightInstance;
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames filenames;
-  private final REEFClasspath classpath;
+  private final ClasspathProvider classpath;
   private final double jvmHeapSlack;
 
   @Inject
@@ -63,7 +62,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
                                 final HDInsightInstance hdInsightInstance,
                                 final ConfigurationSerializer configurationSerializer,
                                 final REEFFileNames filenames,
-                                final HDInsightClasspath classpath,
+                                final ClasspathProvider classpath,
                                 final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
     this.uploader = uploader;
     this.jobJarMaker = jobJarMaker;
@@ -153,7 +152,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
         .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
         .setLaunchID(jobSubmissionProto.getIdentifier())
         .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
-        .setClassPath(this.classpath.getClasspath())
+        .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(jobSubmissionProto.getDriverMemory())
         .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStderrFileName())
         .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStdoutFileName())
