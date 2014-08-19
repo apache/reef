@@ -386,6 +386,31 @@ public final class JobDriver {
   }
 
   /**
+   * Receive notification that the Task is running when driver restarted.
+   */
+  final class DriverRestartRunningTaskHandler implements EventHandler<RunningTask> {
+    @Override
+    public void onNext(final RunningTask task) {
+      LOG.log(Level.INFO, "DriverRestartRunningTask event received: " + task.getId());
+    }
+  }
+
+
+  /**
+   * Receive notification that an context is active on Evaluator when the driver restarted
+   */
+  final class DriverRestartActiveContextHandler implements EventHandler<ActiveContext> {
+    @Override
+    public void onNext(final ActiveContext context) {
+      synchronized (JobDriver.this) {
+        JobDriver.this.contexts.put(context.getId(), context);
+        LOG.log(Level.INFO, "DriverRestartActiveContextHandler event received: " + context.getId());
+      }
+    }
+  }
+
+
+  /**
    * Submit a Task to a single Evaluator.
    */
   private void submit(final ActiveContext context) {
