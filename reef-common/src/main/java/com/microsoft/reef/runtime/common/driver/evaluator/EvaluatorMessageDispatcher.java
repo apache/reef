@@ -51,6 +51,17 @@ public final class EvaluatorMessageDispatcher {
    */
   private final DispatchingEStage serviceDispatcher;
 
+
+  /**
+   * Dispatcher used for application provided driver-restart specific event handlers.
+   */
+  private final DispatchingEStage driverRestartApplicationDispatcher;
+
+  /**
+   * Dispatcher used for service provided driver-restart specific event handlers.
+   */
+  private final DispatchingEStage driverRestartServiceDispatcher;
+
   @Inject
   EvaluatorMessageDispatcher(
       // Application-provided Context event handlers
@@ -63,7 +74,7 @@ public final class EvaluatorMessageDispatcher {
       final @Parameter(ServiceContextClosedHandlers.class) Set<EventHandler<ClosedContext>> serviceContextClosedHandlers,
       final @Parameter(ServiceContextFailedHandlers.class) Set<EventHandler<FailedContext>> serviceContextFailedHandlers,
       final @Parameter(ServiceContextMessageHandlers.class) Set<EventHandler<ContextMessage>> serviceContextMessageHandlers,
-      // Application-rpovided Task event handlers
+      // Application-provided Task event handlers
       final @Parameter(TaskRunningHandlers.class) Set<EventHandler<RunningTask>> taskRunningHandlers,
       final @Parameter(TaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> taskCompletedHandlers,
       final @Parameter(TaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> taskSuspendedHandlers,
@@ -84,12 +95,22 @@ public final class EvaluatorMessageDispatcher {
       final @Parameter(ServiceEvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
       final @Parameter(ServiceEvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
 
+      // Application event handlers specific to a Driver restart
+      final @Parameter(DriverRestartTaskRunningHandlers.class) Set<EventHandler<RunningTask>> driverRestartTaskRunningHandlers,
+      final @Parameter(DriverRestartContextActiveHandlers.class) Set<EventHandler<ActiveContext>> driverRestartActiveContextHandlers,
+
+      // Service-provided event handlers specific to a Driver restart
+      final @Parameter(ServiceDriverRestartTaskRunningHandlers.class) Set<EventHandler<RunningTask>> serviceDriverRestartTaskRunningHandlers,
+      final @Parameter(ServiceDriverRestartContextActiveHandlers.class) Set<EventHandler<ActiveContext>> serviceDriverRestartActiveContextHandlers,
+
       final @Parameter(EvaluatorDispatcherThreads.class) int numberOfThreads,
       final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorIdentifier,
       final DriverExceptionHandler driverExceptionHandler) {
 
     this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads, evaluatorIdentifier);
     this.applicationDispatcher = new DispatchingEStage(this.serviceDispatcher);
+    this.driverRestartApplicationDispatcher = new DispatchingEStage(this.serviceDispatcher);
+    this.driverRestartServiceDispatcher = new DispatchingEStage(this.serviceDispatcher);
 
     { // Application Context event handlers
       this.applicationDispatcher.register(ActiveContext.class, contextActiveHandlers);
@@ -128,6 +149,17 @@ public final class EvaluatorMessageDispatcher {
       this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
     }
 
+    // Application event handlers specific to a Driver restart
+    {
+      this.driverRestartApplicationDispatcher.register(RunningTask.class, driverRestartTaskRunningHandlers);
+      this.driverRestartApplicationDispatcher.register(ActiveContext.class, driverRestartActiveContextHandlers);
+    }
+
+    // Service event handlers specific to a Driver restart
+    {
+      this.driverRestartServiceDispatcher.register(RunningTask.class, serviceDriverRestartTaskRunningHandlers);
+      this.driverRestartServiceDispatcher.register(ActiveContext.class, serviceDriverRestartActiveContextHandlers);
+    }
     LOG.log(Level.FINE, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 
@@ -179,6 +211,14 @@ public final class EvaluatorMessageDispatcher {
     this.dispatch(ContextMessage.class, contextMessage);
   }
 
+  public void onDriverRestartTaskRunning(final RunningTask runningTask) {
+    this.dispatchForRestartedDriver(RunningTask.class, runningTask);
+  }
+
+  public void OnDriverRestartContextActive(final ActiveContext activeContext){
+    this.dispatchForRestartedDriver(ActiveContext.class, activeContext);
+  }
+
   boolean isEmpty() {
     return this.applicationDispatcher.isEmpty();
   }
@@ -186,5 +226,10 @@ public final class EvaluatorMessageDispatcher {
   private <T, U extends T> void dispatch(final Class<T> type, final U message) {
     this.serviceDispatcher.onNext(type, message);
     this.applicationDispatcher.onNext(type, message);
+  }
+
+  private <T, U extends T> void dispatchForRestartedDriver(final Class<T> type, final U message) {
+    this.driverRestartApplicationDispatcher.onNext(type, message);
+    this.driverRestartServiceDispatcher.onNext(type, message);
   }
 }

@@ -127,6 +127,14 @@ public final class TaskRepresenter {
           " that is believed to be RUNNING on the Evaluator, but the Driver thinks it is in state " + this.state);
     }
 
+    // fire driver restart task running handler if this is a recovery heartbeat
+    if(taskStatusProto.getRecovery())
+    {
+      final RunningTask runningTask = new RunningTaskImpl(
+          this.evaluatorManager, this.taskId, this.context, this);
+      this.messageDispatcher.onDriverRestartTaskRunning(runningTask);
+    }
+
     for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto taskMessageProto : taskStatusProto.getTaskMessageList()) {
       this.messageDispatcher.onTaskMessage(
           new TaskMessageImpl(taskMessageProto.getMessage().toByteArray(),
