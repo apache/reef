@@ -19,10 +19,9 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.files.ClasspathProvider;
 import com.microsoft.reef.runtime.common.files.JobJarMaker;
-import com.microsoft.reef.runtime.common.files.REEFClasspath;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
-import com.microsoft.reef.runtime.common.files.YarnClasspath;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
 import com.microsoft.reef.runtime.yarn.driver.YarnDriverConfiguration;
@@ -66,7 +65,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final YarnClient yarnClient;
   private final JobJarMaker jobJarMaker;
   private final REEFFileNames filenames;
-  private final REEFClasspath classpath;
+  private final ClasspathProvider classpath;
   private final FileSystem fileSystem;
   private final ConfigurationSerializer configurationSerializer;
   private final double jvmSlack;
@@ -76,7 +75,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final YarnConfiguration yarnConfiguration,
       final JobJarMaker jobJarMaker,
       final REEFFileNames filenames,
-      final YarnClasspath classpath,
+      final ClasspathProvider classpath,
       final ConfigurationSerializer configurationSerializer,
       final @Parameter(JVMHeapSlack.class) double jvmSlack) throws IOException {
 
@@ -149,7 +148,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
           .setLaunchID(jobSubmissionProto.getIdentifier())
           .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
-          .setClassPath(this.classpath.getClasspath())
+          .setClassPath(this.classpath.getDriverClasspath())
           .setMemory(amMemory)
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStdoutFileName())
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStderrFileName())

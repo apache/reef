@@ -20,7 +20,9 @@ import com.microsoft.reef.client.RunningJob;
 import com.microsoft.reef.runtime.common.client.REEFImplementation;
 import com.microsoft.reef.runtime.common.client.RunningJobImpl;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
+import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
 import com.microsoft.reef.runtime.common.launch.REEFMessageCodec;
+import com.microsoft.reef.runtime.hdinsight.HDInsightClasspathProvider;
 import com.microsoft.reef.runtime.hdinsight.client.sslhacks.DefaultClientConstructor;
 import com.microsoft.reef.util.logging.LoggingSetup;
 import com.microsoft.tang.formats.ConfigurationModule;
@@ -42,6 +44,7 @@ public final class HDInsightRuntimeConfigurationStatic extends ConfigurationModu
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
       .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)
       .bindConstructor(CloseableHttpClient.class, DefaultClientConstructor.class)
+      .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)
       .build();
 
 }

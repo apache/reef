@@ -15,24 +15,13 @@
  */
 package com.microsoft.reef.runtime.local.driver;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
-import com.microsoft.reef.runtime.common.files.REEFClasspath;
+import com.microsoft.reef.runtime.common.files.ClasspathProvider;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
-import com.microsoft.reef.runtime.common.files.YarnClasspath;
 import com.microsoft.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
@@ -45,6 +34,15 @@ import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A resource manager that uses threads to execute containers.
@@ -64,7 +62,7 @@ public final class ResourceManager {
   private final ConfigurationSerializer configurationSerializer;
   private final RemoteManager remoteManager;
   private final REEFFileNames filenames;
-  private final REEFClasspath classpath;
+  private final ClasspathProvider classpathProvider;
   private final double jvmHeapFactor;
 
   @Inject
@@ -79,7 +77,7 @@ public final class ResourceManager {
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
       final REEFFileNames filenames,
-      final YarnClasspath classpath) {
+      final ClasspathProvider classpathProvider) {
 
     this.theContainers = containerManager;
     this.allocationHandler = allocationHandler;
@@ -88,7 +86,7 @@ public final class ResourceManager {
     this.remoteManager = remoteManager;
     this.defaultMemorySize = defaultMemorySize;
     this.filenames = filenames;
-    this.classpath = classpath;
+    this.classpathProvider = classpathProvider;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
 
     LOG.log(Level.FINE, "Instantiated 'ResourceManager'");
@@ -155,7 +153,7 @@ public final class ResourceManager {
       switch (launchRequest.getType()) {
         case JVM:
           commandBuilder = new JavaLaunchCommandBuilder()
-              .setClassPath(this.classpath.getClasspathList());
+              .setClassPath(this.classpathProvider.getEvaluatorClasspath());
           break;
         case CLR:
           commandBuilder = new CLRLaunchCommandBuilder();

@@ -19,8 +19,7 @@ import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
-import com.microsoft.reef.runtime.common.files.LocalClasspath;
-import com.microsoft.reef.runtime.common.files.REEFClasspath;
+import com.microsoft.reef.runtime.common.files.ClasspathProvider;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
@@ -66,7 +65,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final String rootFolderName;
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames filenames;
-  private final REEFClasspath classpath;
+  private final ClasspathProvider classpath;
   private final double jvmHeapSlack;
 
   @Inject
@@ -76,7 +75,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final @Parameter(NumberOfProcesses.class) int nThreads,
       final ConfigurationSerializer configurationSerializer,
       final REEFFileNames filenames,
-      final LocalClasspath classpath,
+      final ClasspathProvider classpath,
       final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
 
     this.executor = executor;
@@ -136,7 +135,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
           .setErrorHandlerRID(t.getRemoteId())
           .setLaunchID(t.getIdentifier())
           .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
-          .setClassPath(this.classpath.getClasspath())
+          .setClassPath(this.classpath.getDriverClasspath())
           .setMemory(DRIVER_MEMORY)
           .build();
 
