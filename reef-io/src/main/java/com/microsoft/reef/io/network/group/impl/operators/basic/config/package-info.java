@@ -19,4 +19,5 @@
  * @author shravan
  *
  */
+@java.lang.Deprecated
 package com.microsoft.reef.io.network.group.impl.operators.basic.config;

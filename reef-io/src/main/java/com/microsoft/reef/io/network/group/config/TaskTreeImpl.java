@@ -108,7 +108,7 @@ public class TaskTreeImpl implements TaskTree {
     if (idx == -1 || idx == 0) {
       return null;
     }
-    int parIdx = (idx - 1) / 2;
+    final int parIdx = (idx - 1) / 2;
     try {
       return this.tasks.get(parIdx).id;
     } catch (final IndexOutOfBoundsException e) {
@@ -201,7 +201,7 @@ public class TaskTreeImpl implements TaskTree {
     final List<ComparableIdentifier> neighbors = neighbors(taskId);
     final List<ComparableIdentifier> retVal = new ArrayList<>();
     for (final ComparableIdentifier neighbor : neighbors) {
-      Status s = getStatus(neighbor);
+      final Status s = getStatus(neighbor);
       if (Status.SCHEDULED == s) {
         retVal.add(neighbor);
       }
