@@ -23,6 +23,7 @@ import com.microsoft.reef.proto.DriverRuntimeProtocol.ResourceStatusProto;
 import com.microsoft.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import com.microsoft.reef.runtime.yarn.util.YarnTypes;
 import com.microsoft.reef.util.Optional;
@@ -308,7 +309,7 @@ final class YarnContainerManager
     if (previousContainers != null && !previousContainers.isEmpty())
     {
       LOG.log(Level.INFO, "Driver restarted, with {0} previous containers", previousContainers.size());
-      final File recoveryFile = new File("previousContainersList");
+      final File recoveryFile = new File(EvaluatorManager.PREVIOUS_CONTAINERS_LIST);
       final List<String> containersInformation = new ArrayList<>();
       containersInformation.add(String.valueOf(previousContainers.size()));
       for(final Container container : previousContainers)

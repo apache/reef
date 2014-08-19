@@ -72,6 +72,7 @@ import java.util.logging.Logger;
 @DriverSide
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
+  public static final String PREVIOUS_CONTAINERS_LIST = "previousContainersList";
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
 
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
@@ -294,7 +295,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
       this.numRecoveredEvaluators++;
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-      final File recoveryFile = new File("previousContainersList");
+      final File recoveryFile = new File(PREVIOUS_CONTAINERS_LIST);
       final File recoveryDoneFile = new File("driverRestartCompleted");
       try {
         final Scanner scanner = new Scanner(recoveryFile);
@@ -487,8 +488,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
             this.evaluatorId, this.evaluatorDescriptor, parentID, this.configurationSerializer,
             this.contextControlHandler, this, this.messageDispatcher, this.exceptionCodec);
         addEvaluatorContext(context);
-        if (notifyClientOnNewActiveContext) {
-          this.messageDispatcher.onContextActive(context);
+        if(contextStatusProto.getRecovery()){
+          // when we get a recovered active context, always notify application
+          this.messageDispatcher.OnDriverRestartContextActive(context);
+        }
+        else{
+          if (notifyClientOnNewActiveContext) {
+            this.messageDispatcher.onContextActive(context);
+          }
         }
       }
 

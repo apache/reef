@@ -68,12 +68,13 @@ message ContextStatusProto {
 
     optional bytes error = 5; // when creating the context
 
+    optional bool recovery = 6;
     // Context messages
     message ContextMessageProto {
         required string source_id = 1;
         required bytes message = 2;
     }
-    repeated ContextMessageProto context_message = 6;
+    repeated ContextMessageProto context_message = 7;
 }
 
 message TaskStatusProto {

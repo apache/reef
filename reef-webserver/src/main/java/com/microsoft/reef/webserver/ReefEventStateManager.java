@@ -238,10 +238,18 @@ public final class ReefEventStateManager {
    */
   public final class TaskRunningStateHandler implements EventHandler<RunningTask> {
     @Override
-    public void onNext(final RunningTask runningActivity) {
-      final String ip = runningActivity.getActiveContext().getEvaluatorDescriptor().getNodeDescriptor().getInetSocketAddress().toString();
-      final String id = runningActivity.getActiveContext().getId();
-      LOG.log(Level.INFO, "RunningActivity on address: " + ip + " for id " + id);
+    public void onNext(final RunningTask runningTask) {
+      LOG.log(Level.INFO, "Running task {0} received.", runningTask.getId() );
+    }
+  }
+
+  /**
+   * Receive event during driver restart that a task is running in previous evaluator
+   */
+  public final class DriverRestartTaskRunningStateHandler implements EventHandler<RunningTask> {
+    @Override
+    public void onNext(final RunningTask runningTask) {
+      LOG.log(Level.INFO, "Running task {0} received during driver restart.", runningTask.getId() );
     }
   }
 
@@ -252,7 +260,21 @@ public final class ReefEventStateManager {
     @Override
     public void onNext(final ActiveContext context) {
       synchronized (ReefEventStateManager.this) {
-        LOG.log(Level.INFO, "ActiveContextStateHandler called: {0}.", context);
+        LOG.log(Level.INFO, "Active Context {0} received and handled in state handler", context);
+        contexts.put(context.getId(), context);
+      }
+    }
+  }
+
+  /**
+   * Receive notification that a new Context is available.
+   */
+  public final class DrivrRestartActiveContextStateHandler implements EventHandler<ActiveContext> {
+    @Override
+    public void onNext(final ActiveContext context) {
+      synchronized (ReefEventStateManager.this) {
+        LOG.log(Level.INFO, "Active Context {0} received and handled in state handler during driver restart.", context);
+        evaluators.put(context.getEvaluatorId(), context.getEvaluatorDescriptor());
         contexts.put(context.getId(), context);
       }
     }

@@ -16,6 +16,7 @@
 package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.parameters.DriverRestartHandler;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
@@ -81,6 +82,6 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
    * @return true, if the Driver is in fact being restarted.
    */
   private boolean isRestart() {
-    return new File("previousContainersList").exists();
+    return new File(EvaluatorManager.PREVIOUS_CONTAINERS_LIST).exists();
   }
 }
