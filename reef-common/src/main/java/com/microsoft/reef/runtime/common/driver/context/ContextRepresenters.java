@@ -128,6 +128,7 @@ public final class ContextRepresenters {
 
   private synchronized void onUnknownContextStatus(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
     LOG.log(Level.WARNING, "Received unexpected context status: {0}", contextStatusProto);
+    throw new RuntimeException("Received unexpected context status: " + contextStatusProto.getContextState());
   }
 
   private synchronized void onContextFailed(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
@@ -140,7 +141,7 @@ public final class ContextRepresenters {
     }
     final EvaluatorContext context = getContext(contextID);
     this.removeContext(context);
-    context.onContextFailure(contextStatusProto);
+    this.messageDispatcher.onContextFailed(context.getFailedContext(contextStatusProto));
   }
 
   private synchronized void onContextDone(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
@@ -234,6 +235,5 @@ public final class ContextRepresenters {
   private synchronized boolean isUnknownContextId(final String contextId) {
     return !this.contextIds.contains(contextId);
   }
-
 
 }

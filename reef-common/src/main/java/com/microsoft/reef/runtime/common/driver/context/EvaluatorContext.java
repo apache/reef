@@ -49,7 +49,6 @@ public final class EvaluatorContext implements ActiveContext {
   private final Optional<String> parentID;
   private final ConfigurationSerializer configurationSerializer;
   private final ContextControlHandler contextControlHandler;
-  private final EvaluatorMessageDispatcher messageDispatcher;
   private final ExceptionCodec exceptionCodec;
   private final ContextRepresenters contextRepresenters;
 
@@ -71,7 +70,6 @@ public final class EvaluatorContext implements ActiveContext {
     this.parentID = parentID;
     this.configurationSerializer = configurationSerializer;
     this.contextControlHandler = contextControlHandler;
-    this.messageDispatcher = messageDispatcher;
     this.exceptionCodec = exceptionCodec;
     this.contextRepresenters = contextRepresenters;
 
@@ -244,7 +242,7 @@ public final class EvaluatorContext implements ActiveContext {
         id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
   }
 
-  private synchronized FailedContext getFailedContext(
+  public synchronized FailedContext getFailedContext(
       final ReefServiceProtos.ContextStatusProto contextStatusProto) {
 
     assert (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState());
@@ -271,11 +269,6 @@ public final class EvaluatorContext implements ActiveContext {
 
     return new FailedContextImpl(
         id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
-  }
-
-  public synchronized void onContextFailure(
-      final ReefServiceProtos.ContextStatusProto contextStatusProto) {
-    this.messageDispatcher.onContextFailed(getFailedContext(contextStatusProto));
   }
 
   public synchronized boolean isRootContext() {
