@@ -22,7 +22,9 @@ import com.microsoft.reef.client.DriverServiceConfiguration;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.reef.util.EnvironmentUtils;
-import com.microsoft.reef.webserver.*;
+import com.microsoft.reef.webserver.HttpHandlerConfiguration;
+import com.microsoft.reef.webserver.HttpServerReefEventHandler;
+import com.microsoft.reef.webserver.ReefEventStateManager;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
 import com.microsoft.tang.exceptions.BindException;
@@ -64,7 +66,7 @@ public final class HelloREEFHttp {
      */
     public static Configuration getDriverConfiguration() {
         return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-                .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloHTTP")
                 .set(DriverConfiguration.ON_DRIVER_STARTED, HttpShellJobDriver.StartHandler.class)
                 .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HttpShellJobDriver.AllocatedEvaluatorHandler.class)
                 .set(DriverConfiguration.ON_EVALUATOR_FAILED, HttpShellJobDriver.FailedEvaluatorHandler.class)
