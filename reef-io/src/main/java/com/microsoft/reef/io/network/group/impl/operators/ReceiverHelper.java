@@ -31,7 +31,6 @@ import java.util.List;
  * --receiving a list of lists of elements from a task
  *
  * @param <T>
- * @author shravan
  */
 public interface ReceiverHelper<T> {
   /**

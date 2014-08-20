@@ -36,9 +36,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class CheckBroadcastMemoryLeakSender {
   private static final Logger LOG = Logger.getLogger(CheckBroadcastMemoryLeakSender.class.getName());
   private static final IdentifierFactory idFac = new StringIdentifierFactory();

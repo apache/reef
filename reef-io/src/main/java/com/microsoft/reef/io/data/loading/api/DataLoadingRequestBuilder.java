@@ -59,6 +59,7 @@ public final class DataLoadingRequestBuilder
   private int numberOfDesiredSplits = -1;
   private EvaluatorRequest computeRequest = null;
   private boolean inMemory = false;
+  private boolean renewFailedEvaluators = true;
   private ConfigurationModule driverConfigurationModule = null;
   private String inputFormatClass;
   private String inputPath;
@@ -86,6 +87,11 @@ public final class DataLoadingRequestBuilder
 
   public DataLoadingRequestBuilder loadIntoMemory(final boolean inMemory) {
     this.inMemory = inMemory;
+    return this;
+  }
+
+  public DataLoadingRequestBuilder renewFailedEvaluators(final boolean renewFailedEvaluators) {
+    this.renewFailedEvaluators = renewFailedEvaluators;
     return this;
   }
 
@@ -120,11 +126,19 @@ public final class DataLoadingRequestBuilder
       this.inputFormatClass = TextInputFormat.class.getName();
     }
 
-    final Configuration driverConfiguration = this.driverConfigurationModule
-        .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_FAILED, DataLoader.EvaluatorFailedHandler.class)
-        .build();
+    final Configuration driverConfiguration;
+    if (renewFailedEvaluators) {
+      driverConfiguration = this.driverConfigurationModule
+              .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
+              .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
+              .set(DriverConfiguration.ON_EVALUATOR_FAILED, DataLoader.EvaluatorFailedHandler.class)
+              .build();
+    } else {
+      driverConfiguration = this.driverConfigurationModule
+              .set(DriverConfiguration.ON_DRIVER_STARTED, DataLoader.StartHandler.class)
+              .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DataLoader.EvaluatorAllocatedHandler.class)
+              .build();
+    }
 
     final JavaConfigurationBuilder jcb =
         Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration);

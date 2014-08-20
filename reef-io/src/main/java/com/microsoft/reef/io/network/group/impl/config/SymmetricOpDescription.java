@@ -27,9 +27,6 @@ import java.util.List;
  * descriptions of all symmetric operators. We do not distinguish between
  * operators that need a Reduce and those that do not because only AllGather
  * does not need Reduce while both ReduceScatter & AllReduce need it.
- * 
- * @author shravan
- * 
  */
 public class SymmetricOpDescription extends GroupOperatorDescription {
   /** Tasks participating in this group. */

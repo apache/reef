@@ -47,9 +47,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * @author shravan
- */
 public class ReceiverTest {
   private static final StringIdentifierFactory idFac = new StringIdentifierFactory();
   private static final int numTasks = 5;
@@ -294,9 +291,6 @@ class RcvExcHandler implements EventHandler<Exception> {
   Identifier self;
   GroupCommNetworkHandler gcnh;
 
-  /**
-   *
-   */
   public RcvExcHandler(Identifier self, GroupCommNetworkHandler gcnh) {
     this.self = self;
     this.gcnh = gcnh;

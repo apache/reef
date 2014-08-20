@@ -57,9 +57,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class BRManager {
   private static final Logger LOG = Logger.getLogger(BRManager.class.getName());
   /**
@@ -91,7 +88,7 @@ public class BRManager {
   private TaskTree tree = null;
 
   public BRManager(
-      final Class<? extends Codec<?>> brDataCodec, Class<? extends Codec<?>> redDataCodec,
+      final Class<? extends Codec<?>> brDataCodec, final Class<? extends Codec<?>> redDataCodec,
       final Class<? extends ReduceFunction<?>> redFunc, final String nameServiceAddr,
       final int nameServicePort) throws BindException {
 
@@ -129,10 +126,10 @@ public class BRManager {
               for (final int src : srcs) {
                 final Identifier srcId = idFac.getNewInstance("ComputeGradientTask" + src);
                 BRManager.this.srcAdds.putIfAbsent(srcId, new LinkedBlockingQueue<GroupCommMessage>(1));
-                BlockingQueue<GroupCommMessage> msgQue = BRManager.this.srcAdds.get(srcId);
+                final BlockingQueue<GroupCommMessage> msgQue = BRManager.this.srcAdds.get(srcId);
                 try {
                   LOG.log(Level.FINEST, "Waiting for srcAdd msg from: {0}", srcId);
-                  GroupCommMessage srcAddMsg = msgQue.take();
+                  final GroupCommMessage srcAddMsg = msgQue.take();
                   LOG.log(Level.FINEST, "Found a srcAdd msg from: {0}", srcId);
                   BRManager.this.senderStage.onNext(srcAddMsg);
                 } catch (final InterruptedException e) {
@@ -152,12 +149,13 @@ public class BRManager {
     this.senderStage = new ThreadPoolStage<>(
         "SrcCtrlMsgSender", new EventHandler<GroupCommMessage>() {
       @Override
-      public void onNext(GroupCommMessage srcCtrlMsg) {
+      public void onNext(final GroupCommMessage srcCtrlMsg) {
 
         final Identifier id = BRManager.this.idFac.getNewInstance(srcCtrlMsg.getDestid());
 
-        if (BRManager.this.tree.getStatus((ComparableIdentifier) id) != Status.SCHEDULED)
+        if (BRManager.this.tree.getStatus((ComparableIdentifier) id) != Status.SCHEDULED) {
           return;
+        }
 
         final Connection<GroupCommMessage> link = BRManager.this.ns.newConnection(id);
         try {
@@ -337,7 +335,7 @@ public class BRManager {
     if (reschedule) {
       LOG.log(Level.FINEST, "SrcAdd from: {0} queued up", from);
       this.srcAdds.putIfAbsent(from, new LinkedBlockingQueue<GroupCommMessage>(1));
-      BlockingQueue<GroupCommMessage> msgQue = this.srcAdds.get(from);
+      final BlockingQueue<GroupCommMessage> msgQue = this.srcAdds.get(from);
       msgQue.add(srcAddMsg);
     } else {
       this.senderStage.onNext(srcAddMsg);
@@ -358,8 +356,9 @@ public class BRManager {
     }*/
     final List<ComparableIdentifier> completedChildren = new ArrayList<>();
     for (final ComparableIdentifier child : children) {
-      if (Status.COMPLETED == this.tree.getStatus(child))
+      if (Status.COMPLETED == this.tree.getStatus(child)) {
         completedChildren.add(child);
+      }
     }
     children.removeAll(completedChildren);
     return children;

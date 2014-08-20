@@ -28,8 +28,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * Simple in-memory ExternalMap implementation.  This class does not require
  * any codecs, and so is guaranteed to be instantiable.  Therefore, it is the
  * default ExternalMap provided by StorageManagerRam.
- * 
- * @author Rusty Sears <sears@microsoft.com>
  */
 public class RamMap<T> implements ExternalMap<T> {
     private final ConcurrentSkipListMap<CharSequence, T> map

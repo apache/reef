@@ -29,8 +29,6 @@ import java.util.List;
  * with some extensions like check and put
  * and additional methods to add {@link Configuration}s
  * to {@link JavaConfigurationBuilder}
- *
- * @author shravan
  */
 public class OperatorConfigs extends
     HashMap<ComparableIdentifier, List<Configuration>> {

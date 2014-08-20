@@ -48,9 +48,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
+@Deprecated
 public class AllReduceManager<T> {
 
   private static final Logger LOG = Logger.getLogger(AllReduceManager.class.getName());
@@ -60,24 +58,24 @@ public class AllReduceManager<T> {
    */
   private static final Tang tang = Tang.Factory.getTang();
 
-  private Configuration allRedBaseConf;
+  private final Configuration allRedBaseConf;
 
   /**
    * Common configs
    */
-  private Class<? extends Codec<?>> dataCodecClass;
-  private Class<? extends ReduceFunction<?>> redFuncClass;
+  private final Class<? extends Codec<?>> dataCodecClass;
+  private final Class<? extends ReduceFunction<?>> redFuncClass;
 
   /**
    * {@link NetworkService} related configs
    */
   private final String nameServiceAddr;
   private final int nameServicePort;
-  private Map<ComparableIdentifier, Integer> id2port;
+  private final Map<ComparableIdentifier, Integer> id2port;
   private final NetworkService<GroupCommMessage> ns;
   private final StringIdentifierFactory idFac = new StringIdentifierFactory();
 
-  private Map<ComparableIdentifier, Integer> taskIdMap = new HashMap<>();
+  private final Map<ComparableIdentifier, Integer> taskIdMap = new HashMap<>();
   private final ComparableIdentifier[] tasks;
   private final int numTasks;
   private int runningTasks;
@@ -91,7 +89,7 @@ public class AllReduceManager<T> {
    * @throws BindException
    */
   public AllReduceManager(
-      final Class<? extends Codec<T>> dataCodec, Class<? extends ReduceFunction<T>> redFunc,
+      final Class<? extends Codec<T>> dataCodec, final Class<? extends ReduceFunction<T>> redFunc,
       final String nameServiceAddr, final int nameServicePort,
       final Map<ComparableIdentifier, Integer> id2port) throws BindException {
 
@@ -144,7 +142,7 @@ public class AllReduceManager<T> {
    */
   private synchronized int getChildren(final ComparableIdentifier taskId) {
 
-    int idx = this.taskIdMap.get(taskId);
+    final int idx = this.taskIdMap.get(taskId);
     if (leftChild(idx) > this.numTasks) {
       return 0;
     }
@@ -196,8 +194,9 @@ public class AllReduceManager<T> {
   public List<ComparableIdentifier> getReceivers() {
     final int end = this.numTasks == 1 ? 1 : parent(this.numTasks);
     final List<ComparableIdentifier> retVal = new ArrayList<>(end);
-    for (int i = 1; i <= end; i++)
+    for (int i = 1; i <= end; i++) {
       retVal.add(this.tasks[i]);
+    }
     return retVal;
   }
 
@@ -207,8 +206,9 @@ public class AllReduceManager<T> {
   public List<ComparableIdentifier> getSenders() {
     final int start = this.numTasks == 1 ? 1 : parent(this.numTasks);
     final List<ComparableIdentifier> retVal = new ArrayList<>(this.numTasks - start);
-    for (int i = start + 1; i <= this.numTasks; i++)
+    for (int i = start + 1; i <= this.numTasks; i++) {
       retVal.add(this.tasks[i]);
+    }
     return retVal;
   }
 

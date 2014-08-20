@@ -24,9 +24,6 @@ import com.microsoft.wake.remote.Codec;
 
 import java.util.Set;
 
-/**
- * 
- */
 public class AllReduceConfig {
   public static final String defaultValue = "NULL";
   

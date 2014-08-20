@@ -17,8 +17,7 @@
  * Classes that aid {@link com.microsoft.tang.Configuration} of
  * any implementation of Group Operators specified in
  * com.microsoft.reef.io.network.group.operators
- * 
- * @author shravan
  */
+@java.lang.Deprecated
 package com.microsoft.reef.io.network.group.impl.config;
 

@@ -26,8 +26,6 @@ import java.util.Iterator;
 /**
  * A read-only spool implementation, based on files. Some other process needs to
  * create the spool file for us.
- *
- * @author sears
  */
 public class CodecFileIterable<T, C extends Codec<T>> implements Iterable<T> {
   private final File filename;

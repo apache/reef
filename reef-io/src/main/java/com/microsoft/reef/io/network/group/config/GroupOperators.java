@@ -37,38 +37,34 @@ import java.util.Map;
 /**
  * Exposes the configuration of Group Communication Operators through a fluent
  * syntax using Builders
- * 
+ *
  * Also takes responsibility of creating the {@link Configuration} of each task
  * using the added operators by delegating it to {@link GroupCommOperators}
- * 
- * This idea from Markus is really elegant
- * 
- * @author shravan
  *
  */
 public class GroupOperators {
 	/** Storing all the builders created */
   private final List<Builder<? extends GroupOperatorDescription>> builders = new ArrayList<>();
-  
+
   /** Common configs */
 	private Class<? extends Codec<?>> dataCodecClass;
 	private Class<? extends ReduceFunction<?>> redFuncClass;
-	
+
 	/** The per task {@link Configuration} */
 	private Map<ComparableIdentifier, Configuration> configs;
-	
+
 	/** {@link NetworkService} related configs */
 	private final String nameServiceAddr;
 	private final int nameServicePort;
-	private Map<ComparableIdentifier, Integer> id2port;
-	
+	private final Map<ComparableIdentifier, Integer> id2port;
+
 	/** Used to seal the state after getConfig is called */
   private boolean sealed = false;
-	
-	public GroupOperators(Class<? extends Codec<?>> dataCodecClass,
-			Class<? extends ReduceFunction<?>> redFuncClass,
-			String nameServiceAddr, int nameServicePort,
-			Map<ComparableIdentifier, Integer> id2port) {
+
+	public GroupOperators(final Class<? extends Codec<?>> dataCodecClass,
+			final Class<? extends ReduceFunction<?>> redFuncClass,
+			final String nameServiceAddr, final int nameServicePort,
+			final Map<ComparableIdentifier, Integer> id2port) {
 		super();
 		this.dataCodecClass = dataCodecClass;
 		this.redFuncClass = redFuncClass;
@@ -83,7 +79,7 @@ public class GroupOperators {
 	 * Can be overridden for each operator
 	 * @param dataCodecClass
 	 */
-	public void setDataCodecClass(Class<? extends Codec<?>> dataCodecClass) {
+	public void setDataCodecClass(final Class<? extends Codec<?>> dataCodecClass) {
 		this.dataCodecClass = dataCodecClass;
 	}
 
@@ -93,18 +89,19 @@ public class GroupOperators {
 	 * Can be overridden for each operator
 	 * @param redFuncClass
 	 */
-	public void setRedFuncClass(Class<? extends ReduceFunction<?>> redFuncClass) {
+	public void setRedFuncClass(final Class<? extends ReduceFunction<?>> redFuncClass) {
 		this.redFuncClass = redFuncClass;
 	}
-  
+
 	/**
 	 * Adds a {@link Scatter} operator
 	 * @return
 	 *   {@link Builder} to build the {@link Scatter} Operator
 	 */
   public RootSenderOp.Builder addScatter(){
-     if(sealed)
-        throw new IllegalStateException("Can't add more operators after getConfig has been called");
+     if(sealed) {
+      throw new IllegalStateException("Can't add more operators after getConfig has been called");
+    }
     return createRootSenderBuilder(OP_TYPE.SCATTER);
   }
 
@@ -114,54 +111,59 @@ public class GroupOperators {
    *   {@link Builder} to build the {@link Broadcast} Operator
    */
 	public RootSenderOp.Builder addBroadCast(){
-	  if(sealed)
-	    throw new IllegalStateException("Can't add more operators after getConfig has been called");
+	  if(sealed) {
+      throw new IllegalStateException("Can't add more operators after getConfig has been called");
+    }
 	  return createRootSenderBuilder(OP_TYPE.BROADCAST);
 	}
-	
+
 	 /**
    * Adds a {@link Gather} operator
    * @return
    *   {@link Builder} to build the {@link Gather} Operator
    */
 	public RootReceiverOp.Builder addGather(){
-	   if(sealed)
-	      throw new IllegalStateException("Can't add more operators after getConfig has been called");
+	   if(sealed) {
+      throw new IllegalStateException("Can't add more operators after getConfig has been called");
+    }
 	   return createRootReceiverBuilder(OP_TYPE.GATHER);
 	}
-	
+
 	 /**
    * Adds a {@link Reduce} operator
    * @return
    *   {@link Builder} to build the {@link Reduce} Operator
    */
 	public RootReceiverOp.Builder addReduce(){
-	   if(sealed)
-	      throw new IllegalStateException("Can't add more operators after getConfig has been called");
+	   if(sealed) {
+      throw new IllegalStateException("Can't add more operators after getConfig has been called");
+    }
 		return createRootReceiverBuilder(OP_TYPE.REDUCE);
 	}
-	
+
 	 /**
    * Adds an {@link AllGather} operator
    * @return
    *   {@link Builder} to build the {@link AllGather} Operator
    */
 	public SymmetricOpDescription.Builder addAllGather(){
-	  if(sealed)
+	  if(sealed) {
       throw new IllegalStateException("Can't add more operators after getConfig has been called");
+    }
 	  return createSymOpBuilder(OP_TYPE.ALL_GATHER);
 	}
-	
+
 	 /**
    * Adds a {@link AllReduce} operator
    * @return
    *   {@link Builder} to build the {@link AllReduce} Operator
    */
   public SymmetricOpDescription.Builder addAllReduce(){
-    if(sealed)
+    if(sealed) {
       throw new IllegalStateException("Can't add more operators after getConfig has been called");
+    }
     return createSymOpBuilder(OP_TYPE.ALL_REDUCE);
-  }	
+  }
 
   /**
    * Adds a {@link ReduceScatter} operator
@@ -169,11 +171,12 @@ public class GroupOperators {
    * {@link Builder} to build {@link ReduceScatter} operator
    */
   public SymmetricOpDescription.Builder addReduceScatter(){
-    if(sealed)
+    if(sealed) {
       throw new IllegalStateException("Can't add more operators after getConfig has been called");
+    }
     return createSymOpBuilder(OP_TYPE.REDUCE_SCATTER);
   }
-  
+
   /**
    * Get the Configuration for task with identifier id
    * for all the operators added till now. Its illegal to add
@@ -182,11 +185,11 @@ public class GroupOperators {
    * @return
    * @throws BindException
    */
-  public Configuration getConfig(Identifier id) throws BindException{
+  public Configuration getConfig(final Identifier id) throws BindException{
     sealed = true;
     if(configs==null){
-      List<GroupOperatorDescription> opDesc = new ArrayList<>();
-      for (Builder<? extends GroupOperatorDescription> builder : builders) {
+      final List<GroupOperatorDescription> opDesc = new ArrayList<>();
+      for (final Builder<? extends GroupOperatorDescription> builder : builders) {
         opDesc.add(builder.build());
       }
       configs = GroupCommOperators
@@ -195,36 +198,41 @@ public class GroupOperators {
     }
     return configs.get(id);
   }
-  
-  private RootSenderOp.Builder createRootSenderBuilder(OP_TYPE opType) {
-    RootSenderOp.Builder builder = new RootSenderOp.Builder();
+
+  private RootSenderOp.Builder createRootSenderBuilder(final OP_TYPE opType) {
+    final RootSenderOp.Builder builder = new RootSenderOp.Builder();
     builders.add(builder);
     builder.setOpertaorType(opType);
-    if(dataCodecClass!=null)
+    if(dataCodecClass!=null) {
       builder.setDataCodecClass(dataCodecClass);
+    }
     return builder;
   }
-  
-  private RootReceiverOp.Builder createRootReceiverBuilder(OP_TYPE opType) {
-    RootReceiverOp.Builder builder = new RootReceiverOp.Builder();
+
+  private RootReceiverOp.Builder createRootReceiverBuilder(final OP_TYPE opType) {
+    final RootReceiverOp.Builder builder = new RootReceiverOp.Builder();
 		builders.add(builder);
 		builder.setOpertaorType(opType);
-		if(dataCodecClass!=null)
-			builder.setDataCodecClass(dataCodecClass);
-		if(opType==OP_TYPE.REDUCE && redFuncClass!=null)
-			builder.setRedFuncClass(redFuncClass);
+		if(dataCodecClass!=null) {
+      builder.setDataCodecClass(dataCodecClass);
+    }
+		if(opType==OP_TYPE.REDUCE && redFuncClass!=null) {
+      builder.setRedFuncClass(redFuncClass);
+    }
 		return builder;
   }
-  
-  private SymmetricOpDescription.Builder createSymOpBuilder(OP_TYPE opType) {
-    SymmetricOpDescription.Builder builder = new SymmetricOpDescription.Builder();
+
+  private SymmetricOpDescription.Builder createSymOpBuilder(final OP_TYPE opType) {
+    final SymmetricOpDescription.Builder builder = new SymmetricOpDescription.Builder();
     builders.add(builder);
     builder.setOpertaorType(opType);
-    if(dataCodecClass!=null)
+    if(dataCodecClass!=null) {
       builder.setDataCodecClass(dataCodecClass);
+    }
     if ((opType == OP_TYPE.ALL_REDUCE || opType == OP_TYPE.REDUCE_SCATTER)
-        && redFuncClass != null)
+        && redFuncClass != null) {
       builder.setRedFuncClass(redFuncClass);
+    }
     return builder;
   }
 }

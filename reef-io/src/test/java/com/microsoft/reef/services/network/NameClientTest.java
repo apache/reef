@@ -34,9 +34,6 @@ import org.junit.Test;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
-/**
- * @author shravan
- */
 public class NameClientTest {
   
   static int retryCount, retryTimeout;
