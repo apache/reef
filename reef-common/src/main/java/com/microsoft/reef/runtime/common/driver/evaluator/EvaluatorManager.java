@@ -187,8 +187,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
               DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
                   .setIdentifier(EvaluatorManager.this.evaluatorId).build()
           );
-        } finally {
-          EvaluatorManager.this.evaluators.remove(EvaluatorManager.this);
         }
       }
     }
@@ -211,6 +209,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public void onEvaluatorException(final EvaluatorException exception) {
     synchronized (this.evaluatorDescriptor) {
       if (this.stateManager.isDoneOrFailedOrKilled()) {
+        LOG.log(Level.FINE, "Ignoring an exception receivedfor Evaluator {0} which is already in state {1}.",
+            new Object[]{this.getId(), this.stateManager});
         return;
       }
 
@@ -252,6 +252,12 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto =
         evaluatorHeartbeatProtoRemoteMessage.getMessage();
     LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
+
+    if (this.stateManager.isDoneOrFailedOrKilled()) {
+      LOG.log(Level.FINE, "Ignoring an heartbeat received for Evaluator {0} which is already in state {1}.",
+          new Object[]{this.getId(), this.stateManager});
+      return;
+    }
 
     this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
     final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
@@ -440,8 +446,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public void onResourceStatusMessage(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
     synchronized (this.evaluatorDescriptor) {
       LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusProto.getState());
-
-      if ((resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
+      if (this.stateManager.isDoneOrFailedOrKilled()) {
+        LOG.log(Level.FINE, "Ignoring resource status update for Evaluator {0} which is already in state {1}.",
+            new Object[]{this.getId(), this.stateManager});
+        return;
+      } else if ((resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
           resourceStatusProto.getState() == ReefServiceProtos.State.FAILED) &&
           this.stateManager.isAllocatedOrSubmittedOrRunning()) {
         // something is wrong. The resource manager reports that the Evaluator is done or failed, but the Driver assumes
