@@ -16,8 +16,4 @@
 /**
  * Contains naming serialization codecs
  */
-/**
- * @author bgchun
- *
- */
 package com.microsoft.reef.io.network.naming.serialization;

@@ -35,9 +35,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class AllReduceOp<V> {
 
   private static final Logger LOG = Logger.getLogger(AllReduceOp.class.getName());

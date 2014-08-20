@@ -23,9 +23,6 @@ import com.microsoft.wake.remote.Codec;
  * for better readability
  * 
  * This is the base class for descriptions of all asymmetric operators
- * 
- * @author shravan
- * 
  */
 public class AsymmetricOpDescription extends GroupOperatorDescription {
 

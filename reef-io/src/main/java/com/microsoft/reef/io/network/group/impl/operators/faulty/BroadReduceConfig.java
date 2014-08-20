@@ -24,9 +24,6 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.IdentifierFactory;
 import com.microsoft.wake.remote.Codec;
 
-/**
- *
- */
 public class BroadReduceConfig {
   public static final String defaultValue = "NULL";
 

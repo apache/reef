@@ -20,8 +20,6 @@ import com.microsoft.wake.remote.Codec;
 
 /**
  * Base class for description of group communication operators
- * 
- * @author shravan
  */
 public class GroupOperatorDescription {
   /** Type of the operator */

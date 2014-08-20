@@ -57,9 +57,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class BRManager {
   private static final Logger LOG = Logger.getLogger(BRManager.class.getName());
   /**

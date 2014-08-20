@@ -15,9 +15,6 @@
  */
 package com.microsoft.reef.io.storage;
 
-/**
- * @author Rusty Sears <sears@microsoft.com>
- */
 public interface ScratchSpace {
 	long availableSpace();
 	long usedSpace();

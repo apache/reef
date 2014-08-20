@@ -27,9 +27,6 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.EventHandler;
 
-/**
- * 
- */
 public class BroadRedHandler implements EventHandler<Message<GroupCommMessage>>{
   
   @NamedParameter(doc = "List of Identifiers on which the handler should listen")

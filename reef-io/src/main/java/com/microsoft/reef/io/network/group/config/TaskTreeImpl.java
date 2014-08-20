@@ -23,9 +23,6 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class TaskTreeImpl implements TaskTree {
   private static final Logger LOG = Logger.getLogger(TaskTreeImpl.class.getName());
 

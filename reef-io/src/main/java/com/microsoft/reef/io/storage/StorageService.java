@@ -15,10 +15,6 @@
  */
 package com.microsoft.reef.io.storage;
 
-/**
- *
- * @author sears, weimer
- */
 public interface StorageService {
 
 	ScratchSpace getScratchSpace();

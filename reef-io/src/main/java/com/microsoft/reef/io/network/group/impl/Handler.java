@@ -21,8 +21,6 @@ import com.microsoft.wake.Identifier;
 
 /**
  * Interface of a {@link EventHandler} for handling {@link GroupCommMessage}
- *
- * @author shravan
  */
 public interface Handler extends EventHandler<GroupCommMessage> {
   GroupCommMessage getData(Identifier srcId) throws InterruptedException;

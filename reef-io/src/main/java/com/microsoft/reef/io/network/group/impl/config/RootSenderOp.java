@@ -24,9 +24,6 @@ import java.util.List;
 /**
  * This is a type of {@link AsymmetricOpDescription} where the root is the
  * sender - Scatter & Broadcast
- * 
- * @author shravan
- * 
  */
 public class RootSenderOp extends AsymmetricOpDescription {
 

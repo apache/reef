@@ -37,7 +37,6 @@ import java.util.List;
  * communication provided by the {@link NetworkService}
  *
  * @param <T>
- * @author shravan
  */
 public class ReceiverHelperImpl<T> implements ReceiverHelper<T> {
 
