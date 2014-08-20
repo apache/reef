@@ -313,10 +313,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       case SUSPEND:
         break;
     }
-
-    if (message.getState() == ReefServiceProtos.State.FAILED) {
-      this.onEvaluatorFailed(message);
-    }
   }
 
   /**
