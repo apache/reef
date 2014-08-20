@@ -24,7 +24,6 @@ import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
-import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorMessageDispatcher;
 import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.util.Optional;
@@ -50,9 +49,9 @@ public final class EvaluatorContext implements ActiveContext {
   private final Optional<String> parentID;
   private final ConfigurationSerializer configurationSerializer;
   private final ContextControlHandler contextControlHandler;
-  private final EvaluatorManager evaluatorManager;
   private final EvaluatorMessageDispatcher messageDispatcher;
   private final ExceptionCodec exceptionCodec;
+  private final ContextRepresenters contextRepresenters;
 
   private boolean isClosed = false;
 
@@ -62,9 +61,9 @@ public final class EvaluatorContext implements ActiveContext {
                           final Optional<String> parentID,
                           final ConfigurationSerializer configurationSerializer,
                           final ContextControlHandler contextControlHandler,
-                          final EvaluatorManager evaluatorManager,
                           final EvaluatorMessageDispatcher messageDispatcher,
-                          final ExceptionCodec exceptionCodec) {
+                          final ExceptionCodec exceptionCodec,
+                          final ContextRepresenters contextRepresenters) {
 
     this.contextIdentifier = contextIdentifier;
     this.evaluatorIdentifier = evaluatorIdentifier;
@@ -72,9 +71,9 @@ public final class EvaluatorContext implements ActiveContext {
     this.parentID = parentID;
     this.configurationSerializer = configurationSerializer;
     this.contextControlHandler = contextControlHandler;
-    this.evaluatorManager = evaluatorManager;
     this.messageDispatcher = messageDispatcher;
     this.exceptionCodec = exceptionCodec;
+    this.contextRepresenters = contextRepresenters;
 
     LOG.log(Level.FINE, "Instantiated 'EvaluatorContext'");
   }
@@ -235,7 +234,7 @@ public final class EvaluatorContext implements ActiveContext {
     final String message = "Evaluator Failure";
 
     final Optional<ActiveContext> parentContext = getParentId().isPresent() ?
-        Optional.<ActiveContext>of(this.evaluatorManager.getEvaluatorContext(getParentId().get())) :
+        Optional.<ActiveContext>of(this.contextRepresenters.getContext(getParentId().get())) :
         Optional.<ActiveContext>empty();
 
     final EvaluatorDescriptor evaluatorDescriptor = getEvaluatorDescriptor();
@@ -264,7 +263,7 @@ public final class EvaluatorContext implements ActiveContext {
     final String message = cause.isPresent() ? cause.get().getMessage() : "No message given";
 
     final Optional<ActiveContext> parentContext = getParentId().isPresent() ?
-        Optional.<ActiveContext>of(this.evaluatorManager.getEvaluatorContext(getParentId().get())) :
+        Optional.<ActiveContext>of(this.contextRepresenters.getContext(getParentId().get())) :
         Optional.<ActiveContext>empty();
 
     final EvaluatorDescriptor evaluatorDescriptor = getEvaluatorDescriptor();
@@ -277,5 +276,9 @@ public final class EvaluatorContext implements ActiveContext {
   public synchronized void onContextFailure(
       final ReefServiceProtos.ContextStatusProto contextStatusProto) {
     this.messageDispatcher.onContextFailed(getFailedContext(contextStatusProto));
+  }
+
+  public synchronized boolean isRootContext() {
+    return !this.parentID.isPresent();
   }
 }
