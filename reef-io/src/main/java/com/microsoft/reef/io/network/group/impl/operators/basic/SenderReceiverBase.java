@@ -29,8 +29,6 @@ import com.microsoft.wake.Identifier;
 /**
  * Base class for all asymmetric operators
  * {@link Scatter}, {@link Broadcast}, {@link Gather}, {@link Reduce}
- *
- * @author shravan
  */
 public class SenderReceiverBase extends AbstractGroupCommOperator{
 

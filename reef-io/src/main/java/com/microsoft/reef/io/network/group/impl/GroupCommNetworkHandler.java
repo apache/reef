@@ -47,15 +47,11 @@ import java.util.concurrent.LinkedBlockingQueue;
  * from a task will block until the message from that task arrives in the queue
  * <p/>
  * The queue capacity determines how many messages from the same task can be enqueued
- *
- * @author shravan
  */
 public class GroupCommNetworkHandler implements EventHandler<Message<GroupCommMessage>> {
 
   /**
    * Inner per operator {@link Handler}
-   *
-   * @author shravan
    */
   private static class GCMHandler implements Handler {
     /**

@@ -31,7 +31,6 @@ import java.util.List;
  * {@link Scatter}, {@link Broadcast}, {@link Gather}, {@link Reduce}
  *
  * @param <T>
- * @author shravan
  */
 public class SenderBase<T> extends SenderReceiverBase {
   protected SenderHelper<T> dataSender;

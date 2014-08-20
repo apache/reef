@@ -23,8 +23,6 @@ import java.util.logging.Logger;
 
 /**
  * ExceptionHandler registered with {@link NetworkService}
- *
- * @author shravan
  */
 public class ExceptionHandler implements EventHandler<Exception> {
   /**

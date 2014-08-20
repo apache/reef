@@ -32,8 +32,6 @@ import java.util.List;
  * --sending a list of lists of elements to a task
  *
  * Please note that these operations are non-blocking
- * @author shravan
- *
  * @param <T>
  */
 public interface SenderHelper<T> {

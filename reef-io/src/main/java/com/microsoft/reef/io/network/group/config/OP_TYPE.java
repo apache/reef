@@ -17,8 +17,6 @@ package com.microsoft.reef.io.network.group.config;
 
 /**
  * The different operator types
- * @author shravan
- *
  */
 public enum OP_TYPE {
 		SCATTER, 

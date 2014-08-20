@@ -19,10 +19,6 @@ import com.microsoft.reef.io.storage.StorageService;
 
 
 
-/**
- * 
- * @author Rusty Sears <sears@microsoft.com>
- */
 public class LocalStorageService implements StorageService {
 	@SuppressWarnings("unused")
 	private final String jobName;

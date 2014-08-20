@@ -27,10 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-/**
- * 
- * @author Rusty Sears <sears@microsoft.com>
- */
 public class CodecRamMap<T> implements ExternalMap<T> {
 
   private final Codec<T> c;

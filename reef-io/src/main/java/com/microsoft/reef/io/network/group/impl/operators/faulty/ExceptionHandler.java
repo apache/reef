@@ -23,9 +23,6 @@ import javax.inject.Inject;
 
 import com.microsoft.wake.EventHandler;
 
-/**
- * 
- */
 public class ExceptionHandler implements EventHandler<Exception> {
   private static final Logger logger = Logger.getLogger(ExceptionHandler.class.getName());
   List<Exception> exceptions = new ArrayList<>();
