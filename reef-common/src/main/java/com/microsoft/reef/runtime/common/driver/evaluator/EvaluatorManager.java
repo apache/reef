@@ -353,7 +353,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         this.stateManager.setSubmitted();
         this.resourceLaunchHandler.onNext(resourceLaunchProto);
       } else {
-        throw new RuntimeException("Evaluator manager expected " + State.ALLOCATED +
+        throw new RuntimeException("Evaluator manager expected " + EvaluatorState.ALLOCATED +
             " state but instead is in state " + this.stateManager);
       }
     }
@@ -483,20 +483,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         + " id=" + this.evaluatorId
         + " state=" + this.stateManager
         + " task=" + this.task;
-  }
-
-  /**
-   * Various states that the EvaluatorManager could be in. The EvaluatorManager is
-   * created when a resource has been allocated by the ResourceManager.
-   */
-  static enum State {
-    ALLOCATED,  // initial state
-    SUBMITTED,  // client called AllocatedEvaluator.submitTask() and we're waiting for first contact
-    RUNNING,    // first contact received, all communication channels established, Evaluator sent to client.
-    // TODO: Add CLOSING state
-    DONE,       // clean shutdown
-    FAILED,     // some failure occurred.
-    KILLED      // unclean shutdown
   }
 
   // Dynamic Parameters
