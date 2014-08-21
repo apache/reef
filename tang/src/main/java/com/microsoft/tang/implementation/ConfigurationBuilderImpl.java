@@ -25,6 +25,8 @@ import com.microsoft.tang.util.TracingMonotonicMap;
 import com.microsoft.tang.util.TracingMonotonicTreeMap;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -40,6 +42,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
   final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
+  final TracingMonotonicMap<NamedParameterNode<List<?>>, List<?>> boundLists = new TracingMonotonicTreeMap<>();
 
   public final static String IMPORT = "import";
   public final static String INIT = "<init>";
@@ -237,6 +240,18 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
       throws BindException {
     boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) {
+    boundLists.put((NamedParameterNode<List<?>>) (NamedParameterNode<?>) iface, implList);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindList(String iface, List implList) {
+    boundLists.put((NamedParameterNode<List<?>>) namespace.getNode(iface), implList);
   }
 
   @Override
