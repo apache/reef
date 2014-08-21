@@ -50,7 +50,6 @@ import com.microsoft.wake.time.event.Alarm;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -72,7 +71,9 @@ import java.util.logging.Logger;
 @DriverSide
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
-  public static final String PREVIOUS_CONTAINERS_LIST = "previousContainersList";
+  public static final String DRIVER_RESTART_COMPLETED = "driverRestartCompleted";
+  public static int numPreviousContainers = 0;
+
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
 
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
@@ -295,39 +296,28 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
       this.numRecoveredEvaluators++;
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-      final File recoveryFile = new File(PREVIOUS_CONTAINERS_LIST);
       final File recoveryDoneFile = new File("driverRestartCompleted");
-      try {
-        final Scanner scanner = new Scanner(recoveryFile);
-        List<String> lines = new ArrayList<>();
-        while (scanner.hasNextLine()) {
-          lines.add(scanner.nextLine());
-        }
+      int expectedEvaluatorsNumber = this.numPreviousContainers;
 
-        if (!lines.contains(this.evaluatorId))
-        {
-          throw new RuntimeException("Recovered driver contact by unknown evaluator: " + this.evaluatorId);
-        }
-        int expectedEvaluatorsNumber = Integer.parseInt(lines.remove(0));
-
-        if (this.numRecoveredEvaluators > expectedEvaluatorsNumber)
-        {
-          LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
-              new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
-          throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
-        }
-        else if (this.numRecoveredEvaluators == expectedEvaluatorsNumber)
-        {
-          LOG.log(Level.INFO, "all [{0}] expected evaluators have checked in.", expectedEvaluatorsNumber);
+      if (this.numRecoveredEvaluators > expectedEvaluatorsNumber)
+      {
+        LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
+            new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
+        throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
+      }
+      else if (this.numRecoveredEvaluators == expectedEvaluatorsNumber)
+      {
+        LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
+        try {
           recoveryDoneFile.createNewFile();
+        } catch (final IOException e) {
+          throw new RuntimeException("cannot create file " + recoveryDoneFile.getAbsolutePath());
         }
-        else
-        {
-          LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
-              new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
-        }
-      } catch (final IOException e) {
-        throw new RuntimeException("file not found: " + recoveryFile.getAbsolutePath() + "OR cannot create file " + recoveryDoneFile.getAbsolutePath());
+      }
+      else
+      {
+        LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
+            new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
       }
     }
 
@@ -453,7 +443,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   /**
    * Get the id of current job/application
    */
-  private String getJobIdentifier() {
+  public static String getJobIdentifier() {
     // TODO: currently we obtain the job id directly by parsing execution (container) directory path
     // #845 is open to get the id from RM properly
     for (File directory = new File(System.getProperty("user.dir"));

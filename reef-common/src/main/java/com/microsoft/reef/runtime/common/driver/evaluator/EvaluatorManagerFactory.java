@@ -93,4 +93,12 @@ public final class EvaluatorManagerFactory {
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
     return this.getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
   }
+
+  public final EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto)
+  {
+    if(!resourceStatusProto.getIsFromPreviousDriver()){
+      throw new RuntimeException("Invalid resourceStatusProto, must be status for resource from previous Driver.");
+    }
+    return getNewEvaluatorManagerInstance(resourceStatusProto.getIdentifier(), new EvaluatorDescriptorImpl(null,EvaluatorType.UNDECIDED,128));
+  }
 }

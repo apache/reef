@@ -82,6 +82,6 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
    * @return true, if the Driver is in fact being restarted.
    */
   private boolean isRestart() {
-    return new File(EvaluatorManager.PREVIOUS_CONTAINERS_LIST).exists();
+    return EvaluatorManager.numPreviousContainers > 0;
   }
 }
