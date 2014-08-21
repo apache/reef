@@ -27,11 +27,11 @@ public class FailedEvaluatorBridge extends NativeBridge{
   private EvaluatorRequestorBridge evaluatorRequestorBridge;
   private String evaluatorId;
 
-  public FailedEvaluatorBridge(FailedEvaluator failedEvaluator, EvaluatorRequestor evaluatorRequestor)
+  public FailedEvaluatorBridge(FailedEvaluator failedEvaluator, EvaluatorRequestor evaluatorRequestor, boolean blockedForAdditionalEvaluator)
   {
     jfailedEvaluator = failedEvaluator;
     evaluatorId = failedEvaluator.getId();
-    evaluatorRequestorBridge = new EvaluatorRequestorBridge(evaluatorRequestor);
+    evaluatorRequestorBridge = new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator);
   }
 
   public int getNewlyRequestedEvaluatorNumber()

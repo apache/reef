@@ -30,68 +30,76 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EvaluatorRequestorBridge extends NativeBridge {
-    private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
+  private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
 
-    // accumulate how many evaluators have been submitted through this instance
-    // of EvaluatorRequestorBridge
-    private int clrEvaluatorsNumber;
+  // accumulate how many evaluators have been submitted through this instance
+  // of EvaluatorRequestorBridge
+  private int clrEvaluatorsNumber;
 
-    private EvaluatorRequestor jevaluatorRequestor;
+  private final boolean isBlocked;
 
-    public EvaluatorRequestorBridge(EvaluatorRequestor evaluatorRequestor)
+  private EvaluatorRequestor jevaluatorRequestor;
+
+  public EvaluatorRequestorBridge(EvaluatorRequestor evaluatorRequestor, boolean isBlocked)
+  {
+    this.jevaluatorRequestor = evaluatorRequestor;
+    this.clrEvaluatorsNumber = 0;
+    this.isBlocked = isBlocked;
+  }
+
+  public void submit( final int evaluatorsNumber, final int memory,  String rack)
+
+  {
+    if (this.isBlocked)
     {
-        jevaluatorRequestor = evaluatorRequestor;
-        clrEvaluatorsNumber = 0;
+      throw new RuntimeException("Cannot request additional Evaluator, this is probably because the Driver has crashed and restarted, and cannot ask for new container due to YARN-2433.");
+    }
+    clrEvaluatorsNumber += evaluatorsNumber;
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(ResourceCatalog.class, ResourceCatalogImpl.class);
+    Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+    ResourceCatalog resourceCatalog;
+    try {
+      resourceCatalog = injector.getInstance(ResourceCatalog.class);
+    } catch (final InjectionException e) {
+      LOG.log(Level.SEVERE, "Cannot inject resource catalog", e);
+      throw new RuntimeException("Cannot inject resource catalog");
     }
 
-    public void submit( final int evaluatorsNumber, final int memory,  String rack)
+    ResourceCatalogImpl catalog;
+    try {
+      catalog = (ResourceCatalogImpl) resourceCatalog;
+    } catch (final ClassCastException e) {
+      LOG.log(Level.SEVERE, "Failed to cast to ResourceCatalogImpl.", e);
+      throw e;
+    }
+    if(rack == null || rack.isEmpty())
     {
-        clrEvaluatorsNumber += evaluatorsNumber;
-        final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-        cb.bindImplementation(ResourceCatalog.class, ResourceCatalogImpl.class);
-        Injector injector = Tang.Factory.getTang().newInjector(cb.build());
-        ResourceCatalog resourceCatalog;
-        try {
-          resourceCatalog = injector.getInstance(ResourceCatalog.class);
-        } catch (final InjectionException e) {
-          LOG.log(Level.SEVERE, "Cannot inject resource catalog", e);
-          throw new RuntimeException("Cannot inject resource catalog");
-        }
-
-        ResourceCatalogImpl catalog;
-        try {
-          catalog = (ResourceCatalogImpl) resourceCatalog;
-        } catch (final ClassCastException e) {
-          LOG.log(Level.SEVERE, "Failed to cast to ResourceCatalogImpl.", e);
-          throw e;
-        }
-        if(rack == null || rack.isEmpty())
-        {
-          rack = "/default-rack";
-        }
-        catalog.handle(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
-                .setRackName(rack)
-                .setHostName("HostName")
-                .setPort(0)
-                .setMemorySize(memory)
-                .setIdentifier("clrBridgeRackCatalog")
-                .build());
-         RackDescriptor rackDescriptor = (RackDescriptor)(catalog.getRacks().toArray())[0];
-         EvaluatorRequest request = EvaluatorRequest.newBuilder().fromDescriptor(rackDescriptor)
-                  .setNumber(evaluatorsNumber)
-                  .setMemory(memory)
-                  .build();
-
-        LOG.log(Level.INFO, String.format("submitting %s evaluator to rack %s", evaluatorsNumber, rack) );
-        jevaluatorRequestor.submit(request);
+      rack = "/default-rack";
     }
+    catalog.handle(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
+        .setRackName(rack)
+        .setHostName("HostName")
+        .setPort(0)
+        .setMemorySize(memory)
+        .setIdentifier("clrBridgeRackCatalog")
+        .build());
+    RackDescriptor rackDescriptor = (RackDescriptor)(catalog.getRacks().toArray())[0];
+    EvaluatorRequest request = EvaluatorRequest.newBuilder().fromDescriptor(rackDescriptor)
+        .setNumber(evaluatorsNumber)
+        .setMemory(memory)
+        .build();
 
-    public int getEvaluatorNumber() {
-        return clrEvaluatorsNumber;
-    }
+    LOG.log(Level.INFO, String.format("submitting %s evaluator to rack %s", evaluatorsNumber, rack) );
+    jevaluatorRequestor.submit(request);
+  }
 
-    @Override
-    public void close()
-    {
-    }
+  public int getEvaluatorNumber() {
+    return clrEvaluatorsNumber;
+  }
+
+  @Override
+  public void close()
+  {
+  }
 }

@@ -317,9 +317,8 @@ public final class JobDriver {
     {
         final String message = "CLR FailedEvaluator handler set, handling things with CLR handler.";
         LOG.log(Level.INFO, message);
-        FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor);
+        FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor, true);
         NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(failedEvaluatorHandler, failedEvaluatorBridge, JobDriver.this.interopLogger);
-
         int additionalRequestedEvaluatorNumber = failedEvaluatorBridge.getNewlyRequestedEvaluatorNumber();
         if (additionalRequestedEvaluatorNumber > 0) {
           nCLREvaluators += additionalRequestedEvaluatorNumber;
@@ -469,7 +468,7 @@ public final class JobDriver {
         if (evaluatorRequestorHandler == 0) {
           throw new RuntimeException("Evaluator Requestor Handler not initialized by CLR.");
         }
-        EvaluatorRequestorBridge evaluatorRequestorBridge = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor);
+        EvaluatorRequestorBridge evaluatorRequestorBridge = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false);
         NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(evaluatorRequestorHandler, evaluatorRequestorBridge, JobDriver.this.interopLogger);
         // get the evaluator numbers set by CLR handler
         nCLREvaluators += evaluatorRequestorBridge.getEvaluatorNumber();
