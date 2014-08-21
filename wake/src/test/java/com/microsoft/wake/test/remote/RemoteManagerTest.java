@@ -48,21 +48,6 @@ import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
 import com.microsoft.wake.test.util.Monitor;
 import com.microsoft.wake.test.util.TimeoutHandler;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
-
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-
 public class RemoteManagerTest {
 
   @Rule
@@ -88,7 +73,9 @@ public class RemoteManagerTest {
 
     String hostAddress = NetUtils.getLocalAddress();
 
-    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false);
+    final RemoteManager rm = new DefaultRemoteManagerImplementation(
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000);
+
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
     Assert.assertTrue(rm.getMyIdentifier().equals(remoteId));
@@ -101,13 +88,11 @@ public class RemoteManagerTest {
     int finalSize = 2;
     rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
 
-
     proxyConnection.onNext(new StartEvent());
 
     monitor.mwait();
     proxyHandler1.onNext(new TestEvent1("hello1", 0.0));// registration after send expected to fail
     proxyHandler2.onNext(new TestEvent2("hello2", 1.0));
-
 
     monitor.mwait();
 
@@ -117,17 +102,16 @@ public class RemoteManagerTest {
     timer.close();
   }
 
-
   @Test
   public void testRemoteManagerConnectionRetryTest() throws Exception {
     ExecutorService smExecutor = Executors.newFixedThreadPool(1);
     ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
-    
+
     RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 2000);
-    
+
     Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000));
     Thread.sleep(1000);
-    
+
     RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
     Future<Integer> rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, 1, 2));
 
@@ -136,46 +120,43 @@ public class RemoteManagerTest {
 
     receivingManager.close();
     sendingManager.close();
-    
+
     Assert.assertEquals(0, smCnt);
     Assert.assertEquals(2, rmCnt);
-    
   }
 
-  
   @Test
   public void testRemoteManagerConnectionRetryWithMultipleSenderTest() throws Exception {
     int numOfSenderThreads = 5;
     ExecutorService smExecutor = Executors.newFixedThreadPool(numOfSenderThreads);
     ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
     ArrayList<Future<Integer>> smFutures = new ArrayList<Future<Integer>>(numOfSenderThreads);
-    
+
     RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 5000);
 
     for (int i = 0; i < numOfSenderThreads; i++) {
       smFutures.add(smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000)));
     }
-    
+
     Thread.sleep(2000);
-    
+
     RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
     Future<Integer> receivingFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, numOfSenderThreads, 2));
-    
+
     // waiting sending remote manager.
     for (Future<Integer> future : smFutures) {
       future.get();
     }
-    
+
     // waiting receiving remote manager
     int rmCnt = receivingFuture.get();
-    
+
     sendingManager.close();
     receivingManager.close();
-    
+
     // get the result
     Assert.assertEquals(2 * numOfSenderThreads, rmCnt);
   }
-  
 
   @Test
   public void testRemoteManagerOrderingGuaranteeTest() throws Exception {
@@ -194,7 +175,9 @@ public class RemoteManagerTest {
 
     String hostAddress = NetUtils.getLocalAddress();
 
-    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true);
+    final RemoteManager rm = new DefaultRemoteManagerImplementation(
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000);
+
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
 
@@ -235,7 +218,8 @@ public class RemoteManagerTest {
 
     String hostAddress = NetUtils.getLocalAddress();
 
-    RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false);
+    final RemoteManager rm = new DefaultRemoteManagerImplementation(
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -272,7 +256,10 @@ public class RemoteManagerTest {
     String hostAddress = NetUtils.getLocalAddress();
 
     ExceptionHandler errorHandler = new ExceptionHandler(monitor);
-    try (RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress, port, codec, errorHandler, false)) {
+
+    try (final RemoteManager rm = new DefaultRemoteManagerImplementation(
+        "name", hostAddress, port, codec, errorHandler, false, 3, 10000)) {
+
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
 
@@ -298,7 +285,8 @@ public class RemoteManagerTest {
     Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
     String hostAddress = NetUtils.getLocalAddress();
-    return new DefaultRemoteManagerImplementation(name, hostAddress, localPort, codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout);
+    return new DefaultRemoteManagerImplementation(name, hostAddress, localPort,
+        codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout);
   }
 
   private class SendingRemoteManagerThread implements Callable<Integer> {
@@ -306,7 +294,6 @@ public class RemoteManagerTest {
     private final int remotePort;
     private final int timeout;
     private RemoteManager rm;
-
 
     public SendingRemoteManagerThread(RemoteManager rm, int remotePort, int timeout){
       this.remotePort = remotePort;
@@ -351,14 +338,13 @@ public class RemoteManagerTest {
     private final int numOfEvent;
     private RemoteManager rm;
 
-
     public ReceivingRemoteManagerThread(RemoteManager rm, int timeout, int numOfConnection, int numOfEvent){
       this.rm = rm;
       this.timeout = timeout;
       this.numOfConnection = numOfConnection;
       this.numOfEvent = numOfEvent;
     }
-    
+
     @Override
     public Integer call() throws Exception {
 
@@ -377,7 +363,7 @@ public class RemoteManagerTest {
       return counter.get();
     }
   }
-      
+
   class MessageTypeEventHandler<T> implements EventHandler<RemoteMessage<T>> {
 
     private final RemoteManager rm;
@@ -413,7 +399,6 @@ public class RemoteManagerTest {
       rm.registerHandler(id, TestEvent2.class, new ConsoleEventHandler<TestEvent2>("console2", monitor, counter, finalSize));
       monitor.mnotify();
     }
-
   }
 
   class ConsoleEventHandler<T> implements EventHandler<T> {
@@ -453,7 +438,6 @@ public class RemoteManagerTest {
       System.out.println(name + " " + value);
       throw new TestRuntimeException("Test exception");
     }
-
   }
 
   class ExceptionHandler implements EventHandler<Throwable> {
@@ -469,7 +453,6 @@ public class RemoteManagerTest {
       System.out.println("!!! ExceptionHandler called : " + value);
       monitor.mnotify();
     }
-
   }
 
   final class TestRuntimeException extends RuntimeException {
@@ -479,5 +462,4 @@ public class RemoteManagerTest {
       super(s);
     }
   }
-
 }

@@ -21,31 +21,30 @@ import io.netty.channel.ChannelHandlerContext;
  * Netty event listener
  */
 interface NettyEventListener {
-  
+
   /**
    * Handles the message
    * @param ctx the channel handler context
    * @param msg the message
    */
-  public void channelRead(ChannelHandlerContext ctx, Object msg);
-  
+  void channelRead(ChannelHandlerContext ctx, Object msg);
+
   /**
    * Handles the exception event
    * @param ctx the channel handler context
    * @param cause the cause
    */
-  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause);
-  
+  void exceptionCaught(ChannelHandlerContext ctx, Throwable cause);
+
   /**
    * Handles the channel active event
    * @param ctx the channel handler context
    */
-  public void channelActive(ChannelHandlerContext ctx);
-  
+  void channelActive(ChannelHandlerContext ctx);
+
   /**
    * Handles the channel inactive event
    * @param ctx the channel handler context
-   */ 
-  public void channelInactive(ChannelHandlerContext ctx);
-
+   */
+  void channelInactive(ChannelHandlerContext ctx);
 }

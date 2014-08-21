@@ -55,12 +55,12 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
     final Channel channel = ctx.channel();
     final byte[] message = (byte[]) msg;
-    
+
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "MessageEvent: local: {0} remote: {1} :: {2}", new Object[] {
           channel.localAddress(), channel.remoteAddress(), message });
     }
-    
+
     if (message.length > 0) {
       // send to the dispatch stage
       this.stage.onNext(this.getTransportEvent(message, channel));
@@ -77,7 +77,6 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
       this.exceptionHandler.onNext(cause instanceof Exception ? (Exception) cause : new Exception(cause));
     }
   }
-  
 
   @Override
   public void channelInactive(final ChannelHandlerContext ctx) {
@@ -87,13 +86,12 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   protected abstract TransportEvent getTransportEvent(final byte[] message, final Channel channel);
 
   protected abstract void exceptionCleanup(final ChannelHandlerContext ctx, Throwable cause);
-  
+
   protected void closeChannel(final Channel channel) {
-    final LinkReference refRemoved = 
+    final LinkReference refRemoved =
         channel != null && channel.remoteAddress() != null ?
         this.addrToLinkRefMap.remove(channel.remoteAddress()) : null;
     LOG.log(Level.FINER, "Channel closed: {0}. Link ref found and removed: {1}",
         new Object[]{channel, refRemoved != null});
   }
 }
-

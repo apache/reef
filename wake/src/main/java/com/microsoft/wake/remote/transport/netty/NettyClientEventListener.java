@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class NettyClientEventListener extends AbstractNettyEventListener {
+
   private static final Logger LOG = Logger.getLogger(NettyClientEventListener.class.getName());
 
   public NettyClientEventListener(
@@ -36,7 +37,7 @@ final class NettyClientEventListener extends AbstractNettyEventListener {
   }
 
   @Override
-  public void channelActive(ChannelHandlerContext ctx) {
+  public void channelActive(final ChannelHandlerContext ctx) {
     // noop
     LOG.log(Level.FINEST, "{0}", ctx);
   }
@@ -47,8 +48,7 @@ final class NettyClientEventListener extends AbstractNettyEventListener {
   }
 
   @Override
-  protected void exceptionCleanup(ChannelHandlerContext ctx, Throwable cause) {
+  protected void exceptionCleanup(final ChannelHandlerContext ctx, final Throwable cause) {
     this.closeChannel(ctx.channel());
-    
   }
 }

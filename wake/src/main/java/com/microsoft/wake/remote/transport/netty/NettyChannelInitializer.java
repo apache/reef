@@ -32,22 +32,19 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
   public static final int MAXFRAMELENGTH = 10 * 1024 * 1024;
   private final NettyChannelHandlerFactory handlerFactory;
-  
+
   public NettyChannelInitializer(final NettyChannelHandlerFactory handlerFactory) {
     this.handlerFactory = handlerFactory;
   }
-  
+
   @Override
   protected void initChannel(SocketChannel ch) throws Exception {
-    ChannelPipeline pipeline = ch.pipeline();
-
-    pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4));
-    pipeline.addLast("bytesDecoder", new ByteArrayDecoder());
-    pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
-    pipeline.addLast("bytesEncoder", new ByteArrayEncoder());
-    pipeline.addLast("chunker", new ChunkedReadWriteHandler());
-    pipeline.addLast("handler", handlerFactory.createChannelInboundHandler());
-
+    ch.pipeline()
+        .addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAXFRAMELENGTH, 0, 4, 0, 4))
+        .addLast("bytesDecoder", new ByteArrayDecoder())
+        .addLast("frameEncoder", new LengthFieldPrepender(4))
+        .addLast("bytesEncoder", new ByteArrayEncoder())
+        .addLast("chunker", new ChunkedReadWriteHandler())
+        .addLast("handler", handlerFactory.createChannelInboundHandler());
   }
-
 }

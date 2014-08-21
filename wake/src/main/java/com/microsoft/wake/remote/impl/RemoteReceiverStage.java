@@ -27,53 +27,42 @@ import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.WakeParameters;
 import com.microsoft.wake.impl.DefaultThreadFactory;
 import com.microsoft.wake.impl.ThreadPoolStage;
-import com.microsoft.wake.impl.WakeUncaughtExceptionHandler;
 import com.microsoft.wake.remote.exception.RemoteRuntimeException;
 
 /**
  * Receive incoming events and dispatch to correct handlers
  */
 public class RemoteReceiverStage implements EStage<TransportEvent> {
-  
+
   private static final Logger LOG = Logger.getLogger(RemoteReceiverStage.class.getName());
-  
+
   private final EventHandler<TransportEvent> handler;
   private final ThreadPoolStage<TransportEvent> stage;
   private final ExecutorService executor; // for decoupling
-  
+
   private final long shutdownTimeout = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
 
   /**
    * Constructs a remote receiver stage
-   * 
+   *
    * @param handler the handler of remote events
    * @param errorHandler the exception handler
-   * @param numOfThreads the number of threads
+   * @param numThreads the number of threads
    */
-  public RemoteReceiverStage(EventHandler<RemoteEvent<byte[]>> handler, EventHandler<Throwable> errorHandler, int numThreads) {
+  public RemoteReceiverStage(final EventHandler<RemoteEvent<byte[]>> handler,
+      final EventHandler<Throwable> errorHandler, final int numThreads) {
+
     this.handler = new RemoteReceiverEventHandler(handler);
-    this.executor = Executors.newFixedThreadPool(numThreads, new DefaultThreadFactory(RemoteReceiverStage.class.getName()));
-    this.stage = new ThreadPoolStage<TransportEvent>(this.handler, this.executor, errorHandler);
+
+    this.executor = Executors.newFixedThreadPool(
+        numThreads, new DefaultThreadFactory(RemoteReceiverStage.class.getName()));
+
+    this.stage = new ThreadPoolStage<>(this.handler, this.executor, errorHandler);
   }
-  
-  @Deprecated
-  public RemoteReceiverStage(EventHandler<RemoteEvent<byte[]>> handler, EventHandler<Throwable> errorHandler) {
-    this(handler, errorHandler, 10);
-  }
-  
-  @Deprecated
-  public RemoteReceiverStage(EventHandler<RemoteEvent<byte[]>> handler) {
-    this(handler, null);
-  }
-  
-  @Deprecated
-  public RemoteReceiverStage(EventHandler<RemoteEvent<byte[]>> handler, boolean flag) {
-    this(handler, null);
-  }
-  
+
   /**
    * Handles the received event
-   * 
+   *
    * @param value the event
    */
   @Override
@@ -84,8 +73,6 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
 
   /**
    * Closes the stage
-   * 
-   * @throws Exception
    */
   @Override
   public void close() throws Exception {
@@ -96,15 +83,14 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
       try {
         // wait for threads to finish for timeout
         if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
-          LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
+          LOG.log(Level.WARNING, "Executor did not terminate in {0} ms.", shutdownTimeout);
           List<Runnable> droppedRunnables = executor.shutdownNow();
-          LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
+          LOG.log(Level.WARNING, "Executor dropped {0} tasks.", droppedRunnables.size());
         }
-      } catch (InterruptedException e) {
-        LOG.log(Level.WARNING, "Close interrupted");
+      } catch (final InterruptedException e) {
+        LOG.log(Level.WARNING, "Close interrupted", e);
         throw new RemoteRuntimeException(e);
       }
     }
   }
-
 }

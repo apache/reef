@@ -29,13 +29,11 @@ import com.microsoft.wake.remote.transport.LinkListener;
 
 /**
  * Link implementation with Netty
- *
- * @param <T> type
  */
 public class NettyLink<T> implements Link<T> {
 
   private static final Logger LOG = Logger.getLogger(NettyLink.class.getName());
-      
+
   public static final int INT_SIZE = Integer.SIZE / Byte.SIZE;
 
   private final Channel channel;
@@ -60,37 +58,24 @@ public class NettyLink<T> implements Link<T> {
    * @param listener the link listener
    */
   public NettyLink(final Channel channel,
-        final Encoder<? super T> encoder, final LinkListener<? super T> listener)
-  {
+        final Encoder<? super T> encoder, final LinkListener<? super T> listener) {
     this.channel = channel;
     this.encoder = encoder;
     this.listener = listener;
   }
-  
+
 
   /**
    * Writes the message to this link
    *
    * @param message the message
-   * @throws IOException
    */
   @Override
   public void write(final T message) throws IOException {
-    LOG.log(Level.FINEST, "write {0} {1}", new Object[]{channel, message.toString()});
+    LOG.log(Level.FINEST, "write {0} {1}", new Object[]{channel, message});
     byte[] allData = encoder.encode(message);
     // byte[] -> ByteBuf
     channel.writeAndFlush(Unpooled.wrappedBuffer(allData));
-  }
-
-  /**
-   * Closes the link
-   *
-   * @throws IOException
-   */
-  @Deprecated
-  @Override
-  public void close() throws IOException {
-    // no op 
   }
 
   /**
@@ -125,13 +110,8 @@ public class NettyLink<T> implements Link<T> {
     return channel.remoteAddress();
   }
 
-
+  @Override
   public String toString() {
-    StringBuffer buf = new StringBuffer();
-    buf.append("localAddr: ");
-    buf.append(getLocalAddress());
-    buf.append(" remoteAddr: ");
-    buf.append(getRemoteAddress());
-    return buf.toString();
+    return "localAddr: " + getLocalAddress() + " remoteAddr: " + getRemoteAddress();
   }
 }
