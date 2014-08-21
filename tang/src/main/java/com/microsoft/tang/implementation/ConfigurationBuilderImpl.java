@@ -42,7 +42,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
   final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
-  final TracingMonotonicMap<NamedParameterNode<List<?>>, List<?>> boundLists = new TracingMonotonicTreeMap<>();
+  final TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>> boundLists = new TracingMonotonicTreeMap<>();
 
   public final static String IMPORT = "import";
   public final static String INIT = "<init>";

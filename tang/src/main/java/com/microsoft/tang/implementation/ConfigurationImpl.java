@@ -24,6 +24,7 @@ import com.microsoft.tang.types.ConstructorDef;
 import com.microsoft.tang.types.NamedParameterNode;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -91,6 +92,11 @@ public class ConfigurationImpl implements Configuration {
   @Override
   public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np) {
     return this.builder.boundSetEntries.getValuesForKey(np);
+  }
+
+  @Override
+  public List<Object> getBoundList(NamedParameterNode<List<?>> np) {
+    return this.builder.boundLists.get(np);
   }
 
   @Override

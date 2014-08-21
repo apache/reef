@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -86,6 +87,14 @@ public interface Configuration {
    * @see getClassHierarchy()
    */
   public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
+
+  /**
+   * Get the list bound to a given NamedParameterNode. The list will be empty if nothing was bound.
+   *
+   * @param np Target NamedParameter
+   * @return A list bound to np
+   */
+  public List<Object> getBoundList(NamedParameterNode<List<?>> np);
   
   /**
    * @return the external constructor that cn has been explicitly bound to, or null.  Defaults are not returned.
