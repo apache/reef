@@ -68,7 +68,9 @@ public final class Evaluators implements AutoCloseable {
     }
     for (final EvaluatorManager evaluatorManager : evaluatorsCopy) {
       LOG.log(Level.WARNING, "Unclean shutdown of evaluator {0}", evaluatorManager.getId());
-      evaluatorManager.close();
+      if (!evaluatorManager.isClosed()) {
+        evaluatorManager.close();
+      }
     }
   }
 
@@ -124,19 +126,6 @@ public final class Evaluators implements AutoCloseable {
     if (prev != null) {
       throw new IllegalArgumentException(
           "Trying to re-add an Evaluator that is already known: " + evaluatorId);
-    }
-  }
-
-  /**
-   * @param evaluatorManager the EvaluatorManager to be removed.
-   * @throws java.lang.RuntimeException if no such EvaluatorManager exists.
-   */
-  public synchronized void remove(final EvaluatorManager evaluatorManager) {
-    final String evaluatorId = evaluatorManager.getId();
-    final EvaluatorManager prev = this.evaluators.remove(evaluatorId);
-    LOG.log(Level.FINEST, "Removing: {0} found: {1}", new Object[]{evaluatorId, prev});
-    if (prev == null) {
-      throw new RuntimeException("Trying to remove unknown EvaluatorManager: " + evaluatorId);
     }
   }
 }
