@@ -21,9 +21,6 @@ import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommM
 import com.microsoft.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupMessageBody;
 import com.microsoft.wake.Identifier;
 
-/**
- * @author shravan
- */
 public class TestUtils {
   public static GroupCommMessage bldGCM(final Type msgType, final Identifier from, final Identifier to, final byte[]... elements) {
     final GroupCommMessage.Builder GCMBuilder = GroupCommMessage.newBuilder();

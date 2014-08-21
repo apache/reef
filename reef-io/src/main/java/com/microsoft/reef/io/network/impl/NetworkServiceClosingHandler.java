@@ -20,9 +20,6 @@ import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 
-/**
- *
- */
 public class NetworkServiceClosingHandler implements EventHandler<ContextStop> {
   private final NetworkService<?> networkService;
 

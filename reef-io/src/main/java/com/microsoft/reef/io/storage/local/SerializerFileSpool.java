@@ -29,9 +29,6 @@ import java.util.Iterator;
 
 /**
  * A SpoolFile backed by the filesystem.
- * 
- * @author Rusty Sears <sears@microsoft.com>
- * @author Markus Weimer <mweimer@microsoft.com>
  * @param <T>
  */
 public final class SerializerFileSpool<T> implements Spool<T> {
@@ -43,14 +40,14 @@ public final class SerializerFileSpool<T> implements Spool<T> {
   private boolean canGetAccumulator = true;
 
   public SerializerFileSpool(final LocalStorageService service,
-      Serializer<T, OutputStream> out, Deserializer<T, InputStream> in)
+      final Serializer<T, OutputStream> out, final Deserializer<T, InputStream> in)
       throws ServiceException {
     this.file = service.getScratchSpace().newFile();
     Accumulable<T> accumulable;
     try {
       accumulable = out.create(new BufferedOutputStream(new FileOutputStream(
           file)));
-    } catch (FileNotFoundException e) {
+    } catch (final FileNotFoundException e) {
       throw new IllegalStateException(
           "Unable to create temporary file:" + file, e);
     }
@@ -59,7 +56,7 @@ public final class SerializerFileSpool<T> implements Spool<T> {
     final Accumulator<T> acc = accumulable.accumulator();
     this.accumulator = new Accumulator<T>() {
       @Override
-      public void add(T datum) throws ServiceException {
+      public void add(final T datum) throws ServiceException {
         if (!canAppend) {
           throw new ConcurrentModificationException(
               "Attempt to append after creating iterator!");
@@ -84,7 +81,7 @@ public final class SerializerFileSpool<T> implements Spool<T> {
       }
       return deserializer.create(
           new BufferedInputStream(new FileInputStream(file))).iterator();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new ServiceRuntimeException(e);
     }
   }

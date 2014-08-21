@@ -27,9 +27,6 @@ import com.microsoft.wake.remote.Codec;
  * 
  * The parameters are grouped based on the operator and whether they are for
  * Sender or Receiver.
- * 
- * @author shravan
- * 
  */
 public class GroupParameters {
   public static final String defaultValue = "NULL";

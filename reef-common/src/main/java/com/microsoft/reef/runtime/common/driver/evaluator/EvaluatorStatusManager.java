@@ -32,7 +32,7 @@ final class EvaluatorStatusManager {
   /**
    * The state managed.
    */
-  private EvaluatorManager.State state = EvaluatorManager.State.ALLOCATED;
+  private EvaluatorState state = EvaluatorState.ALLOCATED;
 
   @Inject
   private EvaluatorStatusManager() {
@@ -40,47 +40,47 @@ final class EvaluatorStatusManager {
   }
 
   synchronized void setRunning() {
-    this.setState(EvaluatorManager.State.RUNNING);
+    this.setState(EvaluatorState.RUNNING);
   }
 
   synchronized void setSubmitted() {
-    this.setState(EvaluatorManager.State.SUBMITTED);
+    this.setState(EvaluatorState.SUBMITTED);
   }
 
   synchronized void setDone() {
-    this.setState(EvaluatorManager.State.DONE);
+    this.setState(EvaluatorState.DONE);
   }
 
   synchronized void setFailed() {
-    this.setState(EvaluatorManager.State.FAILED);
+    this.setState(EvaluatorState.FAILED);
   }
 
   synchronized void setKilled() {
-    this.setState(EvaluatorManager.State.KILLED);
+    this.setState(EvaluatorState.KILLED);
   }
 
   synchronized boolean isRunning() {
-    return this.state.equals(EvaluatorManager.State.RUNNING);
+    return this.state.equals(EvaluatorState.RUNNING);
   }
 
   synchronized boolean isDoneOrFailedOrKilled() {
-    return (this.state == EvaluatorManager.State.DONE ||
-        this.state == EvaluatorManager.State.FAILED ||
-        this.state == EvaluatorManager.State.KILLED);
+    return (this.state == EvaluatorState.DONE ||
+        this.state == EvaluatorState.FAILED ||
+        this.state == EvaluatorState.KILLED);
   }
 
   synchronized boolean isAllocatedOrSubmittedOrRunning() {
-    return (this.state == EvaluatorManager.State.ALLOCATED ||
-        this.state == EvaluatorManager.State.SUBMITTED ||
-        this.state == EvaluatorManager.State.RUNNING);
+    return (this.state == EvaluatorState.ALLOCATED ||
+        this.state == EvaluatorState.SUBMITTED ||
+        this.state == EvaluatorState.RUNNING);
   }
 
   synchronized boolean isSubmitted() {
-    return EvaluatorManager.State.SUBMITTED == this.state;
+    return EvaluatorState.SUBMITTED == this.state;
   }
 
   synchronized boolean isAllocated() {
-    return EvaluatorManager.State.ALLOCATED == this.state;
+    return EvaluatorState.ALLOCATED == this.state;
   }
 
   @Override
@@ -88,7 +88,7 @@ final class EvaluatorStatusManager {
     return this.state.toString();
   }
 
-  private synchronized void setState(final EvaluatorManager.State state) {
+  private synchronized void setState(final EvaluatorState state) {
     if (!isLegal(this.state, state)) {
       throw new IllegalStateException("Illegal state transition from '" + this.state + "' to '" + state + "'");
     }
@@ -96,7 +96,7 @@ final class EvaluatorStatusManager {
 
   }
 
-  private static boolean isLegal(final EvaluatorManager.State from, final EvaluatorManager.State to) {
+  private static boolean isLegal(final EvaluatorState from, final EvaluatorState to) {
     // TODO
     return true;
   }

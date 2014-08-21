@@ -37,8 +37,6 @@ import java.util.List;
 
 /**
  * Implementation of {@link ReduceScatter}
- * @author shravan
- *
  * @param <T>
  */
 public class ReduceScatterOp<T> extends SenderReceiverBase implements ReduceScatter<T> {

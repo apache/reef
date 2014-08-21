@@ -34,9 +34,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class BroadcastOp {
   private static final Logger LOG = Logger.getLogger(BroadcastOp.class.getName());
 

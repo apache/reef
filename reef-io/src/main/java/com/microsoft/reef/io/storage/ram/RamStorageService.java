@@ -20,9 +20,6 @@ import com.microsoft.reef.io.storage.StorageService;
 
 import javax.inject.Inject;
 
-/**
- * @author Rusty Sears <sears@microsoft.com>
- */
 public class RamStorageService implements StorageService {
   @Inject
   public RamStorageService() {

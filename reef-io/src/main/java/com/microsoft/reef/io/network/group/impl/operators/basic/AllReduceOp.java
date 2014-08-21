@@ -38,8 +38,6 @@ import java.util.List;
 
 /**
  * Implementation of {@link AllReduce}
- * @author shravan
- *
  * @param <T>
  */
 public class AllReduceOp<T> extends SenderReceiverBase implements AllReduce<T> {

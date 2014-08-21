@@ -15,13 +15,7 @@
  */
 package com.microsoft.reef.io.network.group.impl.operators.faulty;
 
-/**
- * 
- */
 public class NetworkFault extends RuntimeException {
-  /**
-   * 
-   */
   private static final long serialVersionUID = 3085665402551118349L;
   
   private static final String MSG = "Induced network fault";

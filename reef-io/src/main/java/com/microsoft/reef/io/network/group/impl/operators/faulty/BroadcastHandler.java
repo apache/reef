@@ -36,9 +36,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class BroadcastHandler implements EventHandler<Message<GroupCommMessage>> {
 
   private static final Logger LOG = Logger.getLogger(BroadcastHandler.class.getName());

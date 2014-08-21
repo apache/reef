@@ -16,7 +16,6 @@
 /**
  * Contains {@link com.microsoft.tang.Configuration} specific classes
  * for the basic implementation of the Group Operators
- * @author shravan
- *
  */
+@java.lang.Deprecated
 package com.microsoft.reef.io.network.group.impl.operators.basic.config;
