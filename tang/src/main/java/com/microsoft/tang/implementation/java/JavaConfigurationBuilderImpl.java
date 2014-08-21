@@ -214,7 +214,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
       for (Object item : implList) {
         if (item instanceof Class) {
           if(!ReflectionUtilities.getRawClass(valType).isAssignableFrom((Class) item)) {
-            throw new BindException("BindList got a list element which is not assignable to the given Type;" +
+            throw new BindException("BindList got a list element which is not assignable to the given Type; " +
                 "expected: " + valType);
           }
         }

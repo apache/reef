@@ -79,6 +79,6 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
 
   public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
 
-  public <T> JavaConfigurationBuilder bindListEntry(Class<? extends Name<List<T>>> iface, List impl)
+  public <T> JavaConfigurationBuilder bindList(Class<? extends Name<List<T>>> iface, List impl)
       throws BindException;
 }
