@@ -26,6 +26,7 @@ import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.javabridge.*;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.reef.util.logging.CLRBufferedLogHandler;
 import com.microsoft.reef.webserver.*;
@@ -78,6 +79,7 @@ public final class JobDriver {
   private long contextMessageHandler = 0;
 
   private int nCLREvaluators = 0;
+  private boolean clrBridgeSetup = false;
 
   private NameServer nameServer;
   private String nameServerInfo;
@@ -188,6 +190,8 @@ public final class JobDriver {
         httpServer.addHttpHandler(h);
       }
     }
+    this.clrBridgeSetup = true;
+    LOG.log(Level.INFO, "CLR Bridge setup.");
   }
 
   private CLRBufferedLogHandler getCLRBufferedLogHandler() {
@@ -286,24 +290,46 @@ public final class JobDriver {
         JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
 
         if (failedEvaluatorHandler == 0) {
-          message = "No CLR FailedEvaluator handler was set, exiting now";
-          LOG.log(Level.WARNING, message);
-        } else {
-          message = "CLR FailedEvaluator handler set, handling things with CLR handler.";
-          LOG.log(Level.INFO, message);
-          FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor);
-          NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(failedEvaluatorHandler, failedEvaluatorBridge, JobDriver.this.interopLogger);
-
-          int additionalRequestedEvaluatorNumber = failedEvaluatorBridge.getNewlyRequestedEvaluatorNumber();
-          if (additionalRequestedEvaluatorNumber > 0) {
-            nCLREvaluators += additionalRequestedEvaluatorNumber;
-            LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " + additionalRequestedEvaluatorNumber);
+          if (JobDriver.this.clrBridgeSetup) {
+            message = "No CLR FailedEvaluator handler was set, exiting now";
+            LOG.log(Level.WARNING, message);
+            JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
+            return;
+          } else {
+            clock.scheduleAlarm(0, new EventHandler<Alarm>() {
+              @Override
+              public void onNext(final Alarm time) {
+                if (JobDriver.this.clrBridgeSetup) {
+                  handleFailedEvaluatorInCLR(eval);
+                } else {
+                  LOG.log(Level.INFO, "Waiting for CLR bridge to be set up");
+                  clock.scheduleAlarm(5000, this);
+                }
+              }
+            });
           }
+        } else {
+          handleFailedEvaluatorInCLR(eval);
         }
-        JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
       }
     }
+    private void handleFailedEvaluatorInCLR(final FailedEvaluator eval)
+    {
+        final String message = "CLR FailedEvaluator handler set, handling things with CLR handler.";
+        LOG.log(Level.INFO, message);
+        FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor);
+        NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(failedEvaluatorHandler, failedEvaluatorBridge, JobDriver.this.interopLogger);
+
+        int additionalRequestedEvaluatorNumber = failedEvaluatorBridge.getNewlyRequestedEvaluatorNumber();
+        if (additionalRequestedEvaluatorNumber > 0) {
+          nCLREvaluators += additionalRequestedEvaluatorNumber;
+          LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " + additionalRequestedEvaluatorNumber);
+        }
+        JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
+    }
   }
+
+
 
   final class HttpServerBridgeEventHandler implements HttpHandler {
     private String uriSpecification;
@@ -465,7 +491,7 @@ public final class JobDriver {
 
         LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
 
-        final File restartCompleted = new File("driverRestartCompleted");
+        final File restartCompleted = new File(EvaluatorManager.DRIVER_RESTART_COMPLETED);
         clock.scheduleAlarm(0, new EventHandler<Alarm>() {
           @Override
           public void onNext(final Alarm time) {
