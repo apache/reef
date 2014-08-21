@@ -30,6 +30,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
@@ -179,6 +180,55 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     }
 
     super.bindSetEntry((NamedParameterNode<Set<T>>) n, m);
+    return this;
+  }
+
+  /**
+   * Binding list method for JavaConfigurationBuilder. It checks the type of a given named parameter,
+   * and whether all the list's elements can be applied to the named parameter. The elements' type
+   * should be either java Class or String.
+   *
+   * It does not check whether the list's String values can be parsed to T, like bindSetEntry.
+   *
+   * @param iface target named parameter to be instantiated
+   * @param implList implementation list used to instantiate the named parameter
+   * @param <T> type of the list
+   * @return bound JavaConfigurationBuilder object
+   * @throws BindException
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> JavaConfigurationBuilder bindList(Class<? extends Name<List<T>>> iface, List implList)
+    throws BindException {
+    final Node n = getNode(iface);
+
+    if (!(n instanceof NamedParameterNode)) {
+      throw new BindException("BindList got an interface that resolved to " + n + "; expected a NamedParameter");
+    }
+    final Type listType = ReflectionUtilities.getInterfaceTarget(Name.class, iface);
+    if (!ReflectionUtilities.getRawClass(listType).equals(List.class)) {
+      throw new BindException("BindList got a NamedParameter that takes a " + listType + "; expected List<...>");
+    }
+    if (!implList.isEmpty()) {
+      final Type valType = ReflectionUtilities.getInterfaceTarget(List.class, listType);
+      for (Object item : implList) {
+        if (item instanceof Class) {
+          if(!ReflectionUtilities.getRawClass(valType).isAssignableFrom((Class) item)) {
+            throw new BindException("BindList got a list element which is not assignable to the given Type;" +
+                "expected: " + valType);
+          }
+        }
+        else if (item instanceof String) {
+          continue;
+        }
+        else {
+          throw new BindException("BindList got an list element with unsupported type; expected Class or String " +
+              "object");
+        }
+      }
+    }
+
+    super.bindList((NamedParameterNode<List<T>>) n, implList);
     return this;
   }
 }
