@@ -618,6 +618,13 @@ public class InjectorImpl implements Injector {
         ret.add(injectFromPlan(subplan));
       }
       return (T) ret;
+    } else if (plan instanceof ListInjectionPlan) {
+      ListInjectionPlan<T> listPlan = (ListInjectionPlan<T>) plan;
+      List<T> ret = new ArrayList<>();
+      for (InjectionPlan<T> subplan : listPlan.getEntryPlans()) {
+        ret.add(injectFromPlan(subplan));
+      }
+      return (T) ret;
     } else {
       throw new IllegalStateException("Unknown plan type: " + plan);
     }
