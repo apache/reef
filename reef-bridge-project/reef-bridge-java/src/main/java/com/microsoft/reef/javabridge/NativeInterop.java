@@ -110,6 +110,20 @@ public class NativeInterop {
       ContextMessageBridge contextMessageBridge
   );
 
+  public static native void ClrSystemDriverRestartHandlerOnNext (
+      long handle
+  );
+
+  public static native void ClrSystemDriverRestartActiveContextHandlerOnNext (
+      long handle,
+      ActiveContextBridge activeContextBridge
+  );
+
+  public static native void ClrSystemDriverRestartRunningTaskHandlerOnNext (
+      long handle,
+      RunningTaskBridge runningTaskBridge
+  );
+
   private static final String LIB_BIN = "/";
   private static final String DLL_EXTENSION = ".dll";
   private static final String CPP_BRIDGE = "JavaClrBridge";
@@ -136,8 +150,12 @@ public class NativeInterop {
   public static final String ClosedContextKey= "ClosedContext";
   public static final String FailedContextKey = "FailedContext";
   public static final String ContextMessageKey = "ContextMessage";
+  public static final String DriverRestartKey = "DriverRestart";
+  public static final String DriverRestartActiveContextKey = "DriverRestartActiveContext";
+  public static final String DriverRestartRunningTaskKey = "DriverRestartRunningTask";
 
-  public static final int nHandlers = 14;
+
+  public static final int nHandlers = 17;
   public static final HashMap<String,Integer> Handlers = new HashMap<String, Integer>(){{
     put(EvaluatorRequestorKey, 0);
     put(AllocatedEvaluatorKey, 1);
@@ -153,6 +171,9 @@ public class NativeInterop {
     put(ClosedContextKey, 11);
     put(FailedContextKey, 12);
     put(ContextMessageKey, 13);
+    put(DriverRestartKey, 14);
+    put(DriverRestartActiveContextKey, 15);
+    put(DriverRestartRunningTaskKey, 16);
     }
   };
 

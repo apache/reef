@@ -454,3 +454,65 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSyste
 		contextMessageBridge -> OnError(errorMessage);
 	}
 }
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemDriverRestartHandlerOnNext
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemDriverRestartHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemDriverRestartHandlerOnNext");
+	try{
+		ClrSystemHandlerWrapper::Call_ClrSystemDriverRestart_OnNext(handler);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemContextMessage_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+		// we do not call back to Java for exception in .NET restart handler
+	}
+}
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemDriverRestartActiveContextHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/javabridge/ActiveContextBridge;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemDriverRestartActiveContextHandlerOnNext
+  (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemDriverRestartActiveContextHandlerOnNext");
+	ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
+	try{	
+		ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartActiveContextHandler_OnNext(handle, activeContextBrdige);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemDriverRestartActiveContextHandler_OnNext";
+		ManagedLog::LOGGER -> LogError(errorMessage, ex);
+		activeContextBrdige -> OnError(errorMessage);
+	}
+}
+
+/*
+ * Class:     com_microsoft_reef_javabridge_NativeInterop
+ * Method:    ClrSystemDriverRestartRunningTaskHandlerOnNext
+ * Signature: (JLcom/microsoft/reef/javabridge/RunningTaskBridge;)V
+ */
+JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemDriverRestartRunningTaskHandlerOnNext
+  (JNIEnv *env , jclass cls, jlong handler, jobject jrunningTask)
+{
+	ManagedLog::LOGGER->Log("+Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemDriverRestartRunningTaskHandlerOnNext");
+	RunningTaskClr2Java^ runningTaskBridge = gcnew RunningTaskClr2Java(env, jrunningTask);
+	try{		
+		ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartRunningTask_OnNext(handler, runningTaskBridge);
+	}
+	catch (System::Exception^ ex)
+	{
+		String^ errorMessage = "Exception in Call_ClrSystemDriverRestartRunningTask_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+		runningTaskBridge -> OnError(errorMessage);
+	}
+}
