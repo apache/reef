@@ -28,7 +28,6 @@ import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
-import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfiguration;
 import com.microsoft.tang.formats.*;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
@@ -135,7 +134,6 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
    * Event handler for active context. Defaults to closing the context if not bound.
    */
   public static final OptionalImpl<EventHandler<ActiveContext>> ON_CONTEXT_ACTIVE = new OptionalImpl<>();
-
 
   /**
    * Event handler for active context when driver restart. Defaults to closing the context if not bound.

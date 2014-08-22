@@ -24,9 +24,9 @@ import com.microsoft.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Driver restart running task handler.
+ * Handler for RunningTask events during a Driver restart.
  */
-@NamedParameter(doc = "Driver restart running task handler.", default_classes = DefaultDriverRestartTaskRunningHandler.class)
+@NamedParameter(doc = "Handler for RunningTask events during a Driver restart.", default_classes = DefaultDriverRestartTaskRunningHandler.class)
 public final class DriverRestartTaskRunningHandlers implements Name<Set<EventHandler<RunningTask>>> {
   private DriverRestartTaskRunningHandlers() {
   }
