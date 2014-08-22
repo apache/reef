@@ -61,6 +61,8 @@ public class NettyMessagingTransport implements Transport {
   private static final int SERVER_BOSS_NUM_THREADS = 3;
   private static final int SERVER_WORKER_NUM_THREADS = 20;
   private static final int CLIENT_WORKER_NUM_THREADS = 10;
+  private static final int PORT_START = 10000;
+  private static final int PORT_RANGE = 10000;
   private static final Random randPort = new Random();
 
   private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap = new ConcurrentHashMap<>();
@@ -139,7 +141,7 @@ public class NettyMessagingTransport implements Transport {
         acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
       } else {
         while (acceptor == null) {
-          port = randPort.nextInt(10000) + 10000;
+          port = randPort.nextInt(PORT_START) + PORT_RANGE;
           LOG.log(Level.FINEST, "Try port {0}", port);
           try {
             acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
