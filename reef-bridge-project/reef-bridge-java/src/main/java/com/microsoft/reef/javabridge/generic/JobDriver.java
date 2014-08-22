@@ -133,13 +133,14 @@ public final class JobDriver {
   @Inject
   JobDriver(final Clock clock,
             final HttpServer httpServer,
+            final NameServer nameServer,
             final JobMessageObserver jobMessageObserver,
             final EvaluatorRequestor evaluatorRequestor) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = new NameServer(0, new StringIdentifierFactory());
+    this.nameServer = nameServer;
     this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
   }
 

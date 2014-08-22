@@ -17,8 +17,10 @@
 package com.microsoft.reef.javabridge.generic;
 
 import com.microsoft.reef.client.*;
+import com.microsoft.reef.io.network.naming.NameServerConfiguration;
 import com.microsoft.reef.javabridge.NativeInterop;
 import com.microsoft.reef.util.EnvironmentUtils;
+import com.microsoft.reef.util.logging.Config;
 import com.microsoft.reef.webserver.HttpHandlerConfiguration;
 import com.microsoft.reef.webserver.HttpServerReefEventHandler;
 import com.microsoft.reef.webserver.ReefEventStateManager;
@@ -143,7 +145,13 @@ public class JobClient {
       }
     }
 
-    this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration());
+    this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
+  }
+
+  private static Configuration getNameServerConfiguration(){
+    return NameServerConfiguration.CONF
+        .set(NameServerConfiguration.NAME_SERVICE_PORT, 0)
+        .build();
   }
 
   /**
