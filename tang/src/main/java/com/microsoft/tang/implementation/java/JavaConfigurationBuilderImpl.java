@@ -30,6 +30,7 @@ import com.microsoft.tang.util.ReflectionUtilities;
 
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -201,6 +202,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   public <T> JavaConfigurationBuilder bindList(Class<? extends Name<List<T>>> iface, List implList)
     throws BindException {
     final Node n = getNode(iface);
+    List<Object> result = new ArrayList<>();
 
     if (!(n instanceof NamedParameterNode)) {
       throw new BindException("BindList got an interface that resolved to " + n + "; expected a NamedParameter");
@@ -217,9 +219,10 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
             throw new BindException("BindList got a list element which is not assignable to the given Type; " +
                 "expected: " + valType);
           }
+          result.add(getNode((Class) item));
         }
         else if (item instanceof String) {
-          continue;
+          result.add(item);
         }
         else {
           throw new BindException("BindList got an list element with unsupported type; expected Class or String " +
@@ -228,7 +231,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
       }
     }
 
-    super.bindList((NamedParameterNode<List<T>>) n, implList);
+    super.bindList((NamedParameterNode<List<T>>) n, result);
     return this;
   }
 }
