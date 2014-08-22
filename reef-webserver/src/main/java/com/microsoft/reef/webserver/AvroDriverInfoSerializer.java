@@ -39,10 +39,11 @@ public class AvroDriverInfoSerializer implements DriverInfoSerializer {
    * Build AvroDriverInfo object.
    */
   @Override
-  public AvroDriverInfo toAvro(final String id, final String startTime) {
+  public AvroDriverInfo toAvro(final String id, final String startTime, final String nameServerId) {
     return AvroDriverInfo.newBuilder()
         .setRemoteId(id)
         .setStartTime(startTime)
+        .setNameServerId(nameServerId)
         .build();
   }
 

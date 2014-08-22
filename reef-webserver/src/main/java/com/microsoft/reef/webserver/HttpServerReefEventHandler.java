@@ -276,7 +276,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final DriverInfoSerializer serializer =
           Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
       final AvroDriverInfo driverInfo = serializer.toAvro(
-          this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime());
+          this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime(), this.reefStateManager.getNameServerIdentifier());
       writeResponse(response, serializer.toString(driverInfo));
     } catch (final InjectionException e) {
       LOG.log(Level.SEVERE, "Error in injecting DriverInfoSerializer.", e);
@@ -305,8 +305,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
     writer.println(String.format("Driver Remote Identifier:[%s]",
         this.reefStateManager.getDriverEndpointIdentifier()));
-
     writer.write("<br/><br/>");
+
+    writer.println(String.format("NameServer Information:[%s]",
+        this.reefStateManager.getNameServerIdentifier()));
+    writer.write("<br/><br/>");
+
     writer.println(String.format("Driver Start Time:[%s]", this.reefStateManager.getStartTime()));
   }
 }
