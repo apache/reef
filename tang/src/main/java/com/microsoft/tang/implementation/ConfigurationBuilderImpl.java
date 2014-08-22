@@ -127,6 +127,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         throw new IllegalStateException();
       }
     }
+    // The boundLists set contains bound lists with their target NamedParameters
+    for (NamedParameterNode<List<?>> np : builder.boundLists.keySet()) {
+      bindList(np.getFullName(), builder.boundLists.get(np));
+    }
   }
 
   @Override
@@ -244,13 +248,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) {
+  public <T> void bindList(NamedParameterNode<List<T>> iface, List<Object> implList) {
     boundLists.put((NamedParameterNode<List<?>>) (NamedParameterNode<?>) iface, implList);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindList(String iface, List implList) {
+  public void bindList(String iface, List<Object> implList) {
     boundLists.put((NamedParameterNode<List<?>>) namespace.getNode(iface), implList);
   }
 
@@ -313,6 +317,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (boundSetEntries != null ? !boundSetEntries.equals(that.boundSetEntries) : that.boundSetEntries != null) {
       return false;
     }
+    if (boundLists != null ? !boundLists.equals(that.boundLists) : that.boundLists != null) {
+      return false;
+    }
     if (legacyConstructors != null ? !legacyConstructors.equals(that.legacyConstructors) : that.legacyConstructors != null) {
       return false;
     }
@@ -330,6 +337,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     result = 31 * result + (namedParameters != null ? namedParameters.hashCode() : 0);
     result = 31 * result + (legacyConstructors != null ? legacyConstructors.hashCode() : 0);
     result = 31 * result + (boundSetEntries != null ? boundSetEntries.hashCode() : 0);
+    result = 31 * result + (boundLists != null ? boundLists.hashCode() : 0);
     return result;
   }
 }
