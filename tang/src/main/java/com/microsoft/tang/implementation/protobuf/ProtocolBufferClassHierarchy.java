@@ -221,7 +221,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       ClassHierarchyProto.NamedParameterNode np = n.getNamedParameterNode();
       parsed = new NamedParameterNodeImpl<Object>(parent, n.getName(),
           n.getFullName(), np.getFullArgClassName(), np.getSimpleArgClassName(),
-          np.getIsSet(), np.getDocumentation(), np.getShortName(),
+          np.getIsSet(), np.getIsList(), np.getDocumentation(), np.getShortName(),
           np.getInstanceDefaultList().toArray(new String[0]));
     } else if (n.hasClassNode()) {
       ClassHierarchyProto.ClassNode cn = n.getClassNode();

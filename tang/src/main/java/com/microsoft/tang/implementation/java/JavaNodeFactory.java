@@ -22,6 +22,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -154,9 +155,10 @@ public class JavaNodeFactory {
     Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
     
     final boolean isSet = argRawClass.equals(Set.class);
+    final boolean isList = argRawClass.equals(List.class);
 
     
-    if(isSet) {
+    if(isSet || isList) {
       argClass = ReflectionUtilities.getInterfaceTarget(Collection.class, argClass);
       argRawClass = ReflectionUtilities.getRawClass(argClass);
     }
@@ -233,7 +235,7 @@ public class JavaNodeFactory {
         ? null : namedParameter.short_name();
 
     return new NamedParameterNodeImpl<>(parent, simpleName, fullName,
-        fullArgName, simpleArgName, isSet, documentation, shortName, defaultInstanceAsStrings);
+        fullArgName, simpleArgName, isSet, isList, documentation, shortName, defaultInstanceAsStrings);
   }
 
   private static void assertIsSubclassOf(Class<?> named_parameter, Class<?> default_class,

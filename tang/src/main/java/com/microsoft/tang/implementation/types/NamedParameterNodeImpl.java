@@ -26,14 +26,16 @@ public class NamedParameterNodeImpl<T> extends AbstractNode implements
   private final String shortName;
   private final String[] defaultInstanceAsStrings;
   private final boolean isSet;
+  private final boolean isList;
   
   public NamedParameterNodeImpl(Node parent, String simpleName,
-      String fullName, String fullArgName, String simpleArgName, boolean isSet,
+      String fullName, String fullArgName, String simpleArgName, boolean isSet, boolean isList,
       String documentation, String shortName, String[] defaultInstanceAsStrings) {
     super(parent, simpleName, fullName);
     this.fullArgName = fullArgName;
     this.simpleArgName = simpleArgName;
     this.isSet = isSet;
+    this.isList = isList;
     this.documentation = documentation;
     this.shortName = shortName;
     this.defaultInstanceAsStrings = defaultInstanceAsStrings;
@@ -73,4 +75,7 @@ public class NamedParameterNodeImpl<T> extends AbstractNode implements
   public boolean isSet() {
     return isSet;
   }
+
+  @Override
+  public boolean isList() { return isList; }
 }

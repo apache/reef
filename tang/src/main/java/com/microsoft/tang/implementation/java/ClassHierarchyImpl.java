@@ -99,6 +99,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
     if(name.isSet()) {
       return (T)new HashSet<T>(Arrays.asList(ret));
+    } else if(name.isList()) {
+      return (T)new ArrayList<T>(Arrays.asList(ret));
     } else {
       if(ret.length == 0) {
         return null;
@@ -341,6 +343,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
             try {
               if(np.isSet()) {
                 /// XXX When handling sets, need to track target of generic parameter, and check the type here!
+              } else if(np.isList()) {
+
               } else {
                 if (!ReflectionUtilities.isCoercable(classForName(arg.getType()),
                     classForName(np.getFullArgName()))) {
