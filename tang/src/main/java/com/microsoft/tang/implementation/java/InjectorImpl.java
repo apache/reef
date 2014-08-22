@@ -258,6 +258,7 @@ public class InjectorImpl implements Injector {
   @SuppressWarnings("unchecked")
   private <T> T parseBoundNamedParameter(NamedParameterNode<T> np) {
     final T ret;
+
     @SuppressWarnings("rawtypes")
     final Set<Object> boundSet = c.getBoundSet((NamedParameterNode) np);
     if (!boundSet.isEmpty()) {
@@ -276,7 +277,27 @@ public class InjectorImpl implements Injector {
         }
       }
       return (T) ret2;
-    } else if (namedParameterInstances.containsKey(np)) {
+    }
+    final List<Object> boundList = c.getBoundList((NamedParameterNode) np);
+    if (boundList != null) {
+      List<T> ret2 = new ArrayList<>();
+      for (Object o: boundList) {
+        if (o instanceof String) {
+          try {
+            ret2.add(javaNamespace.parse(np, (String) o));
+          } catch (ParseException e) {
+            throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: " +
+                "Parsability is not currently checked by bindList(Node,List)");
+          }
+        } else if (o instanceof Node) {
+          ret2.add((T) o);
+        } else {
+          throw new IllegalStateException("Unexpected object " + o + " in bound set.  Should consist of nodes and strings");
+        }
+      }
+      return (T) ret2;
+    }
+    else if (namedParameterInstances.containsKey(np)) {
       ret = (T) namedParameterInstances.get(np);
     } else {
       final String value = c.getNamedParameter(np);
@@ -351,6 +372,18 @@ public class InjectorImpl implements Injector {
 
         }
         ip = new SetInjectionPlan<T>(n, plans);
+      } else if (instance instanceof List) {
+        List<T> entries = (List<T>) instance;
+        List<InjectionPlan<T>> plans = new ArrayList<>();
+        for (T entry : entries) {
+          if (entry instanceof ClassNode) {
+            buildInjectionPlan((ClassNode<?>) entry, memo);
+            plans.add((InjectionPlan<T>) memo.get(entry));
+          } else {
+            plans.add(new JavaInstance<T>(n, entry));
+          }
+        }
+        ip = new ListInjectionPlan<T>(n, plans);
       } else {
         ip = new JavaInstance<T>(np, instance);
       }
