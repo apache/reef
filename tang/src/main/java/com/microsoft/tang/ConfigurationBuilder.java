@@ -244,8 +244,8 @@ public interface ConfigurationBuilder {
    * @param implList The list of class or value will be used to instantiated the named parameter
    * @throws BindException
    */
-  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) throws BindException;
+  public <T> void bindList(NamedParameterNode<List<T>> iface, List<Object> implList) throws BindException;
 
-  public void bindList(String iface, List implList) throws BindException;
+  public void bindList(String iface, List<Object> implList) throws BindException;
 
 }
