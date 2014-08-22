@@ -43,9 +43,9 @@ public class TestAvroSerializerForHttp {
   public void DriverInfoSerializerInjectionTest() {
     try {
       final DriverInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
-      final AvroDriverInfo driverInfo = serializer.toAvro("abc", "xxxxxx");
+      final AvroDriverInfo driverInfo = serializer.toAvro("abc", "xxxxxx", "eee");
       final String driverInfoString = serializer.toString(driverInfo);
-      Assert.assertEquals(driverInfoString, "{\"remoteId\":\"abc\",\"startTime\":\"xxxxxx\"}");
+      Assert.assertEquals(driverInfoString, "{\"remoteId\":\"abc\",\"startTime\":\"xxxxxx\",\"nameServerId\":\"eee\"}");
     } catch (final InjectionException e) {
       Assert.fail("Not able to inject DriverInfoSerializer");
     }

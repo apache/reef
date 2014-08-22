@@ -20,7 +20,8 @@
     "name": "AvroDriverInfo",
     "fields": [
       { "name": "remoteId", "type": "string" },
-      { "name": "startTime", "type": "string" }
+      { "name": "startTime", "type": "string" },
+      { "name": "nameServerId", "type": "string" }
     ]
   }
 ]
