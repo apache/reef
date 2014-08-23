@@ -277,7 +277,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
 
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-      final File recoveryDoneFile = new File("driverRestartCompleted");
       int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
 
       if (numRecoveredContainers > expectedEvaluatorsNumber)
@@ -289,11 +288,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       else if (numRecoveredContainers == expectedEvaluatorsNumber)
       {
         LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
-        try {
-          recoveryDoneFile.createNewFile();
-        } catch (final IOException e) {
-          throw new RuntimeException("cannot create file " + recoveryDoneFile.getAbsolutePath());
-        }
+        this.driverStatusManager.setRestartCompleted();
       }
       else
       {
