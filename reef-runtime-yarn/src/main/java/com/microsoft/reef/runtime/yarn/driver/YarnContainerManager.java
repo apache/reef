@@ -308,7 +308,7 @@ final class YarnContainerManager
     if (previousContainers != null && !previousContainers.isEmpty())
     {
       LOG.log(Level.INFO, "Driver restarted, with {0} previous containers", previousContainers.size());
-      EvaluatorManager.numPreviousContainers = previousContainers.size();
+      this.driverStatusManager.setNumPreviousContainers(previousContainers.size());
       final Set<String> expectedContainers = getExpectedContainersFromLogReplay();
       final int numExpectedContainers = expectedContainers.size();
       final int numPreviousContainers = previousContainers.size();

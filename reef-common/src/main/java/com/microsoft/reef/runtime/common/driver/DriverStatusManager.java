@@ -40,6 +40,9 @@ public final class DriverStatusManager {
   private DriverStatus driverStatus = DriverStatus.PRE_INIT;
   private Optional<Throwable> shutdownCause = Optional.empty();
   private boolean driverTerminationHasBeenCommunicatedToClient = false;
+  private boolean restartCompleted = false;
+  private int numPreviousContainers = 0;
+  private int numRecoveredContainers = 0;
 
 
   /**
@@ -136,6 +139,30 @@ public final class DriverStatusManager {
       }
       this.driverTerminationHasBeenCommunicatedToClient = true;
     }
+  }
+
+  public synchronized boolean getRestartCompleted(){
+    return this.restartCompleted;
+  }
+
+  public synchronized  void setRestartCompleted() {
+    this.restartCompleted = true;
+  }
+
+  public synchronized int getNumPreviousContainers(){
+    return this.numPreviousContainers;
+  }
+
+  public synchronized void setNumPreviousContainers(int num){
+    this.numPreviousContainers = num;
+  }
+
+  public synchronized int getNumRecoveredContainers(){
+    return this.numRecoveredContainers;
+  }
+
+  public synchronized void oneContainerRecovered(){
+     ++this.numRecoveredContainers;
   }
 
   private synchronized boolean isShuttingDownOrFailing() {
