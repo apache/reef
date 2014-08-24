@@ -15,6 +15,30 @@
  */
 package com.microsoft.wake.remote.transport.netty;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.GlobalEventExecutor;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.microsoft.wake.EStage;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.impl.DefaultThreadFactory;
@@ -25,27 +49,6 @@ import com.microsoft.wake.remote.transport.Link;
 import com.microsoft.wake.remote.transport.LinkListener;
 import com.microsoft.wake.remote.transport.Transport;
 import com.microsoft.wake.remote.transport.exception.TransportRuntimeException;
-
-import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
-
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.GlobalEventExecutor;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Messaging transport implementation with Netty
@@ -58,6 +61,9 @@ public class NettyMessagingTransport implements Transport {
   private static final int SERVER_BOSS_NUM_THREADS = 3;
   private static final int SERVER_WORKER_NUM_THREADS = 20;
   private static final int CLIENT_WORKER_NUM_THREADS = 10;
+  private static final int PORT_START = 10000;
+  private static final int PORT_RANGE = 10000;
+  private static final Random randPort = new Random();
 
   private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap = new ConcurrentHashMap<>();
 
@@ -134,17 +140,25 @@ public class NettyMessagingTransport implements Transport {
       if (port > 0) {
         acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
       } else {
-        final Random rand = new Random();
         while (acceptor == null) {
-          port = rand.nextInt(10000) + 10000;
+          port = randPort.nextInt(PORT_START) + PORT_RANGE;
           LOG.log(Level.FINEST, "Try port {0}", port);
-          acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+          try {
+            acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+          } catch (final Exception ex) {
+            if (ex instanceof BindException) {
+              LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
+            } else {
+              throw ex;
+            }
+          }
         }
       }
     } catch (final Exception ex) {
       final RuntimeException transportException =
           new TransportRuntimeException("Cannot bind to port " + port);
-      LOG.log(Level.SEVERE, "Cannot bind to port " + port, transportException);
+      LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
+
       this.clientWorkerGroup.shutdownGracefully();
       this.serverBossGroup.shutdownGracefully();
       this.serverWorkerGroup.shutdownGracefully();
@@ -168,7 +182,6 @@ public class NettyMessagingTransport implements Transport {
 
     this.clientChannelGroup.close().awaitUninterruptibly();
     this.serverChannelGroup.close().awaitUninterruptibly();
-
     this.acceptor.close().sync();
     this.clientWorkerGroup.shutdownGracefully();
     this.serverBossGroup.shutdownGracefully();
