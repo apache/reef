@@ -19,32 +19,27 @@ import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ClosedContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-final class Driver {
+final class SubContextDriver {
 
-  private static final Logger LOG = Logger.getLogger(Driver.class.getName());
+  private static final Logger LOG = Logger.getLogger(SubContextDriver.class.getName());
 
   private static String CONTEXT_1_IDENTIFIER = "CONTEXT_1";
   private static String CONTEXT_2_IDENTIFIER = "CONTEXT_2";
 
-  private final EvaluatorRequestor requestor;
   private State state = State.INIT; // lock: this
 
   @Inject
-  Driver(final EvaluatorRequestor requestor) {
-    this.requestor = requestor;
+  SubContextDriver() {
   }
 
   private enum State {
@@ -52,15 +47,6 @@ final class Driver {
     CONTEXT_1_SUBMITTED,
     CONTEXT_2_SUBMITTED,
     CONTEXT_2_CLOSED,
-  }
-
-  final class StartHandler implements EventHandler<StartTime> {
-    @Override
-    public void onNext(final StartTime startTime) {
-      LOG.log(Level.FINE, "StartTime: {0}", startTime);
-      Driver.this.requestor.submit(
-          EvaluatorRequest.newBuilder().setNumber(1).setMemory(128).build());
-    }
   }
 
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
@@ -80,8 +66,8 @@ final class Driver {
 
         allocatedEvaluator.submitContext(contextConfiguration);
 
-        synchronized (Driver.this) {
-          Driver.this.state = State.CONTEXT_1_SUBMITTED;
+        synchronized (SubContextDriver.this) {
+          SubContextDriver.this.state = State.CONTEXT_1_SUBMITTED;
         }
 
       } catch (final BindException e) {
@@ -99,29 +85,24 @@ final class Driver {
 
       if (activeContext.getId().equals(CONTEXT_1_IDENTIFIER)) {
 
-        synchronized (Driver.this) {
-          assert (Driver.this.state == State.CONTEXT_1_SUBMITTED);
+        synchronized (SubContextDriver.this) {
+          assert (SubContextDriver.this.state == State.CONTEXT_1_SUBMITTED);
         }
 
         LOG.log(Level.FINE, "Submitting sub context");
 
-        try {
+        final Configuration contextConfiguration = ContextConfiguration.CONF
+            .set(ContextConfiguration.ON_CONTEXT_STARTED, ContextStartHandler2.class)
+            .set(ContextConfiguration.ON_CONTEXT_STOP, ContextStopHandler2.class)
+            .set(ContextConfiguration.IDENTIFIER, CONTEXT_2_IDENTIFIER)
+            .build();
 
-          final Configuration contextConfiguration = ContextConfiguration.CONF
-              .set(ContextConfiguration.ON_CONTEXT_STARTED, ContextStartHandler2.class)
-              .set(ContextConfiguration.ON_CONTEXT_STOP, ContextStopHandler2.class)
-              .set(ContextConfiguration.IDENTIFIER, CONTEXT_2_IDENTIFIER)
-              .build();
+        activeContext.submitContext(contextConfiguration);
 
-          activeContext.submitContext(contextConfiguration);
-
-          synchronized (Driver.this) {
-            Driver.this.state = State.CONTEXT_2_SUBMITTED;
-          }
-
-        } catch (final BindException e) {
-          throw new RuntimeException(e);
+        synchronized (SubContextDriver.this) {
+          SubContextDriver.this.state = State.CONTEXT_2_SUBMITTED;
         }
+
 
       } else if (activeContext.getId().equals(CONTEXT_2_IDENTIFIER)) {
         LOG.log(Level.INFO, "Received sub context. Closing");
@@ -139,17 +120,17 @@ final class Driver {
 
       if (closedContext.getId().equals(CONTEXT_2_IDENTIFIER)) {
 
-        synchronized (Driver.this) {
-          assert (Driver.this.state == State.CONTEXT_2_SUBMITTED);
+        synchronized (SubContextDriver.this) {
+          assert (SubContextDriver.this.state == State.CONTEXT_2_SUBMITTED);
         }
 
         closedContext.getParentContext().close();
-        Driver.this.state = State.CONTEXT_2_CLOSED;
+        SubContextDriver.this.state = State.CONTEXT_2_CLOSED;
 
       } else if (closedContext.getId().equals(CONTEXT_1_IDENTIFIER)) {
 
-        synchronized (Driver.this) {
-          assert (Driver.this.state == State.CONTEXT_2_CLOSED);
+        synchronized (SubContextDriver.this) {
+          assert (SubContextDriver.this.state == State.CONTEXT_2_CLOSED);
         }
 
         throw new IllegalStateException("Received a closed context for the root context");

@@ -30,6 +30,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests whether Evaluator allocations requested with a given amount of memory are (over-)fullfilled.
+ */
 public class EvaluatorSizeTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
@@ -52,9 +55,9 @@ public class EvaluatorSizeTest {
 
     final Configuration driverConfiguration =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "EvaluatorSize-" + megaBytes)
-            .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.EvaluatorAllocatedHandler.class).build();
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorSizeTest-" + megaBytes)
+            .set(DriverConfiguration.ON_DRIVER_STARTED, EvaluatorSizeTestDriver.StartHandler.class)
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorSizeTestDriver.EvaluatorAllocatedHandler.class).build();
 
     final Configuration mergedDriverConfiguration = Tang.Factory.getTang()
         .newConfigurationBuilder(driverConfiguration, testConfiguration).build();

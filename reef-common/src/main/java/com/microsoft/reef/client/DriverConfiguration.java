@@ -127,7 +127,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<RunningTask>> ON_TASK_RUNNING = new OptionalImpl<>();
 
   /**
-   * Event handler for running tasks in previous evaluator, when driver restarted. Defaults to logging if not bound.
+   * Event handler for running tasks in previous evaluator, when driver restarted. Defaults to crash if not bound.
    */
   public static final OptionalImpl<EventHandler<RunningTask>> ON_DRIVER_RESTART_TASK_RUNNING = new OptionalImpl<>();
 

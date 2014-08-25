@@ -21,13 +21,13 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
@@ -37,23 +37,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-final class Driver {
+final class FileResourceTestDriver {
 
-  private static final Logger LOG = Logger.getLogger(Driver.class.getName());
+  private static final Logger LOG = Logger.getLogger(FileResourceTestDriver.class.getName());
 
   private final Set<String> fileNamesToExpect;
-  private final Clock clock;
   private final EvaluatorRequestor requestor;
   private final REEFFileNames fileNames;
   private final File localFolder;
 
   @Inject
-  public Driver(@Parameter(TestDriverConfiguration.FileNamesToExpect.class) final Set<String> fileNamesToExpect,
-                final Clock clock,
-                final EvaluatorRequestor requestor,
-                final REEFFileNames fileNames) {
+  public FileResourceTestDriver(@Parameter(FileResourceTestDriverConfiguration.FileNamesToExpect.class) final Set<String> fileNamesToExpect,
+                                final EvaluatorRequestor requestor,
+                                final REEFFileNames fileNames) {
     this.fileNamesToExpect = fileNamesToExpect;
-    this.clock = clock;
     this.requestor = requestor;
     this.fileNames = fileNames;
     this.localFolder = fileNames.getLocalFolder();
@@ -66,10 +63,10 @@ final class Driver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "StartTime: {0} Number of files in the set: {1}",
-          new Object[]{startTime, Driver.this.fileNamesToExpect.size()});
+          new Object[]{startTime, FileResourceTestDriver.this.fileNamesToExpect.size()});
 
       // Check whether the files made it
-      for (final String fileName : Driver.this.fileNamesToExpect) {
+      for (final String fileName : FileResourceTestDriver.this.fileNamesToExpect) {
         final File file = new File(localFolder, fileName);
         LOG.log(Level.INFO, "Testing file: " + file.getAbsolutePath());
         if (!file.exists()) {
@@ -82,8 +79,8 @@ final class Driver {
       }
 
       // Ask for a single evaluator.
-      Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(128).build());
+      FileResourceTestDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+          .setNumber(1).setMemory(64).build());
     }
   }
 
@@ -96,7 +93,7 @@ final class Driver {
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       try {
         // Add the files to the Evaluator.
-        for (final String fileName : Driver.this.fileNamesToExpect) {
+        for (final String fileName : FileResourceTestDriver.this.fileNamesToExpect) {
           allocatedEvaluator.addFile(new File(localFolder, fileName));
         }
 
@@ -108,19 +105,19 @@ final class Driver {
         // Filling out a TaskConfiguration
         final Configuration taskConfiguration = TaskConfiguration.CONF
             .set(TaskConfiguration.IDENTIFIER, "TestTask")
-            .set(TaskConfiguration.TASK, TestTask.class)
+            .set(TaskConfiguration.TASK, FileResourceTestTask.class)
             .build();
 
         // Adding the job-specific Configuration
-        ConfigurationModule testTaskConfigurationModule = TestTaskConfiguration.CONF;
-        for (final String fileName : Driver.this.fileNamesToExpect) {
+        ConfigurationModule testTaskConfigurationModule = FileResourceTestTaskConfiguration.CONF;
+        for (final String fileName : FileResourceTestDriver.this.fileNamesToExpect) {
           testTaskConfigurationModule =
-              testTaskConfigurationModule.set(TestTaskConfiguration.EXPECTED_FILE_NAME, fileName);
+              testTaskConfigurationModule.set(FileResourceTestTaskConfiguration.EXPECTED_FILE_NAME, fileName);
         }
 
         // Submit the context and the task config.
         final Configuration finalTaskConfiguration =
-            FileResourceTest.merge(taskConfiguration, testTaskConfigurationModule.build());
+            Configurations.merge(taskConfiguration, testTaskConfigurationModule.build());
 
         allocatedEvaluator.submitContextAndTask(contextConfiguration, finalTaskConfiguration);
 

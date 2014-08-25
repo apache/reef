@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.exceptions;
+package com.microsoft.reef.tests.library.exceptions;
 
 /**
- * Thrown when a test fails on the client side.
+ * Thrown when a test fails on the task side.
  */
-public class ClientSideFailure extends RuntimeException {
+public class SimulatedDriverFailure extends RuntimeException {
 
-    public ClientSideFailure() {
-    }
+  public SimulatedDriverFailure() {
+    super();
+  }
 
-    public ClientSideFailure(final String string) {
-        super(string);
-    }
+  public SimulatedDriverFailure(final String message) {
+    super(message);
+  }
 
-    public ClientSideFailure(final String string, final Throwable thrwbl) {
-        super(string, thrwbl);
-    }
+  public SimulatedDriverFailure(final String message, final Throwable cause) {
+    super(message, cause);
+  }
 
-    public ClientSideFailure(final Throwable thrwbl) {
-        super(thrwbl);
-    }
+  public SimulatedDriverFailure(final Throwable cause) {
+    super(cause);
+  }
 }

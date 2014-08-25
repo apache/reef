@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.taskcounting;
+package com.microsoft.reef.tests.library.exceptions;
 
-import com.microsoft.reef.task.Task;
+/**
+ * Thrown by the Driver in a test if a Task returned an unexpected value.
+ */
+public final class UnexpectedTaskReturnValue extends RuntimeException {
+  private final String expected;
+  private final String actual;
 
-import javax.inject.Inject;
-
-final class DummyTask implements Task {
-
-  @Inject
-  DummyTask() {
+  public UnexpectedTaskReturnValue(final String expected, final String actual) {
+    this.expected = expected;
+    this.actual = actual;
   }
 
   @Override
-  public byte[] call(final byte[] memento) throws Exception {
-    return null;
+  public String toString() {
+    return "UnexpectedTaskReturnValue{" +
+        "expected='" + expected + '\'' +
+        ", actual='" + actual + '\'' +
+        '}';
   }
 }

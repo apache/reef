@@ -23,19 +23,16 @@ import com.microsoft.tang.formats.RequiredParameter;
 
 import java.util.Set;
 
-/**
- * A ConfigurationModule for the TestTask.
- */
-public final class TestTaskConfiguration extends ConfigurationModuleBuilder {
-  /**
-   * the set of file names to expect present on the evaluator.
-   */
-  public static final RequiredParameter<String> EXPECTED_FILE_NAME = new RequiredParameter<>();
-  public static final ConfigurationModule CONF = new TestTaskConfiguration()
-      .bindSetEntry(FileNamesToExpect.class, EXPECTED_FILE_NAME)
-      .build();
+public final class FileResourceTestDriverConfiguration extends ConfigurationModuleBuilder {
 
   @NamedParameter(doc = "The names of the files to expect in the local filesystem.")
   public static final class FileNamesToExpect implements Name<Set<String>> {
   }
+
+  public static final RequiredParameter<String> EXPECTED_FILE_NAME = new RequiredParameter<>();
+
+  public static final ConfigurationModule CONF = new FileResourceTestDriverConfiguration()
+      .bindSetEntry(FileNamesToExpect.class, EXPECTED_FILE_NAME)
+      .build();
+
 }

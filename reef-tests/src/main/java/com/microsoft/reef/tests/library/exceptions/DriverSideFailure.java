@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.exceptions;
+package com.microsoft.reef.tests.library.exceptions;
 
 /**
- * Expected Exception thrown by a Task.
+ * Thrown when a test fails on the driver side.
  */
-public final class ExpectedTaskException extends RuntimeException {
-  public ExpectedTaskException() {
+public class DriverSideFailure extends RuntimeException {
+
+  public DriverSideFailure() {
   }
 
-  public ExpectedTaskException(String s) {
-    super(s);
+  public DriverSideFailure(final String message) {
+    super(message);
   }
 
-  public ExpectedTaskException(String s, Throwable throwable) {
-    super(s, throwable);
+  public DriverSideFailure(final String message, final Throwable cause) {
+    super(message, cause);
   }
 
-  public ExpectedTaskException(Throwable throwable) {
-    super(throwable);
+  public DriverSideFailure(final Throwable cause) {
+    super(cause);
   }
 
-  public ExpectedTaskException(String s, Throwable throwable, boolean b, boolean b2) {
-    super(s, throwable, b, b2);
-  }
+
 }

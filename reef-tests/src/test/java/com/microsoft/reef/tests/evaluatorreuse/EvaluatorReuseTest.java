@@ -20,6 +20,7 @@ import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
+import com.microsoft.reef.tests.library.driver.OnDriverStartedAllocateOne;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
@@ -30,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * EvaluatorReuseTest on the local resourcemanager.
+ * Tests the reuse of Evaluators across Tasks by submitting the EchoTask for a number of times.
  */
 public class EvaluatorReuseTest {
 
@@ -53,11 +54,11 @@ public class EvaluatorReuseTest {
 
     final Configuration driverConfiguration =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "EvaluatorReuse")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, DriverStartHandler.class)
-            .set(DriverConfiguration.ON_TASK_COMPLETED, Driver.CompletedTaskHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.AllocatedEvaluatorHandler.class)
-            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, Driver.ActiveContextHandler.class)
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorReuseTest")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+            .set(DriverConfiguration.ON_TASK_COMPLETED, EvaluatorReuseTestDriver.TaskCompletedHandler.class)
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorReuseTestDriver.EvaluatorAllocatedHandler.class)
+            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, EvaluatorReuseTestDriver.ContextActiveHandler.class)
             .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)

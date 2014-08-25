@@ -27,16 +27,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-final class Driver {
+final class CloseEvaluatorDriver {
 
-  private static final Logger LOG = Logger.getLogger(Driver.class.getName());
+  private static final Logger LOG = Logger.getLogger(CloseEvaluatorDriver.class.getName());
 
   private static final int NUM_EVALUATORS = 16;
 
   private final EvaluatorRequestor requestor;
 
   @Inject
-  Driver(final EvaluatorRequestor requestor) {
+  CloseEvaluatorDriver(final EvaluatorRequestor requestor) {
     this.requestor = requestor;
   }
 
@@ -45,7 +45,7 @@ final class Driver {
     public void onNext(final StartTime time) {
 
       LOG.log(Level.FINE, "StartTime: {0} :: request {1} evaluators",
-          new Object[] { time, NUM_EVALUATORS });
+          new Object[]{time, NUM_EVALUATORS});
 
       requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(NUM_EVALUATORS).setMemory(256).build());

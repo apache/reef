@@ -20,6 +20,7 @@ import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
+import com.microsoft.reef.tests.library.driver.OnDriverStartedAllocateOne;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
@@ -29,7 +30,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TaskResubmitTest {
+
+/**
+ * Tests whether (failed) tasks can be resubmitted with identical Configurations, including Task Ids.
+ */
+public final class TaskResubmitTest {
 
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
@@ -50,10 +55,10 @@ public class TaskResubmitTest {
 
     final Configuration driverConfiguration =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TaskResubmission")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_TASK_FAILED, Driver.TaskFailedHandler.class)
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_TaskResubmitTest")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskResubmitDriver.EvaluatorAllocatedHandler.class)
+            .set(DriverConfiguration.ON_TASK_FAILED, TaskResubmitDriver.TaskFailedHandler.class)
             .build();
 
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfiguration)

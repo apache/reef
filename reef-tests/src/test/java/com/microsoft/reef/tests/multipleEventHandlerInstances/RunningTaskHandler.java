@@ -15,17 +15,16 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
+import com.microsoft.reef.driver.task.RunningTask;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
+import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
-import com.microsoft.reef.driver.task.RunningTask;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
-import com.microsoft.wake.EventHandler;
-
 /**
- * 
+ *
  */
 public class RunningTaskHandler implements EventHandler<RunningTask> {
 
@@ -40,6 +39,7 @@ public class RunningTaskHandler implements EventHandler<RunningTask> {
       throw new DriverSideFailure("Expect RunningTaskHandler to be created only once");
     }
   }
+
   @Override
   public void onNext(RunningTask runningTask) {
     LOG.log(Level.FINEST, "Received a running task");

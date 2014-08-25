@@ -13,27 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.exceptions;
-
 /**
- * Thrown when a test fails on the driver side.
+ * Commonly used event handlers and task implementations in our tests
  */
-public class DriverSideFailure extends RuntimeException{
-
-    public DriverSideFailure() {
-    }
-
-    public DriverSideFailure(final String message) {
-        super(message);
-    }
-
-    public DriverSideFailure(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public DriverSideFailure(final Throwable cause) {
-        super(cause);
-    }
-
-    
-}
+package com.microsoft.reef.tests.library;
