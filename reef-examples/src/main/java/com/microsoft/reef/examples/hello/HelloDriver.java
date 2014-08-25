@@ -54,7 +54,7 @@ public final class HelloDriver {
   /**
    * Handles the StartTime event: Request as single Evaluator.
    */
-  final class StartHandler implements EventHandler<StartTime> {
+  public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
       HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
@@ -68,7 +68,7 @@ public final class HelloDriver {
   /**
    * Handles AllocatedEvaluator: Submit an empty context and the HelloTask
    */
-  final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
+  public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       LOG.log(Level.INFO, "Submitting HelloREEF task to AllocatedEvaluator: {0}", allocatedEvaluator);
