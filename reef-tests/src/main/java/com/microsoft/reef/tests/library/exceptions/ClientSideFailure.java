@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.exceptions;
+package com.microsoft.reef.tests.library.exceptions;
 
 /**
- * Thrown when a test fails on the task side.
+ * Thrown when a test fails on the client side.
  */
-public class TaskSideFailure extends RuntimeException {
+public class ClientSideFailure extends RuntimeException {
 
-  public TaskSideFailure() {
-    super();
+  public ClientSideFailure() {
   }
 
-  public TaskSideFailure(final String message) {
-    super(message);
+  public ClientSideFailure(final String string) {
+    super(string);
   }
 
-  public TaskSideFailure(final String message, final Throwable cause) {
-    super(message, cause);
+  public ClientSideFailure(final String string, final Throwable thrwbl) {
+    super(string, thrwbl);
   }
 
-  public TaskSideFailure(final Throwable cause) {
-    super(cause);
+  public ClientSideFailure(final Throwable thrwbl) {
+    super(thrwbl);
   }
 }

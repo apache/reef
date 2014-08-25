@@ -15,17 +15,16 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
+import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
+import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
-import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
-import com.microsoft.wake.EventHandler;
-
 /**
- * 
+ *
  */
 public class CompletedEvaluatorHandler implements
     EventHandler<CompletedEvaluator> {
@@ -33,7 +32,7 @@ public class CompletedEvaluatorHandler implements
   private static final Logger LOG = Logger.getLogger(CompletedEvaluatorHandler.class.getName());
 
   private static int countInstances = 0;
-  
+
   @Inject
   public CompletedEvaluatorHandler() {
     ++countInstances;
@@ -41,7 +40,7 @@ public class CompletedEvaluatorHandler implements
       throw new DriverSideFailure("Expect CompletedEvaluatorHandler to be created only once");
     }
   }
-  
+
   @Override
   public void onNext(CompletedEvaluator completedEvaluator) {
     LOG.log(Level.FINEST, "Received a completed evaluator");

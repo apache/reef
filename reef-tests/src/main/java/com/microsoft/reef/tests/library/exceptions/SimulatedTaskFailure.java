@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.exceptions;
+package com.microsoft.reef.tests.library.exceptions;
 
 /**
  * Thrown when a test fails on the task side.
  */
-public class SimulatedDriverFailure extends RuntimeException {
+public class SimulatedTaskFailure extends RuntimeException {
 
-  public SimulatedDriverFailure() {
+  public SimulatedTaskFailure() {
     super();
   }
 
-  public SimulatedDriverFailure(final String message) {
+  public SimulatedTaskFailure(final String message) {
     super(message);
   }
 
-  public SimulatedDriverFailure(final String message, final Throwable cause) {
+  public SimulatedTaskFailure(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  public SimulatedDriverFailure(final Throwable cause) {
+  public SimulatedTaskFailure(final Throwable cause) {
     super(cause);
   }
 }

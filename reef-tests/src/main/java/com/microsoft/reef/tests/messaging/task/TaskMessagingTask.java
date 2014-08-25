@@ -32,16 +32,16 @@ import java.util.logging.Logger;
  * A basic task that receives a message and sends it back to the driver.
  */
 @Unit
-public final class TaskMsg implements Task, TaskMessageSource {
+public final class TaskMessagingTask implements Task, TaskMessageSource {
 
-  private static final Logger LOG = Logger.getLogger(TaskMsg.class.getName());
+  private static final Logger LOG = Logger.getLogger(TaskMessagingTask.class.getName());
   private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
   private static final TaskMessage INIT_MESSAGE = TaskMessage.from("", CODEC.encode("MESSAGE::INIT"));
   private transient boolean isRunning = true;
   private transient Optional<TaskMessage> message = Optional.empty();
 
   @Inject
-  public TaskMsg() {
+  public TaskMessagingTask() {
     LOG.info("TaskMsg created.");
   }
 
@@ -74,7 +74,7 @@ public final class TaskMsg implements Task, TaskMessageSource {
     public void onNext(DriverMessage driverMessage) {
       final byte[] message = driverMessage.get().get();
       LOG.log(Level.INFO, "TaskMsg.send() invoked: {0}", CODEC.decode(message));
-      TaskMsg.this.message = Optional.of(TaskMessage.from(this.toString(), message));
+      TaskMessagingTask.this.message = Optional.of(TaskMessage.from(this.toString(), message));
     }
   }
 }

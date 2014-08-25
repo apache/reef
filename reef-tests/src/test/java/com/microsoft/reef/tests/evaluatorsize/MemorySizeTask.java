@@ -16,7 +16,7 @@
 package com.microsoft.reef.tests.evaluatorsize;
 
 import com.microsoft.reef.task.Task;
-import com.microsoft.reef.tests.exceptions.TaskSideFailure;
+import com.microsoft.reef.tests.library.exceptions.TaskSideFailure;
 import com.microsoft.tang.annotations.Parameter;
 
 import javax.inject.Inject;

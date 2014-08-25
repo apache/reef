@@ -19,8 +19,8 @@ import com.microsoft.reef.task.Task;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
 import com.microsoft.reef.tests.TestUtils;
-import com.microsoft.reef.tests.exceptions.SimulatedTaskFailure;
 import com.microsoft.reef.tests.fail.task.*;
+import com.microsoft.reef.tests.library.exceptions.SimulatedTaskFailure;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import org.junit.After;
@@ -48,8 +48,8 @@ public final class FailTaskTest {
       final Class<? extends Task> failTaskClass) throws BindException, InjectionException {
     TestUtils.assertLauncherFailure(
         Client.run(failTaskClass,
-                   this.testEnvironment.getRuntimeConfiguration(),
-                   this.testEnvironment.getTestTimeout()),
+            this.testEnvironment.getRuntimeConfiguration(),
+            this.testEnvironment.getTestTimeout()),
         SimulatedTaskFailure.class);
   }
 

@@ -17,7 +17,7 @@ package com.microsoft.reef.tests.files;
 
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.task.Task;
-import com.microsoft.reef.tests.exceptions.TaskSideFailure;
+import com.microsoft.reef.tests.library.exceptions.TaskSideFailure;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.time.Clock;
 
@@ -30,16 +30,16 @@ import java.util.logging.Logger;
 /**
  * An Task that checks the presence of a set of files and throws TaskSideFailure if they cannot be found or read.
  */
-final class TestTask implements Task {
-  private final Logger LOG = Logger.getLogger(TestTask.class.getName());
+final class FileResourceTestTask implements Task {
+  private final Logger LOG = Logger.getLogger(FileResourceTestTask.class.getName());
   private final Set<String> expectedFileNames;
   private final Clock clock;
   private final File localFolder;
 
   @Inject
-  TestTask(@Parameter(TestTaskConfiguration.FileNamesToExpect.class) final Set<String> expectedFileNames,
-           final Clock clock,
-           final REEFFileNames fileNames) {
+  FileResourceTestTask(@Parameter(FileResourceTestTaskConfiguration.FileNamesToExpect.class) final Set<String> expectedFileNames,
+                       final Clock clock,
+                       final REEFFileNames fileNames) {
     this.expectedFileNames = expectedFileNames;
     this.clock = clock;
     this.localFolder = fileNames.getLocalFolder();

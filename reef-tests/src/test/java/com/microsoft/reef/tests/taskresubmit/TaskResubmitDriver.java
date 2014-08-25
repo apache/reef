@@ -18,35 +18,30 @@ package com.microsoft.reef.tests.taskresubmit;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.reef.tests.TestUtils;
-import com.microsoft.reef.tests.exceptions.SimulatedTaskFailure;
-import com.microsoft.reef.tests.exceptions.TaskSideFailure;
 import com.microsoft.reef.tests.fail.task.FailTaskCall;
+import com.microsoft.reef.tests.library.exceptions.SimulatedTaskFailure;
+import com.microsoft.reef.tests.library.exceptions.TaskSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-public class Driver {
+class TaskResubmitDriver {
 
-  private static final Logger LOG = Logger.getLogger(Driver.class.getName());
+  private static final Logger LOG = Logger.getLogger(TaskResubmitDriver.class.getName());
 
-  private final EvaluatorRequestor evaluatorRequestor;
   private int failuresSeen = 0;
 
   @Inject
-  public Driver(EvaluatorRequestor evaluatorRequestor) {
-    this.evaluatorRequestor = evaluatorRequestor;
+  TaskResubmitDriver() {
   }
 
   private static Configuration getTaskConfiguration() {
@@ -57,17 +52,6 @@ public class Driver {
           .build();
     } catch (BindException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  final class StartHandler implements EventHandler<StartTime> {
-
-    @Override
-    public void onNext(final StartTime startTime) {
-      Driver.this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1)
-          .setMemory(256)
-          .build());
     }
   }
 
@@ -103,7 +87,7 @@ public class Driver {
       }
 
       final ActiveContext activeContext = failedTask.getActiveContext().get();
-      if (++Driver.this.failuresSeen <= 1) { // resubmit the task
+      if (++TaskResubmitDriver.this.failuresSeen <= 1) { // resubmit the task
         activeContext.submitTask(getTaskConfiguration());
       } else { // Close the context
         activeContext.close();

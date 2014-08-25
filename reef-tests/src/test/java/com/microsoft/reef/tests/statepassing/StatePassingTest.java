@@ -20,6 +20,7 @@ import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
+import com.microsoft.reef.tests.library.driver.OnDriverStartedAllocateOne;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
@@ -29,6 +30,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests whether subsequent tasks can pass state from one to the other.
+ */
 public final class StatePassingTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
@@ -49,12 +53,12 @@ public final class StatePassingTest {
 
     final Configuration driverConfiguration =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "StatePassingTest")
-          .set(DriverConfiguration.ON_DRIVER_STARTED, StatePassingStartHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, StatePassingDriver.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_ACTIVE, StatePassingDriver.ActiveContextHandler.class)
-          .set(DriverConfiguration.ON_TASK_COMPLETED, StatePassingDriver.CompletedTaskHandler.class)
-        .build();
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "StatePassingTest")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, StatePassingDriver.EvaluatorAllocatedHandler.class)
+            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, StatePassingDriver.ContextActiveHandler.class)
+            .set(DriverConfiguration.ON_TASK_COMPLETED, StatePassingDriver.TaskCompletedHandler.class)
+            .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());
