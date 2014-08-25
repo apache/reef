@@ -52,10 +52,10 @@ public final class DriverStatusManager {
    * @param exceptionCodec
    */
   @Inject
-  public DriverStatusManager(final Clock clock,
-                             final ClientConnection clientConnection,
-                             final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
-                             final ExceptionCodec exceptionCodec) {
+  DriverStatusManager(final Clock clock,
+                      final ClientConnection clientConnection,
+                      final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
+                      final ExceptionCodec exceptionCodec) {
     this.clock = clock;
     this.clientConnection = clientConnection;
     this.jobIdentifier = jobIdentifier;
