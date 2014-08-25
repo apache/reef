@@ -16,12 +16,14 @@
 package com.microsoft.reef.runtime.common.driver;
 
 import com.microsoft.reef.driver.parameters.DriverRestartHandler;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,20 +36,25 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
 
   private final Set<EventHandler<StartTime>> startHandlers;
   private final Optional<EventHandler<StartTime>> restartHandler;
+  private final DriverStatusManager driverStatusManager;
 
   @Inject
   DriverStartHandler(final @Parameter(com.microsoft.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler,
-                     final @Parameter(DriverRestartHandler.class) EventHandler<StartTime> restartHandler) {
+                     final @Parameter(DriverRestartHandler.class) EventHandler<StartTime> restartHandler,
+                     final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
     this.restartHandler = Optional.of(restartHandler);
+    this.driverStatusManager = driverStatusManager;
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandler [{0}] and RestartHandler [{1}]",
         new String[]{this.startHandlers.toString(), this.restartHandler.toString()});
   }
 
   @Inject
-  DriverStartHandler(final @Parameter(com.microsoft.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler) {
+  DriverStartHandler(final @Parameter(com.microsoft.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler,
+                     final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
     this.restartHandler = Optional.empty();
+    this.driverStatusManager = driverStatusManager;
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandler [{0}] and no RestartHandler",
         this.startHandlers.toString());
   }
@@ -80,7 +87,6 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
    * @return true, if the Driver is in fact being restarted.
    */
   private boolean isRestart() {
-    // TODO
-    return false;
+    return this.driverStatusManager.getNumPreviousContainers() > 0;
   }
 }

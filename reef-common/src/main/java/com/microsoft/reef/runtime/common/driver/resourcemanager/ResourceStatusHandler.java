@@ -18,11 +18,14 @@ package com.microsoft.reef.runtime.common.driver.resourcemanager;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
+import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManagerFactory;
 import com.microsoft.reef.runtime.common.driver.evaluator.Evaluators;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A ResourceStatusProto message comes from the ResourceManager layer to indicate what it thinks
@@ -32,10 +35,12 @@ import javax.inject.Inject;
 public final class ResourceStatusHandler implements EventHandler<DriverRuntimeProtocol.ResourceStatusProto> {
 
   private final Evaluators evaluators;
+  private final EvaluatorManagerFactory evaluatorManagerFactory;
 
   @Inject
-  ResourceStatusHandler(final Evaluators evaluators) {
+  ResourceStatusHandler(final Evaluators evaluators, final EvaluatorManagerFactory evaluatorManagerFactory) {
     this.evaluators = evaluators;
+    this.evaluatorManagerFactory = evaluatorManagerFactory;
   }
 
   /**
@@ -51,10 +56,15 @@ public final class ResourceStatusHandler implements EventHandler<DriverRuntimePr
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onResourceStatusMessage(resourceStatusProto);
     } else {
-      throw new RuntimeException(
-          "Unknown resource status from evaluator " + resourceStatusProto.getIdentifier() +
-              " with state " + resourceStatusProto.getState()
-      );
+      if(resourceStatusProto.getIsFromPreviousDriver()){
+        EvaluatorManager previousEvaluatorManager = this.evaluatorManagerFactory.createForEvaluatorFailedDuringDriverRestart(resourceStatusProto);
+        previousEvaluatorManager.onResourceStatusMessage(resourceStatusProto);
+      } else {
+        throw new RuntimeException(
+            "Unknown resource status from evaluator " + resourceStatusProto.getIdentifier() +
+                " with state " + resourceStatusProto.getState()
+        );
+      }
     }
   }
 }

@@ -167,21 +167,18 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
         LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(launchCommand, ' '));
       }
 
+      // TODO: this is currently being developed on a hacked 2.4.0 bits, should be 2.4.1
       final String minVersionKeepContainerOptionAvailable = "2.4.0";
-      final String hadoopVersion = VersionInfo.getVersion();
-
-      // we must have at least 3 digits in versions, and that is what we will use for version comparison
-      if (hadoopVersion == null || hadoopVersion.length() < minVersionKeepContainerOptionAvailable.length()) {
-        throw new RuntimeException("invalid hadoop version number: " + hadoopVersion);
-      }
 
       // when supported, set KeepContainersAcrossApplicationAttempts to be true
       // so that when driver (AM) crashes, evaluators will still be running and we can recover later.
-      if (hadoopVersion.substring(0, minVersionKeepContainerOptionAvailable.length())
-          .compareTo(minVersionKeepContainerOptionAvailable) >= 0) {
-        LOG.log(Level.FINE,
-            "Hadoop version is {0} with KeepContainersAcrossApplicationAttempts supported, will set it to true.",
-            hadoopVersion);
+      if(YarnTypes.isAtOrAfterVersion(minVersionKeepContainerOptionAvailable))
+      {
+        LOG.log(
+            Level.FINE,
+            "Hadoop version is {0} or after with KeepContainersAcrossApplicationAttempts supported, will set it to true.",
+            minVersionKeepContainerOptionAvailable);
+
         applicationSubmissionContext.setKeepContainersAcrossApplicationAttempts(true);
       }
 

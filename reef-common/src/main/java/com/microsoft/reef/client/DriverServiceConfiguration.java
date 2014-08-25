@@ -28,7 +28,6 @@ import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
-import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfiguration;
 import com.microsoft.tang.formats.*;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.Clock;
@@ -118,6 +117,11 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
   public static final OptionalImpl<EventHandler<RunningTask>> ON_TASK_RUNNING = new OptionalImpl<>();
 
   /**
+   * Event handler for running tasks in previous evaluator, when driver restarted. Defaults to logging if not bound.
+   */
+  public static final OptionalImpl<EventHandler<RunningTask>> ON_DRIVER_RESTART_TASK_RUNNING = new OptionalImpl<>();
+
+  /**
    * Event handler for suspended tasks. Defaults to job failure if not bound. Rationale: many jobs don't support
    * task suspension. Hence, this parameter should be optional. The only sane default is to crash the job, then.
    */
@@ -130,6 +134,11 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
    * Event handler for active context. Defaults to closing the context if not bound.
    */
   public static final OptionalImpl<EventHandler<ActiveContext>> ON_CONTEXT_ACTIVE = new OptionalImpl<>();
+
+  /**
+   * Event handler for active context when driver restart. Defaults to closing the context if not bound.
+   */
+  public static final OptionalImpl<EventHandler<ActiveContext>> ON_DRIVER_RESTART_CONTEXT_ACTIVE = new OptionalImpl<>();
 
   /**
    * Event handler for closed context. Defaults to logging if not bound.
@@ -168,6 +177,7 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
 
           // Task handlers
       .bindSetEntry(ServiceTaskRunningHandlers.class, ON_TASK_RUNNING)
+      .bindSetEntry(DriverRestartTaskRunningHandlers.class, ON_DRIVER_RESTART_TASK_RUNNING)
       .bindSetEntry(ServiceTaskFailedHandlers.class, ON_TASK_FAILED)
       .bindSetEntry(ServiceTaskMessageHandlers.class, ON_TASK_MESSAGE)
       .bindSetEntry(ServiceTaskCompletedHandlers.class, ON_TASK_COMPLETED)
@@ -175,6 +185,7 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
 
           // Context handlers
       .bindSetEntry(ServiceContextActiveHandlers.class, ON_CONTEXT_ACTIVE)
+      .bindSetEntry(DriverRestartContextActiveHandlers.class, ON_DRIVER_RESTART_CONTEXT_ACTIVE)
       .bindSetEntry(ServiceContextClosedHandlers.class, ON_CONTEXT_CLOSED)
       .bindSetEntry(ServiceContextMessageHandlers.class, ON_CONTEXT_MESSAGE)
       .bindSetEntry(ServiceContextFailedHandlers.class, ON_CONTEXT_FAILED)

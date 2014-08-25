@@ -17,7 +17,6 @@ package com.microsoft.reef.runtime.common.driver.evaluator;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
@@ -29,6 +28,7 @@ import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextControlHandler;
@@ -72,7 +72,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
-  private final Evaluators evaluators;
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
   private final String evaluatorId;
@@ -83,6 +82,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ContextControlHandler contextControlHandler;
   private final EvaluatorStatusManager stateManager;
   private final ExceptionCodec exceptionCodec;
+  private final DriverStatusManager driverStatusManager;
 
 
   // Mutable fields
@@ -93,7 +93,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private EvaluatorManager(
       final Clock clock,
       final RemoteManager remoteManager,
-      final Evaluators evaluators,
       final ResourceReleaseHandler resourceReleaseHandler,
       final ResourceLaunchHandler resourceLaunchHandler,
       final @Parameter(EvaluatorIdentifier.class) String evaluatorId,
@@ -104,11 +103,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorControlHandler evaluatorControlHandler,
       final ContextControlHandler contextControlHandler,
       final EvaluatorStatusManager stateManager,
+      final DriverStatusManager driverStatusManager,
       final ExceptionCodec exceptionCodec) {
     this.contextRepresenters = contextRepresenters;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
     this.clock = clock;
-    this.evaluators = evaluators;
     this.resourceReleaseHandler = resourceReleaseHandler;
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
@@ -118,20 +117,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorControlHandler = evaluatorControlHandler;
     this.contextControlHandler = contextControlHandler;
     this.stateManager = stateManager;
+    this.driverStatusManager = driverStatusManager;
     this.exceptionCodec = exceptionCodec;
 
     final AllocatedEvaluator allocatedEvaluator =
-        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), configurationSerializer, this.getJobIdentifier());
+        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), configurationSerializer, getJobIdentifier());
     LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
     this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
-  }
-
-  /**
-   * @return NodeDescriptor for the node executing this evaluator
-   */
-  public NodeDescriptor getNodeDescriptor() {
-    return this.getEvaluatorDescriptor().getNodeDescriptor();
   }
 
   @Override
@@ -266,7 +259,24 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     if (evaluatorHeartbeatProto.getRecovery()) {
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
+
+      this.driverStatusManager.oneContainerRecovered();
+      final int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
+
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
+      final int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
+
+      if (numRecoveredContainers > expectedEvaluatorsNumber) {
+        LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
+            new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+        throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
+      } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
+        LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
+        this.driverStatusManager.setRestartCompleted();
+      } else {
+        LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
+            new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+      }
     }
 
     // If this is the first message from this Evaluator, register it.
@@ -387,7 +397,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   /**
    * Get the id of current job/application
    */
-  private String getJobIdentifier() {
+  public static String getJobIdentifier() {
     // TODO: currently we obtain the job id directly by parsing execution (container) directory path
     // #845 is open to get the id from RM properly
     for (File directory = new File(System.getProperty("user.dir"));
