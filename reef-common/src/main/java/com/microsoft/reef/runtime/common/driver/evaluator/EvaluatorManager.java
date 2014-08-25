@@ -17,7 +17,6 @@ package com.microsoft.reef.runtime.common.driver.evaluator;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
@@ -49,7 +48,6 @@ import com.microsoft.wake.time.event.Alarm;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,7 +72,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
-  private final Evaluators evaluators;
   private final ResourceReleaseHandler resourceReleaseHandler;
   private final ResourceLaunchHandler resourceLaunchHandler;
   private final String evaluatorId;
@@ -91,13 +88,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
   private boolean isResourceReleased = false;
-  private static int numRecoveredEvaluators;
 
   @Inject
   private EvaluatorManager(
       final Clock clock,
       final RemoteManager remoteManager,
-      final Evaluators evaluators,
       final ResourceReleaseHandler resourceReleaseHandler,
       final ResourceLaunchHandler resourceLaunchHandler,
       final @Parameter(EvaluatorIdentifier.class) String evaluatorId,
@@ -113,7 +108,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.contextRepresenters = contextRepresenters;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
     this.clock = clock;
-    this.evaluators = evaluators;
     this.resourceReleaseHandler = resourceReleaseHandler;
     this.resourceLaunchHandler = resourceLaunchHandler;
     this.evaluatorId = evaluatorId;
@@ -127,17 +121,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.exceptionCodec = exceptionCodec;
 
     final AllocatedEvaluator allocatedEvaluator =
-        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), configurationSerializer, this.getJobIdentifier());
+        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), configurationSerializer, getJobIdentifier());
     LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
     this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
-  }
-
-  /**
-   * @return NodeDescriptor for the node executing this evaluator
-   */
-  public NodeDescriptor getNodeDescriptor() {
-    return this.getEvaluatorDescriptor().getNodeDescriptor();
   }
 
   @Override
@@ -274,24 +261,19 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       this.stateManager.setRunning();
 
       this.driverStatusManager.oneContainerRecovered();
-      int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
+      final int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
 
       LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-      int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
+      final int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
 
-      if (numRecoveredContainers > expectedEvaluatorsNumber)
-      {
+      if (numRecoveredContainers > expectedEvaluatorsNumber) {
         LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
             new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
         throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
-      }
-      else if (numRecoveredContainers == expectedEvaluatorsNumber)
-      {
+      } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
         LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
         this.driverStatusManager.setRestartCompleted();
-      }
-      else
-      {
+      } else {
         LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
             new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
       }
