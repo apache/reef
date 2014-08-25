@@ -26,6 +26,7 @@ import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.javabridge.*;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.reef.util.logging.CLRBufferedLogHandler;
@@ -135,7 +136,8 @@ public final class JobDriver {
             final HttpServer httpServer,
             final NameServer nameServer,
             final JobMessageObserver jobMessageObserver,
-            final EvaluatorRequestor evaluatorRequestor) {
+            final EvaluatorRequestor evaluatorRequestor,
+            final DriverStatusManager driverStatusManager) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
