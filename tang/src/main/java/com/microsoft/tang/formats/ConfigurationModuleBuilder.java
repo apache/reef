@@ -280,7 +280,7 @@ public abstract class ConfigurationModuleBuilder {
   }
 
   public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface,
-      Impl<List<? extends T>> opt) {
+      Impl<List> opt) {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
@@ -288,7 +288,7 @@ public abstract class ConfigurationModuleBuilder {
   }
 
   public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface,
-                                                       Param<List<? extends T>> opt) {
+                                                       Param<List> opt) {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeParams.put(iface, opt);
