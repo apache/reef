@@ -101,6 +101,14 @@ public final class Launch {
   }
 
   /**
+   * Command line parameter = true to submit the job with driver config, or false to write config to current directory
+   */
+  @NamedParameter(doc = "Whether or not to submit the reef job after driver config is constructed",
+      short_name = "submit", default_value = "true")
+  public static final class Submit implements Name<Boolean> {
+  }
+
+  /**
    * Parse the command line arguments.
    *
    * @param args command line arguments, as passed to main()
@@ -117,6 +125,7 @@ public final class Launch {
     cl.registerShortNameOfClass(WaitTimeForDriver.class);
     cl.registerShortNameOfClass(DriverMemoryInMb.class);
     cl.registerShortNameOfClass(DriverIdentifier.class);
+    cl.registerShortNameOfClass(Submit.class);
     cl.processCommandLine(args);
     return confBuilder.build();
   }
@@ -189,11 +198,19 @@ public final class Launch {
       final int waitTime = commandLineInjector.getNamedInstance(WaitTimeForDriver.class);
       final int driverMemory = commandLineInjector.getNamedInstance(DriverMemoryInMb.class);
       final String driverIdentifier = commandLineInjector.getNamedInstance(DriverIdentifier.class);
+      final boolean submit = commandLineInjector.getNamedInstance(Submit.class);
       final Injector injector = Tang.Factory.getTang().newInjector(config);
       final JobClient client = injector.getInstance(JobClient.class);
       client.setDriverIdAndMemory(driverIdentifier, driverMemory);
-      client.submit(dotNetFolder);
-      client.waitForCompletion(waitTime);
+      if(submit){
+        client.submit(dotNetFolder, true);
+        client.waitForCompletion(waitTime);
+      }else{
+        client.submit(dotNetFolder, false);
+        client.waitForCompletion(0);
+      }
+
+
       LOG.info("Done!");
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);

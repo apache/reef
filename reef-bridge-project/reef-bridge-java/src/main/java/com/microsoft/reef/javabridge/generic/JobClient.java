@@ -28,6 +28,7 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.tang.exceptions.BindException;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.wake.EventHandler;
 import javax.inject.Inject;
@@ -179,7 +180,7 @@ public class JobClient {
    *
    * @throws com.microsoft.tang.exceptions.BindException configuration error.
    */
-  public void submit(File clrFolder) {
+  public void submit(final File clrFolder, final boolean submitDriver) {
     try
     {
       addCLRFiles(clrFolder);
@@ -188,7 +189,19 @@ public class JobClient {
     {
       LOG.log(Level.FINE, "Failed to bind", e);
     }
-    this.reef.submit(this.driverConfiguration);
+    if(submitDriver) {
+      this.reef.submit(this.driverConfiguration);
+    }else{
+      File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
+      try
+      {
+        new AvroConfigurationSerializer().toFile(this.driverConfiguration, driverConfig);
+        LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
+      }catch (final IOException e)
+      {
+        throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
+      }
+    }
   }
 
   /**
@@ -262,7 +275,7 @@ public class JobClient {
   /**
    * Wait for the job driver to complete. This method is called from Launcher.main()
    */
-  public void waitForCompletion(int waitTime) {
+  public void waitForCompletion(final int waitTime) {
     LOG.info("Waiting for the Job Driver to complete: " + waitTime);
     if(waitTime == 0)
     {
@@ -277,7 +290,7 @@ public class JobClient {
     close(endTime);
   }
 
-  public void close(long endTime)
+  public void close(final long endTime)
   {
     while (endTime > System.currentTimeMillis())
     {
