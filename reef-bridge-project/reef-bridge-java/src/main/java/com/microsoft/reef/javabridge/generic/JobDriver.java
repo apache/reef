@@ -113,6 +113,9 @@ public final class JobDriver {
    */
   private final EvaluatorRequestor evaluatorRequestor;
 
+
+  private final DriverStatusManager driverStatusManager;
+
   /**
    * Shell execution results from each Evaluator.
    */
@@ -143,6 +146,7 @@ public final class JobDriver {
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
     this.nameServer = nameServer;
+    this.driverStatusManager = driverStatusManager;
     this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
   }
 
@@ -537,19 +541,18 @@ public final class JobDriver {
 
         LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
 
-        final File restartCompleted = new File(EvaluatorManager.DRIVER_RESTART_COMPLETED);
         clock.scheduleAlarm(0, new EventHandler<Alarm>() {
           @Override
           public void onNext(final Alarm time) {
-            if (restartCompleted.exists())
+            if (JobDriver.this.driverStatusManager.getRestartCompleted())
             {
               LOG.log(Level.INFO, "Driver Restarted Completed");
-              // TODO: add a CLR handler
             }
             else
             {
               LOG.log(Level.INFO, "Waiting for driver to complete restart process...");
               clock.scheduleAlarm(2000, this);
+              return;
             }
           }
         });
