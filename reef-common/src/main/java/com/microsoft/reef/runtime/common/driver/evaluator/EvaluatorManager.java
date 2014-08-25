@@ -29,6 +29,7 @@ import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextControlHandler;
@@ -69,9 +70,6 @@ import java.util.logging.Logger;
 @DriverSide
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
-  public static final String DRIVER_RESTART_COMPLETED = "driverRestartCompleted";
-  public static int numPreviousContainers = 0;
-
   private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
 
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
@@ -87,6 +85,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ContextControlHandler contextControlHandler;
   private final EvaluatorStatusManager stateManager;
   private final ExceptionCodec exceptionCodec;
+  private final DriverStatusManager driverStatusManager;
 
 
   // Mutable fields
@@ -109,6 +108,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorControlHandler evaluatorControlHandler,
       final ContextControlHandler contextControlHandler,
       final EvaluatorStatusManager stateManager,
+      final DriverStatusManager driverStatusManager,
       final ExceptionCodec exceptionCodec) {
     this.contextRepresenters = contextRepresenters;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
@@ -123,6 +123,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorControlHandler = evaluatorControlHandler;
     this.contextControlHandler = contextControlHandler;
     this.stateManager = stateManager;
+    this.driverStatusManager = driverStatusManager;
     this.exceptionCodec = exceptionCodec;
 
     final AllocatedEvaluator allocatedEvaluator =
@@ -272,30 +273,27 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       this.evaluatorControlHandler.setRemoteID(evaluatorRID);
       this.stateManager.setRunning();
 
-      this.numRecoveredEvaluators++;
-      LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-      final File recoveryDoneFile = new File("driverRestartCompleted");
-      int expectedEvaluatorsNumber = this.numPreviousContainers;
+      this.driverStatusManager.oneContainerRecovered();
+      int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
 
-      if (this.numRecoveredEvaluators > expectedEvaluatorsNumber)
+      LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
+      int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
+
+      if (numRecoveredContainers > expectedEvaluatorsNumber)
       {
         LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
-            new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
+            new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
         throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
       }
-      else if (this.numRecoveredEvaluators == expectedEvaluatorsNumber)
+      else if (numRecoveredContainers == expectedEvaluatorsNumber)
       {
         LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
-        try {
-          recoveryDoneFile.createNewFile();
-        } catch (final IOException e) {
-          throw new RuntimeException("cannot create file " + recoveryDoneFile.getAbsolutePath());
-        }
+        this.driverStatusManager.setRestartCompleted();
       }
       else
       {
         LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
-            new Object[]{expectedEvaluatorsNumber, this.numRecoveredEvaluators});
+            new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
       }
     }
 

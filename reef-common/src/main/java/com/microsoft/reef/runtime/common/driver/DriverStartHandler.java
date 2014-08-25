@@ -36,20 +36,25 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
 
   private final Set<EventHandler<StartTime>> startHandlers;
   private final Optional<EventHandler<StartTime>> restartHandler;
+  private final DriverStatusManager driverStatusManager;
 
   @Inject
   DriverStartHandler(final @Parameter(com.microsoft.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler,
-                     final @Parameter(DriverRestartHandler.class) EventHandler<StartTime> restartHandler) {
+                     final @Parameter(DriverRestartHandler.class) EventHandler<StartTime> restartHandler,
+                     final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
     this.restartHandler = Optional.of(restartHandler);
+    this.driverStatusManager = driverStatusManager;
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandler [{0}] and RestartHandler [{1}]",
         new String[]{this.startHandlers.toString(), this.restartHandler.toString()});
   }
 
   @Inject
-  DriverStartHandler(final @Parameter(com.microsoft.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler) {
+  DriverStartHandler(final @Parameter(com.microsoft.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler,
+                     final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
     this.restartHandler = Optional.empty();
+    this.driverStatusManager = driverStatusManager;
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandler [{0}] and no RestartHandler",
         this.startHandlers.toString());
   }
@@ -82,6 +87,6 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
    * @return true, if the Driver is in fact being restarted.
    */
   private boolean isRestart() {
-    return EvaluatorManager.numPreviousContainers > 0;
+    return this.driverStatusManager.getNumPreviousContainers() > 0;
   }
 }

@@ -35,6 +35,7 @@ public final class DefaultDriverRestartTaskRunningHandler implements EventHandle
 
   @Override
   public void onNext(final RunningTask runningTask) {
-    LOG.log(Level.INFO, "Driver restarted. Received TaskRuntime: {0}", runningTask);
+    throw new RuntimeException(
+        "RunningTask [" + runningTask.toString() + "] received during driver restart, but no DriverRestartTaskRunningHandler is bound");
   }
 }
