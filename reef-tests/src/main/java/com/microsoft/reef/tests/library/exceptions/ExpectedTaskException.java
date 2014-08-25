@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.evaluatorreuse;
-
-
-import com.microsoft.reef.task.Task;
-
-import javax.inject.Inject;
-import java.util.logging.Logger;
+package com.microsoft.reef.tests.library.exceptions;
 
 /**
- * A basic task that just returns the memento given.
+ * Expected Exception thrown by a Task.
  */
-final class EchoTask implements Task {
-  private static final Logger LOG = Logger.getLogger(EchoTask.class.getName());
-
-  @Inject
-  EchoTask() {
+public final class ExpectedTaskException extends RuntimeException {
+  public ExpectedTaskException() {
   }
 
-  @Override
-  public byte[] call(final byte[] memento) throws Exception {
-    LOG.info("Memento received: " + new String(memento));
-    return memento;
+  public ExpectedTaskException(String s) {
+    super(s);
+  }
+
+  public ExpectedTaskException(String s, Throwable throwable) {
+    super(s, throwable);
+  }
+
+  public ExpectedTaskException(Throwable throwable) {
+    super(throwable);
+  }
+
+  public ExpectedTaskException(String s, Throwable throwable, boolean b, boolean b2) {
+    super(s, throwable, b, b2);
   }
 }

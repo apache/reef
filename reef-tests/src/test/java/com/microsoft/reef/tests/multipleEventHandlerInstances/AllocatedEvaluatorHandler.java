@@ -15,17 +15,16 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The allocated evaluator handler
@@ -42,7 +41,7 @@ public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEv
     if (countInstances > 1)
       throw new DriverSideFailure("Expect AllocatedEvaluatorHandler to be created only once");
   }
-  
+
   @Override
   public void onNext(final AllocatedEvaluator allocatedEvaluator) {
     LOG.log(Level.INFO, "Submitting empty context to AllocatedEvaluator: {0}", allocatedEvaluator);

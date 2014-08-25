@@ -15,17 +15,16 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The ActiveContext handler
@@ -43,7 +42,7 @@ public final class ActiveContextHandler implements EventHandler<ActiveContext> {
       throw new DriverSideFailure("Expect ActiveContextHandler to be created only once");
     }
   }
-  
+
   @Override
   public void onNext(ActiveContext activeContext) {
     LOG.log(Level.FINEST, "ActiveContext received. Submitting empty task to it");

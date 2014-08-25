@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Utility classes and EventHandlers for REEF Tests
+ * Tests the messaging channel between driver and task.
  */
-package com.microsoft.reef.tests.util;
+package com.microsoft.reef.tests.messaging.task;

@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.roguethread;
-
-import com.microsoft.reef.task.Task;
-import com.microsoft.reef.tests.library.exceptions.ExpectedTaskException;
-
-import javax.inject.Inject;
+package com.microsoft.reef.tests.library.exceptions;
 
 /**
- * Spawns a thread that immediately throws a ExpectedTaskException.
+ * Thrown when a test fails on the task side.
  */
-final class RogueThreadTask implements Task {
-  @Inject
-  RogueThreadTask() {
+public class TaskSideFailure extends RuntimeException {
+
+  public TaskSideFailure() {
+    super();
   }
 
-  @Override
-  public byte[] call(final byte[] memento) throws Exception {
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        throw new ExpectedTaskException("Exception from a Thread spawned by the Task.");
-      }
-    }).run();
-    return null;
+  public TaskSideFailure(final String message) {
+    super(message);
+  }
+
+  public TaskSideFailure(final String message, final Throwable cause) {
+    super(message, cause);
+  }
+
+  public TaskSideFailure(final Throwable cause) {
+    super(cause);
   }
 }

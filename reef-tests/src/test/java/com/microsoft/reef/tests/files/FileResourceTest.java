@@ -23,6 +23,7 @@ import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.Configurations;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -45,7 +46,7 @@ import java.util.logging.Logger;
  * The test is shallow: It only makes sure that files with the same (random) names exist. It doesn't check for file
  * contents.
  */
-public class FileResourceTest {
+public final class FileResourceTest {
   private static final Logger LOG = Logger.getLogger(FileResourceTest.class.getName());
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
   /**
@@ -62,9 +63,9 @@ public class FileResourceTest {
    */
   private static Configuration getDriverConfiguration(final Set<File> theFiles) throws BindException {
     ConfigurationModule driverConfigurationModule = EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "FileResourceTest")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.EvaluatorAllocatedHandler.class);
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_FileResourceTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, FileResourceTestDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FileResourceTestDriver.EvaluatorAllocatedHandler.class);
 
     for (final File f : theFiles) {
       LOG.log(Level.FINEST, "Adding a file to the DriverConfiguration: " + f.getAbsolutePath());
@@ -82,10 +83,10 @@ public class FileResourceTest {
    * @throws IOException
    */
   private static Configuration getTestDriverConfiguration(final Set<File> theFiles) throws BindException, IOException {
-    ConfigurationModule testDriverConfigurationModule = TestDriverConfiguration.CONF;
+    ConfigurationModule testDriverConfigurationModule = FileResourceTestDriverConfiguration.CONF;
     for (final File f : theFiles) {
       LOG.log(Level.FINEST, "Adding a file to the TestDriverConfiguration: " + f.getName());
-      testDriverConfigurationModule = testDriverConfigurationModule.set(TestDriverConfiguration.EXPECTED_FILE_NAME, f.getName());
+      testDriverConfigurationModule = testDriverConfigurationModule.set(FileResourceTestDriverConfiguration.EXPECTED_FILE_NAME, f.getName());
     }
 
     final Configuration testDriverConfiguration = testDriverConfigurationModule.build();
@@ -112,16 +113,6 @@ public class FileResourceTest {
     return theFiles;
   }
 
-  /**
-   * Merges the given Configurations.
-   *
-   * @param configurations
-   * @return
-   * @throws BindException
-   */
-  static Configuration merge(final Configuration... configurations) throws BindException {
-    return Tang.Factory.getTang().newConfigurationBuilder(configurations).build();
-  }
 
   @Before
   public void setUp() throws Exception {
@@ -137,7 +128,7 @@ public class FileResourceTest {
   public void testDriverFiles() throws IOException, BindException, InjectionException {
 
     final Set<File> theFiles = getTempFiles(this.nFiles);
-    final Configuration finalDriverConfiguration = merge(
+    final Configuration finalDriverConfiguration = Configurations.merge(
         getDriverConfiguration(theFiles), getTestDriverConfiguration(theFiles));
 
     final LauncherStatus status = DriverLauncher

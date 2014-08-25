@@ -48,9 +48,9 @@ public class DriverTest {
 
     final Configuration driverConfiguration =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "DriverTest")
-          .set(DriverConfiguration.ON_DRIVER_STARTED, DriverTestStartHandler.class)
-        .build();
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_DriverTest")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, DriverTestStartHandler.class)
+            .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());

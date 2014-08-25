@@ -20,6 +20,7 @@ import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
+import com.microsoft.reef.tests.library.driver.OnDriverStartedAllocateOne;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
@@ -53,12 +54,12 @@ public final class TaskMessagingTest {
 
     final Configuration driverConfig =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "DriverTaskMsg")
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_TASK_RUNNING, Driver.RunningTaskHandler.class)
-          .set(DriverConfiguration.ON_TASK_MESSAGE, Driver.TaskMessageHandler.class)
-          .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
-        .build();
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "DriverTaskMsg")
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskMessagingDriver.EvaluatorAllocatedHandler.class)
+            .set(DriverConfiguration.ON_TASK_RUNNING, TaskMessagingDriver.TaskRunningHandler.class)
+            .set(DriverConfiguration.ON_TASK_MESSAGE, TaskMessagingDriver.TaskMessageHandler.class)
+            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+            .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfig, this.testEnvironment.getTestTimeout());

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.statepassing;
+package com.microsoft.reef.tests.library.driver;
 
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
@@ -22,19 +22,22 @@ import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 
-final class StatePassingStartHandler implements EventHandler<StartTime> {
+/**
+ * A Driver start handler that requests a single Evaluator of size 64MB.
+ */
+public final class OnDriverStartedAllocateOne implements EventHandler<StartTime> {
 
-  private final EvaluatorRequestor evaluatorRequestor;
+  private final EvaluatorRequestor requestor;
 
   @Inject
-  StatePassingStartHandler(EvaluatorRequestor evaluatorRequestor) {
-    this.evaluatorRequestor = evaluatorRequestor;
+  OnDriverStartedAllocateOne(EvaluatorRequestor requestor) {
+    this.requestor = requestor;
   }
 
   @Override
   public void onNext(final StartTime startTime) {
-    this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-        .setMemory(128)
+    this.requestor.submit(EvaluatorRequest.newBuilder()
+        .setMemory(64)
         .setNumber(1)
         .build());
   }

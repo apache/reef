@@ -18,16 +18,13 @@ package com.microsoft.reef.tests.evaluatorfailure;
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.context.FailedContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.tests.TestUtils;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 
 import javax.inject.Inject;
@@ -40,18 +37,9 @@ final class EvaluatorFailureDuringAlarmDriver {
   private static final Logger LOG = Logger.getLogger(EvaluatorFailureDuringAlarmDriver.class.getName());
   private final AtomicBoolean failedEvaluatorReceived = new AtomicBoolean(false);
   private final AtomicBoolean otherFailuresReceived = new AtomicBoolean(false);
-  private final EvaluatorRequestor requestor;
 
   @Inject
-  EvaluatorFailureDuringAlarmDriver(final EvaluatorRequestor requestor) {
-    this.requestor = requestor;
-  }
-
-  final class StartHandler implements EventHandler<StartTime> {
-    @Override
-    public void onNext(StartTime startTime) {
-      requestor.submit(EvaluatorRequest.newBuilder().setMemory(64).setNumber(1).build());
-    }
+  EvaluatorFailureDuringAlarmDriver() {
   }
 
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {

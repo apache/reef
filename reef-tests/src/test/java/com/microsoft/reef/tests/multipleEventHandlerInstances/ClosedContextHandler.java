@@ -15,17 +15,16 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
+import com.microsoft.reef.driver.context.ClosedContext;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
+import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
-import com.microsoft.reef.driver.context.ClosedContext;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
-import com.microsoft.wake.EventHandler;
-
 /**
- * 
+ *
  */
 public class ClosedContextHandler implements EventHandler<ClosedContext> {
 
@@ -40,7 +39,7 @@ public class ClosedContextHandler implements EventHandler<ClosedContext> {
       throw new DriverSideFailure("Expect ClosedContextHandler to be created only once");
     }
   }
-  
+
   @Override
   public void onNext(ClosedContext closedContext) {
     LOG.log(Level.FINEST, "Received a closed context");
