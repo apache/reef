@@ -65,6 +65,7 @@ public class ConfigurationModule {
     ConfigurationModule cm = new ConfigurationModule(builder.deepCopy());
     cm.setImpls.putAll(setImpls);
     cm.setImplSets.addAll(setImplSets);
+    cm.setLateImplSets.addAll(setLateImplSets);
     cm.setParamSets.addAll(setParamSets);
     cm.setLateImpls.putAll(setLateImpls);
     cm.setParams.putAll(setParams);
