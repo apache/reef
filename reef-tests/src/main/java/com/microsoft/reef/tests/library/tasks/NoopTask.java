@@ -13,29 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.roguethread;
+package com.microsoft.reef.tests.library.tasks;
 
 import com.microsoft.reef.task.Task;
-import com.microsoft.reef.tests.library.exceptions.ExpectedTaskException;
 
 import javax.inject.Inject;
 
 /**
- * Spawns a thread that immediately throws a ExpectedTaskException.
+ * A Task that does nothing and returns null.
  */
-final class RogueThreadTask implements Task {
+public class NoopTask implements Task {
+
   @Inject
-  RogueThreadTask() {
+  private NoopTask() {
   }
 
   @Override
-  public byte[] call(final byte[] memento) throws Exception {
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        throw new ExpectedTaskException("Exception from a Thread spawned by the Task.");
-      }
-    }).run();
+  public byte[] call(byte[] memento) throws Exception {
     return null;
   }
 }

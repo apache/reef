@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.util;
+package com.microsoft.reef.tests.library.driver;
 
 import com.microsoft.reef.driver.task.FailedTask;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
-import com.microsoft.reef.tests.exceptions.ExpectedTaskException;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.ExpectedTaskException;
 import com.microsoft.reef.util.Exceptions;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.wake.EventHandler;
@@ -38,8 +38,8 @@ public final class ExpectedTaskFailureHandler implements EventHandler<FailedTask
    * Checks whether the FailedTask was caused by a ExpectedTaskException.
    *
    * @param failedTask
-   * @throws com.microsoft.reef.tests.exceptions.DriverSideFailure if the FailedTask wasn't triggered by a
-   *                                                               ExpectedTaskException
+   * @throws com.microsoft.reef.tests.library.exceptions.DriverSideFailure if the FailedTask wasn't triggered by a
+   *                                                                       ExpectedTaskException
    */
 
   @Override

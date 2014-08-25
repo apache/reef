@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.evaluatorreuse;
+package com.microsoft.reef.tests.library.tasks;
 
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
-import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.event.StartTime;
+import com.microsoft.reef.task.Task;
 
 import javax.inject.Inject;
 
-final class DriverStartHandler implements EventHandler<StartTime> {
-  private final EvaluatorRequestor requestor;
+/**
+ * A Task that just sends the memento back.
+ */
+public final class EchoTask implements Task {
 
   @Inject
-  DriverStartHandler(EvaluatorRequestor requestor) {
-    this.requestor = requestor;
+  private EchoTask() {
   }
 
   @Override
-  public void onNext(StartTime startTime) {
-    this.requestor.submit(EvaluatorRequest.newBuilder()
-        .setNumber(1)
-        .setMemory(256)
-        .build());
+  public byte[] call(byte[] memento) throws Exception {
+    return memento;
   }
 }

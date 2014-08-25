@@ -48,7 +48,7 @@ public class StatePassingDriver {
     this.client = client;
   }
 
-  final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
+  final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator eb) {
       final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
@@ -68,7 +68,7 @@ public class StatePassingDriver {
     }
   }
 
-  final class ActiveContextHandler implements EventHandler<ActiveContext> {
+  final class ContextActiveHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext activeContext) {
       nextPass(activeContext);
@@ -87,7 +87,7 @@ public class StatePassingDriver {
     }
   }
 
-  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
+  final class TaskCompletedHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask completed) {
       LOG.log(Level.INFO, "Received a completed task: " + completed);

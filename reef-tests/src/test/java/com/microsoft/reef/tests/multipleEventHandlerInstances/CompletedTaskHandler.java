@@ -15,17 +15,16 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
+import com.microsoft.reef.driver.task.CompletedTask;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
+import com.microsoft.wake.EventHandler;
+
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
-import com.microsoft.reef.driver.task.CompletedTask;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
-import com.microsoft.wake.EventHandler;
-
 /**
- * 
+ *
  */
 public class CompletedTaskHandler implements EventHandler<CompletedTask> {
 

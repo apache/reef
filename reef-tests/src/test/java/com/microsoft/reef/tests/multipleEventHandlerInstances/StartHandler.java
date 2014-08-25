@@ -15,16 +15,15 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The start handler

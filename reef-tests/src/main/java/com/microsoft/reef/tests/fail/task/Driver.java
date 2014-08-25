@@ -22,7 +22,7 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;

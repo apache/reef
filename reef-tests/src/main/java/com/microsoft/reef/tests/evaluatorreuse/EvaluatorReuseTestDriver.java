@@ -21,7 +21,8 @@ import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.tests.exceptions.UnexpectedTaskReturnValue;
+import com.microsoft.reef.tests.library.exceptions.UnexpectedTaskReturnValue;
+import com.microsoft.reef.tests.library.tasks.EchoTask;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -35,9 +36,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-final class Driver {
+final class EvaluatorReuseTestDriver {
 
-  private static final Logger LOG = Logger.getLogger(Driver.class.getName());
+  private static final Logger LOG = Logger.getLogger(EvaluatorReuseTestDriver.class.getName());
 
   private final int numberOfIterations;
   private final JobMessageObserver client;
@@ -45,18 +46,19 @@ final class Driver {
   private int counter = 0;
   private String lastMessage = null;
 
-  @NamedParameter(default_value = "10", short_name = "i")
+  @NamedParameter(default_value = "3", short_name = "i")
   class NumberOfIterations implements Name<Integer> {
   }
 
   @Inject
-  Driver(final @Parameter(NumberOfIterations.class) int n,
-         final JobMessageObserver client) {
+  EvaluatorReuseTestDriver(final @Parameter(NumberOfIterations.class) int n,
+                           final JobMessageObserver client) {
     this.numberOfIterations = n;
     this.client = client;
   }
 
-  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
+
+  final class TaskCompletedHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask completed) {
       final String returned = new String(completed.get());
@@ -70,7 +72,7 @@ final class Driver {
     }
   }
 
-  final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
+  final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator eb) {
       LOG.log(Level.FINE, "AllocatedEvaluator: " + eb);
@@ -83,7 +85,7 @@ final class Driver {
     }
   }
 
-  final class ActiveContextHandler implements EventHandler<ActiveContext> {
+  final class ContextActiveHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
       startTask(context);

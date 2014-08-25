@@ -13,26 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.exceptions;
-
 /**
- * Thrown when a test fails on the task side.
+ * Tests whether (failed) tasks can be resubmitted with identical Configurations, including Task Ids.
  */
-public class SimulatedTaskFailure extends RuntimeException {
-
-  public SimulatedTaskFailure() {
-    super();
-  }
-
-  public SimulatedTaskFailure(final String message) {
-    super(message);
-  }
-
-  public SimulatedTaskFailure(final String message, final Throwable cause) {
-    super(message, cause);
-  }
-
-  public SimulatedTaskFailure(final Throwable cause) {
-    super(cause);
-  }
-}
+package com.microsoft.reef.tests.taskresubmit;

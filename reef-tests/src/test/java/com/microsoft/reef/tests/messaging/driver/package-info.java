@@ -13,25 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.tests.exceptions;
-
 /**
- * Thrown by the Driver in a test if a Task returned an unexpected value.
+ * Tests the messaging channel between client and driver.
  */
-public final class UnexpectedTaskReturnValue extends RuntimeException {
-  private final String expected;
-  private final String actual;
-
-  public UnexpectedTaskReturnValue(final String expected, final String actual) {
-    this.expected = expected;
-    this.actual = actual;
-  }
-
-  @Override
-  public String toString() {
-    return "UnexpectedTaskReturnValue{" +
-        "expected='" + expected + '\'' +
-        ", actual='" + actual + '\'' +
-        '}';
-  }
-}
+package com.microsoft.reef.tests.messaging.driver;

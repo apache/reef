@@ -16,7 +16,6 @@
 package com.microsoft.reef.tests.driver;
 
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.Clock;
 import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
@@ -29,15 +28,13 @@ import java.util.logging.Logger;
 final class DriverTestStartHandler implements EventHandler<StartTime> {
   private static final Logger LOG = Logger.getLogger(DriverTestStartHandler.class.getName());
 
-  private final Clock clock;
 
   @Inject
-  DriverTestStartHandler(final Clock clock) {
-    this.clock = clock;
+  DriverTestStartHandler() {
   }
 
   @Override
   public void onNext(final StartTime startTime) {
-    LOG.log(Level.INFO, "StartTime: {0}", startTime);
+    LOG.log(Level.FINE, "StartTime: {0}", startTime);
   }
 }

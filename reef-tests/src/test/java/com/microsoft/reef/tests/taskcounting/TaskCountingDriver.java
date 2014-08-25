@@ -17,16 +17,14 @@ package com.microsoft.reef.tests.taskcounting;
 
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
-import com.microsoft.reef.tests.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.exceptions.DriverSideFailure;
+import com.microsoft.reef.tests.library.tasks.NoopTask;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 
 import javax.inject.Inject;
@@ -39,25 +37,16 @@ final class TaskCountingDriver {
 
   private final Set<String> expectedRunningTaskIds = new HashSet<>();
   private AtomicInteger numberOfTaskSubmissions = new AtomicInteger(1000);
-  private final EvaluatorRequestor requestor;
 
   @Inject
-  TaskCountingDriver(final EvaluatorRequestor requestor) {
-    this.requestor = requestor;
+  TaskCountingDriver() {
   }
 
   private final Configuration getTaskConfiguration(final String taskId) {
     return TaskConfiguration.CONF
         .set(TaskConfiguration.IDENTIFIER, taskId)
-        .set(TaskConfiguration.TASK, DummyTask.class)
+        .set(TaskConfiguration.TASK, NoopTask.class)
         .build();
-  }
-
-  final class DriverStartHandler implements EventHandler<StartTime> {
-    @Override
-    public void onNext(final StartTime startTime) {
-      requestor.submit(EvaluatorRequest.newBuilder().setMemory(64).setNumber(1).build());
-    }
   }
 
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {

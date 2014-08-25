@@ -20,6 +20,7 @@ import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
+import com.microsoft.reef.tests.library.driver.OnDriverStartedAllocateOne;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -28,6 +29,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests the submission of multiple tasks to an Evaluator in sequence.
+ */
 public final class TaskCountingTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
@@ -44,7 +48,7 @@ public final class TaskCountingTest {
   private Configuration getDriverConfiguration() {
     return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TaskCounting")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, TaskCountingDriver.DriverStartHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskCountingDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_TASK_RUNNING, TaskCountingDriver.TaskRunningHandler.class)
         .set(DriverConfiguration.ON_TASK_COMPLETED, TaskCountingDriver.TaskCompletedHandler.class)
