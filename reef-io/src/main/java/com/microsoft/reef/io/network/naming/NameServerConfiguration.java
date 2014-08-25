@@ -21,7 +21,7 @@ import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.wake.IdentifierFactory;
 
 /**
- * Configuration Module Builder for Name Server
+ * Configuration Module Builder for NameServer
  */
 public final class NameServerConfiguration extends ConfigurationModuleBuilder{
 
