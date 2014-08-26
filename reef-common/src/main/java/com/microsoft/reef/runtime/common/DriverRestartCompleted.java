@@ -15,15 +15,11 @@
  */
 package com.microsoft.reef.runtime.common;
 
-public final class DriverRestartCompleted {
-  private final long timestamp;
+import com.microsoft.wake.time.Time;
+
+public final class DriverRestartCompleted extends Time {
 
   public DriverRestartCompleted(final long timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  public long getTimestamp()
-  {
-    return this.timestamp;
+    super(timestamp);
   }
 }
