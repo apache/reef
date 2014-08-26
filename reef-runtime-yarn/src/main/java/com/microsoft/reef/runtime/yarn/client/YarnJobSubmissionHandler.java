@@ -17,7 +17,7 @@ package com.microsoft.reef.runtime.yarn.client;
 
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.parameters.JobSubmissionDirectory;
+import com.microsoft.reef.driver.parameters.DriverJobSubmissionDirectory;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.files.ClasspathProvider;
@@ -38,7 +38,6 @@ import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.VersionInfo;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
 import org.apache.hadoop.yarn.api.records.*;
@@ -199,7 +198,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
       final Path jobFolderPath) throws IOException {
     Configuration config = this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration());
-    final String userBoundJobSubmissionDirectory = config.getNamedParameter((NamedParameterNode<?>)config.getClassHierarchy().getNode(ReflectionUtilities.getFullName(JobSubmissionDirectory.class)));
+    final String userBoundJobSubmissionDirectory = config.getNamedParameter((NamedParameterNode<?>)config.getClassHierarchy().getNode(ReflectionUtilities.getFullName(DriverJobSubmissionDirectory.class)));
     LOG.log(Level.FINE, "user bound job submission Directory: " + userBoundJobSubmissionDirectory);
     final String finalJobFolderPath =
         (userBoundJobSubmissionDirectory == null || userBoundJobSubmissionDirectory.isEmpty())

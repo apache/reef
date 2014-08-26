@@ -75,7 +75,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   /**
    * Job submission directory to be used by driver
    */
-  public static final OptionalParameter<String> JOB_SUBMISSION_DIRECTORY = new OptionalParameter<>();
+  public static final OptionalParameter<String> DRIVER_JOB_SUBMISSION_DIRECTORY = new OptionalParameter<>();
 
   /**
    * The event handler invoked right after the driver boots up.
@@ -202,7 +202,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
       .bindNamedParameter(DriverIdentifier.class, DRIVER_IDENTIFIER)
       .bindNamedParameter(DriverMemory.class, DRIVER_MEMORY)
-      .bindNamedParameter(JobSubmissionDirectory.class, JOB_SUBMISSION_DIRECTORY)
+      .bindNamedParameter(DriverJobSubmissionDirectory.class, DRIVER_JOB_SUBMISSION_DIRECTORY)
       .bindSetEntry(JobGlobalFiles.class, GLOBAL_FILES)
       .bindSetEntry(JobGlobalLibraries.class, GLOBAL_LIBRARIES)
       .bindSetEntry(DriverLocalFiles.class, LOCAL_FILES)

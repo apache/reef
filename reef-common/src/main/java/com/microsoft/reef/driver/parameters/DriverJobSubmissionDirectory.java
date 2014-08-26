@@ -22,8 +22,8 @@ import com.microsoft.tang.annotations.NamedParameter;
  * Job submission directory
  */
 @NamedParameter(doc = "Job submission directory")
-public final class JobSubmissionDirectory implements Name<String> {
-  private JobSubmissionDirectory() {
+public final class DriverJobSubmissionDirectory implements Name<String> {
+  private DriverJobSubmissionDirectory() {
   }
 }
 
