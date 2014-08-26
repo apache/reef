@@ -28,6 +28,7 @@ import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.DriverRestartCompleted;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
@@ -273,6 +274,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
         LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
         this.driverStatusManager.setRestartCompleted();
+        this.messageDispatcher.OnDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
       } else {
         LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
             new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
