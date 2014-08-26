@@ -295,6 +295,12 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
+  public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface, List list) {
+    ConfigurationModuleBuilder c = deepCopy();
+    c.b.bindList(iface, list);
+    return c;
+  }
+
   private final <T> void processUse(Object impl) {
     Field f = map.get(impl);
     if (f == null) { /* throw */

@@ -56,8 +56,8 @@ public class ConfigurationModule {
   private final MonotonicMultiHashMap<Param<?>, String> setParamSets = new MonotonicMultiHashMap<>(); 
   private final Map<Impl<?>, String> setLateImpls = new MonotonicHashMap<>();
   private final Map<Param<?>, String> setParams = new MonotonicHashMap<>();
-  private final Map<Impl<List>, List<Object>> setImplLists = new MonotonicHashMap<>();
-  private final Map<Param<List>, List<Object>> setParamLists = new MonotonicHashMap<>();
+  private final Map<Impl<List>, List<?>> setImplLists = new MonotonicHashMap<>();
+  private final Map<Param<List>, List<?>> setParamLists = new MonotonicHashMap<>();
   protected ConfigurationModule(ConfigurationModuleBuilder builder) {
     this.builder = builder.deepCopy();
   }
@@ -105,7 +105,7 @@ public class ConfigurationModule {
     return c;
   }
 
-  public final <T> ConfigurationModule set(Impl<List> opt, List<Object> implList) {
+  public final <T> ConfigurationModule set(Impl<List> opt, List implList) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
     c.setImplLists.put(opt, implList);
@@ -131,7 +131,7 @@ public class ConfigurationModule {
     }
     return c;
   }
-  public final <T> ConfigurationModule set(Param<List> opt, List<Object> implList) {
+  public final <T> ConfigurationModule set(Param<List> opt, List implList) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
     c.setParamLists.put(opt, implList);
