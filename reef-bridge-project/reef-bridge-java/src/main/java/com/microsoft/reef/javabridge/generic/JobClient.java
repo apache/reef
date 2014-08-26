@@ -102,6 +102,7 @@ public class JobClient {
         .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
         .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
         .set(DriverConfiguration.ON_DRIVER_RESTART_TASK_RUNNING, JobDriver.DriverRestartRunningTaskHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_RESTART_COMPLETED, JobDriver.DriverRestartCompletedHandler.class)
         .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
         .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
         .set(DriverConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)

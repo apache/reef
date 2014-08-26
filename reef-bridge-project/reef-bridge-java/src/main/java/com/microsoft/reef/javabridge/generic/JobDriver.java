@@ -26,6 +26,7 @@ import com.microsoft.reef.driver.task.*;
 import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.reef.javabridge.*;
+import com.microsoft.reef.runtime.common.DriverRestartCompleted;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import com.microsoft.reef.util.Optional;
@@ -544,30 +545,22 @@ public final class JobDriver {
     }
   }
 
-/*
-  clock.scheduleAlarm(0, new EventHandler<Alarm>() {
+  /**
+   * Receive notification that driver restart has completed.
+   */
+  final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
     @Override
-    public void onNext(final Alarm time) {
-      if (JobDriver.this.driverStatusManager.getRestartCompleted())
-      {
-        LOG.log(Level.INFO, "Driver Restarted Completed");
+    public void onNext(final DriverRestartCompleted driverRestartCompleted) {
+      LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ", driverRestartCompleted.getTimestamp());
+      if (JobDriver.this.driverRestartHandler != 0) {
+        LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
+        NativeInterop.ClrSystemDriverRestartHandlerOnNext(JobDriver.this.driverRestartHandler);
       }
-      else
-      {
-        LOG.log(Level.INFO, "Waiting for driver to complete restart process...");
-        clock.scheduleAlarm(2000, this);
-        return;
+      else{
+        LOG.log(Level.WARNING, "No CLR driver restart handler implemented, done with DriverRestartCompletedHandler.");
       }
     }
-  });
-  if (JobDriver.this.driverRestartHandler != 0) {
-    LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
-    NativeInterop.ClrSystemDriverRestartHandlerOnNext(JobDriver.this.driverRestartHandler);
   }
-  else{
-    LOG.log(Level.WARNING, "No CLR driver restart handler implemented, done with RestartHandler.");
-  }
-*/
 
   /**
    * Shutting down the job driver: close the evaluators.
