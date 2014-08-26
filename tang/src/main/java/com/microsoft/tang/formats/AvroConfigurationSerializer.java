@@ -33,10 +33,12 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -101,6 +103,26 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
       configurationEntries.add(new ConfigurationEntry().newBuilder()
           .setKey(e.getKey().getFullName())
           .setValue(val)
+          .build());
+    }
+    // Serializes boundLists in the form of array of string
+    for (final NamedParameterNode<List<?>> opt : configuration.getBoundLists()) {
+      List<?> list = configuration.getBoundList(opt);
+      final List<String> result = new ArrayList<>();
+      for (int i = 0; i < list.size(); i++) {
+        Object item = list.get(i);
+        if (item instanceof String) {
+          result.add((String) item);
+        }
+        else if (item instanceof Node) {
+          result.add(((Node) item).getFullName());
+        } else {
+          throw new IllegalStateException();
+        }
+      }
+      configurationEntries.add(new ConfigurationEntry().newBuilder()
+          .setKey(opt.getFullName())
+          .setValue(result)
           .build());
     }
 
@@ -194,34 +216,52 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
         key = longName;
       }
 
-      final String value = entry.getValue().toString();
+      // entry.getValue()'s type can be either string or array of string
+      final Object rawValue = entry.getValue();
 
       try {
-        if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
-          configurationBuilder.getClassHierarchy().getNode(value);
-          final String[] tok = value.split(ReflectionUtilities.regexp);
-          final String lastTok = tok[tok.length - 1];
-          try {
-            configurationBuilder.getClassHierarchy().getNode(lastTok);
-            throw new IllegalArgumentException("Conflict on short name: " + lastTok);
-          } catch (final BindException e) {
-            final String oldValue = importedNames.put(lastTok, value);
-            if (oldValue != null) {
-              throw new IllegalArgumentException("Name conflict: "
-                  + lastTok + " maps to " + oldValue + " and " + value);
+        // rawValue is String. String value is represented as UTF-8 in Avro since 1.5. Can possibly changed later.
+        if (rawValue instanceof Utf8) {
+          String value = ((Utf8) rawValue).toString();
+          if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
+            configurationBuilder.getClassHierarchy().getNode(value);
+            final String[] tok = value.split(ReflectionUtilities.regexp);
+            final String lastTok = tok[tok.length - 1];
+            try {
+              configurationBuilder.getClassHierarchy().getNode(lastTok);
+              throw new IllegalArgumentException("Conflict on short name: " + lastTok);
+            } catch (final BindException e) {
+              final String oldValue = importedNames.put(lastTok, value);
+              if (oldValue != null) {
+                throw new IllegalArgumentException("Name conflict: "
+                    + lastTok + " maps to " + oldValue + " and " + value);
+              }
             }
+          } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
+            final String[] classes = value.substring(ConfigurationBuilderImpl.INIT.length(), value.length())
+                .replaceAll("^[\\s\\(]+", "")
+                .replaceAll("[\\s\\)]+$", "")
+                .split("[\\s\\-]+");
+            configurationBuilder.registerLegacyConstructor(key, classes);
+          } else {
+            configurationBuilder.bind(key, value);
           }
-        } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
-          final String[] classes = value.substring(ConfigurationBuilderImpl.INIT.length(), value.length())
-              .replaceAll("^[\\s\\(]+", "")
-              .replaceAll("[\\s\\)]+$", "")
-              .split("[\\s\\-]+");
-          configurationBuilder.registerLegacyConstructor(key, classes);
-        } else {
-          configurationBuilder.bind(key, value);
+        }
+        // rawValue is an array of String. Array is represented as List in Avro.
+        else if (rawValue instanceof List) {
+          List<Utf8> value = (List<Utf8>) rawValue;
+          List<Object> result = new ArrayList<>();
+          for(Utf8 item : value) {
+            result.add(item.toString());
+          }
+          configurationBuilder.bindList(key, result);
+        }
+        // For value is defined as a union type of String and array of String, it shouldn't be reached
+        else {
+          throw new IllegalStateException("Value from ConfigurationEntry should be either String or array of String.");
         }
       } catch (final BindException | ClassHierarchyException e) {
-        throw new BindException("Failed to process configuration tuple: [" + key + "=" + value + "]", e);
+        throw new BindException("Failed to process configuration tuple: [" + key + "=" + rawValue + "]", e);
       }
     }
   }
