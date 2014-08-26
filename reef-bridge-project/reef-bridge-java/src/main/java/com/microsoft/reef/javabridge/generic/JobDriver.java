@@ -540,32 +540,34 @@ public final class JobDriver {
         setupBridge(startTime);
 
         LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
-
-        clock.scheduleAlarm(0, new EventHandler<Alarm>() {
-          @Override
-          public void onNext(final Alarm time) {
-            if (JobDriver.this.driverStatusManager.getRestartCompleted())
-            {
-              LOG.log(Level.INFO, "Driver Restarted Completed");
-            }
-            else
-            {
-              LOG.log(Level.INFO, "Waiting for driver to complete restart process...");
-              clock.scheduleAlarm(2000, this);
-              return;
-            }
-          }
-        });
-        if (JobDriver.this.driverRestartHandler != 0) {
-          LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
-          NativeInterop.ClrSystemDriverRestartHandlerOnNext(JobDriver.this.driverRestartHandler);
-        }
-        else{
-          LOG.log(Level.WARNING, "No CLR driver restart handler implemented, done with RestartHandler.");
-        }
       }
     }
   }
+
+/*
+  clock.scheduleAlarm(0, new EventHandler<Alarm>() {
+    @Override
+    public void onNext(final Alarm time) {
+      if (JobDriver.this.driverStatusManager.getRestartCompleted())
+      {
+        LOG.log(Level.INFO, "Driver Restarted Completed");
+      }
+      else
+      {
+        LOG.log(Level.INFO, "Waiting for driver to complete restart process...");
+        clock.scheduleAlarm(2000, this);
+        return;
+      }
+    }
+  });
+  if (JobDriver.this.driverRestartHandler != 0) {
+    LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
+    NativeInterop.ClrSystemDriverRestartHandlerOnNext(JobDriver.this.driverRestartHandler);
+  }
+  else{
+    LOG.log(Level.WARNING, "No CLR driver restart handler implemented, done with RestartHandler.");
+  }
+*/
 
   /**
    * Shutting down the job driver: close the evaluators.
