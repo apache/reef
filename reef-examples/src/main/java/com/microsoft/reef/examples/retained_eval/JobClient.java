@@ -197,7 +197,7 @@ public class JobClient {
    * @param cmd shell command to execute in all Evaluators.
    */
   private synchronized void submitTask(final String cmd) {
-    LOG.log(Level.INFO, "Submit task {0} \"{1}\" to {2}",
+    LOG.log(Level.FINE, "Submit task {0} \"{1}\" to {2}",
         new Object[]{this.numRuns + 1, cmd, this.runningJob});
     this.startTime = System.currentTimeMillis();
     this.runningJob.send(CODEC.encode(cmd));
@@ -209,7 +209,7 @@ public class JobClient {
   final class RunningJobHandler implements EventHandler<RunningJob> {
     @Override
     public void onNext(final RunningJob job) {
-      LOG.log(Level.INFO, "Running job: {0}", job.getId());
+      LOG.log(Level.FINE, "Running job: {0}", job.getId());
       synchronized (JobClient.this) {
         JobClient.this.runningJob = job;
         JobClient.this.submitTask();
@@ -232,7 +232,7 @@ public class JobClient {
         totalTime += jobTime;
         ++numRuns;
 
-        LOG.log(Level.INFO, "TIME: Task {0} completed in {1} msec.:\n{2}",
+        LOG.log(Level.FINE, "TIME: Task {0} completed in {1} msec.:\n{2}",
             new Object[]{"" + numRuns, "" + jobTime, lastResult});
 
         System.out.println(lastResult);
@@ -269,7 +269,7 @@ public class JobClient {
   final class CompletedJobHandler implements EventHandler<CompletedJob> {
     @Override
     public void onNext(final CompletedJob job) {
-      LOG.log(Level.INFO, "Completed job: {0}", job.getId());
+      LOG.log(Level.FINE, "Completed job: {0}", job.getId());
       stopAndNotify();
     }
   }
@@ -299,7 +299,7 @@ public class JobClient {
    */
   public String waitForCompletion() {
     while (this.isBusy) {
-      LOG.info("Waiting for the Job Driver to complete.");
+      LOG.log(Level.FINE, "Waiting for the Job Driver to complete.");
       try {
         synchronized (this) {
           this.wait();
@@ -308,7 +308,23 @@ public class JobClient {
         LOG.log(Level.WARNING, "Waiting for result interrupted.", ex);
       }
     }
-    this.reef.close();
     return this.lastResult;
+  }
+
+  public void close() {
+    this.reef.close();
+  }
+
+  /**
+   * @return a Configuration binding the ClientConfiguration.* event handlers to this Client.
+   */
+  public static Configuration getClientConfiguration() {
+    return ClientConfiguration.CONF
+        .set(ClientConfiguration.ON_JOB_RUNNING, JobClient.RunningJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_MESSAGE, JobClient.JobMessageHandler.class)
+        .set(ClientConfiguration.ON_JOB_COMPLETED, JobClient.CompletedJobHandler.class)
+        .set(ClientConfiguration.ON_JOB_FAILED, JobClient.FailedJobHandler.class)
+        .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
+        .build();
   }
 }
