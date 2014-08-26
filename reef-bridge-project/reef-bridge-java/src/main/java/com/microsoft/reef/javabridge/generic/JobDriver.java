@@ -551,7 +551,7 @@ public final class JobDriver {
   final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
     @Override
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
-      LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ", driverRestartCompleted.getTimestamp());
+      LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ", driverRestartCompleted.getTimeStamp());
       if (JobDriver.this.driverRestartHandler != 0) {
         LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
         NativeInterop.ClrSystemDriverRestartHandlerOnNext(JobDriver.this.driverRestartHandler);
