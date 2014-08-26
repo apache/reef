@@ -152,7 +152,6 @@ public final class DriverStatusManager {
       LOG.log(Level.WARNING, "Calling setRestartCompleted more than once.");
     } else {
       this.restartCompleted = true;
-      // TODO: Fire an event to the Application
     }
   }
 
