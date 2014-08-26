@@ -17,7 +17,6 @@ package com.microsoft.reef.tests;
 
 import com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.exceptions.BindException;
 
 /**
  * A TestEnvironment for the local resourcemanager.
@@ -27,6 +26,11 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
 
+  /**
+   * The number of threads allocated to the local runtime.
+   */
+  public static final int NUMBER_OF_THREADS = 4;
+
   @Override
   public synchronized final void setUp() {
     this.ready = true;
@@ -35,21 +39,17 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
   @Override
   public synchronized final Configuration getRuntimeConfiguration() {
     assert (this.ready);
-    try {
-      final String rootFolder = System.getProperty("com.microsoft.reef.runtime.local.folder");
-      if (null == rootFolder) {
-        return LocalRuntimeConfiguration.CONF
-            .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 4)
-            .build();
-      } else {
-        return LocalRuntimeConfiguration.CONF
-            .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 4)
-            .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, rootFolder)
-            .build();
+    final String rootFolder = System.getProperty("com.microsoft.reef.runtime.local.folder");
+    if (null == rootFolder) {
+      return LocalRuntimeConfiguration.CONF
+          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUMBER_OF_THREADS)
+          .build();
+    } else {
+      return LocalRuntimeConfiguration.CONF
+          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUMBER_OF_THREADS)
+          .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, rootFolder)
+          .build();
 
-      }
-    } catch (final BindException e) {
-      throw new RuntimeException(e);
     }
   }
 
