@@ -32,14 +32,19 @@ import java.util.logging.Logger;
  */
 public class ShellTask implements Task {
 
-  /** Standard java logger. */
+  /**
+   * Standard java logger.
+   */
   private static final Logger LOG = Logger.getLogger(ShellTask.class.getName());
 
-  /** A command to execute. */
+  /**
+   * A command to execute.
+   */
   private final String command;
 
   /**
    * Task constructor. Parameters are injected automatically by TANG.
+   *
    * @param command a command to execute.
    */
   @Inject
@@ -50,6 +55,7 @@ public class ShellTask implements Task {
   /**
    * Execute the shell command and return the result, which is sent back to
    * the JobDriver and surfaced in the CompletedTask object.
+   *
    * @param memento ignored.
    * @return byte string containing the stdout from executing the shell command.
    */
@@ -58,11 +64,11 @@ public class ShellTask implements Task {
     final StringBuilder sb = new StringBuilder();
     try {
       // Execute the command
-      String cmd = OSUtils.isWindows()  ? "cmd.exe /c " + this.command : this.command;
-      LOG.log(Level.INFO, "Call: {0} with: {1}", new Object[] {this.command, memento});
+      final String cmd = OSUtils.isWindows() ? "cmd.exe /c " + this.command : this.command;
+      LOG.log(Level.FINE, "Call: {0} with: {1}", new Object[]{this.command, memento});
       final Process proc = Runtime.getRuntime().exec(cmd);
       try (final BufferedReader input =
-            new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
+               new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
         String line;
         while ((line = input.readLine()) != null) {
           sb.append(line).append('\n');

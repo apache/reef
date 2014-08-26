@@ -20,7 +20,7 @@ import com.microsoft.reef.tests.driver.DriverTest;
 import com.microsoft.reef.tests.evaluatorfailure.EvaluatorFailureTest;
 import com.microsoft.reef.tests.evaluatorreuse.EvaluatorReuseTest;
 import com.microsoft.reef.tests.evaluatorsize.EvaluatorSizeTest;
-import com.microsoft.reef.tests.examples.TestHelloREEF;
+import com.microsoft.reef.tests.examples.ExamplesTestSuite;
 import com.microsoft.reef.tests.fail.FailTestSuite;
 import com.microsoft.reef.tests.files.FileResourceTest;
 import com.microsoft.reef.tests.messaging.driver.DriverMessagingTest;
@@ -45,7 +45,7 @@ import org.junit.runners.Suite;
     TaskResubmitTest.class,
     CloseEvaluatorTest.class,
     EvaluatorFailureTest.class,
-    TestHelloREEF.class
+    ExamplesTestSuite.class
 })
 public final class AllTestsSuite {
 }
