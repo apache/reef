@@ -19,12 +19,10 @@ import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 
-import java.util.logging.Logger;
-
 /**
  * A TestEnvironment for the local resourcemanager.
  */
-public final class YarnTestEnvironment implements TestEnvironment {
+public final class YarnTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
 
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
@@ -54,4 +52,6 @@ public final class YarnTestEnvironment implements TestEnvironment {
   public int getTestTimeout() {
     return 300000; // 5 minutes
   }
+
+
 }
