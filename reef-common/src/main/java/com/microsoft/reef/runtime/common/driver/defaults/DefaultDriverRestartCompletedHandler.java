@@ -35,7 +35,7 @@ public final class DefaultDriverRestartCompletedHandler implements EventHandler<
 
   @Override
   public void onNext(final DriverRestartCompleted restartCompleted) {
-    LOG.log(Level.INFO, "Driver restart completed at time [{0}].", restartCompleted.getTimestamp());
+    LOG.log(Level.INFO, "Driver restart completed at time [{0}].", restartCompleted.getTimeStamp());
   }
 }
 
