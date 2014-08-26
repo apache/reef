@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.yarn.client;
 
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.driver.parameters.JobSubmissionDirectory;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler;
 import com.microsoft.reef.runtime.common.files.ClasspathProvider;
@@ -30,6 +31,8 @@ import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Configurations;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationSerializer;
+import com.microsoft.tang.types.NamedParameterNode;
+import com.microsoft.tang.util.ReflectionUtilities;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
@@ -195,10 +198,15 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private Configuration makeDriverConfiguration(
       final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
       final Path jobFolderPath) throws IOException {
-
+    Configuration config = this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration());
+    final String userBoundJobSubmissionDirectory = config.getNamedParameter((NamedParameterNode<?>)config.getClassHierarchy().getNode(ReflectionUtilities.getFullName(JobSubmissionDirectory.class)));
+    LOG.log(Level.FINE, "user bound job submission Directory: " + userBoundJobSubmissionDirectory);
+    final String finalJobFolderPath =
+        (userBoundJobSubmissionDirectory == null || userBoundJobSubmissionDirectory.isEmpty())
+        ? jobFolderPath.toString() : userBoundJobSubmissionDirectory;
     return Configurations.merge(
         YarnDriverConfiguration.CONF
-            .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderPath.toString())
+            .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, finalJobFolderPath)
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobSubmissionProto.getIdentifier())
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionProto.getRemoteId())
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
