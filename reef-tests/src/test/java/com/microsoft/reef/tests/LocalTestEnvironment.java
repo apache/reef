@@ -22,7 +22,7 @@ import com.microsoft.tang.exceptions.BindException;
 /**
  * A TestEnvironment for the local resourcemanager.
  */
-public final class LocalTestEnvironment implements TestEnvironment {
+public final class LocalTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
 
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
