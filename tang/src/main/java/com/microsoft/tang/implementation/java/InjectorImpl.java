@@ -292,7 +292,8 @@ public class InjectorImpl implements Injector {
         } else if (o instanceof Node) {
           ret2.add((T) o);
         } else {
-          throw new IllegalStateException("Unexpected object " + o + " in bound set.  Should consist of nodes and strings");
+          throw new IllegalStateException("Unexpected object " + o + " in bound list.  Should consist of nodes and " +
+              "strings");
         }
       }
       return (T) ret2;
