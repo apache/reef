@@ -147,4 +147,9 @@ public interface Configuration {
   @Deprecated
   Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets();
 
+  /**
+   * @return the set of all NamedParameterNodes explicitly bound to lists.
+   */
+  Set<NamedParameterNode<List<?>>> getBoundLists();
+
 }

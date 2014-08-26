@@ -111,6 +111,9 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
+  public Set<NamedParameterNode<List<?>>> getBoundLists() { return builder.boundLists.keySet(); }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
