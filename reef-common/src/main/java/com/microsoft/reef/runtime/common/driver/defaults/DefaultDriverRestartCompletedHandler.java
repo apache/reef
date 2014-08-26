@@ -27,7 +27,7 @@ package com.microsoft.reef.runtime.common.driver.defaults;
  */
 public final class DefaultDriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
 
-  private static final Logger LOG = Logger.getLogger(DefaultDriverRestartContextActiveHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(DefaultDriverRestartCompletedHandler.class.getName());
 
   @Inject
   private DefaultDriverRestartCompletedHandler() {
@@ -35,7 +35,7 @@ public final class DefaultDriverRestartCompletedHandler implements EventHandler<
 
   @Override
   public void onNext(final DriverRestartCompleted restartCompleted) {
-    LOG.log(Level.INFO, "Driver restart completed [{0}]", restartCompleted.getTimestamp());
+    LOG.log(Level.INFO, "Driver restart completed at time [{0}].", restartCompleted.getTimestamp());
   }
 }
 

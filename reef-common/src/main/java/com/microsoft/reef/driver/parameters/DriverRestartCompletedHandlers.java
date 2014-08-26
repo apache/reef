@@ -24,9 +24,9 @@ import com.microsoft.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Handler for event that all evaluators have checked back in after driver restart and the restart is completed
+ * Handler for event that all evaluators have checked back in after driver restart and that the restart is completed
  */
-@NamedParameter(doc = "Handler for event of driver restart is completed", default_classes = DefaultDriverRestartCompletedHandler.class)
+@NamedParameter(doc = "Handler for event of driver restart completion", default_classes = DefaultDriverRestartCompletedHandler.class)
 public final class DriverRestartCompletedHandlers implements Name<Set<EventHandler<DriverRestartCompleted>>> {
   private DriverRestartCompletedHandlers() {
   }
