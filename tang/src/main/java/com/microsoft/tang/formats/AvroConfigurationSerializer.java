@@ -220,9 +220,18 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
       final Object rawValue = entry.getValue();
 
       try {
-        // rawValue is String. String value is represented as UTF-8 in Avro since 1.5. Can possibly changed later.
-        if (rawValue instanceof Utf8) {
-          String value = ((Utf8) rawValue).toString();
+        // rawValue is an array of String. Array is represented as List in Avro.
+        if (rawValue instanceof List) {
+          List<Object> value = (List<Object>) rawValue;
+          List<Object> result = new ArrayList<>();
+          for (Object item : value) {
+            result.add(item.toString());
+          }
+          configurationBuilder.bindList(key, result);
+        }
+        // rawValue is String.
+        else {
+          String value = rawValue.toString();
           if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
             configurationBuilder.getClassHierarchy().getNode(value);
             final String[] tok = value.split(ReflectionUtilities.regexp);
@@ -246,19 +255,6 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           } else {
             configurationBuilder.bind(key, value);
           }
-        }
-        // rawValue is an array of String. Array is represented as List in Avro.
-        else if (rawValue instanceof List) {
-          List<Utf8> value = (List<Utf8>) rawValue;
-          List<Object> result = new ArrayList<>();
-          for(Utf8 item : value) {
-            result.add(item.toString());
-          }
-          configurationBuilder.bindList(key, result);
-        }
-        // For value is defined as a union type of String and array of String, it shouldn't be reached
-        else {
-          throw new IllegalStateException("Value from ConfigurationEntry should be either String or array of String.");
         }
       } catch (final BindException | ClassHierarchyException e) {
         throw new BindException("Failed to process configuration tuple: [" + key + "=" + rawValue + "]", e);
