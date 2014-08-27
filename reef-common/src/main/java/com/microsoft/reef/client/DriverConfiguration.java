@@ -74,8 +74,9 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> LOCAL_LIBRARIES = new OptionalParameter<>();
 
   /**
-   * Job submission directory to be used by driver
-   * if this is set by the user, user must make sure its uniqueness across different jobs.
+   * Job submission directory to be used by driver. This is the folder on the DFS used to stage the files
+   * for the Driver and subsequently for the Evaluators. It will be created if it doesn't exist yet.
+   * If this is set by the user, user must make sure its uniqueness across different jobs.
    */
   public static final OptionalParameter<String> DRIVER_JOB_SUBMISSION_DIRECTORY = new OptionalParameter<>();
 
