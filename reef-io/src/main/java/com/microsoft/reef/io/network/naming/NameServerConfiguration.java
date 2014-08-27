@@ -25,13 +25,22 @@ import com.microsoft.wake.IdentifierFactory;
  */
 public final class NameServerConfiguration extends ConfigurationModuleBuilder{
 
+  /**
+   * The port used by name server
+   */
   public static final OptionalParameter<Integer> NAME_SERVICE_PORT = new OptionalParameter<>();
-  public static final OptionalParameter<String> NAME_SERVER_ADDR = new OptionalParameter<>();
+  /**
+   * DNS hostname running the name service
+   */
+  public static final OptionalParameter<String> NAME_SERVER_HOSTNAME = new OptionalParameter<>();
+  /**
+   * Identifier factory for the name service
+   */
   public static final OptionalParameter<IdentifierFactory> NAME_SERVER_IDENTIFIER_FACTORY = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new NameServerConfiguration()
       .bindNamedParameter(NameServerParameters.NameServerPort.class, NAME_SERVICE_PORT)
-      .bindNamedParameter(NameServerParameters.NameServerAddr.class, NAME_SERVER_ADDR)
+      .bindNamedParameter(NameServerParameters.NameServerAddr.class, NAME_SERVER_HOSTNAME)
       .bindNamedParameter(NameServerParameters.NameServerIdentifierFactory.class, NAME_SERVER_IDENTIFIER_FACTORY)
       .build();
 }
