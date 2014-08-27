@@ -80,10 +80,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   /**
    * The event handler invoked right after the driver boots up.
    */
-
-  /**
-   * The event handler invoked right after the driver boots up.
-   */
   public static final RequiredImpl<EventHandler<StartTime>> ON_DRIVER_STARTED = new RequiredImpl<>();
 
   /**
