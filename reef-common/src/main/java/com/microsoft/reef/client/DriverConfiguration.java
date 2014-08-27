@@ -75,12 +75,9 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * Job submission directory to be used by driver
+   * if this is set by the user, user must make sure its uniqueness across different jobs.
    */
   public static final OptionalParameter<String> DRIVER_JOB_SUBMISSION_DIRECTORY = new OptionalParameter<>();
-
-  /**
-   * The event handler invoked right after the driver boots up.
-   */
 
   /**
    * The event handler invoked right after the driver boots up.
