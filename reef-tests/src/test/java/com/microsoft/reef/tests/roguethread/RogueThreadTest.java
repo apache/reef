@@ -20,7 +20,8 @@ import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
-import com.microsoft.reef.tests.util.ExpectedTaskFailureHandler;
+import com.microsoft.reef.tests.library.driver.ExpectedTaskFailureHandler;
+import com.microsoft.reef.tests.library.driver.OnDriverStartedAllocateOne;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.InjectionException;
@@ -51,9 +52,8 @@ public final class RogueThreadTest {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
     final Configuration driverConfiguration =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "Test_RogueThread")
-            .set(DriverConfiguration.DRIVER_MEMORY, 64)
-            .set(DriverConfiguration.ON_DRIVER_STARTED, RogueThreadDriver.StartHandler.class)
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "Test_RogueThreadTest")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
             .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RogueThreadDriver.EvaluatorAllocationHandler.class)
             .set(DriverConfiguration.ON_TASK_FAILED, ExpectedTaskFailureHandler.class)
             .build();

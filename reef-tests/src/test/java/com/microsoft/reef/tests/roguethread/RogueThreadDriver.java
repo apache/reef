@@ -17,36 +17,19 @@ package com.microsoft.reef.tests.roguethread;
 
 import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
-import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 
 @Unit
 final class RogueThreadDriver {
 
-  private final EvaluatorRequestor requestor;
 
   @Inject
-  public RogueThreadDriver(final EvaluatorRequestor requestor) {
-    this.requestor = requestor;
-  }
-
-
-  final class StartHandler implements EventHandler<StartTime> {
-
-    @Override
-    public void onNext(final StartTime startTime) {
-      requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1)
-          .setMemory(64)
-          .build());
-    }
+  RogueThreadDriver() {
   }
 
 
@@ -62,7 +45,6 @@ final class RogueThreadDriver {
           .set(TaskConfiguration.TASK, RogueThreadTask.class)
           .build();
       allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
-
     }
   }
 

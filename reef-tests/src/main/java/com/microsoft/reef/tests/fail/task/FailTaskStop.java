@@ -18,7 +18,7 @@ package com.microsoft.reef.tests.fail.task;
 import com.microsoft.reef.task.Task;
 import com.microsoft.reef.task.events.CloseEvent;
 import com.microsoft.reef.task.events.TaskStop;
-import com.microsoft.reef.tests.exceptions.SimulatedTaskFailure;
+import com.microsoft.reef.tests.library.exceptions.SimulatedTaskFailure;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
 

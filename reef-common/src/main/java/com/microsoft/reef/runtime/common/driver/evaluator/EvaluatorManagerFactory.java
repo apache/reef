@@ -94,18 +94,11 @@ public final class EvaluatorManagerFactory {
     return this.getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
   }
 
-  /**
-   * Recover EvaluatorManager from resilient evaluator heartbeat.
-   *
-   * @param evaluatorHeartbeatProto
-   * @return
-   */
-  public final EvaluatorManager recoverEvaluatorManager(final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto) {
-    // TODO: need to pass the node information (ip/evaluator type/memory from evaluator heartbeat, hard code it for now)
-    final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(null, EvaluatorType.UNDECIDED, 1024);
-
-    final String evaluatorId = evaluatorHeartbeatProto.getEvaluatorStatus().getEvaluatorId();
-    LOG.log(Level.FINEST, "Recovering evaluator {0}", evaluatorId);
-    return this.getNewEvaluatorManagerInstance(evaluatorId, evaluatorDescriptor);
+  public final EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto)
+  {
+    if(!resourceStatusProto.getIsFromPreviousDriver()){
+      throw new RuntimeException("Invalid resourceStatusProto, must be status for resource from previous Driver.");
+    }
+    return getNewEvaluatorManagerInstance(resourceStatusProto.getIdentifier(), new EvaluatorDescriptorImpl(null,EvaluatorType.UNDECIDED,128));
   }
 }

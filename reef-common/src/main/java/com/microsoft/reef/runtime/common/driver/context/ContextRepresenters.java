@@ -203,8 +203,14 @@ public final class ContextRepresenters {
         Optional.of(contextStatusProto.getParentId()) : Optional.<String>empty();
     final EvaluatorContext context = contextFactory.newContext(contextID, parentID);
     this.addContext(context);
-    if (notifyClientOnNewActiveContext) {
-      this.messageDispatcher.onContextActive(context);
+    if(contextStatusProto.getRecovery()){
+      // when we get a recovered active context, always notify application
+      this.messageDispatcher.OnDriverRestartContextActive(context);
+    }
+    else{
+      if (notifyClientOnNewActiveContext) {
+        this.messageDispatcher.onContextActive(context);
+      }
     }
   }
 

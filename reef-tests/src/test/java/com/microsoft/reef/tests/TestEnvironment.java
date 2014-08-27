@@ -15,6 +15,7 @@
  */
 package com.microsoft.reef.tests;
 
+import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.tang.Configuration;
 
 /**
@@ -49,4 +50,6 @@ public interface TestEnvironment {
    * @return test timeout in milliseconds.
    */
   int getTestTimeout();
+
+  LauncherStatus run(final Configuration driverConfiguration);
 }

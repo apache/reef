@@ -20,8 +20,8 @@ import com.microsoft.reef.tests.TestDriverLauncher;
 import com.microsoft.reef.tests.TestEnvironment;
 import com.microsoft.reef.tests.TestEnvironmentFactory;
 import com.microsoft.reef.tests.TestUtils;
-import com.microsoft.reef.tests.exceptions.SimulatedDriverFailure;
 import com.microsoft.reef.tests.fail.driver.DriverFailOnFail;
+import com.microsoft.reef.tests.library.exceptions.SimulatedDriverFailure;
 import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
@@ -54,11 +54,11 @@ public final class DriverFailOnFailTest {
 
     final Configuration driverConfig =
         EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "Fail2")
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverFailOnFail.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_TASK_FAILED, DriverFailOnFail.FailedTaskHandler.class)
-          .set(DriverConfiguration.ON_DRIVER_STARTED, DriverFailOnFail.StartHandler.class)
-        .build();
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "Fail2")
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverFailOnFail.AllocatedEvaluatorHandler.class)
+            .set(DriverConfiguration.ON_TASK_FAILED, DriverFailOnFail.FailedTaskHandler.class)
+            .set(DriverConfiguration.ON_DRIVER_STARTED, DriverFailOnFail.StartHandler.class)
+            .build();
 
     TestUtils.assertLauncherFailure(
         TestDriverLauncher.getLauncher(runtimeConfiguration).run(

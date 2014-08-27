@@ -16,6 +16,7 @@
 package com.microsoft.reef.runtime.yarn.util;
 
 import com.microsoft.reef.annotations.audience.Private;
+import org.apache.hadoop.util.VersionInfo;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.util.Records;
@@ -41,5 +42,17 @@ public final class YarnTypes {
     context.setLocalResources(localResources);
     context.setCommands(commands);
     return context;
+  }
+
+  public static boolean isAtOrAfterVersion(final String version)
+  {
+    final String hadoopVersion = VersionInfo.getVersion();
+
+    if(hadoopVersion == null || hadoopVersion.length() < version.length())
+    {
+      throw new RuntimeException("unsupported or incomplete hadoop version number provided for comparison: " + hadoopVersion);
+    }
+
+    return hadoopVersion.substring(0, version.length()).compareTo(version) >= 0;
   }
 }
