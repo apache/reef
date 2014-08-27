@@ -24,6 +24,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Serialize Drive information.
@@ -39,11 +40,11 @@ public class AvroDriverInfoSerializer implements DriverInfoSerializer {
    * Build AvroDriverInfo object.
    */
   @Override
-  public AvroDriverInfo toAvro(final String id, final String startTime, final String nameServerId) {
+  public AvroDriverInfo toAvro(final String id, final String startTime, final List<AvroReefServiceInfo> services) {
     return AvroDriverInfo.newBuilder()
         .setRemoteId(id)
         .setStartTime(startTime)
-        .setNameServerId(nameServerId)
+        .setServices(services)
         .build();
   }
 
@@ -52,10 +53,10 @@ public class AvroDriverInfoSerializer implements DriverInfoSerializer {
    */
   @Override
   public String toString(final AvroDriverInfo avroDriverInfo) {
-    final DatumWriter<AvroDriverInfo> evaluatorWriter = new SpecificDatumWriter<>(AvroDriverInfo.class);
+    final DatumWriter<AvroDriverInfo> driverWriter = new SpecificDatumWriter<>(AvroDriverInfo.class);
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(avroDriverInfo.getSchema(), out);
-      evaluatorWriter.write(avroDriverInfo, encoder);
+      driverWriter.write(avroDriverInfo, encoder);
       encoder.flush();
       return out.toString(AvroHttpSerializer.JSON_CHARSET);
     } catch (final IOException e) {

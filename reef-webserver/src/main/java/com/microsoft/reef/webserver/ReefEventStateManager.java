@@ -20,21 +20,17 @@ import com.microsoft.reef.driver.context.ActiveContext;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.task.RunningTask;
-import com.microsoft.reef.io.network.naming.NameServer;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.tang.annotations.Unit;
 import com.microsoft.wake.EventHandler;
-import com.microsoft.wake.remote.NetUtils;
 import com.microsoft.wake.time.event.StartTime;
 import com.microsoft.wake.time.event.StopTime;
 
 import javax.inject.Inject;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +58,8 @@ public final class ReefEventStateManager {
    * Map from context ID to running evaluator context.
    */
   private final Map<String, ActiveContext> contexts = new HashMap<>();
+
+  private final List<AvroReefServiceInfo>  serviceInfoList = new ArrayList<AvroReefServiceInfo>();
 
   /**
    * Remote manager in driver the carries information such as driver endpoint identifier
@@ -92,10 +90,9 @@ public final class ReefEventStateManager {
    * ReefEventStateManager that keeps the states of Reef components
    */
   @Inject
-  public ReefEventStateManager(final RemoteManager remoteManager, final DriverStatusManager driverStatusManager, final NameServer nameServer) {
+  public ReefEventStateManager(final RemoteManager remoteManager, final DriverStatusManager driverStatusManager) {
     this.remoteManager = remoteManager;
     this.driverStatusManager = driverStatusManager;
-    this.nameServerId = NetUtils.getLocalAddress() + ":" + nameServer.getPort();
   }
 
   /**
@@ -155,6 +152,17 @@ public final class ReefEventStateManager {
   public String getNameServerIdentifier() {
    return this.nameServerId;
    }
+
+  public List<AvroReefServiceInfo> getServicesInfo(){
+    return this.serviceInfoList;
+  }
+
+  public void registerServiceInfo(AvroReefServiceInfo serviceInfo){
+    synchronized (this.serviceInfoList){
+      serviceInfoList.add(serviceInfo);
+      LOG.log(Level.INFO, "Registered Service [{0}] with Info [{1}]", new Object[] {serviceInfo.getServiceName(), serviceInfo.getServiceInfo()});
+    }
+  }
 
   /**
    * get a map of contexts

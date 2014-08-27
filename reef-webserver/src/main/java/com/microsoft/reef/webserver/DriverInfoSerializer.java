@@ -18,6 +18,8 @@ package com.microsoft.reef.webserver;
 
 import com.microsoft.tang.annotations.DefaultImplementation;
 
+import java.util.List;
+
 /**
  * Interface for DriverInfoSerializer
  */
@@ -30,7 +32,7 @@ public interface DriverInfoSerializer {
    * @param startTime
    * @return AvroDriverInfo object
    */
-  public AvroDriverInfo toAvro(final String id, final String startTime, final String nameServerId);
+  public AvroDriverInfo toAvro(final String id, final String startTime, final List<AvroReefServiceInfo> services);
 
   /**
    * Convert AvroDriverInfo object to JSon string
