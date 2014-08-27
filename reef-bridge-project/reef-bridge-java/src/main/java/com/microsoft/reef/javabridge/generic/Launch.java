@@ -109,6 +109,14 @@ public final class Launch {
   }
 
   /**
+   * Command line parameter, job submission directory, if set, user should guarantee its uniqueness
+   */
+  @NamedParameter(doc = "driver job submission directory",
+      short_name = "submission_directory", default_value = "empty")
+  public static final class DriverJobSubmissionDirectory implements Name<String> {
+  }
+
+  /**
    * Parse the command line arguments.
    *
    * @param args command line arguments, as passed to main()
@@ -125,6 +133,7 @@ public final class Launch {
     cl.registerShortNameOfClass(WaitTimeForDriver.class);
     cl.registerShortNameOfClass(DriverMemoryInMb.class);
     cl.registerShortNameOfClass(DriverIdentifier.class);
+    cl.registerShortNameOfClass(DriverJobSubmissionDirectory.class);
     cl.registerShortNameOfClass(Submit.class);
     cl.processCommandLine(args);
     return confBuilder.build();
@@ -198,10 +207,12 @@ public final class Launch {
       final int waitTime = commandLineInjector.getNamedInstance(WaitTimeForDriver.class);
       final int driverMemory = commandLineInjector.getNamedInstance(DriverMemoryInMb.class);
       final String driverIdentifier = commandLineInjector.getNamedInstance(DriverIdentifier.class);
+      final String jobSubmissionDirectory = commandLineInjector.getNamedInstance(DriverJobSubmissionDirectory.class);
       final boolean submit = commandLineInjector.getNamedInstance(Submit.class);
       final Injector injector = Tang.Factory.getTang().newInjector(config);
       final JobClient client = injector.getInstance(JobClient.class);
-      client.setDriverIdAndMemory(driverIdentifier, driverMemory);
+      client.setDriverInfo(driverIdentifier, driverMemory, jobSubmissionDirectory);
+
       if(submit){
         client.submit(dotNetFolder, true);
         client.waitForCompletion(waitTime);

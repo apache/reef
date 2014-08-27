@@ -77,6 +77,8 @@ public class JobClient {
 
   private String driverId;
 
+  private String jobSubmissionDirectory = "reefTmp/job_" + System.currentTimeMillis();
+
   /**
    * Clr Bridge client.
    * Parameters are injected automatically by TANG.
@@ -91,7 +93,6 @@ public class JobClient {
 
   public static ConfigurationModule getDriverConfiguration() {
     return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-        .set(DriverConfiguration.DRIVER_JOB_SUBMISSION_DIRECTORY, "reefTmp/job_" + System.currentTimeMillis())
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
@@ -119,10 +120,12 @@ public class JobClient {
       }
     }
 
-    // set the driver memory
+    // set the driver memory, id and job submission directory
     this.driverConfigModule  = result
         .set(DriverConfiguration.DRIVER_MEMORY, this.driverMemory)
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId);
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId)
+        .set(DriverConfiguration.DRIVER_JOB_SUBMISSION_DIRECTORY, this.jobSubmissionDirectory);
+
 
     Path globalLibFile =  Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
     if (!Files.exists(globalLibFile))
@@ -209,18 +212,22 @@ public class JobClient {
   /**
    * Set the driver memory
    */
-  public void setDriverIdAndMemory(final String identifier, final int memory)
+  public void setDriverInfo(final String identifier, final int memory, final String jobSubmissionDirectory)
   {
-    if (identifier == null || identifier.isEmpty())
-    {
+    if (identifier == null || identifier.isEmpty()){
       throw new RuntimeException("driver id cannot be null or empty");
     }
-    if (memory <= 0)
-    {
+    if (memory <= 0){
       throw new RuntimeException("driver memory cannot be negative number: " + memory);
     }
     this.driverMemory = memory;
     this.driverId = identifier;
+    if (jobSubmissionDirectory != null && !jobSubmissionDirectory.equals("empty")){
+      this.jobSubmissionDirectory = jobSubmissionDirectory;
+    }
+    else{
+      LOG.log(Level.FINE, "No job submission directory provided by CLR user, will use " + this.jobSubmissionDirectory);
+    }
   }
 
   /**
