@@ -15,13 +15,14 @@
  */
 package com.microsoft.reef.io.network.naming;
 
+import com.microsoft.reef.io.network.util.StringIdentifierFactory;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.wake.IdentifierFactory;
 
 public class NameServerParameters {
 
-  @NamedParameter(doc = "port for the name service", default_value = "5678", short_name = "nameport")
+  @NamedParameter(doc = "port for the name service", default_value = "0", short_name = "nameport")
   public class NameServerPort implements Name<Integer> {
   }
 
@@ -29,7 +30,7 @@ public class NameServerParameters {
   public class NameServerAddr implements Name<String> {
   }
 
-  @NamedParameter(doc = "identifier factory for the name service")
+  @NamedParameter(doc = "identifier factory for the name service", default_class = StringIdentifierFactory.class)
   public class NameServerIdentifierFactory implements Name<IdentifierFactory> {
   }
 
