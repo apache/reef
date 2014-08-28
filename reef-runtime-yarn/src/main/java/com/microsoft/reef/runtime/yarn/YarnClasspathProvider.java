@@ -16,63 +16,68 @@
 package com.microsoft.reef.runtime.yarn;
 
 import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
-import com.microsoft.reef.util.OSUtils;
+import com.microsoft.reef.util.HadoopEnvironment;
 import net.jcip.annotations.Immutable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Access to the classpath according to the REEF file system standard.
  */
 @Immutable
 public final class YarnClasspathProvider implements RuntimeClasspathProvider {
+  private static final Logger LOG = Logger.getLogger(YarnClasspathProvider.class.getName());
 
-  private static final String HADOOP_CONF_DIR = OSUtils.formatVariable("HADOOP_CONF_DIR");
-  private static final String HADOOP_HOME = OSUtils.formatVariable("HADOOP_HOME");
-  private static final String HADOOP_COMMON_HOME = OSUtils.formatVariable("HADOOP_COMMON_HOME");
-  private static final String HADOOP_YARN_HOME = OSUtils.formatVariable("HADOOP_YARN_HOME");
-  private static final String HADOOP_HDFS_HOME = OSUtils.formatVariable("HADOOP_HDFS_HOME");
-  private static final String HADOOP_MAPRED_HOME = OSUtils.formatVariable("HADOOP_MAPRED_HOME");
+  private final List<String> classPathPrefix;
+  private final List<String> classPathSuffix;
 
-  private static final List<String> CLASSPATH_LIST = Collections.unmodifiableList(
-      Arrays.asList(
-          HADOOP_CONF_DIR,
-          HADOOP_HOME + "/*",
-          HADOOP_HOME + "/lib/*",
-          HADOOP_COMMON_HOME + "/*",
-          HADOOP_COMMON_HOME + "/lib/*",
-          HADOOP_YARN_HOME + "/*",
-          HADOOP_YARN_HOME + "/lib/*",
-          HADOOP_HDFS_HOME + "/*",
-          HADOOP_HDFS_HOME + "/lib/*",
-          HADOOP_MAPRED_HOME + "/*",
-          HADOOP_MAPRED_HOME + "/lib/*",
-          HADOOP_HOME + "/etc/hadoop",
-          HADOOP_HOME + "/share/hadoop/common/*",
-          HADOOP_HOME + "/share/hadoop/common/lib/*",
-          HADOOP_HOME + "/share/hadoop/yarn/*",
-          HADOOP_HOME + "/share/hadoop/yarn/lib/*",
-          HADOOP_HOME + "/share/hadoop/hdfs/*",
-          HADOOP_HOME + "/share/hadoop/hdfs/lib/*",
-          HADOOP_HOME + "/share/hadoop/mapreduce/*",
-          HADOOP_HOME + "/share/hadoop/mapreduce/lib/*")
-  );
 
   @Inject
-  YarnClasspathProvider() {
+  YarnClasspathProvider(final YarnConfiguration yarnConfiguration) {
+    final List<String> prefix = new ArrayList<>();
+    final List<String> suffix = new ArrayList<>();
+    for (final String classPathEntry : yarnConfiguration.getTrimmedStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH)) {
+      // Make sure that the cluster configuration is in front of user classes
+      if (classPathEntry.endsWith("conf") || classPathEntry.contains(HadoopEnvironment.HADOOP_CONF_DIR)) {
+        prefix.add(classPathEntry);
+      } else {
+        suffix.add(classPathEntry);
+      }
+    }
+    this.classPathPrefix = Collections.unmodifiableList(prefix);
+    this.classPathSuffix = Collections.unmodifiableList(suffix);
+    final StringBuilder message = new StringBuilder("Classpath:\n\t");
+    message.append(StringUtils.join(classPathPrefix, "\n\t"));
+    message.append("\n--------------------------------\n\t");
+    message.append(StringUtils.join(classPathSuffix, "\n\t"));
+    LOG.log(Level.FINEST, message.toString());
   }
 
 
   @Override
-  public List<String> getDriverClasspath() {
-    return CLASSPATH_LIST;
+  public List<String> getDriverClasspathPrefix() {
+    return this.classPathPrefix;
   }
 
   @Override
-  public List<String> getEvaluatorClasspath() {
-    return CLASSPATH_LIST;
+  public List<String> getDriverClasspathSuffix() {
+    return this.classPathSuffix;
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspathPrefix() {
+    return this.classPathPrefix;
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspathSuffix() {
+    return this.getDriverClasspathSuffix();
   }
 }

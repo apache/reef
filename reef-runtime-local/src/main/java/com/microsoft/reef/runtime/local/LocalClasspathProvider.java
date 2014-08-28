@@ -31,12 +31,22 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
   }
 
   @Override
-  public List<String> getDriverClasspath() {
+  public List<String> getDriverClasspathPrefix() {
     return Collections.emptyList();
   }
 
   @Override
-  public List<String> getEvaluatorClasspath() {
+  public List<String> getDriverClasspathSuffix() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspathPrefix() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspathSuffix() {
     return Collections.emptyList();
   }
 }

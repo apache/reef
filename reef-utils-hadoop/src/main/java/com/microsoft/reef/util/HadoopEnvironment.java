@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.yarn.util;
-
-import com.microsoft.tang.ExternalConstructor;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
-
-import javax.inject.Inject;
+package com.microsoft.reef.util;
 
 /**
- * An external constructor that creates YarnConfiguration instances.
+ * Constants for the various Hadoop environment variables.
  */
-public final class YarnConfigurationConstructor implements ExternalConstructor<YarnConfiguration> {
-  @Inject
-  YarnConfigurationConstructor() {
+public class HadoopEnvironment {
+
+  public static final String HADOOP_CONF_DIR = "HADOOP_CONF_DIR";
+  public static final String HADOOP_HOME = "HADOOP_HOME";
+  public static final String HADOOP_COMMON_HOME = "HADOOP_COMMON_HOME";
+  public static final String HADOOP_YARN_HOME = "HADOOP_YARN_HOME";
+  public static final String HADOOP_HDFS_HOME = "HADOOP_HDFS_HOME";
+  public static final String HADOOP_MAPRED_HOME = "HADOOP_MAPRED_HOME";
+
+  private HadoopEnvironment() {
   }
 
-  @Override
-  public YarnConfiguration newInstance() {
-    return new YarnConfiguration();
-  }
+
 }

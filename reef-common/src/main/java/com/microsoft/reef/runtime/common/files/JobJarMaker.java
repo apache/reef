@@ -79,8 +79,7 @@ public final class JobJarMaker {
     return jarFile;
   }
 
-  public static void copy(
-      final Iterable<ReefServiceProtos.FileResourceProto> files, final File destinationFolder) {
+  public static void copy(final Iterable<ReefServiceProtos.FileResourceProto> files, final File destinationFolder) {
 
     if (!destinationFolder.exists()) {
       destinationFolder.mkdirs();
@@ -89,10 +88,17 @@ public final class JobJarMaker {
     for (final ReefServiceProtos.FileResourceProto fileProto : files) {
       final File sourceFile = toFile(fileProto);
       final File destinationFile = new File(destinationFolder, fileProto.getName());
-      try {
-        java.nio.file.Files.copy(sourceFile.toPath(), destinationFile.toPath());
-      } catch (IOException e) {
-        throw new RuntimeException("Couldn't copy a file to the job folder", e);
+      if (destinationFile.exists()) {
+        LOG.log(Level.FINEST,
+            "Will not add {0} to the job jar because another file with the same name was already added.",
+            sourceFile.getAbsolutePath()
+        );
+      } else {
+        try {
+          java.nio.file.Files.copy(sourceFile.toPath(), destinationFile.toPath());
+        } catch (IOException e) {
+          throw new RuntimeException("Couldn't copy a file to the job folder", e);
+        }
       }
     }
   }
