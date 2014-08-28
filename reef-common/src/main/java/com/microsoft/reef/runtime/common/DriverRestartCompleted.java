@@ -13,28 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-[
-  {
-      "namespace": "com.microsoft.reef.webserver",
-      "type": "record",
-      "name": "AvroReefServiceInfo",
-      "fields": [
-  	    { "name": "serviceName", "type": "string" },
-  	    { "name": "serviceInfo", "type": "string" }
-      ]
-  },
-  {
-    "namespace": "com.microsoft.reef.webserver",
-    "type": "record",
-    "name": "AvroDriverInfo",
-    "fields": [
-      { "name": "remoteId", "type": "string" },
-      { "name": "startTime", "type": "string" },
-      {
-        "name": "services",
-        "type": { "type": "array", "items": "AvroReefServiceInfo" }
-      }
-    ]
-  }
-]
+package com.microsoft.reef.runtime.common;
 
+import com.microsoft.wake.time.Time;
+
+public final class DriverRestartCompleted extends Time {
+
+  public DriverRestartCompleted(final long timestamp) {
+    super(timestamp);
+  }
+}

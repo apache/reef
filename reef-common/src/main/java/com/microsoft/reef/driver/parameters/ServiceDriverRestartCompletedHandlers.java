@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-[
-  {
-      "namespace": "com.microsoft.reef.webserver",
-      "type": "record",
-      "name": "AvroReefServiceInfo",
-      "fields": [
-  	    { "name": "serviceName", "type": "string" },
-  	    { "name": "serviceInfo", "type": "string" }
-      ]
-  },
-  {
-    "namespace": "com.microsoft.reef.webserver",
-    "type": "record",
-    "name": "AvroDriverInfo",
-    "fields": [
-      { "name": "remoteId", "type": "string" },
-      { "name": "startTime", "type": "string" },
-      {
-        "name": "services",
-        "type": { "type": "array", "items": "AvroReefServiceInfo" }
-      }
-    ]
-  }
-]
+package com.microsoft.reef.driver.parameters;
 
+import com.microsoft.reef.runtime.common.DriverRestartCompleted;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
+import com.microsoft.wake.EventHandler;
+import java.util.Set;
+
+/**
+ * Service handler for driver restart completed event
+ */
+@NamedParameter(doc = "Handler for driver restart completed event")
+public final class ServiceDriverRestartCompletedHandlers implements Name<Set<EventHandler<DriverRestartCompleted>>> {
+  private ServiceDriverRestartCompletedHandlers() {
+  }
+}

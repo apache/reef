@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.io.network.naming;
+package com.microsoft.reef.driver.parameters;
 
-import com.microsoft.reef.io.network.util.StringIdentifierFactory;
+import com.microsoft.reef.runtime.common.DriverRestartCompleted;
+import com.microsoft.reef.runtime.common.driver.defaults.DefaultDriverRestartCompletedHandler;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.wake.IdentifierFactory;
+import com.microsoft.wake.EventHandler;
 
-public class NameServerParameters {
+import java.util.Set;
 
-  @NamedParameter(doc = "port for the name service", default_value = "0", short_name = "nameport")
-  public class NameServerPort implements Name<Integer> {
+/**
+ * Handler for event that all evaluators have checked back in after driver restart and that the restart is completed
+ */
+@NamedParameter(doc = "Handler for event of driver restart completion", default_classes = DefaultDriverRestartCompletedHandler.class)
+public final class DriverRestartCompletedHandlers implements Name<Set<EventHandler<DriverRestartCompleted>>> {
+  private DriverRestartCompletedHandlers() {
   }
-
-  @NamedParameter(doc = "DNS hostname running the name service")
-  public class NameServerAddr implements Name<String> {
-  }
-
-  @NamedParameter(doc = "identifier factory for the name service", default_class = StringIdentifierFactory.class)
-  public class NameServerIdentifierFactory implements Name<IdentifierFactory> {
-  }
-
 }

@@ -24,6 +24,7 @@ import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
+import com.microsoft.reef.runtime.common.DriverRestartCompleted;
 import com.microsoft.reef.runtime.common.driver.DriverExceptionHandler;
 import com.microsoft.reef.runtime.common.utils.DispatchingEStage;
 import com.microsoft.tang.annotations.Parameter;
@@ -98,10 +99,12 @@ public final class EvaluatorMessageDispatcher {
       // Application event handlers specific to a Driver restart
       final @Parameter(DriverRestartTaskRunningHandlers.class) Set<EventHandler<RunningTask>> driverRestartTaskRunningHandlers,
       final @Parameter(DriverRestartContextActiveHandlers.class) Set<EventHandler<ActiveContext>> driverRestartActiveContextHandlers,
+      final @Parameter(DriverRestartCompletedHandlers.class) Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers,
 
       // Service-provided event handlers specific to a Driver restart
       final @Parameter(ServiceDriverRestartTaskRunningHandlers.class) Set<EventHandler<RunningTask>> serviceDriverRestartTaskRunningHandlers,
       final @Parameter(ServiceDriverRestartContextActiveHandlers.class) Set<EventHandler<ActiveContext>> serviceDriverRestartActiveContextHandlers,
+      final @Parameter(ServiceDriverRestartCompletedHandlers.class) Set<EventHandler<DriverRestartCompleted>> serviceDriverRestartCompletedHandlers,
 
       final @Parameter(EvaluatorDispatcherThreads.class) int numberOfThreads,
       final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorIdentifier,
@@ -153,12 +156,14 @@ public final class EvaluatorMessageDispatcher {
     {
       this.driverRestartApplicationDispatcher.register(RunningTask.class, driverRestartTaskRunningHandlers);
       this.driverRestartApplicationDispatcher.register(ActiveContext.class, driverRestartActiveContextHandlers);
+      this.driverRestartApplicationDispatcher.register(DriverRestartCompleted.class, driverRestartCompletedHandlers);
     }
 
     // Service event handlers specific to a Driver restart
     {
       this.driverRestartServiceDispatcher.register(RunningTask.class, serviceDriverRestartTaskRunningHandlers);
       this.driverRestartServiceDispatcher.register(ActiveContext.class, serviceDriverRestartActiveContextHandlers);
+      this.driverRestartServiceDispatcher.register(DriverRestartCompleted.class, serviceDriverRestartCompletedHandlers);
     }
     LOG.log(Level.FINE, "Instantiated 'EvaluatorMessageDispatcher'");
   }
@@ -217,6 +222,10 @@ public final class EvaluatorMessageDispatcher {
 
   public void OnDriverRestartContextActive(final ActiveContext activeContext){
     this.dispatchForRestartedDriver(ActiveContext.class, activeContext);
+  }
+
+  public void OnDriverRestartCompleted(final DriverRestartCompleted restartCompleted){
+    this.dispatchForRestartedDriver(DriverRestartCompleted.class, restartCompleted);
   }
 
   boolean isEmpty() {

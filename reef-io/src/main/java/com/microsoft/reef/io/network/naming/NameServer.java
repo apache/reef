@@ -17,6 +17,8 @@ package com.microsoft.reef.io.network.naming;
 
 import com.microsoft.reef.io.naming.NameAssignment;
 import com.microsoft.reef.io.network.naming.serialization.*;
+import com.microsoft.reef.webserver.AvroReefServiceInfo;
+import com.microsoft.reef.webserver.ReefEventStateManager;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.Identifier;
@@ -46,20 +48,22 @@ public class NameServer implements Stage {
 
   private final Transport transport;
   private final Map<Identifier, InetSocketAddress> idToAddrMap;
-
+  private final ReefEventStateManager reefEventStateManager;
   private final int port;
 
   /**
+   * @deprecated inject the NameServer instead of new it up
    * Constructs a name server
    *
    * @param port    a listening port number
    * @param factory an identifier factory
    */
-  @Inject
-  public NameServer(
-      final @Parameter(NameServerParameters.NameServerPort.class) int port,
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory) {
+  // TODO: All existing NameServer usage is currently new-up, need to make them injected as well.
+  @Deprecated public NameServer(
+      final int port,
+      final IdentifierFactory factory) {
 
+    this.reefEventStateManager = null;
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
     final EventHandler<NamingMessage> handler = createEventHandler(codec);
 
@@ -69,6 +73,38 @@ public class NameServer implements Stage {
     this.port = transport.getListeningPort();
     this.idToAddrMap = Collections.synchronizedMap(new HashMap<Identifier, InetSocketAddress>());
 
+    LOG.log(Level.FINE, "NameServer starting, listening at port {0}", this.port);
+  }
+
+
+  /**
+   * Constructs a name server
+   *
+   * @param port    a listening port number
+   * @param factory an identifier factory
+   * @param reefEventStateManager the event state manager used to register name server info
+   */
+  @Inject
+  public NameServer(
+      final @Parameter(NameServerParameters.NameServerPort.class) int port,
+      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory,
+      final ReefEventStateManager reefEventStateManager) {
+
+    this.reefEventStateManager = reefEventStateManager;
+    final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
+    final EventHandler<NamingMessage> handler = createEventHandler(codec);
+
+    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), port, null,
+        new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
+
+    this.port = transport.getListeningPort();
+    this.idToAddrMap = Collections.synchronizedMap(new HashMap<Identifier, InetSocketAddress>());
+
+    this.reefEventStateManager.registerServiceInfo(
+        AvroReefServiceInfo.newBuilder()
+            .setServiceName("NameServer")
+            .setServiceInfo(getNameServerId())
+            .build());
     LOG.log(Level.FINE, "NameServer starting, listening at port {0}", this.port);
   }
 
@@ -149,6 +185,11 @@ public class NameServer implements Stage {
       }
     }
     return nas;
+  }
+
+  private String getNameServerId()
+  {
+    return NetUtils.getLocalAddress() + ":" + getPort();
   }
 }
 

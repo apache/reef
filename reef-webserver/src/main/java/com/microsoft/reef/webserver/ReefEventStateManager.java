@@ -30,9 +30,7 @@ import com.microsoft.wake.time.event.StopTime;
 import javax.inject.Inject;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,6 +58,8 @@ public final class ReefEventStateManager {
    * Map from context ID to running evaluator context.
    */
   private final Map<String, ActiveContext> contexts = new HashMap<>();
+
+  private final List<AvroReefServiceInfo>  serviceInfoList = new ArrayList<AvroReefServiceInfo>();
 
   /**
    * Remote manager in driver the carries information such as driver endpoint identifier
@@ -139,6 +139,17 @@ public final class ReefEventStateManager {
    */
   public String getDriverEndpointIdentifier() {
     return remoteManager.getMyIdentifier();
+  }
+
+  public List<AvroReefServiceInfo> getServicesInfo(){
+    return this.serviceInfoList;
+  }
+
+  public void registerServiceInfo(AvroReefServiceInfo serviceInfo){
+    synchronized (this.serviceInfoList){
+      serviceInfoList.add(serviceInfo);
+      LOG.log(Level.INFO, "Registered Service [{0}] with Info [{1}]", new Object[] {serviceInfo.getServiceName(), serviceInfo.getServiceInfo()});
+    }
   }
 
   /**

@@ -27,6 +27,7 @@ import com.microsoft.reef.driver.evaluator.CompletedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.driver.parameters.*;
 import com.microsoft.reef.driver.task.*;
+import com.microsoft.reef.runtime.common.DriverRestartCompleted;
 import com.microsoft.reef.runtime.common.driver.DriverRuntimeConfiguration;
 import com.microsoft.tang.formats.*;
 import com.microsoft.wake.EventHandler;
@@ -194,6 +195,11 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Integer> EVALUATOR_DISPATCHER_THREADS = new OptionalParameter<>();
 
   /**
+   * Event handler for the event of driver restart completion, default to logging if not bound.
+   */
+  public static final OptionalImpl<EventHandler<DriverRestartCompleted>> ON_DRIVER_RESTART_COMPLETED = new OptionalImpl<>();
+
+  /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
    */
   public static final ConfigurationModule CONF = new DriverConfiguration().merge(DriverRuntimeConfiguration.CONF)
@@ -239,5 +245,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
           // Various parameters
       .bindNamedParameter(EvaluatorDispatcherThreads.class, EVALUATOR_DISPATCHER_THREADS)
+      .bindSetEntry(DriverRestartCompletedHandlers.class, ON_DRIVER_RESTART_COMPLETED)
       .build();
 }
