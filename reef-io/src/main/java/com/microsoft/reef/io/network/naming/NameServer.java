@@ -52,13 +52,13 @@ public class NameServer implements Stage {
   private final int port;
 
   /**
+   * @deprecated inject the NameServer instead of new it up
    * Constructs a name server
    *
    * @param port    a listening port number
    * @param factory an identifier factory
    */
   // TODO: All existing NameServer usage is currently new-up, need to make them injected as well.
-  //@Deprecated: inject the NameServer instead of new it up
   @Deprecated public NameServer(
       final int port,
       final IdentifierFactory factory) {

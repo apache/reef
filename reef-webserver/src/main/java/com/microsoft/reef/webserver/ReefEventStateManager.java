@@ -77,11 +77,6 @@ public final class ReefEventStateManager {
   private StartTime startTime;
 
   /**
-   * Name Server identifier: ip + port
-   */
-  private String nameServerId;
-
-  /**
    * Evaluator stop time
    */
   private StopTime stopTime;
@@ -145,13 +140,6 @@ public final class ReefEventStateManager {
   public String getDriverEndpointIdentifier() {
     return remoteManager.getMyIdentifier();
   }
-
-  /**
-   * get driver endpoint identifier
-   */
-  public String getNameServerIdentifier() {
-   return this.nameServerId;
-   }
 
   public List<AvroReefServiceInfo> getServicesInfo(){
     return this.serviceInfoList;
