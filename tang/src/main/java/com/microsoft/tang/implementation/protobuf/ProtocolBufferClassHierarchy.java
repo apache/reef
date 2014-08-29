@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang.implementation.protobuf;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -169,7 +170,6 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     } else {
       throw new IllegalStateException("Encountered unknown type of Node: " + n);
     }
-
   }
 
   /**
@@ -177,9 +177,37 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * @param classHierarchy
    * @return
    */
-  
   public static ClassHierarchyProto.Node serialize(ClassHierarchy classHierarchy) {
     return serializeNode(classHierarchy.getNamespace());
+  }
+
+  /**
+   * serialize a class hierarchy into a file
+   * @param fileName
+   * @param classHierarchy
+   * @throws IOException
+   */
+  public static void serialize(final String fileName, final ClassHierarchy classHierarchy) throws IOException {
+    final ClassHierarchyProto.Node node = serializeNode(classHierarchy.getNamespace());
+    final FileOutputStream output = new FileOutputStream(fileName);
+    final DataOutputStream dos = new DataOutputStream(output);
+    node.writeTo(dos);
+    dos.close();
+    output.close();
+  }
+
+  /**
+   * Deserialize a class hierarchy from a file. The file can be generated from either Java or C#
+   * @param fileName
+   * @return
+   * @throws IOException
+   */
+  public static ClassHierarchy deSerialize(final String fileName) throws IOException {
+    final InputStream stream = new FileInputStream(fileName);
+
+    final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(stream);
+
+    return new ProtocolBufferClassHierarchy(root);
   }
 
   /**
