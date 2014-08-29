@@ -18,6 +18,7 @@ package com.microsoft.tang.implementation;
 import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.exceptions.ParseException;
 import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.types.*;
 import com.microsoft.tang.util.MonotonicMultiMap;
@@ -236,6 +237,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException {
+    JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+    try {
+      // Just for parsability checking.
+      javanamespace.parse(iface, impl);
+    } catch(ParseException e) {
+      throw new IllegalStateException("Could not parse " + impl + " which was passed to " + iface);
+    }
     boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
   }
 
@@ -249,13 +257,38 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @SuppressWarnings("unchecked")
   @Override
   public <T> void bindList(NamedParameterNode<List<T>> iface, List<Object> implList) {
+    // Check parsability of list items
+    for (Object item : implList) {
+      if (item instanceof String) {
+        JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+        try {
+          // Just for parsability checking.
+          javanamespace.parse(iface, (String) item);
+        } catch(ParseException e) {
+          throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface);
+        }
+      }
+    }
     boundLists.put((NamedParameterNode<List<?>>) (NamedParameterNode<?>) iface, implList);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public void bindList(String iface, List<Object> implList) {
-    boundLists.put((NamedParameterNode<List<?>>) namespace.getNode(iface), implList);
+    NamedParameterNode<List<?>> ifaceNode = (NamedParameterNode<List<?>>) namespace.getNode(iface);
+    // Check parsability of list items
+    for (Object item : implList) {
+      if (item instanceof String) {
+        JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+        try {
+          // Just for parsability checking.
+          javanamespace.parse(ifaceNode, (String) item);
+        } catch(ParseException e) {
+          throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface);
+        }
+      }
+    }
+    boundLists.put(ifaceNode, implList);
   }
 
   @Override

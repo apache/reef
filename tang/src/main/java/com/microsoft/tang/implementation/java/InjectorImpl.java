@@ -268,6 +268,7 @@ public class InjectorImpl implements Injector {
           try {
             ret2.add(javaNamespace.parse(np, (String) o));
           } catch (ParseException e) {
+            // Parsability is now pre-checked in bindSet, so it should not be reached!
             throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)");
           }
         } else if (o instanceof Node) {
@@ -286,6 +287,7 @@ public class InjectorImpl implements Injector {
           try {
             ret2.add(javaNamespace.parse(np, (String) o));
           } catch (ParseException e) {
+            // Parsability is now pre-checked in bindList, so it should not be reached!
             throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: " +
                 "Parsability is not currently checked by bindList(Node,List)");
           }
