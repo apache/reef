@@ -288,7 +288,7 @@ public abstract class ConfigurationModuleBuilder {
   }
 
   public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface,
-                                                       Param<List> opt) {
+    Param<List> opt) {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeParams.put(iface, opt);
