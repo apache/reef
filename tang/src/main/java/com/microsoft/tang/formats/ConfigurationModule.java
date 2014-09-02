@@ -105,6 +105,14 @@ public class ConfigurationModule {
     return c;
   }
 
+  /**
+   * Binds a list to a specific optional/required Impl using ConfigurationModule.
+   *
+   * @param opt Target optional/required Impl
+   * @param implList List object to be injected
+   * @param <T>
+   * @return
+   */
   public final <T> ConfigurationModule set(Impl<List> opt, List implList) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
@@ -131,6 +139,15 @@ public class ConfigurationModule {
     }
     return c;
   }
+
+  /**
+   * Binds a list to a specfici optional/required Param using ConfigurationModule.
+   *
+   * @param opt target optional/required Param
+   * @param implList List object to be injected
+   * @param <T>
+   * @return
+   */
   public final <T> ConfigurationModule set(Param<List> opt, List implList) {
     ConfigurationModule c = deepCopy();
     c.processSet(opt);
