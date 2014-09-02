@@ -139,7 +139,6 @@
     <ClInclude Include="InteropLogger.h" />
     <ClInclude Include="InteropReturnInfo.h" />
     <ClInclude Include="InteropUtil.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ActiveContextClr2Java.cpp" />
