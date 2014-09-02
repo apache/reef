@@ -36,6 +36,8 @@ final class RootImplementation implements RootInterface {
   private final InjectableClass injectableClass;
   private final SetOfImplementations setOfImplementations;
   private final SetOfBaseTypes setOfBaseTypes;
+  private final ListOfImplementations listOfImplementations;
+  private final ListOfBaseTypes listOfBaseTypes;
   private final CyclicDependency cyclicDependency;
 
   @Inject
@@ -49,7 +51,10 @@ final class RootImplementation implements RootInterface {
                             final AnInterface anInterface,
                             final InjectableClass injectableClass,
                             final SetOfImplementations setOfImplementations,
-                            final SetOfBaseTypes setOfBaseTypes, CyclicDependency cyclicDependency) {
+                            final SetOfBaseTypes setOfBaseTypes,
+                            final ListOfImplementations listOfImplementations,
+                            final ListOfBaseTypes listOfBaseTypes,
+                            CyclicDependency cyclicDependency) {
     this.requiredString = requiredString;
     this.optionalString = optionalString;
     this.unit = unit;
@@ -61,12 +66,17 @@ final class RootImplementation implements RootInterface {
     this.injectableClass = injectableClass;
     this.setOfImplementations = setOfImplementations;
     this.setOfBaseTypes = setOfBaseTypes;
+    this.listOfImplementations = listOfImplementations;
+    this.listOfBaseTypes = listOfBaseTypes;
     this.cyclicDependency = cyclicDependency;
   }
 
   @Override
   public boolean isValid() {
     if (!this.setOfImplementations.isValid()) {
+      return false;
+    }
+    if (!this.listOfImplementations.isValid()) {
       return false;
     }
     if (!this.requiredString.equals(TestConfiguration.REQUIRED_STRING_VALUE)) {
@@ -123,6 +133,11 @@ final class RootImplementation implements RootInterface {
     if (setOfImplementations != null ? !setOfImplementations.equals(that.setOfImplementations) : that.setOfImplementations != null)
       return false;
     if (setOfBaseTypes != null ? !setOfBaseTypes.equals(that.setOfBaseTypes) : that.setOfBaseTypes != null)
+      return false;
+    if (listOfImplementations != null ? !listOfImplementations.equals(that.listOfImplementations) : that
+        .listOfImplementations != null)
+      return false;
+    if (listOfBaseTypes != null ? !listOfBaseTypes.equals(that.listOfBaseTypes) : that.listOfBaseTypes != null)
       return false;
     if (cyclicDependency != null ? !cyclicDependency.equals(that.cyclicDependency) : that.cyclicDependency != null)
       return false;

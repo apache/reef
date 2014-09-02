@@ -22,6 +22,9 @@ import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.tang.formats.RequiredParameter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -68,6 +71,17 @@ public class TestConfiguration extends ConfigurationModuleBuilder {
   public static final class SetOfInstances implements Name<Set<SetInterface>> {
   }
 
+  @NamedParameter
+  public static final class ListOfInstances implements Name<List<ListInterface>> {
+  }
+
+  // Pre-defined lists used in injection
+  private static final List<Class<? extends ListInterface>> injectedImplList = Arrays.asList(ListInterfaceImplOne.class,
+      ListInterfaceImplTwo.class);
+  private static final List<String> injectedIntegerList = Arrays.asList("1", "2", "3");
+  private static final List<String> injectedDoubleList = Arrays.asList("1", "2", "3");
+  private static final List<String> injectedStringList = Arrays.asList("1", "2", "3");
+
   public static final ConfigurationModule CONF = new TestConfiguration()
       .bindImplementation(RootInterface.class, RootImplementation.class)
       .bindNamedParameter(IntegerHandler.class, UnitClass.IntegerHandler.class)
@@ -76,6 +90,8 @@ public class TestConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(NamedParameterDouble.class, String.valueOf(NAMED_PARAMETER_DOUBLE_VALUE))
       .bindSetEntry(SetOfInstances.class, SetInterfaceImplOne.class)
       .bindSetEntry(SetOfInstances.class, SetInterfaceImplTwo.class)
+          // Adds list implementations
+      .bindList(ListOfInstances.class, injectedImplList)
       .bindNamedParameter(RequiredString.class, REQUIRED_STRING)
       .bindNamedParameter(OptionalString.class, OPTIONAL_STRING)
           // Sets of base types
@@ -88,6 +104,10 @@ public class TestConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(SetOfBaseTypes.Strings.class, "1")
       .bindSetEntry(SetOfBaseTypes.Strings.class, "2")
       .bindSetEntry(SetOfBaseTypes.Strings.class, "3")
+          // Lists of base types
+      .bindList(ListOfBaseTypes.Integers.class, injectedIntegerList)
+      .bindList(ListOfBaseTypes.Doubles.class, injectedDoubleList)
+      .bindList(ListOfBaseTypes.Strings.class, injectedStringList)
       .build();
 
 
