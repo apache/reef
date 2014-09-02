@@ -57,23 +57,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.avro</groupId>
-                    <artifactId>avro-maven-plugin</artifactId>
-                    <version>${avro.version}</version>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>schema</goal>
-                            </goals>
-                            <configuration>
-                                <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
-                                <outputDirectory>${project.basedir}/target/generated-sources</outputDirectory>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
@@ -440,7 +423,7 @@
                 <version>1.2</version>
             </dependency>
             <!-- End of Apache Commons -->
-            <!-- Apache Avro -->
+            <!-- AVRO -->
             <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>

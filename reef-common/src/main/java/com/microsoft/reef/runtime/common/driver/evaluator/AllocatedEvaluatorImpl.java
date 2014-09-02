@@ -24,14 +24,10 @@ import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration;
 import com.microsoft.reef.util.Optional;
-import com.microsoft.reef.util.logging.Config;
-import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.ConfigurationModule;
 import com.microsoft.tang.formats.ConfigurationSerializer;
-import com.microsoft.tang.formats.avro.AvroConfiguration;
 
 import java.io.File;
 import java.util.Collection;
@@ -199,7 +195,6 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
       throw new RuntimeException("Bad Evaluator configuration", ex);
     }
   }
-
 
   @Override
   public String toString() {

@@ -180,6 +180,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
             Level.FINE,
             "Hadoop version is {0} or after with KeepContainersAcrossApplicationAttempts supported, will set it to true.",
             minVersionKeepContainerOptionAvailable);
+
         applicationSubmissionContext.setKeepContainersAcrossApplicationAttempts(true);
       }
 
