@@ -15,11 +15,14 @@
  */
 package com.microsoft.tang;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
+import com.microsoft.tang.formats.ConfigurationSerializer;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -86,15 +89,18 @@ public class TestSetInjection {
   }
 
   @Test
-  public void testStringInjectRoundTrip() throws InjectionException, BindException {
+  public void testStringInjectRoundTrip() throws InjectionException, BindException, IOException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindSetEntry(SetOfNumbers.class, "four");
     cb.bindSetEntry(SetOfNumbers.class, "five");
     cb.bindSetEntry(SetOfNumbers.class, "six");
 
-    String s = ConfigurationFile.toConfigurationString(cb.build());
+    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
+
+    String s = serializer.toString(cb.build());
     JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(cb2, s);
+    Configuration conf = serializer.fromString(s);
+    cb2.addConfiguration(conf);
 
     Set<String> actual = Tang.Factory.getTang().newInjector(cb2.build()).getInstance(Box.class).numbers;
 
@@ -106,14 +112,17 @@ public class TestSetInjection {
     Assert.assertEquals(expected, actual);
   }
   @Test
-  public void testObjectInjectRoundTrip() throws InjectionException, BindException {
+  public void testObjectInjectRoundTrip() throws InjectionException, BindException, IOException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindSetEntry(SetOfClasses.class, Short.class);
     cb.bindSetEntry(SetOfClasses.class, Float.class);
-    
-    String s = ConfigurationFile.toConfigurationString(cb.build());
+
+    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
+
+    String s = serializer.toString(cb.build());
     JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(cb2, s);
+    Configuration conf = serializer.fromString(s);
+    cb2.addConfiguration(conf);
     
     Injector i = Tang.Factory.getTang().newInjector(cb2.build());
     i.bindVolatileInstance(Short.class, (short)4);
