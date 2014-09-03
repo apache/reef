@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +35,7 @@ import java.util.logging.Logger;
 @Immutable
 public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   private static final Logger LOG = Logger.getLogger(YarnClasspathProvider.class.getName());
+  private static final Level CLASSPATH_LOG_LEVEL = Level.FINEST;
 
   private final List<String> classPathPrefix;
   private final List<String> classPathSuffix;
@@ -41,23 +43,37 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
 
   @Inject
   YarnClasspathProvider(final YarnConfiguration yarnConfiguration) {
-    final List<String> prefix = new ArrayList<>();
-    final List<String> suffix = new ArrayList<>();
+    final TreeSet<String> prefix = new TreeSet<>();
+    final TreeSet<String> suffix = new TreeSet<>();
+    // Add the classpath actually configured on this cluster
     for (final String classPathEntry : yarnConfiguration.getTrimmedStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH)) {
       // Make sure that the cluster configuration is in front of user classes
-      if (classPathEntry.endsWith("conf") || classPathEntry.contains(HadoopEnvironment.HADOOP_CONF_DIR)) {
+      if (couldBeYarnConfigurationPath(classPathEntry)) {
         prefix.add(classPathEntry);
       } else {
         suffix.add(classPathEntry);
       }
     }
-    this.classPathPrefix = Collections.unmodifiableList(prefix);
-    this.classPathSuffix = Collections.unmodifiableList(suffix);
-    final StringBuilder message = new StringBuilder("Classpath:\n\t");
-    message.append(StringUtils.join(classPathPrefix, "\n\t"));
-    message.append("\n--------------------------------\n\t");
-    message.append(StringUtils.join(classPathSuffix, "\n\t"));
-    LOG.log(Level.FINEST, message.toString());
+
+    // Add the defaults as specified in YARN. This relies on the "old" environment variables.
+    for (final String classPathEntry : YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH) {
+      // Make sure that the cluster configuration is in front of user classes
+      if (couldBeYarnConfigurationPath(classPathEntry)) {
+        prefix.add(classPathEntry);
+      } else {
+        suffix.add(classPathEntry);
+      }
+    }
+
+    this.classPathPrefix = Collections.unmodifiableList(new ArrayList<>(prefix));
+    this.classPathSuffix = Collections.unmodifiableList(new ArrayList<>(suffix));
+    if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
+      final StringBuilder message = new StringBuilder("Classpath:\n\t");
+      message.append(StringUtils.join(classPathPrefix, "\n\t"));
+      message.append("\n--------------------------------\n\t");
+      message.append(StringUtils.join(classPathSuffix, "\n\t"));
+      LOG.log(CLASSPATH_LOG_LEVEL, message.toString());
+    }
   }
 
 
@@ -79,5 +95,12 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   @Override
   public List<String> getEvaluatorClasspathSuffix() {
     return this.getDriverClasspathSuffix();
+  }
+
+
+  private static boolean couldBeYarnConfigurationPath(final String path) {
+    return path.contains("conf") ||
+        path.contains("etc") ||
+        path.contains(HadoopEnvironment.HADOOP_CONF_DIR);
   }
 }
