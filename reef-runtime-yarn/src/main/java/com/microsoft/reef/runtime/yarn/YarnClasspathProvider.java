@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 @Immutable
 public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   private static final Logger LOG = Logger.getLogger(YarnClasspathProvider.class.getName());
-  private static final Level CLASSPATH_LOG_LEVEL = Level.FINEST;
+  private static final Level CLASSPATH_LOG_LEVEL = Level.INFO;
 
   private final List<String> classPathPrefix;
   private final List<String> classPathSuffix;
@@ -54,17 +54,20 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
         suffix.add(classPathEntry);
       }
     }
-
-    // Add the defaults as specified in YARN. This relies on the "old" environment variables.
-    for (final String classPathEntry : YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH) {
-      // Make sure that the cluster configuration is in front of user classes
-      if (couldBeYarnConfigurationPath(classPathEntry)) {
-        prefix.add(classPathEntry);
-      } else {
-        suffix.add(classPathEntry);
+    try {
+      // Add the defaults as specified in YARN. This relies on the "old" environment variables.
+      for (final String classPathEntry : YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH) {
+        // Make sure that the cluster configuration is in front of user classes
+        if (couldBeYarnConfigurationPath(classPathEntry)) {
+          prefix.add(classPathEntry);
+        } else {
+          suffix.add(classPathEntry);
+        }
       }
+    } catch (final NoSuchFieldError e) {
+      final String msg = "The version of YARN on the classpath doesn't have DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH. Consider upgrading.";
+      LOG.log(Level.SEVERE, msg);
     }
-
     this.classPathPrefix = Collections.unmodifiableList(new ArrayList<>(prefix));
     this.classPathSuffix = Collections.unmodifiableList(new ArrayList<>(suffix));
     if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
