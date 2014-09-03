@@ -116,7 +116,10 @@ public final class EnvironmentUtils {
    * @param config
    * @param param
    * @return
+   * @deprecated Using this method is inherently non-deterministic as it depends on environment variables on your local
+   * machine.
    */
+  @Deprecated
   public static ConfigurationModule addClasspath(
       final ConfigurationModule config, final OptionalParameter<String> param) {
     return addAll(config, param, getAllClasspathJars());
@@ -136,5 +139,13 @@ public final class EnvironmentUtils {
       // The assert above threw an exception. Asserts must be enabled.
       return true;
     }
+  }
+
+  /**
+   * @param clazz
+   * @return the location (JAR or .class file) where the given class is located.
+   */
+  public static String getClassLocation(final Class<?> clazz) {
+    return clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
   }
 }
