@@ -107,10 +107,10 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     }
     // Serializes boundLists in the form of array of string
     for (final NamedParameterNode<List<?>> opt : configuration.getBoundLists()) {
-      List<?> list = configuration.getBoundList(opt);
+      final List<?> list = configuration.getBoundList(opt);
       final List<String> result = new ArrayList<>();
       for (int i = 0; i < list.size(); i++) {
-        Object item = list.get(i);
+        final Object item = list.get(i);
         if (item instanceof String) {
           result.add((String) item);
         }
