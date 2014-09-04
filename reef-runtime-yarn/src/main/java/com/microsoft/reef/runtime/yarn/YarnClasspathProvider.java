@@ -16,16 +16,13 @@
 package com.microsoft.reef.runtime.yarn;
 
 import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
-import com.microsoft.reef.util.HadoopEnvironment;
+import com.microsoft.reef.util.OSUtils;
 import net.jcip.annotations.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,39 +34,72 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   private static final Logger LOG = Logger.getLogger(YarnClasspathProvider.class.getName());
   private static final Level CLASSPATH_LOG_LEVEL = Level.INFO;
 
+  private static final String YARN_TOO_OLD_MESSAGE = "The version of YARN you are using is too old to support classpath assembly. Reverting to legacy method.";
+  private static final String HADOOP_CONF_DIR = OSUtils.formatVariable("HADOOP_CONF_DIR");
+  private static final String HADOOP_HOME = OSUtils.formatVariable("HADOOP_HOME");
+  private static final String HADOOP_COMMON_HOME = OSUtils.formatVariable("HADOOP_COMMON_HOME");
+  private static final String HADOOP_YARN_HOME = OSUtils.formatVariable("HADOOP_YARN_HOME");
+  private static final String HADOOP_HDFS_HOME = OSUtils.formatVariable("HADOOP_HDFS_HOME");
+  private static final String HADOOP_MAPRED_HOME = OSUtils.formatVariable("HADOOP_MAPRED_HOME");
+
+  // Used when we can't get a classpath from YARN
+  private static final String[] LEGACY_CLASSPATH_LIST = new String[]{
+      HADOOP_CONF_DIR,
+      HADOOP_HOME + "/*",
+      HADOOP_HOME + "/lib/*",
+      HADOOP_COMMON_HOME + "/*",
+      HADOOP_COMMON_HOME + "/lib/*",
+      HADOOP_YARN_HOME + "/*",
+      HADOOP_YARN_HOME + "/lib/*",
+      HADOOP_HDFS_HOME + "/*",
+      HADOOP_HDFS_HOME + "/lib/*",
+      HADOOP_MAPRED_HOME + "/*",
+      HADOOP_MAPRED_HOME + "/lib/*",
+      HADOOP_HOME + "/etc/hadoop",
+      HADOOP_HOME + "/share/hadoop/common/*",
+      HADOOP_HOME + "/share/hadoop/common/lib/*",
+      HADOOP_HOME + "/share/hadoop/yarn/*",
+      HADOOP_HOME + "/share/hadoop/yarn/lib/*",
+      HADOOP_HOME + "/share/hadoop/hdfs/*",
+      HADOOP_HOME + "/share/hadoop/hdfs/lib/*",
+      HADOOP_HOME + "/share/hadoop/mapreduce/*",
+      HADOOP_HOME + "/share/hadoop/mapreduce/lib/*"
+  };
   private final List<String> classPathPrefix;
   private final List<String> classPathSuffix;
 
-
   @Inject
   YarnClasspathProvider(final YarnConfiguration yarnConfiguration) {
-    final TreeSet<String> prefix = new TreeSet<>();
-    final TreeSet<String> suffix = new TreeSet<>();
-    // Add the classpath actually configured on this cluster
-    for (final String classPathEntry : yarnConfiguration.getTrimmedStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH)) {
-      // Make sure that the cluster configuration is in front of user classes
-      if (couldBeYarnConfigurationPath(classPathEntry)) {
-        prefix.add(classPathEntry);
-      } else {
-        suffix.add(classPathEntry);
-      }
-    }
+    boolean needsLegacyClasspath = false; // will be set to true below whenever we encounter issues with the YARN Configuration
+    final ClassPathBuilder builder = new ClassPathBuilder();
+
     try {
-      // Add the defaults as specified in YARN. This relies on the "old" environment variables.
-      for (final String classPathEntry : YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH) {
-        // Make sure that the cluster configuration is in front of user classes
-        if (couldBeYarnConfigurationPath(classPathEntry)) {
-          prefix.add(classPathEntry);
-        } else {
-          suffix.add(classPathEntry);
-        }
+      // Add the classpath actually configured on this cluster
+      final String[] yarnClassPath = yarnConfiguration.getTrimmedStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH);
+      if (null == yarnClassPath || yarnClassPath.length == 0) {
+        needsLegacyClasspath = true;
+      } else {
+        builder.addAll(yarnClassPath);
+      }
+      final String[] yarnDefaultClassPath = YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH;
+      if (null == yarnDefaultClassPath || yarnDefaultClassPath.length == 0) {
+        needsLegacyClasspath = true;
+      } else {
+        builder.addAll(yarnDefaultClassPath);
       }
     } catch (final NoSuchFieldError e) {
-      final String msg = "The version of YARN on the classpath doesn't have DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH. Consider upgrading.";
-      LOG.log(Level.SEVERE, msg);
+      // This means that one of the static fields above aren't actually in YarnConfiguration.
+      // The reason for that is most likely that we encounter a really old version of YARN.
+      needsLegacyClasspath = true;
+      LOG.log(Level.SEVERE, YARN_TOO_OLD_MESSAGE);
     }
-    this.classPathPrefix = Collections.unmodifiableList(new ArrayList<>(prefix));
-    this.classPathSuffix = Collections.unmodifiableList(new ArrayList<>(suffix));
+
+    if (needsLegacyClasspath) {
+      builder.addAll(LEGACY_CLASSPATH_LIST);
+    }
+
+    this.classPathPrefix = builder.getPrefixAsImmutableList();
+    this.classPathSuffix = builder.getSuffixAsImmutableList();
     if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
       final StringBuilder message = new StringBuilder("Classpath:\n\t");
       message.append(StringUtils.join(classPathPrefix, "\n\t"));
@@ -78,7 +108,6 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
       LOG.log(CLASSPATH_LOG_LEVEL, message.toString());
     }
   }
-
 
   @Override
   public List<String> getDriverClasspathPrefix() {
@@ -97,13 +126,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
 
   @Override
   public List<String> getEvaluatorClasspathSuffix() {
-    return this.getDriverClasspathSuffix();
+    return this.classPathSuffix;
   }
 
-
-  private static boolean couldBeYarnConfigurationPath(final String path) {
-    return path.contains("conf") ||
-        path.contains("etc") ||
-        path.contains(HadoopEnvironment.HADOOP_CONF_DIR);
-  }
 }
