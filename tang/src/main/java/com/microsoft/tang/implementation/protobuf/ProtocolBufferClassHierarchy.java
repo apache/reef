@@ -70,6 +70,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   private static ClassHierarchyProto.Node newNamedParameterNode(String name,
       String fullName, String simpleArgClassName, String fullArgClassName,
       boolean isSet,
+      boolean isList,
       String documentation, // can be null
       String shortName, // can be null
       String[] instanceDefault, // can be null
@@ -78,7 +79,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       = ClassHierarchyProto.NamedParameterNode.newBuilder()
         .setSimpleArgClassName(simpleArgClassName)
         .setFullArgClassName(fullArgClassName)
-        .setIsSet(isSet);
+        .setIsSet(isSet)
+        .setIsList(isList);
     if (documentation != null) {
       namedParameterNodeBuilder.setDocumentation(documentation);
     }
@@ -162,7 +164,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     } else if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       return newNamedParameterNode(np.getName(), np.getFullName(),
-          np.getSimpleArgName(), np.getFullArgName(), np.isSet(), np.getDocumentation(),
+          np.getSimpleArgName(), np.getFullArgName(), np.isSet(), np.isList(), np.getDocumentation(),
           np.getShortName(), np.getDefaultInstanceAsStrings(), children);
     } else if (n instanceof PackageNode) {
       return newPackageNode(n.getName(), n.getFullName(), children);
