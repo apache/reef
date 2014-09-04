@@ -27,37 +27,37 @@
 using namespace System;
 
 const wchar_t* UnicodeCppStringFromJavaString (
-	JNIEnv *env,
-	jstring javaString);
+  JNIEnv *env,
+  jstring javaString);
 
 void ReleaseUnicodeCppString (
-	JNIEnv*			env,
-	jstring			javaString,
-	jchar*			cppString);
+  JNIEnv*     env,
+  jstring     javaString,
+  jchar*      cppString);
 
 String^ ManagedStringFromJavaString (
-	JNIEnv *env,
-	jstring javaString);
+  JNIEnv *env,
+  jstring javaString);
 
 jstring JavaStringFromManagedString(
-	JNIEnv *env,
-	String^ managedString);
+  JNIEnv *env,
+  String^ managedString);
 
 array<byte>^ ManagedByteArrayFromJavaByteArray(
-	JNIEnv *env,
-	jbyteArray javaByteArray);
+  JNIEnv *env,
+  jbyteArray javaByteArray);
 
 jbyteArray JavaByteArrayFromManagedByteArray(
-	JNIEnv *env,
-	array<byte>^ managedByteArray);
+  JNIEnv *env,
+  array<byte>^ managedByteArray);
 
 jlongArray JavaLongArrayFromManagedLongArray(
-	JNIEnv *env,
-	array<unsigned long long>^ managedLongArray);
+  JNIEnv *env,
+  array<unsigned long long>^ managedLongArray);
 
 JNIEnv* RetrieveEnv(JavaVM* jvm);
 
 void HandleClr2JavaError(
-	JNIEnv *env,
-	String^ errorMessage,
-	jobject javaObject);
+  JNIEnv *env,
+  String^ errorMessage,
+  jobject javaObject);

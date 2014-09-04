@@ -26,14 +26,8 @@ using namespace System::Security::Permissions;
 // associated with an assembly.
 //
 [assembly:AssemblyTitleAttribute("JavaClrBridge")];
-[assembly:AssemblyDescriptionAttribute("")];
-[assembly:AssemblyConfigurationAttribute("")];
-[assembly:AssemblyCompanyAttribute("")];
 [assembly:AssemblyProductAttribute("JavaClrBridge")];
 [assembly:AssemblyCopyrightAttribute("Copyright (c)  2014")];
-[assembly:AssemblyTrademarkAttribute("")];
-[assembly:AssemblyCultureAttribute("")];
-
 //
 // Version information for an assembly consists of the following four values:
 //

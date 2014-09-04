@@ -123,13 +123,12 @@ public class CLRBufferedLogHandler extends Handler {
     synchronized (this) {
       final StringBuilder sb = new StringBuilder();
       Level highestLevel = Level.FINEST;
-      for (LogRecord record : this.logs) {
+      for (final LogRecord record : this.logs) {
         sb.append(formatter.format(record));
         sb.append("\n");
         if (record.getLevel().intValue() > highestLevel.intValue()) {
           highestLevel = record.getLevel();
         }
-
       }
       try {
         final int level = getLevel(highestLevel);

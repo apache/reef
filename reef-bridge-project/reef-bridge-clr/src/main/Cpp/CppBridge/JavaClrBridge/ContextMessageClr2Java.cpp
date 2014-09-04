@@ -16,70 +16,60 @@
 
 #include "Clr2JavaImpl.h"
 
-namespace Microsoft
-{
-	namespace Reef
-	{
-		namespace Driver
-		{
-			namespace Bridge
-			{
-				ref class ManagedLog
-				{
-				internal:
-					static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-				};
-				ContextMessageClr2Java::ContextMessageClr2Java(JNIEnv *env, jobject jobjectContextMessage)
-				{
-					ManagedLog::LOGGER->LogStart("ContextMessageClr2Java::ContextMessageClr2Java");
+namespace Microsoft {
+  namespace Reef {
+    namespace Driver {
+      namespace Bridge {
+        ref class ManagedLog {
+          internal:
+            static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+        };
+        ContextMessageClr2Java::ContextMessageClr2Java(JNIEnv *env, jobject jobjectContextMessage) {
+          ManagedLog::LOGGER->LogStart("ContextMessageClr2Java::ContextMessageClr2Java");
 
-					pin_ptr<JavaVM*> pJavaVm = &_jvm;
-					int gotVm = env -> GetJavaVM(pJavaVm);
-					_jobjectContextMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectContextMessage));
-					jclass jclassContextMessage = env->GetObjectClass (_jobjectContextMessage);
+          pin_ptr<JavaVM*> pJavaVm = &_jvm;
+          int gotVm = env -> GetJavaVM(pJavaVm);
+          _jobjectContextMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectContextMessage));
+          jclass jclassContextMessage = env->GetObjectClass (_jobjectContextMessage);
 
-					jfieldID jidId = env->GetFieldID(jclassContextMessage, "contextMessageId", "Ljava/lang/String;");
-					jfieldID jidSourceId = env->GetFieldID(jclassContextMessage, "messageSourceId", "Ljava/lang/String;");
-					jfieldID jidMessage= env->GetFieldID(jclassContextMessage, "message", "()[B");
-					_jstringId = (jstring)env->GetObjectField(_jobjectContextMessage, jidId);
-					_jstringSourceId = (jstring)env->GetObjectField(_jobjectContextMessage, jidSourceId);
-					_jarrayMessage = (jbyteArray)env->GetObjectField(_jobjectContextMessage, jidMessage);
+          jfieldID jidId = env->GetFieldID(jclassContextMessage, "contextMessageId", "Ljava/lang/String;");
+          jfieldID jidSourceId = env->GetFieldID(jclassContextMessage, "messageSourceId", "Ljava/lang/String;");
+          jfieldID jidMessage= env->GetFieldID(jclassContextMessage, "message", "()[B");
+          _jstringId = (jstring)env->GetObjectField(_jobjectContextMessage, jidId);
+          _jstringSourceId = (jstring)env->GetObjectField(_jobjectContextMessage, jidSourceId);
+          _jarrayMessage = (jbyteArray)env->GetObjectField(_jobjectContextMessage, jidMessage);
 
-					_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
-					_jstringSourceId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringSourceId));
-					_jarrayMessage = reinterpret_cast<jbyteArray>(env->NewGlobalRef(_jarrayMessage));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+          _jstringSourceId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringSourceId));
+          _jarrayMessage = reinterpret_cast<jbyteArray>(env->NewGlobalRef(_jarrayMessage));
 
-					ManagedLog::LOGGER->LogStop("ContextMessageClr2Java::ContextMessageClr2Java");
-				}
+          ManagedLog::LOGGER->LogStop("ContextMessageClr2Java::ContextMessageClr2Java");
+        }
 
-				String^ ContextMessageClr2Java::GetId()
-				{
-					ManagedLog::LOGGER->Log("ContextMessageClr2Java::GetId");															
-					JNIEnv *env = RetrieveEnv(_jvm);
-					return ManagedStringFromJavaString(env, _jstringId);
-				}
+        String^ ContextMessageClr2Java::GetId() {
+          ManagedLog::LOGGER->Log("ContextMessageClr2Java::GetId");
+          JNIEnv *env = RetrieveEnv(_jvm);
+          return ManagedStringFromJavaString(env, _jstringId);
+        }
 
-				String^ ContextMessageClr2Java::GetMessageSourceId()
-				{
-					ManagedLog::LOGGER->Log("ContextMessageClr2Java::GetMessageSourceId");															
-					JNIEnv *env = RetrieveEnv(_jvm);
-					return ManagedStringFromJavaString(env, _jstringSourceId);
-				}
+        String^ ContextMessageClr2Java::GetMessageSourceId() {
+          ManagedLog::LOGGER->Log("ContextMessageClr2Java::GetMessageSourceId");
+          JNIEnv *env = RetrieveEnv(_jvm);
+          return ManagedStringFromJavaString(env, _jstringSourceId);
+        }
 
-				array<byte>^ ContextMessageClr2Java::Get()
-				{
-					ManagedLog::LOGGER->Log("ContextMessageClr2Java::Get");															
-					JNIEnv *env = RetrieveEnv(_jvm);
-					return ManagedByteArrayFromJavaByteArray(env, _jarrayMessage);
-				}
+        array<byte>^ ContextMessageClr2Java::Get() {
+          ManagedLog::LOGGER->Log("ContextMessageClr2Java::Get");
+          JNIEnv *env = RetrieveEnv(_jvm);
+          return ManagedByteArrayFromJavaByteArray(env, _jarrayMessage);
+        }
 
-				void ContextMessageClr2Java::OnError(String^ message)
-				{
-					ManagedLog::LOGGER->Log("ContextMessageClr2Java::OnError");										
-					JNIEnv *env = RetrieveEnv(_jvm);	
-					HandleClr2JavaError(env, message, _jobjectContextMessage);
-				}
-			}
-		}
-	}
+        void ContextMessageClr2Java::OnError(String^ message) {
+          ManagedLog::LOGGER->Log("ContextMessageClr2Java::OnError");
+          JNIEnv *env = RetrieveEnv(_jvm);
+          HandleClr2JavaError(env, message, _jobjectContextMessage);
+        }
+      }
+    }
+  }
 }
