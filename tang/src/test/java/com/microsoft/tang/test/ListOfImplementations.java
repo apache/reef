@@ -5,9 +5,6 @@ import com.microsoft.tang.annotations.Parameter;
 import javax.inject.Inject;
 import java.util.List;
 
-/**
- * Created by Gyewon on 2014. 9. 2..
- */
 public class ListOfImplementations {
 
   private final List<ListInterface> theInstances;

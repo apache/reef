@@ -2,9 +2,6 @@ package com.microsoft.tang.test;
 
 import javax.inject.Inject;
 
-/**
- * Created by Gyewon on 2014. 9. 2..
- */
 public class ListInterfaceImplTwo implements ListInterface {
   private final double magicNumber;
 
