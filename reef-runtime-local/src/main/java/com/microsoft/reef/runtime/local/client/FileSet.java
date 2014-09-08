@@ -81,6 +81,19 @@ final class FileSet {
   }
 
   /**
+   * Creates symbolic links for the current FileSet into the given destinationFolder.
+   *
+   * @param destinationFolder the folder where the symbolic links will be created.
+   * @throws IOException
+   */
+  final void createSymbolicLinkTo(final File destinationFolder) throws IOException {
+    for (final File f : this.theFiles) {
+      final File destinationFile = new File(destinationFolder, f.getName());
+      Files.createSymbolicLink(destinationFile.toPath(), f.toPath());
+    }
+  }
+
+  /**
    * Adds the file names of this FileSet to the given field of the given ConfigurationModule.
    *
    * @param input the ConfigurationModule to fill out
