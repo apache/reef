@@ -51,14 +51,14 @@ public final class StatePassingTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "StatePassingTest")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, StatePassingDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, StatePassingDriver.ContextActiveHandler.class)
-            .set(DriverConfiguration.ON_TASK_COMPLETED, StatePassingDriver.TaskCompletedHandler.class)
-            .build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "StatePassingTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, StatePassingDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, StatePassingDriver.ContextActiveHandler.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, StatePassingDriver.TaskCompletedHandler.class)
+        .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());

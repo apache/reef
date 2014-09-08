@@ -15,11 +15,6 @@
  */
 package com.microsoft.reef.tests.multipleEventHandlerInstances;
 
-import java.util.logging.Logger;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
@@ -28,9 +23,13 @@ import com.microsoft.reef.util.EnvironmentUtils;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.logging.Logger;
 
 /**
- * 
+ *
  */
 public class Client {
   private static final Logger LOG = Logger.getLogger(Client.class.getName());
@@ -43,23 +42,22 @@ public class Client {
   public static LauncherStatus runReefJob(final Configuration runtimeConf, final int timeOut)
       throws BindException, InjectionException {
 
-    final Configuration driverConf =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "MultipleHandlerInstances")
-          .set(DriverConfiguration.ON_DRIVER_STARTED, StartHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_ACTIVE,ActiveContextHandler.class)
-          .set(DriverConfiguration.ON_TASK_RUNNING, RunningTaskHandler.class)
-          .set(DriverConfiguration.ON_TASK_COMPLETED, CompletedTaskHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_CLOSED, ClosedContextHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, CompletedEvaluatorHandler.class)
+    final Configuration driverConf = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(StartHandler.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "MultipleHandlerInstances")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, AllocatedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, ActiveContextHandler.class)
+        .set(DriverConfiguration.ON_TASK_RUNNING, RunningTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, CompletedTaskHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_CLOSED, ClosedContextHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, CompletedEvaluatorHandler.class)
         .build();
 
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
   }
 
   /**
-   * 
    * @param args command line parameters.
    * @throws BindException      configuration error.
    * @throws InjectionException configuration error.

@@ -52,14 +52,14 @@ public final class TaskMessagingTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfig =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "DriverTaskMsg")
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskMessagingDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_TASK_RUNNING, TaskMessagingDriver.TaskRunningHandler.class)
-            .set(DriverConfiguration.ON_TASK_MESSAGE, TaskMessagingDriver.TaskMessageHandler.class)
-            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-            .build();
+    final Configuration driverConfig = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "DriverTaskMsg")
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskMessagingDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_TASK_RUNNING, TaskMessagingDriver.TaskRunningHandler.class)
+        .set(DriverConfiguration.ON_TASK_MESSAGE, TaskMessagingDriver.TaskMessageHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfig, this.testEnvironment.getTestTimeout());

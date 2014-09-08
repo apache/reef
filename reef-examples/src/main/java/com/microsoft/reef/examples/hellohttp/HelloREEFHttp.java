@@ -36,73 +36,76 @@ import java.util.logging.Logger;
  * Example to run HelloREEF with a webserver.
  */
 public final class HelloREEFHttp {
-    private static final Logger LOG = Logger.getLogger(HelloREEFHttp.class.getName());
+  private static final Logger LOG = Logger.getLogger(HelloREEFHttp.class.getName());
 
-    /**
-     * Number of milliseconds to wait for the job to complete.
-     */
-    public static final int JOB_TIMEOUT = 60*1000; // 60 sec.
+  /**
+   * Number of milliseconds to wait for the job to complete.
+   */
+  public static final int JOB_TIMEOUT = 60 * 1000; // 60 sec.
 
-    /**
-     * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
-     */
-    public static Configuration getHTTPConfiguration() {
-        final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
-                .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
-                .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdtHandler.class)
-                .build();
-        final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
-                .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
-                .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-                .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-                .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
-                .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
-                .build();
-        return Configurations.merge(httpHandlerConfiguration, driverConfigurationForHttpServer);
-    }
+  /**
+   * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
+   */
+  public static Configuration getHTTPConfiguration() {
+    final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
+        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
+        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdtHandler.class)
+        .build();
+    final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
+        .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+        .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
+        .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
+        .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
+        .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+        .build();
+    return Configurations.merge(httpHandlerConfiguration, driverConfigurationForHttpServer);
+  }
 
-    /**
-     * @return the configuration of the HelloREEF driver.
-     */
-    public static Configuration getDriverConfiguration() {
-        return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloHTTP")
-                .set(DriverConfiguration.ON_DRIVER_STARTED, HttpShellJobDriver.StartHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HttpShellJobDriver.AllocatedEvaluatorHandler.class)
-                .set(DriverConfiguration.ON_EVALUATOR_FAILED, HttpShellJobDriver.FailedEvaluatorHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_ACTIVE, HttpShellJobDriver.ActiveContextHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_CLOSED, HttpShellJobDriver.ClosedContextHandler.class)
-                .set(DriverConfiguration.ON_CONTEXT_FAILED, HttpShellJobDriver.FailedContextHandler.class)
-                .set(DriverConfiguration.ON_TASK_COMPLETED, HttpShellJobDriver.CompletedTaskHandler.class)
-                .set(DriverConfiguration.ON_CLIENT_MESSAGE, HttpShellJobDriver.ClientMessageHandler.class)
-                .set(DriverConfiguration.ON_CLIENT_CLOSED, HttpShellJobDriver.HttpClientCloseHandler.class)
-                .set(DriverConfiguration.ON_DRIVER_STOP, HttpShellJobDriver.StopHandler.class)
-                .build();
-    }
+  /**
+   * @return the configuration of the HelloREEF driver.
+   */
+  public static Configuration getDriverConfiguration() {
+    return DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HttpShellJobDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloHTTP")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, HttpShellJobDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HttpShellJobDriver.AllocatedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_FAILED, HttpShellJobDriver.FailedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, HttpShellJobDriver.ActiveContextHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_CLOSED, HttpShellJobDriver.ClosedContextHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_FAILED, HttpShellJobDriver.FailedContextHandler.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, HttpShellJobDriver.CompletedTaskHandler.class)
+        .set(DriverConfiguration.ON_CLIENT_MESSAGE, HttpShellJobDriver.ClientMessageHandler.class)
+        .set(DriverConfiguration.ON_CLIENT_CLOSED, HttpShellJobDriver.HttpClientCloseHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STOP, HttpShellJobDriver.StopHandler.class)
+        .build();
+  }
 
-    /**
-     * Run Hello Reef with merged configuration
-     * @param runtimeConf
-     * @param timeOut
-     * @return
-     * @throws BindException
-     * @throws InjectionException
-     */
-    public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)
-            throws BindException, InjectionException {
-        final Configuration driverConf = Configurations.merge(HelloREEFHttp.getDriverConfiguration(), getHTTPConfiguration());
-        return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
-    }
+  /**
+   * Run Hello Reef with merged configuration
+   *
+   * @param runtimeConf
+   * @param timeOut
+   * @return
+   * @throws BindException
+   * @throws InjectionException
+   */
+  public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)
+      throws BindException, InjectionException {
+    final Configuration driverConf = Configurations.merge(HelloREEFHttp.getDriverConfiguration(), getHTTPConfiguration());
+    return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
+  }
 
-    /**
-     * main program
-     * @param args
-     * @throws InjectionException
-     */
-    public static void main(final String[] args) throws InjectionException {
-        final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-                .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 3)
-                .build();
-        final LauncherStatus status = runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
-    }
+  /**
+   * main program
+   *
+   * @param args
+   * @throws InjectionException
+   */
+  public static void main(final String[] args) throws InjectionException {
+    final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
+        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 3)
+        .build();
+    final LauncherStatus status = runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
+  }
 }

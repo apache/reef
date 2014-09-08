@@ -43,7 +43,8 @@ public final class HelloREEF {
    * @return the configuration of the HelloREEF driver.
    */
   public static Configuration getDriverConfiguration() {
-    return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+    return DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HelloDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
         .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)

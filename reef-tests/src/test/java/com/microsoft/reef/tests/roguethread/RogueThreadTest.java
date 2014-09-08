@@ -50,13 +50,13 @@ public final class RogueThreadTest {
   @Test
   public void testRogueThread() throws InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "Test_RogueThreadTest")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RogueThreadDriver.EvaluatorAllocationHandler.class)
-            .set(DriverConfiguration.ON_TASK_FAILED, ExpectedTaskFailureHandler.class)
-            .build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "Test_RogueThreadTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RogueThreadDriver.EvaluatorAllocationHandler.class)
+        .set(DriverConfiguration.ON_TASK_FAILED, ExpectedTaskFailureHandler.class)
+        .build();
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());
 

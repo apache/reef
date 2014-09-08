@@ -94,13 +94,13 @@ public final class FailureREEF {
   public static LauncherStatus runFailureReef(
       final Configuration runtimeConfig, final int timeout) throws InjectionException {
 
-    final Configuration driverConf =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "FailureREEF")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, FailureDriver.StartHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailureDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_FAILED, FailureDriver.EvaluatorFailedHandler.class)
-            .build();
+    final Configuration driverConf = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(FailureDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "FailureREEF")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, FailureDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailureDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_FAILED, FailureDriver.EvaluatorFailedHandler.class)
+        .build();
 
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfig).run(driverConf, timeout);
     LOG.log(Level.INFO, "REEF job completed: {0}", state);

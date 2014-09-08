@@ -61,14 +61,12 @@ public final class HelloCLR {
   public static LauncherStatus runHelloCLR(final Configuration runtimeConf, final int timeOut, final File clrFolder)
       throws BindException, InjectionException {
 
-    ConfigurationModule driverConf = DriverConfiguration.CONF
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloCLR")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class);
-
-    driverConf = EnvironmentUtils.addClasspath(driverConf, DriverConfiguration.GLOBAL_LIBRARIES);
-
-    driverConf = addAll(driverConf, DriverConfiguration.GLOBAL_FILES, clrFolder);
+    ConfigurationModule driverConf =
+        addAll(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_FILES, clrFolder)
+            .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HelloDriver.class))
+            .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloCLR")
+            .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class);
 
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf.build(), timeOut);
   }
@@ -77,17 +75,15 @@ public final class HelloCLR {
    * Start Hello REEF job. Runs method runHelloReef().
    *
    * @param args command line parameters.
-   * @throws com.microsoft.tang.exceptions.BindException
-   *          configuration error.
-   * @throws com.microsoft.tang.exceptions.InjectionException
-   *          configuration error.
+   * @throws com.microsoft.tang.exceptions.BindException      configuration error.
+   * @throws com.microsoft.tang.exceptions.InjectionException configuration error.
    */
   public static void main(final String[] args) throws BindException, InjectionException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
         .build();
 
-      final File dotNetFolder = new File(args[0]).getAbsoluteFile();
+    final File dotNetFolder = new File(args[0]).getAbsoluteFile();
     final LauncherStatus status = runHelloCLR(runtimeConfiguration, JOB_TIMEOUT, dotNetFolder);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }

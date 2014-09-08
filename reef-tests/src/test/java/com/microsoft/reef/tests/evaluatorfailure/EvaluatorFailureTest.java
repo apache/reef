@@ -68,7 +68,8 @@ public class EvaluatorFailureTest {
   public void testEvaluatorFailureByAlarmHandler() throws InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration = EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(EvaluatorFailureDuringAlarmDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorFailureTest")
         .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorFailureDuringAlarmDriver.EvaluatorAllocatedHandler.class)
