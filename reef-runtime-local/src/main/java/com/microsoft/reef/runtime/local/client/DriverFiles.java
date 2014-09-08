@@ -83,6 +83,10 @@ final class DriverFiles {
   /**
    * Copies this set of files to the destination folder given.
    *
+   * Will attempt to create symbolic links for the files to the destination
+   * folder.  If the filesystem does not support symbolic links or the user
+   * does not have appropriate permissions, the entire file will be copied instead.
+   *
    * @param destinationFolder the folder the files shall be copied to.
    * @throws IOException if one or more of the copies fail.
    */
@@ -91,18 +95,26 @@ final class DriverFiles {
     final File reefFolder = new File(destinationFolder, fileNames.getREEFFolderName());
 
     final File localFolder = new File(reefFolder, fileNames.getLocalFolderName());
-    localFolder.mkdirs();
-    this.localFiles.copyTo(localFolder);
-    this.localLibs.copyTo(localFolder);
-
     final File globalFolder = new File(reefFolder, fileNames.getGlobalFolderName());
+    localFolder.mkdirs();
     globalFolder.mkdirs();
-    this.globalLibs.copyTo(globalFolder);
-    this.globalFiles.copyTo(globalFolder);
+
+    try {
+      this.localFiles.createSymbolicLinkTo(localFolder);
+      this.localLibs.createSymbolicLinkTo(localFolder);
+      this.globalLibs.createSymbolicLinkTo(globalFolder);
+      this.globalFiles.createSymbolicLinkTo(globalFolder);
+    }
+    catch (IOException e) {
+      this.localFiles.copyTo(localFolder);
+      this.localLibs.copyTo(localFolder);
+      this.globalLibs.copyTo(globalFolder);
+      this.globalFiles.copyTo(globalFolder);
+    }
   }
 
   /**
-   * Fils out a ConfigurationModule.
+   * Fills out a ConfigurationModule.
    *
    * @param input           The ConfigurationModule to start with.
    * @param globalFileField the field on which to set() the global files.
