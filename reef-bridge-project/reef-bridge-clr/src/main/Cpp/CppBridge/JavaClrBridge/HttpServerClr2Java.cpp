@@ -38,7 +38,7 @@ namespace Microsoft {
           JNIEnv *env = RetrieveEnv(_jvm);
           jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
           jmethodID jmidgetQueryString = env->GetMethodID(jclasshttpServerEventBridge, "getQueryString", "()Ljava/lang/String;");
-          if(jmidgetQueryString == NULL) {
+          if (jmidgetQueryString == NULL) {
             fprintf(stdout, " jmidgetQueryString is NULL\n");
             fflush (stdout);
             return nullptr;
@@ -57,7 +57,7 @@ namespace Microsoft {
           jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
           jmethodID jmidgetQueryBytes = env->GetMethodID(jclasshttpServerEventBridge, "getQueryRequestData", "()[B");
 
-          if(jmidgetQueryBytes == NULL) {
+          if (jmidgetQueryBytes == NULL) {
             ManagedLog::LOGGER->Log("jmidgetQueryBytes is NULL");
             return nullptr;
           }
@@ -75,7 +75,7 @@ namespace Microsoft {
           jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
           jmethodID jmidsetQueryResult = env->GetMethodID(jclasshttpServerEventBridge, "setQueryResult", "(Ljava/lang/String;)V");
 
-          if(jmidsetQueryResult == NULL) {
+          if (jmidsetQueryResult == NULL) {
             ManagedLog::LOGGER->Log("jmidsetQueryResult is NULL");
             return;
           }
@@ -92,7 +92,7 @@ namespace Microsoft {
           jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
           jmethodID jmidsetQueryResult = env->GetMethodID(jclasshttpServerEventBridge, "setQueryResponseData", "([B)V");
 
-          if(jmidsetQueryResult == NULL) {
+          if (jmidsetQueryResult == NULL) {
             ManagedLog::LOGGER->Log("jmidsetQueryResult is NULL");
             return;
           }
@@ -109,7 +109,7 @@ namespace Microsoft {
           jclass jclasshttpServerEventBridge = env->GetObjectClass (_jhttpServerEventBridge);
           jmethodID jmidsetUriSpecification = env->GetMethodID(jclasshttpServerEventBridge, "setUriSpecification", "(Ljava/lang/String;)V");
 
-          if(jmidsetUriSpecification == NULL) {
+          if (jmidsetUriSpecification == NULL) {
             ManagedLog::LOGGER->Log("jmidsetUriSpecification is NULL");
             return;
           }

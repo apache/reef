@@ -72,7 +72,7 @@ void HandleClr2JavaError(
   jclass javaClass = env->GetObjectClass (javaObject);
   jmethodID jmidOnError = env->GetMethodID(javaClass, "onError", "(Ljava/lang/String;)V");
 
-  if(jmidOnError == NULL) {
+  if (jmidOnError == NULL) {
     ManagedLog::LOGGER->Log("jmidOnError is NULL");
     return;
   }
@@ -91,7 +91,7 @@ array<byte>^ ManagedByteArrayFromJavaByteArray(
     int len = env->GetArrayLength(javaByteArray);
     array<byte>^  managedByteArray = gcnew array<byte>(len);
     //System::Array
-    for (int i=0; i<len; i++) {
+    for (int i = 0; i < len; i++) {
       managedByteArray[i] = bytes[i];
     }
     return managedByteArray;

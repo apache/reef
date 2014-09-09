@@ -185,7 +185,7 @@ public class JobClient {
    *
    * @throws com.microsoft.tang.exceptions.BindException configuration error.
    */
-  public void submit(final File clrFolder, final boolean submitDriver) {
+  public void submit(final File clrFolder, final boolean submitDriver, final Configuration clientConfig) {
     try
     {
       addCLRFiles(clrFolder);
@@ -200,7 +200,7 @@ public class JobClient {
       File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
       try
       {
-        new AvroConfigurationSerializer().toFile(this.driverConfiguration, driverConfig);
+        new AvroConfigurationSerializer().toFile(Configurations.merge(this.driverConfiguration, clientConfig), driverConfig);
         LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
       }catch (final IOException e)
       {

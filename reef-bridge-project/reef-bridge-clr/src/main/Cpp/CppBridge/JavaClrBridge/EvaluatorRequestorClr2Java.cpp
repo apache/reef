@@ -39,7 +39,7 @@ namespace Microsoft {
           jclass jclassEvaluatorRequestor = env->GetObjectClass (_jobjectEvaluatorRequestor);
           jmethodID jmidSubmit = env->GetMethodID(jclassEvaluatorRequestor, "submit", "(IILjava/lang/String;)V");
 
-          if(jmidSubmit == NULL) {
+          if (jmidSubmit == NULL) {
             fprintf(stdout, " jmidSubmit is NULL\n");
             fflush (stdout);
             return;

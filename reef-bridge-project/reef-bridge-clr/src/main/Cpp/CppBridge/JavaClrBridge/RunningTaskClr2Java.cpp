@@ -32,7 +32,7 @@ namespace Microsoft {
           _jobjectRunningTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectRunningTask));
 
           jclass jclassRunningTask = env->GetObjectClass (_jobjectRunningTask);
-          jmethodID jmidGetId= env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");
+          jmethodID jmidGetId = env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");
 
           _jstringId = (jstring)env -> CallObjectMethod(
                          _jobjectRunningTask,
@@ -67,7 +67,7 @@ namespace Microsoft {
           jmethodID jmidSend = env->GetMethodID(jclassRunningTask, "send", "([B)V");
 
 
-          if(jmidSend == NULL) {
+          if (jmidSend == NULL) {
             ManagedLog::LOGGER->Log("jmidSend is NULL");
             return;
           }

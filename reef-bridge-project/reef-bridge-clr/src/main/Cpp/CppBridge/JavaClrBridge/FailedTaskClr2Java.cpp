@@ -51,9 +51,9 @@ namespace Microsoft {
           JNIEnv *env = RetrieveEnv(_jvm);
 
           jclass jclassFailedTask = env->GetObjectClass (_jobjectFailedTask);
-          jmethodID jmidGetFailedTaskString= env->GetMethodID(jclassFailedTask, "getFailedTaskString", "()Ljava/lang/String;");
+          jmethodID jmidGetFailedTaskString = env->GetMethodID(jclassFailedTask, "getFailedTaskString", "()Ljava/lang/String;");
 
-          if(jmidGetFailedTaskString == NULL) {
+          if (jmidGetFailedTaskString == NULL) {
             ManagedLog::LOGGER->LogStart("jmidGetFailedTaskString is NULL");
             return nullptr;
           }

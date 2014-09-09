@@ -53,7 +53,7 @@ namespace Microsoft {
           jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
           jmethodID jmidSubmitContext = env->GetMethodID(jclassAllocatedEvaluator, "submitContextString", "(Ljava/lang/String;)V");
 
-          if(jmidSubmitContext == NULL) {
+          if (jmidSubmitContext == NULL) {
             ManagedLog::LOGGER->Log("jmidSubmitContext is NULL");
             return;
           }
@@ -70,7 +70,7 @@ namespace Microsoft {
           jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
           jmethodID jmidSubmitContextAndTask = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndTaskString", "(Ljava/lang/String;Ljava/lang/String;)V");
 
-          if(jmidSubmitContextAndTask == NULL) {
+          if (jmidSubmitContextAndTask == NULL) {
             ManagedLog::LOGGER->Log("jmidSubmitContextAndTask is NULL");
             return;
           }
@@ -88,7 +88,7 @@ namespace Microsoft {
           jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
           jmethodID jmidSubmitContextAndService = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndServiceString", "(Ljava/lang/String;Ljava/lang/String;)V");
 
-          if(jmidSubmitContextAndService == NULL) {
+          if (jmidSubmitContextAndService == NULL) {
             ManagedLog::LOGGER->Log("jmidSubmitContextAndService is NULL");
             return;
           }
@@ -106,7 +106,7 @@ namespace Microsoft {
           jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
           jmethodID jmidSubmitContextAndServiceAndTask = env->GetMethodID(jclassAllocatedEvaluator, "submitContextAndServiceAndTaskString", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
 
-          if(jmidSubmitContextAndServiceAndTask == NULL) {
+          if (jmidSubmitContextAndServiceAndTask == NULL) {
             ManagedLog::LOGGER->Log("jmidSubmitContextAndServiceAndTask is NULL");
             return;
           }
@@ -130,7 +130,7 @@ namespace Microsoft {
           jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
           jmethodID jmidClose = env->GetMethodID(jclassAllocatedEvaluator, "close", "()V");
 
-          if(jmidClose == NULL) {
+          if (jmidClose == NULL) {
             ManagedLog::LOGGER->Log("jmidClose is NULL");
             return;
           }

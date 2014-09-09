@@ -214,10 +214,10 @@ public final class Launch {
       client.setDriverInfo(driverIdentifier, driverMemory, jobSubmissionDirectory);
 
       if(submit){
-        client.submit(dotNetFolder, true);
+        client.submit(dotNetFolder, true, null);
         client.waitForCompletion(waitTime);
       }else{
-        client.submit(dotNetFolder, false);
+        client.submit(dotNetFolder, false, config);
         client.waitForCompletion(0);
       }
 

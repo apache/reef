@@ -34,7 +34,7 @@ void AssemblyUtil::Add(Assembly^  myasm) {
 
 Assembly^ AssemblyUtil::FindAsm (String^ myasm) {
   Assembly^ returnAsm = nullptr;
-  if (!asms2->TryGetValue(myasm->ToLower(),returnAsm)) {
+  if (!asms2->TryGetValue(myasm->ToLower(), returnAsm)) {
     Console::WriteLine ("AssemblyUtil:: FindAsm_Not_Found " + myasm->ToString());
   }
   return returnAsm;

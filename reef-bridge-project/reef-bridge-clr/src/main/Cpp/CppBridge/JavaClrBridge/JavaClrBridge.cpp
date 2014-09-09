@@ -67,8 +67,8 @@ JNIEXPORT void JNICALL Java_com_microsoft_reef_javabridge_NativeInterop_loadClrA
     Console::Write("+Java_com_microsoft_reef_javabridge_NativeInterop_loadClrAssembly: ");
     const wchar_t* charAsmName = UnicodeCppStringFromJavaString (env, jfileName);
     int len = env->GetStringLength(jfileName);
-    wchar_t* fileName = (wchar_t* )_alloca((len+2)* sizeof(wchar_t));
-    memcpy(fileName, charAsmName, (len+2)* sizeof(wchar_t));
+    wchar_t* fileName = (wchar_t* )_alloca((len + 2) * sizeof(wchar_t));
+    memcpy(fileName, charAsmName, (len + 2)* sizeof(wchar_t));
     fileName[len] = 0;
     String^ asmName = ManagedStringFromJavaString(env, jfileName);
     Console::WriteLine("loading " + asmName);

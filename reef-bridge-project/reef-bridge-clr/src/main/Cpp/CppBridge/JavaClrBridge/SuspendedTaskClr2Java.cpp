@@ -61,7 +61,7 @@ namespace Microsoft {
           jclass jclassSuspendedTask = env->GetObjectClass (_jobjectSuspendedTask);
           jmethodID jmidGet = env->GetMethodID(jclassSuspendedTask, "get", "()[B");
 
-          if(jmidGet == NULL) {
+          if (jmidGet == NULL) {
             ManagedLog::LOGGER->Log("jmidGet is NULL");
             return nullptr;
           }

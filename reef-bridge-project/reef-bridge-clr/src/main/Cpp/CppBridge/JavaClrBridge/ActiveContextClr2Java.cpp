@@ -44,13 +44,13 @@ namespace Microsoft {
           ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::ActiveContextClr2Java");
         }
 
-        void ActiveContextClr2Java::SubmitTask( String^ taskConfigStr) {
+        void ActiveContextClr2Java::SubmitTask(String^ taskConfigStr) {
           ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::SubmitTask");
           JNIEnv *env = RetrieveEnv(_jvm);
           jclass jclassActiveContext = env->GetObjectClass (_jobjectActiveContext);
           jmethodID jmidSubmitTask = env->GetMethodID(jclassActiveContext, "submitTaskString", "(Ljava/lang/String;)V");
 
-          if(jmidSubmitTask == NULL) {
+          if (jmidSubmitTask == NULL) {
             ManagedLog::LOGGER->Log("jmidSubmitTask is NULL");
             return;
           }
@@ -72,7 +72,7 @@ namespace Microsoft {
           jclass jclassActiveContext = env->GetObjectClass (_jobjectActiveContext);
           jmethodID jmidClose = env->GetMethodID(jclassActiveContext, "close", "()V");
 
-          if(jmidClose == NULL) {
+          if (jmidClose == NULL) {
             ManagedLog::LOGGER->Log("jmidClose is NULL");
             return;
           }

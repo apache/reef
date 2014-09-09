@@ -34,7 +34,7 @@ namespace Microsoft {
 
           jfieldID jidId = env->GetFieldID(jclassContextMessage, "contextMessageId", "Ljava/lang/String;");
           jfieldID jidSourceId = env->GetFieldID(jclassContextMessage, "messageSourceId", "Ljava/lang/String;");
-          jfieldID jidMessage= env->GetFieldID(jclassContextMessage, "message", "()[B");
+          jfieldID jidMessage = env->GetFieldID(jclassContextMessage, "message", "()[B");
           _jstringId = (jstring)env->GetObjectField(_jobjectContextMessage, jidId);
           _jstringSourceId = (jstring)env->GetObjectField(_jobjectContextMessage, jidSourceId);
           _jarrayMessage = (jbyteArray)env->GetObjectField(_jobjectContextMessage, jidMessage);

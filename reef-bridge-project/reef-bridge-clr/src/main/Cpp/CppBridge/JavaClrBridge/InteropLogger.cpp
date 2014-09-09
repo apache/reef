@@ -26,13 +26,13 @@ namespace Microsoft {
         _jclassInteropLogger = env->GetObjectClass(jobjectInteropLogger);
         wchar_t formatBuf[1024];
         if (NULL == _jclassInteropLogger) {
-          swprintf_s (formatBuf, sizeof(formatBuf)/sizeof(wchar_t), L"_jclassInteropLogger %p\n", _jclassInteropLogger);
+          swprintf_s (formatBuf, sizeof(formatBuf) / sizeof(wchar_t), L"_jclassInteropLogger %p\n", _jclassInteropLogger);
           fwprintf (stdout, formatBuf);
           fflush (stdout);
         }
         _jmidLog  = env->GetMethodID(_jclassInteropLogger, "Log", "(ILjava/lang/String;)V");
         if (NULL == _jmidLog) {
-          swprintf_s (formatBuf, sizeof(formatBuf)/sizeof(wchar_t), L"_jmidLog %p\n", _jmidLog);
+          swprintf_s (formatBuf, sizeof(formatBuf) / sizeof(wchar_t), L"_jmidLog %p\n", _jmidLog);
           fwprintf (stdout, formatBuf);
           fflush (stdout);
         }

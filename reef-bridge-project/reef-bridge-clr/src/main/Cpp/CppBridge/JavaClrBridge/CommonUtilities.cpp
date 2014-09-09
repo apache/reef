@@ -29,9 +29,9 @@ namespace Microsoft {
           ManagedLog::LOGGER->LogStart("CommonUtilities::GetEvaluatorDescriptor");
           JNIEnv *env = RetrieveEnv(jvm);
           jclass jclassActiveContext = env->GetObjectClass (object);
-          jmethodID jmidGetEvaluatorDescriptor= env->GetMethodID(jclassActiveContext, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");
+          jmethodID jmidGetEvaluatorDescriptor = env->GetMethodID(jclassActiveContext, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");
 
-          if(jmidGetEvaluatorDescriptor == NULL) {
+          if (jmidGetEvaluatorDescriptor == NULL) {
             ManagedLog::LOGGER->Log("jmidGetEvaluatorDescriptor is NULL");
             return nullptr;
           }
