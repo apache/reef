@@ -22,6 +22,8 @@ import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -84,7 +86,7 @@ final class ProcessContainer implements Container {
   @Override
   public void addGlobalFiles(File globalFolder) {
     try {
-      copy(globalFolder.listFiles(), this.globalFolder);
+      copy(Arrays.asList(globalFolder.listFiles()), this.globalFolder);
     } catch (final IOException e) {
       throw new RuntimeException("Unable to copy files to the evaluator folder.", e);
     }
@@ -143,14 +145,12 @@ final class ProcessContainer implements Container {
   private static void copy(final Iterable<File> files, final File folder) throws IOException {
     for (final File sourceFile : files) {
       final File destinationFile = new File(folder, sourceFile.getName());
-      Files.copy(sourceFile.toPath(), destinationFile.toPath());
-    }
-  }
-
-  private static void copy(final File[] files, final File folder) throws IOException {
-    for (final File sourceFile : files) {
-      final File destinationFile = new File(folder, sourceFile.getName());
-      Files.copy(sourceFile.toPath(), destinationFile.toPath());
+      if (Files.isSymbolicLink(sourceFile.toPath())) {
+          final Path linkTargetPath = Files.readSymbolicLink(sourceFile.toPath());
+          Files.createSymbolicLink(destinationFile.toPath(), linkTargetPath);
+      } else {
+        Files.copy(sourceFile.toPath(), destinationFile.toPath());
+      }
     }
   }
 }
