@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 @Immutable
 public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   private static final Logger LOG = Logger.getLogger(YarnClasspathProvider.class.getName());
-  private static final Level CLASSPATH_LOG_LEVEL = Level.INFO;
+  private static final Level CLASSPATH_LOG_LEVEL = Level.FINE;
 
   private static final String YARN_TOO_OLD_MESSAGE = "The version of YARN you are using is too old to support classpath assembly. Reverting to legacy method.";
   private static final String HADOOP_CONF_DIR = OSUtils.formatVariable("HADOOP_CONF_DIR");
@@ -83,6 +83,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
       }
       final String[] yarnDefaultClassPath = YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH;
       if (null == yarnDefaultClassPath || yarnDefaultClassPath.length == 0) {
+        LOG.log(Level.SEVERE, "YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH is empty. This indicates a broken cluster configuration");
         needsLegacyClasspath = true;
       } else {
         builder.addAll(yarnDefaultClassPath);
@@ -100,13 +101,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
 
     this.classPathPrefix = builder.getPrefixAsImmutableList();
     this.classPathSuffix = builder.getSuffixAsImmutableList();
-    if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
-      final StringBuilder message = new StringBuilder("Classpath:\n\t");
-      message.append(StringUtils.join(classPathPrefix, "\n\t"));
-      message.append("\n--------------------------------\n\t");
-      message.append(StringUtils.join(classPathSuffix, "\n\t"));
-      LOG.log(CLASSPATH_LOG_LEVEL, message.toString());
-    }
+    this.logClasspath();
   }
 
   @Override
@@ -129,4 +124,14 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
     return this.classPathSuffix;
   }
 
+
+  private void logClasspath() {
+    if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
+      final StringBuilder message = new StringBuilder("Classpath:\n\t");
+      message.append(StringUtils.join(classPathPrefix, "\n\t"));
+      message.append("\n--------------------------------\n\t");
+      message.append(StringUtils.join(classPathSuffix, "\n\t"));
+      LOG.log(CLASSPATH_LOG_LEVEL, message.toString());
+    }
+  }
 }
