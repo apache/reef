@@ -28,7 +28,9 @@ namespace Microsoft {
         HttpServerClr2Java::HttpServerClr2Java(JNIEnv *env, jobject jhttpServerEventBridge) {
           ManagedLog::LOGGER->LogStart("HttpServerClr2Java::HttpServerClr2Java");
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jhttpServerEventBridge = reinterpret_cast<jobject>(env->NewGlobalRef(jhttpServerEventBridge));
           ManagedLog::LOGGER->LogStop("HttpServerClr2Java::HttpServerClr2Java");
         }

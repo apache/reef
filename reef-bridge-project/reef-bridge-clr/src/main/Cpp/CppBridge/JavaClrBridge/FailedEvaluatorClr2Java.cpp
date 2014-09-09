@@ -30,13 +30,14 @@ namespace Microsoft {
         FailedEvaluatorClr2Java::FailedEvaluatorClr2Java(JNIEnv *env, jobject jobjectFailedEvaluator) {
           ManagedLog::LOGGER->LogStart("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectFailedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedEvaluator));
 
           jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
           jfieldID jidEvaluatorId = env->GetFieldID(jclassFailedEvaluator, "evaluatorId", "Ljava/lang/String;");
-          _jstringId = (jstring)env->GetObjectField(_jobjectFailedEvaluator, jidEvaluatorId);
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedEvaluator, jidEvaluatorId)));
           ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
         }
 

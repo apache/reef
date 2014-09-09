@@ -32,17 +32,17 @@ namespace Microsoft {
           ManagedLog::LOGGER->LogStart("AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java");
 
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectAllocatedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jallocatedEvaluator));
 
           jclass jclassAllocatedEvaluator = env->GetObjectClass (_jobjectAllocatedEvaluator);
           jfieldID jidEvaluatorId = env->GetFieldID(jclassAllocatedEvaluator, "evaluatorId", "Ljava/lang/String;");
-          _jstringId = (jstring)env->GetObjectField(_jobjectAllocatedEvaluator, jidEvaluatorId);
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectAllocatedEvaluator, jidEvaluatorId)));
 
           jfieldID jidNameServerInfo = env->GetFieldID(jclassAllocatedEvaluator, "nameServerInfo", "Ljava/lang/String;");
-          _jstringNameServerInfo = (jstring)env->GetObjectField(_jobjectAllocatedEvaluator, jidNameServerInfo);
-          _jstringNameServerInfo = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringNameServerInfo));
+          _jstringNameServerInfo = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectAllocatedEvaluator, jidNameServerInfo)));
 
           ManagedLog::LOGGER->LogStop("AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java");
         }

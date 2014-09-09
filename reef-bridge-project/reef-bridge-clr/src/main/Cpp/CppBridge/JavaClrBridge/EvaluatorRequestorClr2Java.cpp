@@ -28,7 +28,9 @@ namespace Microsoft {
         EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java(JNIEnv *env, jobject jevaluatorRequestor) {
           ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java");
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectEvaluatorRequestor = reinterpret_cast<jobject>(env->NewGlobalRef(jevaluatorRequestor));
           ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java");
         }

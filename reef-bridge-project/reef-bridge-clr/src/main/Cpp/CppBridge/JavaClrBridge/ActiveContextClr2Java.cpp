@@ -28,14 +28,16 @@ namespace Microsoft {
         ActiveContextClr2Java::ActiveContextClr2Java(JNIEnv *env, jobject jobjectActiveContext) {
           ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::ActiveContextClr2Java");
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
+
           _jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectActiveContext));
 
           jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
 
           jfieldID jidContextId = env->GetFieldID(jclassActiveContext, "contextId", "Ljava/lang/String;");
-          _jstringId = (jstring)env->GetObjectField(_jobjectActiveContext, jidContextId);
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectActiveContext, jidContextId)));
 
           jfieldID jidEvaluatorId = env->GetFieldID(jclassActiveContext, "evaluatorId", "Ljava/lang/String;");
           _jstringEvaluatorId = (jstring)env->GetObjectField(_jobjectActiveContext, jidEvaluatorId);

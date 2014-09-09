@@ -28,7 +28,9 @@ namespace Microsoft {
         FailedTaskClr2Java::FailedTaskClr2Java(JNIEnv *env, jobject jobjectFailedTask) {
           ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectFailedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedTask));
           ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
         }

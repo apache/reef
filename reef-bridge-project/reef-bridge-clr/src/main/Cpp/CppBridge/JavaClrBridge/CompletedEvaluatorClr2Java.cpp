@@ -28,13 +28,14 @@ namespace Microsoft {
         CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java(JNIEnv *env, jobject jCompletedEvaluator) {
           ManagedLog::LOGGER->LogStart("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectCompletedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jCompletedEvaluator));
 
           jclass jclassCompletedEvaluator = env->GetObjectClass (_jobjectCompletedEvaluator);
           jfieldID jidEvaluatorId = env->GetFieldID(jclassCompletedEvaluator, "evaluatorId", "Ljava/lang/String;");
-          _jstringId = (jstring)env->GetObjectField(_jobjectCompletedEvaluator, jidEvaluatorId);
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectCompletedEvaluator, jidEvaluatorId)));
           ManagedLog::LOGGER->LogStop("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
         }
 

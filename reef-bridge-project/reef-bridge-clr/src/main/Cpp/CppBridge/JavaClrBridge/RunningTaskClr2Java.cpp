@@ -28,16 +28,15 @@ namespace Microsoft {
           ManagedLog::LOGGER->LogStart("RunningTaskClr2Java::RunningTaskClr2Java");
 
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectRunningTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectRunningTask));
 
           jclass jclassRunningTask = env->GetObjectClass (_jobjectRunningTask);
           jmethodID jmidGetId = env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");
 
-          _jstringId = (jstring)env -> CallObjectMethod(
-                         _jobjectRunningTask,
-                         jmidGetId);
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env -> CallObjectMethod(_jobjectRunningTask, jmidGetId)));
           ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::RunningTaskClr2Java");
         }
 

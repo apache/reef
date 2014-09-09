@@ -28,13 +28,14 @@ namespace Microsoft {
         CompletedTaskClr2Java::CompletedTaskClr2Java(JNIEnv *env, jobject jobjectCompletedTask) {
           ManagedLog::LOGGER->LogStart("CompletedTaskClr2Java::CompletedTaskClr2Java");
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectCompletedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectCompletedTask));
 
           jclass jclassCompletedTask = env->GetObjectClass (_jobjectCompletedTask);
           jfieldID jidTaskId = env->GetFieldID(jclassCompletedTask, "taskId", "Ljava/lang/String;");
-          _jstringId = (jstring)env->GetObjectField(_jobjectCompletedTask, jidTaskId);
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectCompletedTask, jidTaskId)));
           ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::CompletedTaskClr2Java");
         }
 

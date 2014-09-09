@@ -28,17 +28,17 @@ namespace Microsoft {
           ManagedLog::LOGGER->LogStart("ClosedContextClr2Java::ClosedContextClr2Java");
 
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectClosedContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectClosedContext));
           jclass jclassClosedContext = env->GetObjectClass (_jobjectClosedContext);
 
           jfieldID jidContextId = env->GetFieldID(jclassClosedContext, "contextId", "Ljava/lang/String;");
           jfieldID jidEvaluatorId = env->GetFieldID(jclassClosedContext, "evaluatorId", "Ljava/lang/String;");
-          _jstringContextId = (jstring)env->GetObjectField(_jobjectClosedContext, jidContextId);
-          _jstringEvaluatorId = (jstring)env->GetObjectField(_jobjectClosedContext, jidEvaluatorId);
 
-          _jstringContextId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringContextId));
-          _jstringEvaluatorId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringEvaluatorId));
+          _jstringContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectClosedContext, jidContextId)));
+          _jstringEvaluatorId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectClosedContext, jidEvaluatorId)));
 
           ManagedLog::LOGGER->LogStop("ClosedContextClr2Java::ClosedContextClr2Java");
         }

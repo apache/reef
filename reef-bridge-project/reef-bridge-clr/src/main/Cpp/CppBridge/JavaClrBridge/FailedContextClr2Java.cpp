@@ -28,20 +28,19 @@ namespace Microsoft {
           ManagedLog::LOGGER->LogStart("FailedContextClr2Java::FailedContextClr2Java");
 
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectFailedContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedContext));
           jclass jclassFailedContext = env->GetObjectClass (_jobjectFailedContext);
 
           jfieldID jidContextId = env->GetFieldID(jclassFailedContext, "contextId", "Ljava/lang/String;");
           jfieldID jidEvaluatorId = env->GetFieldID(jclassFailedContext, "evaluatorId", "Ljava/lang/String;");
           jfieldID jidParentId = env->GetFieldID(jclassFailedContext, "parentContextId", "Ljava/lang/String;");
-          _jstringContextId = (jstring)env->GetObjectField(_jobjectFailedContext, jidContextId);
-          _jstringEvaluatorId = (jstring)env->GetObjectField(_jobjectFailedContext, jidEvaluatorId);
-          _jstringParentContextId = (jstring)env->GetObjectField(_jobjectFailedContext, jidParentId);
 
-          _jstringContextId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringContextId));
-          _jstringEvaluatorId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringEvaluatorId));
-          _jstringParentContextId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringParentContextId));
+          _jstringContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedContext, jidContextId)));
+          _jstringEvaluatorId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedContext, jidEvaluatorId)));
+          _jstringParentContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedContext, jidParentId)));
 
           ManagedLog::LOGGER->LogStop("FailedContextClr2Java::FailedContextClr2Java");
         }

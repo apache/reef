@@ -28,20 +28,19 @@ namespace Microsoft {
           ManagedLog::LOGGER->LogStart("ContextMessageClr2Java::ContextMessageClr2Java");
 
           pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          int gotVm = env -> GetJavaVM(pJavaVm);
+          if (env->GetJavaVM(pJavaVm) != 0) {
+            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+          }
           _jobjectContextMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectContextMessage));
           jclass jclassContextMessage = env->GetObjectClass (_jobjectContextMessage);
 
           jfieldID jidId = env->GetFieldID(jclassContextMessage, "contextMessageId", "Ljava/lang/String;");
           jfieldID jidSourceId = env->GetFieldID(jclassContextMessage, "messageSourceId", "Ljava/lang/String;");
           jfieldID jidMessage = env->GetFieldID(jclassContextMessage, "message", "()[B");
-          _jstringId = (jstring)env->GetObjectField(_jobjectContextMessage, jidId);
-          _jstringSourceId = (jstring)env->GetObjectField(_jobjectContextMessage, jidSourceId);
-          _jarrayMessage = (jbyteArray)env->GetObjectField(_jobjectContextMessage, jidMessage);
 
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringId));
-          _jstringSourceId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringSourceId));
-          _jarrayMessage = reinterpret_cast<jbyteArray>(env->NewGlobalRef(_jarrayMessage));
+          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectContextMessage, jidId)));
+          _jstringSourceId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectContextMessage, jidSourceId)));
+          _jarrayMessage = reinterpret_cast<jbyteArray>(env->NewGlobalRef(env->GetObjectField(_jobjectContextMessage, jidMessage)));
 
           ManagedLog::LOGGER->LogStop("ContextMessageClr2Java::ContextMessageClr2Java");
         }
