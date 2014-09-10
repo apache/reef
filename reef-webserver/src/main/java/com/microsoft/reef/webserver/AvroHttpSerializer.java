@@ -39,14 +39,13 @@ public class AvroHttpSerializer {
   /**
    * Convert from HttpServletRequest to AvroHttpRequest.
    */
-  public AvroHttpRequest toAvro(final HttpServletRequest request) throws ServletException, IOException {
-    final ParsedHttpRequest requestParser = new ParsedHttpRequest(request);
+  public AvroHttpRequest toAvro(final ParsedHttpRequest parsedRequest) throws ServletException, IOException {
     return AvroHttpRequest.newBuilder()
-        .setRequestUrl(requestParser.getRequestUrl())
-        .setHttpMethod(requestParser.getMethod())
-        .setQueryString(requestParser.getQueryString())
-        .setPathInfo(requestParser.getPathInfo())
-        .setInputStream(ByteBuffer.wrap(requestParser.getInputStream()))
+        .setRequestUrl(parsedRequest.getRequestUrl())
+        .setHttpMethod(parsedRequest.getMethod())
+        .setQueryString(parsedRequest.getQueryString())
+        .setPathInfo(parsedRequest.getPathInfo())
+        .setInputStream(ByteBuffer.wrap(parsedRequest.getInputStream()))
         .build();
   }
 
