@@ -97,7 +97,7 @@ public class TestHttpServer {
     final HttpServer httpServer2 = injector2.getInstance(HttpServer.class);
 
     Assert.assertTrue("port number is out of specified range",
-        httpServer2.getPort() > 1000 && httpServer2.getPort() < 9900);
+        httpServer2.getPort() > 1000 && httpServer2.getPort() <= 9900);
 
     httpServer1.stop();
     httpServer2.stop();
