@@ -576,26 +576,33 @@ final class YarnContainerManager
     final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
     config.setBoolean("dfs.support.append", true);
     config.setBoolean("dfs.support.broken.append", true);
+    final FileSystem fs;
+    boolean appendToLog = false;
     try {
-      final FileSystem fs = FileSystem.get(config);
-      final Path path = new Path(getChangeLogLocation());
-      final BufferedWriter bw;
-      if(!fs.exists(path)){
-        bw = new BufferedWriter(new OutputStreamWriter(fs.create(path)));
+      fs = FileSystem.get(config);
+    } catch (final IOException e) {
+      throw new RuntimeException("Cannot instantiate HDFS fs.", e);
+    }
+    final Path path = new Path(getChangeLogLocation());
+    final BufferedWriter bw;
+    try {
+      appendToLog = fs.exists(path);
+      if(!appendToLog){
+          bw = new BufferedWriter(new OutputStreamWriter(fs.create(path)));
       }
       else{
         bw = new BufferedWriter(new OutputStreamWriter(fs.append(path)));
       }
-      try {
-        bw.write(entry);
-      } catch (final IOException ex) {
-        if(fs.exists(path)){
-          appendByDeleteAndCreate(fs, path, entry);
-        }
-      }
+      bw.write(entry);
       bw.close();
     } catch (final IOException e) {
-      throw new RuntimeException("Cannot open or write to log file", e);
+      if(appendToLog){
+        appendByDeleteAndCreate(fs, path, entry);
+      }
+      else
+      {
+        throw new RuntimeException("Cannot open or write to log file", e);
+      }
     }
   }
 
@@ -612,7 +619,7 @@ final class YarnContainerManager
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       IOUtils.copyBytes(inputStream, outputStream, 4096, true);
 
-      final String newContent = outputStream.toString() + appendEntry + System.getProperty("line.separator");
+      final String newContent = outputStream.toString() + appendEntry;
       fs.delete(path, true);
 
       final FSDataOutputStream newOutput = fs.create(path);
