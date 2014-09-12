@@ -23,8 +23,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.logging.Level;
 
 /**
@@ -61,8 +61,8 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
   }
 
 
-  private static TreeSet<String> getFilteredClasspath() {
-    final TreeSet<String> result = new TreeSet<>();
+  private static LinkedHashSet<String> getFilteredClasspath() {
+    final LinkedHashSet<String> result = new LinkedHashSet<>();
     final Optional<Path> javaHome = getJavaHome();
 
     if (javaHome.isPresent()) {
@@ -96,8 +96,8 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
     return Optional.ofNullable(System.getenv(envName));
   }
 
-  private static TreeSet<Path> getClasspath() {
-    final TreeSet<Path> result = new TreeSet<>();
+  private static LinkedHashSet<Path> getClasspath() {
+    final LinkedHashSet<Path> result = new LinkedHashSet<>();
     for (final String classPathEntry : System.getProperty("java.class.path").split(File.pathSeparator)) {
       final File file = new File(classPathEntry);
       if (file.exists()) {

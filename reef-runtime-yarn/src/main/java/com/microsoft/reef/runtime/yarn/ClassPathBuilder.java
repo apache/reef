@@ -20,8 +20,8 @@ import com.microsoft.reef.util.HadoopEnvironment;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.TreeSet;
 
 /**
  * A helper class to assemble a class path.
@@ -31,8 +31,8 @@ import java.util.TreeSet;
  */
 @NotThreadSafe
 final class ClassPathBuilder {
-  private final TreeSet<String> prefix = new TreeSet<>();
-  private final TreeSet<String> suffix = new TreeSet<>();
+  private final LinkedHashSet<String> prefix = new LinkedHashSet<>();
+  private final LinkedHashSet<String> suffix = new LinkedHashSet<>();
 
   /**
    * Adds the given classpath entry. A guess will be made whether it refers to a configuration folder, in which case
