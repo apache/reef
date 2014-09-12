@@ -30,8 +30,10 @@ import com.microsoft.reef.util.Optional;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.remote.Encoder;
 import com.microsoft.wake.remote.impl.ObjectSerializableCodec;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
@@ -574,12 +576,19 @@ final class YarnContainerManager
     final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
     config.setBoolean("dfs.support.append", true);
     config.setBoolean("dfs.support.broken.append", true);
+    final FileSystem fs;
+    boolean appendToLog = false;
     try {
-      final FileSystem fs = FileSystem.get(config);
-      final Path path = new Path(getChangeLogLocation());
-      final BufferedWriter bw;
-      if(!fs.exists(path)){
-        bw = new BufferedWriter(new OutputStreamWriter(fs.create(path)));
+      fs = FileSystem.get(config);
+    } catch (final IOException e) {
+      throw new RuntimeException("Cannot instantiate HDFS fs.", e);
+    }
+    final Path path = new Path(getChangeLogLocation());
+    final BufferedWriter bw;
+    try {
+      appendToLog = fs.exists(path);
+      if(!appendToLog){
+          bw = new BufferedWriter(new OutputStreamWriter(fs.create(path)));
       }
       else{
         bw = new BufferedWriter(new OutputStreamWriter(fs.append(path)));
@@ -587,7 +596,37 @@ final class YarnContainerManager
       bw.write(entry);
       bw.close();
     } catch (final IOException e) {
-      throw new RuntimeException("Cannot open or write to log file", e);
+      if(appendToLog){
+        appendByDeleteAndCreate(fs, path, entry);
+      }
+      else
+      {
+        throw new RuntimeException("Cannot open or write to log file", e);
+      }
+    }
+  }
+
+  /**
+   * For certain HDFS implementation, the append operation may not be supported (e.g., Azure blob - wasb)
+   * in this case, we will emulate the append operation by reading the content, appending entry at the end,
+   * then recreating the file with appended content.
+   */
+
+  private void appendByDeleteAndCreate(final FileSystem fs, final Path path, final String appendEntry)
+  {
+    try {
+      final InputStream inputStream = fs.open(path);
+      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      IOUtils.copyBytes(inputStream, outputStream, 4096, true);
+
+      final String newContent = outputStream.toString() + appendEntry;
+      fs.delete(path, true);
+
+      final FSDataOutputStream newOutput = fs.create(path);
+      final InputStream newInput = new ByteArrayInputStream(newContent.getBytes());
+      IOUtils.copyBytes(newInput, newOutput, 4096, true );
+    } catch (final IOException e) {
+      throw new RuntimeException("Cannot append by read-append-delete-create with exception.", e);
     }
   }
 
