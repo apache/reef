@@ -36,8 +36,8 @@ public final class MatMultREEF {
 
   public static LauncherStatus run(final Configuration runtimeConfiguration) {
     try {
-      final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+      final Configuration driverConfiguration = DriverConfiguration.CONF
+          .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(MatMultDriver.class))
           .set(DriverConfiguration.ON_DRIVER_STARTED, MatMultDriver.StartHandler.class)
           .set(DriverConfiguration.DRIVER_IDENTIFIER, "MatrixMultiply")
           .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, MatMultDriver.AllocatedEvaluatorHandler.class)

@@ -16,27 +16,95 @@
 package com.microsoft.reef.runtime.local;
 
 import com.microsoft.reef.runtime.common.files.RuntimeClasspathProvider;
+import com.microsoft.reef.util.Optional;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * RuntimeClasspathProvider for the local runtime.
  */
 public final class LocalClasspathProvider implements RuntimeClasspathProvider {
+  private static final Level CLASSPATH_LOG_LEVEL = Level.FINEST;
+
+  private final List<String> classPathSuffix;
 
   @Inject
   LocalClasspathProvider() {
+    this.classPathSuffix = Collections.unmodifiableList(new ArrayList<>(getFilteredClasspath()));
   }
 
   @Override
-  public List<String> getDriverClasspath() {
+  public List<String> getDriverClasspathPrefix() {
     return Collections.emptyList();
   }
 
   @Override
-  public List<String> getEvaluatorClasspath() {
+  public List<String> getDriverClasspathSuffix() {
+    return this.classPathSuffix;
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspathPrefix() {
     return Collections.emptyList();
   }
+
+  @Override
+  public List<String> getEvaluatorClasspathSuffix() {
+    return this.classPathSuffix;
+  }
+
+
+  private static LinkedHashSet<String> getFilteredClasspath() {
+    final LinkedHashSet<String> result = new LinkedHashSet<>();
+    final Optional<Path> javaHome = getJavaHome();
+
+    if (javaHome.isPresent()) {
+      final Path javaHomePath = javaHome.get();
+      for (final Path classPathEntry : getClasspath()) {
+        if (!classPathEntry.startsWith(javaHomePath)) {
+          result.add(classPathEntry.toString());
+        }
+      }
+    } else {
+      for (final Path classPathEntry : getClasspath()) {
+        result.add(classPathEntry.toString());
+      }
+    }
+    return result;
+  }
+
+  private static Optional<Path> getJavaHome() {
+    final Optional<String> javaHome = getEnv("JAVA_HOME");
+
+    if (javaHome.isPresent()) {
+      final File javaHomeFile = new File(javaHome.get());
+      if (javaHomeFile.exists()) {
+        return Optional.of(javaHomeFile.toPath());
+      }
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<String> getEnv(final String envName) {
+    return Optional.ofNullable(System.getenv(envName));
+  }
+
+  private static LinkedHashSet<Path> getClasspath() {
+    final LinkedHashSet<Path> result = new LinkedHashSet<>();
+    for (final String classPathEntry : System.getProperty("java.class.path").split(File.pathSeparator)) {
+      final File file = new File(classPathEntry);
+      if (file.exists()) {
+        result.add(file.toPath());
+      }
+    }
+    return result;
+  }
+
 }

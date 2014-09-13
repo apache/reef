@@ -62,7 +62,8 @@ public final class FileResourceTest {
    * @throws BindException
    */
   private static Configuration getDriverConfiguration(final Set<File> theFiles) throws BindException {
-    ConfigurationModule driverConfigurationModule = EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+    ConfigurationModule driverConfigurationModule = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(FileResourceTestDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_FileResourceTest")
         .set(DriverConfiguration.ON_DRIVER_STARTED, FileResourceTestDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FileResourceTestDriver.EvaluatorAllocatedHandler.class);

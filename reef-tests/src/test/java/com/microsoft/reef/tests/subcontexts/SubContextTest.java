@@ -51,14 +51,14 @@ public final class SubContextTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_SubContextTest_testSubContexts")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SubContextDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SubContextDriver.ContextActiveHandler.class)
-            .set(DriverConfiguration.ON_CONTEXT_CLOSED, SubContextDriver.ContextClosedHandler.class)
-            .build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_SubContextTest_testSubContexts")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SubContextDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SubContextDriver.ContextActiveHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_CLOSED, SubContextDriver.ContextClosedHandler.class)
+        .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());
@@ -74,13 +74,13 @@ public final class SubContextTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_SubContextTest_testChainClose")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SubContextDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SubContextDriver.ContextActiveHandler.class)
-            .build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_SubContextTest_testChainClose")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SubContextDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SubContextDriver.ContextActiveHandler.class)
+        .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());

@@ -52,7 +52,7 @@ public final class DriverMessaging {
       synchronized (DriverMessaging.this) {
         if (!msg.equals(DriverMessaging.this.lastMessage)) {
           LOG.log(Level.SEVERE, "Expected {0} but got {1}",
-                  new Object[] { DriverMessaging.this.lastMessage, msg });
+              new Object[]{DriverMessaging.this.lastMessage, msg});
           DriverMessaging.this.status = LauncherStatus.FAILED;
           DriverMessaging.this.notify();
         }
@@ -121,18 +121,14 @@ public final class DriverMessaging {
     final long startTime = System.currentTimeMillis();
     LOG.log(Level.INFO, "Submitting REEF Job");
 
-    final Configuration driverConfig;
-    try {
-      driverConfig =
-          EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "DriverMessagingTest")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, DriverMessagingDriver.StartHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverMessagingDriver.AllocatedEvaluatorHandler.class)
-            .set(DriverConfiguration.ON_CLIENT_MESSAGE, DriverMessagingDriver.ClientMessageHandler.class)
-          .build();
-    } catch (final BindException ex) {
-      throw new RuntimeException(ex);
-    }
+    final Configuration driverConfig = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "DriverMessagingTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, DriverMessagingDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverMessagingDriver.AllocatedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_CLIENT_MESSAGE, DriverMessagingDriver.ClientMessageHandler.class)
+        .build();
+
 
     this.reef.submit(driverConfig);
 

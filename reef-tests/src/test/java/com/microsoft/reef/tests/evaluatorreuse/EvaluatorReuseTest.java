@@ -52,14 +52,14 @@ public class EvaluatorReuseTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorReuseTest")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-            .set(DriverConfiguration.ON_TASK_COMPLETED, EvaluatorReuseTestDriver.TaskCompletedHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorReuseTestDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, EvaluatorReuseTestDriver.ContextActiveHandler.class)
-            .build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(EvaluatorReuseTestDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorReuseTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, EvaluatorReuseTestDriver.TaskCompletedHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorReuseTestDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, EvaluatorReuseTestDriver.ContextActiveHandler.class)
+        .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());

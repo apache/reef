@@ -20,10 +20,7 @@ import com.microsoft.reef.runtime.common.launch.parameters.ClockConfigurationPat
 import com.microsoft.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import com.microsoft.reef.runtime.common.launch.parameters.LaunchID;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.Injector;
-import com.microsoft.tang.JavaConfigurationBuilder;
-import com.microsoft.tang.Tang;
+import com.microsoft.tang.*;
 import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
@@ -34,6 +31,8 @@ import com.microsoft.wake.time.Clock;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,29 +80,53 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   }
 
   /**
-   * Loads the client and resourcemanager configuration files from disk.
+   * Loads the client and resource manager configuration files from disk.
    */
   private Configuration getClockConfiguration() {
-    final JavaConfigurationBuilder clockConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    return Configurations.merge(readConfigurationFromDisk(), getStaticClockConfiguration());
+  }
 
-    LOG.log(Level.FINEST, "Loading configfile: " + this.evaluatorConfigurationPath);
+
+  private Configuration readConfigurationFromDisk() {
+    LOG.log(Level.FINEST, "Loading configuration file: {0}", this.evaluatorConfigurationPath);
+
     final File evaluatorConfigFile = new File(this.evaluatorConfigurationPath);
-    try {
-      clockConfigurationBuilder.addConfiguration(configurationSerializer.fromFile(evaluatorConfigFile));
-      clockConfigurationBuilder.bindNamedParameter(LaunchID.class, this.launchID);
-      clockConfigurationBuilder.bindNamedParameter(ErrorHandlerRID.class, this.errorHandlerID);
-      clockConfigurationBuilder.bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class);
-      clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class);
-      clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER");
-      clockConfigurationBuilder.bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
 
-      if (isProfilingEnabled) {
-        clockConfigurationBuilder.bindSetEntry(Clock.StopHandler.class, ProfilingStopHandler.class);
+    if (!evaluatorConfigFile.exists()) {
+      final String message = "The configuration file " + this.evaluatorConfigurationPath +
+          "doesn't exist. This points to an issue in the job submission.";
+      fail(message, new FileNotFoundException());
+      throw new RuntimeException(message);
+    } else if (!evaluatorConfigFile.canRead()) {
+      final String message = "The configuration file " + this.evaluatorConfigurationPath + " exists, but can't be read";
+      fail(message, new IOException());
+      throw new RuntimeException(message);
+    } else {
+      try {
+        return this.configurationSerializer.fromFile(evaluatorConfigFile);
+      } catch (final IOException e) {
+        final String message = "Unable to parse the configuration file " + this.evaluatorConfigurationPath;
+        fail(message, e);
+        throw new RuntimeException(message, e);
       }
-    } catch (final Throwable throwable) {
-      fail("Unable to read clock configuration", throwable);
     }
-    return clockConfigurationBuilder.build();
+  }
+
+  /**
+   * @return the part of the clock configuration *not* read from disk.
+   */
+  private Configuration getStaticClockConfiguration() {
+    final JavaConfigurationBuilder builder = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(LaunchID.class, this.launchID)
+        .bindNamedParameter(ErrorHandlerRID.class, this.errorHandlerID)
+        .bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class)
+        .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, REEFErrorHandler.class)
+        .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_LAUNCHER")
+        .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class);
+    if (this.isProfilingEnabled) {
+      builder.bindSetEntry(Clock.StopHandler.class, ProfilingStopHandler.class);
+    }
+    return builder.build();
   }
 
   /**

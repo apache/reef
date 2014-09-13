@@ -29,9 +29,11 @@ import java.util.List;
 @Immutable
 public final class HDInsightClasspathProvider implements RuntimeClasspathProvider {
 
-  private static final List<String> CLASSPATH_LIST = Collections.unmodifiableList(
+  private static final List<String> CLASSPATH_PREFIX = Collections
+      .unmodifiableList(Arrays.asList("%HADOOP_HOME%/etc/hadoop"));
+
+  private static final List<String> CLASSPATH_SUFFIX = Collections.unmodifiableList(
       Arrays.asList(
-          "%HADOOP_HOME%/etc/hadoop",
           "%HADOOP_HOME%/share/hadoop/common/*",
           "%HADOOP_HOME%/share/hadoop/common/lib/*",
           "%HADOOP_HOME%/share/hadoop/yarn/*",
@@ -46,14 +48,23 @@ public final class HDInsightClasspathProvider implements RuntimeClasspathProvide
   HDInsightClasspathProvider() {
   }
 
-
   @Override
-  public List<String> getDriverClasspath() {
-    return CLASSPATH_LIST;
+  public List<String> getDriverClasspathPrefix() {
+    return CLASSPATH_PREFIX;
   }
 
   @Override
-  public List<String> getEvaluatorClasspath() {
-    return CLASSPATH_LIST;
+  public List<String> getDriverClasspathSuffix() {
+    return CLASSPATH_SUFFIX;
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspathPrefix() {
+    return CLASSPATH_PREFIX;
+  }
+
+  @Override
+  public List<String> getEvaluatorClasspathSuffix() {
+    return CLASSPATH_SUFFIX;
   }
 }

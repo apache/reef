@@ -70,18 +70,18 @@ public class SuspendClient {
         .bindNamedParameter(Launch.NumCycles.class, Integer.toString(numCycles))
         .bindNamedParameter(Launch.Delay.class, Integer.toString(delay));
 
-    cb.addConfiguration(
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "suspend-" + System.currentTimeMillis())
-          .set(DriverConfiguration.ON_TASK_RUNNING, SuspendDriver.RunningTaskHandler.class)
-          .set(DriverConfiguration.ON_TASK_COMPLETED, SuspendDriver.CompletedTaskHandler.class)
-          .set(DriverConfiguration.ON_TASK_SUSPENDED, SuspendDriver.SuspendedTaskHandler.class)
-          .set(DriverConfiguration.ON_TASK_MESSAGE, SuspendDriver.TaskMessageHandler.class)
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SuspendDriver.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SuspendDriver.ActiveContextHandler.class)
-          .set(DriverConfiguration.ON_CLIENT_MESSAGE, SuspendDriver.ClientMessageHandler.class)
-          .set(DriverConfiguration.ON_DRIVER_STARTED, SuspendDriver.StartHandler.class)
-          .set(DriverConfiguration.ON_DRIVER_STOP, SuspendDriver.StopHandler.class)
+    cb.addConfiguration(DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(SuspendDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "suspend-" + System.currentTimeMillis())
+        .set(DriverConfiguration.ON_TASK_RUNNING, SuspendDriver.RunningTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, SuspendDriver.CompletedTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_SUSPENDED, SuspendDriver.SuspendedTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_MESSAGE, SuspendDriver.TaskMessageHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SuspendDriver.AllocatedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SuspendDriver.ActiveContextHandler.class)
+        .set(DriverConfiguration.ON_CLIENT_MESSAGE, SuspendDriver.ClientMessageHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, SuspendDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STOP, SuspendDriver.StopHandler.class)
         .build());
 
     this.driverConfig = cb.build();
@@ -111,7 +111,7 @@ public class SuspendClient {
 
   /**
    * Receive notification from the driver that the job had failed.
-   *
+   * <p/>
    * FailedJob is a proxy for the failed job driver
    * (contains job ID and exception thrown from the driver).
    */

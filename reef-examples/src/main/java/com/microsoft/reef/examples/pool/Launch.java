@@ -188,17 +188,17 @@ public final class Launch {
       LOG.log(Level.INFO, "TIME: Start Client {0} with timeout {1} sec. Configuration:\n--\n{2}--",
           new Object[]{jobId, timeout / 1000, new AvroConfigurationSerializer().toString(runtimeConfig)});
 
-      final Configuration driverConfig =
-          EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-              .set(DriverConfiguration.DRIVER_IDENTIFIER, jobId)
-              .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
-              .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
-              .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
-              .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
-              .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
-              .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
-              .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
-              .build();
+      final Configuration driverConfig = DriverConfiguration.CONF
+          .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(JobDriver.class))
+          .set(DriverConfiguration.DRIVER_IDENTIFIER, jobId)
+          .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
+          .set(DriverConfiguration.ON_DRIVER_STOP, JobDriver.StopHandler.class)
+          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
+          .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
+          .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
+          .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
+          .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
+          .build();
 
       final Configuration submittedConfiguration = Tang.Factory.getTang()
           .newConfigurationBuilder(driverConfig, commandLineConf).build();

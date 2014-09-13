@@ -52,14 +52,14 @@ public class FailDriverDelayedMsgTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfig =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, "FailDriverDelayedMsg")
-          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailDriverDelayedMsg.AllocatedEvaluatorHandler.class)
-          .set(DriverConfiguration.ON_CONTEXT_ACTIVE, FailDriverDelayedMsg.ActiveContextHandler.class)
-          .set(DriverConfiguration.ON_TASK_RUNNING, FailDriverDelayedMsg.RunningTaskHandler.class)
-          .set(DriverConfiguration.ON_TASK_MESSAGE, FailDriverDelayedMsg.TaskMessageHandler.class)
-          .set(DriverConfiguration.ON_DRIVER_STARTED, FailDriverDelayedMsg.StartHandler.class)
+    final Configuration driverConfig = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "FailDriverDelayedMsg")
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, FailDriverDelayedMsg.AllocatedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, FailDriverDelayedMsg.ActiveContextHandler.class)
+        .set(DriverConfiguration.ON_TASK_RUNNING, FailDriverDelayedMsg.RunningTaskHandler.class)
+        .set(DriverConfiguration.ON_TASK_MESSAGE, FailDriverDelayedMsg.TaskMessageHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, FailDriverDelayedMsg.StartHandler.class)
         .build();
 
     final LauncherStatus status = TestDriverLauncher.getLauncher(runtimeConfiguration)

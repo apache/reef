@@ -52,13 +52,13 @@ public final class DriverFailOnFailTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfig =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "Fail2")
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverFailOnFail.AllocatedEvaluatorHandler.class)
-            .set(DriverConfiguration.ON_TASK_FAILED, DriverFailOnFail.FailedTaskHandler.class)
-            .set(DriverConfiguration.ON_DRIVER_STARTED, DriverFailOnFail.StartHandler.class)
-            .build();
+    final Configuration driverConfig = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "Fail2")
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, DriverFailOnFail.AllocatedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_TASK_FAILED, DriverFailOnFail.FailedTaskHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, DriverFailOnFail.StartHandler.class)
+        .build();
 
     TestUtils.assertLauncherFailure(
         TestDriverLauncher.getLauncher(runtimeConfiguration).run(
