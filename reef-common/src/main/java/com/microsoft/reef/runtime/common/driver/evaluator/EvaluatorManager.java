@@ -34,6 +34,7 @@ import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextControlHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextRepresenters;
+import com.microsoft.reef.runtime.common.driver.idle.EventHandlerIdlenessSource;
 import com.microsoft.reef.runtime.common.driver.task.TaskRepresenter;
 import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
@@ -84,6 +85,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final EvaluatorStatusManager stateManager;
   private final ExceptionCodec exceptionCodec;
   private final DriverStatusManager driverStatusManager;
+  private final EventHandlerIdlenessSource idlenessSource;
 
 
   // Mutable fields
@@ -105,8 +107,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final ContextControlHandler contextControlHandler,
       final EvaluatorStatusManager stateManager,
       final DriverStatusManager driverStatusManager,
-      final ExceptionCodec exceptionCodec) {
+      final ExceptionCodec exceptionCodec,
+      final EventHandlerIdlenessSource idlenessSource) {
     this.contextRepresenters = contextRepresenters;
+    this.idlenessSource = idlenessSource;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
     this.clock = clock;
     this.resourceReleaseHandler = resourceReleaseHandler;
@@ -184,6 +188,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         }
       }
     }
+    this.idlenessSource.check();
   }
 
   /**

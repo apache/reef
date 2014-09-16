@@ -20,6 +20,10 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
 import com.microsoft.reef.runtime.common.driver.DriverStatusManager;
+import com.microsoft.reef.runtime.common.driver.idle.DriverIdleManager;
+import com.microsoft.reef.runtime.common.driver.idle.DriverIdlenessSource;
+import com.microsoft.reef.runtime.common.driver.idle.IdleMessage;
+import com.microsoft.tang.InjectionFuture;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -31,11 +35,16 @@ import java.util.logging.Logger;
  */
 @DriverSide
 @Private
-public final class ResourceManagerStatus implements EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> {
+public final class ResourceManagerStatus implements EventHandler<DriverRuntimeProtocol.RuntimeStatusProto>,
+    DriverIdlenessSource {
   private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
-  private final String name = "REEF";
+
+  private static final String COMPONENT_NAME = "ResourceManager";
+  private static final IdleMessage IDLE_MESSAGE = new IdleMessage(COMPONENT_NAME, "No outstanding requests or allocations", true);
+
   private final ResourceManagerErrorHandler resourceManagerErrorHandler;
   private final DriverStatusManager driverStatusManager;
+  private final InjectionFuture<DriverIdleManager> driverIdleManager;
 
   // Mutable state.
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
@@ -44,9 +53,11 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
 
   @Inject
   ResourceManagerStatus(final ResourceManagerErrorHandler resourceManagerErrorHandler,
-                        final DriverStatusManager driverStatusManager) {
+                        final DriverStatusManager driverStatusManager,
+                        final InjectionFuture<DriverIdleManager> driverIdleManager) {
     this.resourceManagerErrorHandler = resourceManagerErrorHandler;
     this.driverStatusManager = driverStatusManager;
+    this.driverIdleManager = driverIdleManager;
   }
 
   @Override
@@ -59,13 +70,13 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
 
     switch (newState) {
       case FAILED:
-        this.resourceManagerErrorHandler.onNext(runtimeStatusProto.getError());
+        this.onRMFailure(runtimeStatusProto);
         break;
       case DONE:
-        LOG.log(Level.INFO, "Resource Manager shutdown happened. Triggering Driver shutdown.");
-        this.driverStatusManager.onComplete();
+        this.onRMDone(runtimeStatusProto);
         break;
       case RUNNING:
+        this.onRMRunning(runtimeStatusProto);
         break;
     }
   }
@@ -78,11 +89,42 @@ public final class ResourceManagerStatus implements EventHandler<DriverRuntimePr
   }
 
   /**
-   * @return whether the resource manager is running and idle.
+   * @return idle, if there are no outstanding requests or allocations. Not idle else.
    */
-  public synchronized boolean isRunningAndIdle() {
-    return isRunning() && isIdle();
+  @Override
+  public synchronized IdleMessage getIdleStatus() {
+    if (this.isIdle()) {
+      return IDLE_MESSAGE;
+    } else {
+      final String message = new StringBuilder("There are ")
+          .append(this.outstandingContainerRequests)
+          .append(" outstanding container requests and ")
+          .append(this.containerAllocationCount)
+          .append(" allocated containers")
+          .toString();
+      return new IdleMessage(COMPONENT_NAME, message, false);
+    }
   }
+
+
+  private synchronized void onRMFailure(final DriverRuntimeProtocol.RuntimeStatusProto runtimeStatusProto) {
+    assert (runtimeStatusProto.getState() == ReefServiceProtos.State.FAILED);
+    this.resourceManagerErrorHandler.onNext(runtimeStatusProto.getError());
+  }
+
+  private synchronized void onRMDone(final DriverRuntimeProtocol.RuntimeStatusProto runtimeStatusProto) {
+    assert (runtimeStatusProto.getState() == ReefServiceProtos.State.DONE);
+    LOG.log(Level.INFO, "Resource Manager shutdown happened. Triggering Driver shutdown.");
+    this.driverStatusManager.onComplete();
+  }
+
+  private synchronized void onRMRunning(final DriverRuntimeProtocol.RuntimeStatusProto runtimeStatusProto) {
+    assert (runtimeStatusProto.getState() == ReefServiceProtos.State.RUNNING);
+    if (this.isIdle()) {
+      this.driverIdleManager.get().onPotentiallyIdle(IDLE_MESSAGE);
+    }
+  }
+
 
   private synchronized boolean isIdle() {
     return this.hasNoOutstandingRequests()
