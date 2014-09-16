@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.launch;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,7 +41,11 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   public List<String> build() {
     final List<String> result = new LinkedList<>();
-    result.add(EVALUATOR_PATH);
+    File f = new File(EVALUATOR_PATH);
+    if (!f.exists()) {
+      LOG.log(Level.WARNING, "file can NOT be found: {0}", f.getAbsolutePath());
+    }
+    result.add(f.getPath());
     result.add(errorHandlerRID);
     result.add(evaluatorConfigurationPath);
     if ((null != this.standardOutPath) && (!standardOutPath.isEmpty())) {
