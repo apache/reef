@@ -18,6 +18,9 @@ package com.microsoft.reef.runtime.local.driver;
 import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
+import com.microsoft.reef.runtime.local.process.ReefRunnableProcessObserver;
+import com.microsoft.reef.runtime.local.process.RunnableProcess;
+import com.microsoft.reef.runtime.local.process.RunnableProcessObserver;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +51,7 @@ final class ProcessContainer implements Container {
   private final File reefFolder;
   private final File localFolder;
   private final File globalFolder;
+  private final RunnableProcessObserver processObserver;
 
   /**
    * @param errorHandlerRID the remoteID of the error handler.
@@ -60,13 +64,15 @@ final class ProcessContainer implements Container {
                    final String containedID,
                    final File folder,
                    final int megaBytes,
-                   final REEFFileNames fileNames) {
+                   final REEFFileNames fileNames,
+                   final ReefRunnableProcessObserver processObserver) {
     this.errorHandlerRID = errorHandlerRID;
     this.nodeID = nodeID;
     this.containedID = containedID;
     this.folder = folder;
     this.megaBytes = megaBytes;
     this.fileNames = fileNames;
+    this.processObserver = processObserver;
     this.reefFolder = new File(folder, fileNames.getREEFFolderName());
     this.localFolder = new File(reefFolder, fileNames.getLocalFolderName());
     this.localFolder.mkdirs();
@@ -94,7 +100,7 @@ final class ProcessContainer implements Container {
 
   @Override
   public void run(final List<String> commandLine) {
-    this.process = new RunnableProcess(commandLine, this.containedID, this.folder);
+    this.process = new RunnableProcess(commandLine, this.containedID, this.folder, this.processObserver);
     this.theThread = new Thread(this.process);
     this.theThread.start();
   }
@@ -146,8 +152,8 @@ final class ProcessContainer implements Container {
     for (final File sourceFile : files) {
       final File destinationFile = new File(folder, sourceFile.getName());
       if (Files.isSymbolicLink(sourceFile.toPath())) {
-          final Path linkTargetPath = Files.readSymbolicLink(sourceFile.toPath());
-          Files.createSymbolicLink(destinationFile.toPath(), linkTargetPath);
+        final Path linkTargetPath = Files.readSymbolicLink(sourceFile.toPath());
+        Files.createSymbolicLink(destinationFile.toPath(), linkTargetPath);
       } else {
         Files.copy(sourceFile.toPath(), destinationFile.toPath());
       }

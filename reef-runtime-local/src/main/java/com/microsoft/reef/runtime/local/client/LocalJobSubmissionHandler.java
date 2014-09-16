@@ -27,7 +27,8 @@ import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
 import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
 import com.microsoft.reef.runtime.local.driver.LocalDriverConfiguration;
 import com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration;
-import com.microsoft.reef.runtime.local.driver.RunnableProcess;
+import com.microsoft.reef.runtime.local.process.LoggingRunnableProcessObserver;
+import com.microsoft.reef.runtime.local.process.RunnableProcess;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.Tang;
 import com.microsoft.tang.annotations.Parameter;
@@ -143,7 +144,8 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(command, ' '));
       }
 
-      final RunnableProcess process = new RunnableProcess(command, "driver", driverFolder);
+      final RunnableProcess process = new RunnableProcess(command,
+          "driver", driverFolder, new LoggingRunnableProcessObserver());
       this.executor.submit(process);
       this.executor.shutdown();
 
