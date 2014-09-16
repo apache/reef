@@ -158,7 +158,7 @@ final class HttpAbcEventHandler implements HttpHandler {
 
   @Override
   public void onHttpRequest(
-      final HttpServletRequest request,
+      final ParsedHttpRequest parsedHttpRequest,
       final HttpServletResponse response) throws IOException, ServletException {
     response.getWriter().println("OnRequest in HttpAbcEventHandler is called");
   }

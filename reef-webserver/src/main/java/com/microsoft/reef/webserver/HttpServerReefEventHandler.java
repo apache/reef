@@ -86,13 +86,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    */
   @Override
   public void onHttpRequest(
-      final HttpServletRequest request,
+      final ParsedHttpRequest parsedHttpRequest,
       final HttpServletResponse response) throws IOException, ServletException {
 
     LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}",
-        request.getRequestURI());
+        parsedHttpRequest.getRequestUri());
 
-    final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final String version = parsedHttpRequest.getVersion().toLowerCase();
     final String target = parsedHttpRequest.getTargetEntity().toLowerCase();
 

@@ -81,10 +81,11 @@ class JettyHandler extends AbstractHandler {
 
     response.setContentType("text/html;charset=utf-8");
 
-    final HttpHandler handler = validate(request, response);
+    final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
+    final HttpHandler handler = validate(request, response, parsedHttpRequest);
     if (handler != null) {
       LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", handler.getUriSpecification());
-      handler.onHttpRequest(request, response);
+      handler.onHttpRequest(parsedHttpRequest, response);
       response.setStatus(HttpServletResponse.SC_OK);
     }
 
@@ -102,8 +103,8 @@ class JettyHandler extends AbstractHandler {
    * @throws ServletException
    */
   private HttpHandler validate(final HttpServletRequest request,
-                               final HttpServletResponse response) throws IOException, ServletException {
-    final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
+                               final HttpServletResponse response,
+                               final ParsedHttpRequest parsedHttpRequest) throws IOException, ServletException {
     final String specification = parsedHttpRequest.getTargetSpecification();
     final String version = parsedHttpRequest.getVersion();
 
