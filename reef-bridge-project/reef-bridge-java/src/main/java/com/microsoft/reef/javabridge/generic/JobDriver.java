@@ -363,10 +363,10 @@ public final class JobDriver {
      * process http request
      */
     @Override
-    public void onHttpRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-      LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest: {0}", request.getRequestURI());
+    public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response) throws IOException, ServletException {
+      LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest: {0}", parsedHttpRequest.getRequestUri());
       final AvroHttpSerializer httpSerializer = new AvroHttpSerializer();
-      final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(request);
+      final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(parsedHttpRequest);
       final byte[] requestBytes = httpSerializer.toBytes(avroHttpRequest);
 
       try {
