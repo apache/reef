@@ -105,9 +105,13 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
   private void onResourceStatus(final DriverRuntimeProtocol.ResourceStatusProto resourceStatus) {
     LOG.log(Level.INFO, "Sending resource status: {0} ", resourceStatus);
 
+    // Here, we introduce an arbitrary wait. This is to make sure that at the exit of an Evaluator, the last
+    // heartbeat from that Evaluator arrives before this message. This makes sure that the local runtime behaves like
+    // a resource manager with regard to that timing.
     try {
       Thread.sleep(100);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
+      LOG.log(Level.FINEST, "Sleep interrupted. Event will be fired earlier than usual.");
     }
     this.resourceStatusHandler.onNext(resourceStatus);
   }
