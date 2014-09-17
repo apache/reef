@@ -89,6 +89,7 @@ public final class JobDriver {
 
   private int nCLREvaluators = 0;
   private boolean clrBridgeSetup = false;
+  private boolean isRestarted = false;
 
   /**
    * String codec is used to encode the results
@@ -331,7 +332,7 @@ public final class JobDriver {
     {
         final String message = "CLR FailedEvaluator handler set, handling things with CLR handler.";
         LOG.log(Level.INFO, message);
-        FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor, true);
+        FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor, JobDriver.this.isRestarted);
         NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(JobDriver.this.failedEvaluatorHandler, failedEvaluatorBridge, JobDriver.this.interopLogger);
         int additionalRequestedEvaluatorNumber = failedEvaluatorBridge.getNewlyRequestedEvaluatorNumber();
         if (additionalRequestedEvaluatorNumber > 0) {
@@ -539,6 +540,8 @@ public final class JobDriver {
       synchronized (JobDriver.this) {
 
         setupBridge(startTime);
+
+        JobDriver.this.isRestarted = true;
 
         LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
       }
