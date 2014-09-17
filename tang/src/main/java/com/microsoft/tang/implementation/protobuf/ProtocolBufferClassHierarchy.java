@@ -202,7 +202,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * @return
    * @throws IOException
    */
-  public static ClassHierarchy deSerialize(final String fileName) throws IOException {
+  public static ClassHierarchy deserialize(final String fileName) throws IOException {
     final InputStream stream = new FileInputStream(fileName);
 
     final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(stream);
