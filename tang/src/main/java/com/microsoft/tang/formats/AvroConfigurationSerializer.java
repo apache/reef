@@ -61,7 +61,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   public AvroConfiguration toAvro(final Configuration configuration) {
     // Note: This code is an adapted version of ConfiurationFile.toConfigurationStringList();
-
+    // TODO: This method should implement list serialization. Implement it when C# side is ready.
 
     final List<ConfigurationEntry> configurationEntries = new ArrayList<>();
 
@@ -105,26 +105,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           .setValue(val)
           .build());
     }
-    // Serializes boundLists in the form of array of string
-    for (final NamedParameterNode<List<?>> opt : configuration.getBoundLists()) {
-      final List<?> list = configuration.getBoundList(opt);
-      final List<String> result = new ArrayList<>();
-      for (int i = 0; i < list.size(); i++) {
-        final Object item = list.get(i);
-        if (item instanceof String) {
-          result.add((String) item);
-        }
-        else if (item instanceof Node) {
-          result.add(((Node) item).getFullName());
-        } else {
-          throw new IllegalStateException();
-        }
-      }
-      configurationEntries.add(new ConfigurationEntry().newBuilder()
-          .setKey(opt.getFullName())
-          .setValue(result)
-          .build());
-    }
+    // TODO: Implement list serialization
 
     return AvroConfiguration.newBuilder().setBindings(configurationEntries).build();
   }
@@ -204,6 +185,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   private static void fromAvro(final AvroConfiguration avroConfiguration, final ConfigurationBuilder configurationBuilder) throws BindException {
     // Note: This code is an adapted version of ConfigurationFile.processConfigFile();
+    // TODO: This method should implement list deserialization. Implement it when C# side is ready.
     final Map<String, String> importedNames = new HashMap<>();
 
     for (final ConfigurationEntry entry : avroConfiguration.getBindings()) {
@@ -220,41 +202,31 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
       final Object rawValue = entry.getValue();
 
       try {
-        // rawValue is an array of String. Array is represented as List in Avro.
-        if (rawValue instanceof List) {
-          List<Object> value = (List<Object>) rawValue;
-          List<Object> result = new ArrayList<>();
-          for (Object item : value) {
-            result.add(item.toString());
-          }
-          configurationBuilder.bindList(key, result);
-        }
+        // TODO: Implement list deserialization
         // rawValue is String.
-        else {
-          String value = rawValue.toString();
-          if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
-            configurationBuilder.getClassHierarchy().getNode(value);
-            final String[] tok = value.split(ReflectionUtilities.regexp);
-            final String lastTok = tok[tok.length - 1];
-            try {
-              configurationBuilder.getClassHierarchy().getNode(lastTok);
-              throw new IllegalArgumentException("Conflict on short name: " + lastTok);
-            } catch (final BindException e) {
-              final String oldValue = importedNames.put(lastTok, value);
-              if (oldValue != null) {
-                throw new IllegalArgumentException("Name conflict: "
-                    + lastTok + " maps to " + oldValue + " and " + value);
-              }
+        String value = rawValue.toString();
+        if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
+          configurationBuilder.getClassHierarchy().getNode(value);
+          final String[] tok = value.split(ReflectionUtilities.regexp);
+          final String lastTok = tok[tok.length - 1];
+          try {
+            configurationBuilder.getClassHierarchy().getNode(lastTok);
+            throw new IllegalArgumentException("Conflict on short name: " + lastTok);
+          } catch (final BindException e) {
+            final String oldValue = importedNames.put(lastTok, value);
+            if (oldValue != null) {
+              throw new IllegalArgumentException("Name conflict: "
+                  + lastTok + " maps to " + oldValue + " and " + value);
             }
-          } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
-            final String[] classes = value.substring(ConfigurationBuilderImpl.INIT.length(), value.length())
-                .replaceAll("^[\\s\\(]+", "")
-                .replaceAll("[\\s\\)]+$", "")
-                .split("[\\s\\-]+");
-            configurationBuilder.registerLegacyConstructor(key, classes);
-          } else {
-            configurationBuilder.bind(key, value);
           }
+        } else if (value.startsWith(ConfigurationBuilderImpl.INIT)) {
+          final String[] classes = value.substring(ConfigurationBuilderImpl.INIT.length(), value.length())
+              .replaceAll("^[\\s\\(]+", "")
+              .replaceAll("[\\s\\)]+$", "")
+              .split("[\\s\\-]+");
+          configurationBuilder.registerLegacyConstructor(key, classes);
+        } else {
+          configurationBuilder.bind(key, value);
         }
       } catch (final BindException | ClassHierarchyException e) {
         throw new BindException("Failed to process configuration tuple: [" + key + "=" + rawValue + "]", e);

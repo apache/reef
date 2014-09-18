@@ -45,4 +45,15 @@ public class ObjectTreeTest {
         .set(TestConfiguration.REQUIRED_STRING, TestConfiguration.REQUIRED_STRING_VALUE)
         .build();
   }
+
+  /**
+   * Configuration getter for TestConfigurationWithoutList.
+   */
+  public static Configuration getConfigurationWithoutList() throws BindException {
+    // TODO: should be removed after list Avro serialization is implemented!
+    return TestConfigurationWithoutList.CONF
+        .set(TestConfigurationWithoutList.OPTIONAL_STRING, TestConfigurationWithoutList.OPTIONAL_STRING_VALUE)
+        .set(TestConfigurationWithoutList.REQUIRED_STRING, TestConfigurationWithoutList.REQUIRED_STRING_VALUE)
+        .build();
+  }
 }

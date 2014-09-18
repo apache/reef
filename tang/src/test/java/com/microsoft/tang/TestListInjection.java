@@ -143,76 +143,7 @@ public class TestListInjection {
     Assert.assertEquals(expected, actual2);
   }
 
-  /**
-   * Test code for serializing and deserializing configuration with list binding using AvroConfigurationSerializer
-   * @throws InjectionException
-   * @throws IOException
-   */
-  @Test
-  public void testStringInjectRoundTrip() throws InjectionException, IOException {
-    List<String> injected = new ArrayList<>();
-    injected.add("hi");
-    injected.add("hello");
-    injected.add("bye");
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindList(StringList.class, injected);
-    // Serialize configuration with Avro and deserialize it
-    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String serialized = serializer.toString(cb.build());
-    Configuration conf = serializer.fromString(serialized);
-
-    List<String> actual = Tang.Factory.getTang().newInjector(conf).getInstance(StringClass.class).stringList;
-    List<String> expected = new ArrayList<>();
-    expected.add("hi");
-    expected.add("hello");
-    expected.add("bye");
-    Assert.assertEquals(expected, actual);
-  }
-  @Test
-  public void testIntegerInjectRoundTrip() throws InjectionException, IOException {
-    List<String> injected = new ArrayList<>();
-    injected.add("1");
-    injected.add("2");
-    injected.add("3");
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindList(IntegerList.class, injected);
-    // Serialize configuration with Avro and deserialize it
-    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String serialized = serializer.toString(cb.build());
-    Configuration conf = serializer.fromString(serialized);
-
-    List<Integer> actual = Tang.Factory.getTang().newInjector(conf).getInstance(IntegerClass.class).integerList;
-    List<Integer> expected = new ArrayList<>();
-    expected.add(1);
-    expected.add(2);
-    expected.add(3);
-    Assert.assertEquals(expected, actual);
-  }
-  @Test
-  public void testObjectInjectRoundTrip() throws InjectionException, IOException {
-    Integer integer = 1;
-    Float ffloat = 1.001f;
-
-    List<Class> injected = new ArrayList<>();
-    injected.add(Integer.class);
-    injected.add(Float.class);
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    // Serialize configuration with Avro and deserialize it
-    cb.bindList(NumberList.class, injected);
-    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    String serialized = serializer.toString(cb.build());
-    Configuration conf = serializer.fromString(serialized);
-
-    Injector injector = Tang.Factory.getTang().newInjector(conf);
-    injector.bindVolatileInstance(Integer.class, integer);
-    injector.bindVolatileInstance(Float.class, ffloat);
-    List<Number> actual = injector.getInstance(NumberClass.class).numberList;
-
-    List<Number> expected = new ArrayList<>();
-    expected.add(integer);
-    expected.add(ffloat);
-    Assert.assertEquals(expected, actual);
-  }
+  // TODO: Make tests for list serialization/deserialization after implementing those features.
 
   /**
    * Test code for Tang selectivity.
