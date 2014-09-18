@@ -256,7 +256,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindList(NamedParameterNode<List<T>> iface, List<Object> implList) {
+  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) {
     // Check parsability of list items
     for (Object item : implList) {
       if (item instanceof String) {
@@ -274,7 +274,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindList(String iface, List<Object> implList) {
+  public void bindList(String iface, List implList) {
     NamedParameterNode<List<?>> ifaceNode = (NamedParameterNode<List<?>>) namespace.getNode(iface);
     // Check parsability of list items
     for (Object item : implList) {

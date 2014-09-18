@@ -5,6 +5,7 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.*;
+import com.microsoft.tang.types.ClassNode;
 import com.microsoft.tang.types.NamedParameterNode;
 import org.junit.Assert;
 import org.junit.Test;
@@ -179,7 +180,7 @@ public class TestListInjection {
   public void testStringInjectConfigurationBuilder() throws InjectionException {
     JavaClassHierarchy namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
     NamedParameterNode<List<String>> np = (NamedParameterNode) namespace.getNode(StringList.class);
-    List<Object> injected = new ArrayList<>();
+    List<String> injected = new ArrayList<>();
     injected.add("hi");
     injected.add("hello");
     injected.add("bye");
@@ -204,9 +205,9 @@ public class TestListInjection {
 
     JavaClassHierarchy namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
     NamedParameterNode<List<Class>> np = (NamedParameterNode) namespace.getNode(NumberList.class);
-    List<Object> injected = new ArrayList<>();
-    injected.add(namespace.getNode(Integer.class));
-    injected.add(namespace.getNode(Float.class));
+    List<ClassNode> injected = new ArrayList<>();
+    injected.add((ClassNode) namespace.getNode(Integer.class));
+    injected.add((ClassNode) namespace.getNode(Float.class));
 
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindList(np, injected);
