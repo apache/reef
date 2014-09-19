@@ -13,7 +13,7 @@ import java.util.Set;
  * All the configuration parameters and options for the test without list
  */
 public class TestConfigurationWithoutList extends ConfigurationModuleBuilder {
-  // TODO: should be removed after list Avro serialization is implemented!
+  // TODO: Remove this method after #192 is fixed
   @NamedParameter()
   public static final class RequiredString implements Name<String> {
   }

@@ -9,7 +9,7 @@ import javax.inject.Inject;
  * @see com.microsoft.tang.test.RootImplementation
  */
 public class RootImplementationWithoutList implements RootInterface {
-  // TODO: should be removed after list Avro serialization is implemented!
+  // TODO: Remove this class after #192 is fixed
   private final String requiredString;
   private final String optionalString;
   private final UnitClass unit;

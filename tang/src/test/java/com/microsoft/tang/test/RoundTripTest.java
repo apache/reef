@@ -30,7 +30,7 @@ public abstract class RoundTripTest {
 
   @Test
   public void testRoundTrip() throws Exception {
-    // TODO: Change method to 'getConfigration' after list Avro serialization is implemented
+    // TODO: use 'getConfiguration' instead of 'getConfigurationWithoutList' after #192 is fixed
     final Configuration conf = ObjectTreeTest.getConfigurationWithoutList();
     final RootInterface before = Tang.Factory.getTang().newInjector(conf).getInstance(RootInterface.class);
     final RootInterface after = Tang.Factory.getTang().newInjector(roundTrip(conf)).getInstance(RootInterface.class);
