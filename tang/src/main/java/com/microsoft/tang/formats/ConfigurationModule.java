@@ -183,7 +183,7 @@ public class ConfigurationModule {
         for(String s : c.setLateImplSets.getValuesForKey(i)) {
           c.builder.b.bindSetEntry((Class)clazz, s);
         }
-      } else {
+      } else if (c.setImplLists.containsKey(i)) {
         c.builder.b.bindList((Class) clazz, c.setImplLists.get(i));
       }
     }
