@@ -1,30 +1,15 @@
-/**
- * Copyright (C) 2014 Microsoft Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.microsoft.tang.test;
-
 
 import com.microsoft.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 
 /**
- * The root of the object graph instantiated.
+ * The root of the object graph without list
+ * @see com.microsoft.tang.test.RootImplementation
  */
-final class RootImplementation implements RootInterface {
-
+public class RootImplementationWithoutList implements RootInterface {
+  // TODO: Remove this class after #192 is fixed
   private final String requiredString;
   private final String optionalString;
   private final UnitClass unit;
@@ -36,25 +21,23 @@ final class RootImplementation implements RootInterface {
   private final InjectableClass injectableClass;
   private final SetOfImplementations setOfImplementations;
   private final SetOfBaseTypes setOfBaseTypes;
-  private final ListOfImplementations listOfImplementations;
-  private final ListOfBaseTypes listOfBaseTypes;
   private final CyclicDependency cyclicDependency;
 
   @Inject
-  public RootImplementation(@Parameter(TestConfiguration.RequiredString.class) final String requiredString,
-                            @Parameter(TestConfiguration.OptionalString.class) final String optionalString,
-                            @Parameter(TestConfiguration.StringHandler.class) final Handler<String> stringHandler,
-                            @Parameter(TestConfiguration.IntegerHandler.class) final Handler<Integer> integerHandler,
-                            @Parameter(TestConfiguration.NamedParameterInteger.class) final int anInt,
-                            @Parameter(TestConfiguration.NamedParameterDouble.class) double aDouble,
-                            final UnitClass unit,
-                            final AnInterface anInterface,
-                            final InjectableClass injectableClass,
-                            final SetOfImplementations setOfImplementations,
-                            final SetOfBaseTypes setOfBaseTypes,
-                            final ListOfImplementations listOfImplementations,
-                            final ListOfBaseTypes listOfBaseTypes,
-                            CyclicDependency cyclicDependency) {
+  public RootImplementationWithoutList(
+      @Parameter(TestConfigurationWithoutList.RequiredString.class) final String requiredString,
+      @Parameter(TestConfigurationWithoutList.OptionalString.class) final String optionalString,
+      @Parameter(TestConfigurationWithoutList.StringHandler.class) final Handler<String> stringHandler,
+      @Parameter(TestConfigurationWithoutList.IntegerHandler.class) final Handler<Integer> integerHandler,
+      @Parameter(TestConfigurationWithoutList.NamedParameterInteger.class) final int anInt,
+      @Parameter(TestConfigurationWithoutList.NamedParameterDouble.class) double aDouble,
+      final UnitClass unit,
+      final AnInterface anInterface,
+      final InjectableClass injectableClass,
+      final SetOfImplementations setOfImplementations,
+      final SetOfBaseTypes setOfBaseTypes,
+      CyclicDependency cyclicDependency) {
+
     this.requiredString = requiredString;
     this.optionalString = optionalString;
     this.unit = unit;
@@ -66,17 +49,12 @@ final class RootImplementation implements RootInterface {
     this.injectableClass = injectableClass;
     this.setOfImplementations = setOfImplementations;
     this.setOfBaseTypes = setOfBaseTypes;
-    this.listOfImplementations = listOfImplementations;
-    this.listOfBaseTypes = listOfBaseTypes;
     this.cyclicDependency = cyclicDependency;
   }
 
   @Override
   public boolean isValid() {
     if (!this.setOfImplementations.isValid()) {
-      return false;
-    }
-    if (!this.listOfImplementations.isValid()) {
       return false;
     }
     if (!this.requiredString.equals(TestConfiguration.REQUIRED_STRING_VALUE)) {
@@ -115,7 +93,7 @@ final class RootImplementation implements RootInterface {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    RootImplementation that = (RootImplementation) o;
+    RootImplementationWithoutList that = (RootImplementationWithoutList) o;
 
     if (Double.compare(that.aDouble, aDouble) != 0) return false;
     if (anInt != that.anInt) return false;
@@ -133,11 +111,6 @@ final class RootImplementation implements RootInterface {
     if (setOfImplementations != null ? !setOfImplementations.equals(that.setOfImplementations) : that.setOfImplementations != null)
       return false;
     if (setOfBaseTypes != null ? !setOfBaseTypes.equals(that.setOfBaseTypes) : that.setOfBaseTypes != null)
-      return false;
-    if (listOfImplementations != null ? !listOfImplementations.equals(that.listOfImplementations) : that
-        .listOfImplementations != null)
-      return false;
-    if (listOfBaseTypes != null ? !listOfBaseTypes.equals(that.listOfBaseTypes) : that.listOfBaseTypes != null)
       return false;
     if (cyclicDependency != null ? !cyclicDependency.equals(that.cyclicDependency) : that.cyclicDependency != null)
       return false;

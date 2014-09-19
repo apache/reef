@@ -56,6 +56,8 @@ public class ConfigurationModule {
   private final MonotonicMultiHashMap<Param<?>, String> setParamSets = new MonotonicMultiHashMap<>(); 
   private final Map<Impl<?>, String> setLateImpls = new MonotonicHashMap<>();
   private final Map<Param<?>, String> setParams = new MonotonicHashMap<>();
+  private final Map<Impl<List>, List<?>> setImplLists = new MonotonicHashMap<>();
+  private final Map<Param<List>, List<?>> setParamLists = new MonotonicHashMap<>();
   protected ConfigurationModule(ConfigurationModuleBuilder builder) {
     this.builder = builder.deepCopy();
   }
@@ -63,10 +65,13 @@ public class ConfigurationModule {
     ConfigurationModule cm = new ConfigurationModule(builder.deepCopy());
     cm.setImpls.putAll(setImpls);
     cm.setImplSets.addAll(setImplSets);
+    cm.setLateImplSets.addAll(setLateImplSets);
     cm.setParamSets.addAll(setParamSets);
     cm.setLateImpls.putAll(setLateImpls);
     cm.setParams.putAll(setParams);
     cm.reqSet.addAll(reqSet);
+    cm.setImplLists.putAll(setImplLists);
+    cm.setParamLists.putAll(setParamLists);
     return cm;
   }
 
@@ -99,6 +104,21 @@ public class ConfigurationModule {
     }
     return c;
   }
+
+  /**
+   * Binds a list to a specific optional/required Impl using ConfigurationModule.
+   *
+   * @param opt Target optional/required Impl
+   * @param implList List object to be injected
+   * @param <T>
+   * @return
+   */
+  public final <T> ConfigurationModule set(Impl<List> opt, List implList) {
+    ConfigurationModule c = deepCopy();
+    c.processSet(opt);
+    c.setImplLists.put(opt, implList);
+    return c;
+  }
   
   public final <T> ConfigurationModule set(Param<T> opt, Class<? extends T> val) {
     return set(opt, ReflectionUtilities.getFullName(val));
@@ -117,6 +137,21 @@ public class ConfigurationModule {
     } else {
       c.setParams.put(opt, val);
     }
+    return c;
+  }
+
+  /**
+   * Binds a list to a specfici optional/required Param using ConfigurationModule.
+   *
+   * @param opt target optional/required Param
+   * @param implList List object to be injected
+   * @param <T>
+   * @return
+   */
+  public final <T> ConfigurationModule set(Param<List> opt, List implList) {
+    ConfigurationModule c = deepCopy();
+    c.processSet(opt);
+    c.setParamLists.put(opt, implList);
     return c;
   }
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -141,13 +176,15 @@ public class ConfigurationModule {
         c.builder.b.bind(clazz, c.setImpls.get(i));
       } else if(c.setLateImpls.containsKey(i)) {
         c.builder.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
-      } else {
+      } else if(c.setImplSets.containsKey(i) || c.setLateImplSets.containsKey(i)) {
         for(Class<?> clz : c.setImplSets.getValuesForKey(i)) {
           c.builder.b.bindSetEntry((Class)clazz, (Class)clz);
         }
         for(String s : c.setLateImplSets.getValuesForKey(i)) {
           c.builder.b.bindSetEntry((Class)clazz, s);
         }
+      } else {
+        c.builder.b.bindList((Class) clazz, c.setImplLists.get(i));
       }
     }
     for (Class<? extends Name<?>> clazz : c.builder.freeParams.keySet()) {
@@ -156,6 +193,12 @@ public class ConfigurationModule {
       boolean foundOne = false;
       if(s != null) {
         c.builder.b.bindNamedParameter(clazz, s);
+        foundOne = true;
+      }
+      // Find the bound list for the NamedParameter
+      List list = c.setParamLists.get(p);
+      if(list != null) {
+        c.builder.b.bindList((Class) clazz, list);
         foundOne = true;
       }
       for(String paramStr : c.setParamSets.getValuesForKey(p)) {
@@ -237,7 +280,9 @@ public class ConfigurationModule {
         setLateImplSets.isEmpty() &&
         setParamSets.isEmpty() &&
         setLateImpls.isEmpty() &&
-        setParams.isEmpty()
+        setParams.isEmpty() &&
+        setImplLists.isEmpty() &&
+        setParamLists.isEmpty()
         )) {
       throw new ClassHierarchyException("Detected statically set ConfigurationModule Parameter / Implementation.  set() should only be used dynamically.  Use bind...() instead.");
     }

@@ -295,6 +295,30 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy{
 
   @Test
   @Override
+  public void testGenericTorture10() throws NameResolutionException {
+    setup1();
+    super.testGenericTorture10();
+    setup2();
+    super.testGenericTorture10();
+  }
+  @Test
+  @Override
+  public void testGenericTorture11() throws NameResolutionException {
+    setup1();
+    super.testGenericTorture11();
+    setup2();
+    super.testGenericTorture11();
+  }
+  @Test
+  @Override
+  public void testGenericTorture12() throws NameResolutionException {
+    setup1();
+    super.testGenericTorture12();
+    setup2();
+    super.testGenericTorture12();
+  }
+  @Test
+  @Override
   public void testInjectNonStaticLocalArgClass() throws NameResolutionException {
     setup1();
     super.testInjectNonStaticLocalArgClass();

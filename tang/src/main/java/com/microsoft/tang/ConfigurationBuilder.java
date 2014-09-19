@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang;
 
+import java.util.List;
 import java.util.Set;
 
 import com.microsoft.tang.exceptions.BindException;
@@ -228,5 +229,23 @@ public interface ConfigurationBuilder {
   public void bindSetEntry(String iface, String impl) throws BindException;
 
   public void bindSetEntry(String iface, Node impl) throws BindException;
+
+  /**
+   * Bind an list of implementations(Class or String) to an given NamedParameter.
+   * Unlike bindSetEntry, bindListEntry will bind a whole list to the parameter,
+   * not an element of the list.
+   *
+   * Since ordering of the list is important, list binding cannot be repeated or
+   * merged unlike set binding. If the elements of the list are Classes, the objects
+   * created by the Classes will be injected. If the elements are Strings, the values
+   * will be injected directly to a given list parameter.
+   *
+   * @param iface The list named parameter to be instantiated
+   * @param implList The list of class or value will be used to instantiated the named parameter
+   * @throws BindException
+   */
+  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) throws BindException;
+
+  public void bindList(String iface, List implList) throws BindException;
 
 }

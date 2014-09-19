@@ -33,10 +33,12 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.StringUtils;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -59,7 +61,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   public AvroConfiguration toAvro(final Configuration configuration) {
     // Note: This code is an adapted version of ConfiurationFile.toConfigurationStringList();
-
+    // TODO: This method should implement list serialization. Implement it when C# side is ready.
 
     final List<ConfigurationEntry> configurationEntries = new ArrayList<>();
 
@@ -103,6 +105,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           .setValue(val)
           .build());
     }
+    // TODO: Implement list serialization
 
     return AvroConfiguration.newBuilder().setBindings(configurationEntries).build();
   }
@@ -182,6 +185,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   private static void fromAvro(final AvroConfiguration avroConfiguration, final ConfigurationBuilder configurationBuilder) throws BindException {
     // Note: This code is an adapted version of ConfigurationFile.processConfigFile();
+    // TODO: This method should implement list deserialization. Implement it when C# side is ready.
     final Map<String, String> importedNames = new HashMap<>();
 
     for (final ConfigurationEntry entry : avroConfiguration.getBindings()) {
@@ -194,9 +198,13 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
         key = longName;
       }
 
-      final String value = entry.getValue().toString();
+      // entry.getValue()'s type can be either string or array of string
+      final Object rawValue = entry.getValue();
 
       try {
+        // TODO: Implement list deserialization
+        // rawValue is String.
+        String value = rawValue.toString();
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           configurationBuilder.getClassHierarchy().getNode(value);
           final String[] tok = value.split(ReflectionUtilities.regexp);
@@ -221,7 +229,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           configurationBuilder.bind(key, value);
         }
       } catch (final BindException | ClassHierarchyException e) {
-        throw new BindException("Failed to process configuration tuple: [" + key + "=" + value + "]", e);
+        throw new BindException("Failed to process configuration tuple: [" + key + "=" + rawValue + "]", e);
       }
     }
   }

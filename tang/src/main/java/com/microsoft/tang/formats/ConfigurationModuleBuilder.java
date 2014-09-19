@@ -17,6 +17,7 @@ package com.microsoft.tang.formats;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -275,6 +276,28 @@ public abstract class ConfigurationModuleBuilder {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(v);
     c.freeImpls.put(cons, v);
+    return c;
+  }
+
+  public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface,
+      Impl<List> opt) {
+    ConfigurationModuleBuilder c = deepCopy();
+    c.processUse(opt);
+    c.freeImpls.put(iface, opt);
+    return c;
+  }
+
+  public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface,
+    Param<List> opt) {
+    ConfigurationModuleBuilder c = deepCopy();
+    c.processUse(opt);
+    c.freeParams.put(iface, opt);
+    return c;
+  }
+
+  public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface, List list) {
+    ConfigurationModuleBuilder c = deepCopy();
+    c.b.bindList(iface, list);
     return c;
   }
 

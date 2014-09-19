@@ -28,4 +28,6 @@ public interface NamedParameterNode<T> extends Node {
   public String getFullArgName();
   
   public boolean isSet();
+
+  public boolean isList();
 }

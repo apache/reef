@@ -20,6 +20,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -77,4 +78,18 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
   public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
 
   public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+
+  /**
+   * Binds a specfic list to a named parameter. List's elements can be string values or class implementations.
+   * Their type would be checked in this method. If their types are not applicable to the named parameter,
+   * it will make an exception.
+   *
+   * @param iface The target named parameter to be injected into
+   * @param impl A concrete list
+   * @param <T>
+   * @return
+   * @throws BindException
+   */
+  public <T> JavaConfigurationBuilder bindList(Class<? extends Name<List<T>>> iface, List impl)
+      throws BindException;
 }

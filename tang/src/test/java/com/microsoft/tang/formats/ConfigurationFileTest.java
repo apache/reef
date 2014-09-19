@@ -30,12 +30,15 @@ public final class ConfigurationFileTest extends RoundTripTest {
   public Configuration roundTrip(final Configuration configuration) throws Exception {
     final File tempFile = java.io.File.createTempFile("TangTest", "txt");
 
+    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
+
     // Write the configuration.
-    ConfigurationFile.writeConfigurationFile(configuration, tempFile);
+    serializer.toTextFile(configuration, tempFile);
 
     // Read it again.
     final JavaConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(configurationBuilder, tempFile);
+    Configuration conf = serializer.fromTextFile(tempFile);
+    configurationBuilder.addConfiguration(conf);
     return configurationBuilder.build();
   }
 }

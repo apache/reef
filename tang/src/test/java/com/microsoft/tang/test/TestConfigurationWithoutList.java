@@ -1,18 +1,3 @@
-/**
- * Copyright (C) 2014 Microsoft Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.microsoft.tang.test;
 
 import com.microsoft.tang.annotations.Name;
@@ -22,15 +7,13 @@ import com.microsoft.tang.formats.ConfigurationModuleBuilder;
 import com.microsoft.tang.formats.OptionalParameter;
 import com.microsoft.tang.formats.RequiredParameter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 /**
- * All the configuration parameters and options for the test.
+ * All the configuration parameters and options for the test without list
  */
-public class TestConfiguration extends ConfigurationModuleBuilder {
+public class TestConfigurationWithoutList extends ConfigurationModuleBuilder {
+  // TODO: Remove this method after #192 is fixed
   @NamedParameter()
   public static final class RequiredString implements Name<String> {
   }
@@ -71,19 +54,8 @@ public class TestConfiguration extends ConfigurationModuleBuilder {
   public static final class SetOfInstances implements Name<Set<SetInterface>> {
   }
 
-  @NamedParameter
-  public static final class ListOfInstances implements Name<List<ListInterface>> {
-  }
-
-  // Pre-defined lists used in injection
-  private static final List<Class<? extends ListInterface>> injectedImplList = Arrays.asList(ListInterfaceImplOne.class,
-      ListInterfaceImplTwo.class);
-  private static final List<String> injectedIntegerList = Arrays.asList("1", "2", "3");
-  private static final List<String> injectedDoubleList = Arrays.asList("1", "2", "3");
-  private static final List<String> injectedStringList = Arrays.asList("1", "2", "3");
-
-  public static final ConfigurationModule CONF = new TestConfiguration()
-      .bindImplementation(RootInterface.class, RootImplementation.class)
+  public static final ConfigurationModule CONF = new TestConfigurationWithoutList()
+      .bindImplementation(RootInterface.class, RootImplementationWithoutList.class)
       .bindNamedParameter(IntegerHandler.class, UnitClass.IntegerHandler.class)
       .bindNamedParameter(StringHandler.class, UnitClass.StringHandler.class)
       .bindNamedParameter(NamedParameterInteger.class, String.valueOf(NAMED_PARAMETER_INTEGER_VALUE))
@@ -91,7 +63,6 @@ public class TestConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(SetOfInstances.class, SetInterfaceImplOne.class)
       .bindSetEntry(SetOfInstances.class, SetInterfaceImplTwo.class)
           // Adds list implementations
-      .bindList(ListOfInstances.class, injectedImplList)
       .bindNamedParameter(RequiredString.class, REQUIRED_STRING)
       .bindNamedParameter(OptionalString.class, OPTIONAL_STRING)
           // Sets of base types
@@ -105,10 +76,5 @@ public class TestConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(SetOfBaseTypes.Strings.class, "2")
       .bindSetEntry(SetOfBaseTypes.Strings.class, "3")
           // Lists of base types
-      .bindList(ListOfBaseTypes.Integers.class, injectedIntegerList)
-      .bindList(ListOfBaseTypes.Doubles.class, injectedDoubleList)
-      .bindList(ListOfBaseTypes.Strings.class, injectedStringList)
       .build();
-
-
 }

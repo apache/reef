@@ -18,6 +18,7 @@ package com.microsoft.tang.implementation;
 import com.microsoft.tang.*;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.exceptions.ParseException;
 import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.types.*;
 import com.microsoft.tang.util.MonotonicMultiMap;
@@ -25,6 +26,8 @@ import com.microsoft.tang.util.TracingMonotonicMap;
 import com.microsoft.tang.util.TracingMonotonicTreeMap;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -40,6 +43,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
   final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
+  final TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>> boundLists = new TracingMonotonicTreeMap<>();
 
   public final static String IMPORT = "import";
   public final static String INIT = "<init>";
@@ -123,6 +127,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       } else {
         throw new IllegalStateException();
       }
+    }
+    // The boundLists set contains bound lists with their target NamedParameters
+    for (NamedParameterNode<List<?>> np : builder.boundLists.keySet()) {
+      bindList(np.getFullName(), builder.boundLists.get(np));
     }
   }
 
@@ -229,6 +237,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException {
+    JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+    try {
+      // Just for parsability checking.
+      javanamespace.parse(iface, impl);
+    } catch(ParseException e) {
+      throw new IllegalStateException("Could not parse " + impl + " which was passed to " + iface);
+    }
     boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
   }
 
@@ -237,6 +252,43 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
       throws BindException {
     boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) {
+    // Check parsability of list items
+    for (Object item : implList) {
+      if (item instanceof String) {
+        JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+        try {
+          // Just for parsability checking.
+          javanamespace.parse(iface, (String) item);
+        } catch(ParseException e) {
+          throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface);
+        }
+      }
+    }
+    boundLists.put((NamedParameterNode<List<?>>) (NamedParameterNode<?>) iface, implList);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void bindList(String iface, List implList) {
+    NamedParameterNode<List<?>> ifaceNode = (NamedParameterNode<List<?>>) namespace.getNode(iface);
+    // Check parsability of list items
+    for (Object item : implList) {
+      if (item instanceof String) {
+        JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+        try {
+          // Just for parsability checking.
+          javanamespace.parse(ifaceNode, (String) item);
+        } catch(ParseException e) {
+          throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface);
+        }
+      }
+    }
+    boundLists.put(ifaceNode, implList);
   }
 
   @Override
@@ -298,6 +350,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (boundSetEntries != null ? !boundSetEntries.equals(that.boundSetEntries) : that.boundSetEntries != null) {
       return false;
     }
+    if (boundLists != null ? !boundLists.equals(that.boundLists) : that.boundLists != null) {
+      return false;
+    }
     if (legacyConstructors != null ? !legacyConstructors.equals(that.legacyConstructors) : that.legacyConstructors != null) {
       return false;
     }
@@ -315,6 +370,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     result = 31 * result + (namedParameters != null ? namedParameters.hashCode() : 0);
     result = 31 * result + (legacyConstructors != null ? legacyConstructors.hashCode() : 0);
     result = 31 * result + (boundSetEntries != null ? boundSetEntries.hashCode() : 0);
+    result = 31 * result + (boundLists != null ? boundLists.hashCode() : 0);
     return result;
   }
 }

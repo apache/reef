@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang.implementation;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -243,6 +244,21 @@ public class TestClassHierarchy {
   @Test
   public void testGenericTorture9() throws NameResolutionException {
     ns.getNode(s(GenericTorture9.class));
+  }
+
+  @Test
+  public void testGenericTorture10() throws NameResolutionException {
+    ns.getNode(s(GenericTorture10.class));
+  }
+
+  @Test
+  public void testGenericTorture11() throws NameResolutionException {
+    ns.getNode(s(GenericTorture11.class));
+  }
+
+  @Test
+  public void testGenericTorture12() throws NameResolutionException {
+    ns.getNode(s(GenericTorture12.class));
   }
 
   @Test
@@ -519,6 +535,18 @@ class GenericTorture8 implements Name<Map<String, String>> {
 @SuppressWarnings("rawtypes")
 @NamedParameter()
 class GenericTorture9 implements Name<Map<Set, Set>> {
+}
+
+@NamedParameter()
+class GenericTorture10 implements Name<List<String>> {
+}
+
+@NamedParameter()
+class GenericTorture11 implements Name<List<?>> {
+}
+
+@NamedParameter()
+class GenericTorture12 implements Name<List<List<String>>> {
 }
 
 class InjectNonStaticLocalArgClass {
