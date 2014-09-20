@@ -20,7 +20,7 @@
     "name":"ConfigurationEntry",
     "fields":[
 	{"name":"key","type":"string"},
-	{"name":"value","type":["string", {"type":"array", "items":"string"}]}
+	{"name":"value","type":"string"}
     ]
 },
 {
