@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.reef</groupId>
@@ -226,18 +227,6 @@
                     <show>public</show>
                     <linksource>true</linksource>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>test-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -499,18 +488,18 @@
                 </plugins>
             </build>
         </profile>
-      <profile>
-        <id>reef-bridge</id>
-        <activation>
-          <os>
-            <name>Windows</name>
-            <family>Windows</family>
-          </os>
-        </activation>
-        <modules>
-          <module>reef-bridge-project</module>
-        </modules>
+        <profile>
+            <id>reef-bridge</id>
+            <activation>
+                <os>
+                    <name>Windows</name>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <modules>
+                <module>reef-bridge-project</module>
+            </modules>
 
-      </profile>
-      </profiles>
+        </profile>
+    </profiles>
 </project>
