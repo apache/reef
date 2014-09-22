@@ -36,7 +36,7 @@ param
     $Tests="com.microsoft.reef.tests.AllTestsSuite"
   )
 
-Import-Module ((Split-Path -Parent -Resolve $MyInvocation.MyCommand.Definition) + "\runreef.ps1")
+Import-Module ((Split-Path -Parent -Resolve $MyInvocation.MyCommand.Definition) + "\runreef.psm1")
 
 if ((Split-Path -Leaf $MyInvocation.MyCommand.Definition).Equals("runtests.ps1")) {
   $env:REEF_TEST_YARN = "true"
