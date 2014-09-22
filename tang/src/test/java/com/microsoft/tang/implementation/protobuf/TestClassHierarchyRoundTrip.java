@@ -44,7 +44,7 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy{
   private void setup3() {
     TangImpl.reset();
 
-    final String relPath = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+    final String relPath = this.getClass().getClassLoader().getResource("").getPath();
     final String fileName = relPath + "testProto.bin";
 
     try {
