@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.microsoft.reef</groupId>
     <artifactId>reef-bridge-project</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.9-SNAPSHOT</version>
   </parent>
 
 
@@ -83,13 +83,13 @@
             <configuration>
               <exportAntProperties>true</exportAntProperties>
               <target>
-                <property name="runtime_classpath" refid="maven.compile.classpath"/>
+                <property name="runtime_classpath" refid="maven.compile.classpath" />
                 <exec executable="javah">
-                  <arg value="-cp"/>
-                  <arg value="${runtime_classpath}"/>
-                  <arg value="-d"/>
-                  <arg value="${project.build.directory}/classes"/>
-                  <arg value="com.microsoft.reef.javabridge.NativeInterop"/>
+                  <arg value="-cp" />
+                  <arg value="${runtime_classpath}" />
+                  <arg value="-d" />
+                  <arg value="${project.build.directory}/classes" />
+                  <arg value="com.microsoft.reef.javabridge.NativeInterop" />
               </exec>
               </target>
             </configuration>
