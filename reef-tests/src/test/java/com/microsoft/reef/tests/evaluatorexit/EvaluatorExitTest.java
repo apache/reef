@@ -25,6 +25,7 @@ import com.microsoft.tang.Configuration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 
 import java.util.logging.Logger;
 
@@ -45,9 +46,7 @@ public final class EvaluatorExitTest {
     this.testEnvironment.tearDown();
   }
 
-
-  // TODO: Add to the tests again after #986
-//  @Test
+  @Test
   public void testEvaluatorExit() {
     final Configuration driverConfiguration = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorExit")
