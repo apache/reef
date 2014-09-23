@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.tests.taskcounting;
 
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.task.CompletedTask;
 import com.microsoft.reef.driver.task.RunningTask;
@@ -54,12 +53,9 @@ final class TaskCountingDriver {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       synchronized (expectedRunningTaskIds) {
-        final Configuration contextConfiguration = ContextConfiguration.CONF
-            .set(ContextConfiguration.IDENTIFIER, "RootContext")
-            .build();
         final String taskId = "Task-" + numberOfTaskSubmissions.getAndDecrement();
         final Configuration taskConfiguration = getTaskConfiguration(taskId);
-        allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
+        allocatedEvaluator.submitTask(taskConfiguration);
         expectedRunningTaskIds.add(taskId);
       }
     }

@@ -20,6 +20,7 @@ import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Public;
 import com.microsoft.reef.driver.ContextAndTaskSubmittable;
 import com.microsoft.reef.driver.ContextSubmittable;
+import com.microsoft.reef.driver.TaskSubmittable;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.tang.Configuration;
 
@@ -33,7 +34,7 @@ import java.io.IOException;
 @DriverSide
 @Provided
 public interface AllocatedEvaluator
-    extends AutoCloseable, Identifiable, ContextSubmittable, ContextAndTaskSubmittable {
+    extends AutoCloseable, Identifiable, ContextSubmittable, ContextAndTaskSubmittable, TaskSubmittable {
 
   /**
    * Puts the given file into the working directory of the Evaluator.
@@ -68,6 +69,16 @@ public interface AllocatedEvaluator
    */
   @Override
   void close();
+
+  /**
+   * Submits the given Task for execution.
+   * <p/>
+   * This generates a ContextConfiguration for the root context with a generated ID derived from the EvaluatorId.
+   *
+   * @param taskConfiguration the Configuration. See TaskConfiguration for details.
+   */
+  @Override
+  void submitTask(final Configuration taskConfiguration);
 
   @Override
   void submitContext(final Configuration contextConfiguration);
