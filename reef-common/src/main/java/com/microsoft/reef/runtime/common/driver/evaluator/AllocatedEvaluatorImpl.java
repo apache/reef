@@ -17,6 +17,7 @@ package com.microsoft.reef.runtime.common.driver.evaluator;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
+import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
@@ -79,9 +80,19 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   @Override
+  public void submitTask(final Configuration taskConfiguration) {
+    final Configuration contextConfiguration = ContextConfiguration.CONF
+        .set(ContextConfiguration.IDENTIFIER, "RootContext_" + this.getId())
+        .build();
+    this.submitContextAndTask(contextConfiguration, taskConfiguration);
+
+  }
+
+  @Override
   public EvaluatorDescriptor getEvaluatorDescriptor() {
     return this.evaluatorManager.getEvaluatorDescriptor();
   }
+
 
   @Override
   public void submitContext(final Configuration contextConfiguration) {

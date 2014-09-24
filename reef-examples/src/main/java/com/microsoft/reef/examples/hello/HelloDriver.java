@@ -15,14 +15,12 @@
  */
 package com.microsoft.reef.examples.hello;
 
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.time.event.StartTime;
 
@@ -66,24 +64,17 @@ public final class HelloDriver {
   }
 
   /**
-   * Handles AllocatedEvaluator: Submit an empty context and the HelloTask
+   * Handles AllocatedEvaluator: Submit the HelloTask
    */
   public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       LOG.log(Level.INFO, "Submitting HelloREEF task to AllocatedEvaluator: {0}", allocatedEvaluator);
-      try {
-        final Configuration contextConfiguration = ContextConfiguration.CONF
-            .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
-            .build();
-        final Configuration taskConfiguration = TaskConfiguration.CONF
-            .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
-            .set(TaskConfiguration.TASK, HelloTask.class)
-            .build();
-        allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
-      } catch (final BindException ex) {
-        throw new RuntimeException("Unable to setup Task or Context configuration.", ex);
-      }
+      final Configuration taskConfiguration = TaskConfiguration.CONF
+          .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
+          .set(TaskConfiguration.TASK, HelloTask.class)
+          .build();
+      allocatedEvaluator.submitTask(taskConfiguration);
     }
   }
 }
