@@ -390,7 +390,7 @@ final class YarnContainerManager
         .setIdentifier(container.getId().toString())
         .setNodeId(container.getNodeId().toString())
         .setResourceMemory(container.getResource().getMemory())
-        .setVirtualCore(container.getResource().getVirtualCores())
+        .setVirtualCores(container.getResource().getVirtualCores())
         .build());
 
     this.updateRuntimeStatus();

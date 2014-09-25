@@ -31,16 +31,16 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final NodeDescriptor nodeDescriptor;
   private EvaluatorType type;
   private final int megaBytes;
-  private final int core;
+  private final int cores;
 
   public EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
                                  final EvaluatorType type,
                                  final int megaBytes,
-                                 final int core) {
+                                 final int cores) {
     this.nodeDescriptor = nodeDescriptor;
     this.type = type;
     this.megaBytes = megaBytes;
-    this.core = core;
+    this.cores = cores;
   }
 
   @Override
@@ -59,8 +59,8 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   }
 
   @Override
-  public int getCore() {
-    return this.core;
+  public int getNumerOfCores() {
+    return this.cores;
   }
 
   public synchronized void setType(final EvaluatorType type) {

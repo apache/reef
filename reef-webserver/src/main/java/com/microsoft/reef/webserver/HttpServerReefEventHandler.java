@@ -24,7 +24,6 @@ import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -210,7 +209,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         writer.write("<br/>");
         writer.println("Evaluator Memory: " + evaluatorDescriptor.getMemory());
         writer.write("<br/>");
-        writer.println("Evaluator Core: " + evaluatorDescriptor.getCore());
+        writer.println("Evaluator Core: " + evaluatorDescriptor.getNumerOfCores());
         writer.write("<br/>");
         writer.println("Evaluator Type: " + evaluatorDescriptor.getType());
         writer.write("<br/>");

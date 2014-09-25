@@ -71,7 +71,7 @@ public final class YarnResourceRequestHandler implements ResourceRequestHandler 
   private synchronized Resource getResource(final DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
     final Resource result = Records.newRecord(Resource.class);
     result.setMemory(getMemory(resourceRequestProto.getMemorySize()));
-    result.setVirtualCores(resourceRequestProto.getVirtualCore());
+    result.setVirtualCores(resourceRequestProto.getVirtualCores());
     return result;
   }
 

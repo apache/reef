@@ -48,7 +48,7 @@ final class CloseEvaluatorDriver {
           new Object[]{time, NUM_EVALUATORS});
 
       requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(NUM_EVALUATORS).setMemory(256).setCore(1).build());
+          .setNumber(NUM_EVALUATORS).setMemory(256).SetNumberOfCores(1).build());
     }
   }
 

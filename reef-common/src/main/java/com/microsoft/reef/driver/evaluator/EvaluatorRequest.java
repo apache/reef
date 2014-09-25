@@ -31,16 +31,16 @@ public final class EvaluatorRequest {
 
   private final int megaBytes;
   private final int number;
-  private final int core;
+  private final int cores;
   private final ResourceCatalog.Descriptor descriptor;
 
   EvaluatorRequest(final int number,
                    final int megaBytes,
-                   final int core,
+                   final int cores,
                    final ResourceCatalog.Descriptor descriptor) {
     this.number = number;
     this.megaBytes = megaBytes;
-    this.core = core;
+    this.cores = cores;
     this.descriptor = descriptor;
   }
 
@@ -58,8 +58,8 @@ public final class EvaluatorRequest {
    *
    * @return the number of cores requested.
    */
-  public int getCore() {
-    return this.core;
+  public int getNumberOfCores() {
+    return this.cores;
   }
 
   /**
@@ -103,7 +103,7 @@ public final class EvaluatorRequest {
     private int n = 1;
     private ResourceCatalog.Descriptor descriptor = null;
     private int megaBytes = -1;
-    private int core = 1; //if not set, default to 1
+    private int cores = 1; //if not set, default to 1
 
     private Builder() {
     }
@@ -122,8 +122,13 @@ public final class EvaluatorRequest {
       return this;
     }
 
-    public Builder setCore(final int core) {
-      this.core = core;
+    /**
+     * set number of cores
+     * @param cores the number of cores
+     * @return
+     */
+    public Builder SetNumberOfCores(final int cores) {
+      this.cores = cores;
       return this;
     }
 
@@ -143,7 +148,7 @@ public final class EvaluatorRequest {
      */
     @Override
     public EvaluatorRequest build() {
-      return new EvaluatorRequest(this.n, this.megaBytes, this.core, this.descriptor);
+      return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.descriptor);
     }
 
     /**

@@ -89,7 +89,7 @@ public final class DriverFailOnFail {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
       DriverFailOnFail.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(128).setCore(1).build());
+          .setNumber(1).setMemory(128).SetNumberOfCores(1).build());
     }
   }
 }

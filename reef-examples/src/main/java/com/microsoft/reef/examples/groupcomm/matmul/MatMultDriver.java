@@ -175,7 +175,7 @@ public final class MatMultDriver {
       MatMultDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(computeTasks + controllerTasks)
           .setMemory(128)
-          .setCore(1)
+          .SetNumberOfCores(1)
           .build());
     }
 

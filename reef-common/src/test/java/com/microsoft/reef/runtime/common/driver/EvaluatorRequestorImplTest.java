@@ -80,7 +80,7 @@ public class EvaluatorRequestorImplTest {
     final int count = 1;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler);
-    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setCore(1).setNumber(count).build());
+    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).SetNumberOfCores(1).setNumber(count).build());
   }
 
   /**
@@ -92,6 +92,6 @@ public class EvaluatorRequestorImplTest {
     final int count = 0;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler);
-    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setCore(1).setNumber(count).build());
+    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).SetNumberOfCores(1).setNumber(count).build());
   }
 }

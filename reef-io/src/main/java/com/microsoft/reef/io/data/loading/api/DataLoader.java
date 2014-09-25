@@ -107,7 +107,7 @@ public class DataLoader {
     } else {
       this.computeRequest = EvaluatorRequestSerializer.deserialize(serializedComputeRequest);
       this.computeEvalMemoryMB = this.computeRequest.getMegaBytes();
-      this.computeEvalCore = this.computeRequest.getCore();
+      this.computeEvalCore = this.computeRequest.getNumberOfCores();
       this.numComputeRequestsToSubmit.set(this.computeRequest.getNumber());
 
       this.resourceRequestStage.onNext(this.computeRequest);
@@ -120,7 +120,7 @@ public class DataLoader {
     return EvaluatorRequest.newBuilder()
         .setNumber(this.dataLoadingService.getNumberOfPartitions())
         .setMemory(this.dataEvalMemoryMB)
-        .setCore(this.dataEvalCore)
+        .SetNumberOfCores(this.dataEvalCore)
         .build();
   }
 
@@ -208,7 +208,7 @@ public class DataLoader {
         failedComputeEvalConfigs.add(computeConfig);
 
         requestor.submit(EvaluatorRequest.newBuilder()
-            .setMemory(computeEvalMemoryMB).setNumber(1).setCore(computeEvalCore).build());
+            .setMemory(computeEvalMemoryMB).setNumber(1).SetNumberOfCores(computeEvalCore).build());
 
       } else {
 
@@ -219,7 +219,7 @@ public class DataLoader {
           failedDataEvalConfigs.add(confPair);
 
           requestor.submit(EvaluatorRequest.newBuilder()
-              .setMemory(dataEvalMemoryMB).setNumber(1).setCore(dataEvalCore).build());
+              .setMemory(dataEvalMemoryMB).setNumber(1).SetNumberOfCores(dataEvalCore).build());
 
         } else {
 
