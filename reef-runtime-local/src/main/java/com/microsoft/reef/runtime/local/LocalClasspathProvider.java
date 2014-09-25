@@ -25,14 +25,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * RuntimeClasspathProvider for the local runtime.
+ * <p/>
+ * The prefix for the local runtime is empty, the suffix is the classpath of the current JVM. That classpath is filtered
+ * to not contain subfolders of JAVA_HOME. Also, duplicates are removed.
  */
 public final class LocalClasspathProvider implements RuntimeClasspathProvider {
-  private static final Level CLASSPATH_LOG_LEVEL = Level.FINEST;
-
   private final List<String> classPathSuffix;
 
   @Inject
@@ -61,6 +61,9 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
   }
 
 
+  /**
+   * @return the classpath filtered by entries in subfolders of JAVA_HOME are removed, so are duplicate entries.
+   */
   private static LinkedHashSet<String> getFilteredClasspath() {
     final LinkedHashSet<String> result = new LinkedHashSet<>();
     final Optional<Path> javaHome = getJavaHome();
@@ -69,17 +72,20 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
       final Path javaHomePath = javaHome.get();
       for (final Path classPathEntry : getClasspath()) {
         if (!classPathEntry.startsWith(javaHomePath)) {
-          result.add(classPathEntry.toString());
+          result.add(toAbsolutePathString(classPathEntry));
         }
       }
     } else {
       for (final Path classPathEntry : getClasspath()) {
-        result.add(classPathEntry.toString());
+        result.add(toAbsolutePathString(classPathEntry));
       }
     }
     return result;
   }
 
+  /**
+   * @return the path to "JAVA_HOME", if that is set. Optional.empty(), else.
+   */
   private static Optional<Path> getJavaHome() {
     final Optional<String> javaHome = getEnv("JAVA_HOME");
 
@@ -92,10 +98,17 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
     return Optional.empty();
   }
 
+  /**
+   * @param envName
+   * @return the value of the environment variable, if there is one.
+   */
   private static Optional<String> getEnv(final String envName) {
     return Optional.ofNullable(System.getenv(envName));
   }
 
+  /**
+   * @return the classpath of the current JVM. Duplicates are removed.
+   */
   private static LinkedHashSet<Path> getClasspath() {
     final LinkedHashSet<Path> result = new LinkedHashSet<>();
     for (final String classPathEntry : System.getProperty("java.class.path").split(File.pathSeparator)) {
@@ -107,4 +120,14 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
     return result;
   }
 
+
+  /**
+   * Concerts the given path into a String representing the absolute path.
+   *
+   * @param path
+   * @return
+   */
+  private static String toAbsolutePathString(final Path path) {
+    return path.toAbsolutePath().toString();
+  }
 }
