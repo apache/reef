@@ -128,6 +128,6 @@ public final class LocalClasspathProvider implements RuntimeClasspathProvider {
    * @return
    */
   private static String toAbsolutePathString(final Path path) {
-    return path.toAbsolutePath().toString();
+    return "\"" + path.toAbsolutePath().toString() + "\"";
   }
 }
