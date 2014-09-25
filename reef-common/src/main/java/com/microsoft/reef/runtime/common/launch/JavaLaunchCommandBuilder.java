@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.List;
 
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
-  private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" +  "java";
+  private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" + "java";
   private String stderrPath = null;
   private String stdoutPath = null;
   private String errorHandlerRID = null;
@@ -142,7 +142,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
-    this.classPath = StringUtils.join(classPathElements, File.pathSeparatorChar);
+    this.classPath = "\"" + StringUtils.join(classPathElements, File.pathSeparatorChar) + "\"";
     return this;
   }
 
