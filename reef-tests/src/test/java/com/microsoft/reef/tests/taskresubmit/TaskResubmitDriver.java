@@ -16,7 +16,6 @@
 package com.microsoft.reef.tests.taskresubmit;
 
 import com.microsoft.reef.driver.context.ActiveContext;
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
@@ -26,7 +25,6 @@ import com.microsoft.reef.tests.library.exceptions.SimulatedTaskFailure;
 import com.microsoft.reef.tests.library.exceptions.TaskSideFailure;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Unit;
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -45,30 +43,17 @@ class TaskResubmitDriver {
   }
 
   private static Configuration getTaskConfiguration() {
-    try {
-      return TaskConfiguration.CONF
-          .set(TaskConfiguration.TASK, FailTaskCall.class)
-          .set(TaskConfiguration.IDENTIFIER, "FailTask")
-          .build();
-    } catch (BindException e) {
-      throw new RuntimeException(e);
-    }
+    return TaskConfiguration.CONF
+        .set(TaskConfiguration.TASK, FailTaskCall.class)
+        .set(TaskConfiguration.IDENTIFIER, "FailTask")
+        .build();
   }
 
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      try {
-        final Configuration contextConfiguration = ContextConfiguration.CONF
-            .set(ContextConfiguration.IDENTIFIER, "TaskResubmitContext")
-            .build();
-        final Configuration taskConfiguration = getTaskConfiguration();
-        allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
-      } catch (final BindException ex) {
-        LOG.log(Level.SEVERE, "Task configuration error", ex);
-        throw new RuntimeException(ex);
-      }
+      allocatedEvaluator.submitTask(getTaskConfiguration());
     }
   }
 

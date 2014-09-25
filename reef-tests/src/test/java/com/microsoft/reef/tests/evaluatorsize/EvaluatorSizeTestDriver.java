@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.tests.evaluatorsize;
 
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
@@ -73,10 +72,6 @@ final class EvaluatorSizeTestDriver {
 
       // ALL good on the Driver side. Let's move on to the Task
       try {
-        final Configuration contextConfiguration = ContextConfiguration.CONF
-            .set(ContextConfiguration.IDENTIFIER, "EvaluatorSizeTest")
-            .build();
-
         final Configuration taskConfiguration = TaskConfiguration.CONF
             .set(TaskConfiguration.TASK, MemorySizeTask.class)
             .set(TaskConfiguration.IDENTIFIER, "EvaluatorSizeTestTask")
@@ -89,7 +84,7 @@ final class EvaluatorSizeTestDriver {
         final Configuration mergedTaskConfiguration = Tang.Factory.getTang()
             .newConfigurationBuilder(taskConfiguration, testConfiguration).build();
 
-        allocatedEvaluator.submitContextAndTask(contextConfiguration, mergedTaskConfiguration);
+        allocatedEvaluator.submitTask(mergedTaskConfiguration);
 
       } catch (final BindException e) {
         throw new DriverSideFailure("Unable to launch Task", e);

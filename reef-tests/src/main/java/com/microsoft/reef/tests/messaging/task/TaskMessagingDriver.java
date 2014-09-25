@@ -16,7 +16,6 @@
 package com.microsoft.reef.tests.messaging.task;
 
 import com.microsoft.reef.driver.client.JobMessageObserver;
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.task.RunningTask;
 import com.microsoft.reef.driver.task.TaskConfiguration;
@@ -58,17 +57,13 @@ public final class TaskMessagingDriver {
       final String taskId = "Task_" + eval.getId();
       LOG.log(Level.INFO, "Submit task: {0}", taskId);
 
-      final Configuration contextConfig = ContextConfiguration.CONF
-          .set(ContextConfiguration.IDENTIFIER, taskId)
-          .build();
-
       final Configuration taskConfig = TaskConfiguration.CONF
           .set(TaskConfiguration.IDENTIFIER, taskId)
           .set(TaskConfiguration.TASK, TaskMessagingTask.class)
           .set(TaskConfiguration.ON_MESSAGE, TaskMessagingTask.DriverMessageHandler.class)
           .set(TaskConfiguration.ON_SEND_MESSAGE, TaskMessagingTask.class)
           .build();
-      eval.submitContextAndTask(contextConfig, taskConfig);
+      eval.submitTask(taskConfig);
     }
   }
 

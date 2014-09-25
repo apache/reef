@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.tests.evaluatorexit;
 
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.driver.task.TaskConfiguration;
@@ -43,14 +42,11 @@ final class EvaluatorExitTestDriver {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      final Configuration contextConfiguration = ContextConfiguration.CONF
-          .set(ContextConfiguration.IDENTIFIER, "EvaluatorExitTestContext")
-          .build();
       final Configuration taskConfiguration = TaskConfiguration.CONF
           .set(TaskConfiguration.IDENTIFIER, "EvaluatorExitTestTask")
           .set(TaskConfiguration.TASK, EvaluatorExitTestTask.class)
           .build();
-      allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
+      allocatedEvaluator.submitTask(taskConfiguration);
     }
   }
 
