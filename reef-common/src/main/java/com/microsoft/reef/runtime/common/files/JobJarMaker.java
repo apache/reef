@@ -97,7 +97,13 @@ public final class JobJarMaker {
         try {
           java.nio.file.Files.copy(sourceFile.toPath(), destinationFile.toPath());
         } catch (final IOException e) {
-          throw new RuntimeException("Couldn't copy a file to the job folder", e);
+          final String message = new StringBuilder("Copy of file [")
+              .append(sourceFile.getAbsolutePath())
+              .append("] to [")
+              .append(destinationFile.getAbsolutePath())
+              .append("] failed.")
+              .toString();
+          throw new RuntimeException(message, e);
         }
       }
     }
