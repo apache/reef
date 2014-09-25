@@ -19,7 +19,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * The size of the default container returned in MB.
+ * The number of the default core.
  */
 @NamedParameter(doc = "The number of the default core", default_value = "1")
 public class DefaultCore implements Name<Integer> {

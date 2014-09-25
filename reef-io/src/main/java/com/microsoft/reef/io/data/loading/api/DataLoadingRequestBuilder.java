@@ -86,9 +86,9 @@ public final class DataLoadingRequestBuilder
   }
 
   /**
-   * Set the memory to be used for Evaluator allocated.
+   * Set the core number to be used for Evaluator allocated.
    *
-   * @param core the amount of memory in MB
+   * @param core the number of cores
    * @return this
    */
   public DataLoadingRequestBuilder setCore(final int core) {

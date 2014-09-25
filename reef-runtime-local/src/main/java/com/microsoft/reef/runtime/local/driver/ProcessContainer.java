@@ -114,7 +114,7 @@ final class ProcessContainer implements Container {
   }
 
   @Override
-     public final int getMemory() {
+  public final int getMemory() {
     return this.megaBytes;
   }
 
