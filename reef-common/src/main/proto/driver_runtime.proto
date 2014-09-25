@@ -25,6 +25,7 @@ message ResourceAllocationProto {
 	required string identifier     = 1; // e.g., the container id, or the thread id
 	required int32 resource_memory = 2; // megabytes
 	required string node_id        = 3;
+	optional int32 virtual_core = 4;
 }
 
 message ResourceStatusProto {
@@ -51,7 +52,7 @@ message ResourceRequestProto {
 	// optional SIZE resource_size   = 1; // Removed in REEF 0.3 in favor of memory_size.
     optional int32 memory_size = 2; // Memory size of the evaluator in MB
     optional int32 priority       = 3;
-
+    optional int32 virtual_core = 4;
     required int32 resource_count = 5;
 	repeated string node_name     = 6; // a list of specific nodes
 	repeated string rack_name     = 7; // a list of specific racks

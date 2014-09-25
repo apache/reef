@@ -65,6 +65,11 @@ interface Container extends AutoCloseable {
   public int getMemory();
 
   /**
+   * @return the core available to the Container.
+   */
+  public int getCore();
+
+  /**
    * @return the working directory of the Container.
    */
   public File getFolder();

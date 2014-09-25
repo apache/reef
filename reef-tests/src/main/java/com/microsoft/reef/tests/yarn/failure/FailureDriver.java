@@ -59,6 +59,7 @@ public class FailureDriver {
       FailureDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(NUM_EVALUATORS)
           .setMemory(64)
+          .setCore(1)
           .build());
     }
   }
@@ -101,6 +102,7 @@ public class FailureDriver {
       FailureDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1)
           .setMemory(64)
+          .setCore(1)
           .build());
     }
   }

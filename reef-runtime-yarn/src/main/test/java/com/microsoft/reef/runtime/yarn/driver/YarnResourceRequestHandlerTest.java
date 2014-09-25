@@ -55,10 +55,12 @@ public final class YarnResourceRequestHandlerTest {
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(64)
+        .setCore(2)
         .build();
     final EvaluatorRequest requestTwo = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(128)
+        .setCore(2)
         .build();
     {
       evaluatorRequestor.submit(requestOne);
@@ -88,10 +90,12 @@ public final class YarnResourceRequestHandlerTest {
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(64)
+        .setCore(2)
         .build();
     final EvaluatorRequest requestTwo = EvaluatorRequest.newBuilder()
         .setNumber(2)
         .setMemory(128)
+        .setCore(2)
         .build();
     {
       evaluatorRequestor.submit(requestOne);

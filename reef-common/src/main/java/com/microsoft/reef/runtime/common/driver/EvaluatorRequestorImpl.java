@@ -56,6 +56,9 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     if (req.getMegaBytes() <= 0) {
       throw new IllegalArgumentException("Given an unsupported memory size: " + req.getMegaBytes());
     }
+    if (req.getCore() <= 0) {
+      throw new IllegalArgumentException("Given an unsupported core number: " + req.getCore());
+    }
     if (req.getNumber() <= 0) {
       throw new IllegalArgumentException("Given an unsupported number of evaluators: " + req.getNumber());
     }
@@ -63,6 +66,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto
         .newBuilder()
         .setResourceCount(req.getNumber())
+        .setVirtualCore(req.getCore())
         .setMemorySize(req.getMegaBytes());
 
     final ResourceCatalog.Descriptor descriptor = req.getDescriptor();

@@ -37,7 +37,8 @@ public class EvaluatorRequestSerializer {
         
         daos.writeInt(request.getNumber());
         daos.writeInt(request.getMegaBytes());
-        
+        daos.writeInt(request.getCore());
+
       } catch (IOException e) {
         throw e;
       }
@@ -54,6 +55,7 @@ public class EvaluatorRequestSerializer {
         return EvaluatorRequest.newBuilder()
             .setNumber(dais.readInt())
             .setMemory(dais.readInt())
+            .setCore(dais.readInt())
             .build();
       }
     } catch (IOException e) {

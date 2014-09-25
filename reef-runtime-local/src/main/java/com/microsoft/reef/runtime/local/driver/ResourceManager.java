@@ -27,6 +27,7 @@ import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
+import com.microsoft.reef.runtime.local.client.parameters.DefaultCore;
 import com.microsoft.reef.runtime.local.client.parameters.DefaultMemorySize;
 import com.microsoft.reef.runtime.local.driver.parameters.GlobalFiles;
 import com.microsoft.reef.runtime.local.driver.parameters.GlobalLibraries;
@@ -59,6 +60,7 @@ public final class ResourceManager {
   private final ContainerManager theContainers;
   private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
   private final int defaultMemorySize;
+  private final int defaultCore;
   private final ConfigurationSerializer configurationSerializer;
   private final RemoteManager remoteManager;
   private final REEFFileNames fileNames;
@@ -73,6 +75,7 @@ public final class ResourceManager {
       final @Parameter(GlobalLibraries.class) Set<String> globalLibraries,
       final @Parameter(GlobalFiles.class) Set<String> globalFiles,
       final @Parameter(DefaultMemorySize.class) int defaultMemorySize,
+      final @Parameter(DefaultCore.class) int defaultCore,
       final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
@@ -85,6 +88,7 @@ public final class ResourceManager {
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
     this.defaultMemorySize = defaultMemorySize;
+    this.defaultCore = defaultCore;
     this.fileNames = fileNames;
     this.classpathProvider = classpathProvider;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
@@ -192,7 +196,8 @@ public final class ResourceManager {
 
       // Allocate a Container
       final Container container = this.theContainers.allocateOne(
-          requestProto.hasMemorySize() ? requestProto.getMemorySize() : this.defaultMemorySize);
+          requestProto.hasMemorySize() ? requestProto.getMemorySize() : this.defaultMemorySize,
+          requestProto.hasVirtualCore() ? requestProto.getVirtualCore() : this.defaultCore);
 
       // Tell the receivers about it
       final DriverRuntimeProtocol.ResourceAllocationProto alloc =
@@ -200,6 +205,7 @@ public final class ResourceManager {
               .setIdentifier(container.getContainerID())
               .setNodeId(container.getNodeID())
               .setResourceMemory(container.getMemory())
+              .setVirtualCore(container.getCore())
               .build();
 
       LOG.log(Level.FINEST, "Allocating container: {0}", container);

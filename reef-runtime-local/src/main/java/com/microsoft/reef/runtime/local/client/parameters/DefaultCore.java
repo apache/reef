@@ -13,32 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.driver.evaluator;
+package com.microsoft.reef.runtime.local.client.parameters;
 
-import com.microsoft.reef.driver.catalog.NodeDescriptor;
+import com.microsoft.tang.annotations.Name;
+import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * Metadata about an Evaluator.
+ * The size of the default container returned in MB.
  */
-public interface EvaluatorDescriptor {
-
-  /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
-   */
-  public NodeDescriptor getNodeDescriptor();
-
-  /**
-   * @return the type of Evaluator.
-   */
-  public EvaluatorType getType();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  public int getMemory();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  public int getCore();
+@NamedParameter(doc = "The number of the default core", default_value = "1")
+public class DefaultCore implements Name<Integer> {
 }

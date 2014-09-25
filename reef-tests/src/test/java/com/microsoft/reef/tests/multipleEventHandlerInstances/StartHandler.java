@@ -55,6 +55,7 @@ public final class StartHandler implements EventHandler<StartTime> {
     StartHandler.this.requestor.submit(EvaluatorRequest.newBuilder()
         .setNumber(5)
         .setMemory(64)
+        .setCore(1)
         .build());
   }
 }

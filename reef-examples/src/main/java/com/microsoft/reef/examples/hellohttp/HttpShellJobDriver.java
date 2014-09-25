@@ -347,6 +347,7 @@ public final class HttpShellJobDriver {
     this.evaluatorRequestor.submit(
         EvaluatorRequest.newBuilder()
             .setMemory(128)
+            .setCore(3)
             .setNumber(this.numEvaluators).build()
     );
     this.state = State.WAIT_EVALUATORS;

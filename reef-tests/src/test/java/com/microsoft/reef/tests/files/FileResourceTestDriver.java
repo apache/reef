@@ -80,7 +80,7 @@ final class FileResourceTestDriver {
 
       // Ask for a single evaluator.
       FileResourceTestDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(64).build());
+          .setNumber(1).setMemory(64).setCore(1).build());
     }
   }
 

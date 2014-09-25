@@ -285,7 +285,7 @@ public final class FailDriver {
     public void onNext(final StartTime time) {
       FailDriver.this.checkMsgOrder(time);
       FailDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(128).build());
+          .setNumber(1).setMemory(128).setCore(1).build());
     }
   }
 

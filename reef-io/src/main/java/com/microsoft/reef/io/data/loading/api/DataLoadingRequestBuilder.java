@@ -47,6 +47,10 @@ public final class DataLoadingRequestBuilder
   public static final class DataLoadingEvaluatorMemoryMB implements Name<Integer> {
   }
 
+  @NamedParameter(short_name = "dataLoadingEvaluatorCore", default_value = "1")
+  public static final class DataLoadingEvaluatorCore implements Name<Integer> {
+  }
+
   @NamedParameter(default_value = "NULL")
   public static final class DataLoadingComputeRequest implements Name<String> {
   }
@@ -56,6 +60,7 @@ public final class DataLoadingRequestBuilder
   }
 
   private int memoryMB = -1;
+  private int core = -1;
   private int numberOfDesiredSplits = -1;
   private EvaluatorRequest computeRequest = null;
   private boolean inMemory = false;
@@ -77,6 +82,17 @@ public final class DataLoadingRequestBuilder
    */
   public DataLoadingRequestBuilder setMemoryMB(final int memoryMB) {
     this.memoryMB = memoryMB;
+    return this;
+  }
+
+  /**
+   * Set the memory to be used for Evaluator allocated.
+   *
+   * @param core the amount of memory in MB
+   * @return this
+   */
+  public DataLoadingRequestBuilder setCore(final int core) {
+    this.core = core;
     return this;
   }
 
@@ -149,6 +165,10 @@ public final class DataLoadingRequestBuilder
 
     if (this.memoryMB > 0) {
       jcb.bindNamedParameter(DataLoadingEvaluatorMemoryMB.class, "" + this.memoryMB);
+    }
+
+    if (this.core > 0) {
+      jcb.bindNamedParameter(DataLoadingEvaluatorCore.class, "" + this.core);
     }
 
     if (this.computeRequest != null) {
