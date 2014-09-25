@@ -27,7 +27,7 @@ import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
-import com.microsoft.reef.runtime.local.client.parameters.DefaultCore;
+import com.microsoft.reef.runtime.local.client.parameters.DefaultNumberOfCores;
 import com.microsoft.reef.runtime.local.client.parameters.DefaultMemorySize;
 import com.microsoft.reef.runtime.local.driver.parameters.GlobalFiles;
 import com.microsoft.reef.runtime.local.driver.parameters.GlobalLibraries;
@@ -75,7 +75,7 @@ public final class ResourceManager {
       final @Parameter(GlobalLibraries.class) Set<String> globalLibraries,
       final @Parameter(GlobalFiles.class) Set<String> globalFiles,
       final @Parameter(DefaultMemorySize.class) int defaultMemorySize,
-      final @Parameter(DefaultCore.class) int defaultNumberOfCores,
+      final @Parameter(DefaultNumberOfCores.class) int defaultNumberOfCores,
       final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,

@@ -22,5 +22,5 @@ import com.microsoft.tang.annotations.NamedParameter;
  * The number of the default core.
  */
 @NamedParameter(doc = "The number of the default core", default_value = "1")
-public class DefaultCore implements Name<Integer> {
+public class DefaultNumberOfCores implements Name<Integer> {
 }
