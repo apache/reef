@@ -39,7 +39,7 @@ public final class OnDriverStartedAllocateOne implements EventHandler<StartTime>
     this.requestor.submit(EvaluatorRequest.newBuilder()
         .setMemory(64)
         .setNumber(1)
-        .SetNumberOfCores(1)
+        .setNumberOfCores(1)
         .build());
   }
 }

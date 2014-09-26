@@ -110,8 +110,8 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
           .setApplicationName(jobSubmissionProto.getIdentifier())
           .setResource(getResource(jobSubmissionProto))
           .setContainerInfo(new ContainerInfo()
-              .addFileResource(this.filenames.getREEFFolderName(), uploadedFile)
-              .addCommand(command));
+          .addFileResource(this.filenames.getREEFFolderName(), uploadedFile)
+          .addCommand(command));
 
       this.hdInsightInstance.submitApplication(applicationSubmission);
       LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}", applicationID.getId());

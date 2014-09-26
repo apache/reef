@@ -462,7 +462,7 @@ public final class JobDriver {
       this.evaluatorRequestor.submit(
           EvaluatorRequest.newBuilder()
               .setMemory(128)
-              .SetNumberOfCores(2)
+              .setNumberOfCores(1)
               .setNumber(numNodes).build()
       );
       this.state = State.WAIT_EVALUATORS;

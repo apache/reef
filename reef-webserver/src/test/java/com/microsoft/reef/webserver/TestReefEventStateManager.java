@@ -112,7 +112,7 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   }
 
   @Override
-  public int getNumerOfCores() {
+  public int getNumberOfCores() {
     return 1;
   }
 }

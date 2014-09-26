@@ -40,5 +40,5 @@ public interface EvaluatorDescriptor {
   /**
    * @return the number of virtual core allocated to this Evaluator.
    */
-  public int getNumerOfCores();
+  public int getNumberOfCores();
 }

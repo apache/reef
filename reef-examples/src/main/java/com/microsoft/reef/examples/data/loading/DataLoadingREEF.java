@@ -101,7 +101,7 @@ public class DataLoadingREEF {
     final EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
         .setNumber(NUM_COMPUTE_EVALUATORS)
         .setMemory(512)
-        .SetNumberOfCores(1)
+        .setNumberOfCores(1)
         .build();
 
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()

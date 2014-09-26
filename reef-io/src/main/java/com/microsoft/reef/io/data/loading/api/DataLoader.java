@@ -82,7 +82,7 @@ public class DataLoader {
       final EvaluatorRequestor requestor,
       final DataLoadingService dataLoadingService,
       final @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) int dataEvalMemoryMB,
-      final @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorCore.class) int dataEvalCore,
+      final @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorNumberOfCores.class) int dataEvalCore,
       final @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) String serializedComputeRequest) {
 
     // FIXME: Issue #855: We need this alarm to look busy for REEF.
@@ -120,7 +120,7 @@ public class DataLoader {
     return EvaluatorRequest.newBuilder()
         .setNumber(this.dataLoadingService.getNumberOfPartitions())
         .setMemory(this.dataEvalMemoryMB)
-        .SetNumberOfCores(this.dataEvalCore)
+        .setNumberOfCores(this.dataEvalCore)
         .build();
   }
 
@@ -208,7 +208,7 @@ public class DataLoader {
         failedComputeEvalConfigs.add(computeConfig);
 
         requestor.submit(EvaluatorRequest.newBuilder()
-            .setMemory(computeEvalMemoryMB).setNumber(1).SetNumberOfCores(computeEvalCore).build());
+            .setMemory(computeEvalMemoryMB).setNumber(1).setNumberOfCores(computeEvalCore).build());
 
       } else {
 
@@ -219,7 +219,7 @@ public class DataLoader {
           failedDataEvalConfigs.add(confPair);
 
           requestor.submit(EvaluatorRequest.newBuilder()
-              .setMemory(dataEvalMemoryMB).setNumber(1).SetNumberOfCores(dataEvalCore).build());
+              .setMemory(dataEvalMemoryMB).setNumber(1).setNumberOfCores(dataEvalCore).build());
 
         } else {
 

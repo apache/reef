@@ -115,7 +115,7 @@ public final class JobDriver {
       evaluatorRequestor.submit(
           EvaluatorRequest.newBuilder()
               .setMemory(128)
-              .SetNumberOfCores(1)
+              .setNumberOfCores(1)
               .setNumber(numEvaluators).build()
       );
     }

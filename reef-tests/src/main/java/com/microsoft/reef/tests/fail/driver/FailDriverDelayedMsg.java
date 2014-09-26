@@ -119,7 +119,7 @@ public final class FailDriverDelayedMsg {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(StartTime): {0}", time);
       FailDriverDelayedMsg.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(128).SetNumberOfCores(1).build());
+          .setNumber(1).setMemory(128).setNumberOfCores(1).build());
     }
   }
 }

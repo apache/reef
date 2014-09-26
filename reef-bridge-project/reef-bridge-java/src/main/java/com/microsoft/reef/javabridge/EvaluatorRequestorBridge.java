@@ -87,7 +87,7 @@ public class EvaluatorRequestorBridge extends NativeBridge {
     EvaluatorRequest request = EvaluatorRequest.newBuilder().fromDescriptor(rackDescriptor)
         .setNumber(evaluatorsNumber)
         .setMemory(memory)
-        .SetNumberOfCores(virtualCore)
+        .setNumberOfCores(virtualCore)
         .build();
 
     LOG.log(Level.FINE, String.format("submitting %s evaluator to rack %s with core %s", evaluatorsNumber, rack, virtualCore));

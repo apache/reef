@@ -131,7 +131,7 @@ public class TestAvroSerializerForHttp {
       return 64;
     }
 
-    public int getNumerOfCores() { return 1; }
+    public int getNumberOfCores() { return 1; }
   }
 
   static class NodeDescriptorMock implements NodeDescriptor {

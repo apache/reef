@@ -55,7 +55,7 @@ public class EvaluatorRequestSerializer {
         return EvaluatorRequest.newBuilder()
             .setNumber(dais.readInt())
             .setMemory(dais.readInt())
-            .SetNumberOfCores(dais.readInt())
+            .setNumberOfCores(dais.readInt())
             .build();
       }
     } catch (IOException e) {

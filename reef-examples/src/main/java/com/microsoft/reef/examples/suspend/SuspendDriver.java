@@ -318,7 +318,7 @@ public class SuspendDriver {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
       evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-          .setMemory(128).SetNumberOfCores(1).setNumber(NUM_EVALUATORS).build());
+          .setMemory(128).setNumberOfCores(1).setNumber(NUM_EVALUATORS).build());
     }
   }
 

@@ -127,7 +127,7 @@ public final class EvaluatorRequest {
      * @param cores the number of cores
      * @return
      */
-    public Builder SetNumberOfCores(final int cores) {
+    public Builder setNumberOfCores(final int cores) {
       this.cores = cores;
       return this;
     }
