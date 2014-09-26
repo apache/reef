@@ -66,11 +66,9 @@ public class ActiveContextBridge extends NativeBridge implements Identifiable {
 
     public String getEvaluatorDescriptorSring()
     {
-      EvaluatorDescriptor evaluatorDescriptor = jactiveContext.getEvaluatorDescriptor();
-      InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
-      String poorString = "IP=" + socketAddress.getAddress() + ", Port=" +  socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory();
-      LOG.log(Level.INFO, "active context - serialized evaluator descriptor: " + poorString);
-      return poorString;
+      final String descriptorString = Utilities.getEvaluatorDescriptorString(jactiveContext.getEvaluatorDescriptor());
+      LOG.log(Level.FINE, "active context - serialized evaluator descriptor: " + descriptorString);
+      return descriptorString;
     }
 
     @Override

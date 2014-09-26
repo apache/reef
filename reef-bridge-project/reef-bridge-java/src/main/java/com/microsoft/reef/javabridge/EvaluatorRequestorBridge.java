@@ -35,7 +35,6 @@ public class EvaluatorRequestorBridge extends NativeBridge {
   // accumulate how many evaluators have been submitted through this instance
   // of EvaluatorRequestorBridge
   private int clrEvaluatorsNumber;
-
   private final boolean isBlocked;
 
   private EvaluatorRequestor jevaluatorRequestor;
@@ -47,7 +46,7 @@ public class EvaluatorRequestorBridge extends NativeBridge {
     this.isBlocked = isBlocked;
   }
 
-  public void submit( final int evaluatorsNumber, final int memory,  String rack)
+  public void submit( final int evaluatorsNumber, final int memory, final int virtualCore, String rack)
 
   {
     if (this.isBlocked)
@@ -88,9 +87,10 @@ public class EvaluatorRequestorBridge extends NativeBridge {
     EvaluatorRequest request = EvaluatorRequest.newBuilder().fromDescriptor(rackDescriptor)
         .setNumber(evaluatorsNumber)
         .setMemory(memory)
+        .setNumberOfCores(virtualCore)
         .build();
 
-    LOG.log(Level.INFO, String.format("submitting %s evaluator to rack %s", evaluatorsNumber, rack) );
+    LOG.log(Level.FINE, String.format("submitting %s evaluator to rack %s with core %s", evaluatorsNumber, rack, virtualCore));
     jevaluatorRequestor.submit(request);
   }
 

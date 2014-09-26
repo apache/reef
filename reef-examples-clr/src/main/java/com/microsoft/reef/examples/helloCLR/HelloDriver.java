@@ -74,6 +74,7 @@ public final class HelloDriver {
       HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(nCLRTasks + nJVMTasks)
           .setMemory(128)
+          .setNumberOfCores(1)
           .build());
     }
   }

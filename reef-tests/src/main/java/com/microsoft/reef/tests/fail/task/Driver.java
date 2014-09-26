@@ -161,7 +161,7 @@ public final class Driver {
     public void onNext(final StartTime time) {
       LOG.log(Level.INFO, "StartTime: {0}", time);
       Driver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(128).build());
+          .setNumber(1).setMemory(128).setNumberOfCores(1).build());
     }
   }
 }

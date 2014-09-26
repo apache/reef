@@ -52,6 +52,7 @@ final class EvaluatorSizeTestDriver {
       EvaluatorSizeTestDriver.this.evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1)
           .setMemory(EvaluatorSizeTestDriver.this.memorySize)
+          .setNumberOfCores(1)
           .build());
     }
   }

@@ -58,6 +58,7 @@ public final class HelloDriver {
       HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
           .setNumber(1)
           .setMemory(64)
+          .setNumberOfCores(1)
           .build());
       LOG.log(Level.INFO, "Requested Evaluator.");
     }

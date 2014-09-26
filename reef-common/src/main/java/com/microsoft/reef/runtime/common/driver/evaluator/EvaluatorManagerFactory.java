@@ -88,7 +88,7 @@ public final class EvaluatorManagerFactory {
       throw new RuntimeException("Unknown resource: " + resourceAllocationProto.getNodeId());
     }
     final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
-        EvaluatorType.UNDECIDED, resourceAllocationProto.getResourceMemory());
+        EvaluatorType.UNDECIDED, resourceAllocationProto.getResourceMemory(), resourceAllocationProto.getVirtualCores());
 
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
     return this.getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
@@ -99,6 +99,6 @@ public final class EvaluatorManagerFactory {
     if(!resourceStatusProto.getIsFromPreviousDriver()){
       throw new RuntimeException("Invalid resourceStatusProto, must be status for resource from previous Driver.");
     }
-    return getNewEvaluatorManagerInstance(resourceStatusProto.getIdentifier(), new EvaluatorDescriptorImpl(null,EvaluatorType.UNDECIDED,128));
+    return getNewEvaluatorManagerInstance(resourceStatusProto.getIdentifier(), new EvaluatorDescriptorImpl(null,EvaluatorType.UNDECIDED,128, 1));
   }
 }
