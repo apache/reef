@@ -123,6 +123,11 @@ public final class ResourceManager {
     }
   }
 
+  /**
+   * Called when the ReefRunnableProcessObserver detects that the Evaluator process has exited.
+   *
+   * @param evaluatorId the ID of the Evaluator that exited.
+   */
   public final void onEvaluatorExit(final String evaluatorId) {
     synchronized (this.theContainers) {
       this.theContainers.release(evaluatorId);

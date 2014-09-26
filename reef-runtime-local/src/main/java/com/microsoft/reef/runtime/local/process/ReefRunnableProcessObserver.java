@@ -61,7 +61,9 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
 
   @Override
   public void onProcessExit(final String processId, final int exitCode) {
-    this.resourceManager.get().onEvaluatorExit(processId);
+    // Note that the order here matters: We need to first inform the Driver's event handlers about the process exit
+    // and then release the resources. Otherwise, the Driver might be shutdown because of an idle condition before the
+    // message about the evaluator exit could have been sent and processed.
     switch (exitCode) {
       case 0:
         this.onCleanExit(processId);
@@ -69,6 +71,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
       default:
         this.onUncleanExit(processId, exitCode);
     }
+    this.resourceManager.get().onEvaluatorExit(processId);
   }
 
   /**
