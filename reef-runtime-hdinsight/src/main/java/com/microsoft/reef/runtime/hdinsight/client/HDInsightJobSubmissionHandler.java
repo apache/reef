@@ -129,7 +129,8 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
       final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
 
     return new Resource()
-        .setMemory(String.valueOf(jobSubmissionProto.getDriverMemory()));
+        .setMemory(String.valueOf(jobSubmissionProto.getDriverMemory()))
+        .setvCores("1");
   }
 
   /**

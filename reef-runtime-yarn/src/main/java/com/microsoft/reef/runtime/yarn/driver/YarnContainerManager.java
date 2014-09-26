@@ -386,6 +386,7 @@ final class YarnContainerManager
       }
     }
 
+    LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}", new Object[] { container.getResource().getMemory(), container.getResource().getVirtualCores() });
     this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
         .setIdentifier(container.getId().toString())
         .setNodeId(container.getNodeId().toString())
@@ -454,7 +455,7 @@ final class YarnContainerManager
       for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
 
         LOG.log(Level.FINEST, "Adding container request to queue: {0}", containerRequest);
-
+        LOG.log(Level.FINEST, "Container Request: memory = {0}, core number = {1}", new Object[] { containerRequest.getCapability().getMemory(), containerRequest.getCapability().getVirtualCores() });
         this.outstandingContainerRequests.add(containerRequest);
 
         if (queueWasEmpty) {
@@ -462,7 +463,6 @@ final class YarnContainerManager
           this.resourceManager.addContainerRequest(containerRequest);
           queueWasEmpty = false;
         }
-
         LOG.log(Level.FINE, "Done adding container requests to local request queue.");
       }
     }

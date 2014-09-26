@@ -41,5 +41,4 @@ public final class YarnContainerRequestHandlerImpl implements YarnContainerReque
     LOG.log(Level.FINEST, "Sending container requests to YarnContainerManager.");
     this.containerManager.onContainerRequest(containerRequests);
   }
-
 }

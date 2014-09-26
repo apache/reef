@@ -51,7 +51,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
 
   @Override
   public synchronized void submit(final EvaluatorRequest req) {
-    LOG.log(Level.FINEST, "Got an EvaluatorRequest");
+    LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.", new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores() });
 
     if (req.getMegaBytes() <= 0) {
       throw new IllegalArgumentException("Given an unsupported memory size: " + req.getMegaBytes());
