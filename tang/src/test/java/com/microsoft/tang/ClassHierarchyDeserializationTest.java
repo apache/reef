@@ -17,8 +17,12 @@ package com.microsoft.tang;
 
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
+import com.microsoft.tang.formats.AvroConfigurationSerializer;
+import com.microsoft.tang.formats.ConfigurationSerializer;
+import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import com.microsoft.tang.proto.ClassHierarchyProto;
+import com.microsoft.tang.types.NamedParameterNode;
 import com.microsoft.tang.types.Node;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,6 +30,7 @@ import org.junit.Test;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -59,15 +64,48 @@ public class ClassHierarchyDeserializationTest {
       }
   }
 
-    @Test
-    public void testDeserializationForEvent() {
-        try (final InputStream chin = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("Event.bin")) {
-            final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
-            final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-        } catch (final IOException e) {
-            final String message = "Unable to load class hierarchy.";
-            throw new RuntimeException(message, e);
-        }
+  @Test
+  public void testDeserializationForEvent() {
+    try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("Event.bin")) {
+      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
+      final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
+      final ConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
+          .newConfigurationBuilder(ch);
+    } catch (final Exception e) {
+      final String message = "Unable to load class hierarchy.";
+      throw new RuntimeException(message, e);
     }
+  }
+
+  @Test
+  //Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl with deserialized class hierarchy
+  public void testBindSetEntryWithSetOfClasses() throws IOException {
+    final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
+    ns1.getNode(SetOfClasses.class.getName());
+    final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
+    cb.bindSetEntry(SetOfClasses.class.getName(), "one");
+    cb.bindSetEntry(SetOfClasses.class.getName(), "two");
+
+    final NamedParameterNode<Set<?>> n2 = (NamedParameterNode<Set<?>>)ns1.getNode(SetOfClasses.class.getName());
+    //cb.bindSetEntry(n2, "three");
+
+    final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);
+  }
+
+  @Test
+  //Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl with deserialized class hierarchy
+  public void testBindSetEntryWithSetOfNumbers() throws IOException {
+    final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
+    ns1.getNode(SetOfNumbers.class.getName());
+    final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
+    cb.bindSetEntry(SetOfNumbers.class.getName(), "four");
+    cb.bindSetEntry(SetOfNumbers.class.getName(), "five");
+
+    final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);
+  }
 }
