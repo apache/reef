@@ -43,8 +43,9 @@ public abstract class RoundTripTest {
   @Test
   public void testRoundTripWithClassHierarchy() throws Exception {
     // TODO: use 'getConfiguration' instead of 'getConfigurationWithoutList' after #192 is fixed
-    final Configuration conf = ObjectTreeTest.getConfigurationWithoutList();
-    final ClassHierarchy c = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(conf.getClassHierarchy()));
-    roundTrip(conf, c);
+    final Configuration confBefore = ObjectTreeTest.getConfigurationWithoutList();
+    final ClassHierarchy c = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(confBefore.getClassHierarchy()));
+    final Configuration confAfter = roundTrip(confBefore, c);
+    Assert.assertEquals(confBefore.getNamedParameters().size(), confAfter.getNamedParameters().size());
   }
 }
