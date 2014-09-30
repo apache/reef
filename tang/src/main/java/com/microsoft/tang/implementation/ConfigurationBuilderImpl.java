@@ -237,13 +237,14 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException {
-/*    JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
-    try {
-      // Just for parsability checking.
-      javanamespace.parse(iface, impl);
-    } catch(ParseException e) {
-      throw new IllegalStateException("Could not parse " + impl + " which was passed to " + iface);
-    }*/
+    if (namespace instanceof ClassHierarchyImpl){
+      JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+      try {
+        javanamespace.parse(iface, impl);
+      } catch (ParseException e) {
+        throw new IllegalStateException("Could not parse " + impl + " which was passed to " + iface);
+      }
+    }
     boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
   }
 
