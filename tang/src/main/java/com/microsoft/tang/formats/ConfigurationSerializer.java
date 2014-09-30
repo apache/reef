@@ -87,6 +87,16 @@ public interface ConfigurationSerializer {
   public Configuration fromTextFile(final File file) throws IOException, BindException;
 
   /**
+   *  Loads a Configuration from a File created with toFile() with ClassHierarchy
+   *
+   * @param file
+   * @param classHierarchy
+   * @return
+   * @throws IOException
+   */
+  public Configuration fromTextFile(final File file, final ClassHierarchy classHierarchy) throws IOException;
+
+  /**
    * Loads a Configuration from a File created with toFile().
    *
    * @param file           the File to read from.

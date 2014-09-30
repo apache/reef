@@ -80,7 +80,7 @@ public class ClassHierarchyDeserializationTest {
 
   @Test
   //Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl with deserialized class hierarchy
-  public void testBindSetEntryWithSetOfClasses() throws IOException {
+  public void testBindSetEntryWithSetOfT() throws IOException {
     final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
     ns1.getNode(SetOfClasses.class.getName());
     final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
@@ -88,8 +88,8 @@ public class ClassHierarchyDeserializationTest {
     cb.bindSetEntry(SetOfClasses.class.getName(), "one");
     cb.bindSetEntry(SetOfClasses.class.getName(), "two");
 
-    final NamedParameterNode<Set<?>> n2 = (NamedParameterNode<Set<?>>)ns1.getNode(SetOfClasses.class.getName());
-    //cb.bindSetEntry(n2, "three");
+    final NamedParameterNode<Set<Number>> n2 = (NamedParameterNode<Set<Number>>)ns1.getNode(SetOfClasses.class.getName());
+    cb.bindSetEntry(n2, "three");
 
     final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
     final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);
@@ -97,13 +97,16 @@ public class ClassHierarchyDeserializationTest {
 
   @Test
   //Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl with deserialized class hierarchy
-  public void testBindSetEntryWithSetOfNumbers() throws IOException {
+  public void testBindSetEntryWithSetOfString() throws IOException {
     final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
     ns1.getNode(SetOfNumbers.class.getName());
     final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
     final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
     cb.bindSetEntry(SetOfNumbers.class.getName(), "four");
     cb.bindSetEntry(SetOfNumbers.class.getName(), "five");
+
+    final NamedParameterNode<Set<String>> n2 = (NamedParameterNode<Set<String>>)ns1.getNode(SetOfNumbers.class.getName());
+    cb.bindSetEntry(n2, "six");
 
     final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
     final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);

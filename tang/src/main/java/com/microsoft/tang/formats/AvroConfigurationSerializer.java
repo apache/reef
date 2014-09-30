@@ -255,6 +255,17 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   @Override
   public Configuration fromTextFile(final File file) throws IOException, BindException{
+    final StringBuilder result = readFromTextFile(file);
+    return this.fromString(result.toString());
+  }
+
+  @Override
+  public Configuration fromTextFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException{
+    final StringBuilder result = readFromTextFile(file);
+    return this.fromString(result.toString(), classHierarchy);
+  }
+
+  private StringBuilder readFromTextFile(final File file) throws IOException {
     final StringBuilder result = new StringBuilder();
     try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
       String line = reader.readLine();
@@ -263,7 +274,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
         line = reader.readLine();
       }
     }
-    return this.fromString(result.toString());
+    return result;
   }
 
   private static AvroConfiguration avroFromBytes(final byte[] theBytes) throws IOException {

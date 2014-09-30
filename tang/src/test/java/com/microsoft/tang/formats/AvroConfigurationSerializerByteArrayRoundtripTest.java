@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang.formats;
 
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.test.RoundTripTest;
 
@@ -27,5 +28,12 @@ public final class AvroConfigurationSerializerByteArrayRoundtripTest extends Rou
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     final byte[] theBytes = serializer.toByteArray(configuration);
     return serializer.fromByteArray(theBytes);
+  }
+
+  @Override
+  public Configuration roundTrip(Configuration configuration, final ClassHierarchy classHierarchy) throws Exception {
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final byte[] theBytes = serializer.toByteArray(configuration);
+    return serializer.fromByteArray(theBytes, classHierarchy);
   }
 }
