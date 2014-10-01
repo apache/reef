@@ -190,12 +190,23 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * @throws IOException
    */
   public static void serialize(final String fileName, final ClassHierarchy classHierarchy) throws IOException {
+    System.out.println("serialize " + fileName);
     final ClassHierarchyProto.Node node = serializeNode(classHierarchy.getNamespace());
-    final FileOutputStream output = new FileOutputStream(fileName);
-    final DataOutputStream dos = new DataOutputStream(output);
-    node.writeTo(dos);
-    dos.close();
-    output.close();
+    System.out.println("after serializeNode");
+    try {
+
+
+      final FileOutputStream output = new FileOutputStream(fileName);
+      final DataOutputStream dos = new DataOutputStream(output);
+      node.writeTo(dos);
+      dos.close();
+      output.close();
+    } catch (Exception e) {
+      System.out.println("Exception in serialize" + e);
+      e.printStackTrace();
+      throw e;
+    }
+    System.out.println("end of serialize");
   }
 
   /**
