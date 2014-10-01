@@ -42,7 +42,6 @@ import org.apache.hadoop.yarn.util.Records;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -61,6 +60,7 @@ final class EvaluatorSetupHelper {
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
   private final FileSystem fileSystem;
+  private final TempFileCreator tempFileCreator;
   private final boolean deleteTempFiles;
 
   @Inject
@@ -69,7 +69,9 @@ final class EvaluatorSetupHelper {
       final YarnConfiguration yarnConfiguration,
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer,
+      final TempFileCreator tempFileCreator,
       final @Parameter(DeleteTempFiles.class) boolean deleteTempFiles) throws IOException {
+    this.tempFileCreator = tempFileCreator;
     this.deleteTempFiles = deleteTempFiles;
 
     this.fileSystem = FileSystem.get(yarnConfiguration);
@@ -110,8 +112,8 @@ final class EvaluatorSetupHelper {
 
     final Map<String, LocalResource> result = new HashMap<>();
     result.putAll(getGlobalResources());
-    final File localStagingFolder =
-        Files.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix()).toFile();
+
+    final File localStagingFolder = this.tempFileCreator.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix());
 
     // Write the configuration
     final File configurationFile = new File(
@@ -123,7 +125,7 @@ final class EvaluatorSetupHelper {
     JobJarMaker.copy(resourceLaunchProto.getFileList(), localStagingFolder);
 
     // Make a JAR file out of it
-    final File localFile = File.createTempFile(
+    final File localFile = tempFileCreator.createTempFile(
         this.fileNames.getEvaluatorFolderPrefix(), this.fileNames.getJarFileSuffix());
     new JARFileMaker(localFile).addChildren(localStagingFolder).close();
 
