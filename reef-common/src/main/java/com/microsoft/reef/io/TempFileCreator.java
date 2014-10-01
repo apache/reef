@@ -26,7 +26,7 @@ import java.nio.file.attribute.FileAttribute;
  * Utility to create temporary files and folders in accordance with the underlying resource manager.
  */
 @Provided
-@DefaultImplementation(SystemTempFileCreator.class)
+@DefaultImplementation(WorkingDirectoryTempFileCreator.class)
 public interface TempFileCreator {
   /**
    * Creates a temporary file.
@@ -47,5 +47,16 @@ public interface TempFileCreator {
    * @throws IOException
    */
   public File createTempDirectory(final String prefix, final FileAttribute<?> attrs) throws IOException;
+
+
+  /**
+   * Create a temporary folder.
+   *
+   * @param prefix
+   * @return
+   * @throws IOException
+   */
+  public File createTempDirectory(final String prefix) throws IOException;
+
 
 }

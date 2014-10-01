@@ -21,6 +21,7 @@ import com.microsoft.reef.io.WorkingDirectoryTempFileCreator;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.runtime.common.files.JobJarMaker;
 import com.microsoft.reef.runtime.common.files.REEFFileNames;
+import com.microsoft.reef.runtime.common.parameters.DeleteTempFiles;
 import com.microsoft.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import com.microsoft.reef.util.JARFileMaker;
 import com.microsoft.tang.Configuration;
@@ -41,7 +42,6 @@ import org.apache.hadoop.yarn.util.Records;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -60,13 +60,19 @@ final class EvaluatorSetupHelper {
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
   private final FileSystem fileSystem;
+  private final TempFileCreator tempFileCreator;
+  private final boolean deleteTempFiles;
 
   @Inject
   EvaluatorSetupHelper(
       final @Parameter(JobSubmissionDirectory.class) String jobSubmissionDirectory,
       final YarnConfiguration yarnConfiguration,
       final REEFFileNames fileNames,
-      final ConfigurationSerializer configurationSerializer) throws IOException {
+      final ConfigurationSerializer configurationSerializer,
+      final TempFileCreator tempFileCreator,
+      final @Parameter(DeleteTempFiles.class) boolean deleteTempFiles) throws IOException {
+    this.tempFileCreator = tempFileCreator;
+    this.deleteTempFiles = deleteTempFiles;
 
     this.fileSystem = FileSystem.get(yarnConfiguration);
     this.jobSubmissionDirectory = jobSubmissionDirectory;
@@ -106,8 +112,8 @@ final class EvaluatorSetupHelper {
 
     final Map<String, LocalResource> result = new HashMap<>();
     result.putAll(getGlobalResources());
-    final File localStagingFolder =
-        Files.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix()).toFile();
+
+    final File localStagingFolder = this.tempFileCreator.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix());
 
     // Write the configuration
     final File configurationFile = new File(
@@ -119,7 +125,7 @@ final class EvaluatorSetupHelper {
     JobJarMaker.copy(resourceLaunchProto.getFileList(), localStagingFolder);
 
     // Make a JAR file out of it
-    final File localFile = File.createTempFile(
+    final File localFile = tempFileCreator.createTempFile(
         this.fileNames.getEvaluatorFolderPrefix(), this.fileNames.getJarFileSuffix());
     new JARFileMaker(localFile).addChildren(localStagingFolder).close();
 
@@ -127,6 +133,15 @@ final class EvaluatorSetupHelper {
     final Path pathToEvaluatorJar = uploadToJobFolder(localFile);
     result.put(this.fileNames.getLocalFolderPath(), makeLocalResourceForJarFile(pathToEvaluatorJar));
 
+    if (this.deleteTempFiles) {
+      LOG.log(Level.FINE, "Marking [{0}] for deletion at the exit of this JVM and deleting [{1}]",
+          new Object[]{localFile.getAbsolutePath(), localStagingFolder.getAbsolutePath()});
+      localFile.deleteOnExit();
+      localStagingFolder.delete();
+    } else {
+      LOG.log(Level.FINE, "The evaluator staging folder will be kept at [{0}], the JAR at [{1}]",
+          new Object[]{localFile.getAbsolutePath(), localStagingFolder.getAbsolutePath()});
+    }
     return result;
   }
 
@@ -137,6 +152,7 @@ final class EvaluatorSetupHelper {
    * @return
    * @throws IOException
    */
+
   private Configuration makeEvaluatorConfiguration(
       final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) throws IOException {
     return Tang.Factory.getTang()
