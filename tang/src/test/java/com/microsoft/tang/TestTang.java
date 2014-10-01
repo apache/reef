@@ -583,10 +583,27 @@ public class TestTang {
       i.getInstance(Pass.class);
     }
   }
+
   @Test
   public void testForksInjectorInConstructor() throws BindException, InjectionException {
     Injector i = Tang.Factory.getTang().newInjector();
     i.getInstance(ForksInjectorInConstructor.class);
+  }
+
+  @Test
+  public void testMultiInheritance() throws BindException, InjectionException {
+    //testing that you should be able to have @Unit and also static inner classes not included
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(CheckChildIface.class, CheckChildImpl.class);
+    Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    CheckChildIface o1 = i.getInstance(CheckChildIface.class);
+    Assert.assertNotNull(o1);
+
+    JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
+    cb2.bindImplementation(CheckChildIface.class, CheckChildImplImpl.class);
+    Injector i2 = Tang.Factory.getTang().newInjector(cb2.build());
+    CheckChildIface o2 = i2.getInstance(CheckChildIface.class);
+    Assert.assertNotNull(o2);
   }
 }
 class Fail {
@@ -1128,6 +1145,11 @@ interface CheckChildIface {
 class CheckChildImpl implements CheckChildIface{
   @Inject CheckChildImpl() {}
 }
+
+class CheckChildImplImpl extends CheckChildImpl{
+  @Inject CheckChildImplImpl() {}
+}
+
 class ForksInjectorInConstructor {
   @Inject ForksInjectorInConstructor(Injector i) throws BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
