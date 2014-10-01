@@ -47,5 +47,6 @@ public abstract class RoundTripTest {
     final ClassHierarchy c = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(confBefore.getClassHierarchy()));
     final Configuration confAfter = roundTrip(confBefore, c);
     Assert.assertEquals(confBefore.getNamedParameters().size(), confAfter.getNamedParameters().size());
+    //For now, we cannot use ProtocolBufferClassHierarchy to do injection
   }
 }
