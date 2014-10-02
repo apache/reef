@@ -353,51 +353,6 @@ final class YarnContainerManager
   }
 
   /**
-   * Handles new container allocations. Calls come from YARN.
-   *
-   * @param container newly allocated
-   */
-  private void handleNewContainer(final Container container, final boolean isRecoveredContainer) {
-
-    LOG.log(Level.FINE, "allocated container: id[ {0} ]", container.getId());
-
-    this.containers.add(container);
-
-    if (!isRecoveredContainer)
-    {
-      logContainerAddition(container.getId().toString());
-      synchronized (this) {
-
-        this.containerRequestCounter.decrement();
-
-        if (!this.outstandingContainerRequests.isEmpty()) {
-          // we need to make sure that the previous request is no longer in RM request queue
-          this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
-
-          final AMRMClient.ContainerRequest requestToBeSubmitted =
-              this.outstandingContainerRequests.peek();
-
-          if (requestToBeSubmitted != null) {
-            LOG.log(Level.FINEST,
-                "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
-            this.resourceManager.addContainerRequest(requestToBeSubmitted);
-          }
-        }
-      }
-    }
-
-    LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}", new Object[] { container.getResource().getMemory(), container.getResource().getVirtualCores() });
-    this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
-        .setIdentifier(container.getId().toString())
-        .setNodeId(container.getNodeId().toString())
-        .setResourceMemory(container.getResource().getMemory())
-        .setVirtualCores(container.getResource().getVirtualCores())
-        .build());
-
-    this.updateRuntimeStatus();
-  }
-
-  /**
    * Handles container status reports. Calls come from YARN.
    *
    * @param value containing the container status
@@ -448,26 +403,68 @@ final class YarnContainerManager
   void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests) {
 
     synchronized (this) {
-
       this.containerRequestCounter.incrementBy(containerRequests.length);
       boolean queueWasEmpty = this.outstandingContainerRequests.isEmpty();
-
       for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
-
-        LOG.log(Level.FINEST, "Adding container request to queue: {0}", containerRequest);
         LOG.log(Level.FINEST, "Container Request: memory = {0}, core number = {1}", new Object[] { containerRequest.getCapability().getMemory(), containerRequest.getCapability().getVirtualCores() });
+        LOG.log(Level.FINEST, "Adding container request to local queue: {0}", containerRequest);
         this.outstandingContainerRequests.add(containerRequest);
-
-        if (queueWasEmpty) {
-          LOG.log(Level.FINEST, "Requesting first container from YARN: {0}", containerRequest);
-          this.resourceManager.addContainerRequest(containerRequest);
-          queueWasEmpty = false;
-        }
-        LOG.log(Level.FINE, "Done adding container requests to local request queue.");
+      }
+      if (queueWasEmpty && containerRequests.length != 0) {
+        AMRMClient.ContainerRequest firstRequest = outstandingContainerRequests.peek();
+        LOG.log(Level.FINEST, "Requesting first container from YARN: {0}", firstRequest);
+        this.resourceManager.addContainerRequest(firstRequest);
       }
     }
 
     this.updateRuntimeStatus();
+  }
+
+  /**
+   * Handles new container allocations. Calls come from YARN.
+   *
+   * @param container newly allocated
+   */
+  private void handleNewContainer(final Container container, final boolean isRecoveredContainer) {
+
+    LOG.log(Level.FINE, "allocated container: id[ {0} ]", container.getId());
+    // recovered container is not new allocation, it is just checking back from previous driver failover
+    if (!isRecoveredContainer)
+    {
+      logContainerAddition(container.getId().toString());
+      synchronized (this) {
+        this.containerRequestCounter.decrement();
+        if (!this.outstandingContainerRequests.isEmpty()) {
+          this.containers.add(container);
+          // to be safe we need to make sure that previous request is no longer in async AMRM client's queue
+          // it is ok if the request is no longer there
+          try {
+            this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
+          } catch (final Exception e) {
+            LOG.log(Level.FINEST, "Nothing to remove from Async AMRM client's queue.");
+          }
+          final AMRMClient.ContainerRequest requestToBeSubmitted = this.outstandingContainerRequests.peek();
+          if (requestToBeSubmitted != null) {
+            LOG.log(Level.FINEST, "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
+            this.resourceManager.addContainerRequest(requestToBeSubmitted);
+          }
+          LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}", new Object[] { container.getResource().getMemory(), container.getResource().getVirtualCores() });
+          this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
+            .setIdentifier(container.getId().toString())
+            .setNodeId(container.getNodeId().toString())
+            .setResourceMemory(container.getResource().getMemory())
+            .setVirtualCores(container.getResource().getVirtualCores())
+            .build());
+
+          this.updateRuntimeStatus();
+        }
+        else{
+          // since no request is removed from local queue until new container is allocated
+          // the queue should not be empty at the beginning of this call
+          LOG.warning("outstandingContainerRequests is empty upon container allocation.");
+        }
+      }
+    }
   }
 
   /**

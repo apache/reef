@@ -77,7 +77,7 @@ public class EvaluatorRequestorBridge extends NativeBridge {
       rack = "/default-rack";
     }
     catalog.handle(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
-        .setRackName(rack)
+        .setRackName("*")
         .setHostName("HostName")
         .setPort(0)
         .setMemorySize(memory)
@@ -90,7 +90,7 @@ public class EvaluatorRequestorBridge extends NativeBridge {
         .setNumberOfCores(virtualCore)
         .build();
 
-    LOG.log(Level.FINE, String.format("submitting %s evaluator to rack %s with core %s", evaluatorsNumber, rack, virtualCore));
+    LOG.log(Level.FINE, String.format("submitting %s evaluator to rack %s with core %s", evaluatorsNumber, "*", virtualCore));
     jevaluatorRequestor.submit(request);
   }
 
