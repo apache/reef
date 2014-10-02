@@ -30,7 +30,9 @@ public final class AvroConfigurationSerializerTextFileRoundtripTest extends Roun
     final File tempFile = File.createTempFile("TangTest", "avroconf");
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toTextFile(configuration, tempFile);
-    return serializer.fromTextFile(tempFile);
+    final Configuration c = serializer.fromTextFile(tempFile);
+    tempFile.delete();
+    return c;
   }
 
   @Override
@@ -38,6 +40,8 @@ public final class AvroConfigurationSerializerTextFileRoundtripTest extends Roun
     final File tempFile = File.createTempFile("TangTest", "avroconf");
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toTextFile(configuration, tempFile);
-    return serializer.fromTextFile(tempFile, classHierarchy);
+    final Configuration c = serializer.fromTextFile(tempFile, classHierarchy);
+    tempFile.delete();
+    return c;
   }
 }

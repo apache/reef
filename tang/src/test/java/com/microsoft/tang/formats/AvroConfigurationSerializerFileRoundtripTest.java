@@ -30,7 +30,9 @@ public final class AvroConfigurationSerializerFileRoundtripTest extends RoundTri
     final File tempFile = java.io.File.createTempFile("TangTest", "avroconf");
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toFile(configuration, tempFile);
-    return serializer.fromFile(tempFile);
+    final Configuration c = serializer.fromFile(tempFile);
+    tempFile.delete();
+    return c;
   }
 
   @Override
@@ -38,6 +40,8 @@ public final class AvroConfigurationSerializerFileRoundtripTest extends RoundTri
     final File tempFile = java.io.File.createTempFile("TangTest", "avroconf");
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toFile(configuration, tempFile);
-    return serializer.fromFile(tempFile, classHierarchy);
+    final Configuration c =  serializer.fromFile(tempFile, classHierarchy);
+    tempFile.delete();
+    return c;
   }
 }

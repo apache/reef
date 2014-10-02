@@ -85,11 +85,10 @@ public class ClassHierarchyDeserializationTest {
     ns1.getNode(SetOfClasses.class.getName());
     final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
     final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
-    cb.bindSetEntry(SetOfClasses.class.getName(), "one");
-    cb.bindSetEntry(SetOfClasses.class.getName(), "two");
+    cb.bindSetEntry(SetOfClasses.class.getName(), Short.class.getName());
 
     final NamedParameterNode<Set<Number>> n2 = (NamedParameterNode<Set<Number>>)ns1.getNode(SetOfClasses.class.getName());
-    cb.bindSetEntry(n2, "three");
+    cb.bindSetEntry(n2, Float.class.getName());
 
     final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
     final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);

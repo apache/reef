@@ -43,12 +43,11 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy{
 
   private void setup3() {
     TangImpl.reset();
-//    final String relPath = this.getClass().getClassLoader().getResource("").getPath();
-//    final String fileName = relPath + "testProto.bin";
     try {
-      final File fileName = java.io.File.createTempFile("testProto", "bin");
-      ProtocolBufferClassHierarchy.serialize(fileName, ns);
-      ns = ProtocolBufferClassHierarchy.deserialize(fileName);
+      final File file = java.io.File.createTempFile("testProto", "bin");
+      ProtocolBufferClassHierarchy.serialize(file, ns);
+      ns = ProtocolBufferClassHierarchy.deserialize(file);
+      file.delete();
     } catch (IOException e ) {
       Assert.fail(String.format("IOException when serialize/deserialize proto buffer file ", e));
     }
