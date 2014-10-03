@@ -18,8 +18,10 @@ package com.microsoft.reef.javabridge;
 
 import com.microsoft.reef.driver.context.ContextMessage;
 import com.microsoft.reef.driver.task.SuspendedTask;
+import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.*;
+import java.util.Date;
 import java.util.HashMap;
 
 public class NativeInterop {
@@ -178,10 +180,10 @@ public class NativeInterop {
   };
 
   static {
-    System.out.println("============== Driver Bridge initiated, loading DLLs ============== ");
-    boolean status = new File(tmpLoadingDirectory).mkdir();
+    System.out.println("============== Driver Bridge initiated, loading DLLs at time " + new Date().toString() + "============== ");
+    new File(tmpLoadingDirectory).mkdir();
     loadFromJar();
-    System.out.println("================== Done loading dlls for Driver  ================== \n");
+    System.out.println("================== Done loading dlls for Driver at time " + new Date().toString() + " ================== \n");
   }
 
   private static void loadFromJar() {
@@ -241,11 +243,7 @@ public class NativeInterop {
         System.out.println("** out is null");
       }
 
-      int readByte;
-      while ((readByte = in.read()) != -1) {
-        out.write(readByte);
-      }
-
+      IOUtils.copy(in, out);
       in.close();
       out.close();
 
