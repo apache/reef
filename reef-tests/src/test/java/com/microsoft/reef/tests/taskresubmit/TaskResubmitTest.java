@@ -53,13 +53,13 @@ public final class TaskResubmitTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_TaskResubmitTest")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskResubmitDriver.EvaluatorAllocatedHandler.class)
-            .set(DriverConfiguration.ON_TASK_FAILED, TaskResubmitDriver.TaskFailedHandler.class)
-            .build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_TaskResubmitTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskResubmitDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_TASK_FAILED, TaskResubmitDriver.TaskFailedHandler.class)
+        .build();
 
     final LauncherStatus state = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());

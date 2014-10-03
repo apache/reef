@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.runtime.local.driver;
+package com.microsoft.reef.runtime.local.process;
 
 import com.microsoft.reef.runtime.common.evaluator.PIDStoreStartHandler;
 import com.microsoft.reef.util.OSUtils;
@@ -81,6 +81,11 @@ public final class RunnableProcess implements Runnable {
   private final Condition doneCond = stateLock.newCondition();
 
   /**
+   * This will be informed of process start and stop.
+   */
+  private final RunnableProcessObserver processObserver;
+
+  /**
    * The possible states of a process: INIT, RUNNING, ENDED.
    */
   private enum State {
@@ -93,11 +98,16 @@ public final class RunnableProcess implements Runnable {
   }
 
   /**
-   * @param command the command to execute.
-   * @param id      The ID of the process. This is used to name files and in the logs created by this process.
-   * @param folder  The folder in which this will store its stdout and stderr output
+   * @param command         the command to execute.
+   * @param id              The ID of the process. This is used to name files and in the logs created by this process.
+   * @param folder          The folder in which this will store its stdout and stderr output
+   * @param processObserver will be informed of process state changes.
    */
-  public RunnableProcess(final List<String> command, final String id, final File folder) {
+  public RunnableProcess(final List<String> command,
+                         final String id,
+                         final File folder,
+                         final RunnableProcessObserver processObserver) {
+    this.processObserver = processObserver;
     this.command = new ArrayList<>(command);
     this.id = id;
     this.folder = folder;
@@ -112,7 +122,7 @@ public final class RunnableProcess implements Runnable {
    * @throws java.lang.IllegalStateException if the process is already running or has been running before.
    */
   @Override
-  public final void run() {
+  public void run() {
     this.stateLock.lock();
     try {
       if (this.getState() != State.INIT) {
@@ -134,6 +144,7 @@ public final class RunnableProcess implements Runnable {
             .redirectOutput(outFile)
             .start();
         this.setState(State.RUNNING);
+        this.processObserver.onProcessStarted(this.id);
       } catch (final IOException ex) {
         LOG.log(Level.SEVERE, "Unable to spawn process \"{0}\" wth command {1}\n Exception:{2}",
             new Object[]{this.id, this.command, ex});
@@ -145,6 +156,7 @@ public final class RunnableProcess implements Runnable {
     try {
       // Wait for its completion
       final int returnValue = process.waitFor();
+      this.processObserver.onProcessExit(this.id, returnValue);
       this.stateLock.lock();
       try {
         this.setState(State.ENDED);
@@ -163,7 +175,7 @@ public final class RunnableProcess implements Runnable {
   /**
    * Cancels the running process if it is running.
    */
-  public final void cancel() {
+  public void cancel() {
     this.stateLock.lock();
     try {
       if (this.processIsRunning()) {

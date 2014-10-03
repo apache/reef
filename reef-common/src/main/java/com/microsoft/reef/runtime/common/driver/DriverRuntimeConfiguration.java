@@ -20,10 +20,13 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.driver.client.JobMessageObserver;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
+import com.microsoft.reef.driver.parameters.DriverIdleSources;
 import com.microsoft.reef.runtime.common.driver.api.RuntimeParameters;
 import com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
 import com.microsoft.reef.runtime.common.driver.client.ClientManager;
 import com.microsoft.reef.runtime.common.driver.client.JobMessageObserverImpl;
+import com.microsoft.reef.runtime.common.driver.idle.ClockIdlenessSource;
+import com.microsoft.reef.runtime.common.driver.idle.EventHandlerIdlenessSource;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceAllocationHandler;
 import com.microsoft.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
@@ -56,7 +59,12 @@ public final class DriverRuntimeConfiguration extends ConfigurationModuleBuilder
           // Bind to the Clock
       .bindSetEntry(Clock.RuntimeStartHandler.class, DriverRuntimeStartHandler.class)
       .bindSetEntry(Clock.RuntimeStopHandler.class, DriverRuntimeStopHandler.class)
-      .bindSetEntry(Clock.IdleHandler.class, DriverIdleHandler.class)
+
+          // Bind the idle handlers
+      .bindSetEntry(DriverIdleSources.class, ClockIdlenessSource.class)
+      .bindSetEntry(DriverIdleSources.class, EventHandlerIdlenessSource.class)
+      .bindSetEntry(DriverIdleSources.class, ResourceManagerStatus.class)
+      .bindSetEntry(Clock.IdleHandler.class, ClockIdlenessSource.class)
 
       .build();
 }

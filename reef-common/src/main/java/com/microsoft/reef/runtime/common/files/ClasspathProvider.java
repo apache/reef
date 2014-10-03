@@ -42,17 +42,25 @@ public final class ClasspathProvider {
         reefFileNames.getGlobalFolderPath() + "/*");
 
     // Assemble the driver classpath
-    final List<String> runtimeDriverClasspath = runtimeClasspathProvider.getDriverClasspath();
-    final List<String> driverClasspath = new ArrayList<>(baseClasspath.size() + runtimeDriverClasspath.size());
+    final List<String> runtimeDriverClasspathPrefix = runtimeClasspathProvider.getDriverClasspathPrefix();
+    final List<String> runtimeDriverClasspathSuffix = runtimeClasspathProvider.getDriverClasspathSuffix();
+    final List<String> driverClasspath = new ArrayList<>(baseClasspath.size() +
+        runtimeDriverClasspathPrefix.size() +
+        runtimeDriverClasspathSuffix.size());
+    driverClasspath.addAll(runtimeDriverClasspathPrefix);
     driverClasspath.addAll(baseClasspath);
-    driverClasspath.addAll(runtimeDriverClasspath);
+    driverClasspath.addAll(runtimeDriverClasspathSuffix);
     this.driverClasspath = Collections.unmodifiableList(driverClasspath);
 
     // Assemble the evaluator classpath
-    final List<String> runtimeEvaluatorClasspath = runtimeClasspathProvider.getEvaluatorClasspath();
-    final List<String> evaluatorClasspath = new ArrayList<>(baseClasspath.size() + runtimeEvaluatorClasspath.size());
+    final List<String> runtimeEvaluatorClasspathPrefix = runtimeClasspathProvider.getEvaluatorClasspathPrefix();
+    final List<String> runtimeEvaluatorClasspathSuffix = runtimeClasspathProvider.getEvaluatorClasspathSuffix();
+    final List<String> evaluatorClasspath = new ArrayList<>(runtimeEvaluatorClasspathPrefix.size() +
+        baseClasspath.size() +
+        runtimeEvaluatorClasspathSuffix.size());
+    evaluatorClasspath.addAll(runtimeEvaluatorClasspathPrefix);
     evaluatorClasspath.addAll(baseClasspath);
-    evaluatorClasspath.addAll(runtimeEvaluatorClasspath);
+    evaluatorClasspath.addAll(runtimeEvaluatorClasspathSuffix);
     this.evaluatorClasspath = Collections.unmodifiableList(evaluatorClasspath);
   }
 

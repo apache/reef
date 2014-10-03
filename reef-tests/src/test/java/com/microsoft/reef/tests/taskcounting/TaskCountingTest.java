@@ -46,7 +46,8 @@ public final class TaskCountingTest {
   }
 
   private Configuration getDriverConfiguration() {
-    return EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+    return DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TaskCounting")
         .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, TaskCountingDriver.EvaluatorAllocatedHandler.class)

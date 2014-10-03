@@ -15,13 +15,13 @@
  */
 package com.microsoft.reef.examples.hello;
 
+import com.microsoft.reef.client.DriverConfiguration;
+import com.microsoft.reef.client.DriverLauncher;
 import com.microsoft.reef.client.LauncherStatus;
 import com.microsoft.reef.runtime.yarn.client.YarnClientConfiguration;
 import com.microsoft.tang.Configuration;
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,6 +37,19 @@ public final class HelloReefYarn {
    */
   private static final int JOB_TIMEOUT = 30000; // 30 sec.
 
+
+  /**
+   * @return the configuration of the HelloREEF driver.
+   */
+  private static Configuration getDriverConfiguration() {
+    return DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, HelloReefYarn.class.getProtectionDomain().getCodeSource().getLocation().getFile())
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+        .build();
+  }
+
   /**
    * Start Hello REEF job. Runs method runHelloReef().
    *
@@ -44,11 +57,11 @@ public final class HelloReefYarn {
    * @throws com.microsoft.tang.exceptions.BindException      configuration error.
    * @throws com.microsoft.tang.exceptions.InjectionException configuration error.
    */
-  public static void main(final String[] args) throws BindException, InjectionException, IOException {
+  public static void main(final String[] args) throws InjectionException {
 
-    final Configuration runtimeConfiguration = YarnClientConfiguration.CONF.build();
-
-    final LauncherStatus status = HelloREEF.runHelloReef(runtimeConfiguration, JOB_TIMEOUT);
+    final LauncherStatus status = DriverLauncher
+        .getLauncher(YarnClientConfiguration.CONF.build())
+        .run(getDriverConfiguration(), JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
 }

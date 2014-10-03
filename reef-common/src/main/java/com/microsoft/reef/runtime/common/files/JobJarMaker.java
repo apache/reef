@@ -20,8 +20,10 @@ import com.microsoft.reef.annotations.audience.Private;
 import com.microsoft.reef.annotations.audience.RuntimeAuthor;
 import com.microsoft.reef.proto.ClientRuntimeProtocol;
 import com.microsoft.reef.proto.ReefServiceProtos;
+import com.microsoft.reef.runtime.common.parameters.DeleteTempFiles;
 import com.microsoft.reef.util.JARFileMaker;
 import com.microsoft.tang.Configuration;
+import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
@@ -43,12 +45,15 @@ public final class JobJarMaker {
 
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
+  private final boolean deleteTempFilesOnExit;
 
   @Inject
   JobJarMaker(final ConfigurationSerializer configurationSerializer,
-              final REEFFileNames fileNames) {
+              final REEFFileNames fileNames,
+              final @Parameter(DeleteTempFiles.class) boolean deleteTempFilesOnExit) {
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
+    this.deleteTempFilesOnExit = deleteTempFilesOnExit;
   }
 
   public File createJobSubmissionJAR(
@@ -70,17 +75,25 @@ public final class JobJarMaker {
         driverConfiguration, new File(localFolder, this.fileNames.getDriverConfigurationName()));
 
     // Create a JAR File for the submission
-    final File jarFile = File.createTempFile(
-        this.fileNames.getJobFolderPrefix(), this.fileNames.getJarFileSuffix());
+    final File jarFile = File.createTempFile(this.fileNames.getJobFolderPrefix(), this.fileNames.getJarFileSuffix());
 
     LOG.log(Level.FINE, "Creating job submission jar file: {0}", jarFile);
     new JARFileMaker(jarFile).addChildren(jobSubmissionFolder).close();
 
+    if (this.deleteTempFilesOnExit) {
+      LOG.log(Level.FINE,
+          "Deleting the temporary job folder [{0}] and marking the jar file [{1}] for deletion after the JVM exits.",
+          new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
+      jobSubmissionFolder.delete();
+      jarFile.deleteOnExit();
+    } else {
+      LOG.log(Level.FINE, "Keeping the temporary job folder [{0}] and jar file [{1}] available after job submission.",
+          new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
+    }
     return jarFile;
   }
 
-  public static void copy(
-      final Iterable<ReefServiceProtos.FileResourceProto> files, final File destinationFolder) {
+  public static void copy(final Iterable<ReefServiceProtos.FileResourceProto> files, final File destinationFolder) {
 
     if (!destinationFolder.exists()) {
       destinationFolder.mkdirs();
@@ -89,10 +102,23 @@ public final class JobJarMaker {
     for (final ReefServiceProtos.FileResourceProto fileProto : files) {
       final File sourceFile = toFile(fileProto);
       final File destinationFile = new File(destinationFolder, fileProto.getName());
-      try {
-        java.nio.file.Files.copy(sourceFile.toPath(), destinationFile.toPath());
-      } catch (IOException e) {
-        throw new RuntimeException("Couldn't copy a file to the job folder", e);
+      if (destinationFile.exists()) {
+        LOG.log(Level.FINEST,
+            "Will not add {0} to the job jar because another file with the same name was already added.",
+            sourceFile.getAbsolutePath()
+        );
+      } else {
+        try {
+          java.nio.file.Files.copy(sourceFile.toPath(), destinationFile.toPath());
+        } catch (final IOException e) {
+          final String message = new StringBuilder("Copy of file [")
+              .append(sourceFile.getAbsolutePath())
+              .append("] to [")
+              .append(destinationFile.getAbsolutePath())
+              .append("] failed.")
+              .toString();
+          throw new RuntimeException(message, e);
+        }
       }
     }
   }

@@ -25,6 +25,7 @@ import com.microsoft.reef.runtime.common.files.REEFFileNames;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
 import com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses;
 import com.microsoft.reef.runtime.local.client.parameters.RootFolder;
+import com.microsoft.reef.runtime.local.process.ReefRunnableProcessObserver;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.wake.EventHandler;
 import com.microsoft.wake.remote.NetUtils;
@@ -67,6 +68,7 @@ final class ContainerManager implements AutoCloseable {
   private final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler;
   private final File rootFolder;
   private final REEFFileNames fileNames;
+  private final ReefRunnableProcessObserver processObserver;
 
   @Inject
   ContainerManager(
@@ -76,10 +78,12 @@ final class ContainerManager implements AutoCloseable {
       final @Parameter(NumberOfProcesses.class) int capacity,
       final @Parameter(RootFolder.class) String rootFolderName,
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
-      EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler) {
+      EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler,
+      final ReefRunnableProcessObserver processObserver) {
 
     this.capacity = capacity;
     this.fileNames = fileNames;
+    this.processObserver = processObserver;
     this.errorHandlerRID = remoteManager.getMyIdentifier();
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
@@ -135,15 +139,16 @@ final class ContainerManager implements AutoCloseable {
     return this.freeNodeList.size() > 0;
   }
 
-  final Container allocateOne(final int megaBytes) {
+  final Container allocateOne(final int megaBytes, final int numberOfCores) {
     synchronized (this.containers) {
       final String nodeId = this.freeNodeList.remove(0);
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
       final File processFolder = new File(this.rootFolder, processID);
       processFolder.mkdirs();
       final ProcessContainer container = new ProcessContainer(
-          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, this.fileNames);
+          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, numberOfCores, this.fileNames, this.processObserver);
       this.containers.put(container.getContainerID(), container);
+      LOG.log(Level.FINE, "Allocated {0}", container.getContainerID());
       return container;
     }
   }
@@ -151,10 +156,16 @@ final class ContainerManager implements AutoCloseable {
   final void release(final String containerID) {
     synchronized (this.containers) {
       final Container ctr = this.containers.get(containerID);
-      LOG.log(Level.FINE, "Releasing: {0}", ctr);
-      ctr.close();
-      this.freeNodeList.add(ctr.getNodeID());
-      this.containers.remove(ctr.getContainerID());
+      if (null != ctr) {
+        LOG.log(Level.INFO, "Releasing Container with containerId [{0}]", ctr);
+        if (ctr.isRunning()) {
+          ctr.close();
+        }
+        this.freeNodeList.add(ctr.getNodeID());
+        this.containers.remove(ctr.getContainerID());
+      } else {
+        LOG.log(Level.INFO, "Ignoring release request for unknown containerID [{0}]", containerID);
+      }
     }
   }
 

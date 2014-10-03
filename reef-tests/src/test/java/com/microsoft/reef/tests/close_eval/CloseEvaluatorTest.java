@@ -46,11 +46,11 @@ public class CloseEvaluatorTest {
 
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_CloseEvaluatorTest")
-            .set(DriverConfiguration.ON_DRIVER_STARTED, CloseEvaluatorDriver.StartHandler.class)
-            .build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(CloseEvaluatorDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_CloseEvaluatorTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, CloseEvaluatorDriver.StartHandler.class)
+        .build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());

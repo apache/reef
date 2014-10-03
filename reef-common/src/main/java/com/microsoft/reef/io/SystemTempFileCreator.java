@@ -20,23 +20,44 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A TempFileCreator that uses the system's temp directory.
  */
 public final class SystemTempFileCreator implements TempFileCreator {
+  private static final Logger LOG = Logger.getLogger(SystemTempFileCreator.class.getName());
 
   @Inject
   public SystemTempFileCreator() {
+    LOG.log(Level.FINE, "Temporary files and folders will be created in the system temp folder.");
   }
 
   @Override
   public File createTempFile(final String prefix, final String suffix) throws IOException {
-    return File.createTempFile(prefix, suffix);
+    final File result = File.createTempFile(prefix, suffix);
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Created temporary file: {0}", result.getAbsolutePath());
+    }
+    return result;
   }
 
   @Override
-  public File createTempDirectory(final String prefix, final FileAttribute<?> attrs) throws IOException {
-    return Files.createTempDirectory(prefix, attrs).toFile();
+  public File createTempDirectory(final String prefix, final FileAttribute<?> attributes) throws IOException {
+    final File result = Files.createTempDirectory(prefix, attributes).toFile();
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Created temporary folder: {0}", result.getAbsolutePath());
+    }
+    return result;
+  }
+
+  @Override
+  public File createTempDirectory(final String prefix) throws IOException {
+    final File result = Files.createTempDirectory(prefix).toFile();
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "Created temporary folder: {0}", result.getAbsolutePath());
+    }
+    return result;
   }
 }

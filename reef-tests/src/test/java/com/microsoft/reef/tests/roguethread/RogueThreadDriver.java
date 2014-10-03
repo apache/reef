@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.tests.roguethread;
 
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.task.TaskConfiguration;
 import com.microsoft.tang.Configuration;
@@ -37,14 +36,11 @@ final class RogueThreadDriver {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      final Configuration contextConfiguration = ContextConfiguration.CONF
-          .set(ContextConfiguration.IDENTIFIER, "RogueThreadTestContext")
-          .build();
       final Configuration taskConfiguration = TaskConfiguration.CONF
           .set(TaskConfiguration.IDENTIFIER, "RogueThreadTestTask")
           .set(TaskConfiguration.TASK, RogueThreadTask.class)
           .build();
-      allocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
+      allocatedEvaluator.submitTask(taskConfiguration);
     }
   }
 

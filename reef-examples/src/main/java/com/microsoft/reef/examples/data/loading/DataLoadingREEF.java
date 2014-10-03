@@ -15,12 +15,6 @@
  */
 package com.microsoft.reef.examples.data.loading;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.hadoop.mapred.TextInputFormat;
-
 import com.microsoft.reef.annotations.audience.ClientSide;
 import com.microsoft.reef.client.DriverConfiguration;
 import com.microsoft.reef.client.DriverLauncher;
@@ -39,6 +33,11 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
 import com.microsoft.tang.formats.CommandLine;
+import org.apache.hadoop.mapred.TextInputFormat;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Client for the data loading demo app
@@ -56,12 +55,12 @@ public class DataLoadingREEF {
    * Command line parameter = true to run locally, or false to run on YARN.
    */
   @NamedParameter(doc = "Whether or not to run on the local runtime",
-                  short_name = "local", default_value = "true")
+      short_name = "local", default_value = "true")
   public static final class Local implements Name<Boolean> {
   }
 
   @NamedParameter(doc = "Number of minutes before timeout",
-                  short_name = "timeout", default_value = "2")
+      short_name = "timeout", default_value = "2")
   public static final class TimeOut implements Name<Integer> {
   }
 
@@ -102,6 +101,7 @@ public class DataLoadingREEF {
     final EvaluatorRequest computeRequest = EvaluatorRequest.newBuilder()
         .setNumber(NUM_COMPUTE_EVALUATORS)
         .setMemory(512)
+        .setNumberOfCores(1)
         .build();
 
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
@@ -110,8 +110,8 @@ public class DataLoadingREEF {
         .setInputPath(inputDir)
         .setNumberOfDesiredSplits(NUM_SPLITS)
         .setComputeRequest(computeRequest)
-        .setDriverConfigurationModule(EnvironmentUtils
-            .addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+        .setDriverConfigurationModule(DriverConfiguration.CONF
+            .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(LineCounter.class))
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, LineCounter.ContextActiveHandler.class)
             .set(DriverConfiguration.ON_TASK_COMPLETED, LineCounter.TaskCompletedHandler.class)
             .set(DriverConfiguration.DRIVER_IDENTIFIER, "DataLoadingREEF"))

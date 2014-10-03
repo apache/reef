@@ -53,11 +53,11 @@ public class EvaluatorSizeTest {
         .set(EvaluatorSizeTestConfiguration.MEMORY_SIZE, 777)
         .build();
 
-    final Configuration driverConfiguration =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorSizeTest-" + megaBytes)
-            .set(DriverConfiguration.ON_DRIVER_STARTED, EvaluatorSizeTestDriver.StartHandler.class)
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorSizeTestDriver.EvaluatorAllocatedHandler.class).build();
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(this.getClass()))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorSizeTest-" + megaBytes)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, EvaluatorSizeTestDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorSizeTestDriver.EvaluatorAllocatedHandler.class).build();
 
     final Configuration mergedDriverConfiguration = Tang.Factory.getTang()
         .newConfigurationBuilder(driverConfiguration, testConfiguration).build();

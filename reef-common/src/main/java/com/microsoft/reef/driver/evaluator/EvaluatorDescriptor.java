@@ -36,4 +36,9 @@ public interface EvaluatorDescriptor {
    * @return the amount of memory allocated to this Evaluator.
    */
   public int getMemory();
+
+  /**
+   * @return the number of virtual core allocated to this Evaluator.
+   */
+  public int getNumberOfCores();
 }

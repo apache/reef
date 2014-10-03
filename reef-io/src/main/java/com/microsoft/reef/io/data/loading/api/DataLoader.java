@@ -68,10 +68,12 @@ public class DataLoader {
 
   private final DataLoadingService dataLoadingService;
   private final int dataEvalMemoryMB;
+  private final int dataEvalCore;
   private final EvaluatorRequest computeRequest;
   private final SingleThreadStage<EvaluatorRequest> resourceRequestStage;
   private final ResourceRequestHandler resourceRequestHandler;
   private final int computeEvalMemoryMB;
+  private final int computeEvalCore;
   private final EvaluatorRequestor requestor;
 
   @Inject
@@ -80,6 +82,7 @@ public class DataLoader {
       final EvaluatorRequestor requestor,
       final DataLoadingService dataLoadingService,
       final @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) int dataEvalMemoryMB,
+      final @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorNumberOfCores.class) int dataEvalCore,
       final @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) String serializedComputeRequest) {
 
     // FIXME: Issue #855: We need this alarm to look busy for REEF.
@@ -93,15 +96,18 @@ public class DataLoader {
     this.requestor = requestor;
     this.dataLoadingService = dataLoadingService;
     this.dataEvalMemoryMB = dataEvalMemoryMB;
+    this.dataEvalCore = dataEvalCore;
     this.resourceRequestHandler = new ResourceRequestHandler(requestor);
     this.resourceRequestStage = new SingleThreadStage<>(this.resourceRequestHandler, 2);
 
     if (serializedComputeRequest.equals("NULL")) {
       this.computeRequest = null;
       this.computeEvalMemoryMB = -1;
+      computeEvalCore = 1;
     } else {
       this.computeRequest = EvaluatorRequestSerializer.deserialize(serializedComputeRequest);
       this.computeEvalMemoryMB = this.computeRequest.getMegaBytes();
+      this.computeEvalCore = this.computeRequest.getNumberOfCores();
       this.numComputeRequestsToSubmit.set(this.computeRequest.getNumber());
 
       this.resourceRequestStage.onNext(this.computeRequest);
@@ -114,6 +120,7 @@ public class DataLoader {
     return EvaluatorRequest.newBuilder()
         .setNumber(this.dataLoadingService.getNumberOfPartitions())
         .setMemory(this.dataEvalMemoryMB)
+        .setNumberOfCores(this.dataEvalCore)
         .build();
   }
 
@@ -201,7 +208,7 @@ public class DataLoader {
         failedComputeEvalConfigs.add(computeConfig);
 
         requestor.submit(EvaluatorRequest.newBuilder()
-            .setMemory(computeEvalMemoryMB).setNumber(1).build());
+            .setMemory(computeEvalMemoryMB).setNumber(1).setNumberOfCores(computeEvalCore).build());
 
       } else {
 
@@ -212,7 +219,7 @@ public class DataLoader {
           failedDataEvalConfigs.add(confPair);
 
           requestor.submit(EvaluatorRequest.newBuilder()
-              .setMemory(dataEvalMemoryMB).setNumber(1).build());
+              .setMemory(dataEvalMemoryMB).setNumber(1).setNumberOfCores(dataEvalCore).build());
 
         } else {
 

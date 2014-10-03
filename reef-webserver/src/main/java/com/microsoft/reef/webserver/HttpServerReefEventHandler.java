@@ -24,7 +24,6 @@ import com.microsoft.wake.EventHandler;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -86,13 +85,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    */
   @Override
   public void onHttpRequest(
-      final HttpServletRequest request,
+      final ParsedHttpRequest parsedHttpRequest,
       final HttpServletResponse response) throws IOException, ServletException {
 
     LOG.log(Level.INFO, "HttpServerReefEventHandler in webserver onHttpRequest is called: {0}",
-        request.getRequestURI());
+        parsedHttpRequest.getRequestUri());
 
-    final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final String version = parsedHttpRequest.getVersion().toLowerCase();
     final String target = parsedHttpRequest.getTargetEntity().toLowerCase();
 
@@ -210,6 +208,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         writer.println("Evaluator InternetAddress: " + address);
         writer.write("<br/>");
         writer.println("Evaluator Memory: " + evaluatorDescriptor.getMemory());
+        writer.write("<br/>");
+        writer.println("Evaluator Core: " + evaluatorDescriptor.getNumberOfCores());
         writer.write("<br/>");
         writer.println("Evaluator Type: " + evaluatorDescriptor.getType());
         writer.write("<br/>");

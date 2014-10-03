@@ -36,14 +36,14 @@ public final class Client {
       final Configuration runtimeConfig,
       final int timeOut) throws BindException, InjectionException {
 
-    final Configuration driverConfig =
-        EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
-            .set(DriverConfiguration.DRIVER_IDENTIFIER, failTaskClass.getSimpleName())
-            .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.AllocatedEvaluatorHandler.class)
-            .set(DriverConfiguration.ON_TASK_RUNNING, Driver.RunningTaskHandler.class)
-            .set(DriverConfiguration.ON_CONTEXT_ACTIVE, Driver.ActiveContextHandler.class)
-            .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
-            .build();
+    final Configuration driverConfig = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(Driver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, failTaskClass.getSimpleName())
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, Driver.AllocatedEvaluatorHandler.class)
+        .set(DriverConfiguration.ON_TASK_RUNNING, Driver.RunningTaskHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, Driver.ActiveContextHandler.class)
+        .set(DriverConfiguration.ON_DRIVER_STARTED, Driver.StartHandler.class)
+        .build();
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.addConfiguration(driverConfig);

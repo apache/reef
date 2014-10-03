@@ -27,6 +27,7 @@ import com.microsoft.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.launch.LaunchCommandBuilder;
 import com.microsoft.reef.runtime.common.parameters.JVMHeapSlack;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
+import com.microsoft.reef.runtime.local.client.parameters.DefaultNumberOfCores;
 import com.microsoft.reef.runtime.local.client.parameters.DefaultMemorySize;
 import com.microsoft.reef.runtime.local.driver.parameters.GlobalFiles;
 import com.microsoft.reef.runtime.local.driver.parameters.GlobalLibraries;
@@ -59,9 +60,10 @@ public final class ResourceManager {
   private final ContainerManager theContainers;
   private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
   private final int defaultMemorySize;
+  private final int defaultNumberOfCores;
   private final ConfigurationSerializer configurationSerializer;
   private final RemoteManager remoteManager;
-  private final REEFFileNames filenames;
+  private final REEFFileNames fileNames;
   private final ClasspathProvider classpathProvider;
   private final double jvmHeapFactor;
 
@@ -73,10 +75,11 @@ public final class ResourceManager {
       final @Parameter(GlobalLibraries.class) Set<String> globalLibraries,
       final @Parameter(GlobalFiles.class) Set<String> globalFiles,
       final @Parameter(DefaultMemorySize.class) int defaultMemorySize,
+      final @Parameter(DefaultNumberOfCores.class) int defaultNumberOfCores,
       final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
-      final REEFFileNames filenames,
+      final REEFFileNames fileNames,
       final ClasspathProvider classpathProvider) {
 
     this.theContainers = containerManager;
@@ -85,7 +88,8 @@ public final class ResourceManager {
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
     this.defaultMemorySize = defaultMemorySize;
-    this.filenames = filenames;
+    this.defaultNumberOfCores = defaultNumberOfCores;
+    this.fileNames = fileNames;
     this.classpathProvider = classpathProvider;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
 
@@ -111,11 +115,22 @@ public final class ResourceManager {
    *
    * @param releaseRequest the release request to be processed
    */
-  final void onResourceReleaseRequest(
-      final DriverRuntimeProtocol.ResourceReleaseProto releaseRequest) {
+  final void onResourceReleaseRequest(final DriverRuntimeProtocol.ResourceReleaseProto releaseRequest) {
     synchronized (this.theContainers) {
       LOG.log(Level.FINEST, "Release container: {0}", releaseRequest.getIdentifier());
       this.theContainers.release(releaseRequest.getIdentifier());
+      this.checkRequestQueue();
+    }
+  }
+
+  /**
+   * Called when the ReefRunnableProcessObserver detects that the Evaluator process has exited.
+   *
+   * @param evaluatorId the ID of the Evaluator that exited.
+   */
+  public final void onEvaluatorExit(final String evaluatorId) {
+    synchronized (this.theContainers) {
+      this.theContainers.release(evaluatorId);
       this.checkRequestQueue();
     }
   }
@@ -133,16 +148,14 @@ public final class ResourceManager {
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
       // Add the global files and libraries.
-      c.addGlobalFiles(this.filenames.getGlobalFolder());
+      c.addGlobalFiles(this.fileNames.getGlobalFolder());
       c.addLocalFiles(getLocalFiles(launchRequest));
 
       // Make the configuration file of the evaluator.
-      final File evaluatorConfigurationFile = new File(
-          c.getFolder(), filenames.getEvaluatorConfigurationPath());
+      final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
 
       try {
-        this.configurationSerializer.toFile(
-            this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()),
+        this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()),
             evaluatorConfigurationFile);
       } catch (final IOException | BindException e) {
         throw new RuntimeException("Unable to write configuration.", e);
@@ -166,7 +179,7 @@ public final class ResourceManager {
       final List<String> command = commandBuilder
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(c.getNodeID())
-          .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
+          .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
           .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
           .build();
 
@@ -188,7 +201,8 @@ public final class ResourceManager {
 
       // Allocate a Container
       final Container container = this.theContainers.allocateOne(
-          requestProto.hasMemorySize() ? requestProto.getMemorySize() : this.defaultMemorySize);
+          requestProto.hasMemorySize() ? requestProto.getMemorySize() : this.defaultMemorySize,
+          requestProto.hasVirtualCores() ? requestProto.getVirtualCores() : this.defaultNumberOfCores);
 
       // Tell the receivers about it
       final DriverRuntimeProtocol.ResourceAllocationProto alloc =
@@ -196,6 +210,7 @@ public final class ResourceManager {
               .setIdentifier(container.getContainerID())
               .setNodeId(container.getNodeID())
               .setResourceMemory(container.getMemory())
+              .setVirtualCores(container.getNumberOfCores())
               .build();
 
       LOG.log(Level.FINEST, "Allocating container: {0}", container);
@@ -222,11 +237,8 @@ public final class ResourceManager {
             .addAllContainerAllocation(this.theContainers.getAllocatedContainerIDs())
             .build();
 
-    final String logMessage =
-        "Outstanding Container Requests: " + msg.getOutstandingContainerRequests() +
-            ", AllocatedContainers: " + msg.getContainerAllocationCount();
-
-    LOG.log(Level.FINEST, logMessage);
+    LOG.log(Level.INFO, "Allocated: {0}, Outstanding requests: {1}",
+        new Object[]{msg.getContainerAllocationCount(), msg.getOutstandingContainerRequests()});
     this.runtimeStatusHandlerEventHandler.onNext(msg);
   }
 
@@ -236,8 +248,7 @@ public final class ResourceManager {
    * @param launchRequest the ResourceLaunchProto to parse
    * @return a list of files set in the given ResourceLaunchProto
    */
-  private static List<File> getLocalFiles(
-      final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+  private static List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
     final List<File> files = new ArrayList<>();  // Libraries local to this evaluator
     for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
       files.add(new File(frp.getPath()).getAbsoluteFile());

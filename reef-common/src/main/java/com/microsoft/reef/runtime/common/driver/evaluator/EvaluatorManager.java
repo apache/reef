@@ -24,6 +24,7 @@ import com.microsoft.reef.driver.evaluator.EvaluatorDescriptor;
 import com.microsoft.reef.driver.evaluator.EvaluatorType;
 import com.microsoft.reef.driver.task.FailedTask;
 import com.microsoft.reef.exception.EvaluatorException;
+import com.microsoft.reef.exception.EvaluatorKilledByResourceManagerException;
 import com.microsoft.reef.io.naming.Identifiable;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.proto.EvaluatorRuntimeProtocol;
@@ -34,6 +35,7 @@ import com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextControlHandler;
 import com.microsoft.reef.runtime.common.driver.context.ContextRepresenters;
+import com.microsoft.reef.runtime.common.driver.idle.EventHandlerIdlenessSource;
 import com.microsoft.reef.runtime.common.driver.task.TaskRepresenter;
 import com.microsoft.reef.runtime.common.utils.ExceptionCodec;
 import com.microsoft.reef.runtime.common.utils.RemoteManager;
@@ -84,6 +86,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final EvaluatorStatusManager stateManager;
   private final ExceptionCodec exceptionCodec;
   private final DriverStatusManager driverStatusManager;
+  private final EventHandlerIdlenessSource idlenessSource;
 
 
   // Mutable fields
@@ -105,8 +108,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final ContextControlHandler contextControlHandler,
       final EvaluatorStatusManager stateManager,
       final DriverStatusManager driverStatusManager,
-      final ExceptionCodec exceptionCodec) {
+      final ExceptionCodec exceptionCodec,
+      final EventHandlerIdlenessSource idlenessSource) {
     this.contextRepresenters = contextRepresenters;
+    this.idlenessSource = idlenessSource;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
     this.clock = clock;
     this.resourceReleaseHandler = resourceReleaseHandler;
@@ -184,6 +189,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         }
       }
     }
+    this.idlenessSource.check();
   }
 
   /**
@@ -457,41 +463,45 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       if (this.stateManager.isDoneOrFailedOrKilled()) {
         LOG.log(Level.FINE, "Ignoring resource status update for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
-        return;
-      } else if ((resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
-          resourceStatusProto.getState() == ReefServiceProtos.State.FAILED) &&
-          this.stateManager.isAllocatedOrSubmittedOrRunning()) {
+      } else if (isDoneOrFailedOrKilled(resourceStatusProto) && this.stateManager.isAllocatedOrSubmittedOrRunning()) {
         // something is wrong. The resource manager reports that the Evaluator is done or failed, but the Driver assumes
         // it to be alive.
-        final StringBuilder messageBuilder = new StringBuilder();
+        final StringBuilder messageBuilder = new StringBuilder("Evaluator [")
+            .append(this.evaluatorId)
+            .append("] is assumed to be in state [")
+            .append(this.stateManager.toString())
+            .append("]. But the resource manager reports it to be in state [")
+            .append(resourceStatusProto.getState())
+            .append("].");
+
         if (this.stateManager.isSubmitted()) {
-          messageBuilder.append("Evaluator [")
-              .append(this.evaluatorId)
-              .append("] was submitted for execution, but the resource manager informs me that it is ")
-              .append(resourceStatusProto.getState())
-              .append(". This most likely means that the Evaluator suffered a failure before establishing a communications link to the driver. ");
+          messageBuilder
+              .append(" This most likely means that the Evaluator suffered a failure before establishing a communications link to the driver.");
         } else if (this.stateManager.isAllocated()) {
-          messageBuilder.append("Evaluator [")
-              .append(this.evaluatorId)
-              .append("] was submitted for execution, but the resource manager informs me that it is ")
-              .append(resourceStatusProto.getState())
-              .append(". This most likely means that the Evaluator suffered a failure before being used. ");
+          messageBuilder.append(" This most likely means that the Evaluator suffered a failure before being used.");
         } else if (this.stateManager.isRunning()) {
-          messageBuilder.append("Evaluator [")
-              .append(this.evaluatorId)
-              .append("] was running, but the resource manager informs me that it is ")
-              .append(resourceStatusProto.getState())
-              .append(". This means that the Evaluator failed but wasn't able to send error message back to the driver. ");
+          messageBuilder.append(" This means that the Evaluator failed but wasn't able to send an error message back to the driver.");
         }
         if (this.task.isPresent()) {
-          messageBuilder.append("Task [")
+          messageBuilder.append(" Task [")
               .append(this.task.get().getId())
               .append("] was running when the Evaluator crashed.");
         }
         this.isResourceReleased = true;
-        onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString()));
+
+        if (resourceStatusProto.getState() == ReefServiceProtos.State.KILLED) {
+          this.onEvaluatorException(new EvaluatorKilledByResourceManagerException(this.evaluatorId, messageBuilder.toString()));
+        } else {
+          this.onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString()));
+        }
       }
     }
+  }
+
+  private static boolean isDoneOrFailedOrKilled(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
+    return resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
+        resourceStatusProto.getState() == ReefServiceProtos.State.FAILED ||
+        resourceStatusProto.getState() == ReefServiceProtos.State.KILLED;
   }
 
   @Override

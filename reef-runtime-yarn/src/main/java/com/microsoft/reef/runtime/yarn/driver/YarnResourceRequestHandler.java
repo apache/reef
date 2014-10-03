@@ -49,6 +49,8 @@ public final class YarnResourceRequestHandler implements ResourceRequestHandler 
 
   @Override
   public synchronized void onNext(final DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
+    LOG.log(Level.FINEST, "Got ResourceRequestProto in YarnResourceRequestHandler: memory = {0}, cores = {1}.", new Object[] {resourceRequestProto.getMemorySize(), resourceRequestProto.getVirtualCores() });
+
     final String[] nodes = resourceRequestProto.getNodeNameCount() == 0 ? null :
         resourceRequestProto.getNodeNameList().toArray(new String[resourceRequestProto.getNodeNameCount()]);
     final String[] racks = resourceRequestProto.getRackNameCount() == 0 ? null :
@@ -70,7 +72,11 @@ public final class YarnResourceRequestHandler implements ResourceRequestHandler 
 
   private synchronized Resource getResource(final DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
     final Resource result = Records.newRecord(Resource.class);
-    result.setMemory(getMemory(resourceRequestProto.getMemorySize()));
+    final int memory = getMemory(resourceRequestProto.getMemorySize());
+    final int core = resourceRequestProto.getVirtualCores();
+    LOG.log(Level.FINEST, "Resource requested: memory = {0}, virtual core count = {1}.",  new Object[]{ memory, core } );
+    result.setMemory(memory);
+    result.setVirtualCores(core);
     return result;
   }
 

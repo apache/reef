@@ -17,7 +17,6 @@ package com.microsoft.reef.runtime.common.driver.evaluator;
 
 import com.microsoft.reef.annotations.audience.DriverSide;
 import com.microsoft.reef.annotations.audience.Private;
-import com.microsoft.reef.driver.catalog.ResourceCatalog;
 import com.microsoft.reef.proto.DriverRuntimeProtocol;
 import com.microsoft.reef.util.Optional;
 import com.microsoft.reef.util.SingletonAsserter;
@@ -45,16 +44,11 @@ public final class Evaluators implements AutoCloseable {
    */
   private final Map<String, EvaluatorManager> evaluators = new HashMap<>();
 
-  /**
-   * Resources we know about in the cluster.
-   */
-  private final ResourceCatalog resourceCatalog;
 
   @Inject
-  Evaluators(final ResourceCatalog resourceCatalog) {
+  Evaluators() {
     LOG.log(Level.FINE, "Instantiated 'Evaluators'");
     assert (SingletonAsserter.assertSingleton(Evaluators.class));
-    this.resourceCatalog = resourceCatalog;
   }
 
   /**

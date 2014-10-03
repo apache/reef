@@ -55,10 +55,12 @@ public final class YarnResourceRequestHandlerTest {
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(64)
+        .setNumberOfCores(1)
         .build();
     final EvaluatorRequest requestTwo = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(128)
+        .setNumberOfCores(2)
         .build();
     {
       evaluatorRequestor.submit(requestOne);
@@ -88,10 +90,12 @@ public final class YarnResourceRequestHandlerTest {
     final EvaluatorRequest requestOne = EvaluatorRequest.newBuilder()
         .setNumber(1)
         .setMemory(64)
+        .setNumberOfCores(1)
         .build();
     final EvaluatorRequest requestTwo = EvaluatorRequest.newBuilder()
         .setNumber(2)
         .setMemory(128)
+        .setNumberOfCores(2)
         .build();
     {
       evaluatorRequestor.submit(requestOne);
@@ -100,7 +104,7 @@ public final class YarnResourceRequestHandlerTest {
           containerRequestHandler.getRequests().length
       );
     }
-    {
+        {
       evaluatorRequestor.submit(requestTwo);
       Assert.assertEquals("Request in REEF and YARN form should have the same number of Evaluators",
           requestTwo.getNumber(),

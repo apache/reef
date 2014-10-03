@@ -34,7 +34,8 @@ public final class FailClient {
                                    final Configuration runtimeConfig,
                                    final int timeOut) throws BindException, InjectionException {
 
-    final Configuration driverConfig = EnvironmentUtils.addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+    final Configuration driverConfig = DriverConfiguration.CONF
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(FailDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "Fail_" + failMsgClass.getSimpleName())
         .set(DriverConfiguration.ON_DRIVER_STARTED, FailDriver.StartHandler.class)
         .set(DriverConfiguration.ON_DRIVER_STOP, FailDriver.StopHandler.class)

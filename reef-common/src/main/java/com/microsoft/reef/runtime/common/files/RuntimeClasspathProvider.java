@@ -19,18 +19,27 @@ import java.util.List;
 
 /**
  * Interface to be implemented by each REEF runtime (YARN, Mesos, Local) to provide additional classpath elements to be
- * postfixed to the user classpath.
+ * pre- and postfixed to the user classpath.
  */
 public interface RuntimeClasspathProvider {
 
   /**
-   * @return the classpath to be appended to the Driver's classpath.
+   * @return the classpath to be prefixed in front of the user classpath of the Driver.
    */
-  List<String> getDriverClasspath();
+  List<String> getDriverClasspathPrefix();
 
   /**
-   * @return the classpath to be appended to every Evaluator's classpath.
+   * @return the classpath to be suffixed after of the user classpath of the Driver.
    */
-  List<String> getEvaluatorClasspath();
+  List<String> getDriverClasspathSuffix();
 
+  /**
+   * @return the classpath to be prefixed in front of the user classpath of each Evaluator.
+   */
+  List<String> getEvaluatorClasspathPrefix();
+
+  /**
+   * @return the classpath to be suffixed after of the user classpath of each Evaluator.
+   */
+  List<String> getEvaluatorClasspathSuffix();
 }

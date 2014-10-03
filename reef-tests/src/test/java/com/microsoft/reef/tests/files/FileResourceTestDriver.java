@@ -15,7 +15,6 @@
  */
 package com.microsoft.reef.tests.files;
 
-import com.microsoft.reef.driver.context.ContextConfiguration;
 import com.microsoft.reef.driver.evaluator.AllocatedEvaluator;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
@@ -80,7 +79,7 @@ final class FileResourceTestDriver {
 
       // Ask for a single evaluator.
       FileResourceTestDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1).setMemory(64).build());
+          .setNumber(1).setMemory(64).setNumberOfCores(1).build());
     }
   }
 
@@ -96,11 +95,6 @@ final class FileResourceTestDriver {
         for (final String fileName : FileResourceTestDriver.this.fileNamesToExpect) {
           allocatedEvaluator.addFile(new File(localFolder, fileName));
         }
-
-        // Trivial context Configuration
-        final Configuration contextConfiguration = ContextConfiguration.CONF
-            .set(ContextConfiguration.IDENTIFIER, "TestContext")
-            .build();
 
         // Filling out a TaskConfiguration
         final Configuration taskConfiguration = TaskConfiguration.CONF
@@ -119,7 +113,7 @@ final class FileResourceTestDriver {
         final Configuration finalTaskConfiguration =
             Configurations.merge(taskConfiguration, testTaskConfigurationModule.build());
 
-        allocatedEvaluator.submitContextAndTask(contextConfiguration, finalTaskConfiguration);
+        allocatedEvaluator.submitTask(finalTaskConfiguration);
 
       } catch (final Exception e) {
         // This fails the test.

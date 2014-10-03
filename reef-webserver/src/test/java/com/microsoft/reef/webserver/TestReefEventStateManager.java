@@ -110,6 +110,11 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   public int getMemory() {
     return 64;
   }
+
+  @Override
+  public int getNumberOfCores() {
+    return 1;
+  }
 }
 
 final class MockNodeDescriptor implements NodeDescriptor {
