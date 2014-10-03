@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.microsoft.reef.io.network.group.operators;
+package com.microsoft.reef.exception;
 
-import com.microsoft.reef.io.network.exception.ParentDeadException;
-import com.microsoft.tang.annotations.Name;
+/**
+ * Reported as part of a FailedEvaluator when the resource manager killed the Evaluator
+ */
+public final class EvaluatorKilledByResourceManagerException extends EvaluatorException {
 
-public interface GroupCommOperator {
-
-  Class<? extends Name<String>> getOperName();
-
-  Class<? extends Name<String>> getGroupName();
-
-  void initialize() throws ParentDeadException;
-
-  int getVersion();
+  public EvaluatorKilledByResourceManagerException(final String evaluatorId, final String message) {
+    super(evaluatorId, message);
+  }
 }

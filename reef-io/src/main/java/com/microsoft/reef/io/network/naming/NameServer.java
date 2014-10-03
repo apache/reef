@@ -116,7 +116,7 @@ public class NameServer implements Stage {
     clazzToHandlerMap.put(NamingLookupRequest.class, new NamingLookupRequestHandler(this, codec));
     clazzToHandlerMap.put(NamingRegisterRequest.class, new NamingRegisterRequestHandler(this, codec));
     clazzToHandlerMap.put(NamingUnregisterRequest.class, new NamingUnregisterRequestHandler(this));
-    EventHandler<NamingMessage> handler = new MultiEventHandler<>(clazzToHandlerMap);
+    final EventHandler<NamingMessage> handler = new MultiEventHandler<>(clazzToHandlerMap);
 
     return handler;
   }
@@ -142,7 +142,7 @@ public class NameServer implements Stage {
    * @param id   an identifier
    * @param addr an Internet socket address
    */
-  public void register(Identifier id, InetSocketAddress addr) {
+  public void register(final Identifier id, final InetSocketAddress addr) {
     LOG.log(Level.FINE, "id: " + id + " addr: " + addr);
     idToAddrMap.put(id, addr);
   }
@@ -152,7 +152,7 @@ public class NameServer implements Stage {
    *
    * @param id an identifier
    */
-  public void unregister(Identifier id) {
+  public void unregister(final Identifier id) {
     LOG.log(Level.FINE, "id: " + id);
     idToAddrMap.remove(id);
   }
@@ -201,15 +201,15 @@ class NamingServerHandler implements EventHandler<TransportEvent> {
   private final Codec<NamingMessage> codec;
   private final EventHandler<NamingMessage> handler;
 
-  NamingServerHandler(EventHandler<NamingMessage> handler, Codec<NamingMessage> codec) {
+  NamingServerHandler(final EventHandler<NamingMessage> handler, final Codec<NamingMessage> codec) {
     this.codec = codec;
     this.handler = handler;
   }
 
   @Override
-  public void onNext(TransportEvent value) {
-    byte[] data = value.getData();
-    NamingMessage message = (NamingMessage) codec.decode(data);
+  public void onNext(final TransportEvent value) {
+    final byte[] data = value.getData();
+    final NamingMessage message = codec.decode(data);
     message.setLink(value.getLink());
     handler.onNext(message);
   }
@@ -220,22 +220,27 @@ class NamingServerHandler implements EventHandler<TransportEvent> {
  */
 class NamingLookupRequestHandler implements EventHandler<NamingLookupRequest> {
 
+  private static final Logger LOG = Logger.getLogger(NamingLookupRequestHandler.class.getName());
+
+
   private final NameServer server;
   private final Codec<NamingMessage> codec;
 
-  public NamingLookupRequestHandler(NameServer server, Codec<NamingMessage> codec) {
+  public NamingLookupRequestHandler(final NameServer server, final Codec<NamingMessage> codec) {
     this.server = server;
     this.codec = codec;
   }
 
   @Override
-  public void onNext(NamingLookupRequest value) {
-    List<NameAssignment> nas = server.lookup(value.getIdentifiers());
-    byte[] resp = codec.encode(new NamingLookupResponse(nas));
+  public void onNext(final NamingLookupRequest value) {
+    final List<NameAssignment> nas = server.lookup(value.getIdentifiers());
+    final byte[] resp = codec.encode(new NamingLookupResponse(nas));
     try {
       value.getLink().write(resp);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (final IOException e) {
+      //Actually, there is no way Link.write can throw and IOException
+      //after netty4 merge. This needs to cleaned up
+      LOG.throwing("NamingLookupRequestHandler", "onNext", e);
     }
   }
 }
@@ -245,22 +250,27 @@ class NamingLookupRequestHandler implements EventHandler<NamingLookupRequest> {
  */
 class NamingRegisterRequestHandler implements EventHandler<NamingRegisterRequest> {
 
+  private static final Logger LOG = Logger.getLogger(NamingRegisterRequestHandler.class.getName());
+
+
   private final NameServer server;
   private final Codec<NamingMessage> codec;
 
-  public NamingRegisterRequestHandler(NameServer server, Codec<NamingMessage> codec) {
+  public NamingRegisterRequestHandler(final NameServer server, final Codec<NamingMessage> codec) {
     this.server = server;
     this.codec = codec;
   }
 
   @Override
-  public void onNext(NamingRegisterRequest value) {
+  public void onNext(final NamingRegisterRequest value) {
     server.register(value.getNameAssignment().getIdentifier(), value.getNameAssignment().getAddress());
-    byte[] resp = codec.encode(new NamingRegisterResponse(value));
+    final byte[] resp = codec.encode(new NamingRegisterResponse(value));
     try {
       value.getLink().write(resp);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (final IOException e) {
+      //Actually, there is no way Link.write can throw and IOException
+      //after netty4 merge. This needs to cleaned up
+      LOG.throwing("NamingRegisterRequestHandler", "onNext", e);
     }
   }
 }
@@ -272,12 +282,12 @@ class NamingUnregisterRequestHandler implements EventHandler<NamingUnregisterReq
 
   private final NameServer server;
 
-  public NamingUnregisterRequestHandler(NameServer server) {
+  public NamingUnregisterRequestHandler(final NameServer server) {
     this.server = server;
   }
 
   @Override
-  public void onNext(NamingUnregisterRequest value) {
+  public void onNext(final NamingUnregisterRequest value) {
     server.unregister(value.getIdentifier());
   }
 }
