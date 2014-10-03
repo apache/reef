@@ -194,8 +194,6 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     try (final FileOutputStream output = new FileOutputStream(file)) {
       try (final DataOutputStream dos = new DataOutputStream(output)) {
         node.writeTo(dos);
-        dos.close();
-        output.close();
       }
     }
   }

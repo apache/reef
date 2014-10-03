@@ -15,11 +15,9 @@
  */
 package com.microsoft.tang;
 
-import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.NameResolutionException;
 import com.microsoft.tang.formats.AvroConfigurationSerializer;
 import com.microsoft.tang.formats.ConfigurationSerializer;
-import com.microsoft.tang.implementation.java.ClassHierarchyImpl;
 import com.microsoft.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import com.microsoft.tang.proto.ClassHierarchyProto;
 import com.microsoft.tang.types.NamedParameterNode;
@@ -27,11 +25,9 @@ import com.microsoft.tang.types.Node;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * Test case for class hierarchy deserialization.
@@ -85,10 +81,10 @@ public class ClassHierarchyDeserializationTest {
     ns1.getNode(SetOfClasses.class.getName());
     final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
     final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
-    cb.bindSetEntry(SetOfClasses.class.getName(), Short.class.getName());
 
     final NamedParameterNode<Set<Number>> n2 = (NamedParameterNode<Set<Number>>)ns1.getNode(SetOfClasses.class.getName());
-    cb.bindSetEntry(n2, Float.class.getName());
+    final Node fn = ns1.getNode(Float.class.getName());
+    cb.bindSetEntry(n2, fn);
 
     final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
     final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);
@@ -98,13 +94,13 @@ public class ClassHierarchyDeserializationTest {
   //Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl with deserialized class hierarchy
   public void testBindSetEntryWithSetOfString() throws IOException {
     final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
-    ns1.getNode(SetOfNumbers.class.getName());
+    ns1.getNode(SetOfStrings.class.getName());
     final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
     final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
-    cb.bindSetEntry(SetOfNumbers.class.getName(), "four");
-    cb.bindSetEntry(SetOfNumbers.class.getName(), "five");
+    cb.bindSetEntry(SetOfStrings.class.getName(), "four");
+    cb.bindSetEntry(SetOfStrings.class.getName(), "five");
 
-    final NamedParameterNode<Set<String>> n2 = (NamedParameterNode<Set<String>>)ns1.getNode(SetOfNumbers.class.getName());
+    final NamedParameterNode<Set<String>> n2 = (NamedParameterNode<Set<String>>)ns1.getNode(SetOfStrings.class.getName());
     cb.bindSetEntry(n2, "six");
 
     final ConfigurationSerializer serializer = new AvroConfigurationSerializer();

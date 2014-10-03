@@ -589,22 +589,8 @@ public class TestTang {
     Injector i = Tang.Factory.getTang().newInjector();
     i.getInstance(ForksInjectorInConstructor.class);
   }
-
-  @Test
-  public void testMultiInheritance() throws BindException, InjectionException {
-    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindImplementation(CheckChildIface.class, CheckChildImpl.class);
-    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    final CheckChildIface o1 = i.getInstance(CheckChildIface.class);
-    Assert.assertNotNull(o1);
-
-    final JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
-    cb2.bindImplementation(CheckChildIface.class, CheckChildImplImpl.class);
-    final Injector i2 = Tang.Factory.getTang().newInjector(cb2.build());
-    final CheckChildIface o2 = i2.getInstance(CheckChildIface.class);
-    Assert.assertNotNull(o2);
- }
 }
+
 class Fail {
   @Inject
   public Fail() { throw new UnsupportedOperationException(); }
@@ -621,7 +607,6 @@ class IsFuture {
 }
 class NeedsFuture {
   @Inject NeedsFuture(InjectionFuture<IsFuture> isFut) {
-    
   }
 }
 
@@ -655,7 +640,6 @@ class OverrideDefaultImpl implements HaveDefaultImpl {
   @Inject
   public OverrideDefaultImpl() {}
 }
-
 
 @DefaultImplementation(name="com.microsoft.tang.HaveDefaultStringImplImpl")
 interface HaveDefaultStringImpl {}
