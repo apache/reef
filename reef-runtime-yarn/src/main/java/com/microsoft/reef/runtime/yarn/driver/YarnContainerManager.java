@@ -429,8 +429,7 @@ final class YarnContainerManager
 
     LOG.log(Level.FINE, "allocated container: id[ {0} ]", container.getId());
     // recovered container is not new allocation, it is just checking back from previous driver failover
-    if (!isRecoveredContainer)
-    {
+    if (!isRecoveredContainer) {
       logContainerAddition(container.getId().toString());
       synchronized (this) {
         this.containerRequestCounter.decrement();
@@ -441,7 +440,7 @@ final class YarnContainerManager
           try {
             this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
           } catch (final Exception e) {
-            LOG.log(Level.FINEST, "Nothing to remove from Async AMRM client's queue.");
+            LOG.log(Level.FINEST, "Nothing to remove from Async AMRM client's queue, removal attempt failed with exception " + e);
           }
           final AMRMClient.ContainerRequest requestToBeSubmitted = this.outstandingContainerRequests.peek();
           if (requestToBeSubmitted != null) {
