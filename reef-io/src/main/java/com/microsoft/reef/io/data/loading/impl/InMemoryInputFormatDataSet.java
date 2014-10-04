@@ -25,7 +25,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 import com.microsoft.reef.io.data.loading.api.DataSet;
-import com.microsoft.reef.io.network.util.Utils.Pair;
+import com.microsoft.reef.io.network.util.Pair;
 
 public class InMemoryInputFormatDataSet<K extends WritableComparable<K>,V extends Writable> 
               implements DataSet<K,V>  {
