@@ -589,6 +589,53 @@ public class TestTang {
     Injector i = Tang.Factory.getTang().newInjector();
     i.getInstance(ForksInjectorInConstructor.class);
   }
+
+  /**
+   * This is to test multiple inheritance case.
+   * When a subclass is bound to an interface, it's instance will be created in injection
+   * When a subsubclass is bound to the interface, the subsubclass instance will be created in injection
+   *
+   * @throws BindException
+   * @throws InjectionException
+   */
+  @Test
+  public void testMultiInheritanceMiddleClassFirst() throws BindException, InjectionException {
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(CheckChildIface.class, CheckChildImpl.class);
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final CheckChildIface o1 = i.getInstance(CheckChildIface.class);
+    Assert.assertTrue(o1 instanceof CheckChildImpl);
+
+    final JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
+    cb2.bindImplementation(CheckChildIface.class, CheckChildImplImpl.class);
+    final Injector i2 = Tang.Factory.getTang().newInjector(cb2.build());
+    final CheckChildIface o2 = i2.getInstance(CheckChildIface.class);
+    Assert.assertTrue(o2 instanceof CheckChildImplImpl);
+  }
+
+  /**
+   * This is to test multiple inheritance case.
+   * When CheckChildImplImpl is bound to an interface, the CheckChildImplImpl instance will be created in injection
+   * When CheckChildImpl is then bound to the same interface, even class hierarchy already knows it has an subclass CheckChildImplImpl,
+   * Tang will only look at the constructors in CheckChildImpl
+   *
+   * @throws BindException
+   * @throws InjectionException
+   */
+  @Test
+  public void testMultiInheritanceSubclassFirst() throws BindException, InjectionException {
+    final JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
+    cb2.bindImplementation(CheckChildIface.class, CheckChildImplImpl.class);
+    final Injector i2 = Tang.Factory.getTang().newInjector(cb2.build());
+    final CheckChildIface o2 = i2.getInstance(CheckChildIface.class);
+    Assert.assertTrue(o2 instanceof CheckChildImplImpl);
+
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindImplementation(CheckChildIface.class, CheckChildImpl.class);
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final CheckChildIface o1 = i.getInstance(CheckChildIface.class);
+    Assert.assertTrue(o1 instanceof CheckChildImpl);
+  }
 }
 
 class Fail {
