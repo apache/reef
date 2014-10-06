@@ -32,12 +32,11 @@ import com.microsoft.tang.annotations.NamedParameter;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.exceptions.BindException;
 import com.microsoft.tang.exceptions.InjectionException;
-import com.microsoft.tang.formats.ConfigurationFile;
 
 public class TestSetInjection {
   @Test
   public void testStringInjectDefault() throws InjectionException {
-    Set<String> actual = Tang.Factory.getTang().newInjector().getInstance(Box.class).numbers;
+    Set<String> actual = Tang.Factory.getTang().newInjector().getInstance(Box.class).strings;
 
     Set<String> expected = new HashSet<>();
     expected.add("one");
@@ -60,10 +59,10 @@ public class TestSetInjection {
   @Test
   public void testStringInjectBound() throws InjectionException, BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindSetEntry(SetOfNumbers.class, "four");
-    cb.bindSetEntry(SetOfNumbers.class, "five");
-    cb.bindSetEntry(SetOfNumbers.class, "six");
-    Set<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(Box.class).numbers;
+    cb.bindSetEntry(SetOfStrings.class, "four");
+    cb.bindSetEntry(SetOfStrings.class, "five");
+    cb.bindSetEntry(SetOfStrings.class, "six");
+    Set<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(Box.class).strings;
 
     Set<String> expected = new HashSet<>();
     expected.add("four");
@@ -91,9 +90,9 @@ public class TestSetInjection {
   @Test
   public void testStringInjectRoundTrip() throws InjectionException, BindException, IOException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindSetEntry(SetOfNumbers.class, "four");
-    cb.bindSetEntry(SetOfNumbers.class, "five");
-    cb.bindSetEntry(SetOfNumbers.class, "six");
+    cb.bindSetEntry(SetOfStrings.class, "four");
+    cb.bindSetEntry(SetOfStrings.class, "five");
+    cb.bindSetEntry(SetOfStrings.class, "six");
 
     ConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
@@ -102,7 +101,7 @@ public class TestSetInjection {
     Configuration conf = serializer.fromString(s);
     cb2.addConfiguration(conf);
 
-    Set<String> actual = Tang.Factory.getTang().newInjector(cb2.build()).getInstance(Box.class).numbers;
+    Set<String> actual = Tang.Factory.getTang().newInjector(cb2.build()).getInstance(Box.class).strings;
 
     Set<String> expected = new HashSet<>();
     expected.add("four");
@@ -148,13 +147,13 @@ public class TestSetInjection {
 }
 
 @NamedParameter(default_values={"one","two","three"})
-class SetOfNumbers implements Name<Set<String>> { }
+class SetOfStrings implements Name<Set<String>> { }
 
 class Box {
-  public final Set<String> numbers;
+  public final Set<String> strings;
   @Inject
-  Box(@Parameter(SetOfNumbers.class) Set<String> numbers) {
-    this.numbers = numbers;
+  Box(@Parameter(SetOfStrings.class) Set<String> strings) {
+    this.strings = strings;
   }
 }
 

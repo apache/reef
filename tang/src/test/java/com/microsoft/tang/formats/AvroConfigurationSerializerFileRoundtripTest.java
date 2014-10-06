@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang.formats;
 
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.test.RoundTripTest;
 
@@ -29,6 +30,18 @@ public final class AvroConfigurationSerializerFileRoundtripTest extends RoundTri
     final File tempFile = java.io.File.createTempFile("TangTest", "avroconf");
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toFile(configuration, tempFile);
-    return serializer.fromFile(tempFile);
+    final Configuration c = serializer.fromFile(tempFile);
+    tempFile.delete();
+    return c;
+  }
+
+  @Override
+  public Configuration roundTrip(Configuration configuration, final ClassHierarchy classHierarchy) throws Exception {
+    final File tempFile = java.io.File.createTempFile("TangTest", "avroconf");
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    serializer.toFile(configuration, tempFile);
+    final Configuration c =  serializer.fromFile(tempFile, classHierarchy);
+    tempFile.delete();
+    return c;
   }
 }

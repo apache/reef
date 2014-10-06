@@ -185,31 +185,30 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
   /**
    * serialize a class hierarchy into a file
-   * @param fileName
+   * @param file
    * @param classHierarchy
    * @throws IOException
    */
-  public static void serialize(final String fileName, final ClassHierarchy classHierarchy) throws IOException {
+  public static void serialize(final File file, final ClassHierarchy classHierarchy) throws IOException {
     final ClassHierarchyProto.Node node = serializeNode(classHierarchy.getNamespace());
-    final FileOutputStream output = new FileOutputStream(fileName);
-    final DataOutputStream dos = new DataOutputStream(output);
-    node.writeTo(dos);
-    dos.close();
-    output.close();
+    try (final FileOutputStream output = new FileOutputStream(file)) {
+      try (final DataOutputStream dos = new DataOutputStream(output)) {
+        node.writeTo(dos);
+      }
+    }
   }
 
   /**
    * Deserialize a class hierarchy from a file. The file can be generated from either Java or C#
-   * @param fileName
+   * @param file
    * @return
    * @throws IOException
    */
-  public static ClassHierarchy deserialize(final String fileName) throws IOException {
-    final InputStream stream = new FileInputStream(fileName);
-
-    final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(stream);
-
-    return new ProtocolBufferClassHierarchy(root);
+  public static ClassHierarchy deserialize(final File file) throws IOException {
+    try (final InputStream stream = new FileInputStream(file)) {
+      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(stream);
+      return new ProtocolBufferClassHierarchy(root);
+    }
   }
 
   /**

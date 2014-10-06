@@ -15,6 +15,7 @@
  */
 package com.microsoft.tang.formats;
 
+import com.microsoft.tang.ClassHierarchy;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.test.RoundTripTest;
 
@@ -26,5 +27,11 @@ public class AvroConfigurationSerializerStringRoundtripTest extends RoundTripTes
   public Configuration roundTrip(final Configuration configuration) throws Exception {
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     return serializer.fromString(serializer.toString(configuration));
+  }
+
+  @Override
+  public Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy) throws Exception {
+    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    return serializer.fromString(serializer.toString(configuration), classHierarchy);
   }
 }

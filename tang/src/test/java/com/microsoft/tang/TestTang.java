@@ -583,12 +583,14 @@ public class TestTang {
       i.getInstance(Pass.class);
     }
   }
+
   @Test
   public void testForksInjectorInConstructor() throws BindException, InjectionException {
     Injector i = Tang.Factory.getTang().newInjector();
     i.getInstance(ForksInjectorInConstructor.class);
   }
 }
+
 class Fail {
   @Inject
   public Fail() { throw new UnsupportedOperationException(); }
@@ -605,7 +607,6 @@ class IsFuture {
 }
 class NeedsFuture {
   @Inject NeedsFuture(InjectionFuture<IsFuture> isFut) {
-    
   }
 }
 
@@ -639,7 +640,6 @@ class OverrideDefaultImpl implements HaveDefaultImpl {
   @Inject
   public OverrideDefaultImpl() {}
 }
-
 
 @DefaultImplementation(name="com.microsoft.tang.HaveDefaultStringImplImpl")
 interface HaveDefaultStringImpl {}
@@ -1128,6 +1128,11 @@ interface CheckChildIface {
 class CheckChildImpl implements CheckChildIface{
   @Inject CheckChildImpl() {}
 }
+
+class CheckChildImplImpl extends CheckChildImpl{
+  @Inject CheckChildImplImpl() {}
+}
+
 class ForksInjectorInConstructor {
   @Inject ForksInjectorInConstructor(Injector i) throws BindException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
