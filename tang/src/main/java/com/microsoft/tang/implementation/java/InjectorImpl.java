@@ -117,11 +117,11 @@ public class InjectorImpl implements Injector {
    * a g in candidateConstructors s.t. g.isMoreSpecificThan(f).
    */
   private <T> List<InjectionPlan<T>> filterCandidateConstructors(
-      List<ClassNode<T>> candidateImplementations,
-      Map<Node, InjectionPlan<?>> memo) {
+      final List<ClassNode<T>> candidateImplementations,
+      final Map<Node, InjectionPlan<?>> memo) {
 
-    List<InjectionPlan<T>> sub_ips = new ArrayList<>();
-    for (ClassNode<T> thisCN : candidateImplementations) {
+    final List<InjectionPlan<T>> sub_ips = new ArrayList<>();
+    for (final ClassNode<T> thisCN : candidateImplementations) {
       final List<Constructor<T>> constructors = new ArrayList<>();
       final List<ConstructorDef<T>> constructorList = new ArrayList<>();
       if (null != c.getLegacyConstructor(thisCN)) {
@@ -131,13 +131,13 @@ public class InjectorImpl implements Injector {
           .addAll(Arrays.asList(thisCN.getInjectableConstructors()));
 
       for (ConstructorDef<T> def : constructorList) {
-        List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
-        ConstructorArg[] defArgs = def.getArgs();
+        final List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
+        final ConstructorArg[] defArgs = def.getArgs();
 
-        for (ConstructorArg arg : defArgs) {
+        for (final ConstructorArg arg : defArgs) {
           if (!arg.isInjectionFuture()) {
             try {
-              Node argNode = namespace.getNode(arg.getName());
+              final Node argNode = namespace.getNode(arg.getName());
               buildInjectionPlan(argNode, memo);
               args.add(memo.get(argNode));
             } catch (NameResolutionException e) {
@@ -156,7 +156,7 @@ public class InjectorImpl implements Injector {
             }
           }
         }
-        Constructor<T> constructor = new Constructor<T>(thisCN, def,
+        final Constructor<T> constructor = new Constructor<T>(thisCN, def,
             args.toArray(new InjectionPlan[0]));
         constructors.add(constructor);
       }
@@ -165,7 +165,7 @@ public class InjectorImpl implements Injector {
       // plans, there is a unique dominant plan, and select it.
 
       // First, compute the set of injectable plans.
-      List<Integer> liveIndices = new ArrayList<>();
+      final List<Integer> liveIndices = new ArrayList<>();
       for (int i = 0; i < constructors.size(); i++) {
         if (constructors.get(i).getNumAlternatives() > 0) {
           liveIndices.add(i);
@@ -175,9 +175,9 @@ public class InjectorImpl implements Injector {
       // by others.
       for (int i = 0; i < liveIndices.size(); i++) {
         for (int j = i + 1; j < liveIndices.size(); j++) {
-          ConstructorDef<T> ci = constructors.get(liveIndices.get(i))
+          final ConstructorDef<T> ci = constructors.get(liveIndices.get(i))
               .getConstructorDef();
-          ConstructorDef<T> cj = constructors.get(liveIndices.get(j))
+          final ConstructorDef<T> cj = constructors.get(liveIndices.get(j))
               .getConstructorDef();
 
           if (ci.isMoreSpecificThan(cj)) {
@@ -223,9 +223,9 @@ public class InjectorImpl implements Injector {
       // if we're here and there isn't a bound impl or a default impl,
       // then we're bound / defaulted to ourselves, so don't add
       // other impls to the list of things to consider.
-      List<ClassNode<T>> candidateImplementations = new ArrayList<>();
+      final List<ClassNode<T>> candidateImplementations = new ArrayList<>();
       candidateImplementations.add(cn);
-      List<InjectionPlan<T>> sub_ips = filterCandidateConstructors(candidateImplementations, memo);
+      final List<InjectionPlan<T>> sub_ips = filterCandidateConstructors(candidateImplementations, memo);
       if (sub_ips.size() == 1) {
         return wrapInjectionPlans(cn, sub_ips, false, -1);
       } else {
