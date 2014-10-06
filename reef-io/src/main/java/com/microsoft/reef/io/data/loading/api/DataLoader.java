@@ -32,7 +32,7 @@ import com.microsoft.reef.driver.evaluator.EvaluatorRequest;
 import com.microsoft.reef.driver.evaluator.EvaluatorRequestor;
 import com.microsoft.reef.driver.evaluator.FailedEvaluator;
 import com.microsoft.reef.io.data.loading.impl.EvaluatorRequestSerializer;
-import com.microsoft.reef.io.network.util.Utils.Pair;
+import com.microsoft.reef.io.network.util.Pair;
 import com.microsoft.tang.Configuration;
 import com.microsoft.tang.annotations.Parameter;
 import com.microsoft.tang.annotations.Unit;

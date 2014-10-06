@@ -16,7 +16,7 @@
 package com.microsoft.reef.io.data.loading.api;
 
 import com.microsoft.reef.annotations.audience.TaskSide;
-import com.microsoft.reef.io.network.util.Utils.Pair;
+import com.microsoft.reef.io.network.util.Pair;
 
 /**
  * A view of the data set to be loaded

@@ -23,7 +23,6 @@
                                 <exec executable="protoc">
                                     <arg value="--proto_path=src/main/proto/" />
                                     <arg value="--java_out=target/generated-sources/proto" />
-                                    <arg value="src/main/proto/group_comm_protocol.proto" />
                                     <arg value="src/main/proto/ns_protocol.proto" />
                                 </exec>
                             </tasks>
