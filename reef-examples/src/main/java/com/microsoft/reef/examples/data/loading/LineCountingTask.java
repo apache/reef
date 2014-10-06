@@ -17,7 +17,7 @@ package com.microsoft.reef.examples.data.loading;
 
 import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.io.data.loading.api.DataSet;
-import com.microsoft.reef.io.network.util.Utils.Pair;
+import com.microsoft.reef.io.network.util.Pair;
 import com.microsoft.reef.task.Task;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;

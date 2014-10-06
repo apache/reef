@@ -31,7 +31,7 @@ import org.apache.hadoop.mapred.Reporter;
 
 import com.microsoft.reef.annotations.audience.TaskSide;
 import com.microsoft.reef.io.data.loading.api.DataSet;
-import com.microsoft.reef.io.network.util.Utils.Pair;
+import com.microsoft.reef.io.network.util.Pair;
 
 /**
  * An implementation of {@link DataSet} that reads records using a RecordReader
