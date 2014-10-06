@@ -191,8 +191,10 @@ public class InjectorImpl implements Injector {
           }
         }
       }
-      sub_ips.add(wrapInjectionPlans(thisCN, constructors, false,
-          liveIndices.size() == 1 ? liveIndices.get(0) : -1));
+      if (constructors.size() > 0) {
+        sub_ips.add(wrapInjectionPlans(thisCN, constructors, false,
+            liveIndices.size() == 1 ? liveIndices.get(0) : -1));
+      }
     }
     return sub_ips;
   }
@@ -218,18 +220,13 @@ public class InjectorImpl implements Injector {
       buildInjectionPlan(defaultImpl, memo);
       return new Subplan<>(cn, 0, (InjectionPlan<T>) memo.get(defaultImpl));
     } else {
-      // if we're here and there is a bound impl or a default impl,
+      // if we're here and there isn't a bound impl or a default impl,
       // then we're bound / defaulted to ourselves, so don't add
       // other impls to the list of things to consider.
       List<ClassNode<T>> candidateImplementations = new ArrayList<>();
-      if (boundImpl == null && defaultImpl == null) {
-        candidateImplementations.addAll(cn.getKnownImplementations());
-      }
       candidateImplementations.add(cn);
       List<InjectionPlan<T>> sub_ips = filterCandidateConstructors(candidateImplementations, memo);
-      if (candidateImplementations.size() == 1
-          && candidateImplementations.get(0).getFullName()
-          .equals(cn.getFullName())) {
+      if (sub_ips.size() == 1) {
         return wrapInjectionPlans(cn, sub_ips, false, -1);
       } else {
         return wrapInjectionPlans(cn, sub_ips, true, -1);
@@ -413,7 +410,7 @@ public class InjectorImpl implements Injector {
   /**
    * Return an injection plan for the given class / parameter name.
    *
-   * @param name The name of an injectable class or interface, or a NamedParameter.
+   * @param n The name of an injectable class or interface, or a NamedParameter.
    * @return
    * @throws NameResolutionException
    */
