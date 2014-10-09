@@ -22,5 +22,5 @@ import com.microsoft.tang.annotations.NamedParameter;
  * port number for the Http Server
  */
 @NamedParameter(doc = "Minimum p.Port number for Jetty Server", default_value = "1024")
-class MinPortNumber implements Name<Integer> {
+public class MinPortNumber implements Name<Integer> {
 }
