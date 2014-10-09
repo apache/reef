@@ -19,7 +19,7 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * mim port number range when generating a port number for the Http Server
+ * minimum port number range when generating a port number for the Http Server
  */
 @NamedParameter(doc = "Minimum port number for Jetty Server", default_value = "1024")
 public class MinPortNumber implements Name<Integer> {
