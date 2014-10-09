@@ -20,7 +20,9 @@ import com.microsoft.tang.annotations.NamedParameter;
 
 /**
  * port number for the Http Server
+ * Clients can set a preferred port number. However, Reef will detect if the given port number has been used
+ * in the machine. If yes, it will generate another available port number.
  */
 @NamedParameter(doc = "Port number for Jetty Server", default_value = "8080")
-class PortNumber implements Name<Integer> {
+public class PortNumber implements Name<Integer> {
 }

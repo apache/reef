@@ -19,8 +19,8 @@ import com.microsoft.tang.annotations.Name;
 import com.microsoft.tang.annotations.NamedParameter;
 
 /**
- * port number for the Http Server
+ * Max retry times when generating a port number for the Http Server
  */
-@NamedParameter(doc = "Maximum retry apptempts for port number of Jetty Server", default_value = "100")
-class MaxRetryAttempts implements Name<Integer> {
+@NamedParameter(doc = "Maximum retry attempts for port number of Jetty Server", default_value = "100")
+public class MaxRetryAttempts implements Name<Integer> {
 }
