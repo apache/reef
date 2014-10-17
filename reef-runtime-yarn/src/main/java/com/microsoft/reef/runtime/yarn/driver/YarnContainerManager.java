@@ -79,6 +79,8 @@ final class YarnContainerManager
   private final DriverStatusManager driverStatusManager;
   private final TrackingURLProvider trackingURLProvider;
 
+  private int lastContainerMemory = -1;
+
   @Inject
   YarnContainerManager(
       final YarnConfiguration yarnConf,
@@ -403,7 +405,8 @@ final class YarnContainerManager
       }
       if (queueWasEmpty && containerRequests.length != 0) {
         AMRMClient.ContainerRequest firstRequest = outstandingContainerRequests.peek();
-        LOG.log(Level.FINEST, "Requesting first container from YARN: {0}", firstRequest);
+        LOG.log(Level.INFO, "Requesting first container from YARN: {0}", firstRequest);
+        this.lastContainerMemory = firstRequest.getCapability().getMemory();
         this.resourceManager.addContainerRequest(firstRequest);
       }
     }
@@ -425,17 +428,27 @@ final class YarnContainerManager
         this.containerRequestCounter.decrement();
         if (!this.outstandingContainerRequests.isEmpty()) {
           this.containers.add(container);
-          // to be safe we need to make sure that previous request is no longer in async AMRM client's queue
-          // it is ok if the request is no longer there
-          try {
-            this.resourceManager.removeContainerRequest(this.outstandingContainerRequests.remove());
-          } catch (final Exception e) {
-            LOG.log(Level.FINEST, "Nothing to remove from Async AMRM client's queue, removal attempt failed with exception", e);
-          }
           final AMRMClient.ContainerRequest requestToBeSubmitted = this.outstandingContainerRequests.peek();
+          final int currentRequestMemory = requestToBeSubmitted.getCapability().getMemory();
+
+          AMRMClient.ContainerRequest removedRequest = this.outstandingContainerRequests.remove();
+          if (this.lastContainerMemory == currentRequestMemory) {
+            // to be safe we need to make sure that previous request is no longer in async AMRM client's queue
+            // it is ok if the request is no longer there
+            try {
+              LOG.log(Level.INFO,
+                "Requesting same amount of memory {0}, make sure previous request {1} is removed from AMRM client queue",
+                new Object[]{currentRequestMemory, removedRequest});
+              this.resourceManager.removeContainerRequest(removedRequest);
+            } catch (final Exception e) {
+              LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, removal attempt failed with exception", e);
+            }
+          }
+
           if (requestToBeSubmitted != null) {
-            LOG.log(Level.FINEST, "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
+            LOG.log(Level.INFO, "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
             this.resourceManager.addContainerRequest(requestToBeSubmitted);
+            this.lastContainerMemory = currentRequestMemory;
           }
           LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}", new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
           this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
