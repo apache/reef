@@ -56,19 +56,23 @@ public final class DriverStatusManager {
                       final ClientConnection clientConnection,
                       final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
                       final ExceptionCodec exceptionCodec) {
+    LOG.entering(DriverStatusManager.class.getCanonicalName(), "<init>");
     this.clock = clock;
     this.clientConnection = clientConnection;
     this.jobIdentifier = jobIdentifier;
     this.exceptionCodec = exceptionCodec;
     LOG.log(Level.FINE, "Instantiated 'DriverStatusManager'");
+    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "<init>");
   }
 
   /**
    * Changes the driver status to INIT and sends message to the client about the transition.
    */
   public synchronized void onInit() {
+    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onInit");
     this.clientConnection.send(this.getInitMessage());
     this.setStatus(DriverStatus.INIT);
+    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onInit");
   }
 
   /**
@@ -76,11 +80,13 @@ public final class DriverStatusManager {
    * If the driver is in status 'PRE_INIT', this first calls onInit();
    */
   public synchronized void onRunning() {
+    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onRunning");
     if (this.driverStatus.equals(DriverStatus.PRE_INIT)) {
       this.onInit();
     }
     this.clientConnection.send(this.getRunningMessage());
     this.setStatus(DriverStatus.RUNNING);
+    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onRunning");
   }
 
   /**
@@ -89,22 +95,26 @@ public final class DriverStatusManager {
    * @param exception
    */
   public synchronized void onError(final Throwable exception) {
+    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onError", new Object[]{exception});
     LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
     this.shutdownCause = Optional.of(exception);
-    this.clock.close();
+    this.clock.stop();
     this.setStatus(DriverStatus.FAILING);
+    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onError", new Object[]{exception});
   }
 
   /**
-   * Perform a clean shutdown of the Evaluator.
+   * Perform a clean shutdown of the Driver.
    */
   public synchronized void onComplete() {
+    LOG.entering(DriverStatusManager.class.getCanonicalName(), "onComplete");
     LOG.log(Level.INFO, "Clean shutdown of the Driver.");
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "Callstack: ", new Exception());
     }
-    this.clock.close();
+    this.clock.stop();
     this.setStatus(DriverStatus.SHUTTING_DOWN);
+    LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onComplete");
   }
 
   /**
