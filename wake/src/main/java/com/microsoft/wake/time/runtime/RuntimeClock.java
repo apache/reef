@@ -96,22 +96,27 @@ public final class RuntimeClock implements Clock {
 
   @Override
   public final void stop() {
+    LOG.entering(RuntimeClock.class.getCanonicalName(), "stop");
     synchronized (this.schedule) {
       this.schedule.clear();
       this.schedule.add(new StopTime(timer.getCurrent()));
       this.schedule.notifyAll();
       this.closed = true;
     }
+    LOG.exiting(RuntimeClock.class.getCanonicalName(), "stop");
   }
 
   @Override
   public final void close() {
+    LOG.entering(RuntimeClock.class.getCanonicalName(), "close");
     synchronized (this.schedule) {
       this.schedule.clear();
       this.schedule.add(new StopTime(findAcceptableStopTime()));
       this.schedule.notifyAll();
       this.closed = true;
+      LOG.log(Level.INFO, "Clock.close()");
     }
+    LOG.exiting(RuntimeClock.class.getCanonicalName(), "close");
   }
 
 
@@ -166,6 +171,7 @@ public final class RuntimeClock implements Clock {
 
   @Override
   public final void run() {
+    LOG.entering(RuntimeClock.class.getCanonicalName(), "run");
 
     try {
       LOG.log(Level.FINE, "Subscribe event handlers");
@@ -228,6 +234,8 @@ public final class RuntimeClock implements Clock {
       logThreads(Level.FINE, "Threads running after exiting the clock main loop: ");
       LOG.log(Level.FINE, "Runtime clock exit");
     }
+    LOG.exiting(RuntimeClock.class.getCanonicalName(), "run");
+
   }
 
 
