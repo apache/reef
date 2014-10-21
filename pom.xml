@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.microsoft.reef</groupId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.10-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
@@ -44,8 +43,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.4.0</hadoop.version>
         <avro.version>1.7.7</avro.version>
-        <tang.version>0.9-SNAPSHOT</tang.version>
-        <wake.version>0.9-SNAPSHOT</wake.version>
+        <tang.version>0.10-SNAPSHOT</tang.version>
+        <wake.version>0.10-SNAPSHOT</wake.version>
         <jetty.version>6.1.26</jetty.version>
     </properties>
 
