@@ -43,8 +43,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.4.0</hadoop.version>
         <avro.version>1.7.7</avro.version>
-        <tang.version>0.9</tang.version>
-        <wake.version>0.9</wake.version>
+        <tang.version>0.10-SNAPSHOT</tang.version>
+        <wake.version>0.10-SNAPSHOT</wake.version>
         <jetty.version>6.1.26</jetty.version>
     </properties>
 
