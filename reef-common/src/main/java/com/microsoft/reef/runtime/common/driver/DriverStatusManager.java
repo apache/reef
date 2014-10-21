@@ -96,10 +96,14 @@ public final class DriverStatusManager {
    */
   public synchronized void onError(final Throwable exception) {
     LOG.entering(DriverStatusManager.class.getCanonicalName(), "onError", new Object[]{exception});
-    LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
-    this.shutdownCause = Optional.of(exception);
-    this.clock.stop();
-    this.setStatus(DriverStatus.FAILING);
+    if (this.isShuttingDownOrFailing()) {
+      LOG.log(Level.WARNING, "Received an exception while already in shutdown.", exception);
+    } else {
+      LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
+      this.shutdownCause = Optional.of(exception);
+      this.clock.stop();
+      this.setStatus(DriverStatus.FAILING);
+    }
     LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onError", new Object[]{exception});
   }
 
@@ -108,13 +112,18 @@ public final class DriverStatusManager {
    */
   public synchronized void onComplete() {
     LOG.entering(DriverStatusManager.class.getCanonicalName(), "onComplete");
-    LOG.log(Level.INFO, "Clean shutdown of the Driver.");
-    if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, "Callstack: ", new Exception());
+    if (this.isShuttingDownOrFailing()) {
+      LOG.log(Level.WARNING, "Ignoring second call to onComplete()");
+    } else {
+      LOG.log(Level.INFO, "Clean shutdown of the Driver.");
+      if (LOG.isLoggable(Level.FINEST)) {
+        LOG.log(Level.FINEST, "Callstack: ", new Exception());
+      }
+      this.clock.close();
+      this.setStatus(DriverStatus.SHUTTING_DOWN);
     }
-    this.clock.stop();
-    this.setStatus(DriverStatus.SHUTTING_DOWN);
     LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onComplete");
+
   }
 
   /**
@@ -213,7 +222,7 @@ public final class DriverStatusManager {
     return this.getNumPreviousContainers() > 0;
   }
 
-  private synchronized boolean isShuttingDownOrFailing() {
+  public synchronized boolean isShuttingDownOrFailing() {
     return DriverStatus.SHUTTING_DOWN.equals(this.driverStatus)
         || DriverStatus.FAILING.equals(this.driverStatus);
   }

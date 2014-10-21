@@ -42,23 +42,29 @@ public final class DriverIdleManager {
   }
 
   public synchronized void onPotentiallyIdle(final IdleMessage reason) {
-    boolean isIdle = true;
-    LOG.log(IDLE_REASONS_LEVEL, "Checking for idle because {0} reported idleness for reason [{1}]",
-        new Object[]{reason.getComponentName(), reason.getReason()});
+    synchronized (driverStatusManager.get()) {
+      if (this.driverStatusManager.get().isShuttingDownOrFailing()) {
+        LOG.log(IDLE_REASONS_LEVEL, "Ignoring idle call from [{0}] for reason [{1}]",
+            new Object[]{reason.getComponentName(), reason.getReason()});
+      } else {
+        boolean isIdle = true;
+        LOG.log(IDLE_REASONS_LEVEL, "Checking for idle because {0} reported idleness for reason [{1}]",
+            new Object[]{reason.getComponentName(), reason.getReason()});
 
 
-    for (final DriverIdlenessSource idlenessSource : this.idlenessSources) {
-      final IdleMessage idleMessage = idlenessSource.getIdleStatus();
-      LOG.log(IDLE_REASONS_LEVEL, "[{0}] is reporting {1} because [{2}]."
-          , new Object[]{idleMessage.getComponentName(), idleMessage.isIdle() ? "idle" : "not idle", idleMessage.getReason()}
-      );
-      isIdle &= idleMessage.isIdle();
+        for (final DriverIdlenessSource idlenessSource : this.idlenessSources) {
+          final IdleMessage idleMessage = idlenessSource.getIdleStatus();
+          LOG.log(IDLE_REASONS_LEVEL, "[{0}] is reporting {1} because [{2}]."
+              , new Object[]{idleMessage.getComponentName(), idleMessage.isIdle() ? "idle" : "not idle", idleMessage.getReason()}
+          );
+          isIdle &= idleMessage.isIdle();
+        }
+
+        if (isIdle) {
+          LOG.log(Level.INFO, "All components indicated idle. Initiating Driver shutdown.");
+          this.driverStatusManager.get().onComplete();
+        }
+      }
     }
-
-    if (isIdle) {
-      LOG.log(Level.INFO, "All components indicated idle. Initiating Driver shutdown.");
-      this.driverStatusManager.get().onComplete();
-    }
-
   }
 }
