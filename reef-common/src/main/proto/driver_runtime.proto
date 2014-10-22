@@ -1,0 +1,73 @@
+option java_package = "com.microsoft.reef.proto";
+option java_outer_classname = "DriverRuntimeProtocol";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+
+
+import "reef_service_protos.proto";
+
+// Messages from Driver Runtime -> Driver Process
+
+message DriverProcessRegistrationProto {
+	required string remote_identifier = 1;
+}
+
+
+message NodeDescriptorProto {
+	required string identifier = 1;
+	required string host_name  = 2; // e.g., IP address
+	required int32 port        = 3; // e.g., IP port
+	required int32 memory_size = 4;
+	optional string rack_name  = 5; // e.g., /default-rack
+}
+
+message ResourceAllocationProto {
+	required string identifier     = 1; // e.g., the container id, or the thread id
+	required int32 resource_memory = 2; // megabytes
+	required string node_id        = 3;
+	optional int32 virtual_cores   = 4;
+}
+
+message ResourceStatusProto {
+	required string identifier   = 1;
+	required State  state        = 2;
+	optional string diagnostics  = 3;
+	optional int32  exit_code    = 4;
+	optional bool is_from_previous_driver = 5;
+}
+
+message RuntimeStatusProto {
+   required string name  = 1;   // e.g., local, yarn21
+   required State  state = 2;
+   optional RuntimeErrorProto error = 3; // runtime (e.g., YARN) error
+
+   optional int32 outstanding_container_requests = 5;
+   repeated string container_allocation = 6;
+}
+
+//////////////////////////////////////////////////////
+// Messages from Driver Process -> Driver Runtime
+
+message ResourceRequestProto {
+	// optional SIZE resource_size  = 1; // Removed in REEF 0.3 in favor of memory_size.
+    optional int32 memory_size    = 2; // Memory size of the evaluator in MB
+    optional int32 priority       = 3;
+    optional int32 virtual_cores  = 4;
+    required int32 resource_count = 5;
+	  repeated string node_name     = 6; // a list of specific nodes
+	  repeated string rack_name     = 7; // a list of specific racks
+
+    optional bool relax_locality = 10;
+}
+
+message ResourceReleaseProto {
+	required string identifier = 1;
+}
+
+message ResourceLaunchProto {
+	required string identifier      = 1;
+	required string remote_id       = 2;
+	required string evaluator_conf  = 3;
+  required ProcessType type       = 4;
+	repeated FileResourceProto file = 10;
+}

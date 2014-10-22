@@ -1,0 +1,3187 @@
+<!--
+
+    Copyright (C) 2014 Microsoft Corporation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head><title>TangDoc</title>
+    <style>
+        body { font-family: 'Segoe UI', 'Comic Sans MS'; font-size:12pt; font-weight: 200; margin: 1em; column-count: 2;
+        }
+        .package { font-size:18pt; font-weight: 500; column-span: all; }
+        .decl-margin { padding: 8pt; break-inside: avoid; }
+        .module-margin { padding: 8pt; column-span: all; break-inside: avoid; }
+        .decl { background-color: aliceblue; padding: 6pt;}
+        .fullName { font-size: 11pt; font-weight: 400; }
+        .simpleName { font-size: 11pt; font-weight: 400; }
+        .constructorArg { padding-left: 16pt; }
+        .setters { padding-top: 6pt; font-size: 10pt; }
+        .uses { padding-top: 6pt; font-size: 10pt; }
+        pre { font-size: 10pt; }
+    </style>
+</head>
+<body>
+
+<div class="package">com.microsoft.reef.runtime.local</div>
+<div id='com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;c.m.r.r.l.client.LocalRuntimeConfiguration$NumberOfThreads</span><span
+            class="instance"> = 4</span>
+
+        <div class="doc">The number of threads to use</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration'>c.m.r.r.l.driver.LocalDriverRuntimeConfiguration</a>
+            <a href='#com.microsoft.reef.runtime.local.driver.ContainerManager'>c.m.r.r.l.driver.ContainerManager</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.LocalJobSubmissionHandler'>c.m.r.r.l.client.LocalJobSubmissionHandler</a>
+        </div>
+        <div class="setters"><em>Set by:</em><br><a
+                href='#com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration.CONF'>c.m.r.r.l.client.LocalRuntimeConfiguration.CONF</a>
+        </div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.local.client.parameters.RootFolder' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;c.m.r.r.l.client.LocalRuntimeConfiguration$RootFolder</span><span
+            class="instance"> = ./REEF_LOCAL_RUNTIME</span>
+
+        <div class="doc">The folder where logs etc. shall be stored</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration'>c.m.r.r.l.driver.LocalDriverRuntimeConfiguration</a>
+            <a href='#com.microsoft.reef.runtime.local.driver.ContainerManager'>c.m.r.r.l.driver.ContainerManager</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.LocalJobSubmissionHandler'>c.m.r.r.l.client.LocalJobSubmissionHandler</a>
+        </div>
+        <div class="setters"><em>Set by:</em><br><a
+                href='#com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration.CONF'>c.m.r.r.l.client.LocalRuntimeConfiguration.CONF</a>
+        </div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.wake</div>
+<div id='com.microsoft.wake.StageConfiguration$Capacity' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$Capacity</span><span
+            class="instance"></span>
+
+        <div class="doc">The capacity for the stage.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.impl.SingleThreadStage'>c.m.w.impl.SingleThreadStage</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.StageConfiguration$NumberOfThreads' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$NumberOfThreads</span><span
+            class="instance"></span>
+
+        <div class="doc">The number of threads for the stage.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.rx.impl.RxThreadPoolStage'>c.m.w.rx.impl.RxThreadPoolStage</a>
+            <a href='#com.microsoft.wake.impl.ThreadPoolStage'>c.m.w.impl.ThreadPoolStage</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.StageConfiguration$StageExecutorService' class='decl-margin'>
+    <div class='decl'><span class="simpleName">ExecutorService</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$StageExecutorService</span><span
+            class="instance"></span>
+
+        <div class="doc">The executor service for the stage.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.impl.ThreadPoolStage'>c.m.w.impl.ThreadPoolStage</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.StageConfiguration$StageHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$StageHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The event handler for the stage.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.impl.TimerStage'>c.m.w.impl.TimerStage</a>
+            <a href='#com.microsoft.wake.impl.ThreadPoolStage'>c.m.w.impl.ThreadPoolStage</a> <a
+                    href='#com.microsoft.wake.impl.SyncStage'>c.m.w.impl.SyncStage</a> <a
+                    href='#com.microsoft.wake.impl.SingleThreadStage'>c.m.w.impl.SingleThreadStage</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.StageConfiguration$StageName' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$StageName</span><span
+            class="instance"></span>
+
+        <div class="doc">The stage name.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.rx.impl.RxThreadPoolStage'>c.m.w.rx.impl.RxThreadPoolStage</a>
+            <a href='#com.microsoft.wake.impl.TimerStage'>c.m.w.impl.TimerStage</a> <a
+                    href='#com.microsoft.wake.impl.ThreadPoolStage'>c.m.w.impl.ThreadPoolStage</a> <a
+                    href='#com.microsoft.wake.impl.SyncStage'>c.m.w.impl.SyncStage</a> <a
+                    href='#com.microsoft.wake.impl.SingleThreadStage'>c.m.w.impl.SingleThreadStage</a> <a
+                    href='#com.microsoft.wake.rx.impl.RxSyncStage'>c.m.w.rx.impl.RxSyncStage</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.StageConfiguration$StageObserver' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Observer</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$StageObserver</span><span
+            class="instance"></span>
+
+        <div class="doc">The observer for the stage.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.rx.impl.RxThreadPoolStage'>c.m.w.rx.impl.RxThreadPoolStage</a>
+            <a href='#com.microsoft.wake.rx.impl.RxSyncStage'>c.m.w.rx.impl.RxSyncStage</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.StageConfiguration$TimerInitialDelay' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Long</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$TimerInitialDelay</span><span
+            class="instance"></span>
+
+        <div class="doc">The initial delay for periodic events of the timer stage.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.impl.TimerStage'>c.m.w.impl.TimerStage</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.StageConfiguration$TimerPeriod' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Long</span><span class="fullName">&nbsp;c.m.w.StageConfiguration$TimerPeriod</span><span
+            class="instance"></span>
+
+        <div class="doc">The period for periodic events of the timer stage.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.impl.TimerStage'>c.m.w.impl.TimerStage</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.WakeConfiguration$FileName' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;c.m.w.WakeConfiguration$FileName</span><span
+            class="instance"></span>
+
+        <div class="doc">Configuration file name</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.wake.WakeConfiguration'>c.m.w.WakeConfiguration</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.WakeParameters$ExecutorShutdownTimeout' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;c.m.w.WakeParameters$ExecutorShutdownTimeout</span><span
+            class="instance"> = 1000</span>
+
+        <div class="doc">Executor shutdown timeout</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.WakeParameters$MaxFrameLength' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;c.m.w.WakeParameters$MaxFrameLength</span><span
+            class="instance"> = 1048576</span>
+
+        <div class="doc">Maximum frame length unit</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.WakeParameters$RemoteSendTimeout' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;c.m.w.WakeParameters$RemoteSendTimeout</span><span
+            class="instance"> = 10000</span>
+
+        <div class="doc">Remote send timeout</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.wake.impl</div>
+<div class='decl-margin' id='com.microsoft.wake.impl.LoggingEventHandler'>
+    <div class='decl'><span class="simpleName">class</span><span
+            class="fullName">&nbsp;c.m.w.i.LoggingEventHandler</span><span class="simpleName"></span><span
+            class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$SuspendedActivityHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$SuspendedActivityHandler</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityMessageHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$ActivityMessageHandler</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedEvaluatorHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$CompletedEvaluatorHandler</a>
+            <a href='#com.microsoft.wake.time.Clock$RuntimeStopHandler'>c.m.w.time.Clock$RuntimeStopHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedActivityHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$CompletedActivityHandler</a>
+            <a href='#com.microsoft.wake.time.Clock$RuntimeStartHandler'>c.m.w.time.Clock$RuntimeStartHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityExceptionHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$ActivityExceptionHandler</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningActivityHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$RunningActivityHandler</a>
+            <a href='#com.microsoft.wake.time.Clock$StopHandler'>c.m.w.time.Clock$StopHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningEvaluatorHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$RunningEvaluatorHandler</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientMessageHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$ClientMessageHandler</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$FailedEvaluatorHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$FailedEvaluatorHandler</a>
+            <a href='#com.microsoft.wake.time.Clock$IdleHandler'>c.m.w.time.Clock$IdleHandler</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.wake.impl.LoggingVoidEventHandler'>
+    <div class='decl'><span class="simpleName">class</span><span
+            class="fullName">&nbsp;c.m.w.i.LoggingVoidEventHandler</span><span class="simpleName"></span><span
+            class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseHandler'>o.a.r.runtime.driver.DriverManagerConfiguration$ClientCloseHandler</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.wake.impl.MissingStartHandlerHandler'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;c.m.w.i.MissingStartHandlerHandler</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.Clock$StartHandler'>c.m.w.time.Clock$StartHandler</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.wake.remote</div>
+<div id='com.microsoft.wake.remote.RemoteConfiguration$HostAddress' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;c.m.w.r.RemoteConfiguration$HostAddress</span><span
+            class="instance"></span>
+
+        <div class="doc">The host address to be used for messages.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation'>c.m.w.r.impl.DefaultRemoteManagerImplementation</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.remote.RemoteConfiguration$MessageCodec' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Codec</span><span class="fullName">&nbsp;c.m.w.r.RemoteConfiguration$MessageCodec</span><span
+            class="instance"></span>
+
+        <div class="doc">The codec to be used for messages.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation'>c.m.w.r.impl.DefaultRemoteManagerImplementation</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.remote.RemoteConfiguration$Port' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;c.m.w.r.RemoteConfiguration$Port</span><span
+            class="instance"></span>
+
+        <div class="doc">The port to be used for messages.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation'>c.m.w.r.impl.DefaultRemoteManagerImplementation</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.wake.remote.impl</div>
+<div class='decl-margin' id='com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;c.m.w.r.i.DefaultRemoteIdentifierFactoryImplementation</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.remote.RemoteIdentifierFactory'>c.m.w.r.RemoteIdentifierFactory</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;c.m.w.r.i.DefaultRemoteManagerImplementation</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.wake.remote.RemoteManager'>c.m.w.r.RemoteManager</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.wake.time</div>
+<div id='com.microsoft.wake.time.Clock$IdleHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span
+            class="fullName">&nbsp;c.m.w.t.Clock$IdleHandler</span><span class="instance"> = c.m.w.impl.LoggingEventHandler</span>
+
+        <div class="doc">Will be called upon the Idle event</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.w.t.runtime.RuntimeClock</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.time.Clock$RuntimeStartHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;c.m.w.t.Clock$RuntimeStartHandler</span><span
+            class="instance"> = c.m.w.impl.LoggingEventHandler</span>
+
+        <div class="doc">Will be called upon the runtime start event</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.w.t.runtime.RuntimeClock</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.time.Clock$RuntimeStopHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;c.m.w.t.Clock$RuntimeStopHandler</span><span
+            class="instance"> = c.m.w.impl.LoggingEventHandler</span>
+
+        <div class="doc">Will be called upon the runtime stop event</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.w.t.runtime.RuntimeClock</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.wake.time.Clock$StartHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;c.m.w.t.Clock$StartHandler</span><span
+            class="instance"> = c.m.w.impl.MissingStartHandlerHandler</span>
+
+        <div class="doc">Will be called upon the start event</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.w.t.runtime.RuntimeClock</a>
+        </div>
+        <div class="setters"><em>Set by:</em><br><a
+                href='#com.microsoft.reef.client.DriverConfigurationWithObservers.CONF'>o.a.r.core.client.DriverConfigurationModule.CONF</a>
+        </div>
+    </div>
+</div>
+<div id='com.microsoft.wake.time.Clock$StopHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span
+            class="fullName">&nbsp;c.m.w.t.Clock$StopHandler</span><span class="instance"> = c.m.w.impl.LoggingEventHandler</span>
+
+        <div class="doc">Will be called upon the stop event</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.w.t.runtime.RuntimeClock</a>
+        </div>
+        <div class="setters"><em>Set by:</em><br><a
+                href='#com.microsoft.reef.client.DriverConfigurationWithObservers.CONF'>o.a.r.core.client.DriverConfigurationModule.CONF</a>
+        </div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.wake.time.runtime</div>
+<div class='decl-margin' id='com.microsoft.wake.time.runtime.RealTimer'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;c.m.w.t.r.RealTimer</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.runtime.Timer'>c.m.w.t.r.Timer</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.wake.time.runtime.RuntimeClock'>
+    <div class='decl'><span class="simpleName">class</span><span
+            class="fullName">&nbsp;c.m.w.t.r.RuntimeClock</span><span class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.wake.time.Clock'>c.m.w.t.Clock</a></div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">org.apache.reef.core.activity</div>
+<div id='com.microsoft.reef.activity.Activity$Identifier' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span
+            class="fullName">&nbsp;o.a.r.c.a.Activity$Identifier</span><span class="instance"> = Unnamed Activity</span>
+
+        <div class="doc">The Identifier of the Activity</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultCloseHandler'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;o.a.r.c.a.ActivityDefaultHandlers$DefaultCloseHandler</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.activity.CloseHandler'>o.a.r.c.a.CloseHandler</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultActivityMessageSource'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;o.a.r.c.a.ActivityDefaultHandlers$DefaultDriverMessageSource</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.activity.ActivityMessageSource'>o.a.r.c.a.DriverMessageSource</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultMessageHandler'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;o.a.r.c.a.ActivityDefaultHandlers$DefaultMessageHandler</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.activity.MessageHandler'>o.a.r.c.a.MessageHandler</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultSuspendHandler'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;o.a.r.c.a.ActivityDefaultHandlers$DefaultSuspendHandler</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.activity.SuspendHandler'>o.a.r.c.a.SuspendHandler</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">org.apache.reef.core.client</div>
+<div class='decl-margin' id='com.microsoft.reef.driver.client.DefaultClientObserver'>
+    <div class='decl'><span class="simpleName">class</span><span
+            class="fullName">&nbsp;o.a.r.c.c.DefaultClientObserver</span><span class="simpleName"></span><span
+            class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.driver.client.ClientObserver'>o.a.r.c.driver.ClientObserver</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='org.apache.reef.core.client.DefaultRuntimeErrorHandler'>
+    <div class='decl'><span class="simpleName">class</span><span class="fullName">&nbsp;o.a.r.c.c.DefaultRuntimeErrorHandler</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.client.RuntimeErrorHandler'>o.a.r.c.c.RuntimeErrorHandler</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.driver.client.DriverConfiguration$PreemptionHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">PreemptionHandler</span><span class="fullName">&nbsp;o.a.r.c.c.DriverConfiguration$PreemptionHandler</span><span
+            class="instance"></span>
+
+        <div class="doc"></div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.client.JobObserver'>
+    <div class='decl'><span class="simpleName">interface</span><span class="fullName">&nbsp;o.a.r.c.c.JobObserver</span><span
+            class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"></div>
+        <div class="setters"><em>Set by:</em><br><a href='#com.microsoft.reef.client.ClientConfigurationModule.CONF'>o.a.r.c.c.ClientConfigurationModule.CONF</a>
+            <a href='#com.microsoft.reef.client.ClientConfiguration.CONF'>o.a.r.c.c.ClientConfiguration.CONF</a></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.client.RuntimeErrorHandler'>
+    <div class='decl'><span class="simpleName">interface</span><span class="fullName">&nbsp;o.a.r.c.c.RuntimeErrorHandler</span><span
+            class="simpleName"> = o.a.r.c.c.DefaultRuntimeErrorHandler</span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"></div>
+        <div class="setters"><em>Set by:</em><br><a href='#com.microsoft.reef.client.ClientConfigurationModule.CONF'>o.a.r.c.c.ClientConfigurationModule.CONF</a>
+            <a href='#com.microsoft.reef.client.ClientConfiguration.CONF'>o.a.r.c.c.ClientConfiguration.CONF</a></div>
+    </div>
+</div>
+
+<div class="package">org.apache.reef.core.driver</div>
+<div class='decl-margin' id='com.microsoft.reef.driver.ActivityObserver'>
+    <div class='decl'><span class="simpleName">interface</span><span
+            class="fullName">&nbsp;o.a.r.c.d.ActivityObserver</span><span class="simpleName"></span><span
+            class="fullName">&nbsp;</span>
+
+        <div class="uses"></div>
+        <div class="setters"><em>Set by:</em><br><a
+                href='#com.microsoft.reef.client.DriverConfigurationWithObservers.CONF'>o.a.r.c.client.DriverConfigurationModule.CONF</a>
+        </div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.driver.client.ClientObserver'>
+    <div class='decl'><span class="simpleName">interface</span><span
+            class="fullName">&nbsp;o.a.r.c.d.ClientObserver</span><span class="simpleName"> = o.a.r.c.client.DefaultClientObserver</span><span
+            class="fullName">&nbsp;</span>
+
+        <div class="uses"></div>
+        <div class="setters"><em>Set by:</em><br><a
+                href='#com.microsoft.reef.client.DriverConfigurationWithObservers.CONF'>o.a.r.c.client.DriverConfigurationModule.CONF</a>
+        </div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.driver.EvaluatorObserver'>
+    <div class='decl'><span class="simpleName">interface</span><span
+            class="fullName">&nbsp;o.a.r.c.d.EvaluatorObserver</span><span class="simpleName"></span><span
+            class="fullName">&nbsp;</span>
+
+        <div class="uses"></div>
+        <div class="setters"><em>Set by:</em><br><a
+                href='#com.microsoft.reef.client.DriverConfigurationWithObservers.CONF'>o.a.r.c.client.DriverConfigurationModule.CONF</a>
+        </div>
+    </div>
+</div>
+
+<div class="package">org.apache.reef.runtime</div>
+<div id='com.microsoft.reef.runtime.common.Launcher$ClientConfigurationFilePath' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.Launcher$ClientConfigurationFilePath</span><span
+            class="instance"></span>
+
+        <div class="doc">The path to the client configuration.</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.Launcher$ErrorHandlerRID' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.Launcher$ErrorHandlerRID</span><span
+            class="instance"></span>
+
+        <div class="doc">The error handler remote contextIdentifier.</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.Launcher$LaunchID' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span
+            class="fullName">&nbsp;o.a.r.r.Launcher$LaunchID</span><span class="instance"></span>
+
+        <div class="doc">The launch contextIdentifier.</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.Launcher$RuntimeConfigurationFilePath' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.Launcher$RuntimeConfigurationFilePath</span><span
+            class="instance"></span>
+
+        <div class="doc">The path to runtime configuration.</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.reef.runtime.common.client</div>
+<div class='decl-margin' id='com.microsoft.reef.runtime.common.client.ClientManager'>
+    <div class='decl'><span class="simpleName">class</span><span
+            class="fullName">&nbsp;o.a.r.r.c.ClientManager</span><span class="simpleName"></span><span class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.client.REEF'>o.a.r.core.client.REEF</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.client.ClientManager$DriverRemoteIdentifier' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.c.ClientManager$DriverRemoteIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The driver remote contextIdentifier.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.client.RunningJobImpl'>o.a.r.r.c.RunningJobImpl</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.client.ClientManager$JobIdentifier' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.c.ClientManager$JobIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The job contextIdentifier.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.client.RunningJobImpl'>o.a.r.r.c.RunningJobImpl</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div class='decl-margin' id='com.microsoft.reef.runtime.common.client.RunningJobImpl'>
+    <div class='decl'><span class="simpleName">class</span><span
+            class="fullName">&nbsp;o.a.r.r.c.RunningJobImpl</span><span class="simpleName"></span><span
+            class="fullName">&nbsp;</span>
+
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.client.RunningJob'>o.a.r.core.client.RunningJob</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.client.api.ClientRuntimeParameters$RuntimeErrorHandlerRID'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.c.api.ClientRuntimeParameters$RuntimeErrorHandlerRID</span><span
+            class="instance"></span>
+
+        <div class="doc">The runtime error handler RID.</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">org.apache.reef.runtime.driver</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityExceptionHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$ActivityExceptionHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Activity exception handler.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityMessageHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$ActivityMessageHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Activity message handler.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$AllocatedEvaluatorHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Called when an allocated evaluator is given to the client.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$ClientCloseHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingVoidEventHandler</span>
+
+        <div class="doc">Running job handler.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.driver.ClientManager'>o.a.r.r.d.ClientManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$ClientCloseWithMessageHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Completed job handler.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.driver.ClientManager'>o.a.r.r.d.ClientManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientMessageHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$ClientMessageHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Job message handler.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.driver.ClientManager'>o.a.r.r.d.ClientManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedActivityHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$CompletedActivityHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Completed activity handler.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedEvaluatorHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$CompletedEvaluatorHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Called when an exception occurs on a running evaluator.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$FailedEvaluatorHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$FailedEvaluatorHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Called when an exception occurs on a running evaluator.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$JobControlHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$JobControlHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">Called when a job control message is received by the client.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>o.a.r.r.d.DelegateJobObserver</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$JobExceptionHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$JobExceptionHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">Job exception handler (see DelegateJobObserver).</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$JobMessageHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$JobMessageHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">Job message handler (see DelegateJobObserver).</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningActivityHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$RunningActivityHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Running activity handler.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningEvaluatorHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$RunningEvaluatorHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Called when a running evaluator is given to the client.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$SuspendedActivityHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.DriverManagerConfiguration$SuspendedActivityHandler</span><span
+            class="instance"> = c.m.wake.impl.LoggingEventHandler</span>
+
+        <div class="doc">Suspended activity handler.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$EvaluatorDescriptorName'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">NodeDescriptor</span><span class="fullName">&nbsp;o.a.r.r.d.EvaluatorManager$EvaluatorDescriptor</span><span
+            class="instance"></span>
+
+        <div class="doc">The Evaluator Host.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$EvaluatorIdentifier' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.d.EvaluatorManager$EvaluatorIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The Evaluator Identifier.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>o.a.r.r.d.EvaluatorManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.d.api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The client remote contextIdentifier.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.r.d.DriverManager</a>
+            <a href='#com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>o.a.r.r.d.DelegateJobObserver</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$DriverProcessMemory'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;o.a.r.r.d.api.AbstractDriverRuntimeConfiguration$DriverProcessMemory</span><span
+            class="instance"> = 512</span>
+
+        <div class="doc">The driver process memory.</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$EvaluatorTimeout'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">Long</span><span class="fullName">&nbsp;o.a.r.r.d.api.AbstractDriverRuntimeConfiguration$EvaluatorTimeout</span><span
+            class="instance"> = 60000</span>
+
+        <div class="doc">The evaluator timeout (how long to wait before deciding an evaluator is dead.</div>
+        <div class="uses"></div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$JobIdentifier'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.d.api.AbstractDriverRuntimeConfiguration$JobIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The job contextIdentifier.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>o.a.r.r.d.DelegateJobObserver</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$NodeDescriptorHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.api.RuntimeParameters$NodeDescriptorHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The node descriptor handler that stub runtimes send along node information.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnHeartbeat'>o.a.r.r.yarn.master.YarnHeartbeat</a>
+            <a href='#com.microsoft.reef.runtime.local.driver.ContainerManager'>c.m.r.runtime.local.driver.ContainerManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceAllocationHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.api.RuntimeParameters$ResourceAllocationHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The resource allocation handler that stub runtimes send along allocated resources e.g.,
+            containers.
+        </div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.r.yarn.master.YarnContainerManager</a>
+            <a href='#com.microsoft.reef.runtime.local.driver.ResourceManager'>c.m.r.runtime.local.driver.ResourceManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceStatusHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.api.RuntimeParameters$ResourceStatusHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The resource status handler.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.r.yarn.master.YarnContainerManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$RuntimeStatusHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.d.api.RuntimeParameters$RuntimeStatusHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The runtime status handler.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.r.yarn.master.YarnContainerManager</a>
+            <a href='#com.microsoft.reef.runtime.local.driver.ResourceManager'>c.m.r.runtime.local.driver.ResourceManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">com.microsoft.reef.runtime.common.evaluator</div>
+<div id='com.microsoft.reef.runtime.common.evaluator.ActivityManager$ActivityIdentifier' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.e.ActivityManager$ActivityIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The activity contextIdentifier.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime'>o.a.r.r.e.RunningActivity</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.evaluator.ActivityManager$ActivityMemento' class='decl-margin'>
+    <div class='decl'><span class="simpleName">ByteString</span><span class="fullName">&nbsp;o.a.r.r.e.ActivityManager$ActivityMemento</span><span
+            class="instance"></span>
+
+        <div class="doc">The activity contextIdentifier.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime'>o.a.r.r.e.RunningActivity</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ActivityManagerStatusHandler'
+     class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.e.EvaluatorConfiguration$ActivityManagerStatusHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The event handler for activity manager status.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime'>o.a.r.r.e.RunningActivity</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ActivityStatusHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.e.EvaluatorConfiguration$ActivityStatusHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The event handler for getting activity status for results and errors.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.evaluator.ActivityManager'>o.a.r.r.e.ActivityManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$DriverRemoteIdentifier' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.e.EvaluatorConfiguration$DriverRemoteIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The remote contextIdentifier to the driver runtime.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime'>o.a.r.r.e.EvaluatorRuntime</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$EvaluatorIdentifier' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.e.EvaluatorConfiguration$EvaluatorIdentifier</span><span
+            class="instance"></span>
+
+        <div class="doc">The evaluator contextIdentifier.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime'>o.a.r.r.e.RunningActivity</a>
+            <a href='#com.microsoft.reef.runtime.common.evaluator.ActivityManager'>o.a.r.r.e.ActivityManager</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime'>o.a.r.r.e.EvaluatorRuntime</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$HeartbeatPeriod' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;o.a.r.r.e.EvaluatorConfiguration$HeartbeatPeriod</span><span
+            class="instance"> = 5000</span>
+
+        <div class="doc">The evaluator heartbeat period.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime'>o.a.r.r.e.EvaluatorRuntime</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+
+<div class="package">org.apache.reef.runtime.yarn</div>
+<div id='org.apache.reef.runtime.yarn.client.YarnConfiguration$JobPriority' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;o.a.r.r.y.client.YarnConfiguration$JobPriority</span><span
+            class="instance"> = 0</span>
+
+        <div class="doc">The job priority.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler'>o.a.r.r.y.client.YarnJobSubmissionHandler</a>
+        </div>
+        <div class="setters"><em>Set by:</em><br><a href='#org.apache.reef.runtime.yarn.client.YarnConfiguration.CONF'>o.a.r.r.y.client.YarnConfiguration.CONF</a>
+        </div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.client.YarnConfiguration$JobQueue' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.y.client.YarnConfiguration$JobQueue</span><span
+            class="instance"> = default</span>
+
+        <div class="doc">The job queue.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler'>o.a.r.r.y.client.YarnJobSubmissionHandler</a>
+        </div>
+        <div class="setters"><em>Set by:</em><br><a href='#org.apache.reef.runtime.yarn.client.YarnConfiguration.CONF'>o.a.r.r.y.client.YarnConfiguration.CONF</a>
+        </div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.client.YarnConfiguration$ReefJarFile' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.y.client.YarnConfiguration$ReefJarFile</span><span
+            class="instance"></span>
+
+        <div class="doc">The REEF jar file.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler'>o.a.r.r.y.client.YarnJobSubmissionHandler</a>
+        </div>
+        <div class="setters"><em>Set by:</em><br><a href='#org.apache.reef.runtime.yarn.client.YarnConfiguration.CONF'>o.a.r.r.y.client.YarnConfiguration.CONF</a>
+        </div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchQueueCapacity' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;o.a.r.r.y.master.YarnContainerManager$ResourceLaunchQueueCapacity</span><span
+            class="instance"> = 128</span>
+
+        <div class="doc">Capacity of the resource launch queue</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.r.y.master.YarnContainerManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerAllocationHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.y.master.YarnMasterConfiguration$ContainerAllocationHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The container allocation handler.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnHeartbeat'>o.a.r.r.y.master.YarnHeartbeat</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerStatusHandler' class='decl-margin'>
+    <div class='decl'><span class="simpleName">EventHandler</span><span class="fullName">&nbsp;o.a.r.r.y.master.YarnMasterConfiguration$ContainerStatusHandler</span><span
+            class="instance"></span>
+
+        <div class="doc">The container status handler.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnHeartbeat'>o.a.r.r.y.master.YarnHeartbeat</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$JobSubmissionDirectory' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.y.master.YarnMasterConfiguration$JobSubmissionDirectory</span><span
+            class="instance"></span>
+
+        <div class="doc">The job submission directory.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.r.y.master.YarnContainerManager</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnAMRMAddress' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.y.master.YarnMasterConfiguration$YarnAMRMAddress</span><span
+            class="instance"></span>
+
+        <div class="doc">How often we talk to YARN.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#org.apache.reef.runtime.yarn.util.YarnExternalConstructors$AMRMProtocolConstructor'>o.a.r.r.y.util.YarnExternalConstructors$AMRMProtocolConstructor</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnConfigurationFile' class='decl-margin'>
+    <div class='decl'><span class="simpleName">String</span><span class="fullName">&nbsp;o.a.r.r.y.master.YarnMasterConfiguration$YarnConfigurationFile</span><span
+            class="instance"></span>
+
+        <div class="doc">The YARN configuration file name.</div>
+        <div class="uses"><em>Used by:</em><br><a
+                href='#org.apache.reef.runtime.yarn.util.YarnExternalConstructors$YarnConfigurationConstructor'>o.a.r.r.y.util.YarnExternalConstructors$YarnConfigurationConstructor</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+<div id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnHeartbeatPeriod' class='decl-margin'>
+    <div class='decl'><span class="simpleName">Integer</span><span class="fullName">&nbsp;o.a.r.r.y.master.YarnMasterConfiguration$YarnHeartbeatPeriod</span><span
+            class="instance"> = 5000</span>
+
+        <div class="doc">How often we talk to YARN.</div>
+        <div class="uses"><em>Used by:</em><br><a href='#org.apache.reef.runtime.yarn.master.YarnHeartbeat'>o.a.r.r.y.master.YarnHeartbeat</a>
+        </div>
+        <div class="setters"></div>
+    </div>
+</div>
+</div>
+
+<div class='package'>Module definitions</div>
+<div class='module-margin' id='com.microsoft.reef.client.ClientConfigurationModule.CONF'>
+    <div class='decl'><span class='fullName'>com.microsoft.reef.client.ClientConfigurationModule.CONF</span>
+<pre>
+o.a.r.core.client.JobObserver=JOB_OBSERVER
+o.a.r.core.client.RuntimeErrorHandler=RUNTIME_ERROR_HANDLER
+</pre>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.client.ClientConfiguration.CONF'>
+    <div class='decl'><span class='fullName'>com.microsoft.reef.client.ClientConfiguration.CONF</span>
+<pre>
+o.a.r.core.client.JobObserver=JOB_OBSERVER
+o.a.r.core.client.RuntimeErrorHandler=RUNTIME_ERROR_HANDLER
+</pre>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.client.YarnConfiguration.CONF'>
+    <div class='decl'><span class='fullName'>org.apache.reef.runtime.yarn.client.YarnConfiguration.CONF</span>
+<pre>
+o.a.r.runtime.yarn.client.YarnConfiguration$JobQueue=YARN_QUEUE_NAME
+o.a.r.runtime.yarn.client.YarnConfiguration$JobPriority=YARN_PRIORITY
+o.a.r.runtime.yarn.client.YarnConfiguration$ReefJarFile=REEF_JAR_FILE
+o.a.r.runtime.client.api.JobSubmissionHandler=org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler
+o.a.hadoop.yarn.api.ClientRMProtocol=org.apache.reef.runtime.yarn.util.YarnExternalConstructors$ClientRMProtocolConstructor
+o.a.hadoop.yarn.conf.YarnConfiguration=org.apache.reef.runtime.yarn.util.YarnExternalConstructors$YarnConfigurationConstructor
+</pre>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration.CONF'>
+    <div class='decl'><span
+            class='fullName'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration.CONF</span>
+<pre>
+c.m.r.runtime.local.client.LocalRuntimeConfiguration$RootFolder=RUNTIME_ROOT_FOLDER
+c.m.r.runtime.local.client.LocalRuntimeConfiguration$NumberOfThreads=NUMBER_OF_THREADS
+o.a.r.core.client.REEF=com.microsoft.reef.runtime.common.client.ClientManager
+o.a.r.core.client.RunningJob=com.microsoft.reef.runtime.common.client.RunningJobImpl
+o.a.r.runtime.client.api.JobSubmissionHandler=com.microsoft.reef.runtime.local.client.LocalJobSubmissionHandler
+j.util.concurrent.ExecutorService=com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$ExecutorServiceConstructor
+</pre>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.client.DriverConfigurationWithObservers.CONF'>
+    <div class='decl'><span class='fullName'>com.microsoft.reef.client.DriverConfigurationWithObservers.CONF</span>
+<pre>
+o.a.r.core.driver.ClientObserver=CLIENT_OBSERVER
+c.m.wake.time.Clock$StartHandler=START_HANDLER
+c.m.wake.time.Clock$StopHandler=STOP_HANDLER
+o.a.r.core.driver.EvaluatorObserver=EVALUATOR_OBSERVER
+o.a.r.core.driver.ActivityObserver=ACTIVITY_OBSERVER
+</pre>
+    </div>
+</div>
+<div class='package'>Interfaces and injectable classes</div>
+<div class='module-margin' id='com.google.protobuf.AbstractMessage'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.AbstractMessage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.AbstractMessage$1'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.AbstractMessage$1</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.AbstractMessage$Builder'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.AbstractMessage$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.AbstractMessageLite'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.AbstractMessageLite</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.AbstractMessageLite$Builder'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.AbstractMessageLite$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.AbstractMessageLite$Builder$LimitedInputStream'>
+    <div class='decl'><span
+            class='fullName'>class com.google.protobuf.AbstractMessageLite$Builder$LimitedInputStream</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.ByteString'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.ByteString</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.ByteString$1'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.ByteString$1</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.ByteString$CodedBuilder'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.ByteString$CodedBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.ByteString$Output'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.ByteString$Output</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$2'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$2</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$Builder'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$Builder$BuilderParentImpl'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$Builder$BuilderParentImpl</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$BuilderParent'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.GeneratedMessage$BuilderParent</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$ExtendableBuilder'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$ExtendableBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$ExtendableMessage'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$ExtendableMessage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$ExtendableMessage$ExtensionWriter'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$ExtendableMessage$ExtensionWriter</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$ExtendableMessageOrBuilder'>
+    <div class='decl'><span
+            class='fullName'>interface com.google.protobuf.GeneratedMessage$ExtendableMessageOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$ExtensionDescriptorRetriever'>
+    <div class='decl'><span
+            class='fullName'>interface com.google.protobuf.GeneratedMessage$ExtensionDescriptorRetriever</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$FieldAccessorTable</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable$FieldAccessor'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.GeneratedMessage$FieldAccessorTable$FieldAccessor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable$RepeatedEnumFieldAccessor'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$FieldAccessorTable$RepeatedEnumFieldAccessor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable$RepeatedFieldAccessor'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$FieldAccessorTable$RepeatedFieldAccessor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable$RepeatedMessageFieldAccessor'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$FieldAccessorTable$RepeatedMessageFieldAccessor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable$SingularEnumFieldAccessor'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$FieldAccessorTable$SingularEnumFieldAccessor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable$SingularFieldAccessor'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$FieldAccessorTable$SingularFieldAccessor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$FieldAccessorTable$SingularMessageFieldAccessor'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$FieldAccessorTable$SingularMessageFieldAccessor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.GeneratedMessage$GeneratedExtension'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.GeneratedMessage$GeneratedExtension</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.Internal'>
+    <div class='decl'><span class='fullName'>class com.google.protobuf.Internal</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.Internal$EnumLite'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.Internal$EnumLite</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.Internal$EnumLiteMap'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.Internal$EnumLiteMap</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.Message'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.Message</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.Message$Builder'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.Message$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.MessageLite'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.MessageLite</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.MessageLite$Builder'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.MessageLite$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.MessageLiteOrBuilder'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.MessageLiteOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.MessageOrBuilder'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.MessageOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.google.protobuf.ProtocolMessageEnum'>
+    <div class='decl'><span class='fullName'>interface com.google.protobuf.ProtocolMessageEnum</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.client.LocalJobSubmissionHandler'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.local.client.LocalJobSubmissionHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.client.LocalJobSubmissionHandler(
+            <div class='constructorArg'><a href='#java.util.concurrent.ExecutorService'>j.util.concurrent.ExecutorService</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.parameters.RootFolder'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$RootFolder</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.parameters.NumberOfProcesses'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$NumberOfThreads</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration</span>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$ExecutorServiceConstructor'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$ExecutorServiceConstructor</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$ExecutorServiceConstructor(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.driver.ContainerManager'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.local.driver.ContainerManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.driver.ContainerManager(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.utils.RemoteManager'>o.a.r.runtime.utils.RemoteManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.wake.time.runtime.RuntimeClock</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$NumberOfThreads'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$NumberOfThreads</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$RootFolder'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$RootFolder</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$NodeDescriptorHandler'>com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$NodeDescriptorHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.driver.LocalDriverRuntimeConfiguration(
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$NumberOfThreads'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$NumberOfThreads</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$RootFolder'>com.microsoft.reef.runtime.local.client.LocalRuntimeConfiguration$RootFolder</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.driver.ResourceManager'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.local.driver.ResourceManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.driver.ResourceManager(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.local.driver.ContainerManager'>c.m.r.runtime.local.driver.ContainerManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceAllocationHandler'>com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceAllocationHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$RuntimeStatusHandler'>com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$RuntimeStatusHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceLaunchHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceLaunchHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceLaunchHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.local.driver.ResourceManager'>c.m.r.runtime.local.driver.ResourceManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceReleaseHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceReleaseHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceReleaseHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.local.driver.ResourceManager'>c.m.r.runtime.local.driver.ResourceManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceRequestHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceRequestHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.local.driver.ResourceManager$LocalResourceRequestHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.local.driver.ResourceManager'>c.m.r.runtime.local.driver.ResourceManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.tang.ExternalConstructor'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.tang.ExternalConstructor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.tang.Injector'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.tang.Injector</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.tang.annotations.Name'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.tang.annotations.Name</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.tang.formats.ConfigurationModuleBuilder'>
+    <div class='decl'><span class='fullName'>class com.microsoft.tang.formats.ConfigurationModuleBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.AbstractEStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.AbstractEStage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.EStage'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.EStage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.EventHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.EventHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.IdentifierFactory'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.IdentifierFactory</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.IdentifierParser'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.IdentifierParser</span>
+
+        <div class='uses'>com.microsoft.wake.IdentifierParser(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a></div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.Stage'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.Stage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.StageConfiguration'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.StageConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.WakeConfiguration'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.WakeConfiguration</span>
+
+        <div class='uses'>com.microsoft.wake.WakeConfiguration(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.WakeConfiguration$FileName'>com.microsoft.wake.WakeConfiguration$FileName</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.WakeParameters'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.WakeParameters</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.DefaultIdentifierFactory'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.DefaultIdentifierFactory</span>
+
+        <div class='uses'>com.microsoft.wake.impl.DefaultIdentifierFactory(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.LoggingEventHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.LoggingEventHandler</span>
+
+        <div class='uses'>com.microsoft.wake.impl.LoggingEventHandler(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.LoggingVoidEventHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.LoggingVoidEventHandler</span>
+
+        <div class='uses'>com.microsoft.wake.impl.LoggingVoidEventHandler(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.MergingEventHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.MergingEventHandler</span>
+
+        <div class='uses'>com.microsoft.wake.impl.MergingEventHandler(
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a></div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.MergingEventHandler$1'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.MergingEventHandler$1</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.MergingEventHandler$Pair'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.MergingEventHandler$Pair</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.MissingStartHandlerHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.MissingStartHandlerHandler</span>
+
+        <div class='uses'>com.microsoft.wake.impl.MissingStartHandlerHandler(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.SingleThreadStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.SingleThreadStage</span>
+
+        <div class='uses'>com.microsoft.wake.impl.SingleThreadStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$Capacity'>com.microsoft.wake.StageConfiguration$Capacity</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.SingleThreadStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$Capacity'>com.microsoft.wake.StageConfiguration$Capacity</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.SingleThreadStage$Producer'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.SingleThreadStage$Producer</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.SyncStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.SyncStage</span>
+
+        <div class='uses'>com.microsoft.wake.impl.SyncStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.SyncStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.ThreadPoolStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.ThreadPoolStage</span>
+
+        <div class='uses'>com.microsoft.wake.impl.ThreadPoolStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$NumberOfThreads'>com.microsoft.wake.StageConfiguration$NumberOfThreads</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.ThreadPoolStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.util.concurrent.ExecutorService'>j.util.concurrent.ExecutorService</a>
+                <a href='#com.microsoft.wake.StageConfiguration$StageExecutorService'>com.microsoft.wake.StageConfiguration$StageExecutorService</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.ThreadPoolStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$NumberOfThreads'>com.microsoft.wake.StageConfiguration$NumberOfThreads</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.ThreadPoolStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.util.concurrent.ExecutorService'>j.util.concurrent.ExecutorService</a>
+                <a href='#com.microsoft.wake.StageConfiguration$StageExecutorService'>com.microsoft.wake.StageConfiguration$StageExecutorService</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.impl.TimerStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.impl.TimerStage</span>
+
+        <div class='uses'>com.microsoft.wake.impl.TimerStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#long'>long</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$TimerInitialDelay'>com.microsoft.wake.StageConfiguration$TimerInitialDelay</a>
+            </div>
+            <div class='constructorArg'><a href='#long'>long</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$TimerPeriod'>com.microsoft.wake.StageConfiguration$TimerPeriod</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.TimerStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#long'>long</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$TimerPeriod'>com.microsoft.wake.StageConfiguration$TimerPeriod</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.TimerStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#long'>long</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$TimerInitialDelay'>com.microsoft.wake.StageConfiguration$TimerInitialDelay</a>
+            </div>
+            <div class='constructorArg'><a href='#long'>long</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$TimerPeriod'>com.microsoft.wake.StageConfiguration$TimerPeriod</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.impl.TimerStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageHandler'>com.microsoft.wake.StageConfiguration$StageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#long'>long</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$TimerPeriod'>com.microsoft.wake.StageConfiguration$TimerPeriod</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.Codec'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.remote.Codec</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.Decoder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.remote.Decoder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.Encoder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.remote.Encoder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.RemoteConfiguration'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.remote.RemoteConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.RemoteIdentifierFactory'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.remote.RemoteIdentifierFactory</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.RemoteManager'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.remote.RemoteManager</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation</span>
+
+        <div class='uses'>com.microsoft.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation</span>
+
+        <div class='uses'>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation(
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation(
+            <div class='constructorArg'><a href='#com.microsoft.wake.remote.Codec'>c.m.wake.remote.Codec</a> <a
+                    href='#com.microsoft.wake.remote.RemoteConfiguration$MessageCodec'>com.microsoft.wake.remote.RemoteConfiguration$MessageCodec</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation(
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.remote.RemoteConfiguration$Port'>com.microsoft.wake.remote.RemoteConfiguration$Port</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation(
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.remote.RemoteConfiguration$Port'>com.microsoft.wake.remote.RemoteConfiguration$Port</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.remote.Codec'>c.m.wake.remote.Codec</a> <a
+                    href='#com.microsoft.wake.remote.RemoteConfiguration$MessageCodec'>com.microsoft.wake.remote.RemoteConfiguration$MessageCodec</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.remote.impl.DefaultRemoteManagerImplementation(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.remote.RemoteConfiguration$HostAddress'>com.microsoft.wake.remote.RemoteConfiguration$HostAddress</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.remote.RemoteConfiguration$Port'>com.microsoft.wake.remote.RemoteConfiguration$Port</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.remote.Codec'>c.m.wake.remote.Codec</a> <a
+                    href='#com.microsoft.wake.remote.RemoteConfiguration$MessageCodec'>com.microsoft.wake.remote.RemoteConfiguration$MessageCodec</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.AbstractRxStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.rx.AbstractRxStage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.Observable'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.rx.Observable</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.Observer'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.rx.Observer</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.RxStage'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.rx.RxStage</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.StaticObservable'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.rx.StaticObservable</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.Subject'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.rx.Subject</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.impl.RxSyncStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.rx.impl.RxSyncStage</span>
+
+        <div class='uses'>com.microsoft.wake.rx.impl.RxSyncStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.rx.Observer'>c.m.wake.rx.Observer</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageObserver'>com.microsoft.wake.StageConfiguration$StageObserver</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.rx.impl.RxSyncStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.rx.Observer'>c.m.wake.rx.Observer</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageObserver'>com.microsoft.wake.StageConfiguration$StageObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.impl.RxThreadPoolStage'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.rx.impl.RxThreadPoolStage</span>
+
+        <div class='uses'>com.microsoft.wake.rx.impl.RxThreadPoolStage(
+            <div class='constructorArg'><a href='#com.microsoft.wake.rx.Observer'>c.m.wake.rx.Observer</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageObserver'>com.microsoft.wake.StageConfiguration$StageObserver</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$NumberOfThreads'>com.microsoft.wake.StageConfiguration$NumberOfThreads</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>com.microsoft.wake.rx.impl.RxThreadPoolStage(
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageName'>com.microsoft.wake.StageConfiguration$StageName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.rx.Observer'>c.m.wake.rx.Observer</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$StageObserver'>com.microsoft.wake.StageConfiguration$StageObserver</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.wake.StageConfiguration$NumberOfThreads'>com.microsoft.wake.StageConfiguration$NumberOfThreads</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.rx.impl.SimpleSubject'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.rx.impl.SimpleSubject</span>
+
+        <div class='uses'>com.microsoft.wake.rx.impl.SimpleSubject(
+            <div class='constructorArg'><a href='#com.microsoft.wake.rx.Observer'>c.m.wake.rx.Observer</a></div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.time.Clock'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.time.Clock</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.time.runtime.LogicalTimer'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.time.runtime.LogicalTimer</span>
+
+        <div class='uses'>com.microsoft.wake.time.runtime.LogicalTimer(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.time.runtime.RealTimer'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.time.runtime.RealTimer</span>
+
+        <div class='uses'>com.microsoft.wake.time.runtime.RealTimer(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.time.runtime.RuntimeClock'>
+    <div class='decl'><span class='fullName'>class com.microsoft.wake.time.runtime.RuntimeClock</span>
+
+        <div class='uses'>com.microsoft.wake.time.runtime.RuntimeClock(
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.runtime.Timer'>c.m.wake.time.runtime.Timer</a>
+            </div>
+            <div class='constructorArg'><a href='#java.util.Set'>j.util.Set</a> <a
+                    href='#com.microsoft.wake.time.Clock$StartHandler'>com.microsoft.wake.time.Clock$StartHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.util.Set'>j.util.Set</a> <a
+                    href='#com.microsoft.wake.time.Clock$StopHandler'>com.microsoft.wake.time.Clock$StopHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.util.Set'>j.util.Set</a> <a
+                    href='#com.microsoft.wake.time.Clock$RuntimeStartHandler'>com.microsoft.wake.time.Clock$RuntimeStartHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.util.Set'>j.util.Set</a> <a
+                    href='#com.microsoft.wake.time.Clock$RuntimeStopHandler'>com.microsoft.wake.time.Clock$RuntimeStopHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.util.Set'>j.util.Set</a> <a
+                    href='#com.microsoft.wake.time.Clock$IdleHandler'>com.microsoft.wake.time.Clock$IdleHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.wake.time.runtime.Timer'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.wake.time.runtime.Timer</span>
+    </div>
+</div>
+<div class='module-margin' id='int'>
+    <div class='decl'><span class='fullName'>class int</span>
+    </div>
+</div>
+<div class='module-margin' id='java.io.Closeable'>
+    <div class='decl'><span class='fullName'>interface java.io.Closeable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.io.FilterInputStream'>
+    <div class='decl'><span class='fullName'>class java.io.FilterInputStream</span>
+    </div>
+</div>
+<div class='module-margin' id='java.io.FilterOutputStream'>
+    <div class='decl'><span class='fullName'>class java.io.FilterOutputStream</span>
+    </div>
+</div>
+<div class='module-margin' id='java.io.Flushable'>
+    <div class='decl'><span class='fullName'>interface java.io.Flushable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.io.InputStream'>
+    <div class='decl'><span class='fullName'>class java.io.InputStream</span>
+    </div>
+</div>
+<div class='module-margin' id='java.io.OutputStream'>
+    <div class='decl'><span class='fullName'>class java.io.OutputStream</span>
+    </div>
+</div>
+<div class='module-margin' id='java.io.Serializable'>
+    <div class='decl'><span class='fullName'>interface java.io.Serializable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.AutoCloseable'>
+    <div class='decl'><span class='fullName'>interface java.lang.AutoCloseable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.CharSequence'>
+    <div class='decl'><span class='fullName'>interface java.lang.CharSequence</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Cloneable'>
+    <div class='decl'><span class='fullName'>interface java.lang.Cloneable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Comparable'>
+    <div class='decl'><span class='fullName'>interface java.lang.Comparable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Enum'>
+    <div class='decl'><span class='fullName'>class java.lang.Enum</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Integer'>
+    <div class='decl'><span class='fullName'>class java.lang.Integer</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Integer$IntegerCache'>
+    <div class='decl'><span class='fullName'>class java.lang.Integer$IntegerCache</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Iterable'>
+    <div class='decl'><span class='fullName'>interface java.lang.Iterable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Long'>
+    <div class='decl'><span class='fullName'>class java.lang.Long</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Long$LongCache'>
+    <div class='decl'><span class='fullName'>class java.lang.Long$LongCache</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Number'>
+    <div class='decl'><span class='fullName'>class java.lang.Number</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Object'>
+    <div class='decl'><span class='fullName'>class java.lang.Object</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.Runnable'>
+    <div class='decl'><span class='fullName'>interface java.lang.Runnable</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.String'>
+    <div class='decl'><span class='fullName'>class java.lang.String</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.String$1'>
+    <div class='decl'><span class='fullName'>class java.lang.String$1</span>
+    </div>
+</div>
+<div class='module-margin' id='java.lang.String$CaseInsensitiveComparator'>
+    <div class='decl'><span class='fullName'>class java.lang.String$CaseInsensitiveComparator</span>
+    </div>
+</div>
+<div class='module-margin' id='java.util.Collection'>
+    <div class='decl'><span class='fullName'>interface java.util.Collection</span>
+    </div>
+</div>
+<div class='module-margin' id='java.util.Comparator'>
+    <div class='decl'><span class='fullName'>interface java.util.Comparator</span>
+    </div>
+</div>
+<div class='module-margin' id='java.util.Iterator'>
+    <div class='decl'><span class='fullName'>interface java.util.Iterator</span>
+    </div>
+</div>
+<div class='module-margin' id='java.util.Set'>
+    <div class='decl'><span class='fullName'>interface java.util.Set</span>
+    </div>
+</div>
+<div class='module-margin' id='java.util.concurrent.Executor'>
+    <div class='decl'><span class='fullName'>interface java.util.concurrent.Executor</span>
+    </div>
+</div>
+<div class='module-margin' id='java.util.concurrent.ExecutorService'>
+    <div class='decl'><span class='fullName'>interface java.util.concurrent.ExecutorService</span>
+    </div>
+</div>
+<div class='module-margin' id='long'>
+    <div class='decl'><span class='fullName'>class long</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration$1'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration$1</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration$DeprecatedKeyInfo'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration$DeprecatedKeyInfo</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration$IntegerRanges'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration$IntegerRanges</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration$IntegerRanges$Range'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration$IntegerRanges$Range</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration$IntegerRanges$RangeNumberIterator'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration$IntegerRanges$RangeNumberIterator</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration$NegativeCacheSentinel'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration$NegativeCacheSentinel</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.conf.Configuration$Resource'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.conf.Configuration$Resource</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.io.Writable'>
+    <div class='decl'><span class='fullName'>interface org.apache.hadoop.io.Writable</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.api.AMRMProtocol'>
+    <div class='decl'><span class='fullName'>interface org.apache.hadoop.yarn.api.AMRMProtocol</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.api.ClientRMProtocol'>
+    <div class='decl'><span class='fullName'>interface org.apache.hadoop.yarn.api.ClientRMProtocol</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse'>
+    <div class='decl'><span class='fullName'>interface org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.api.records.ApplicationAttemptId'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.yarn.api.records.ApplicationAttemptId</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.client.YarnClient'>
+    <div class='decl'><span class='fullName'>interface org.apache.hadoop.yarn.client.YarnClient</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.client.YarnClientImpl'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.yarn.client.YarnClientImpl</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.conf.YarnConfiguration'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.yarn.conf.YarnConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.service.AbstractService'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.yarn.service.AbstractService</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.service.Service'>
+    <div class='decl'><span class='fullName'>interface org.apache.hadoop.yarn.service.Service</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.hadoop.yarn.service.Service$STATE'>
+    <div class='decl'><span class='fullName'>class org.apache.hadoop.yarn.service.Service$STATE</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$ActivityStatusProto'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$ActivityStatusProto</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$ActivityStatusProto$Builder'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$ActivityStatusProto$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$ActivityStatusProtoOrBuilder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.proto.ReefServiceProtos$ActivityStatusProtoOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$EvaluatorStatusProto'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$EvaluatorStatusProto</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$EvaluatorStatusProto$Builder'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$EvaluatorStatusProto$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$EvaluatorStatusProtoOrBuilder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.proto.ReefServiceProtos$EvaluatorStatusProtoOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$FileResourceProto'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$FileResourceProto</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$FileResourceProto$Builder'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$FileResourceProto$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$FileResourceProtoOrBuilder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.proto.ReefServiceProtos$FileResourceProtoOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$FileType'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$FileType</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$JobStatusProto'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$JobStatusProto</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$JobStatusProto$Builder'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$JobStatusProto$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$JobStatusProtoOrBuilder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.proto.ReefServiceProtos$JobStatusProtoOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$RuntimeErrorProto'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$RuntimeErrorProto</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$RuntimeErrorProto$Builder'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$RuntimeErrorProto$Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$RuntimeErrorProtoOrBuilder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.proto.ReefServiceProtos$RuntimeErrorProtoOrBuilder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$SIZE'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$SIZE</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.proto.ReefServiceProtos$Status'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.proto.ReefServiceProtos$Status</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.Activity'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.activity.Activity</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.activity.ActivityDefaultHandlers</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultCloseHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultCloseHandler</span>
+
+        <div class='uses'>com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultCloseHandler(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultActivityMessageSource'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultActivityMessageSource</span>
+
+        <div class='uses'>com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultActivityMessageSource(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultMessageHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultMessageHandler</span>
+
+        <div class='uses'>com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultMessageHandler(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultSuspendHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultSuspendHandler</span>
+
+        <div class='uses'>com.microsoft.reef.activity.ActivityDefaultHandlers$DefaultSuspendHandler(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.CloseHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.activity.CloseHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.ActivityMessageSource'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.activity.ActivityMessageSource</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.MessageHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.activity.MessageHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.activity.SuspendHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.activity.SuspendHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.client.DefaultClientObserver'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.driver.client.DefaultClientObserver</span>
+
+        <div class='uses'>org.apache.reef.core.client.DefaultClientObserver(
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.Clock'>c.m.wake.time.Clock</a></div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.core.client.DefaultRuntimeErrorHandler'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.core.client.DefaultRuntimeErrorHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.client.DriverConfiguration'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.driver.client.DriverConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.client.DriverConfiguration$Size'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.driver.client.DriverConfiguration$Size</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.client.JobObserver'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.client.JobObserver</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.client.REEF'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.client.REEF</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.client.RunningJob'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.client.RunningJob</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.client.RuntimeErrorHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.client.RuntimeErrorHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.ActivityObserver'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.driver.ActivityObserver</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.client.ClientObserver'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.driver.client.ClientObserver</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.EvaluatorObserver'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.driver.EvaluatorObserver</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.catalog.NodeDescriptor'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.driver.catalog.NodeDescriptor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.catalog.ResourceCatalog'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.driver.catalog.ResourceCatalog</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.catalog.ResourceCatalog$Descriptor'>
+    <div class='decl'><span
+            class='fullName'>interface com.microsoft.reef.driver.catalog.ResourceCatalog$Descriptor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.client.JobMessageObserver'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.driver.client.JobMessageObserver</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.driver.evaluator.EvaluatorRequestor'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.driver.evaluator.EvaluatorRequestor</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.io.naming.Identifiable'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.io.naming.Identifiable</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.io.serialization.Codec'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.io.serialization.Codec</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.io.serialization.SerializableCodec'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.io.serialization.SerializableCodec</span>
+
+        <div class='uses'>com.microsoft.reef.io.serialization.SerializableCodec(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.Launcher'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.Launcher</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.client.ClientManager'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.client.ClientManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.client.ClientManager(
+            <div class='constructorArg'><a href='#com.microsoft.tang.Injector'>c.m.tang.Injector</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.client.RuntimeErrorHandler'>o.a.r.core.client.RuntimeErrorHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.utils.RemoteManager'>o.a.r.runtime.utils.RemoteManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler'>o.a.r.runtime.client.api.JobSubmissionHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.client.ClientManager$RuntimeErrorProtoHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.client.ClientManager$RuntimeErrorProtoHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.client.RunningJobImpl'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.client.RunningJobImpl</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.client.RunningJobImpl(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.utils.RemoteManager'>o.a.r.runtime.utils.RemoteManager</a>
+            </div>
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.client.JobObserver'>o.a.r.core.client.JobObserver</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.proto.ReefServiceProtos$JobStatusProto'>o.a.r.api.proto.ReefServiceProtos$JobStatusProto</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.client.ClientManager$DriverRemoteIdentifier'>com.microsoft.reef.runtime.common.client.ClientManager$DriverRemoteIdentifier</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.client.ClientManager$JobIdentifier'>com.microsoft.reef.runtime.common.client.ClientManager$JobIdentifier</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.client.api.ClientRuntimeParameters'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.client.api.ClientRuntimeParameters</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler'>
+    <div class='decl'><span
+            class='fullName'>interface com.microsoft.reef.runtime.common.client.api.JobSubmissionHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.ClientManager'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.ClientManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.ClientManager(
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.Clock'>c.m.wake.time.Clock</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientCloseWithMessageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientMessageHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ClientMessageHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver(
+            <div class='constructorArg'><a href='#com.microsoft.reef.driver.ActivityObserver'>o.a.r.core.driver.ActivityObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$ActivityExceptionHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$ActivityExceptionHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$ActivityExceptionHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver'>o.a.r.runtime.driver.DelegateClientActivityObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$ActivityMessageHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$ActivityMessageHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$ActivityMessageHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver'>o.a.r.runtime.driver.DelegateClientActivityObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$CompletedActivityHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$CompletedActivityHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$CompletedActivityHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver'>o.a.r.runtime.driver.DelegateClientActivityObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$RunningActivityHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$RunningActivityHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$RunningActivityHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver'>o.a.r.runtime.driver.DelegateClientActivityObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$SuspendedActivityHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$SuspendedActivityHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver$SuspendedActivityHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientActivityObserver'>o.a.r.runtime.driver.DelegateClientActivityObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver(
+            <div class='constructorArg'><a href='#com.microsoft.reef.driver.EvaluatorObserver'>o.a.r.core.driver.EvaluatorObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$AllocatedEvaluatorHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$AllocatedEvaluatorHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$AllocatedEvaluatorHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver'>o.a.r.runtime.driver.DelegateClientEvaluatorObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$CompletedEvaluatorHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$CompletedEvaluatorHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$CompletedEvaluatorHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver'>o.a.r.runtime.driver.DelegateClientEvaluatorObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$FailedEvaluatorHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$FailedEvaluatorHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$FailedEvaluatorHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver'>o.a.r.runtime.driver.DelegateClientEvaluatorObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$RunningEvaluatorHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$RunningEvaluatorHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver$RunningEvaluatorHandler(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientEvaluatorObserver'>o.a.r.runtime.driver.DelegateClientEvaluatorObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver(
+            <div class='constructorArg'><a href='#com.microsoft.reef.driver.client.ClientObserver'>o.a.r.core.driver.ClientObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientCloseHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientCloseHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientCloseHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver'>o.a.r.runtime.driver.DelegateClientObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientCloseWithMessageHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientCloseWithMessageHandler</span>
+
+        <div class='uses'>
+            com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientCloseWithMessageHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver'>o.a.r.runtime.driver.DelegateClientObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientMessageHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientMessageHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver$ClientMessageHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.api.DelegateClientObserver'>o.a.r.runtime.driver.DelegateClientObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.utils.RemoteManager'>o.a.r.runtime.utils.RemoteManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.wake.time.runtime.RuntimeClock</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$JobControlHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$JobControlHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$JobIdentifier'>com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$JobIdentifier</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier'>com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$JobExceptionHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$JobExceptionHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$JobExceptionHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>o.a.r.runtime.driver.DelegateJobObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$JobMessageHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$JobMessageHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$JobMessageHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>o.a.r.runtime.driver.DelegateJobObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$RuntimeStartHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$RuntimeStartHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$RuntimeStartHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>o.a.r.runtime.driver.DelegateJobObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$RuntimeStopHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$RuntimeStopHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler$RuntimeStopHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.ClientJobStatusHandler'>o.a.r.runtime.driver.DelegateJobObserver</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager(
+            <div class='constructorArg'><a href='#com.microsoft.tang.Injector'>c.m.tang.Injector</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl'>o.a.r.runtime.driver.catalog.ResourceCatalogImpl</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.utils.RemoteManager'>o.a.r.runtime.utils.RemoteManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.Clock'>c.m.wake.time.Clock</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler'>o.a.r.runtime.driver.api.ResourceRequestHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier'>com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration$ClientRemoteIdentifier</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$3'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$3</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$IdleHandler'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$IdleHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager$IdleHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$NodeDescriptorHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$NodeDescriptorHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager$NodeDescriptorHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$ResourceAllocationHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$ResourceAllocationHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager$ResourceAllocationHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$ResourceStatusHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$ResourceStatusHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager$ResourceStatusHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStartHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStartHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStartHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStatusHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStatusHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStatusHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStopHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStopHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.DriverManager$RuntimeStopHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.EvaluatorManager(
+            <div class='constructorArg'><a href='#com.microsoft.tang.Injector'>c.m.tang.Injector</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.Clock'>c.m.wake.time.Clock</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.utils.RemoteManager'>o.a.r.runtime.utils.RemoteManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.DriverManager'>o.a.r.runtime.driver.DriverManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler'>o.a.r.runtime.driver.api.ResourceReleaseHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler'>o.a.r.runtime.driver.api.ResourceLaunchHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$EvaluatorIdentifier'>com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$EvaluatorIdentifier</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.driver.catalog.NodeDescriptor'>o.a.r.core.driver.catalog.NodeDescriptor</a>
+                <a href='#com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$EvaluatorDescriptorName'>com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$EvaluatorDescriptorName</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningActivityHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningActivityHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedActivityHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedActivityHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$SuspendedActivityHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$SuspendedActivityHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityMessageHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityMessageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityExceptionHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$ActivityExceptionHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningEvaluatorHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$RunningEvaluatorHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$AllocatedEvaluatorHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$FailedEvaluatorHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$FailedEvaluatorHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedEvaluatorHandler'>com.microsoft.reef.runtime.common.driver.DriverManagerConfiguration$CompletedEvaluatorHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$State'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.driver.evaluator.EvaluatorManager$State</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.runtime.common.driver.api.ResourceLaunchHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.runtime.common.driver.api.ResourceReleaseHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.runtime.common.driver.api.ResourceRequestHandler</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.api.RuntimeParameters'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.driver.api.RuntimeParameters</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.driver.catalog.ResourceCatalogImpl(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.evaluator.ActivityManager'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.evaluator.ActivityManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.evaluator.ActivityManager(
+            <div class='constructorArg'><a href='#java.util.concurrent.ExecutorService'>j.util.concurrent.ExecutorService</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.tang.Injector'>c.m.tang.Injector</a></div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$EvaluatorIdentifier'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$EvaluatorIdentifier</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ActivityStatusHandler'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ActivityStatusHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration</span>
+    </div>
+</div>
+<div class='module-margin'
+     id='com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ExecutorServiceConstructor'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ExecutorServiceConstructor</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ExecutorServiceConstructor(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.utils.RemoteManager'>o.a.r.runtime.utils.RemoteManager</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.wake.time.runtime.RuntimeClock</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.evaluator.ActivityManager'>o.a.r.runtime.evaluator.ActivityManager</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$EvaluatorIdentifier'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$EvaluatorIdentifier</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$HeartbeatPeriod'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$HeartbeatPeriod</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$DriverRemoteIdentifier'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$DriverRemoteIdentifier</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$ActivityStatusHandlerImpl'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$ActivityStatusHandlerImpl</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$ActivityStatusHandlerImpl(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime'>o.a.r.runtime.evaluator.EvaluatorRuntime</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$RuntimeStartHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$RuntimeStartHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$RuntimeStartHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime'>o.a.r.runtime.evaluator.EvaluatorRuntime</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$RuntimeStopHandler'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$RuntimeStopHandler</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime$RuntimeStopHandler(
+            <div class='constructorArg'><a href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorRuntime'>o.a.r.runtime.evaluator.EvaluatorRuntime</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime'>
+    <div class='decl'><span
+            class='fullName'>class com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.evaluator.activity.ActivityRuntime(
+            <div class='constructorArg'><a href='#com.microsoft.reef.activity.CloseHandler'>o.a.r.core.activity.CloseHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.activity.SuspendHandler'>o.a.r.core.activity.SuspendHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.activity.MessageHandler'>o.a.r.core.activity.MessageHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.activity.Activity'>o.a.r.core.activity.Activity</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.reef.activity.ActivityMessageSource'>o.a.r.core.activity.DriverMessageSource</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.ActivityManager$ActivityIdentifier'>com.microsoft.reef.runtime.common.evaluator.ActivityManager$ActivityIdentifier</a>
+            </div>
+            <div class='constructorArg'><a href='#com.google.protobuf.ByteString'>c.google.protobuf.ByteString</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.ActivityManager$ActivityMemento'>com.microsoft.reef.runtime.common.evaluator.ActivityManager$ActivityMemento</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$EvaluatorIdentifier'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$EvaluatorIdentifier</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ActivityManagerStatusHandler'>com.microsoft.reef.runtime.common.evaluator.EvaluatorConfiguration$ActivityManagerStatusHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.runtime.common.utils.RemoteManager'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.runtime.common.utils.RemoteManager</span>
+
+        <div class='uses'>com.microsoft.reef.runtime.common.utils.RemoteManager(
+            <div class='constructorArg'><a
+                    href='#com.microsoft.wake.remote.RemoteManager'>c.m.wake.remote.RemoteManager</a></div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.remote.RemoteIdentifierFactory'>c.m.wake.remote.RemoteIdentifierFactory</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.client.YarnConfiguration'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.client.YarnConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler(
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.conf.YarnConfiguration'>o.a.hadoop.yarn.conf.YarnConfiguration</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#org.apache.reef.runtime.yarn.client.YarnConfiguration$ReefJarFile'>org.apache.reef.runtime.yarn.client.YarnConfiguration$ReefJarFile</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#org.apache.reef.runtime.yarn.client.YarnConfiguration$JobPriority'>org.apache.reef.runtime.yarn.client.YarnConfiguration$JobPriority</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#org.apache.reef.runtime.yarn.client.YarnConfiguration$JobQueue'>org.apache.reef.runtime.yarn.client.YarnConfiguration$JobQueue</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler$1'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.client.YarnJobSubmissionHandler$1</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnContainerManager'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnContainerManager</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnContainerManager(
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.conf.YarnConfiguration'>o.a.hadoop.yarn.conf.YarnConfiguration</a>
+            </div>
+            <div class='constructorArg'><a
+                    href='#org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse'>o.a.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse</a>
+            </div>
+            <div class='constructorArg'><a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceReleaseQueue'>o.a.r.runtime.yarn.master.YarnMasterConfiguration$ResourceReleaseQueue</a>
+            </div>
+            <div class='constructorArg'><a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceRequestQueue'>o.a.r.runtime.yarn.master.YarnMasterConfiguration$ResourceRequestQueue</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$JobSubmissionDirectory'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$JobSubmissionDirectory</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$RuntimeStatusHandler'>com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$RuntimeStatusHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceAllocationHandler'>com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceAllocationHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceStatusHandler'>com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$ResourceStatusHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchQueueCapacity'>org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchQueueCapacity</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnContainerManager$1'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnContainerManager$1</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnContainerManager$ContainerAllocationHandlerImpl'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnContainerManager$ContainerAllocationHandlerImpl</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnContainerManager$ContainerAllocationHandlerImpl(
+            <div class='constructorArg'><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.runtime.yarn.master.YarnContainerManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnContainerManager$ContainerStatusHandlerImpl'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnContainerManager$ContainerStatusHandlerImpl</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnContainerManager$ContainerStatusHandlerImpl(
+            <div class='constructorArg'><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.runtime.yarn.master.YarnContainerManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchHandlerImpl'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchHandlerImpl</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceLaunchHandlerImpl(
+            <div class='constructorArg'><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.runtime.yarn.master.YarnContainerManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceReleaseHandlerImpl'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceReleaseHandlerImpl</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceReleaseHandlerImpl(
+            <div class='constructorArg'><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.runtime.yarn.master.YarnContainerManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceRequestHandlerImpl'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceRequestHandlerImpl</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnContainerManager$ResourceRequestHandlerImpl(
+            <div class='constructorArg'><a href='#org.apache.reef.runtime.yarn.master.YarnContainerManager'>o.a.r.runtime.yarn.master.YarnContainerManager</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnHeartbeat'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnHeartbeat</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnHeartbeat(
+            <div class='constructorArg'><a href='#com.microsoft.wake.time.runtime.RuntimeClock'>c.m.wake.time.runtime.RuntimeClock</a>
+            </div>
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.api.records.ApplicationAttemptId'>o.a.hadoop.yarn.api.records.ApplicationAttemptId</a>
+            </div>
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.api.AMRMProtocol'>o.a.hadoop.yarn.api.AMRMProtocol</a>
+            </div>
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.api.ClientRMProtocol'>o.a.hadoop.yarn.api.ClientRMProtocol</a>
+            </div>
+            <div class='constructorArg'><a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceReleaseQueue'>o.a.r.runtime.yarn.master.YarnMasterConfiguration$ResourceReleaseQueue</a>
+            </div>
+            <div class='constructorArg'><a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceRequestQueue'>o.a.r.runtime.yarn.master.YarnMasterConfiguration$ResourceRequestQueue</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$NodeDescriptorHandler'>com.microsoft.reef.runtime.common.driver.api.RuntimeParameters$NodeDescriptorHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#int'>int</a> <a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnHeartbeatPeriod'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnHeartbeatPeriod</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerAllocationHandler'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerAllocationHandler</a>
+            </div>
+            <div class='constructorArg'><a href='#com.microsoft.wake.EventHandler'>c.m.wake.EventHandler</a> <a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerStatusHandler'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ContainerStatusHandler</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnHeartbeat$RuntimeStartHandler'>
+    <div class='decl'><span
+            class='fullName'>class org.apache.reef.runtime.yarn.master.YarnHeartbeat$RuntimeStartHandler</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnHeartbeat$RuntimeStartHandler(
+            <div class='constructorArg'><a href='#org.apache.reef.runtime.yarn.master.YarnHeartbeat'>o.a.r.runtime.yarn.master.YarnHeartbeat</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnHeartbeat$RuntimeStopHandler'>
+    <div class='decl'><span
+            class='fullName'>class org.apache.reef.runtime.yarn.master.YarnHeartbeat$RuntimeStopHandler</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnHeartbeat$RuntimeStopHandler(
+            <div class='constructorArg'><a href='#org.apache.reef.runtime.yarn.master.YarnHeartbeat'>o.a.r.runtime.yarn.master.YarnHeartbeat</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnMasterConfiguration</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceReleaseQueue'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceReleaseQueue</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceReleaseQueue(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceRequestQueue'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceRequestQueue</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$ResourceRequestQueue(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.util.YarnExternalConstructors'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.util.YarnExternalConstructors</span>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.util.YarnExternalConstructors$AMRMProtocolConstructor'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.util.YarnExternalConstructors$AMRMProtocolConstructor</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$AMRMProtocolConstructor(
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.conf.YarnConfiguration'>o.a.hadoop.yarn.conf.YarnConfiguration</a>
+            </div>
+            )
+        </div>
+        <div class='uses'>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$AMRMProtocolConstructor(
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.conf.YarnConfiguration'>o.a.hadoop.yarn.conf.YarnConfiguration</a>
+            </div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnAMRMAddress'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnAMRMAddress</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='org.apache.reef.runtime.yarn.util.YarnExternalConstructors$ApplicationAttemptIdConstructor'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.util.YarnExternalConstructors$ApplicationAttemptIdConstructor</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$ApplicationAttemptIdConstructor(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.util.YarnExternalConstructors$ClientRMProtocolConstructor'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.util.YarnExternalConstructors$ClientRMProtocolConstructor</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$ClientRMProtocolConstructor(
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.conf.YarnConfiguration'>o.a.hadoop.yarn.conf.YarnConfiguration</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin'
+     id='org.apache.reef.runtime.yarn.util.YarnExternalConstructors$RegisterApplicationMasterConstructor'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.util.YarnExternalConstructors$RegisterApplicationMasterConstructor</span>
+
+        <div class='uses'>
+            org.apache.reef.runtime.yarn.util.YarnExternalConstructors$RegisterApplicationMasterConstructor(
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.api.AMRMProtocol'>o.a.hadoop.yarn.api.AMRMProtocol</a>
+            </div>
+            <div class='constructorArg'><a href='#org.apache.hadoop.yarn.api.records.ApplicationAttemptId'>o.a.hadoop.yarn.api.records.ApplicationAttemptId</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='org.apache.reef.runtime.yarn.util.YarnExternalConstructors$YarnConfigurationConstructor'>
+    <div class='decl'><span class='fullName'>class org.apache.reef.runtime.yarn.util.YarnExternalConstructors$YarnConfigurationConstructor</span>
+
+        <div class='uses'>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$YarnConfigurationConstructor(
+            <div class='constructorArg'><a href='#com.microsoft.tang.Injector'>c.m.tang.Injector</a></div>
+            )
+        </div>
+        <div class='uses'>org.apache.reef.runtime.yarn.util.YarnExternalConstructors$YarnConfigurationConstructor(
+            <div class='constructorArg'><a href='#com.microsoft.tang.Injector'>c.m.tang.Injector</a></div>
+            <div class='constructorArg'><a href='#java.lang.String'>j.l.String</a> <a
+                    href='#org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnConfigurationFile'>org.apache.reef.runtime.yarn.master.YarnMasterConfiguration$YarnConfigurationFile</a>
+            </div>
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.util.Builder'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.util.Builder</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.util.ConcurrentMapTable'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.util.ConcurrentMapTable</span>
+
+        <div class='uses'>com.microsoft.reef.util.ConcurrentMapTable(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.util.ConcurrentQueue'>
+    <div class='decl'><span class='fullName'>class com.microsoft.reef.util.ConcurrentQueue</span>
+
+        <div class='uses'>com.microsoft.reef.util.ConcurrentQueue(
+            )
+        </div>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.util.MapTable'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.util.MapTable</span>
+    </div>
+</div>
+<div class='module-margin' id='com.microsoft.reef.util.Queue'>
+    <div class='decl'><span class='fullName'>interface com.microsoft.reef.util.Queue</span>
+    </div>
+</div>
+</body>
+</html>

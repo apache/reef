@@ -1,0 +1,99 @@
+option java_package = "com.microsoft.reef.proto";
+
+option java_outer_classname = "ReefServiceProtos";
+
+option java_generic_services = true;
+
+option java_generate_equals_and_hash = true;
+
+enum State {
+    INIT = 0;
+    RUNNING = 1;
+    DONE = 2;
+    SUSPEND = 3;
+    FAILED = 4;
+    KILLED = 5;
+}
+
+enum FileType {
+    PLAIN = 0;
+    LIB = 1;
+    ARCHIVE = 2;
+}
+
+// Removed in REEF 0.3 in favor of explicit memory sizes.
+// enum SIZE {
+//    SMALL = 0;
+//    MEDIUM = 1;
+//    LARGE = 2;
+//    XLARGE = 3;
+//}
+
+enum ProcessType {
+    JVM = 0;
+    CLR = 1;
+}
+
+message FileResourceProto {
+    required FileType type = 1;
+    required string name = 2;
+    required string path = 3;
+}
+
+message RuntimeErrorProto {
+    required string name = 1; // e.g., local, yarn21
+    required string message = 2;
+    optional bytes exception = 3;
+
+    optional string identifier = 5; // e.g., evaluator id
+}
+
+message JobStatusProto {
+    required string identifier = 1;
+    required State state = 2;
+    optional bytes message = 3;
+    optional bytes exception = 4;
+}
+
+message ContextStatusProto {
+    enum State {
+        READY = 0;
+        DONE = 1;
+        FAIL = 2;
+    }
+    required State context_state = 1;
+
+    required string context_id = 2;
+    optional string parent_id = 3;
+
+    optional bytes error = 5; // when creating the context
+
+    optional bool recovery = 6;
+    // Context messages
+    message ContextMessageProto {
+        required string source_id = 1;
+        required bytes message = 2;
+    }
+    repeated ContextMessageProto context_message = 7;
+}
+
+message TaskStatusProto {
+    required string task_id = 1;
+    required string context_id = 2;
+    required State state = 3;
+    optional bytes result = 4; // e.g., return value from Task.call()
+    optional bool  recovery = 5;
+
+    // TaskMessageSource messages
+    message TaskMessageProto {
+        required string source_id = 1;
+        required bytes message = 2;
+    }
+    repeated TaskMessageProto task_message = 6;
+}
+
+message EvaluatorStatusProto {
+    required string evaluator_id = 1;
+    required State state = 2;
+    optional bytes error = 3;
+}

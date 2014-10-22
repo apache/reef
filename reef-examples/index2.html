@@ -1,0 +1,212 @@
+<!--
+
+    Copyright (C) 2014 Microsoft Corporation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+﻿<!--
+
+    Copyright (C) 2013 Microsoft Corporation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>Wake profile</title>
+    <script type="text/javascript" src="d3.v2.js"></script>
+    <script type="text/javascript" src="reef-sankey.js"></script>
+    <!-- <script type="text/javascript" src="http://d3js.org/d3.v2.min.js?2.9.1"></script>-->
+    <!-- http://mbostock.github.com/d3/d3.js?2.6.0"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.layout.js?2.6.0"></script>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.geom.js?2.6.0"></script> -->
+    <!--        <script type="text/javascript" src="./sankey.js"></script>
+          chart {
+        width: 1900px;
+      }
+    -->
+    <!--.chart {
+        width: 100%;
+      background: url(wateradasd.jpg);
+      background-size: 160%;
+      font-stretch: extra-condensed;
+      color: white;
+    }-->
+    <style>
+
+        body {
+
+        overflow: hidden;
+        margin: 10px;
+        font-size: 10pt;
+        font-family: "Segoe UI", "Comic Sans MS", Verdana, "Helvetica Neue", Helvetica;
+        font-weight: 200;
+        }
+
+        .node rect {
+        cursor: move;
+        fill-opacity: .9;
+        shape-rendering: crispEdges;
+        }
+
+        .node text {
+        pointer-events: none;
+        }
+
+        .link {
+        fill: none;
+        stroke: #0066dd;
+        stroke-opacity: .2;
+        }
+
+        .back-link {
+        fill: none;
+        stroke: #990;
+        stroke-opacity: .2;
+        }
+
+
+        .link:hover {
+        stroke-opacity: .5;
+        }
+
+        .back-link:hover {
+        stroke-opacity: .5;
+        }
+
+    </style>
+
+</head>
+<body>
+
+
+<p id="chart" class="chart"></p>
+
+
+<script type="text/javascript" charset="utf-8">
+    var mycolors = [
+    "#ffffff",
+    "#eeeeee",
+    "#dddddd",
+    "#cccccc",
+    "#bbbbbb",
+    "#aaaaaa",
+    "#999999",
+    "#888888",
+    "#777777",
+    "#666666",
+    "#555555",
+    "#444444",
+    "#333333",
+    "#222222",
+    "#111111",
+    "#000000"];
+
+    var margin = { top: 10, right: 10, bottom: 10, left: 10 },
+    width = 1200- margin.left - margin.right,
+    height = 650 - margin.top - margin.bottom;
+
+    var formatNumber = d3.format(",.0f"),
+    format = function (d) { return formatNumber(d); },
+    color = d3.scale.category20();
+
+    var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var sankey = d3.sankey()
+    .nodeWidth(15)
+    .nodePadding(20)
+    .size([width, height]);
+
+    var path = sankey.link();
+    //d3.json("profile-BGD.json", function (energy) {
+    d3.json("profile-Node-2.json", function (energy) {
+    // d3.json("profile-Node-1.json", function (energy) {
+    // d3.json("profile-distributed-shell-1377046500540.json", function (energy) {
+
+    sankey
+    .nodes(energy.nodes)
+    .links(energy.links)
+    .layout(128);
+
+    var link = svg.append("g").selectAll(".link")
+    .data(energy.links)
+    .enter().append("path")
+    .attr("class", function (d) { return d.back ? "back-link" : "link" })
+    .attr("d", path)
+    .style("stroke-width", function (d) { return Math.max(1, d.dy); })
+    .sort(function (a, b) { return b.dy - a.dy; });
+
+    link.append("title")
+    .text(function (d) { return d.source.name + " → " + d.target.name; });// + "\n" + format(d.value); });
+
+    var node = svg.append("g").selectAll(".node")
+    .data(energy.nodes)
+    .enter().append("g")
+    .attr("class", "node")
+    .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
+    .call(d3.behavior.drag()
+    .origin(function (d) { return d; })
+    .on("dragstart", function () { this.parentNode.appendChild(this); })
+    .on("drag", dragmove));
+
+    node.append("rect")
+    .attr("height", function (d) { return d.dy; })
+    .attr("width", sankey.nodeWidth())
+    .style("fill", function (d) { if (d.count) { return d.color = mycolors[Math.round(Math.log(d.latency)+1)] } else {
+    return mycolors[0]; } })//d.name.replace(/ .*/, "")); })
+    .style("stroke", function (d) { return d3.rgb(d.color).darker(2); })
+    .append("title")
+    .text(function (d) { if (d.latency) { return "event count " + format(d.count) + " mean latency " + format(d.latency)
+    + "ms"; } else { return d.name; }});
+
+    node.append("text")
+    .attr("x", -6)
+    .attr("y", function (d) { return d.dy / 2; })
+    .attr("dy", ".35em")
+    .attr("text-anchor", "end")
+    .attr("transform", null)
+    .text(function (d) { return d.name; })
+    .filter(function (d) { return d.x < width / 2; })
+    .attr("x", 6 + sankey.nodeWidth())
+    .attr("text-anchor", "start");
+
+    function dragmove(d) {
+    d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy,
+    d3.event.y))) + ")");
+    sankey.relayout();
+    link.attr("d", path);
+    }
+    });
+
+
+</script>
+</body>
+</html>
