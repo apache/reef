@@ -1,0 +1,201 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.microsoft.wake.rx.impl;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+
+import com.microsoft.tang.annotations.Parameter;
+import com.microsoft.wake.WakeParameters;
+import com.microsoft.wake.StageConfiguration.NumberOfThreads;
+import com.microsoft.wake.StageConfiguration.StageName;
+import com.microsoft.wake.StageConfiguration.StageObserver;
+import com.microsoft.wake.exception.WakeRuntimeException;
+import com.microsoft.wake.impl.DefaultThreadFactory;
+import com.microsoft.wake.impl.StageManager;
+import com.microsoft.wake.rx.AbstractRxStage;
+import com.microsoft.wake.rx.Observer;
+
+/**
+ * Stage that executes the observer with a thread pool.
+ * 
+ * {@code onNext}'s will be arbitrarily subject to reordering, as with most stages.
+ * 
+ * All {@code onNext}'s for which returning from the method call
+ * happens-before the call to {@code onComplete} will maintain
+ * this relationship when passed to the observer.
+ * 
+ * Any {@code onNext} whose return is not ordered before
+ * {@code onComplete} may or may not get dropped.
+ * 
+ * @param <T> type of event
+ */
+public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
+  private static final Logger LOG = Logger.getLogger(RxThreadPoolStage.class.getName());
+
+  private final Observer<T> observer;
+  private final ExecutorService executor;
+  private final long shutdownTimeout = WakeParameters.EXECUTOR_SHUTDOWN_TIMEOUT;
+  private ExecutorService completionExecutor;
+  private DefaultThreadFactory tf;
+  
+  /**
+   * Constructs a Rx thread pool stage
+   * 
+   * @param observer the observer to execute
+   * @param numThreads the number of threads
+   */
+  @Inject
+  public RxThreadPoolStage(@Parameter(StageObserver.class) final Observer<T> observer,
+      @Parameter(NumberOfThreads.class) final int numThreads) {
+    this(observer.getClass().getName(), observer, numThreads);
+  }
+  
+  /**
+   * Constructs a Rx thread pool stage
+   * 
+   * @param name the stage name
+   * @param observer the observer to execute
+   * @param numThreads the number of threads
+   */
+  @Inject
+  public RxThreadPoolStage(@Parameter(StageName.class) final String name, 
+      @Parameter(StageObserver.class) final Observer<T> observer,
+      @Parameter(NumberOfThreads.class) final int numThreads) {
+    super(name);
+    this.observer = observer;
+    if (numThreads <= 0)
+      throw new WakeRuntimeException(name + " numThreads " + numThreads + " is less than or equal to 0");
+    tf = new DefaultThreadFactory(name);
+    this.executor = Executors.newFixedThreadPool(numThreads, tf);
+    this.completionExecutor = Executors.newSingleThreadExecutor(tf);
+    StageManager.instance().register(this);
+  }
+
+  /**
+   * Provides the observer with the new value
+   * 
+   * @param value the new value
+   */
+  @Override
+  public void onNext(final T value) {
+    beforeOnNext();
+    executor.submit(new Runnable() {
+
+      @Override
+      public void run() {
+		observer.onNext(value);
+		afterOnNext();
+      }
+    });
+  }
+
+  /**
+   * Notifies the observer that the provider has experienced an error
+   * condition.   
+   * 
+   * @param error the error
+   */
+  @Override
+  public void onError(final Exception error) {
+    submitCompletion(new Runnable() {
+
+      @Override
+      public void run() {
+        observer.onError(error);
+      }
+      
+    });
+  }
+
+  /**
+   * Notifies the observer that the provider has finished sending push-based
+   * notifications.
+   */
+  @Override
+  public void onCompleted() {
+    submitCompletion(new Runnable() {
+
+      @Override
+      public void run() {
+        observer.onCompleted();
+      }
+      
+    });
+  }
+  
+  private void submitCompletion(final Runnable r) {
+    executor.shutdown();
+    completionExecutor.submit(new Runnable() {
+
+      @Override
+      public void run() {
+        try {
+          // no timeout for completion, only close()
+          if (!executor.awaitTermination(3153600000L, TimeUnit.SECONDS)) {
+            LOG.log(Level.SEVERE, "Executor terminated due to unrequired timeout");
+            observer.onError(new TimeoutException());
+          }
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+          observer.onError(e);
+        }  
+        r.run();
+      }
+    });
+  }
+
+  /**
+   * Closes the stage
+   * 
+   * @return Exception
+   */
+  @Override
+  public void close() throws Exception {
+    if (closed.compareAndSet(false, true)) {
+      executor.shutdown();
+      completionExecutor.shutdown();
+      if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
+        LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
+        List<Runnable> droppedRunnables = executor.shutdownNow();
+        LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
+      }
+      if (!completionExecutor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
+        LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
+        List<Runnable> droppedRunnables = completionExecutor.shutdownNow();
+        LOG.log(Level.WARNING, "Completion executor dropped " + droppedRunnables.size() + " tasks.");
+      }
+    }
+  }
+
+  /**
+   * Gets the queue length of this stage
+   * 
+   * @return the queue length
+   */
+  public int getQueueLength() {
+    return ((ThreadPoolExecutor)executor).getQueue().size();
+  }
+}
