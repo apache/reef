@@ -1,0 +1,22 @@
+option java_package = "com.microsoft.tang.proto";
+option java_outer_classname = "InjectionPlanProto";
+//option java_generic_services = true;
+//option java_generate_equals_and_hash = true;
+
+message InjectionPlan {
+  required string name = 1;
+  optional Constructor constructor = 2;
+  optional Instance instance = 3;
+  optional Subplan subplan = 4;
+}
+
+message Subplan {
+  optional sint32 selected_plan = 1;
+  repeated InjectionPlan plans = 2;
+}
+message Constructor {
+  repeated InjectionPlan args = 1;
+}
+message Instance {
+  required string value = 1;
+}

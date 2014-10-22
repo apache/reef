@@ -1,0 +1,151 @@
+option java_package = "com.microsoft.tang.proto";
+option java_outer_classname = "ClassHierarchyProto";
+//option java_generic_services = true;
+//option java_generate_equals_and_hash = true;
+
+/*
+  Node is the abstract base type for all the data encoded in a class hierarchy.
+  It is represented as an (un)tagged union, so only one of the three optional
+  fields can be non-null. 
+ */
+message Node {
+  /*
+    The short name of this node (e.g., a class name without the enclosing
+    package, or a package name without the name of the enclosing package.
+   */
+  required string name = 1;
+  /*
+    For some languages it can be difficult to map from a list of nodes to
+    the correct short name, so for now, the full name is (redundantly)
+    encoded here.  In Java, the full name is a bunch of short names that
+    have been concatenated with "." and/or "$".
+   */
+  required string full_name = 2;
+  /*
+     Exactly one of the next three fields must be defined.  See below for
+     their documentation.
+   */
+  optional ClassNode class_node = 3;
+  optional NamedParameterNode named_parameter_node = 4;
+  optional PackageNode package_node = 5;
+  /*
+     Class hierarchy nodes are arranged in a tree that mirrors the language
+     namespaces / packages that contain class names (e.g., Java packages,
+     C++ namespaces).
+     
+     A NamedParameterNode cannot have any children.  A ClassNode can not have
+     any package nodes as children.  PackageNodes cannot have PackageNodes as
+     children.
+   */
+  repeated Node children = 6;
+}
+
+message ClassNode {
+  /*
+     Some classes cannot be injected for language-specific reasons.  For
+     example, Java's non-static inner classes need a reference to the outer
+     class in order to be instantiated.  Set this boolean to false if there
+     is some reason why Tang cannot possibly inject this class.
+   */
+  required bool is_injection_candidate = 1;
+  /*
+     This field will be set to true if this class is a Tang
+     ExternalConstructor implementation.
+     
+     If this is set to true, then some other class *must* contain this 
+     ClassNode's name in its impl_full_names field.
+   */
+  required bool is_external_constructor = 2;
+  /*
+     This field will be set to true if this class is annotated as a Tang
+     Unit.
+   */
+  required bool is_unit = 3;
+  /*
+     A list of all the constructors that are defined by this class and 
+     annotated to be injectable.
+   */
+  repeated ConstructorDef InjectableConstructors = 4;
+  /*
+     A list of all the other constructors (so that they can be registered
+     as legacy constructors if the configuration tells us to treat them
+     as though they were annotated with an Inject).
+   */
+  repeated ConstructorDef OtherConstructors = 5;
+  /*
+     A list of all the ClassNodes that implement this class, including
+     legacy constructors. 
+   */
+  repeated string impl_full_names = 6;
+  optional string default_implementation = 7;
+}
+
+message NamedParameterNode {
+  /*
+     The short name (Node.name) of the type of argument this node names.
+   */
+  required string simple_arg_class_name = 1;
+  /*
+     The full name (Node.full_name) of the type of argument that this node
+     names.
+   */
+  required string full_arg_class_name = 2;
+  required bool is_set = 3;
+  required bool is_list = 4;
+  /*
+     An optional human readable documentation string describing the purpose
+     of this NamedParameter.
+   */
+  optional string documentation = 5;
+  /*
+     A shorter name for this parameter.  This is used for command line
+     processing. (So utilities that see --short_name=xxx will set this
+     NamedParameter to "xxx", for example).  
+   */
+  optional string short_name = 6;
+  /*
+     Optional named parameters must specify default values.  This must be
+     a string encoding of that value.  In order for this to be valid, Tang
+     must be able to parse the default value.  This is achieved by looking
+     for a parser for the ClassNode associated with full_arg_class_name.
+     
+     By default, Tang knows how to parse Strings (it simply copies them
+     unchanged), class names for the language environment Tang is running
+     inside of, and primitive types, such as int and float.
+     
+     Parsers of other types must be explicitly registered by the code that
+     bootstraps Tang.
+   */
+  // calling this "default_instance" breaks protoc.
+  repeated string instance_default = 7;
+}
+
+message PackageNode {
+  /*
+     Intentionally left blank.  Packages don't have any interesting
+     attributes except their names and children.
+   */
+}
+
+message ConstructorDef {
+  /*
+     The full name of the class this constructor returns.
+   */
+  required string full_class_name = 1;
+  /*
+     A (potentially empty) list of arguments required by this constructor.
+   */
+  repeated ConstructorArg args = 2;
+}
+message ConstructorArg {
+  /*
+     The full name of the class that should be passed into this
+     constructor argument.
+   */
+  required string full_arg_class_name = 1;
+  /*
+     The named parameter (if any) that this argument is annotated with.
+   */
+  optional string named_parameter_name = 2;
+  required bool is_injection_future = 3;
+}
