@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
+        <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <groupId>com.microsoft.reef</groupId>
         <version>0.10-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -27,6 +28,24 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/avro</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -44,11 +63,11 @@
             <artifactId>jetty-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.microsoft.wake</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>wake</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.microsoft.tang</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>tang</artifactId>
         </dependency>
         <dependency>

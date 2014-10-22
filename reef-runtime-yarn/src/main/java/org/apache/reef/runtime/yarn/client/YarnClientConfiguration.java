@@ -1,0 +1,70 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.reef.runtime.yarn.client;
+
+import org.apache.reef.annotations.audience.ClientSide;
+import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.client.REEF;
+import org.apache.reef.client.RunningJob;
+import org.apache.reef.runtime.common.client.REEFImplementation;
+import org.apache.reef.runtime.common.client.RunningJobImpl;
+import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
+import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
+import org.apache.reef.runtime.common.launch.REEFMessageCodec;
+import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.yarn.YarnClasspathProvider;
+import org.apache.reef.runtime.yarn.client.parameters.JobPriority;
+import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
+import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalParameter;
+import org.apache.reef.util.logging.LoggingSetup;
+import org.apache.reef.wake.remote.RemoteConfiguration;
+
+/**
+ * A ConfigurationModule for the YARN resourcemanager.
+ */
+@Public
+@ClientSide
+public class YarnClientConfiguration extends ConfigurationModuleBuilder {
+  static {
+    LoggingSetup.setupCommonsLogging();
+  }
+
+  public static final OptionalParameter<String> YARN_QUEUE_NAME = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
+
+  public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
+
+  public static final ConfigurationModule CONF = new YarnClientConfiguration()
+      // Bind the common resourcemanager
+      .bindImplementation(REEF.class, REEFImplementation.class)
+      .bindImplementation(RunningJob.class, RunningJobImpl.class)
+          // Bind the message codec for REEF.
+      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+          // Bind YARN
+      .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
+          // Bind the parameters given by the user
+      .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
+      .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
+      .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+          // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
+      .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
+      .build();
+
+}

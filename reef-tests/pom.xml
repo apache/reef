@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-tests</artifactId>
     <name>REEF Tests</name>
@@ -7,7 +8,7 @@
 
 
     <parent>
-        <groupId>com.microsoft.reef</groupId>
+        <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
         <version>0.10-SNAPSHOT</version>
     </parent>
@@ -95,7 +96,7 @@
                 </executions>
                 <configuration>
 
-                <outputFile>
+                    <outputFile>
                         ${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar
                     </outputFile>
                     <filters>
@@ -133,7 +134,7 @@
                             <useSystemClassLoader>false</useSystemClassLoader> -->
                             <systemPropertyVariables>
                                 <propertyName>java.util.logging.config.class</propertyName>
-                                <propertyValue>com.microsoft.reef.util.logging.Config</propertyValue>
+                                <propertyValue>org.apache.reef.util.logging.Config</propertyValue>
                             </systemPropertyVariables>
                             <additionalClasspathElements>
                                 <additionalClasspathElement>${env.YARN_CONF_DIR}</additionalClasspathElement>

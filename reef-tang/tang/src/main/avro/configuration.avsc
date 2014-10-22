@@ -15,7 +15,7 @@
  */
  [
 {
-    "namespace":"com.microsoft.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.formats.avro",
     "type":"record",
     "name":"ConfigurationEntry",
     "fields":[
@@ -24,7 +24,7 @@
     ]
 },
 {
-    "namespace":"com.microsoft.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.formats.avro",
     "type":"record",
     "name":"AvroConfiguration",
     "fields":[

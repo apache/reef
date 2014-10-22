@@ -33,7 +33,7 @@ param
     [switch]$VerboseLog,
 
     [Parameter(ValueFromRemainingArguments=$True, HelpMessage="Class names of unit tests to run")]
-    $Tests="com.microsoft.reef.tests.AllTestsSuite"
+    $Tests="org.apache.reef.tests.AllTestsSuite"
   )
 
 Import-Module ((Split-Path -Parent -Resolve $MyInvocation.MyCommand.Definition) + "\runreef.psm1")

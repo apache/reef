@@ -15,7 +15,7 @@
  */
  [
 {
-    "namespace":"com.microsoft.io.network.naming.avro",
+    "namespace":"org.apache.reef.io.network.naming.avro",
     "type":"record",
     "name":"AvroNamingLookupRequest",
     "fields":[
@@ -23,7 +23,7 @@
     ]
 },
 {
-    "namespace":"com.microsoft.io.network.naming.avro",
+    "namespace":"org.apache.reef.io.network.naming.avro",
     "type":"record",
     "name":"AvroNamingAssignment",
     "fields":[
@@ -33,7 +33,7 @@
     ]
 },
 {
-    "namespace":"com.microsoft.io.network.naming.avro",
+    "namespace":"org.apache.reef.io.network.naming.avro",
     "type":"record",
     "name":"AvroNamingLookupResponse",
     "fields":[
@@ -41,7 +41,7 @@
     ]
 },
 {
-    "namespace":"com.microsoft.io.network.naming.avro",
+    "namespace":"org.apache.reef.io.network.naming.avro",
     "type":"record",
     "name":"AvroNamingRegisterRequest",
     "fields":[
@@ -51,7 +51,7 @@
     ]
 },
 {
-    "namespace":"com.microsoft.io.network.naming.avro",
+    "namespace":"org.apache.reef.io.network.naming.avro",
     "type":"record",
     "name":"AvroNamingUnRegisterRequest",
     "fields":[

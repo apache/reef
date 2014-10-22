@@ -15,7 +15,7 @@
  */
 [
   {
-    "namespace": "com.microsoft.reef.webserver",
+    "namespace": "org.apache.reef.webserver",
     "type": "record",
     "name": "AvroEvaluatorInfo",
     "fields": [
@@ -28,7 +28,7 @@
     ]
   },
   {
-    "namespace": "com.microsoft.reef.webserver",
+    "namespace": "org.apache.reef.webserver",
     "type": "record",
     "name": "AvroEvaluatorsInfo",
     "fields": [

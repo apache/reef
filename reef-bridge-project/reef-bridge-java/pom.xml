@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-bridge-java</artifactId>
     <name>REEF Bridge Java</name>
@@ -7,11 +8,10 @@
 
 
     <parent>
-        <groupId>com.microsoft.reef</groupId>
+        <groupId>org.apache.reef</groupId>
         <artifactId>reef-bridge-project</artifactId>
         <version>0.10-SNAPSHOT</version>
     </parent>
-
 
     <dependencies>
         <dependency>
@@ -40,7 +40,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.microsoft.reef</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>reef-webserver</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -59,7 +59,7 @@
                         <manifest>
                             <addClasspath>false</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.microsoft.reef.javabridge.JavaBridge</mainClass>
+                            <mainClass>org.apache.reef.javabridge.JavaBridge</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -77,13 +77,13 @@
                         <configuration>
                             <exportAntProperties>true</exportAntProperties>
                             <target>
-                                <property name="runtime_classpath" refid="maven.compile.classpath" />
+                                <property name="runtime_classpath" refid="maven.compile.classpath"/>
                                 <exec executable="javah">
-                                    <arg value="-cp" />
-                                    <arg value="${runtime_classpath}" />
-                                    <arg value="-d" />
-                                    <arg value="${project.build.directory}/classes" />
-                                    <arg value="com.microsoft.reef.javabridge.NativeInterop" />
+                                    <arg value="-cp"/>
+                                    <arg value="${runtime_classpath}"/>
+                                    <arg value="-d"/>
+                                    <arg value="${project.build.directory}/classes"/>
+                                    <arg value="org.apache.reef.javabridge.NativeInterop"/>
                                 </exec>
                             </target>
                         </configuration>

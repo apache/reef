@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-examples</artifactId>
     <name>REEF Examples</name>
 
     <parent>
-        <groupId>com.microsoft.reef</groupId>
+        <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
         <version>0.10-SNAPSHOT</version>
     </parent>
@@ -126,13 +127,13 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>com.microsoft.reef.examples.hello.HelloREEF</argument>
+                                <argument>org.apache.reef.examples.hello.HelloREEF</argument>
                             </arguments>
                         </configuration>
                     </plugin>
@@ -151,13 +152,13 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>com.microsoft.reef.examples.hellohttp.HelloREEFHttp</argument>
+                                <argument>org.apache.reef.examples.hellohttp.HelloREEFHttp</argument>
                             </arguments>
                         </configuration>
                     </plugin>
@@ -176,13 +177,13 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>com.microsoft.reef.examples.hello.HelloREEFNoClient</argument>
+                                <argument>org.apache.reef.examples.hello.HelloREEFNoClient</argument>
                             </arguments>
                         </configuration>
                     </plugin>
@@ -201,12 +202,12 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>com.microsoft.reef.examples.groupcomm.matmul.MatMultREEF</argument>
+                                <argument>org.apache.reef.examples.groupcomm.matmul.MatMultREEF</argument>
                             </arguments>
                         </configuration>
                     </plugin>
@@ -226,12 +227,12 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>com.microsoft.reef.examples.retained_eval.Launch</argument>
+                                <argument>org.apache.reef.examples.retained_eval.Launch</argument>
                                 <!-- <argument>-cmd</argument>
                                 <argument>date</argument>
                                 <argument>-num_runs</argument>
@@ -256,10 +257,10 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <classpath/>
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
-                                <argument>com.microsoft.reef.examples.retained_eval.Launch</argument>
+                                <argument>org.apache.reef.examples.retained_eval.Launch</argument>
                                 <argument>-cmd</argument>
                                 <argument>date</argument>
                                 <argument>-num_runs</argument>
@@ -285,12 +286,12 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
-                                <argument>com.microsoft.reef.examples.suspend.Launch</argument>
+                                <argument>org.apache.reef.examples.suspend.Launch</argument>
                                 <argument>-delay</argument>
                                 <argument>1</argument>
                                 <argument>-cycles</argument>
@@ -316,12 +317,12 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config
+                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
-                                <argument>com.microsoft.reef.examples.pool.Launch</argument>
+                                <argument>org.apache.reef.examples.pool.Launch</argument>
                                 <argument>-evaluators</argument>
                                 <argument>4</argument>
                                 <argument>-tasks</argument>

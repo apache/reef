@@ -1,4 +1,4 @@
-option java_package = "com.microsoft.reef.proto";
+option java_package = "org.apache.reef.proto";
 
 option java_outer_classname = "ReefServiceProtos";
 

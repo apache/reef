@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.microsoft.reef</groupId>
+    <groupId>org.apache.reef</groupId>
     <version>0.10-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
@@ -23,18 +24,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <scm>
-        <connection>scm:git:git@github.com:Microsoft-CISL/REEF.git</connection>
-        <developerConnection>scm:git:git@github.com:Microsoft-CISL/REEF.git</developerConnection>
-        <url>git@github.com:Microsoft-CISL/REEF.git</url>
-    </scm>
-
-    <organization>
-        <name>Microsoft</name>
-        <url>http://www.microsoft.com</url>
-    </organization>
-
 
     <properties>
         <reef.conf.dir>${project.build.directory}/conf</reef.conf.dir>
@@ -74,7 +63,7 @@
                     <configuration>
                         <systemProperties>
                             <property>
-                                <name>com.microsoft.reef.runtime.local.folder</name>
+                                <name>org.apache.reef.runtime.local.folder</name>
                                 <value>${project.build.directory}</value>
                             </property>
                         </systemProperties>
@@ -239,14 +228,14 @@
         <dependencies>
             <!-- Tang and Wake -->
             <dependency>
-                <groupId>com.microsoft.tang</groupId>
+                <groupId>org.apache.reef</groupId>
                 <artifactId>tang</artifactId>
-                <version>${tang.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.microsoft.wake</groupId>
+                <groupId>org.apache.reef</groupId>
                 <artifactId>wake</artifactId>
-                <version>${wake.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- Testing -->
@@ -410,6 +399,11 @@
                 <artifactId>commons-cli</artifactId>
                 <version>1.2</version>
             </dependency>
+            <dependency>
+                <groupId>commons-configuration</groupId>
+                <artifactId>commons-configuration</artifactId>
+                <version>1.10</version>
+            </dependency>
             <!-- End of Apache Commons -->
             <!-- AVRO -->
             <dependency>
@@ -445,6 +439,30 @@
             </dependency>
             <!-- End of SLF4J -->
 
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.0.21.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.9-RC1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -461,7 +479,9 @@
         <module>reef-runtime-hdinsight</module>
         <module>reef-runtime-local</module>
         <module>reef-runtime-yarn</module>
+        <module>reef-tang</module>
         <module>reef-tests</module>
+        <module>reef-wake</module>
         <module>reef-webserver</module>
         <module>reef-utils-hadoop</module>
     </modules>
@@ -479,7 +499,7 @@
                             <systemProperties>
                                 <property>
                                     <name>java.util.logging.config.class</name>
-                                    <value>com.microsoft.reef.util.logging.Config</value>
+                                    <value>org.apache.reef.util.logging.Config</value>
                                 </property>
                             </systemProperties>
                         </configuration>

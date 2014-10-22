@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.microsoft.tang</groupId>
+        <groupId>org.apache.reef</groupId>
         <artifactId>tang-project</artifactId>
         <version>0.10-SNAPSHOT</version>
     </parent>
 
     <artifactId>tang</artifactId>
-    <name>Tang</name>
+    <name>REEF Tang</name>
     <build>
         <plugins>
             <plugin>
@@ -19,12 +20,12 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="target/generated-sources/proto" />
+                                <mkdir dir="target/generated-sources/proto"/>
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/" />
-                                    <arg value="--java_out=target/generated-sources/proto" />
-                                    <arg value="src/main/proto/injection_plan.proto" />
-                                    <arg value="src/main/proto/class_hierarchy.proto" />
+                                    <arg value="--proto_path=src/main/proto/"/>
+                                    <arg value="--java_out=target/generated-sources/proto"/>
+                                    <arg value="src/main/proto/injection_plan.proto"/>
+                                    <arg value="src/main/proto/class_hierarchy.proto"/>
                                 </exec>
                             </tasks>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
@@ -108,7 +109,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
@@ -127,7 +128,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -184,8 +185,8 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
-                                <argument>com.microsoft.tang.examples.PrintTypeHierarchy</argument>
+                                <classpath/>
+                                <argument>org.apache.reef.tang.examples.PrintTypeHierarchy</argument>
                             </arguments>
                         </configuration>
                     </plugin>

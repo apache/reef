@@ -74,7 +74,7 @@ function Submit-YARN-Application {
 
   # the logging command
   if ($VerboseLog) {
-    $LogParams = "`"-Djava.util.logging.config.class=com.microsoft.reef.util.logging.Config`""
+    $LogParams = "`"-Djava.util.logging.config.class=org.apache.reef.util.logging.Config`""
   }
 
   # Assemble the command to run
