@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.reef</groupId>
-    <version>0.10-SNAPSHOT</version>
+    <version>0.10-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
@@ -32,9 +32,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.4.0</hadoop.version>
         <avro.version>1.7.7</avro.version>
-        <tang.version>0.10-SNAPSHOT</tang.version>
-        <wake.version>0.10-SNAPSHOT</wake.version>
         <jetty.version>6.1.26</jetty.version>
+        <jackson.version>1.9.13</jackson.version>
     </properties>
 
 
@@ -185,6 +184,11 @@
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.9</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -228,12 +232,12 @@
         <dependencies>
             <!-- Tang and Wake -->
             <dependency>
-                <groupId>org.apache.reef</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>tang</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.reef</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>wake</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -404,7 +408,13 @@
                 <artifactId>commons-configuration</artifactId>
                 <version>1.10</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.3</version>
+            </dependency>
             <!-- End of Apache Commons -->
+
             <!-- AVRO -->
             <dependency>
                 <groupId>org.apache.avro</groupId>
@@ -463,6 +473,36 @@
                 <artifactId>reflections</artifactId>
                 <version>0.9.9-RC1</version>
             </dependency>
+
+            <!-- Microsoft Azure libraries -->
+            <dependency>
+                <groupId>com.microsoft.windowsazure.storage</groupId>
+                <artifactId>microsoft-windowsazure-storage-sdk</artifactId>
+                <version>0.5.0</version>
+            </dependency>
+            <!-- End of Microsoft Azure libraries -->
+
+            <!-- Apache HTTP components -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.3.4</version>
+            </dependency>
+            <!-- End of Apache HTTP components -->
+
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-asl</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <!-- End of Jackson -->
         </dependencies>
     </dependencyManagement>
 
