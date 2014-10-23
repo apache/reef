@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-bridge-project</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.10-incubating-SNAPSHOT</version>
     </parent>
 
 

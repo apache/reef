@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.10-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>reef-io</artifactId>
     <name>REEF IO</name>
@@ -20,11 +20,11 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="target/generated-sources/proto" />
+                                <mkdir dir="target/generated-sources/proto"/>
                                 <exec executable="protoc">
-                                    <arg value="--proto_path=src/main/proto/" />
-                                    <arg value="--java_out=target/generated-sources/proto" />
-                                    <arg value="src/main/proto/ns_protocol.proto" />
+                                    <arg value="--proto_path=src/main/proto/"/>
+                                    <arg value="--java_out=target/generated-sources/proto"/>
+                                    <arg value="src/main/proto/ns_protocol.proto"/>
                                 </exec>
                             </tasks>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
@@ -67,7 +67,6 @@
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>
@@ -87,7 +86,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
@@ -106,7 +105,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>

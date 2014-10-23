@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>wake-project</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.10-incubating-SNAPSHOT</version>
     </parent>
 
     <build>
@@ -84,7 +84,6 @@
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>
