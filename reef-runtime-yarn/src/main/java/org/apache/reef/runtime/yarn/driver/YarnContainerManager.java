@@ -56,7 +56,6 @@ import java.util.logging.Logger;
 final class YarnContainerManager
     implements AMRMClientAsync.CallbackHandler, NMClientAsync.CallbackHandler {
 
-
   private static final Logger LOG = Logger.getLogger(YarnContainerManager.class.getName());
 
   private static final String RUNTIME_NAME = "YARN";
