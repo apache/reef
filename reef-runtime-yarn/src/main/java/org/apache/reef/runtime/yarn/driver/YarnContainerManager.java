@@ -48,12 +48,14 @@ import javax.inject.Inject;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class YarnContainerManager
     implements AMRMClientAsync.CallbackHandler, NMClientAsync.CallbackHandler {
+
 
   private static final Logger LOG = Logger.getLogger(YarnContainerManager.class.getName());
 
@@ -65,8 +67,11 @@ final class YarnContainerManager
 
   private final YarnClient yarnClient = YarnClient.createYarnClient();
 
-  private final Queue<AMRMClient.ContainerRequest>
-      outstandingContainerRequests = new ConcurrentLinkedQueue<>();
+  private final Queue<AMRMClient.ContainerRequest> requestsBeforeSentToRM = new ConcurrentLinkedQueue<>();
+
+  private final Queue<AMRMClient.ContainerRequest> requestsAfterSentToRM = new ConcurrentLinkedQueue<>();
+
+  private final Map<String, String> nodeIdToRackName = new ConcurrentHashMap<>();
 
   private final YarnConfiguration yarnConf;
   private final AMRMClientAsync resourceManager;
@@ -77,8 +82,6 @@ final class YarnContainerManager
   private final ContainerRequestCounter containerRequestCounter;
   private final DriverStatusManager driverStatusManager;
   private final TrackingURLProvider trackingURLProvider;
-
-  private int lastContainerMemory = -1;
 
   @Inject
   YarnContainerManager(
@@ -142,6 +145,7 @@ final class YarnContainerManager
   @Override
   public void onNodesUpdated(final List<NodeReport> nodeReports) {
     for (final NodeReport nodeReport : nodeReports) {
+      this.nodeIdToRackName.put(nodeReport.getNodeId().toString(), nodeReport.getRackName());
       onNodeReport(nodeReport);
     }
   }
@@ -396,18 +400,8 @@ final class YarnContainerManager
 
     synchronized (this) {
       this.containerRequestCounter.incrementBy(containerRequests.length);
-      boolean queueWasEmpty = this.outstandingContainerRequests.isEmpty();
-      for (final AMRMClient.ContainerRequest containerRequest : containerRequests) {
-        LOG.log(Level.FINEST, "Container Request: memory = {0}, core number = {1}", new Object[]{containerRequest.getCapability().getMemory(), containerRequest.getCapability().getVirtualCores()});
-        LOG.log(Level.FINEST, "Adding container request to local queue: {0}", containerRequest);
-        this.outstandingContainerRequests.add(containerRequest);
-      }
-      if (queueWasEmpty && containerRequests.length != 0) {
-        AMRMClient.ContainerRequest firstRequest = outstandingContainerRequests.peek();
-        LOG.log(Level.INFO, "Requesting first container from YARN: {0}", firstRequest);
-        this.lastContainerMemory = firstRequest.getCapability().getMemory();
-        this.resourceManager.addContainerRequest(firstRequest);
-      }
+      this.requestsBeforeSentToRM.addAll(Arrays.asList(containerRequests));
+      doHomogeneousRequests();
     }
 
     this.updateRuntimeStatus();
@@ -424,31 +418,29 @@ final class YarnContainerManager
     // recovered container is not new allocation, it is just checking back from previous driver failover
     if (!isRecoveredContainer) {
       synchronized (this) {
-        this.containerRequestCounter.decrement();
-        if (!this.outstandingContainerRequests.isEmpty()) {
+        if (matchContainerWithPendingRequest(container)) {
+          final AMRMClient.ContainerRequest matchedRequest = this.requestsAfterSentToRM.peek();
+          this.containerRequestCounter.decrement();
           this.containers.add(container);
-          final AMRMClient.ContainerRequest requestToBeSubmitted = this.outstandingContainerRequests.peek();
-          final int currentRequestMemory = requestToBeSubmitted.getCapability().getMemory();
 
-          AMRMClient.ContainerRequest removedRequest = this.outstandingContainerRequests.remove();
-          if (this.lastContainerMemory == currentRequestMemory) {
-            // to be safe we need to make sure that previous request is no longer in async AMRM client's queue
-            // it is ok if the request is no longer there
+          LOG.log(Level.FINEST, "{0} matched with {1}", new Object[]{container.toString(), matchedRequest.toString()});
+
+          // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container request
+          // and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores the latter.
+          // Therefore it is necessary avoid sending zero-container request, even it means getting extra containers.
+          // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers can be matched.
+          // TODO: revisit this when implementing locality-strictness (i.e. a specific rack request can be ignored)
+          if (this.requestsAfterSentToRM.size() > 1) {
             try {
-              LOG.log(Level.INFO,
-                  "Requesting same amount of memory {0}, make sure previous request {1} is removed from AMRM client queue",
-                  new Object[]{currentRequestMemory, removedRequest});
-              this.resourceManager.removeContainerRequest(removedRequest);
+              this.resourceManager.removeContainerRequest(matchedRequest);
             } catch (final Exception e) {
               LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, removal attempt failed with exception", e);
             }
           }
 
-          if (requestToBeSubmitted != null) {
-            LOG.log(Level.INFO, "Requesting 1 additional container from YARN: {0}", requestToBeSubmitted);
-            this.resourceManager.addContainerRequest(requestToBeSubmitted);
-            this.lastContainerMemory = currentRequestMemory;
-          }
+          this.requestsAfterSentToRM.remove();
+          doHomogeneousRequests();
+
           LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}", new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
           this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
               .setIdentifier(container.getId().toString())
@@ -460,16 +452,52 @@ final class YarnContainerManager
           logContainerAddition(container.getId().toString());
           this.updateRuntimeStatus();
         } else {
-          // since no request is removed from local queue until new container is allocated
-          // the queue should not be empty at the beginning of this call, as a failsafe, we release the
-          // unexpected container
-          LOG.log(Level.WARNING,
-              "outstandingContainerRequests is empty upon allocation of unexpected container {0}, releasing...",
-              container.getId());
+          LOG.log(Level.WARNING,  "Got an extra container {0} that doesn't match, releasing...", container.getId());
           this.resourceManager.releaseAssignedContainer(container.getId());
         }
       }
     }
+  }
+
+  private synchronized void doHomogeneousRequests() {
+    if (this.requestsAfterSentToRM.isEmpty()) {
+      final AMRMClient.ContainerRequest firstRequest = this.requestsBeforeSentToRM.peek();
+
+      while (!this.requestsBeforeSentToRM.isEmpty() && isSameKindOfRequest(firstRequest, this.requestsBeforeSentToRM.peek())) {
+        final AMRMClient.ContainerRequest homogeneousRequest = this.requestsBeforeSentToRM.remove();
+        this.resourceManager.addContainerRequest(homogeneousRequest);
+        this.requestsAfterSentToRM.add(homogeneousRequest);
+      }
+    }
+  }
+
+  private boolean isSameKindOfRequest(AMRMClient.ContainerRequest r1, AMRMClient.ContainerRequest r2) {
+    return r1.getPriority().compareTo(r2.getPriority()) == 0
+        && r1.getCapability().compareTo(r2.getCapability()) == 0
+        && r1.getRelaxLocality() == r2.getRelaxLocality()
+        && r1.getNodes().equals(r2.getNodes())
+        && r1.getRacks().equals(r2.getRacks());
+  }
+
+  /**
+   * Match to see whether the container satisfies the request.
+   * We take into consideration that RM has some freedom in rounding
+   * up the allocation and in placing containers on other machines.
+   */
+  private boolean matchContainerWithPendingRequest(Container container) {
+    if (this.requestsAfterSentToRM.isEmpty()) {
+      return false;
+    }
+
+    final AMRMClient.ContainerRequest request = this.requestsAfterSentToRM.peek();
+    final boolean resourceCondition = container.getResource().getMemory() >= request.getCapability().getMemory()
+        && container.getResource().getVirtualCores() >= request.getCapability().getVirtualCores();
+    final boolean nodeCondition = request.getNodes() == null
+        || request.getNodes().contains(container.getNodeId().getHost());
+    final boolean rackCondition = request.getRacks() == null
+        || request.getRacks().contains(this.nodeIdToRackName.get(container.getNodeId().toString()));
+
+    return resourceCondition && (request.getRelaxLocality() || (rackCondition && nodeCondition));
   }
 
   /**
