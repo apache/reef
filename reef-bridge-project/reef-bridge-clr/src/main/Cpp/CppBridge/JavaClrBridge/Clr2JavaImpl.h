@@ -15,7 +15,7 @@
  */
 
 #include "InteropUtil.h"
-#include "com_microsoft_reef_javabridge_NativeInterop.h"
+#include "org_apache_reef_javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
 #using "clrhandler.dll"

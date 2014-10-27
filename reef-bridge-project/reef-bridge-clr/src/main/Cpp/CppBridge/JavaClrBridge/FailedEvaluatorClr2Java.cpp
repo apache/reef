@@ -46,7 +46,7 @@ namespace Microsoft {
           JNIEnv *env = RetrieveEnv(_jvm);
 
           jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
-          jfieldID jidEvaluatorRequestor = env->GetFieldID(jclassFailedEvaluator, "evaluatorRequestorBridge", "Lcom/microsoft/reef/javabridge/EvaluatorRequestorBridge;");
+          jfieldID jidEvaluatorRequestor = env->GetFieldID(jclassFailedEvaluator, "evaluatorRequestorBridge", "Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;");
           jobject jobjectEvaluatorRequestor = env->GetObjectField(_jobjectFailedEvaluator, jidEvaluatorRequestor);
           ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::GetEvaluatorRequestor");
           return gcnew EvaluatorRequestorClr2Java(env, jobjectEvaluatorRequestor);

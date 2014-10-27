@@ -49,7 +49,7 @@ namespace Microsoft {
           JNIEnv *env = RetrieveEnv(_jvm);
 
           jclass jclassClosedContext = env->GetObjectClass(_jobjectClosedContext);
-          jfieldID jidParentContext = env->GetFieldID(jclassClosedContext, "parentContext", "Lcom/microsoft/reef/javabridge/ActiveContextBridge;");
+          jfieldID jidParentContext = env->GetFieldID(jclassClosedContext, "parentContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
           jobject jobjectParentContext = env->GetObjectField(_jobjectClosedContext, jidParentContext);
           ManagedLog::LOGGER->LogStop("ClosedContextClr2Java::GetParentContext");
 
