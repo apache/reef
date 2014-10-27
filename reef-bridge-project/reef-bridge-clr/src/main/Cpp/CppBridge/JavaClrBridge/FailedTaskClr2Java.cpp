@@ -41,7 +41,7 @@ namespace Microsoft {
           JNIEnv *env = RetrieveEnv(_jvm);
 
           jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
-          jfieldID jidActiveContext = env->GetFieldID(jclassFailedTask, "jactiveContext", "Lcom/microsoft/reef/javabridge/ActiveContextBridge;");
+          jfieldID jidActiveContext = env->GetFieldID(jclassFailedTask, "jactiveContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
           jobject jobjectActiveContext = env->GetObjectField(_jobjectFailedTask, jidActiveContext);
 
           ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetActiveContext");
