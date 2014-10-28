@@ -16,6 +16,7 @@
 package org.apache.reef.runtime.yarn.driver;
 
 import com.google.protobuf.ByteString;
+import org.apache.commons.collections.ListUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -474,8 +475,8 @@ final class YarnContainerManager
     return r1.getPriority().compareTo(r2.getPriority()) == 0
         && r1.getCapability().compareTo(r2.getCapability()) == 0
         && r1.getRelaxLocality() == r2.getRelaxLocality()
-        && r1.getNodes() == r2.getNodes()
-        && r1.getRacks() == r2.getRacks();
+        && ListUtils.isEqualList(r1.getNodes(), r2.getNodes())
+        && ListUtils.isEqualList(r1.getRacks(), r2.getRacks());
   }
 
   /**
