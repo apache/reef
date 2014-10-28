@@ -227,12 +227,14 @@ public final class SchedulerDriver {
    * @param context
    */
   private void waitForCommands(final ActiveContext context) {
-    while (taskQueue.isEmpty()) {
-      // Wait until any commands enter in the queue
-      try {
-        lock.wait();
-      } catch (InterruptedException e) {
-        LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
+    synchronized (lock) {
+      while (taskQueue.isEmpty()) {
+        // Wait until any commands enter in the queue
+        try {
+          lock.wait();
+        } catch (InterruptedException e) {
+          LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
+        }
       }
     }
 
