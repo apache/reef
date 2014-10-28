@@ -65,9 +65,6 @@ public class ShellTask implements Task {
   public byte[] call(final byte[] memento) {
     String result = CommandUtils.runCommand(this.command);
     LOG.log(Level.INFO, result);
-    final String message = "Command : " + command + "\n" + result;
-
-    LOG.log(Level.INFO, message);
     return CODEC.encode(result);
   }
 }
