@@ -23,6 +23,6 @@ public final class Config {
   public Config() throws IOException {
     LogManager.getLogManager().readConfiguration(
         Thread.currentThread().getContextClassLoader()
-            .getResourceAsStream("com/microsoft/reef/logging.properties"));
+            .getResourceAsStream("org/apache/reef/logging.properties"));
   }
 }
