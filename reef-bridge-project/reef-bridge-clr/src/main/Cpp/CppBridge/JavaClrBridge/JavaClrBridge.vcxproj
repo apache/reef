@@ -90,7 +90,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalUsingDirectories>..\..\..\..\..\target\classes</AdditionalUsingDirectories>
-      <AdditionalIncludeDirectories>..\..\..\..\..\lib;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\..\..\reef-bridge-java\target\classes;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>

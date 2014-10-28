@@ -16,6 +16,7 @@
 package org.apache.reef.examples.retained_eval;
 
 import org.apache.reef.client.*;
+import org.apache.reef.examples.library.Command;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -120,7 +121,7 @@ public class JobClient {
    */
   @Inject
   JobClient(final REEF reef,
-            @Parameter(Launch.Command.class) final String command,
+            @Parameter(Command.class) final String command,
             @Parameter(Launch.NumRuns.class) final Integer numRuns,
             @Parameter(Launch.NumEval.class) final Integer numEvaluators) throws BindException {
 
@@ -130,7 +131,7 @@ public class JobClient {
 
     // If command is not set, switch to interactive mode. (Yes, we compare pointers here)
     this.isInteractive = this.command ==
-        Launch.Command.class.getAnnotation(NamedParameter.class).default_value();
+        Command.class.getAnnotation(NamedParameter.class).default_value();
 
     this.prompt = this.isInteractive ?
         new BufferedReader(new InputStreamReader(System.in)) : null;

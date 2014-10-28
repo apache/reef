@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.reef.examples.hellohttp;
+package org.apache.reef.examples.library;
 
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.task.Task;
@@ -21,6 +21,7 @@ import org.apache.reef.util.CommandUtils;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -41,7 +42,7 @@ public class ShellTask implements Task {
   /**
    * Object Serializable Codec
    */
-  private final ObjectSerializableCodec<String> codec = new ObjectSerializableCodec<>();
+  private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
 
   /**
    * Task constructor. Parameters are injected automatically by TANG.
@@ -63,6 +64,7 @@ public class ShellTask implements Task {
   @Override
   public byte[] call(final byte[] memento) {
     String result = CommandUtils.runCommand(this.command);
-    return codec.encode(result);
+    LOG.log(Level.INFO, result);
+    return CODEC.encode(result);
   }
 }

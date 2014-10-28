@@ -51,7 +51,7 @@ namespace Microsoft {
           JNIEnv *env = RetrieveEnv(_jvm);
 
           jclass jclassFailedContext = env->GetObjectClass(_jobjectFailedContext);
-          jfieldID jidParentContext = env->GetFieldID(jclassFailedContext, "parentContext", "Lcom/microsoft/reef/javabridge/ActiveContextBridge;");
+          jfieldID jidParentContext = env->GetFieldID(jclassFailedContext, "parentContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
           jobject jobjectParentContext = env->GetObjectField(_jobjectFailedContext, jidParentContext);
           ManagedLog::LOGGER->LogStop("FailedContextClr2Java::GetParentContext");
 
