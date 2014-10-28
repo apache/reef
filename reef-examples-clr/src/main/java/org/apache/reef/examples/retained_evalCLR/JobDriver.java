@@ -24,7 +24,8 @@ import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.TaskConfiguration;
-import org.apache.reef.examples.retained_eval.ShellTask;
+import org.apache.reef.examples.library.Command;
+import org.apache.reef.examples.library.ShellTask;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.BindException;
@@ -170,7 +171,7 @@ public final class JobDriver {
             .set(TaskConfiguration.TASK, ShellTask.class)
             .build()
     );
-    cb.bindNamedParameter(org.apache.reef.examples.retained_eval.Launch.Command.class, command);
+    cb.bindNamedParameter(Command.class, command);
     return cb.build();
   }
 

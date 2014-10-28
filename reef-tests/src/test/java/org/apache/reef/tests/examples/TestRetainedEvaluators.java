@@ -15,6 +15,7 @@
  */
 package org.apache.reef.tests.examples;
 
+import org.apache.reef.examples.library.Command;
 import org.apache.reef.examples.retained_eval.JobClient;
 import org.apache.reef.examples.retained_eval.Launch;
 import org.apache.reef.tang.Configuration;
@@ -48,7 +49,7 @@ public final class TestRetainedEvaluators {
     return Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(Launch.NumEval.class, "" + (LocalTestEnvironment.NUMBER_OF_THREADS - 1))
         .bindNamedParameter(Launch.NumRuns.class, "2")
-        .bindNamedParameter(Launch.Command.class, "echo " + MESSAGE)
+        .bindNamedParameter(Command.class, "echo " + MESSAGE)
         .build();
   }
 
