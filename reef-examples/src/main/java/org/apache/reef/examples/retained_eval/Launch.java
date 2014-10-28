@@ -16,6 +16,7 @@
 package org.apache.reef.examples.retained_eval;
 
 import org.apache.reef.client.ClientConfiguration;
+import org.apache.reef.examples.library.Command;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
@@ -153,13 +154,6 @@ public final class Launch {
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);
     }
-  }
-
-  /**
-   * Command line parameter: a command to run. e.g. "echo Hello REEF"
-   */
-  @NamedParameter(doc = "The shell command", short_name = "cmd", default_value = "*INTERACTIVE*")
-  public static final class Command implements Name<String> {
   }
 
   /**

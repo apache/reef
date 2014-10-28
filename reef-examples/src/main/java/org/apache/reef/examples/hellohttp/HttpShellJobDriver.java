@@ -26,6 +26,8 @@ import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.TaskConfiguration;
+import org.apache.reef.examples.library.Command;
+import org.apache.reef.examples.library.ShellTask;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Unit;
@@ -146,7 +148,7 @@ public final class HttpShellJobDriver {
               .set(TaskConfiguration.TASK, ShellTask.class)
               .build()
       );
-      cb.bindNamedParameter(org.apache.reef.examples.hellohttp.Command.class, command);
+      cb.bindNamedParameter(Command.class, command);
       context.submitTask(cb.build());
     } catch (final BindException ex) {
       LOG.log(Level.SEVERE, "Bad Task configuration for context: " + context.getId(), ex);
