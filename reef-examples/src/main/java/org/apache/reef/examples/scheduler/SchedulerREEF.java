@@ -23,10 +23,6 @@ import java.io.IOException;
  */
 public final class SchedulerREEF {
 
-  @NamedParameter(doc="The command of this job", short_name="cmd")
-  public static final class Command implements Name<String> {
-  }
-
   /**
    * Command line parameter = true to reuse evaluators, or false allocate/close for each iteration
    */

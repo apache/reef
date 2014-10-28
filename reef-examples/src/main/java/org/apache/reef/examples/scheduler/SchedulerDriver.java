@@ -7,6 +7,8 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.TaskConfiguration;
+import org.apache.reef.examples.library.Command;
+import org.apache.reef.examples.library.ShellTask;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -195,7 +197,7 @@ public final class SchedulerDriver {
       .set(TaskConfiguration.IDENTIFIER, "ShellTask"+taskId)
       .build();
     final Configuration commandConf = Tang.Factory.getTang().newConfigurationBuilder()
-      .bindNamedParameter(SchedulerREEF.Command.class, command)
+      .bindNamedParameter(Command.class, command)
       .build();
 
     LOG.log(Level.INFO, "Submitting command : {0}", command);
