@@ -24,7 +24,7 @@ public class HttpServerShellCmdHandler implements HttpHandler {
 
   final InjectionFuture<SchedulerDriver.CommandRequestHandler> messageHandler;
 
-  private String uriSpecification = "Reef";
+  private String uriSpecification = "reef-example-scheduler";
 
   private String output = null;
 
@@ -46,7 +46,7 @@ public class HttpServerShellCmdHandler implements HttpHandler {
 
   /**
    * HttpRequest handler. You must specify UriSpecification and REST API version.
-   * The request url is http://{address}:{port}/Reef/v1
+   * The request url is http://{address}:{port}/reef-example-scheduler/v1
    *
    * APIs
    *   /list              to get the status list for all tasks
