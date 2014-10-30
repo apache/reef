@@ -20,17 +20,22 @@ import org.apache.reef.driver.parameters.ClientCloseHandlers;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.util.logging.LogParser;
+import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +47,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
 
   private static final String ver = "v1";
+  private static final String stdoutFile = "stdout.txt";
+  private static final String stderrFile = "stderr.txt";
 
   private final ReefEventStateManager reefStateManager;
   private final Set<EventHandler<Void>> clientCloseHandlers;
@@ -126,9 +133,25 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         reefStateManager.OnClientKill();
         response.getWriter().println("Killing");
         break;
+      case "duration":
+        ArrayList<String> lines = LogParser.getFiltedLinesFromFile(stderrFile, LoggingScope.DURATION, LoggingScope.TOKEN, null);
+        writeLines(response, lines, "Performance...");
+/*        final byte[] durations = lines.toString().getBytes(Charset.forName("UTF-8"));
+        response.getOutputStream().write(durations);*/
+        break;
+      case "stages":
+        ArrayList<String> starts = LogParser.getFiltedLinesFromFile(stderrFile, LoggingScope.START_PREFIX, "INFO: ", null);
+        ArrayList<String> exits = LogParser.getFiltedLinesFromFile(stderrFile, LoggingScope.EXIT_PREFIX, "INFO: ", LoggingScope.DURATION);
+        ArrayList<String> startsStages = LogParser.findStages(starts, LogParser.startIndicators);
+        ArrayList<String> endStages = LogParser.findStages(exits, LogParser.endIndicators);
+        ArrayList<String> result = LogParser.mergeStages(startsStages, endStages);
+        writeLines(response, result, "Current Stages...");
+/*        final byte[] stages = result.toString().getBytes(Charset.forName("UTF-8"));
+        response.getOutputStream().write(stages);*/
+        break;
       case "logfile":
         //TODO: will get file name from query
-        final byte[] outputBody = readFile("stderr.txt").getBytes(Charset.forName("UTF-8"));
+        final byte[] outputBody = readFile(stderrFile).getBytes(Charset.forName("UTF-8"));
         response.getOutputStream().write(outputBody);
         break;
       default:
@@ -316,5 +339,19 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     }
 
     writer.println(String.format("Driver Start Time:[%s]", this.reefStateManager.getStartTime()));
+  }
+
+  private void writeLines(final HttpServletResponse response, final ArrayList<String> lines, final String header) throws IOException {
+    LOG.log(Level.INFO, "HttpServerReefEventHandler writeLines is called");
+
+    final PrintWriter writer = response.getWriter();
+
+    writer.println("<h1>" + header + "</h1>");
+
+    for (String line : lines) {
+      writer.println(line);
+      writer.write("<br/>");
+    }
+    writer.write("<br/>");
   }
 }

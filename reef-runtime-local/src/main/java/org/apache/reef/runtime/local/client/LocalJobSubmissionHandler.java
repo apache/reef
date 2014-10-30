@@ -34,6 +34,8 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.util.logging.LoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -65,6 +67,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final REEFFileNames filenames;
   private final ClasspathProvider classpath;
   private final double jvmHeapSlack;
+  private final LoggingScopeFactory loggingScopeFactory;
 
   @Inject
   public LocalJobSubmissionHandler(
@@ -74,7 +77,8 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final ConfigurationSerializer configurationSerializer,
       final REEFFileNames filenames,
       final ClasspathProvider classpath,
-      final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
+      final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
+      LoggingScopeFactory loggingScopeFactory) {
 
     this.executor = executor;
     this.nThreads = nThreads;
@@ -83,6 +87,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
     this.classpath = classpath;
     this.jvmHeapSlack = jvmHeapSlack;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
+    this.loggingScopeFactory = loggingScopeFactory;
 
     LOG.log(Level.FINE, "Instantiated 'LocalJobSubmissionHandler'");
   }
@@ -94,61 +99,61 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
   @Override
   public final void onNext(final ClientRuntimeProtocol.JobSubmissionProto t) {
+    try (final LoggingScope lf = loggingScopeFactory.localJobSubmission()) {
+      try {
+        LOG.log(Level.FINEST, "Starting local job {0}", t.getIdentifier());
 
-    try {
+        final File jobFolder = new File(new File(rootFolderName),
+            "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
 
-      LOG.log(Level.FINEST, "Starting local job {0}", t.getIdentifier());
+        final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
+        driverFolder.mkdirs();
 
-      final File jobFolder = new File(new File(rootFolderName),
-          "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
+        final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.filenames);
+        driverFiles.copyTo(driverFolder);
 
-      final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
-      driverFolder.mkdirs();
+        final Configuration driverConfigurationPart1 = driverFiles
+            .addNamesTo(LocalDriverConfiguration.CONF,
+                LocalDriverConfiguration.GLOBAL_FILES,
+                LocalDriverConfiguration.GLOBAL_LIBRARIES,
+                LocalDriverConfiguration.LOCAL_FILES,
+                LocalDriverConfiguration.LOCAL_LIBRARIES)
+            .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
+            .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
+            .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
+            .build();
 
-      final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.filenames);
-      driverFiles.copyTo(driverFolder);
+        final Configuration driverConfigurationPart2 = new LocalDriverRuntimeConfiguration()
+            .addClientConfiguration(this.configurationSerializer.fromString(t.getConfiguration()))
+            .setClientRemoteIdentifier(t.getRemoteId())
+            .setJobIdentifier(t.getIdentifier()).build();
 
-      final Configuration driverConfigurationPart1 = driverFiles
-          .addNamesTo(LocalDriverConfiguration.CONF,
-              LocalDriverConfiguration.GLOBAL_FILES,
-              LocalDriverConfiguration.GLOBAL_LIBRARIES,
-              LocalDriverConfiguration.LOCAL_FILES,
-              LocalDriverConfiguration.LOCAL_LIBRARIES)
-          .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
-          .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
-          .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
-          .build();
+        final Configuration driverConfiguration = Tang.Factory.getTang()
+            .newConfigurationBuilder(driverConfigurationPart1, driverConfigurationPart2).build();
+        final File runtimeConfigurationFile = new File(driverFolder, this.filenames.getDriverConfigurationPath());
+        this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
-      final Configuration driverConfigurationPart2 = new LocalDriverRuntimeConfiguration()
-          .addClientConfiguration(this.configurationSerializer.fromString(t.getConfiguration()))
-          .setClientRemoteIdentifier(t.getRemoteId())
-          .setJobIdentifier(t.getIdentifier()).build();
+        final List<String> command = new JavaLaunchCommandBuilder()
+            .setErrorHandlerRID(t.getRemoteId())
+            .setLaunchID(t.getIdentifier())
+            .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
+            .setClassPath(this.classpath.getDriverClasspath())
+            .setMemory(DRIVER_MEMORY)
+            .build();
 
-      final Configuration driverConfiguration = Tang.Factory.getTang()
-          .newConfigurationBuilder(driverConfigurationPart1, driverConfigurationPart2).build();
-      final File runtimeConfigurationFile = new File(driverFolder, this.filenames.getDriverConfigurationPath());
-      this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
+        if (LOG.isLoggable(Level.FINEST)) {
+          LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(command, ' '));
+        }
 
-      final List<String> command = new JavaLaunchCommandBuilder()
-          .setErrorHandlerRID(t.getRemoteId())
-          .setLaunchID(t.getIdentifier())
-          .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
-          .setClassPath(this.classpath.getDriverClasspath())
-          .setMemory(DRIVER_MEMORY)
-          .build();
+        final RunnableProcess process = new RunnableProcess(command,
+            "driver", driverFolder, new LoggingRunnableProcessObserver());
+        this.executor.submit(process);
+        this.executor.shutdown();
 
-      if (LOG.isLoggable(Level.FINEST)) {
-        LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(command, ' '));
+      } catch (final Exception e) {
+        LOG.log(Level.SEVERE, "Unable to setup driver.", e);
+        throw new RuntimeException("Unable to setup driver.", e);
       }
-
-      final RunnableProcess process = new RunnableProcess(command,
-          "driver", driverFolder, new LoggingRunnableProcessObserver());
-      this.executor.submit(process);
-      this.executor.shutdown();
-
-    } catch (final Exception e) {
-      LOG.log(Level.SEVERE, "Unable to setup driver.", e);
-      throw new RuntimeException("Unable to setup driver.", e);
     }
   }
 }

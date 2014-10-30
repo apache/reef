@@ -22,6 +22,8 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.util.logging.LoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -37,6 +39,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
 
   private final ResourceCatalog resourceCatalog;
   private final ResourceRequestHandler resourceRequestHandler;
+  private final LoggingScopeFactory loggingScopeFactory;
 
   /**
    * @param resourceCatalog
@@ -44,9 +47,11 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
    */
   @Inject
   public EvaluatorRequestorImpl(final ResourceCatalog resourceCatalog,
-                                final ResourceRequestHandler resourceRequestHandler) {
+                                final ResourceRequestHandler resourceRequestHandler,
+                                final LoggingScopeFactory loggingScopeFactory) {
     this.resourceCatalog = resourceCatalog;
     this.resourceRequestHandler = resourceRequestHandler;
+    this.loggingScopeFactory = loggingScopeFactory;
   }
 
   @Override
@@ -63,23 +68,25 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
       throw new IllegalArgumentException("Given an unsupported number of evaluators: " + req.getNumber());
     }
 
-    final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto
-        .newBuilder()
-        .setResourceCount(req.getNumber())
-        .setVirtualCores(req.getNumberOfCores())
-        .setMemorySize(req.getMegaBytes());
+    try (LoggingScope ls = loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
+      final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto
+          .newBuilder()
+          .setResourceCount(req.getNumber())
+          .setVirtualCores(req.getNumberOfCores())
+          .setMemorySize(req.getMegaBytes());
 
-    final ResourceCatalog.Descriptor descriptor = req.getDescriptor();
-    if (descriptor != null) {
-      if (descriptor instanceof RackDescriptor) {
-        request.addRackName(descriptor.getName());
-      } else if (descriptor instanceof NodeDescriptor) {
-        request.addNodeName(descriptor.getName());
-      } else {
-        throw new IllegalArgumentException("Unable to operate on descriptors of type " + descriptor.getClass().getName());
+      final ResourceCatalog.Descriptor descriptor = req.getDescriptor();
+      if (descriptor != null) {
+        if (descriptor instanceof RackDescriptor) {
+          request.addRackName(descriptor.getName());
+        } else if (descriptor instanceof NodeDescriptor) {
+          request.addNodeName(descriptor.getName());
+        } else {
+          throw new IllegalArgumentException("Unable to operate on descriptors of type " + descriptor.getClass().getName());
+        }
       }
-    }
 
-    this.resourceRequestHandler.onNext(request.build());
+      this.resourceRequestHandler.onNext(request.build());
+    }
   }
 }

@@ -18,6 +18,7 @@ package org.apache.reef.javabridge;
 
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import java.util.logging.Logger;
 
@@ -27,10 +28,10 @@ public class FailedEvaluatorBridge extends NativeBridge {
   private EvaluatorRequestorBridge evaluatorRequestorBridge;
   private String evaluatorId;
 
-  public FailedEvaluatorBridge(FailedEvaluator failedEvaluator, EvaluatorRequestor evaluatorRequestor, boolean blockedForAdditionalEvaluator) {
+  public FailedEvaluatorBridge(FailedEvaluator failedEvaluator, EvaluatorRequestor evaluatorRequestor, boolean blockedForAdditionalEvaluator, final LoggingScopeFactory loggingScopeFactory) {
     jfailedEvaluator = failedEvaluator;
     evaluatorId = failedEvaluator.getId();
-    evaluatorRequestorBridge = new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator);
+    evaluatorRequestorBridge = new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator,loggingScopeFactory);
   }
 
   public int getNewlyRequestedEvaluatorNumber() {
