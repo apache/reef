@@ -1,3 +1,19 @@
+/**
+ * Copyright (C) 2014 Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.reef.util.logging;
 
 import java.io.BufferedReader;
@@ -92,7 +108,7 @@ public class LogParser {
    */
   public static ArrayList<String> filter(final ArrayList<String> original, final String filter, final String token) {
     final ArrayList<String> result = new ArrayList<String>();
-    for (String line : original) {
+    for (final String line : original) {
       if (line.contains(filter)) {
         final String[] p = line.split(token);
         if (p.length > 1) {
@@ -110,10 +126,10 @@ public class LogParser {
    * @return
    */
   public static ArrayList<String> findStages(final ArrayList<String> lines, final String[] stageIndicators) {
-    ArrayList<String> statges = new ArrayList<String>();
+    final ArrayList<String> statges = new ArrayList<String>();
 
     int i = 0;
-    for (String line: lines) {
+    for (final String line: lines) {
       if (line.contains(stageIndicators[i])){
         statges.add(stageIndicators[i]);
         if (i < stageIndicators.length - 1) {
@@ -125,7 +141,7 @@ public class LogParser {
   }
 
   public static ArrayList<String> mergeStages(ArrayList<String> startStages, ArrayList<String> endStages) {
-    ArrayList<String> mergeStage = new ArrayList<String>();
+    final ArrayList<String> mergeStage = new ArrayList<String>();
     for (int i = 0; i < startStages.size(); i++) {
       String end = startStages.get(i).replace(LoggingScope.START_PREFIX, LoggingScope.EXIT_PREFIX);
       if (endStages.contains(end)) {

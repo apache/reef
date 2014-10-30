@@ -46,6 +46,7 @@ public class LoggingScope implements AutoCloseable {
 
     logger.log(Level.INFO, START_PREFIX + msg, params);
   }
+
   public LoggingScope(final Logger logger, final String msg) {
     this.logger = logger;
     this.msg = msg;
