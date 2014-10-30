@@ -490,8 +490,7 @@ final class YarnContainerManager
     }
 
     final AMRMClient.ContainerRequest request = this.requestsAfterSentToRM.peek();
-    final boolean resourceCondition = container.getResource().getMemory() >= request.getCapability().getMemory()
-        && container.getResource().getVirtualCores() >= request.getCapability().getVirtualCores();
+    final boolean resourceCondition = container.getResource().getMemory() >= request.getCapability().getMemory(); // TODO: check vcores once YARN-2380 is resolved
     final boolean nodeCondition = request.getNodes() == null
         || request.getNodes().contains(container.getNodeId().getHost());
     final boolean rackCondition = request.getRacks() == null
