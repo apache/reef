@@ -1,5 +1,6 @@
 package org.apache.reef.examples.scheduler;
 
+import org.apache.avro.data.Json;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
@@ -18,6 +19,7 @@ import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.time.event.StartTime;
+import org.reflections.serializers.JsonSerializer;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
@@ -395,7 +397,7 @@ public final class SchedulerDriver {
   }
 
   /**
-   * Encode the result
+   * Return the result including status and message
    * @param success
    * @param message
    * @return
