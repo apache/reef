@@ -9,6 +9,7 @@ import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.examples.library.Command;
 import org.apache.reef.examples.library.ShellTask;
+import org.apache.reef.io.network.util.Pair;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -20,8 +21,7 @@ import org.apache.reef.wake.time.event.StartTime;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,10 +60,20 @@ public final class SchedulerDriver {
   private State state = State.INIT;
 
   @GuardedBy("lock")
-  private final Queue<String> taskQueue;
+  private final Queue<Pair<Integer, String>> taskQueue;
+
+  @GuardedBy("lock")
+  private Integer runningTaskId = null;
+
+  @GuardedBy("lock")
+  private Set<Integer> finishedTaskId = new HashSet<>();
+
+  @GuardedBy("lock")
+  private Set<Integer> canceledTaskId = new HashSet<>();
 
   private final EvaluatorRequestor requestor;
   private final HttpServerShellCmdHandler.CallbackHandler callbackHandler;
+
 
   /**
    * Counts how many tasks have been scheduled.
@@ -136,19 +146,167 @@ public final class SchedulerDriver {
     @Override
     public void onNext(byte[] message) {
       synchronized (lock) {
-        LOG.log(Level.INFO, "Command request arrives");
-        final int count = parseCommands(message);
-
-        // Report back to the Client.
-        callbackHandler.onNext(CODEC.encode(count + " commands arrived. The queue size is " + taskQueue.size() + ".\n"));
-
-        if (readyToRun()) {
-          state = State.RUNNING;
-          lock.notify();
+        String response = "";
+        final RequestMessage request = (RequestMessage.CODEC.decode(message));
+        final String target = request.getTarget();
+        final Map<String, List<String>> queryMap = request.getQueryMap();
+        final List<String> argList;
+        switch (target) {
+          case "list":
+            response = getList();
+            break;
+          case "clear":
+            response = clearList();
+            break;
+          case "status":
+            argList = queryMap.get("id");
+            response = getStatus(argList);
+            break;
+          case "submit":
+            argList = queryMap.get("cmd");
+            response = submitCommands(argList);
+            break;
+          case "cancel":
+            argList = queryMap.get("id");
+            response = cancelTask(argList);
+            break;
+          default:
+            response = "Unsupported operation";
         }
+        callbackHandler.onNext(CODEC.encode(response));
       }
     }
   }
+
+
+  /**
+   * Get the list of Tasks. They are classified as their states.
+   * @return
+   */
+  private String getList() {
+    synchronized (lock) {
+      String result = "Running : ";
+      if (runningTaskId != null) {
+        result += runningTaskId;
+      }
+
+      result += "\nWaiting :";
+      for (final Pair<Integer, String> entity : taskQueue) {
+        result += " " + entity.first;
+      }
+
+      result += "\nFinished :";
+      for (final int taskIds : finishedTaskId) {
+        result += " " + taskIds;
+      }
+
+      result += "\nCanceled :";
+      for (final int taskIds : canceledTaskId) {
+        result += " " + taskIds;
+      }
+      return result;
+    }
+  }
+
+  /**
+   * Get the status of a Task.
+   * @return
+   */
+  private String getStatus(final List<String> args) {
+    if (args.size() != 1) {
+      return getResult(false, "Usage : only one ID at a time");
+    }
+
+    final Integer taskId = Integer.valueOf(args.get(0));
+
+    synchronized (lock) {
+      if (taskId.equals(runningTaskId)) {
+        return getResult(true, "Running");
+      } else if (finishedTaskId.contains(taskId)) {
+        return getResult(true, "Finished");
+      } else if (canceledTaskId.contains(taskId)) {
+        return getResult(true, "Canceled");
+      }
+
+      for (final Pair<Integer, String> entity : taskQueue) {
+        if (taskId == entity.first) {
+          return getResult(true, "Waiting");
+        }
+      }
+      return getResult(false, "Not found");
+    }
+  }
+
+  /**
+   * Submit a command to schedule.
+   * @return
+   */
+  private String submitCommands(final List<String> args) {
+    if (args.size() != 1) {
+      return getResult(false, "Usage : only one ID at a time");
+    }
+
+    final String command = args.get(0);
+
+    synchronized (lock) {
+      final Integer id = taskCount.incrementAndGet();
+      taskQueue.add(new Pair(id, command));
+
+      if (readyToRun()) {
+        state = State.RUNNING;
+        lock.notify();
+      }
+      return getResult(true, "Task ID : "+id);
+    }
+  }
+
+  /**
+   * Cancel a Task waiting on the queue. A task cannot be canceled
+   * once it is running.
+   * @return
+   */
+  private String cancelTask(final List<String> args) {
+    if (args.size() != 1) {
+      return getResult(false, "Usage : only one ID at a time");
+    }
+
+    final Integer taskId = Integer.valueOf(args.get(0));
+
+    synchronized (lock) {
+      if (taskId.equals(runningTaskId)) {
+        return getResult(false, "The task is running");
+      } else if (finishedTaskId.contains(taskId)) {
+        return getResult(false, "Already finished");
+      }
+
+      for (final Pair<Integer, String> entity : taskQueue) {
+        if (taskId == entity.first) {
+          taskQueue.remove(entity);
+          canceledTaskId.add(taskId);
+          return getResult(true, "Canceled");
+        }
+      }
+      return getResult(false, "Not found");
+    }
+  }
+
+  /**
+   * Clear all the Tasks from the waiting queue.
+   * @return
+   */
+  private String clearList() {
+    final int count;
+    synchronized (lock) {
+      count = taskQueue.size();
+      for (Pair<Integer, String> entity : taskQueue) {
+        canceledTaskId.add(entity.first);
+      }
+      taskQueue.clear();
+    }
+    return getResult(true, count + " tasks removed.");
+  }
+
+
 
   /**
    * Non-retainable version of CompletedTaskHandler.
@@ -159,6 +317,9 @@ public final class SchedulerDriver {
     @Override
     public void onNext(final CompletedTask task) {
       synchronized (lock) {
+        finishedTaskId.add(runningTaskId);
+        runningTaskId = null;
+
         LOG.log(Level.INFO, "Task completed. Reuse the evaluator :", String.valueOf(retainable));
 
         if (retainable) {
@@ -188,10 +349,7 @@ public final class SchedulerDriver {
   /**
    * @param command The command to execute
    */
-  private void submit(final ActiveContext context, final String command) {
-    // Increment the Task count to track how many tasks are generated.
-    final int taskId = taskCount.incrementAndGet();
-
+  private void submit(final ActiveContext context, final Integer taskId, final String command) {
     final Configuration taskConf = TaskConfiguration.CONF
       .set(TaskConfiguration.TASK, ShellTask.class)
       .set(TaskConfiguration.IDENTIFIER, "ShellTask"+taskId)
@@ -203,24 +361,6 @@ public final class SchedulerDriver {
     LOG.log(Level.INFO, "Submitting command : {0}", command);
     final Configuration merged = Configurations.merge(taskConf, commandConf);
     context.submitTask(merged);
-  }
-
-  /**
-   * Parse the message and enqueue into the taskQueue
-   * @param message Message received from the HTTP request.
-   * @return The number of commands included in the message.
-   */
-  private int parseCommands(final byte[] message) {
-    // Commands are separated by ; character
-    final String[] commands = new String(message).split(";");
-    int count = 0;
-    for (String command : commands) {
-      if (command.length() > 0) {
-        taskQueue.add(command);
-        count++;
-      }
-    }
-    return count;
   }
 
   /**
@@ -238,11 +378,13 @@ public final class SchedulerDriver {
           LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
         }
       }
-    }
 
-    // Run the first command from the queue.
-    final String command = taskQueue.poll();
-    submit(context, command);
+      // Run the first command from the queue.
+      final Pair<Integer, String> task = taskQueue.poll();
+      runningTaskId = task.first;
+      final String command = task.second;
+      submit(context, runningTaskId, command);
+    }
   }
 
   /**
@@ -250,5 +392,16 @@ public final class SchedulerDriver {
    */
   private boolean readyToRun() {
     return state == State.READY && taskQueue.size() > 0;
+  }
+
+  /**
+   * Encode the result
+   * @param success
+   * @param message
+   * @return
+   */
+  private String getResult(final boolean success, final String message) {
+    String status = success ? "Success" : "Error";
+    return "["+status+"] "+ message;
   }
 }
