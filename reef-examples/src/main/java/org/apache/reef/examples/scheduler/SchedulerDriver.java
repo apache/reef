@@ -143,26 +143,26 @@ public final class SchedulerDriver {
    */
   public String getList() {
     synchronized (lock) {
-      String result = "Running : ";
+      final StringBuilder sb = new StringBuilder("Running : ");
       if (runningTaskId != null) {
-        result += runningTaskId;
+        sb.append(runningTaskId);
       }
 
-      result += "\nWaiting :";
+      sb.append("\nWaiting :");
       for (final Pair<Integer, String> entity : taskQueue) {
-        result += " " + entity.first;
+        sb.append(" ").append(entity.first);
       }
 
-      result += "\nFinished :";
+      sb.append("\nFinished :");
       for (final int taskIds : finishedTaskId) {
-        result += " " + taskIds;
+        sb.append(" ").append(taskIds);
       }
 
-      result += "\nCanceled :";
+      sb.append("\nCanceled :");
       for (final int taskIds : canceledTaskId) {
-        result += " " + taskIds;
+        sb.append(" ").append(taskIds);
       }
-      return result;
+      return sb.toString();
     }
   }
 
@@ -359,7 +359,8 @@ public final class SchedulerDriver {
    * @return
    */
   private String getResult(final boolean success, final String message) {
-    String status = success ? "Success" : "Error";
-    return "["+status+"] "+ message;
+    final StringBuilder sb = new StringBuilder();
+    final String status = success ? "Success" : "Error";
+    return sb.append("[").append(status).append("] ").append(message).toString();
   }
 }
