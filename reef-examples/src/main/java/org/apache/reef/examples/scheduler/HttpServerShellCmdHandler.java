@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class HttpServerShellCmdHandler implements HttpHandler {
   private static final Logger LOG = Logger.getLogger(HttpServerShellCmdHandler.class.getName());
 
-  final InjectionFuture<SchedulerDriver.CommandRequestHandler> messageHandler;
+  final InjectionFuture<SchedulerDriver> schedulerDriver;
 
   private String uriSpecification = "reef-example-scheduler";
 
@@ -30,8 +30,8 @@ public class HttpServerShellCmdHandler implements HttpHandler {
 
 
   @Inject
-  public HttpServerShellCmdHandler(final InjectionFuture<SchedulerDriver.CommandRequestHandler> messageHandler) {
-    this.messageHandler = messageHandler;
+  public HttpServerShellCmdHandler(final InjectionFuture<SchedulerDriver> schedulerDriver) {
+    this.schedulerDriver = schedulerDriver;
   }
 
   @Override
@@ -60,24 +60,29 @@ public class HttpServerShellCmdHandler implements HttpHandler {
     final String target = request.getTargetEntity().toLowerCase();
     final Map<String, List<String>> queryMap = request.getQueryMap();
 
-    sendMessage(target, queryMap);
-
-    /*
-     * Wait until the response arrives. The response is how many commands the Driver received
-     * and how many tasks reside in the queue
-     */
-    try {
-      while (output == null) {
-        synchronized (this) {
-          this.wait();
-        }
-      }
-      // Send back the response to the http client
-      response.getOutputStream().println(output);
-      output = null;
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    final String result;
+    switch (target) {
+      case "list":
+        result = schedulerDriver.get().getList();
+        break;
+      case "clear":
+        result = schedulerDriver.get().clearList();
+        break;
+      case "status":
+        result = schedulerDriver.get().getStatus(queryMap.get("id"));
+        break;
+      case "submit":
+        result = schedulerDriver.get().submitCommands(queryMap.get("cmd"));
+        break;
+      case "cancel":
+        result = schedulerDriver.get().cancelTask(queryMap.get("id"));
+        break;
+      default:
+        result = "Unsupported operation";
     }
+
+    // Send back the response to the http client
+    response.getOutputStream().println(result);
   }
 
   final class CallbackHandler implements EventHandler<byte[]> {
@@ -90,15 +95,5 @@ public class HttpServerShellCmdHandler implements HttpHandler {
         this.notify();
       }
     }
-  }
-
-  /**
-   * Send message to the Driver. The message contains command and arguments
-   * @param target Operation to execute (e.g. submit / cancel / getstatus)
-   * @param queryMap Arguments for the command
-   */
-  private void sendMessage(final String target, final Map<String, List<String>> queryMap) {
-    final RequestMessage message = new RequestMessage(target, queryMap);
-    messageHandler.get().onNext(RequestMessage.CODEC.encode(message));
   }
 }

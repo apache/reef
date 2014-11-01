@@ -1,6 +1,5 @@
 package org.apache.reef.examples.scheduler;
 
-import org.apache.avro.data.Json;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
@@ -19,7 +18,6 @@ import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.time.event.StartTime;
-import org.reflections.serializers.JsonSerializer;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
@@ -142,50 +140,10 @@ public final class SchedulerDriver {
   }
 
   /**
-   * Parse the message and enqueue the commands when arrives.
-   */
-  final class CommandRequestHandler implements EventHandler<byte[]> {
-    @Override
-    public void onNext(byte[] message) {
-      synchronized (lock) {
-        String response = "";
-        final RequestMessage request = (RequestMessage.CODEC.decode(message));
-        final String target = request.getTarget();
-        final Map<String, List<String>> queryMap = request.getQueryMap();
-        final List<String> argList;
-        switch (target) {
-          case "list":
-            response = getList();
-            break;
-          case "clear":
-            response = clearList();
-            break;
-          case "status":
-            argList = queryMap.get("id");
-            response = getStatus(argList);
-            break;
-          case "submit":
-            argList = queryMap.get("cmd");
-            response = submitCommands(argList);
-            break;
-          case "cancel":
-            argList = queryMap.get("id");
-            response = cancelTask(argList);
-            break;
-          default:
-            response = "Unsupported operation";
-        }
-        callbackHandler.onNext(CODEC.encode(response));
-      }
-    }
-  }
-
-
-  /**
    * Get the list of Tasks. They are classified as their states.
    * @return
    */
-  private String getList() {
+  public String getList() {
     synchronized (lock) {
       String result = "Running : ";
       if (runningTaskId != null) {
@@ -214,7 +172,7 @@ public final class SchedulerDriver {
    * Get the status of a Task.
    * @return
    */
-  private String getStatus(final List<String> args) {
+  public String getStatus(final List<String> args) {
     if (args.size() != 1) {
       return getResult(false, "Usage : only one ID at a time");
     }
@@ -243,7 +201,7 @@ public final class SchedulerDriver {
    * Submit a command to schedule.
    * @return
    */
-  private String submitCommands(final List<String> args) {
+  public String submitCommands(final List<String> args) {
     if (args.size() != 1) {
       return getResult(false, "Usage : only one ID at a time");
     }
@@ -267,7 +225,7 @@ public final class SchedulerDriver {
    * once it is running.
    * @return
    */
-  private String cancelTask(final List<String> args) {
+  public String cancelTask(final List<String> args) {
     if (args.size() != 1) {
       return getResult(false, "Usage : only one ID at a time");
     }
@@ -296,7 +254,7 @@ public final class SchedulerDriver {
    * Clear all the Tasks from the waiting queue.
    * @return
    */
-  private String clearList() {
+  public String clearList() {
     final int count;
     synchronized (lock) {
       count = taskQueue.size();
