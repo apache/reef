@@ -111,14 +111,12 @@ public final class SchedulerDriver {
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator evaluator) {
-      synchronized (lock) {
-        LOG.log(Level.INFO, "Evaluator is ready");
-        assert (state == State.WAIT_EVALUATOR);
+      LOG.log(Level.INFO, "Evaluator is ready");
+      assert (state == State.WAIT_EVALUATOR);
 
-        evaluator.submitContext(ContextConfiguration.CONF
-          .set(ContextConfiguration.IDENTIFIER, "SchedulerContext")
-          .build());
-      }
+      evaluator.submitContext(ContextConfiguration.CONF
+        .set(ContextConfiguration.IDENTIFIER, "SchedulerContext")
+        .build());
     }
   }
 
