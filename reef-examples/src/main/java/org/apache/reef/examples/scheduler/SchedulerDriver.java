@@ -90,7 +90,6 @@ public final class SchedulerDriver {
   private Set<Integer> canceledTaskId = new HashSet<>();
 
   private final EvaluatorRequestor requestor;
-  private final HttpServerShellCmdHandler.CallbackHandler callbackHandler;
 
 
   /**
@@ -100,11 +99,8 @@ public final class SchedulerDriver {
 
   @Inject
   public SchedulerDriver(final EvaluatorRequestor requestor,
-                         final HttpServerShellCmdHandler.CallbackHandler callbackHandler,
                          @Parameter(SchedulerREEF.Retain.class) boolean retainable) {
     this.requestor = requestor;
-    this.callbackHandler = callbackHandler;
-
     this.taskQueue = new LinkedList<>();
     this.retainable = retainable;
   }

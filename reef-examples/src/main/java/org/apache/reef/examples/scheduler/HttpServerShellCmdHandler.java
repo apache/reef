@@ -36,16 +36,10 @@ import java.util.logging.Logger;
 /**
  * Receive HttpRequest so that it can handle the command list
  */
-@Unit
 public class HttpServerShellCmdHandler implements HttpHandler {
-  private static final Logger LOG = Logger.getLogger(HttpServerShellCmdHandler.class.getName());
-
   final InjectionFuture<SchedulerDriver> schedulerDriver;
 
   private String uriSpecification = "reef-example-scheduler";
-
-  private String output = null;
-
 
   @Inject
   public HttpServerShellCmdHandler(final InjectionFuture<SchedulerDriver> schedulerDriver) {
@@ -99,19 +93,7 @@ public class HttpServerShellCmdHandler implements HttpHandler {
         result = "Unsupported operation";
     }
 
-    // Send back the response to the http client
+    // Send response to the http client
     response.getOutputStream().println(result);
-  }
-
-  final class CallbackHandler implements EventHandler<byte[]> {
-    @Override
-    public void onNext(byte[] message) {
-      // When the response arrives from the driver, wake up the handler to send the response
-      output = SchedulerDriver.CODEC.decode(message);
-      LOG.log(Level.INFO, output);
-      synchronized (this) {
-        this.notify();
-      }
-    }
   }
 }
