@@ -28,6 +28,8 @@ import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.util.logging.LoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
@@ -43,6 +45,7 @@ public final class REEFImplementation implements REEF {
   private final RunningJobs runningJobs;
   private final JobSubmissionHelper jobSubmissionHelper;
   private final ClientWireUp clientWireUp;
+  private final LoggingScopeFactory loggingScopeFactory;
 
   /**
    * @param jobSubmissionHandler
@@ -56,12 +59,14 @@ public final class REEFImplementation implements REEF {
                      final RunningJobs runningJobs,
                      final JobSubmissionHelper jobSubmissionHelper,
                      final JobStatusMessageHandler jobStatusMessageHandler,
-                     final ClientWireUp clientWireUp) {
+                     final ClientWireUp clientWireUp,
+                     final LoggingScopeFactory loggingScopeFactory) {
     this.jobSubmissionHandler = jobSubmissionHandler;
     this.runningJobs = runningJobs;
     this.jobSubmissionHelper = jobSubmissionHelper;
     this.clientWireUp = clientWireUp;
     clientWireUp.performWireUp();
+    this.loggingScopeFactory = loggingScopeFactory;
   }
 
   @Override
@@ -72,22 +77,24 @@ public final class REEFImplementation implements REEF {
 
   @Override
   public void submit(final Configuration driverConf) {
-    final JobSubmissionProto submissionMessage;
-    try {
-      if (this.clientWireUp.isClientPresent()) {
-        submissionMessage = this.jobSubmissionHelper.getJobsubmissionProto(driverConf)
-            .setRemoteId(this.clientWireUp.getRemoteManagerIdentifier())
-            .build();
-      } else {
-        submissionMessage = this.jobSubmissionHelper.getJobsubmissionProto(driverConf)
-            .setRemoteId(ErrorHandlerRID.NONE)
-            .build();
+    try (LoggingScope ls = this.loggingScopeFactory.reefSubmit()) {
+      final JobSubmissionProto submissionMessage;
+      try {
+        if (this.clientWireUp.isClientPresent()) {
+          submissionMessage = this.jobSubmissionHelper.getJobsubmissionProto(driverConf)
+              .setRemoteId(this.clientWireUp.getRemoteManagerIdentifier())
+              .build();
+        } else {
+          submissionMessage = this.jobSubmissionHelper.getJobsubmissionProto(driverConf)
+              .setRemoteId(ErrorHandlerRID.NONE)
+              .build();
+        }
+      } catch (final Exception e) {
+        throw new RuntimeException("Exception while processing driver configuration.", e);
       }
-    } catch (final Exception e) {
-      throw new RuntimeException("Exception while processing driver configuration.", e);
-    }
 
-    this.jobSubmissionHandler.onNext(submissionMessage);
+      this.jobSubmissionHandler.onNext(submissionMessage);
+    }
   }
 
   @Override

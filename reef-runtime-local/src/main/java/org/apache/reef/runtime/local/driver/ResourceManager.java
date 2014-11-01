@@ -37,6 +37,7 @@ import org.apache.reef.runtime.local.driver.parameters.GlobalLibraries;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -164,44 +165,48 @@ public final class ResourceManager {
 
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
-      // Add the global files and libraries.
-      c.addGlobalFiles(this.fileNames.getGlobalFolder());
-      c.addLocalFiles(getLocalFiles(launchRequest));
+      try (final LoggingScope lb = new LoggingScope(LOG, "ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
+        // Add the global files and libraries.
+        c.addGlobalFiles(this.fileNames.getGlobalFolder());
+        c.addLocalFiles(getLocalFiles(launchRequest));
 
-      // Make the configuration file of the evaluator.
-      final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
+        // Make the configuration file of the evaluator.
+        final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
 
-      try {
-        this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()),
-            evaluatorConfigurationFile);
-      } catch (final IOException | BindException e) {
-        throw new RuntimeException("Unable to write configuration.", e);
+        try {
+          this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()),
+              evaluatorConfigurationFile);
+        } catch (final IOException | BindException e) {
+          throw new RuntimeException("Unable to write configuration.", e);
+        }
       }
 
-      // Assemble the command line
-      final LaunchCommandBuilder commandBuilder;
-      switch (launchRequest.getType()) {
-        case JVM:
-          commandBuilder = new JavaLaunchCommandBuilder()
-              .setClassPath(this.classpathProvider.getEvaluatorClasspath());
-          break;
-        case CLR:
-          commandBuilder = new CLRLaunchCommandBuilder();
-          break;
-        default:
-          throw new IllegalArgumentException(
-              "Unsupported container type: " + launchRequest.getType());
+      try (LoggingScope lc = new LoggingScope(LOG, "ResourceManager.onResourceLaunchRequest:runCommand")) {
+        // Assemble the command line
+        final LaunchCommandBuilder commandBuilder;
+        switch (launchRequest.getType()) {
+          case JVM:
+            commandBuilder = new JavaLaunchCommandBuilder()
+                .setClassPath(this.classpathProvider.getEvaluatorClasspath());
+            break;
+          case CLR:
+            commandBuilder = new CLRLaunchCommandBuilder();
+            break;
+          default:
+            throw new IllegalArgumentException(
+                "Unsupported container type: " + launchRequest.getType());
+        }
+
+        final List<String> command = commandBuilder
+            .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
+            .setLaunchID(c.getNodeID())
+            .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
+            .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
+            .build();
+
+        LOG.log(Level.FINEST, "Launching container: {0}", c);
+        c.run(command);
       }
-
-      final List<String> command = commandBuilder
-          .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
-          .setLaunchID(c.getNodeID())
-          .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-          .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
-          .build();
-
-      LOG.log(Level.FINEST, "Launching container: {0}", c);
-      c.run(command);
     }
   }
 

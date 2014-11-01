@@ -30,10 +30,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
+import org.apache.reef.util.logging.LoggingScope;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -101,33 +103,35 @@ public final class Launch {
   private static Configuration getClientConfiguration(final String[] args)
       throws BindException, InjectionException, IOException {
 
-    final Configuration commandLineConf = parseCommandLine(args);
+    try (LoggingScope ls = new LoggingScope(LOG, "Launch::getClientConfiguration")) {
+      final Configuration commandLineConf = parseCommandLine(args);
 
-    final Configuration clientConfiguration = ClientConfiguration.CONF
-        .set(ClientConfiguration.ON_JOB_COMPLETED, JobClient.CompletedJobHandler.class)
-        .set(ClientConfiguration.ON_JOB_FAILED, JobClient.FailedJobHandler.class)
-        .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
-            //.set(ClientConfiguration.ON_WAKE_ERROR, JobClient.WakeErrorHandler.class )
-        .build();
-
-    // TODO: Remove the injector, have stuff injected.
-    final Injector commandLineInjector = Tang.Factory.getTang().newInjector(commandLineConf);
-    final boolean isLocal = commandLineInjector.getNamedInstance(Local.class);
-    final Configuration runtimeConfiguration;
-    if (isLocal) {
-      LOG.log(Level.INFO, "Running on the local runtime");
-      runtimeConfiguration = LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
+      final Configuration clientConfiguration = ClientConfiguration.CONF
+          .set(ClientConfiguration.ON_JOB_COMPLETED, JobClient.CompletedJobHandler.class)
+          .set(ClientConfiguration.ON_JOB_FAILED, JobClient.FailedJobHandler.class)
+          .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
+          //.set(ClientConfiguration.ON_WAKE_ERROR, JobClient.WakeErrorHandler.class )
           .build();
-    } else {
-      LOG.log(Level.INFO, "Running on YARN");
-      runtimeConfiguration = YarnClientConfiguration.CONF.build();
-    }
 
-    return Tang.Factory.getTang()
-        .newConfigurationBuilder(runtimeConfiguration, clientConfiguration,
-            cloneCommandLineConfiguration(commandLineConf))
-        .build();
+      // TODO: Remove the injector, have stuff injected.
+      final Injector commandLineInjector = Tang.Factory.getTang().newInjector(commandLineConf);
+      final boolean isLocal = commandLineInjector.getNamedInstance(Local.class);
+      final Configuration runtimeConfiguration;
+      if (isLocal) {
+        LOG.log(Level.INFO, "Running on the local runtime");
+        runtimeConfiguration = LocalRuntimeConfiguration.CONF
+            .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
+            .build();
+      } else {
+        LOG.log(Level.INFO, "Running on YARN");
+        runtimeConfiguration = YarnClientConfiguration.CONF.build();
+      }
+
+      return Tang.Factory.getTang()
+          .newConfigurationBuilder(runtimeConfiguration, clientConfiguration,
+              cloneCommandLineConfiguration(commandLineConf))
+          .build();
+    }
   }
 
   /**
@@ -136,6 +140,7 @@ public final class Launch {
    * @param args command line parameters.
    */
   public static void main(final String[] args) {
+    LOG.log(Level.INFO, "Entering Launch at :::" + new Date());
     try {
       if (args == null || args.length == 0) {
         throw new IllegalArgumentException("No arguments provided, at least a clrFolder should be supplied.");

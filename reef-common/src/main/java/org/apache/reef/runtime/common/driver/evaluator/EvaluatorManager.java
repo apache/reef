@@ -47,6 +47,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.Optional;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.RemoteMessage;
 import org.apache.reef.wake.time.Clock;
@@ -90,6 +91,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ExceptionCodec exceptionCodec;
   private final DriverStatusManager driverStatusManager;
   private final EventHandlerIdlenessSource idlenessSource;
+  private final LoggingScopeFactory loggingScopeFactory;
 
 
   // Mutable fields
@@ -112,7 +114,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorStatusManager stateManager,
       final DriverStatusManager driverStatusManager,
       final ExceptionCodec exceptionCodec,
-      final EventHandlerIdlenessSource idlenessSource) {
+      final EventHandlerIdlenessSource idlenessSource,
+      final LoggingScopeFactory loggingScopeFactory) {
     this.contextRepresenters = contextRepresenters;
     this.idlenessSource = idlenessSource;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
@@ -128,9 +131,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.stateManager = stateManager;
     this.driverStatusManager = driverStatusManager;
     this.exceptionCodec = exceptionCodec;
+    this.loggingScopeFactory = loggingScopeFactory;
 
     final AllocatedEvaluator allocatedEvaluator =
-        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), configurationSerializer, getJobIdentifier());
+        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), configurationSerializer, getJobIdentifier(), loggingScopeFactory);
     LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
     this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
