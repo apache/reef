@@ -23,7 +23,11 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
@@ -33,6 +37,12 @@ import static org.mockito.Mockito.mock;
  */
 public class EvaluatorRequestorImplTest {
   private final ResourceCatalog resourceCatalog = mock(ResourceCatalog.class);
+  private LoggingScopeFactory loggingScopeFactory;
+
+  @Before
+  public void setUp() throws InjectionException {
+    loggingScopeFactory = Tang.Factory.getTang().newInjector().getInstance(LoggingScopeFactory.class);
+  }
 
   /**
    * If only memory, no count is given, 1 evaluator should be requested.
@@ -41,7 +51,7 @@ public class EvaluatorRequestorImplTest {
   public void testMemoryOnly() {
     final int memory = 777;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler);
+    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).build());
     Assert.assertEquals("Memory request did not make it", requestHandler.get().getMemorySize(), memory);
     Assert.assertEquals("Number of requests did not make it", requestHandler.get().getResourceCount(), 1);
@@ -55,7 +65,7 @@ public class EvaluatorRequestorImplTest {
     final int memory = 777;
     final int count = 9;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler);
+    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumber(count).build());
     Assert.assertEquals("Memory request did not make it", requestHandler.get().getMemorySize(), memory);
     Assert.assertEquals("Number of requests did not make it", requestHandler.get().getResourceCount(), count);
@@ -69,7 +79,7 @@ public class EvaluatorRequestorImplTest {
     final int memory = 0;
     final int count = 1;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler);
+    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count).build());
   }
 
@@ -81,7 +91,7 @@ public class EvaluatorRequestorImplTest {
     final int memory = 128;
     final int count = 0;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler);
+    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count).build());
   }
 
