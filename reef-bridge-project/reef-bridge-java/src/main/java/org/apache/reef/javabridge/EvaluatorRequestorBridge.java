@@ -16,13 +16,8 @@
 
 package org.apache.reef.javabridge;
 
-import org.apache.reef.driver.catalog.RackDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
-import org.apache.reef.proto.DriverRuntimeProtocol;
-import org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
-import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.exceptions.InjectionException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
