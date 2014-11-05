@@ -19,7 +19,9 @@
 package org.apache.reef.tang.formats;
 
 import org.apache.commons.cli.*;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
+import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.exceptions.BindException;
@@ -160,6 +162,54 @@ public final class CommandLine {
     }
 
     return this;
+  }
+
+  /**
+   * Utility method to quickly parse a command line to a Configuration.
+   * <p/>
+   * This is equivalent to
+   * <code>parseToConfigurationBuilder(args, argClasses).build()</code>
+   *
+   * @param args       the command line parameters to parse.
+   * @param argClasses the named parameters to look for.
+   * @return a Configuration with the parsed parameters
+   * @throws ParseException if the parsing  of the commandline fails.
+   */
+  public static Configuration parseToConfiguration(final String[] args,
+                                                   final Class<? extends Name<?>>... argClasses)
+      throws ParseException {
+    return parseToConfigurationBuilder(args, argClasses).build();
+  }
+
+  /**
+   * Utility method to quickly parse a command line to a ConfigurationBuilder.
+   * <p/>
+   * This is equivalent to
+   * <code>new CommandLine().processCommandLine(args, argClasses).getBuilder()</code>, but with additional checks.
+   *
+   * @param args       the command line parameters to parse.
+   * @param argClasses the named parameters to look for.
+   * @return a ConfigurationBuilder with the parsed parameters
+   * @throws ParseException if the parsing  of the commandline fails.
+   */
+  public static ConfigurationBuilder parseToConfigurationBuilder(final String[] args,
+                                                                 final Class<? extends Name<?>>... argClasses)
+      throws ParseException {
+    final CommandLine commandLine;
+    try {
+      commandLine = new CommandLine().processCommandLine(args, argClasses);
+    } catch (final IOException e) {
+      // processCommandLine() converts ParseException into IOException. This reverts that to make exception handling
+      // more straight forward.
+      throw new ParseException(e.getMessage());
+    }
+
+    // processCommandLine() indicates that it might return null. We need to guard users of this one from that
+    if (commandLine == null) {
+      throw new ParseException("Unable to parse the command line and the parser returned null.");
+    } else {
+      return commandLine.getBuilder();
+    }
   }
 
   public interface CommandLineCallback {
