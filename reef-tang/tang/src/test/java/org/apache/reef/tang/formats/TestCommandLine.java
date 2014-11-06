@@ -23,15 +23,16 @@ import org.apache.commons.cli.ParseException;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class CommandLineTest {
+/**
+ * Tests for the CommandLine class.
+ */
+public final class TestCommandLine {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -41,7 +42,7 @@ public class CommandLineTest {
     thrown.expectMessage("Can't register non-existent short name of named parameter: org.apache.reef.tang.formats.FooName");
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     CommandLine cl = new CommandLine(cb);
-    cl.registerShortNameOfClass(FooName.class);
+    cl.registerShortNameOfClass(NamedParameters.StringNoShortNameNoDefault.class);
   }
 
   /**
@@ -53,9 +54,12 @@ public class CommandLineTest {
   @Test
   public void testParseToConfiguration() throws ParseException, InjectionException {
     final String expected = "hello";
-    final String[] args = {"-" + NamedParameters.AString.SHORT_NAME, expected};
-    final Configuration configuration = CommandLine.parseToConfiguration(args, NamedParameters.AString.class);
-    Assert.assertEquals(expected, Tang.Factory.getTang().newInjector(configuration).getNamedInstance(NamedParameters.AString.class));
+    final String[] args = {"-" + NamedParameters.StringNoShortNameNoDefault.SHORT_NAME, expected};
+    final Configuration configuration = CommandLine
+        .parseToConfiguration(args, NamedParameters.StringNoShortNameNoDefault.class);
+    final String injected = Tang.Factory.getTang().newInjector(configuration)
+        .getNamedInstance(NamedParameters.StringNoShortNameNoDefault.class);
+    Assert.assertEquals(expected, injected);
   }
 
   /**
@@ -66,12 +70,11 @@ public class CommandLineTest {
    */
   @Test
   public void testParseToConfigurationWithDefault() throws ParseException, InjectionException {
-    final Configuration configuration = CommandLine.parseToConfiguration(new String[0], NamedParameters.AString.class);
-    Assert.assertEquals(NamedParameters.AString.DEFAULT_VALUE, Tang.Factory.getTang().newInjector(configuration).getNamedInstance(NamedParameters.AString.class));
+    final Configuration configuration = CommandLine
+        .parseToConfiguration(new String[0], NamedParameters.StringNoShortNameNoDefault.class);
+    final String injected = Tang.Factory.getTang().newInjector(configuration)
+        .getNamedInstance(NamedParameters.StringNoShortNameNoDefault.class);
+    Assert.assertEquals(NamedParameters.StringNoShortNameNoDefault.DEFAULT_VALUE, injected);
   }
 
-}
-
-@NamedParameter
-class FooName implements Name<String> {
 }

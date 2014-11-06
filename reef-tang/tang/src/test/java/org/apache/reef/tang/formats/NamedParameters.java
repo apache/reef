@@ -26,9 +26,13 @@ import org.apache.reef.tang.annotations.NamedParameter;
  */
 public class NamedParameters {
 
-  @NamedParameter(short_name = AString.SHORT_NAME, default_value = AString.DEFAULT_VALUE)
-  public static class AString implements Name<String> {
+  @NamedParameter(short_name = StringShortNameDefault.SHORT_NAME, default_value = StringShortNameDefault.DEFAULT_VALUE)
+  public static class StringShortNameDefault implements Name<String> {
     public static final String SHORT_NAME = "string";
     public static final String DEFAULT_VALUE = "default";
+  }
+
+  @NamedParameter
+  public static class StringNoShortNameNoDefault implements Name<String> {
   }
 }
