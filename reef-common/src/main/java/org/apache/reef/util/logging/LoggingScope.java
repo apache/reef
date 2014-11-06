@@ -27,4 +27,7 @@ import java.util.logging.Logger;
  * Log time elapsed for a scope
  */
 public interface LoggingScope extends AutoCloseable {
+
+  @Override
+  public void close();
 }
