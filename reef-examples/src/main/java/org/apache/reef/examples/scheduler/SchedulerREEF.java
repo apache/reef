@@ -52,26 +52,18 @@ public final class SchedulerREEF {
   /**
    * @return The http configuration to use reef-webserver
    */
-  public final static Configuration getHttpConf() {
+  private final static Configuration getHttpConf() {
     final Configuration httpHandlerConf = HttpHandlerConfiguration.CONF
       .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdHandler.class)
       .build();
-
-    final Configuration httpServiceConf = DriverServiceConfiguration.CONF
-      .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
-      .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-      .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-      .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
-      .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
-      .build();
-    return Configurations.merge(httpHandlerConf, httpServiceConf);
+    return httpHandlerConf;
 
   }
 
   /**
    * @return The Driver configuration.
    */
-  public final static Configuration getDriverConf() {
+  private final static Configuration getDriverConf() {
     final Configuration driverConf = DriverConfiguration.CONF
       .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(SchedulerDriver.class))
       .set(DriverConfiguration.DRIVER_IDENTIFIER, "TaskScheduler")
