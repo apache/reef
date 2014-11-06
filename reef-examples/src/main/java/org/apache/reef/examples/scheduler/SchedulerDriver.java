@@ -363,7 +363,9 @@ public final class SchedulerDriver {
    * @return {@code true} if it is possible to run commands.
    */
   private boolean readyToRun() {
-    return state == State.READY && taskQueue.size() > 0;
+    synchronized (lock) {
+      return state == State.READY && taskQueue.size() > 0;
+    }
   }
 
   /**
@@ -372,7 +374,7 @@ public final class SchedulerDriver {
    * @param message
    * @return
    */
-  private String getResult(final boolean success, final String message) {
+  private static String getResult(final boolean success, final String message) {
     final StringBuilder sb = new StringBuilder();
     final String status = success ? "Success" : "Error";
     return sb.append("[").append(status).append("] ").append(message).toString();
