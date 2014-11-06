@@ -32,6 +32,7 @@ import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.util.Optional;
 import org.apache.reef.util.logging.CLRBufferedLogHandler;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.NetUtils;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
@@ -127,7 +128,8 @@ public final class JobDriver {
             final NameServer nameServer,
             final JobMessageObserver jobMessageObserver,
             final EvaluatorRequestor evaluatorRequestor,
-            final DriverStatusManager driverStatusManager) {
+            final DriverStatusManager driverStatusManager,
+            LoggingScopeFactory logFactory) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;

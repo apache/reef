@@ -19,17 +19,14 @@
 
 package org.apache.reef.util.logging;
 
-import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.time.event.StartTime;
-import sun.rmi.runtime.Log;
 
 import javax.inject.Inject;
-import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -66,23 +63,54 @@ public class LoggingScopeFactory {
   public static final String HTTP_SERVER = "Http server";
 
   @Inject
-  public LoggingScopeFactory() {
+  private LoggingScopeFactory() {
   }
 
-  public LoggingScope scopeLogger(final String msg) {
-    return new ReefLoggingScope(LOG, msg);
+  /**
+   * default log level. CLient can set it through setLogLevel method.
+   */
+  private Level logLevel = Level.FINE;
+
+  /**
+   * set log level for logging scope.
+   * @param logLevel
+   */
+  public void setLogLevel(Level logLevel) {
+    this.logLevel = logLevel;
   }
 
-  public LoggingScope scopeLogger(final String msg, final Object params[]) {
-    return new ReefLoggingScope(LOG, msg, params);
+  /**
+   * Get a new instance of LoggingScope with msg through new
+   * @param msg
+   * @return
+   */
+  public LoggingScope getNewLoggingScope(final String msg) {
+    return new LoggingScopeImpl(LOG, logLevel, msg);
   }
 
-  public LoggingScope getLoggingScope(String msg) throws InjectionException {
+  /**
+   * Get a new instance of LoggingScope with msg and params through new
+   * @param msg
+   * @param params
+   * @return
+   */
+  public LoggingScope getNewLoggingScope(final String msg, final Object params[]) {
+    return new LoggingScopeImpl(LOG, logLevel, msg, params);
+  }
+
+  /**
+   * get a new instance of LoggingScope through injection
+   * @param msg
+   * @return
+   * @throws InjectionException
+   */
+  public LoggingScope getInjectedLoggingScope(String msg) throws InjectionException {
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindImplementation(LoggingScope.class, ReefLoggingScope.class);
-    cb.bindNamedParameter(ReefLoggingScope.NamedString.class, msg);
+    cb.bindImplementation(LoggingScope.class, LoggingScopeImpl.class);
+    cb.bindNamedParameter(LoggingScopeImpl.NamedString.class, msg);
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     i.bindVolatileInstance(Logger.class, LOG);
+    i.bindVolatileInstance(Level.class, logLevel);
     return i.getInstance(LoggingScope.class);
   }
 
@@ -92,7 +120,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverStart(final StartTime startTime) {
-    return new ReefLoggingScope(LOG, DRIVER_START + "startTime: " + startTime);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_START + " :" + startTime);
   }
 
   /**
@@ -101,7 +129,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverStop(final long timeStamp) {
-    return new ReefLoggingScope(LOG, this.DRIVER_STOP + " :" + timeStamp);
+    return new LoggingScopeImpl(LOG, logLevel, this.DRIVER_STOP + " :" + timeStamp);
   }
 
   /**
@@ -109,7 +137,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope setupBridge() {
-    return new ReefLoggingScope(LOG, BRIDGE_SETUP);
+    return new LoggingScopeImpl(LOG, logLevel, BRIDGE_SETUP);
   }
 
   /**
@@ -117,7 +145,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorRequestorPassToCs() {
-    return new ReefLoggingScope(LOG, EVALUATOR_REQUESTOR);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_REQUESTOR);
   }
 
   /**
@@ -126,7 +154,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorRequestSubmitToJavaDriver(int evaluatorsNumber) {
-    return new ReefLoggingScope(LOG, EVALUATOR_BRIDGE_SUBMIT + ":" + evaluatorsNumber);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_BRIDGE_SUBMIT + ":" + evaluatorsNumber);
   }
 
   /**
@@ -135,7 +163,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorSubmit(int evaluatorNumber) {
-    return new ReefLoggingScope(LOG, EVALUATOR_SUBMIT + ":" + evaluatorNumber);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_SUBMIT + ":" + evaluatorNumber);
   }
 
   /**
@@ -144,7 +172,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorAllocated(final String evaluatorId) {
-    return new ReefLoggingScope(LOG, EVALUATOR_ALLOCATED + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_ALLOCATED + " :" + evaluatorId);
   }
 
   /**
@@ -153,7 +181,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorLaunch(String evaluatorId) {
-    return new ReefLoggingScope(LOG, EVALUATOR_LAUNCH + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_LAUNCH + " :" + evaluatorId);
   }
 
   /**
@@ -162,7 +190,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorCompleted(final String evaluatoerId) {
-    return new ReefLoggingScope(LOG, EVALUATOR_COMPLETED + " :" + evaluatoerId);
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_COMPLETED + " :" + evaluatoerId);
   }
 
   /**
@@ -171,7 +199,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope evaluatorFailed(final String evaluatorId) {
-    return new ReefLoggingScope(LOG, this.EVALUATOR_FAILED + " :" + evaluatorId);
+    return new LoggingScopeImpl(LOG, logLevel, this.EVALUATOR_FAILED + " :" + evaluatorId);
   }
 
   /**
@@ -180,7 +208,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope activeContextReceived(final String contextId) {
-    return new ReefLoggingScope(LOG, ACTIVE_CONTEXT + " :" + contextId);
+    return new LoggingScopeImpl(LOG, logLevel, ACTIVE_CONTEXT + " :" + contextId);
   }
 
   /**
@@ -189,7 +217,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope closedContext(final String contextId) {
-    return new ReefLoggingScope(LOG, this.CONTEXT_CLOSE + " :" + contextId);
+    return new LoggingScopeImpl(LOG, logLevel, this.CONTEXT_CLOSE + " :" + contextId);
   }
 
   /**
@@ -198,7 +226,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskRunning(final String taskId) {
-    return new ReefLoggingScope(LOG, TASK_RUNNING + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_RUNNING + " :" + taskId);
   }
 
   /**
@@ -207,7 +235,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskCompleted(final String taskId) {
-    return new ReefLoggingScope(LOG, TASK_COMPLETE + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_COMPLETE + " :" + taskId);
   }
 
   /**
@@ -216,7 +244,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskSuspended(final String taskId) {
-    return new ReefLoggingScope(LOG, TASK_SUSPEND + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_SUSPEND + " :" + taskId);
   }
 
   /**
@@ -225,7 +253,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope taskMessageReceived(final String msg) {
-    return new ReefLoggingScope(LOG, TASK_MESSAGE + " :" + msg);
+    return new LoggingScopeImpl(LOG, logLevel, TASK_MESSAGE + " :" + msg);
   }
 
   /**
@@ -234,7 +262,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope contextMessageReceived(final String msg) {
-    return new ReefLoggingScope(LOG, CONTEXT_MESSAGE + " :" + msg);
+    return new LoggingScopeImpl(LOG, logLevel, CONTEXT_MESSAGE + " :" + msg);
   }
 
   /**
@@ -243,7 +271,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestart(final StartTime startTime) {
-    return new ReefLoggingScope(LOG, DRIVER_RESTART + " :" + startTime);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART + " :" + startTime);
   }
 
   /**
@@ -252,7 +280,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestartCompleted(final long timeStamp) {
-    return new ReefLoggingScope(LOG, DRIVER_RESTART_COMPLETE + " :" + timeStamp);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_COMPLETE + " :" + timeStamp);
   }
 
   /**
@@ -261,7 +289,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestartRunningTask(final String taskId) {
-    return new ReefLoggingScope(LOG, DRIVER_RESTART_RUNNING_TASK + " :" + taskId);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_RUNNING_TASK + " :" + taskId);
   }
 
   /**
@@ -270,24 +298,8 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverRestartActiveContextReceived(final String contextId) {
-    return new ReefLoggingScope(LOG, DRIVER_RESTART_ACTIVE_CONTEXT + " :" + contextId);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_RESTART_ACTIVE_CONTEXT + " :" + contextId);
   }
-
-//  public LoggingScope submitContextAndServiceAndTaskString(String context, String server, String task) {
-//    return new LoggingScope(LOG, "Submit context {0} and server {1} and task {2} string", new Object[] { context, server, task });
-//  }
-//
-//  public LoggingScope submitContextAndServiceString(String context, String server) {
-//    return new LoggingScope(LOG, "Submit context {0} and server {1} string", new Object[] { context, server });
-//  }
-//
-//  public LoggingScope submitContextAndTaskString(String context, String task) {
-//    return new LoggingScope(LOG, "Submit context {0} and task {1} string", new Object[] { context, task });
-//  }
-//
-//  public LoggingScope submitContextString(String context) {
-//    return new LoggingScope(LOG, "Submit context string {0}.", new Object[] { context });
-//  }
 
   /**
    * This is to measure the time in handling a http request
@@ -295,7 +307,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope httpRequest(final String uri) {
-    return new ReefLoggingScope(LOG, this.HTTP_REQUEST + " :" + uri);
+    return new LoggingScopeImpl(LOG, logLevel, this.HTTP_REQUEST + " :" + uri);
   }
 
   /**
@@ -303,7 +315,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope httpServer() {
-    return new ReefLoggingScope(LOG, this.HTTP_SERVER);
+    return new LoggingScopeImpl(LOG, logLevel, this.HTTP_SERVER);
   }
 
   /**
@@ -312,7 +324,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope driverSubmit(Boolean submitDriver) {
-    return new ReefLoggingScope(LOG, DRIVER_SUBMIT + " :" + submitDriver);
+    return new LoggingScopeImpl(LOG, logLevel, DRIVER_SUBMIT + " :" + submitDriver);
   }
 
   /**
@@ -320,7 +332,7 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope reefSubmit() {
-    return new ReefLoggingScope(LOG, this.REEF_SUBMIT);
+    return new LoggingScopeImpl(LOG, logLevel, this.REEF_SUBMIT);
   }
 
   /**
@@ -328,6 +340,6 @@ public class LoggingScopeFactory {
    * @return
    */
   public LoggingScope localJobSubmission() {
-    return new ReefLoggingScope(LOG, this.LOCAL_JOB_SUBMIT);
+    return new LoggingScopeImpl(LOG, logLevel, this.LOCAL_JOB_SUBMIT);
   }
 }

@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 /**
  * Log time and duration for a scope
  */
-public class ReefLoggingScope implements LoggingScope {
+public class LoggingScopeImpl implements LoggingScope {
   public static final String TOKEN = ":::";
   public static final String START_PREFIX = "START" + TOKEN;
   public static final String EXIT_PREFIX = "EXIT" + TOKEN;
@@ -45,6 +45,8 @@ public class ReefLoggingScope implements LoggingScope {
 
   private final Object[] params;
 
+  private Level logLevel;
+
   /**
    * A constructor of ReefLoggingScope. It starts the timer and logs the msg
    *
@@ -52,14 +54,15 @@ public class ReefLoggingScope implements LoggingScope {
    * @param msg
    * @param params
    */
-  public ReefLoggingScope(final Logger logger, final String msg, final Object params[]) {
+  public LoggingScopeImpl(final Logger logger, Level logLevel, final String msg, final Object params[]) {
     this.logger = logger;
     this.msg = msg;
+    this.logLevel = logLevel;
     this.params = params;
     stopWatch = new Stopwatch();
     stopWatch.start();
 
-    logger.log(Level.INFO, START_PREFIX + msg, params);
+    logger.log(logLevel, START_PREFIX + msg, params);
   }
 
   /**
@@ -69,14 +72,15 @@ public class ReefLoggingScope implements LoggingScope {
    * @param msg
    */
   @Inject
-  public ReefLoggingScope(final Logger logger, @Parameter(NamedString.class) final String msg) {
+  public LoggingScopeImpl(final Logger logger, Level logLevel, @Parameter(NamedString.class) final String msg) {
     this.logger = logger;
     this.msg = msg;
+    this.logLevel = logLevel;
     this.params = null;
     stopWatch = new Stopwatch();
     stopWatch.start();
 
-    logger.log(Level.INFO, START_PREFIX + msg);
+    logger.log(logLevel, START_PREFIX + msg);
   }
 
   @NamedParameter
@@ -92,9 +96,9 @@ public class ReefLoggingScope implements LoggingScope {
     final String s = sb.append(EXIT_PREFIX).append(msg).append(DURATION).append(stopWatch.elapsedMillis()).toString();
 
     if (params == null) {
-      logger.log(Level.INFO, s);
+      logger.log(logLevel, s);
     } else {
-      logger.log(Level.INFO, s, params);
+      logger.log(logLevel, s, params);
     }
   }
 }

@@ -30,27 +30,27 @@ import java.util.ArrayList;
 public class LogParser {
 
   public static String endIndicators[] = {
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.DRIVER_START,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
-      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.TASK_COMPLETE
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.DRIVER_START,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
+      LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
   public static String startIndicators[] = {
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.DRIVER_START,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
-      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.TASK_COMPLETE
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.DRIVER_START,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
+      LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
   public LogParser()
@@ -58,13 +58,13 @@ public class LogParser {
   }
 
   /**
-   * Get lines from a given file with a specified filter
+   * Get lines from a given file with a specified filter, trim the line by removing strings before removeBeforeToken and after removeAfterToken
    * @param fileName
    * @param filter
    * @return
    * @throws IOException
    */
-  public static ArrayList<String> getFiltedLinesFromFile(final String fileName, final String filter, final String removeBeforeToken, final String removeAfterToken) throws IOException{
+  public static ArrayList<String> getFilteredLinesFromFile(final String fileName, final String filter, final String removeBeforeToken, final String removeAfterToken) throws IOException{
     final ArrayList<String> filteredLines = new ArrayList<String>();
     try (final FileReader fr =  new FileReader(fileName)) {
       try (final BufferedReader in = new BufferedReader(fr)) {
@@ -99,8 +99,15 @@ public class LogParser {
     return filteredLines;
   }
 
-  public static ArrayList<String> getFiltedLinesFromFile(final String fileName, final String filter) throws IOException {
-    return getFiltedLinesFromFile(fileName, filter, null, null);
+  /**
+   * get lines from given file with specified filter
+   * @param fileName
+   * @param filter
+   * @return
+   * @throws IOException
+   */
+  public static ArrayList<String> getFilteredLinesFromFile(final String fileName, final String filter) throws IOException {
+    return getFilteredLinesFromFile(fileName, filter, null, null);
   }
 
   /**
@@ -146,7 +153,7 @@ public class LogParser {
   public static ArrayList<String> mergeStages(ArrayList<String> startStages, ArrayList<String> endStages) {
     ArrayList<String> mergeStage = new ArrayList<String>();
     for (int i = 0; i < startStages.size(); i++) {
-      String end = startStages.get(i).replace(ReefLoggingScope.START_PREFIX, ReefLoggingScope.EXIT_PREFIX);
+      String end = startStages.get(i).replace(LoggingScopeImpl.START_PREFIX, LoggingScopeImpl.EXIT_PREFIX);
       if (endStages.contains(end)) {
         mergeStage.add(startStages.get(i)  + "   " + end);
       } else {
