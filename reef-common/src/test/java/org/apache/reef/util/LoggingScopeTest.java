@@ -38,7 +38,7 @@ public class LoggingScopeTest {
   LoggingScopeFactory logFactory;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws InjectionException {
     logFactory = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build()).getInstance(LoggingScopeFactory.class);
   }
 
@@ -48,7 +48,7 @@ public class LoggingScopeTest {
    * @throws Exception
    */
   @Test
-  public void testInjectedLoogingScope() throws Exception {
+  public void testInjectedLoogingScope() throws InjectionException {
     try (LoggingScope ls = logFactory.getLoggingScope("test"))
     {
        Assert.assertTrue(true);
@@ -60,7 +60,7 @@ public class LoggingScopeTest {
    * @throws Exception
    */
   @Test
-  public void testNewLoogingScope() throws Exception {
+  public void testNewLoogingScope() {
     try (LoggingScope ls = new ReefLoggingScope(Logger.getLogger(LoggingScopeFactory.class.getName()), "test"))
     {
       Assert.assertTrue(true);
@@ -72,7 +72,7 @@ public class LoggingScopeTest {
    * @throws Exception
    */
   @Test
-  public void testNewLoogingScopeConstructorWithParameters() throws Exception {
+  public void testNewLoogingScopeConstructorWithParameters() {
     try (LoggingScope ls = new ReefLoggingScope(Logger.getLogger(LoggingScopeFactory.class.getName()), "test first string = {0}, second = {1}", new Object[] { "first", "second" }))
     {
       Assert.assertTrue(true);
@@ -85,7 +85,7 @@ public class LoggingScopeTest {
    * @throws Exception
    */
   @Test
-  public void testLoogingScopeFactgory() throws Exception {
+  public void testLoogingScopeFactgory() {
     try (LoggingScope ls = logFactory.activeContextReceived("test"))
     {
       Assert.assertTrue(true);
