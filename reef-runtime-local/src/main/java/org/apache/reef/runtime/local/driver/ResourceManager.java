@@ -38,6 +38,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.logging.LoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -70,6 +71,7 @@ public final class ResourceManager {
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpathProvider;
   private final double jvmHeapFactor;
+  private final LoggingScopeFactory loggingScopeFactory;
 
   @Inject
   ResourceManager(
@@ -84,7 +86,8 @@ public final class ResourceManager {
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
       final REEFFileNames fileNames,
-      final ClasspathProvider classpathProvider) {
+      final ClasspathProvider classpathProvider,
+      final LoggingScopeFactory loggingScopeFactory) {
 
     this.theContainers = containerManager;
     this.allocationHandler = allocationHandler;
@@ -96,6 +99,7 @@ public final class ResourceManager {
     this.fileNames = fileNames;
     this.classpathProvider = classpathProvider;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
+    this.loggingScopeFactory = loggingScopeFactory;
 
     LOG.log(Level.FINE, "Instantiated 'ResourceManager'");
   }
@@ -165,7 +169,7 @@ public final class ResourceManager {
 
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
-      try (final LoggingScope lb = new LoggingScope(LOG, "ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
+      try (final LoggingScope lb = this.loggingScopeFactory.scopeLogger("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
         // Add the global files and libraries.
         c.addGlobalFiles(this.fileNames.getGlobalFolder());
         c.addLocalFiles(getLocalFiles(launchRequest));
@@ -181,7 +185,7 @@ public final class ResourceManager {
         }
       }
 
-      try (LoggingScope lc = new LoggingScope(LOG, "ResourceManager.onResourceLaunchRequest:runCommand")) {
+      try (LoggingScope lc = this.loggingScopeFactory.scopeLogger("ResourceManager.onResourceLaunchRequest:runCommand")) {
         // Assemble the command line
         final LaunchCommandBuilder commandBuilder;
         switch (launchRequest.getType()) {
