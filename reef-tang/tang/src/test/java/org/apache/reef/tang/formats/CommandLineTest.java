@@ -15,16 +15,20 @@
  */
 package org.apache.reef.tang.formats;
 
+import junit.framework.Assert;
+import org.apache.commons.cli.ParseException;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestCommandLine {
+public class CommandLineTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -35,6 +39,32 @@ public class TestCommandLine {
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     CommandLine cl = new CommandLine(cb);
     cl.registerShortNameOfClass(FooName.class);
+  }
+
+  /**
+   * Tests for parseToConfiguration() with a named parameter that is set
+   *
+   * @throws ParseException
+   * @throws InjectionException
+   */
+  @Test
+  public void testParseToConfiguration() throws ParseException, InjectionException {
+    final String expected = "hello";
+    final String[] args = {"-" + NamedParameters.AString.SHORT_NAME, expected};
+    final Configuration configuration = CommandLine.parseToConfiguration(args, NamedParameters.AString.class);
+    Assert.assertEquals(expected, Tang.Factory.getTang().newInjector(configuration).getNamedInstance(NamedParameters.AString.class));
+  }
+
+  /**
+   * Tests for parseToConfiguration() with a named parameter that is not set
+   *
+   * @throws ParseException
+   * @throws InjectionException
+   */
+  @Test
+  public void testParseToConfigurationWithDefault() throws ParseException, InjectionException {
+    final Configuration configuration = CommandLine.parseToConfiguration(new String[0], NamedParameters.AString.class);
+    Assert.assertEquals(NamedParameters.AString.DEFAULT_VALUE, Tang.Factory.getTang().newInjector(configuration).getNamedInstance(NamedParameters.AString.class));
   }
 
 }

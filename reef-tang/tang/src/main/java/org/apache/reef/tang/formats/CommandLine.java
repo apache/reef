@@ -207,7 +207,6 @@ public final class CommandLine {
     } else {
       return commandLine.getBuilder();
     }
-
   }
 
   public interface CommandLineCallback {
