@@ -206,8 +206,13 @@
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
                 <configuration>
-                    <header>LICENSE.txt</header>
+                    <header>LICENSE_HEADER.txt</header>
                     <strictCheck>true</strictCheck>
+                    <excludes>
+                        <exclude>LICENSE.txt</exclude>
+                        <exclude>NOTICES.txt</exclude>
+                        <exclude>README.*</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
