@@ -30,27 +30,27 @@ import java.util.ArrayList;
 public class LogParser {
 
   public static String endIndicators[] = {
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.DRIVER_START,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
-      LoggingScope.EXIT_PREFIX + LoggingScopeFactory.TASK_COMPLETE
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.DRIVER_START,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
+      ReefLoggingScope.EXIT_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
   public static String startIndicators[] = {
-      LoggingScope.START_PREFIX + LoggingScopeFactory.DRIVER_START,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
-      LoggingScope.START_PREFIX + LoggingScopeFactory.TASK_COMPLETE
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.DRIVER_START,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_ALLOCATED,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.EVALUATOR_LAUNCH,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.ACTIVE_CONTEXT,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
+      ReefLoggingScope.START_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
   public LogParser()
@@ -146,7 +146,7 @@ public class LogParser {
   public static ArrayList<String> mergeStages(ArrayList<String> startStages, ArrayList<String> endStages) {
     ArrayList<String> mergeStage = new ArrayList<String>();
     for (int i = 0; i < startStages.size(); i++) {
-      String end = startStages.get(i).replace(LoggingScope.START_PREFIX, LoggingScope.EXIT_PREFIX);
+      String end = startStages.get(i).replace(ReefLoggingScope.START_PREFIX, ReefLoggingScope.EXIT_PREFIX);
       if (endStages.contains(end)) {
         mergeStage.add(startStages.get(i)  + "   " + end);
       } else {
