@@ -18,30 +18,62 @@
  */
 package org.apache.reef.tang.formats;
 
+import junit.framework.Assert;
+import org.apache.commons.cli.ParseException;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestCommandLine {
+/**
+ * Tests for the CommandLine class.
+ */
+public final class TestCommandLine {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testNoShortNameToRegister() throws BindException {
     thrown.expect(BindException.class);
-    thrown.expectMessage("Can't register non-existent short name of named parameter: org.apache.reef.tang.formats.FooName");
-    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    CommandLine cl = new CommandLine(cb);
-    cl.registerShortNameOfClass(FooName.class);
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final CommandLine cl = new CommandLine(cb);
+    cl.registerShortNameOfClass(NamedParameters.StringNoShortNameNoDefault.class);
   }
 
-}
+  /**
+   * Tests for parseToConfiguration() with a named parameter that is set
+   *
+   * @throws ParseException
+   * @throws InjectionException
+   */
+  @Test
+  public void testParseToConfiguration() throws ParseException, InjectionException {
+    final String expected = "hello";
+    final String[] args = {"-" + NamedParameters.StringShortNameDefault.SHORT_NAME, expected};
+    final Configuration configuration = CommandLine
+        .parseToConfiguration(args, NamedParameters.StringShortNameDefault.class);
+    final String injected = Tang.Factory.getTang().newInjector(configuration)
+        .getNamedInstance(NamedParameters.StringShortNameDefault.class);
+    Assert.assertEquals(expected, injected);
+  }
 
-@NamedParameter
-class FooName implements Name<String> {
+  /**
+   * Tests for parseToConfiguration() with a named parameter that is not set
+   *
+   * @throws ParseException
+   * @throws InjectionException
+   */
+  @Test
+  public void testParseToConfigurationWithDefault() throws ParseException, InjectionException {
+    final Configuration configuration = CommandLine
+        .parseToConfiguration(new String[0], NamedParameters.StringShortNameDefault.class);
+    final String injected = Tang.Factory.getTang().newInjector(configuration)
+        .getNamedInstance(NamedParameters.StringShortNameDefault.class);
+    Assert.assertEquals(NamedParameters.StringShortNameDefault.DEFAULT_VALUE, injected);
+  }
+
 }
