@@ -39,9 +39,8 @@ public final class TestCommandLine {
   @Test
   public void testNoShortNameToRegister() throws BindException {
     thrown.expect(BindException.class);
-    thrown.expectMessage("Can't register non-existent short name of named parameter: org.apache.reef.tang.formats.FooName");
-    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    CommandLine cl = new CommandLine(cb);
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final CommandLine cl = new CommandLine(cb);
     cl.registerShortNameOfClass(NamedParameters.StringNoShortNameNoDefault.class);
   }
 
@@ -54,11 +53,11 @@ public final class TestCommandLine {
   @Test
   public void testParseToConfiguration() throws ParseException, InjectionException {
     final String expected = "hello";
-    final String[] args = {"-" + NamedParameters.StringNoShortNameNoDefault.SHORT_NAME, expected};
+    final String[] args = {"-" + NamedParameters.StringShortNameDefault.SHORT_NAME, expected};
     final Configuration configuration = CommandLine
-        .parseToConfiguration(args, NamedParameters.StringNoShortNameNoDefault.class);
+        .parseToConfiguration(args, NamedParameters.StringShortNameDefault.class);
     final String injected = Tang.Factory.getTang().newInjector(configuration)
-        .getNamedInstance(NamedParameters.StringNoShortNameNoDefault.class);
+        .getNamedInstance(NamedParameters.StringShortNameDefault.class);
     Assert.assertEquals(expected, injected);
   }
 
@@ -71,10 +70,10 @@ public final class TestCommandLine {
   @Test
   public void testParseToConfigurationWithDefault() throws ParseException, InjectionException {
     final Configuration configuration = CommandLine
-        .parseToConfiguration(new String[0], NamedParameters.StringNoShortNameNoDefault.class);
+        .parseToConfiguration(new String[0], NamedParameters.StringShortNameDefault.class);
     final String injected = Tang.Factory.getTang().newInjector(configuration)
-        .getNamedInstance(NamedParameters.StringNoShortNameNoDefault.class);
-    Assert.assertEquals(NamedParameters.StringNoShortNameNoDefault.DEFAULT_VALUE, injected);
+        .getNamedInstance(NamedParameters.StringShortNameDefault.class);
+    Assert.assertEquals(NamedParameters.StringShortNameDefault.DEFAULT_VALUE, injected);
   }
 
 }
