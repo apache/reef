@@ -128,8 +128,7 @@ public final class JobDriver {
             final NameServer nameServer,
             final JobMessageObserver jobMessageObserver,
             final EvaluatorRequestor evaluatorRequestor,
-            final DriverStatusManager driverStatusManager,
-            LoggingScopeFactory logFactory) {
+            final DriverStatusManager driverStatusManager) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;

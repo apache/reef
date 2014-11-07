@@ -22,6 +22,9 @@ package org.apache.reef.util.logging;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.time.event.StartTime;
 
@@ -62,20 +65,13 @@ public class LoggingScopeFactory {
   public static final String HTTP_REQUEST = "Http request";
   public static final String HTTP_SERVER = "Http server";
 
-  @Inject
-  private LoggingScopeFactory() {
-  }
-
   /**
-   * default log level. CLient can set it through setLogLevel method.
+   * default log level. Client can set it through setLogLevel method.
    */
   private Level logLevel = Level.FINE;
 
-  /**
-   * set log level for logging scope.
-   * @param logLevel
-   */
-  public void setLogLevel(Level logLevel) {
+  @Inject
+  private LoggingScopeFactory(@Parameter(LogLevel.class) Level logLevel) {
     this.logLevel = logLevel;
   }
 
@@ -96,22 +92,6 @@ public class LoggingScopeFactory {
    */
   public LoggingScope getNewLoggingScope(final String msg, final Object params[]) {
     return new LoggingScopeImpl(LOG, logLevel, msg, params);
-  }
-
-  /**
-   * get a new instance of LoggingScope through injection
-   * @param msg
-   * @return
-   * @throws InjectionException
-   */
-  public LoggingScope getInjectedLoggingScope(String msg) throws InjectionException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    cb.bindImplementation(LoggingScope.class, LoggingScopeImpl.class);
-    cb.bindNamedParameter(LoggingScopeImpl.NamedString.class, msg);
-    Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    i.bindVolatileInstance(Logger.class, LOG);
-    i.bindVolatileInstance(Level.class, logLevel);
-    return i.getInstance(LoggingScope.class);
   }
 
   /**
