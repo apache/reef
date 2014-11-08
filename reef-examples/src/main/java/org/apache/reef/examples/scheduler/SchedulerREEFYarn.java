@@ -18,6 +18,7 @@
  */
 package org.apache.reef.examples.scheduler;
 
+import org.apache.commons.cli.ParseException;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -36,7 +37,7 @@ public final class SchedulerREEFYarn {
    * @throws InjectionException
    * @throws java.io.IOException
    */
-  public final static void main(String[] args) throws InjectionException, IOException {
+  public final static void main(String[] args) throws InjectionException, IOException, ParseException {
     final Configuration runtimeConfiguration = YarnClientConfiguration.CONF.build();
     runTaskScheduler(runtimeConfiguration, args);
   }

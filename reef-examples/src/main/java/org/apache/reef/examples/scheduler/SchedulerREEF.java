@@ -18,6 +18,7 @@
  */
 package org.apache.reef.examples.scheduler;
 
+import org.apache.commons.cli.ParseException;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverServiceConfiguration;
 import org.apache.reef.client.REEF;
@@ -85,15 +86,10 @@ public final class SchedulerREEF {
    * @throws java.io.IOException
    */
   public static void runTaskScheduler(final Configuration runtimeConf, final String[] args)
-    throws InjectionException, IOException {
+    throws InjectionException, IOException, ParseException {
     final Tang tang = Tang.Factory.getTang();
 
-    // Process command line arguments to build configuration
-    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    new CommandLine(cb)
-      .registerShortNameOfClass(Retain.class)
-      .processCommandLine(args);
-    final Configuration commandLineConf = cb.build();
+    final Configuration commandLineConf = CommandLine.parseToConfiguration(args, Retain.class);
 
     // Merge the configurations to run Driver
     final Configuration driverConf = Configurations.merge(getDriverConf(), getHttpConf(), commandLineConf);
@@ -107,7 +103,7 @@ public final class SchedulerREEF {
    * @param args
    * @throws InjectionException
    */
-  public final static void main(String[] args) throws InjectionException, IOException {
+  public final static void main(String[] args) throws InjectionException, IOException, ParseException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
       .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 3)
       .build();
