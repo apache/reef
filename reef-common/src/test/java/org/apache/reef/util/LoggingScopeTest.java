@@ -54,7 +54,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testGetNewLoggingScope() throws InjectionException {
-    try (LoggingScope ls = logFactory.getNewLoggingScope("test"))
+    try (final LoggingScope ls = logFactory.getNewLoggingScope("test"))
     {
        Assert.assertTrue(true);
     }
@@ -66,7 +66,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testNewLoggingScope() {
-    try (LoggingScope ls = new LoggingScopeImpl(Logger.getLogger(LoggingScopeFactory.class.getName()), Level.INFO, "test"))
+    try (final LoggingScope ls = new LoggingScopeImpl(Logger.getLogger(LoggingScopeFactory.class.getName()), Level.INFO, "test"))
     {
       Assert.assertTrue(true);
     }
@@ -78,7 +78,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testNewLoggingScopeConstructorWithParameters() {
-    try (LoggingScope ls = new LoggingScopeImpl(Logger.getLogger(LoggingScopeFactory.class.getName()), Level.INFO, "test first string = {0}, second = {1}", new Object[] { "first", "second" }))
+    try (final LoggingScope ls = new LoggingScopeImpl(Logger.getLogger(LoggingScopeFactory.class.getName()), Level.INFO, "test first string = {0}, second = {1}", new Object[] { "first", "second" }))
     {
       Assert.assertTrue(true);
     }
@@ -91,7 +91,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testLoggingScopeFactory() {
-    try (LoggingScope ls = logFactory.activeContextReceived("test"))
+    try (final LoggingScope ls = logFactory.activeContextReceived("test"))
     {
       Assert.assertTrue(true);
     }
