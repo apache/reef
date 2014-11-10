@@ -28,6 +28,5 @@ import java.util.logging.Level;
  * Log Level named parameter for LoggingScopeFactory
  */
 @NamedParameter(default_class = Level.class)
-public class LogLevel implements Name<Level>
-{
+public class LogLevel implements Name<Level> {
 }

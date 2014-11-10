@@ -133,7 +133,7 @@ public class LoggingScopeFactory {
    * @param evaluatorsNumber
    * @return
    */
-  public LoggingScope evaluatorRequestSubmitToJavaDriver(int evaluatorsNumber) {
+  public LoggingScope evaluatorRequestSubmitToJavaDriver(final int evaluatorsNumber) {
     return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_BRIDGE_SUBMIT + ":" + evaluatorsNumber);
   }
 
@@ -142,7 +142,7 @@ public class LoggingScopeFactory {
    * @param evaluatorNumber
    * @return
    */
-  public LoggingScope evaluatorSubmit(int evaluatorNumber) {
+  public LoggingScope evaluatorSubmit(final int evaluatorNumber) {
     return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_SUBMIT + ":" + evaluatorNumber);
   }
 
@@ -160,7 +160,7 @@ public class LoggingScopeFactory {
    * @param evaluatorId
    * @return
    */
-  public LoggingScope evaluatorLaunch(String evaluatorId) {
+  public LoggingScope evaluatorLaunch(final String evaluatorId) {
     return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_LAUNCH + " :" + evaluatorId);
   }
 
@@ -192,7 +192,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * THis is to measure the time in calling closedContext handler
+   * This is to measure the time in calling closedContext handler
    * @param contextId
    * @return
    */
@@ -303,7 +303,7 @@ public class LoggingScopeFactory {
    * @param submitDriver
    * @return
    */
-  public LoggingScope driverSubmit(Boolean submitDriver) {
+  public LoggingScope driverSubmit(final Boolean submitDriver) {
     return new LoggingScopeImpl(LOG, logLevel, DRIVER_SUBMIT + " :" + submitDriver);
   }
 

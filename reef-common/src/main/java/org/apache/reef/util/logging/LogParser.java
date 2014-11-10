@@ -53,8 +53,7 @@ public class LogParser {
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
-  public LogParser()
-  {
+  public LogParser() {
   }
 
   /**
@@ -136,18 +135,18 @@ public class LogParser {
    * @return
    */
   public static ArrayList<String> findStages(final ArrayList<String> lines, final String[] stageIndicators) {
-    ArrayList<String> statges = new ArrayList<String>();
+    ArrayList<String> stages = new ArrayList<String>();
 
     int i = 0;
     for (String line: lines) {
       if (line.contains(stageIndicators[i])){
-        statges.add(stageIndicators[i]);
+        stages.add(stageIndicators[i]);
         if (i < stageIndicators.length - 1) {
           i++;
         }
       }
     }
-    return statges;
+    return stages;
   }
 
   public static ArrayList<String> mergeStages(ArrayList<String> startStages, ArrayList<String> endStages) {

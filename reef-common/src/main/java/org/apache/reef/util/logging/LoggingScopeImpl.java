@@ -23,6 +23,7 @@ import com.google.common.base.Stopwatch;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -37,7 +38,7 @@ public class LoggingScopeImpl implements LoggingScope {
   public static final String EXIT_PREFIX = "EXIT" + TOKEN;
   public static final String DURATION = " Duration = ";
 
-  private final Stopwatch stopWatch;
+  private final Stopwatch stopWatch = new Stopwatch();
 
   private final Logger logger;
 
@@ -45,7 +46,9 @@ public class LoggingScopeImpl implements LoggingScope {
 
   private final Object[] params;
 
-  private Level logLevel;
+  private final Optional<Object[]> optionalParams;
+
+  private final Level logLevel;
 
   /**
    * A constructor of ReefLoggingScope. It starts the timer and logs the msg
@@ -54,15 +57,14 @@ public class LoggingScopeImpl implements LoggingScope {
    * @param msg
    * @param params
    */
-  public LoggingScopeImpl(final Logger logger, Level logLevel, final String msg, final Object params[]) {
+  LoggingScopeImpl(final Logger logger, final Level logLevel, final String msg, final Object params[]) {
     this.logger = logger;
     this.msg = msg;
     this.logLevel = logLevel;
     this.params = params;
-    stopWatch = new Stopwatch();
+    this.optionalParams = Optional.ofNullable(params);
     stopWatch.start();
-
-    logger.log(logLevel, START_PREFIX + msg, params);
+    log(START_PREFIX + msg);
   }
 
   /**
@@ -71,20 +73,9 @@ public class LoggingScopeImpl implements LoggingScope {
    * @param logger
    * @param msg
    */
-  @Inject
-  public LoggingScopeImpl(final Logger logger, Level logLevel, @Parameter(NamedString.class) final String msg) {
-    this.logger = logger;
-    this.msg = msg;
-    this.logLevel = logLevel;
-    this.params = null;
-    stopWatch = new Stopwatch();
-    stopWatch.start();
-
-    logger.log(logLevel, START_PREFIX + msg);
+  LoggingScopeImpl(final Logger logger, final Level logLevel, final String msg) {
+    this(logger, logLevel, msg, null);
   }
-
-  @NamedParameter
-  class NamedString implements Name<String> {}
 
   /**
    * The close() will be called when the object is to deleted. It stops the timer and logs the time elapsed.
@@ -93,12 +84,18 @@ public class LoggingScopeImpl implements LoggingScope {
   public void close() {
     stopWatch.stop();
     final StringBuilder sb = new StringBuilder();
-    final String s = sb.append(EXIT_PREFIX).append(msg).append(DURATION).append(stopWatch.elapsedMillis()).toString();
+    log(sb.append(EXIT_PREFIX).append(msg).append(DURATION).append(stopWatch.elapsedMillis()).toString());
+  }
 
-    if (params == null) {
-      logger.log(logLevel, s);
+  /**
+   * log massage
+   * @param msg
+   */
+  private void log(final String msg) {
+    if (this.optionalParams.isPresent()) {
+      logger.log(logLevel, msg, params);
     } else {
-      logger.log(logLevel, s, params);
+      logger.log(logLevel, msg);
     }
   }
 }
