@@ -54,8 +54,7 @@ public class LoggingScopeTest {
    */
   @Test
   public void testGetNewLoggingScope() throws InjectionException {
-    try (final LoggingScope ls = logFactory.getNewLoggingScope("test"))
-    {
+    try (final LoggingScope ls = logFactory.getNewLoggingScope("test")) {
        Assert.assertTrue(true);
     }
   }
