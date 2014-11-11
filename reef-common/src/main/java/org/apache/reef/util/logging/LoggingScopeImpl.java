@@ -59,12 +59,16 @@ public class LoggingScopeImpl implements LoggingScope {
    */
   LoggingScopeImpl(final Logger logger, final Level logLevel, final String msg, final Object params[]) {
     this.logger = logger;
-    this.msg = msg;
     this.logLevel = logLevel;
+    this.msg = msg;
     this.params = params;
-    this.optionalParams = Optional.ofNullable(params);
     stopWatch.start();
-    log(START_PREFIX + msg);
+    this.optionalParams = Optional.ofNullable(params);
+
+    if (logger.isLoggable(logLevel)) {
+      final StringBuilder sb = new StringBuilder();
+      log(sb.append(START_PREFIX).append(msg).toString());
+    }
   }
 
   /**
@@ -83,8 +87,11 @@ public class LoggingScopeImpl implements LoggingScope {
   @Override
   public void close() {
     stopWatch.stop();
-    final StringBuilder sb = new StringBuilder();
-    log(sb.append(EXIT_PREFIX).append(msg).append(DURATION).append(stopWatch.elapsedMillis()).toString());
+
+    if (logger.isLoggable(logLevel)) {
+      final StringBuilder sb = new StringBuilder();
+      log(sb.append(EXIT_PREFIX).append(msg).append(DURATION).append(stopWatch.elapsedMillis()).toString());
+    }
   }
 
   /**
