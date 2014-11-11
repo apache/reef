@@ -19,13 +19,9 @@
 
 package org.apache.reef.util.logging;
 
-import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
@@ -68,22 +64,14 @@ public class LoggingScopeFactory {
   /**
    * default log level. Client can set it through setLogLevel method.
    */
-  private Level logLevel = Level.FINE;
+  private final Level logLevel;
 
   /**
-   * User can inject a LoggingScopeFactory with an external constructor for Level
-   * @param logLevel
+   * User can inject a LoggingScopeFactory with injected log level as a string
    */
   @Inject
-  private LoggingScopeFactory(final Level logLevel) {
-    this.logLevel = logLevel;
-  }
-
-  /**
-   * USer can inject a LoggingScopeFactory with default log Level
-   */
-  @Inject
-  private LoggingScopeFactory() {
+  private LoggingScopeFactory(@Parameter(LogLevelName.class) final String logLevelName) {
+    this.logLevel = Level.parse(logLevelName);
   }
 
   /**
@@ -177,11 +165,11 @@ public class LoggingScopeFactory {
 
   /**
    * This is to measure the time in calling evaluatorCompleted handler
-   * @param evaluatoerId
+   * @param evaluatorId
    * @return
    */
-  public LoggingScope evaluatorCompleted(final String evaluatoerId) {
-    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_COMPLETED + " :" + evaluatoerId);
+  public LoggingScope evaluatorCompleted(final String evaluatorId) {
+    return new LoggingScopeImpl(LOG, logLevel, EVALUATOR_COMPLETED + " :" + evaluatorId);
   }
 
   /**

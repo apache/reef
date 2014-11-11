@@ -24,9 +24,7 @@ import org.apache.reef.tang.ExternalConstructor;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.util.logging.LoggingScope;
-import org.apache.reef.util.logging.LoggingScopeFactory;
-import org.apache.reef.util.logging.LoggingScopeImpl;
+import org.apache.reef.util.logging.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +42,9 @@ public class LoggingScopeTest {
 
   @Before
   public void setUp() throws InjectionException {
-    final ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder().bindConstructor(Level.class, TestLogLevel.class);
+    final ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(LogLevelName.class, "INFO");
+
     final Injector i = Tang.Factory.getTang().newInjector(b.build());
     logFactory = i.getInstance(LoggingScopeFactory.class);
   }
@@ -84,8 +84,12 @@ public class LoggingScopeTest {
     }
   }
 
+  /**
+   * Use default log level in injecting LoggingScopeFactory constructor
+   * @throws InjectionException
+   */
   @Test
-  public void testLoggingScopeFactoryWithDefaultLogLevel() throws InjectionException  {
+  public void testLoggingScopeFactoryWithDefaultLogLevel() throws InjectionException {
     final Injector i = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
     final LoggingScopeFactory logFactory = i.getInstance(LoggingScopeFactory.class);
 
