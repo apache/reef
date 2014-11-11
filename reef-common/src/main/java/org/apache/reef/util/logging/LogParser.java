@@ -53,7 +53,7 @@ public class LogParser {
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
-  public LogParser() {
+  private LogParser() {
   }
 
   /**

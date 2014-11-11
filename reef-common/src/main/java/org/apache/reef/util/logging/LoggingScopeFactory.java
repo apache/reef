@@ -62,7 +62,7 @@ public class LoggingScopeFactory {
   public static final String HTTP_SERVER = "Http server";
 
   /**
-   * default log level. Client can set it through setLogLevel method.
+   * Log level. Client can set it through LogLevelName named parameter
    */
   private final Level logLevel;
 
