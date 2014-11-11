@@ -75,7 +75,7 @@ public class LoggingScopeFactory {
    * @param logLevel
    */
   @Inject
-  private LoggingScopeFactory(Level logLevel) {
+  private LoggingScopeFactory(final Level logLevel) {
     this.logLevel = logLevel;
   }
 

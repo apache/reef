@@ -44,7 +44,7 @@ public class LoggingScopeTest {
 
   @Before
   public void setUp() throws InjectionException {
-    ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder().bindConstructor(Level.class, TestLogLevel.class);
+    final ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder().bindConstructor(Level.class, TestLogLevel.class);
     final Injector i = Tang.Factory.getTang().newInjector(b.build());
     logFactory = i.getInstance(LoggingScopeFactory.class);
   }
@@ -86,8 +86,7 @@ public class LoggingScopeTest {
 
   @Test
   public void testLoggingScopeFactoryWithDefaultLogLevel() throws InjectionException  {
-    ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
-    final Injector i = Tang.Factory.getTang().newInjector(b.build());
+    final Injector i = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
     final LoggingScopeFactory logFactory = i.getInstance(LoggingScopeFactory.class);
 
     try (final LoggingScope ls = logFactory.activeContextReceived("test")) {
