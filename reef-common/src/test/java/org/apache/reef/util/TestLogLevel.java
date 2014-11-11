@@ -17,16 +17,25 @@
  * under the License.
  */
 
-package org.apache.reef.util.logging;
+package org.apache.reef.util;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
+import javax.inject.Inject;
 import java.util.logging.Level;
+import org.apache.reef.tang.ExternalConstructor;
 
 /**
- * Log Level named parameter for LoggingScopeFactory
+ * A LogLevel for testing
  */
-@NamedParameter(default_class = Level.class)
-public class LogLevel implements Name<Level> {
+public class TestLogLevel implements ExternalConstructor<Level> {
+  @Inject
+  private TestLogLevel() {
+  }
+
+  /**
+   * return a Level instance
+   * @return
+   */
+  public Level newInstance() {
+    return Level.INFO;
+  }
 }

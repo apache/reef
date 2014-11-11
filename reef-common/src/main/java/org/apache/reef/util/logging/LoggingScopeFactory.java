@@ -70,9 +70,20 @@ public class LoggingScopeFactory {
    */
   private Level logLevel = Level.FINE;
 
+  /**
+   * User can inject a LoggingScopeFactory with an external constructor for Level
+   * @param logLevel
+   */
   @Inject
-  private LoggingScopeFactory(@Parameter(LogLevel.class) Level logLevel) {
+  private LoggingScopeFactory(Level logLevel) {
     this.logLevel = logLevel;
+  }
+
+  /**
+   * USer can inject a LoggingScopeFactory with default log Level
+   */
+  @Inject
+  private LoggingScopeFactory() {
   }
 
   /**
