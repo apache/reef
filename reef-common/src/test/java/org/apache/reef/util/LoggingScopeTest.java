@@ -19,15 +19,18 @@
 
 package org.apache.reef.util;
 
+import org.apache.reef.tang.ConfigurationBuilder;
+import org.apache.reef.tang.ExternalConstructor;
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.util.logging.LoggingScope;
-import org.apache.reef.util.logging.LoggingScopeFactory;
-import org.apache.reef.util.logging.ReefLoggingScope;
+import org.apache.reef.util.logging.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.inject.Inject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -35,46 +38,36 @@ import java.util.logging.Logger;
  */
 public class LoggingScopeTest {
 
-  LoggingScopeFactory logFactory;
+  private LoggingScopeFactory logFactory;
 
   @Before
   public void setUp() throws InjectionException {
-    logFactory = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build()).getInstance(LoggingScopeFactory.class);
+    final ConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(LogLevelName.class, "INFO");
+
+    final Injector i = Tang.Factory.getTang().newInjector(b.build());
+    logFactory = i.getInstance(LoggingScopeFactory.class);
   }
 
   /**
-   * test getLoggingScope() in LoggingScopeFactory that injects  LoggingScope object
+   * Test getNewLoggingScope() in LoggingScopeFactory that injects LoggingScope object
    *
    * @throws Exception
    */
   @Test
-  public void testInjectedLoogingScope() throws InjectionException {
-    try (LoggingScope ls = logFactory.getLoggingScope("test"))
-    {
+  public void testGetNewLoggingScope() throws InjectionException {
+    try (final LoggingScope ls = logFactory.getNewLoggingScope("test")) {
        Assert.assertTrue(true);
     }
   }
 
   /**
-   * Test creating ReefLoggingScope object directly
-   * @throws Exception
+   * Test getNewLoggingScope() in LoggingScopeFactory that injects LoggingScope object with param as a parameter
+   * @throws InjectionException
    */
   @Test
-  public void testNewLoogingScope() {
-    try (LoggingScope ls = new ReefLoggingScope(Logger.getLogger(LoggingScopeFactory.class.getName()), "test"))
-    {
-      Assert.assertTrue(true);
-    }
-  }
-
-  /**
-   *  Test creating ReefLoggingScope object with params
-   * @throws Exception
-   */
-  @Test
-  public void testNewLoogingScopeConstructorWithParameters() {
-    try (LoggingScope ls = new ReefLoggingScope(Logger.getLogger(LoggingScopeFactory.class.getName()), "test first string = {0}, second = {1}", new Object[] { "first", "second" }))
-    {
+  public void testGetNewLoggingScopeWithParam() throws InjectionException {
+    try (final LoggingScope ls = logFactory.getNewLoggingScope("test first string = {0}, second = {1}", new Object[] { "first", "second" })) {
       Assert.assertTrue(true);
     }
   }
@@ -85,9 +78,22 @@ public class LoggingScopeTest {
    * @throws Exception
    */
   @Test
-  public void testLoogingScopeFactgory() {
-    try (LoggingScope ls = logFactory.activeContextReceived("test"))
-    {
+  public void testLoggingScopeFactory() {
+    try (final LoggingScope ls = logFactory.activeContextReceived("test")) {
+      Assert.assertTrue(true);
+    }
+  }
+
+  /**
+   * Use default log level in injecting LoggingScopeFactory constructor
+   * @throws InjectionException
+   */
+  @Test
+  public void testLoggingScopeFactoryWithDefaultLogLevel() throws InjectionException {
+    final Injector i = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+    final LoggingScopeFactory logFactory = i.getInstance(LoggingScopeFactory.class);
+
+    try (final LoggingScope ls = logFactory.activeContextReceived("test")) {
       Assert.assertTrue(true);
     }
   }

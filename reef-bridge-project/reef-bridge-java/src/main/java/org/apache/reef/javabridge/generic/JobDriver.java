@@ -188,7 +188,7 @@ public final class JobDriver {
         this.driverRestartRunningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartRunningTaskKey)];
       }
 
-      try (final LoggingScope lp = this.loggingScopeFactory.scopeLogger("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
+      try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
         final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
         NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
         final String specList = httpServerEventBridge.getUriSpecification();

@@ -33,7 +33,7 @@ public class FailedEvaluatorBridge extends NativeBridge {
   public FailedEvaluatorBridge(FailedEvaluator failedEvaluator, EvaluatorRequestor evaluatorRequestor, boolean blockedForAdditionalEvaluator, final LoggingScopeFactory loggingScopeFactory) {
     jfailedEvaluator = failedEvaluator;
     evaluatorId = failedEvaluator.getId();
-    evaluatorRequestorBridge = new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator,loggingScopeFactory);
+    evaluatorRequestorBridge = new EvaluatorRequestorBridge(evaluatorRequestor, blockedForAdditionalEvaluator, loggingScopeFactory);
   }
 
   public int getNewlyRequestedEvaluatorNumber() {

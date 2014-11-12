@@ -148,7 +148,7 @@ public class JobClient {
   }
 
   public void addCLRFiles(final File folder) throws BindException {
-    try (final LoggingScope ls = this.loggingScopeFactory.scopeLogger("JobClient::addCLRFiles")) {
+    try (final LoggingScope ls = this.loggingScopeFactory.getNewLoggingScope("JobClient::addCLRFiles")) {
       ConfigurationModule result = this.driverConfigModule;
       for (final File f : folder.listFiles()) {
         if (f.canRead() && f.exists() && f.isFile()) {

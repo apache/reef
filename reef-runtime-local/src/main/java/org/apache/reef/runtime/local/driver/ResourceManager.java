@@ -169,7 +169,7 @@ public final class ResourceManager {
 
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
-      try (final LoggingScope lb = this.loggingScopeFactory.scopeLogger("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
+      try (final LoggingScope lb = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
         // Add the global files and libraries.
         c.addGlobalFiles(this.fileNames.getGlobalFolder());
         c.addLocalFiles(getLocalFiles(launchRequest));
@@ -185,7 +185,7 @@ public final class ResourceManager {
         }
       }
 
-      try (LoggingScope lc = this.loggingScopeFactory.scopeLogger("ResourceManager.onResourceLaunchRequest:runCommand")) {
+      try (LoggingScope lc = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
         // Assemble the command line
         final LaunchCommandBuilder commandBuilder;
         switch (launchRequest.getType()) {
