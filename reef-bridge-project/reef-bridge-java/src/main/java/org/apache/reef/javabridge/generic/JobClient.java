@@ -84,7 +84,7 @@ public class JobClient {
   private String jobSubmissionDirectory = "reefTmp/job_" + System.currentTimeMillis();
 
   /**
-   * A factory that provide LoggingScope
+   * A factory that provides LoggingScope
    */
   private final LoggingScopeFactory loggingScopeFactory;
   /**
@@ -94,7 +94,7 @@ public class JobClient {
    * @param reef Reference to the REEF framework.
    */
   @Inject
-  JobClient(final REEF reef, LoggingScopeFactory loggingScopeFactory) throws BindException {
+  JobClient(final REEF reef, final LoggingScopeFactory loggingScopeFactory) throws BindException {
     this.loggingScopeFactory = loggingScopeFactory;
     this.reef = reef;
     this.driverConfigModule = getDriverConfiguration();
@@ -190,7 +190,7 @@ public class JobClient {
    * @throws org.apache.reef.tang.exceptions.BindException configuration error.
    */
   public void submit(final File clrFolder, final boolean submitDriver, final Configuration clientConfig) {
-    try (LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
+    try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
       try {
         addCLRFiles(clrFolder);
       } catch (final BindException e) {

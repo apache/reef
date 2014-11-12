@@ -75,7 +75,17 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * Get a new instance of LoggingScope with msg through new
+   * Get a new instance of LoggingScope with specified log level
+   * @param logLevel
+   * @param msg
+   * @return
+   */
+  public static LoggingScope getNewLoggingScope(final Level logLevel, final String msg) {
+    return new LoggingScopeImpl(LOG, logLevel, msg);
+  }
+
+  /**
+   * Get a new instance of LoggingScope with injected LoggingScopeFactory instance
    * @param msg
    * @return
    */

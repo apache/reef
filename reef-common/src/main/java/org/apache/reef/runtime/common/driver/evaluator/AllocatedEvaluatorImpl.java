@@ -69,7 +69,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                          final String remoteID,
                          final ConfigurationSerializer configurationSerializer,
                          final String jobIdentifier,
-                         LoggingScopeFactory loggingScopeFactory) {
+                         final LoggingScopeFactory loggingScopeFactory) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
     this.configurationSerializer = configurationSerializer;

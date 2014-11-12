@@ -96,7 +96,7 @@ public final class JobDriver {
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
   /**
-   * THe afctory that provide LoggingScope
+   * Logging scope factory that provides LoggingScope
    */
   private final LoggingScopeFactory loggingScopeFactory;
 
@@ -270,7 +270,7 @@ public final class JobDriver {
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
-      try (LoggingScope ls = loggingScopeFactory.activeContextReceived(context.getId())) {
+      try (final LoggingScope ls = loggingScopeFactory.activeContextReceived(context.getId())) {
         synchronized (JobDriver.this) {
           LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0} expect {1}",
               new Object[]{context.getId(), JobDriver.this.nCLREvaluators});
@@ -287,6 +287,7 @@ public final class JobDriver {
   final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask task) {
+      LOG.log(Level.INFO, "Completed task: {0}", task.getId());
       try (final LoggingScope ls = loggingScopeFactory.taskCompleted(task.getId())) {
         // Take the message returned by the task and add it to the running result.
         String result = "default result";
@@ -314,7 +315,7 @@ public final class JobDriver {
   final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator eval) {
-      try (LoggingScope ls = loggingScopeFactory.evaluatorFailed(eval.getId())) {
+      try (final LoggingScope ls = loggingScopeFactory.evaluatorFailed(eval.getId())) {
         synchronized (JobDriver.this) {
           LOG.log(Level.SEVERE, "FailedEvaluator", eval);
           for (final FailedContext failedContext : eval.getFailedContextList()) {
@@ -386,6 +387,7 @@ public final class JobDriver {
      */
     @Override
     public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response) throws IOException, ServletException {
+      LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest: {0}", parsedHttpRequest.getRequestUri());
       try (final LoggingScope ls = loggingScopeFactory.httpRequest(parsedHttpRequest.getRequestUri())) {
         final AvroHttpSerializer httpSerializer = new AvroHttpSerializer();
         final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(parsedHttpRequest);
@@ -538,7 +540,7 @@ public final class JobDriver {
   final class RestartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
-      try (LoggingScope ls = loggingScopeFactory.driverRestart(startTime)) {
+      try (final LoggingScope ls = loggingScopeFactory.driverRestart(startTime)) {
         synchronized (JobDriver.this) {
 
           setupBridge(startTime);
@@ -557,6 +559,7 @@ public final class JobDriver {
   final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
     @Override
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
+      LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ", driverRestartCompleted.getTimeStamp());
       try (final LoggingScope ls = loggingScopeFactory.driverRestartCompleted(driverRestartCompleted.getTimeStamp())) {
         if (JobDriver.this.driverRestartHandler != 0) {
           LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");

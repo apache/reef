@@ -185,7 +185,7 @@ public final class ResourceManager {
         }
       }
 
-      try (LoggingScope lc = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
+      try (final LoggingScope lc = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
         // Assemble the command line
         final LaunchCommandBuilder commandBuilder;
         switch (launchRequest.getType()) {

@@ -30,11 +30,11 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
 
   private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
 
-  final private AllocatedEvaluator jallocatedEvaluator;
-  final private AvroConfigurationSerializer serializer;
-  final private ClassHierarchy clrClassHierarchy;
-  final private String evaluatorId;
-  final private String nameServerInfo;
+  private final AllocatedEvaluator jallocatedEvaluator;
+  private final AvroConfigurationSerializer serializer;
+  private final ClassHierarchy clrClassHierarchy;
+  private final String evaluatorId;
+  private final String nameServerInfo;
 
   public AllocatedEvaluatorBridge(final AllocatedEvaluator allocatedEvaluator, final String serverInfo) {
     jallocatedEvaluator = allocatedEvaluator;

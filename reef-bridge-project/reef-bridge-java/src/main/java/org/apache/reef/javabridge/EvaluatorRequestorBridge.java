@@ -30,17 +30,17 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
   private final boolean isBlocked;
   private final EvaluatorRequestor jevaluatorRequestor;
-  private final LoggingScopeFactory loggingScopeFactry;
+  private final LoggingScopeFactory loggingScopeFactory;
 
   // accumulate how many evaluators have been submitted through this instance
   // of EvaluatorRequestorBridge
   private int clrEvaluatorsNumber;
 
-  public EvaluatorRequestorBridge(final EvaluatorRequestor evaluatorRequestor, final boolean isBlocked, final LoggingScopeFactory loggingScopeFactry) {
+  public EvaluatorRequestorBridge(final EvaluatorRequestor evaluatorRequestor, final boolean isBlocked, final LoggingScopeFactory loggingScopeFactory) {
     this.jevaluatorRequestor = evaluatorRequestor;
     this.clrEvaluatorsNumber = 0;
     this.isBlocked = isBlocked;
-    this.loggingScopeFactry = loggingScopeFactry;
+    this.loggingScopeFactory = loggingScopeFactory;
   }
 
   public void submit(final int evaluatorsNumber, final int memory, final int virtualCore, final String rack) {
@@ -52,7 +52,7 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
       LOG.log(Level.WARNING, "Ignoring rack preference.");
     }
 
-    try (final LoggingScope ls = loggingScopeFactry.evaluatorRequestSubmitToJavaDriver(evaluatorsNumber)) {
+    try (final LoggingScope ls = loggingScopeFactory.evaluatorRequestSubmitToJavaDriver(evaluatorsNumber)) {
       clrEvaluatorsNumber += evaluatorsNumber;
 
       final EvaluatorRequest request = EvaluatorRequest.newBuilder()

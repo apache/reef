@@ -31,7 +31,8 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.util.logging.LoggingScope;
-import org.apache.reef.util.logging.ReefLoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
+import org.apache.reef.util.logging.LoggingScopeImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,7 +105,7 @@ public final class Launch {
   private static Configuration getClientConfiguration(final String[] args)
       throws BindException, InjectionException, IOException {
 
-    try (LoggingScope ls = new ReefLoggingScope(LOG, "Launch::getClientConfiguration")) {
+    try (final LoggingScope ls = LoggingScopeFactory.getNewLoggingScope(Level.INFO, "Launch::getClientConfiguration")) {
       final Configuration commandLineConf = parseCommandLine(args);
 
       final Configuration clientConfiguration = ClientConfiguration.CONF

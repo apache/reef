@@ -81,7 +81,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final REEFFileNames filenames,
       final ClasspathProvider classpath,
       final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
-      LoggingScopeFactory loggingScopeFactory) {
+      final LoggingScopeFactory loggingScopeFactory) {
 
     this.executor = executor;
     this.nThreads = nThreads;
