@@ -20,6 +20,8 @@ package org.apache.reef.javabridge;
 
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.util.logging.LoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,14 +30,17 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
   private final boolean isBlocked;
   private final EvaluatorRequestor jevaluatorRequestor;
+  private final LoggingScopeFactory loggingScopeFactory;
+
   // accumulate how many evaluators have been submitted through this instance
   // of EvaluatorRequestorBridge
   private int clrEvaluatorsNumber;
 
-  public EvaluatorRequestorBridge(final EvaluatorRequestor evaluatorRequestor, final boolean isBlocked) {
+  public EvaluatorRequestorBridge(final EvaluatorRequestor evaluatorRequestor, final boolean isBlocked, final LoggingScopeFactory loggingScopeFactory) {
     this.jevaluatorRequestor = evaluatorRequestor;
     this.clrEvaluatorsNumber = 0;
     this.isBlocked = isBlocked;
+    this.loggingScopeFactory = loggingScopeFactory;
   }
 
   public void submit(final int evaluatorsNumber, final int memory, final int virtualCore, final String rack) {
@@ -47,16 +52,18 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
       LOG.log(Level.WARNING, "Ignoring rack preference.");
     }
 
-    clrEvaluatorsNumber += evaluatorsNumber;
+    try (final LoggingScope ls = loggingScopeFactory.evaluatorRequestSubmitToJavaDriver(evaluatorsNumber)) {
+      clrEvaluatorsNumber += evaluatorsNumber;
 
-    final EvaluatorRequest request = EvaluatorRequest.newBuilder()
+      final EvaluatorRequest request = EvaluatorRequest.newBuilder()
         .setNumber(evaluatorsNumber)
         .setMemory(memory)
         .setNumberOfCores(virtualCore)
         .build();
 
-    LOG.log(Level.FINE, "submitting evaluator request {0}", request);
-    jevaluatorRequestor.submit(request);
+      LOG.log(Level.FINE, "submitting evaluator request {0}", request);
+      jevaluatorRequestor.submit(request);
+    }
   }
 
   public int getEvaluatorNumber() {

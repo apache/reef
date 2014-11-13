@@ -37,6 +37,8 @@ import org.apache.reef.runtime.local.driver.parameters.GlobalLibraries;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.util.logging.LoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -69,6 +71,7 @@ public final class ResourceManager {
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpathProvider;
   private final double jvmHeapFactor;
+  private final LoggingScopeFactory loggingScopeFactory;
 
   @Inject
   ResourceManager(
@@ -83,7 +86,8 @@ public final class ResourceManager {
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
       final REEFFileNames fileNames,
-      final ClasspathProvider classpathProvider) {
+      final ClasspathProvider classpathProvider,
+      final LoggingScopeFactory loggingScopeFactory) {
 
     this.theContainers = containerManager;
     this.allocationHandler = allocationHandler;
@@ -95,6 +99,7 @@ public final class ResourceManager {
     this.fileNames = fileNames;
     this.classpathProvider = classpathProvider;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
+    this.loggingScopeFactory = loggingScopeFactory;
 
     LOG.log(Level.FINE, "Instantiated 'ResourceManager'");
   }
@@ -164,44 +169,48 @@ public final class ResourceManager {
 
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
-      // Add the global files and libraries.
-      c.addGlobalFiles(this.fileNames.getGlobalFolder());
-      c.addLocalFiles(getLocalFiles(launchRequest));
+      try (final LoggingScope lb = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
+        // Add the global files and libraries.
+        c.addGlobalFiles(this.fileNames.getGlobalFolder());
+        c.addLocalFiles(getLocalFiles(launchRequest));
 
-      // Make the configuration file of the evaluator.
-      final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
+        // Make the configuration file of the evaluator.
+        final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
 
-      try {
-        this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()),
-            evaluatorConfigurationFile);
-      } catch (final IOException | BindException e) {
-        throw new RuntimeException("Unable to write configuration.", e);
+        try {
+          this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()),
+              evaluatorConfigurationFile);
+        } catch (final IOException | BindException e) {
+          throw new RuntimeException("Unable to write configuration.", e);
+        }
       }
 
-      // Assemble the command line
-      final LaunchCommandBuilder commandBuilder;
-      switch (launchRequest.getType()) {
-        case JVM:
-          commandBuilder = new JavaLaunchCommandBuilder()
-              .setClassPath(this.classpathProvider.getEvaluatorClasspath());
-          break;
-        case CLR:
-          commandBuilder = new CLRLaunchCommandBuilder();
-          break;
-        default:
-          throw new IllegalArgumentException(
-              "Unsupported container type: " + launchRequest.getType());
+      try (final LoggingScope lc = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
+        // Assemble the command line
+        final LaunchCommandBuilder commandBuilder;
+        switch (launchRequest.getType()) {
+          case JVM:
+            commandBuilder = new JavaLaunchCommandBuilder()
+                .setClassPath(this.classpathProvider.getEvaluatorClasspath());
+            break;
+          case CLR:
+            commandBuilder = new CLRLaunchCommandBuilder();
+            break;
+          default:
+            throw new IllegalArgumentException(
+                "Unsupported container type: " + launchRequest.getType());
+        }
+
+        final List<String> command = commandBuilder
+            .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
+            .setLaunchID(c.getNodeID())
+            .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
+            .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
+            .build();
+
+        LOG.log(Level.FINEST, "Launching container: {0}", c);
+        c.run(command);
       }
-
-      final List<String> command = commandBuilder
-          .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
-          .setLaunchID(c.getNodeID())
-          .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-          .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
-          .build();
-
-      LOG.log(Level.FINEST, "Launching container: {0}", c);
-      c.run(command);
     }
   }
 
