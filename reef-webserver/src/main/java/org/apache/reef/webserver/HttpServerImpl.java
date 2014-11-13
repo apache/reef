@@ -19,6 +19,8 @@
 package org.apache.reef.webserver;
 
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.util.logging.LoggingScope;
+import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.mortbay.jetty.Server;
 
 import javax.inject.Inject;
@@ -48,6 +50,11 @@ public final class HttpServerImpl implements HttpServer {
   private final int port;
 
   /**
+   * Logging scope factory
+   */
+  private final LoggingScopeFactory loggingScopeFactory;
+
+  /**
    * Constructor of HttpServer that wraps Jetty Server
    *
    * @param jettyHandler
@@ -59,32 +66,37 @@ public final class HttpServerImpl implements HttpServer {
                  final @Parameter(PortNumber.class) int portNumber,
                  final @Parameter(MaxPortNumber.class) int maxPortNumber,
                  final @Parameter(MinPortNumber.class) int minPortNumber,
-                 final @Parameter(MaxRetryAttempts.class) int maxRetryAttempts) throws Exception {
-    HttpServerImpl.jettyHandler = jettyHandler;
-    int port = portNumber;
-    Server srv = null;
-    boolean found = false;
-    for (int attempt = 0; attempt < maxRetryAttempts; ++attempt) {
-      if (attempt > 0) {
-        port = getNextPort(maxPortNumber, minPortNumber);
-      }
-      srv = new Server(port);
-      try {
-        srv.start();
-        found = true;
-        break;
-      } catch (final BindException ex) {
-        LOG.log(Level.FINEST, "Cannot use port: {0}. Will try another", port);
-      }
-    }
+                 final @Parameter(MaxRetryAttempts.class) int maxRetryAttempts,
+                 final LoggingScopeFactory loggingScopeFactory) throws Exception {
 
-    if (found) {
-      this.server = srv;
-      this.port = port;
-      this.server.setHandler(jettyHandler);
-      LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
-    } else {
-      throw new RuntimeException("Could not find available port in " + maxRetryAttempts + " attempts");
+    this.loggingScopeFactory = loggingScopeFactory;
+    try (final LoggingScope ls = this.loggingScopeFactory.httpServer()) {
+      HttpServerImpl.jettyHandler = jettyHandler;
+      int port = portNumber;
+      Server srv = null;
+      boolean found = false;
+      for (int attempt = 0; attempt < maxRetryAttempts; ++attempt) {
+        if (attempt > 0) {
+          port = getNextPort(maxPortNumber, minPortNumber);
+        }
+        srv = new Server(port);
+        try {
+          srv.start();
+          found = true;
+          break;
+        } catch (final BindException ex) {
+          LOG.log(Level.FINEST, "Cannot use port: {0}. Will try another", port);
+        }
+      }
+
+      if (found) {
+        this.server = srv;
+        this.port = port;
+        this.server.setHandler(jettyHandler);
+        LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
+      } else {
+        throw new RuntimeException("Could not find available port in " + maxRetryAttempts + " attempts");
+      }
     }
   }
 

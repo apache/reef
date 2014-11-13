@@ -94,6 +94,14 @@ public class LoggingScopeFactory {
   }
 
   /**
+   * return the logLevel used in LoggingScopeFactory
+   * @return Level
+   */
+  public Level getLogLevel() {
+    return logLevel;
+  }
+
+  /**
    * Get a new instance of LoggingScope with msg and params through new
    * @param msg
    * @param params
