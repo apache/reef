@@ -20,12 +20,8 @@
 package org.apache.reef.util.logging;
 
 import com.google.common.base.Stopwatch;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 
-import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
