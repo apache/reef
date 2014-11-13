@@ -529,6 +529,7 @@
         <module>reef-wake</module>
         <module>reef-webserver</module>
         <module>reef-utils-hadoop</module>
+        <module>reef-utils</module>
     </modules>
 
     <profiles>
