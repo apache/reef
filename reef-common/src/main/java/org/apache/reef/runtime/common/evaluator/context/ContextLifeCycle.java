@@ -18,7 +18,6 @@
  */
 package org.apache.reef.runtime.common.evaluator.context;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.reef.evaluator.context.ContextMessageSource;
 import org.apache.reef.evaluator.context.events.ContextStart;
 import org.apache.reef.evaluator.context.events.ContextStop;
@@ -28,6 +27,8 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -87,7 +88,7 @@ final class ContextLifeCycle {
    * @return (a shallow copy of) the set of ContextMessageSources configured.
    */
   final Set<ContextMessageSource> getContextMessageSources() {
-    return ImmutableSet.<ContextMessageSource>builder().addAll(this.contextMessageSources).build();
+    return Collections.unmodifiableSet(new LinkedHashSet<>(this.contextMessageSources));
   }
 
   final String getIdentifier() {
