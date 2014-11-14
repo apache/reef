@@ -19,7 +19,7 @@
 
 package org.apache.reef.util.logging;
 
-import com.google.common.base.Stopwatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.reef.util.Optional;
 
 import java.util.logging.Level;
@@ -34,7 +34,7 @@ public class LoggingScopeImpl implements LoggingScope {
   public static final String EXIT_PREFIX = "EXIT" + TOKEN;
   public static final String DURATION = " Duration = ";
 
-  private final Stopwatch stopWatch = new Stopwatch();
+  private final StopWatch stopWatch = new StopWatch();
 
   private final Logger logger;
 
@@ -86,7 +86,7 @@ public class LoggingScopeImpl implements LoggingScope {
 
     if (logger.isLoggable(logLevel)) {
       final StringBuilder sb = new StringBuilder();
-      log(sb.append(EXIT_PREFIX).append(msg).append(DURATION).append(stopWatch.elapsedMillis()).toString());
+      log(sb.append(EXIT_PREFIX).append(msg).append(DURATION).append(stopWatch.getTime()).toString());
     }
   }
 
