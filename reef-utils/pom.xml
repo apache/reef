@@ -19,20 +19,27 @@ under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-    <name>REEF Wake Project</name>
-    <artifactId>wake-project</artifactId>
-
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
         <version>0.10-incubating-SNAPSHOT</version>
     </parent>
 
-    <modules>
-        <module>wake</module>
-    </modules>
+    <artifactId>reef-utils</artifactId>
+    <name>REEF Utils</name>
+    <description>Utilities used across REEF modules.</description>
 
+    <!-- This module shouldn't have many dependencies to make sure it is broadly usable across reef subprojects -->
+    <dependencies>
+        <dependency>
+            <groupId>net.jcip</groupId>
+            <artifactId>jcip-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

@@ -16,14 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- {"namespace": "org.apache.reef.webserver",
- "type": "record",
- "name": "AvroHttpRequest",
- "fields": [
-     {"name": "requestUrl", "type": "string"},
-     {"name": "pathInfo", "type": "string"},
-     {"name": "queryString", "type": "string"},
-     {"name": "httpMethod", "type": "string"},
-     {"name": "inputStream", "type": "bytes"}
- ]
-}
+/**
+ * Utilities used across reef modules. Subpackages are structred following the java.utils package.
+ */
+package org.apache.reef.util;
