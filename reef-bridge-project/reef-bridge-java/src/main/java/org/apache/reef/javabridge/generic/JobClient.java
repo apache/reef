@@ -19,14 +19,19 @@
 package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.client.*;
+import org.apache.reef.driver.parameters.DriverJobSubmissionDirectory;
+import org.apache.reef.driver.parameters.DriverMemory;
+import org.apache.reef.driver.parameters.JobGlobalFiles;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
 import org.apache.reef.javabridge.NativeInterop;
+import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
@@ -150,17 +155,17 @@ public class JobClient {
   public void addCLRFiles(final File folder) throws BindException {
     try (final LoggingScope ls = this.loggingScopeFactory.getNewLoggingScope("JobClient::addCLRFiles")) {
       ConfigurationModule result = this.driverConfigModule;
-      for (final File f : folder.listFiles()) {
-        if (f.canRead() && f.exists() && f.isFile()) {
-          result = result.set(DriverConfiguration.GLOBAL_FILES, f.getAbsolutePath());
-        }
-      }
+//      for (final File f : folder.listFiles()) {
+//        if (f.canRead() && f.exists() && f.isFile()) {
+//          result = result.set(DriverConfiguration.GLOBAL_FILES, f.getAbsolutePath());
+//        }
+//      }
 
       // set the driver memory, id and job submission directory
       this.driverConfigModule = result
-          .set(DriverConfiguration.DRIVER_MEMORY, this.driverMemory)
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId)
-          .set(DriverConfiguration.DRIVER_JOB_SUBMISSION_DIRECTORY, this.jobSubmissionDirectory);
+          //.set(DriverConfiguration.DRIVER_MEMORY, this.driverMemory)
+          .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId);
+          //.set(DriverConfiguration.DRIVER_JOB_SUBMISSION_DIRECTORY, this.jobSubmissionDirectory);
 
 
       Path globalLibFile = Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
@@ -181,6 +186,10 @@ public class JobClient {
       }
 
       this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
+      driverConfiguration.getClassHierarchy().getNode(JobGlobalFiles.class.getName());
+      driverConfiguration.getClassHierarchy().getNode(DriverMemory.class.getName());
+      driverConfiguration.getClassHierarchy().getNode(DriverJobSubmissionDirectory.class.getName());
+
     }
   }
 
@@ -200,9 +209,20 @@ public class JobClient {
         this.reef.submit(this.driverConfiguration);
       } else {
         File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
+        File driverConfigText = new File(System.getProperty("user.dir") + "/driverText.config");
+        File classHierarchy = new File(System.getProperty("user.dir") + "/chproto.bin");
+
+        Configuration c = Configurations.merge(this.driverConfiguration, clientConfig);
         try {
-          new AvroConfigurationSerializer().toFile(Configurations.merge(this.driverConfiguration, clientConfig), driverConfig);
+          ClassHierarchy ns = c.getClassHierarchy();
+          ProtocolBufferClassHierarchy.serialize(classHierarchy, ns);
+          ClassHierarchy ns1 = ProtocolBufferClassHierarchy.deserialize(classHierarchy);
+
+          new AvroConfigurationSerializer().toFile(c, driverConfig);
+          new AvroConfigurationSerializer().toTextFile(c, driverConfigText);
+          final String configStr = new AvroConfigurationSerializer().toString(c);
           LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
+          LOG.log(Level.INFO, "Driver configuration string " + configStr);
         } catch (final IOException e) {
           throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
         }
