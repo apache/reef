@@ -213,6 +213,9 @@ under the License.
                             <exclude>.git/**</exclude>
                             <exclude>.idea/**</exclude>
                             <exclude>target/**</exclude>
+                            <exclude>README.*</exclude>
+                            <!-- The below are sometimes created during tests -->
+                            <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
