@@ -23,6 +23,7 @@ import org.apache.reef.driver.parameters.ClientCloseHandlers;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.util.logging.LogLevelName;
 import org.apache.reef.util.logging.LogParser;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.util.logging.LoggingScopeImpl;
@@ -72,11 +73,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   public HttpServerReefEventHandler(
       final ReefEventStateManager reefStateManager,
       final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers,
+      final @Parameter(LogLevelName.class) String logLevel,
       final LoggingScopeFactory loggingScopeFactory) {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.loggingScopeFactory = loggingScopeFactory;
-    this.logLevelPrefix = new StringBuilder().append(loggingScopeFactory.getLogLevel().toString()).append(": ").toString();
+    this.logLevelPrefix = new StringBuilder().append(logLevel).append(": ").toString();
   }
 
   /**
