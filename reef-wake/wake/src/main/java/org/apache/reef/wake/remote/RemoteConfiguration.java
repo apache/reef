@@ -28,7 +28,7 @@ import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
  */
 public final class RemoteConfiguration {
 
-  @NamedParameter(short_name = "rm_name", doc = "The name of the remote manager.")
+  @NamedParameter(short_name = "rm_name", doc = "The name of the remote manager.", default_value = "REEF_CLIENT")
   public static final class ManagerName implements Name<String> {
     // Intentionally empty
   }

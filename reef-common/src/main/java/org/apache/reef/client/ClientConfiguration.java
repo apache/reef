@@ -79,6 +79,5 @@ public final class ClientConfiguration extends ConfigurationModuleBuilder {
       .bind(ResourceManagerErrorHandler.class, ON_RUNTIME_ERROR)
       .bindNamedParameter(ClientPresent.class, ClientPresent.YES)
       .bindNamedParameter(RemoteConfiguration.ErrorHandler.class, ON_WAKE_ERROR)
-      .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_CLIENT")
       .build();
 }
