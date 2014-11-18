@@ -18,7 +18,6 @@
  */
 package org.apache.reef.runtime.common.client;
 
-import org.apache.reef.client.REEF;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.proto.ClientRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
@@ -28,6 +27,7 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
+import org.apache.reef.util.REEFVersion;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -58,10 +58,13 @@ final class JobSubmissionHelper {
   private static final Logger LOG = Logger.getLogger(JobSubmissionHelper.class.getName());
 
   private final ConfigurationSerializer configurationSerializer;
+  private final REEFVersion version;
 
   @Inject
-  JobSubmissionHelper(ConfigurationSerializer configurationSerializer) {
+  JobSubmissionHelper(final ConfigurationSerializer configurationSerializer,
+                      final REEFVersion version) {
     this.configurationSerializer = configurationSerializer;
+    this.version = version;
   }
 
   /**
@@ -165,6 +168,6 @@ final class JobSubmissionHelper {
    * @return the version string for REEF.
    */
   String getVersion() {
-    return REEF.REEF_VERSION;
+    return version.getVersion();
   }
 }
