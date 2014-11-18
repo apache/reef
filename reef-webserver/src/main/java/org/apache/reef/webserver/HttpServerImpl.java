@@ -37,7 +37,7 @@ public final class HttpServerImpl implements HttpServer {
    */
   private static final Logger LOG = Logger.getLogger(HttpServerImpl.class.getName());
 
-  private static JettyHandler jettyHandler;
+  private JettyHandler jettyHandler;
 
   /**
    * Jetty server.
@@ -71,7 +71,7 @@ public final class HttpServerImpl implements HttpServer {
 
     this.loggingScopeFactory = loggingScopeFactory;
     try (final LoggingScope ls = this.loggingScopeFactory.httpServer()) {
-      HttpServerImpl.jettyHandler = jettyHandler;
+      this.jettyHandler = jettyHandler;
       int port = portNumber;
       Server srv = null;
       boolean found = false;
