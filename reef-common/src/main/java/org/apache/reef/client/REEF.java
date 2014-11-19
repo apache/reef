@@ -53,8 +53,4 @@ public interface REEF extends AutoCloseable {
    */
   public void submit(final Configuration driverConf);
 
-  /**
-   * @return the version of REEF running.
-   */
-  public String getVersion();
 }

@@ -58,13 +58,11 @@ final class JobSubmissionHelper {
   private static final Logger LOG = Logger.getLogger(JobSubmissionHelper.class.getName());
 
   private final ConfigurationSerializer configurationSerializer;
-  private final REEFVersion version;
 
   @Inject
   JobSubmissionHelper(final ConfigurationSerializer configurationSerializer,
                       final REEFVersion version) {
     this.configurationSerializer = configurationSerializer;
-    this.version = version;
   }
 
   /**
@@ -164,10 +162,4 @@ final class JobSubmissionHelper {
     return jarFile;
   }
 
-  /**
-   * @return the version string for REEF.
-   */
-  String getVersion() {
-    return version.getVersion();
-  }
 }
