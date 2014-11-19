@@ -40,14 +40,14 @@ public final class REEFVersion {
 
   @Inject
   public REEFVersion() {
-    this.version = initVersion();
+    this.version = loadVersion();
   }
 
-  private static String initVersion() {
+  private static String loadVersion() {
     String version;
     try (final InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FILENAME)) {
       if (is == null) {
-        throw new IOException(FILENAME+" not found");
+        throw new IOException(FILENAME + " not found");
       }
       final Properties properties = new Properties();
       properties.load(is);
