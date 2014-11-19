@@ -20,6 +20,7 @@ package org.apache.reef.webserver;
 
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.parameters.ClientCloseHandlers;
+import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -32,8 +33,8 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.FileReader;
+//import java.io.BufferedReader;
+//import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -52,8 +53,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
 
   private static final String ver = "v1";
-  private static final String stdoutFile = "stdout.txt";
-  private static final String stderrFile = "stderr.txt";
+  private final String driverStdoutFile;
+  private final String driverStderrFile;
 
   private final ReefEventStateManager reefStateManager;
   private final Set<EventHandler<Void>> clientCloseHandlers;
@@ -74,11 +75,14 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final ReefEventStateManager reefStateManager,
       final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers,
       final @Parameter(LogLevelName.class) String logLevel,
-      final LoggingScopeFactory loggingScopeFactory) {
+      final LoggingScopeFactory loggingScopeFactory,
+      final REEFFileNames reefFileNames) {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.loggingScopeFactory = loggingScopeFactory;
     this.logLevelPrefix = new StringBuilder().append(logLevel).append(": ").toString();
+    driverStdoutFile = reefFileNames.getDriverStdoutFileName();
+    driverStderrFile = reefFileNames.getDriverStderrFileName();
   }
 
   /**
@@ -149,7 +153,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         response.getWriter().println("Killing");
         break;
       case "duration":
-        final ArrayList<String> lines = LogParser.getFilteredLinesFromFile(stderrFile, LoggingScopeImpl.DURATION, LoggingScopeImpl.TOKEN, null);
+        final ArrayList<String> lines = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.DURATION, LoggingScopeImpl.TOKEN, null);
         writeLines(response, lines, "Performance...");
 
         //for byte array format
@@ -157,8 +161,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         //response.getOutputStream().write(durations);
         break;
       case "stages":
-        final ArrayList<String> starts = LogParser.getFilteredLinesFromFile(stderrFile, LoggingScopeImpl.START_PREFIX, logLevelPrefix, null);
-        final ArrayList<String> exits = LogParser.getFilteredLinesFromFile(stderrFile, LoggingScopeImpl.EXIT_PREFIX, logLevelPrefix, LoggingScopeImpl.DURATION);
+        final ArrayList<String> starts = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.START_PREFIX, logLevelPrefix, null);
+        final ArrayList<String> exits = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.EXIT_PREFIX, logLevelPrefix, LoggingScopeImpl.DURATION);
         final ArrayList<String> startsStages = LogParser.findStages(starts, LogParser.startIndicators);
         final ArrayList<String> endStages = LogParser.findStages(exits, LogParser.endIndicators);
         final ArrayList<String> result = LogParser.mergeStages(startsStages, endStages);
@@ -175,8 +179,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         }
 
         final String fileName = (String)names.get(0);
-        if (!fileName.equals(stdoutFile) && !fileName.equals(stderrFile)) {
-          response.getWriter().println(String.format("Wrong file name: " + fileName));
+        if (!fileName.equals(driverStdoutFile) && !fileName.equals(driverStderrFile)) {
+          response.getWriter().println(String.format("Unsupported file names: [%s] ", fileName));
         }
 
         final byte[] outputBody = readFile((String)names.get(0)).getBytes(Charset.forName("UTF-8"));
