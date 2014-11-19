@@ -28,10 +28,12 @@ import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.util.REEFVersion;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ClientSide
@@ -53,6 +55,7 @@ public final class REEFImplementation implements REEF {
    * @param jobSubmissionHelper
    * @param jobStatusMessageHandler is passed only to make sure it is instantiated
    * @param clientWireUp
+   * @param reefVersion             provides the current version of REEF.
    */
   @Inject
   REEFImplementation(final JobSubmissionHandler jobSubmissionHandler,
@@ -60,13 +63,15 @@ public final class REEFImplementation implements REEF {
                      final JobSubmissionHelper jobSubmissionHelper,
                      final JobStatusMessageHandler jobStatusMessageHandler,
                      final ClientWireUp clientWireUp,
-                     final LoggingScopeFactory loggingScopeFactory) {
+                     final LoggingScopeFactory loggingScopeFactory,
+                     final REEFVersion reefVersion) {
     this.jobSubmissionHandler = jobSubmissionHandler;
     this.runningJobs = runningJobs;
     this.jobSubmissionHelper = jobSubmissionHelper;
     this.clientWireUp = clientWireUp;
     clientWireUp.performWireUp();
     this.loggingScopeFactory = loggingScopeFactory;
+    reefVersion.logVersion();
   }
 
   @Override
@@ -96,12 +101,6 @@ public final class REEFImplementation implements REEF {
       this.jobSubmissionHandler.onNext(submissionMessage);
     }
   }
-
-  @Override
-  public String getVersion() {
-    return this.jobSubmissionHelper.getVersion();
-  }
-
 
   @NamedParameter(doc = "The driver remote identifier.")
   public final static class DriverRemoteIdentifier implements Name<String> {
