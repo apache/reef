@@ -89,9 +89,9 @@ under the License.
             </resource>
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
+                <excludes>
+                    <exclude>version.properties</exclude>
+                </excludes>
                 <filtering>false</filtering>
             </resource>
         </resources>
