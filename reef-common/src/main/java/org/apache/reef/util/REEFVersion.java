@@ -28,9 +28,9 @@ import java.util.logging.Logger;
 /**
  * Version information, retrieved from the pom (via a properties file reference)
  */
-public final class Version {
+public final class REEFVersion {
 
-  private final static Logger LOG = Logger.getLogger(Version.class.getName());
+  private final static Logger LOG = Logger.getLogger(REEFVersion.class.getName());
 
   private final static String FILENAME = "version.properties";
   private final static String VERSION_KEY = "version";
@@ -39,7 +39,7 @@ public final class Version {
   private final String version;
 
   @Inject
-  public Version() {
+  public REEFVersion() {
     this.version = initVersion();
   }
 
