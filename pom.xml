@@ -213,6 +213,9 @@ under the License.
                             <exclude>.git/**</exclude>
                             <exclude>.idea/**</exclude>
                             <exclude>target/**</exclude>
+                            <exclude>README.*</exclude>
+                            <!-- The below are sometimes created during tests -->
+                            <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -448,6 +451,11 @@ under the License.
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-math3</artifactId>
                 <version>3.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.3.2</version>
             </dependency>
             <!-- End of Apache Commons -->
 

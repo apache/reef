@@ -108,7 +108,7 @@ final class ProcessContainer implements Container {
   }
 
   @Override
-  public void addGlobalFiles(File globalFolder) {
+  public void addGlobalFiles(final File globalFolder) {
     try {
       copy(Arrays.asList(globalFolder.listFiles()), this.globalFolder);
     } catch (final IOException e) {
@@ -118,7 +118,12 @@ final class ProcessContainer implements Container {
 
   @Override
   public void run(final List<String> commandLine) {
-    this.process = new RunnableProcess(commandLine, this.containedID, this.folder, this.processObserver);
+    this.process = new RunnableProcess(commandLine,
+        this.containedID,
+        this.folder,
+        this.processObserver,
+        this.fileNames.getEvaluatorStdoutFileName(),
+        this.fileNames.getEvaluatorStderrFileName());
     this.theThread = new Thread(this.process);
     this.theThread.start();
   }

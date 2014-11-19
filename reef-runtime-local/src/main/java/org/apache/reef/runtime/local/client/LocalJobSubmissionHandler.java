@@ -149,7 +149,11 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         }
 
         final RunnableProcess process = new RunnableProcess(command,
-            "driver", driverFolder, new LoggingRunnableProcessObserver());
+            "driver",
+            driverFolder,
+            new LoggingRunnableProcessObserver(),
+            this.filenames.getDriverStdoutFileName(),
+            this.filenames.getDriverStderrFileName());
         this.executor.submit(process);
         this.executor.shutdown();
 

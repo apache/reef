@@ -37,8 +37,6 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @DefaultImplementation(REEFImplementation.class)
 public interface REEF extends AutoCloseable {
 
-  static final String REEF_VERSION = "0.6-SNAPSHOT";
-
   /**
    * Close the resourcemanager connection.
    */
