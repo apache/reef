@@ -60,8 +60,7 @@ final class JobSubmissionHelper {
   private final ConfigurationSerializer configurationSerializer;
 
   @Inject
-  JobSubmissionHelper(final ConfigurationSerializer configurationSerializer,
-                      final REEFVersion version) {
+  JobSubmissionHelper(final ConfigurationSerializer configurationSerializer) {
     this.configurationSerializer = configurationSerializer;
   }
 
@@ -161,5 +160,4 @@ final class JobSubmissionHelper {
     }
     return jarFile;
   }
-
 }

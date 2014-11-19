@@ -52,5 +52,4 @@ public interface REEF extends AutoCloseable {
    * @param driverConf The driver configuration: including everything it needs to execute.  @see DriverConfiguration
    */
   public void submit(final Configuration driverConf);
-
 }
