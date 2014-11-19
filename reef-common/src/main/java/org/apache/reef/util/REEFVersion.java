@@ -43,6 +43,29 @@ public final class REEFVersion {
     this.version = loadVersion();
   }
 
+  /**
+   * Logs the version of REEF into the log Level INFO.
+   */
+  public void logVersion() {
+    this.logVersion(Level.INFO);
+  }
+
+  /**
+   * Logs the version of REEF into the given logLevel.
+   *
+   * @param logLevel The level to use in the log.
+   */
+  public void logVersion(final Level logLevel) {
+    LOG.log(logLevel, "REEF Version: {0}", this.version);
+  }
+
+  /**
+   * @return the version string for REEF.
+   */
+  public String getVersion() {
+    return version;
+  }
+
   private static String loadVersion() {
     String version;
     try (final InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FILENAME)) {
@@ -56,13 +79,6 @@ public final class REEFVersion {
       LOG.log(Level.WARNING, "Could not find REEF version");
       version = VERSION_DEFAULT;
     }
-    return version;
-  }
-
-  /**
-   * @return the version string for REEF.
-   */
-  public String getVersion() {
     return version;
   }
 }
