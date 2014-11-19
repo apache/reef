@@ -20,20 +20,17 @@ package org.apache.reef.examples.scheduler;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.reef.client.DriverConfiguration;
-import org.apache.reef.client.DriverServiceConfiguration;
 import org.apache.reef.client.REEF;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
-import org.apache.reef.util.EnvironmentUtils;
-import org.apache.reef.webserver.HttpHandlerConfiguration;
-import org.apache.reef.webserver.ReefEventStateManager;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
+import org.apache.reef.util.EnvironmentUtils;
+import org.apache.reef.webserver.HttpHandlerConfiguration;
 
 import java.io.IOException;
 
@@ -43,7 +40,8 @@ import java.io.IOException;
 public final class SchedulerREEF {
 
   /**
-   * Command line parameter = true to reuse evaluators, or false allocate/close for each iteration
+   * Command line parameter = true to reuse evaluators,
+   * or false to allocate/close for each iteration
    */
   @NamedParameter(doc = "Whether or not to reuse evaluators",
     short_name = "retain", default_value = "true")
@@ -55,10 +53,9 @@ public final class SchedulerREEF {
    */
   private final static Configuration getHttpConf() {
     final Configuration httpHandlerConf = HttpHandlerConfiguration.CONF
-      .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdHandler.class)
+      .set(HttpHandlerConfiguration.HTTP_HANDLERS, SchedulerHttpHandler.class)
       .build();
     return httpHandlerConf;
-
   }
 
   /**
@@ -91,7 +88,7 @@ public final class SchedulerREEF {
 
     final Configuration commandLineConf = CommandLine.parseToConfiguration(args, Retain.class);
 
-    // Merge the configurations to run Driver
+    // Merge the configurations to submitTask Driver
     final Configuration driverConf = Configurations.merge(getDriverConf(), getHttpConf(), commandLineConf);
 
     final REEF reef = tang.newInjector(runtimeConf).getInstance(REEF.class);

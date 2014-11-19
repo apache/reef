@@ -24,13 +24,6 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.CompletedTask;
-import org.apache.reef.driver.task.TaskConfiguration;
-import org.apache.reef.examples.library.Command;
-import org.apache.reef.examples.library.ShellTask;
-import org.apache.reef.io.network.util.Pair;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
@@ -39,8 +32,7 @@ import org.apache.reef.wake.time.event.StartTime;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,13 +50,12 @@ public final class SchedulerDriver {
    * Possible states of the job driver. Can be one of:
    * <dl>
    * <du><code>INIT</code></du><dd>Initial state. Ready to request an evaluator</dd>
-   * <du><code>WAIT_EVALUATORS</code></du><dd>Wait for requested evaluators to be ready.</dd>
-   * <du><code>READY</code></du><dd>Wait for the commands. When new Tasks arrive, enqueue the tasks and transit to RUNNING status.</dd>
+   * <du><code>READY</code></du><dd>Wait for the commands. Reactivated when a new Task arrives</dd>
    * <du><code>RUNNING</code></du><dd>Run commands in the queue. Go back to READY state when the queue is empty.</dd>
    * </dl>
    */
   private enum State {
-    INIT, WAIT_EVALUATOR, READY, RUNNING
+    INIT, READY, RUNNING
   }
 
   /**
@@ -72,41 +63,28 @@ public final class SchedulerDriver {
    */
   private boolean retainable;
 
-  private Object lock = new Object();
-
-  @GuardedBy("lock")
+  @GuardedBy("SchedulerDriver.this")
   private State state = State.INIT;
 
-  @GuardedBy("lock")
-  private final Queue<Pair<Integer, String>> taskQueue;
+  @GuardedBy("SchedulerDriver.this")
+  private Scheduler scheduler;
 
-  @GuardedBy("lock")
-  private Integer runningTaskId = null;
-
-  @GuardedBy("lock")
-  private Set<Integer> finishedTaskId = new HashSet<>();
-
-  @GuardedBy("lock")
-  private Set<Integer> canceledTaskId = new HashSet<>();
+  @GuardedBy("SchedulerDriver.this")
+  private int nMaxEval = 3, nActiveEval = 0, nRequestedEval = 0;
 
   private final EvaluatorRequestor requestor;
 
-
-  /**
-   * Counts how many tasks have been scheduled.
-   */
-  private AtomicInteger taskCount = new AtomicInteger(0);
-
   @Inject
   public SchedulerDriver(final EvaluatorRequestor requestor,
-                         @Parameter(SchedulerREEF.Retain.class) boolean retainable) {
+                         @Parameter(SchedulerREEF.Retain.class) boolean retainable,
+                         final Scheduler scheduler) {
     this.requestor = requestor;
-    this.taskQueue = new LinkedList<>();
+    this.scheduler = scheduler;
     this.retainable = retainable;
   }
 
   /**
-   * The driver is ready to run.
+   * The driver is ready to submitTask.
    */
   final class StartHandler implements EventHandler<StartTime> {
     @Override
@@ -114,19 +92,22 @@ public final class SchedulerDriver {
       LOG.log(Level.INFO, "Driver started at {0}", startTime);
       assert (state == State.INIT);
 
-      requestEvaluator();
+      requestEvaluator(1); // Allocate an initial evaluator to avoid idle state.
     }
   }
 
   /**
-   * Evaluator is allocated. This occurs every time to run commands in Non-retainable version,
+   * Evaluator is allocated. This occurs every time to submitTask commands in Non-retainable version,
    * while occurs only once in the Retainable version
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator evaluator) {
       LOG.log(Level.INFO, "Evaluator is ready");
-      assert (state == State.WAIT_EVALUATOR);
+      synchronized (SchedulerDriver.this) {
+        nActiveEval++;
+        nRequestedEval--;
+      }
 
       evaluator.submitContext(ContextConfiguration.CONF
         .set(ContextConfiguration.IDENTIFIER, "SchedulerContext")
@@ -137,148 +118,30 @@ public final class SchedulerDriver {
   /**
    * Now it is ready to schedule tasks. But if the queue is empty,
    * wait until commands coming up.
+   *
+   * If there is no pending task, having more than 1 evaluators must be redundant.
+   * It may happen, for example, when tasks are canceled during allocation.
+   * In these cases, the new evaluator may be abandoned.
    */
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(ActiveContext context) {
-      synchronized (lock) {
+      synchronized (SchedulerDriver.this) {
         LOG.log(Level.INFO, "Context available : {0}", context.getId());
-        assert (state == State.WAIT_EVALUATOR);
 
-        state = State.READY;
-        waitForCommands(context);
-      }
-    }
-  }
-
-  /**
-   * Get the list of Tasks. They are classified as their states.
-   * @return
-   */
-  public String getList() {
-    synchronized (lock) {
-      final StringBuilder sb = new StringBuilder("Running : ");
-      if (runningTaskId != null) {
-        sb.append(runningTaskId);
-      }
-
-      sb.append("\nWaiting :");
-      for (final Pair<Integer, String> entity : taskQueue) {
-        sb.append(" ").append(entity.first);
-      }
-
-      sb.append("\nFinished :");
-      for (final int taskIds : finishedTaskId) {
-        sb.append(" ").append(taskIds);
-      }
-
-      sb.append("\nCanceled :");
-      for (final int taskIds : canceledTaskId) {
-        sb.append(" ").append(taskIds);
-      }
-      return sb.toString();
-    }
-  }
-
-  /**
-   * Get the status of a Task.
-   * @return
-   */
-  public String getStatus(final List<String> args) {
-    if (args.size() != 1) {
-      return getResult(false, "Usage : only one ID at a time");
-    }
-
-    final Integer taskId = Integer.valueOf(args.get(0));
-
-    synchronized (lock) {
-      if (taskId.equals(runningTaskId)) {
-        return getResult(true, "Running");
-      } else if (finishedTaskId.contains(taskId)) {
-        return getResult(true, "Finished");
-      } else if (canceledTaskId.contains(taskId)) {
-        return getResult(true, "Canceled");
-      }
-
-      for (final Pair<Integer, String> entity : taskQueue) {
-        if (taskId == entity.first) {
-          return getResult(true, "Waiting");
+        if (scheduler.hasPendingTasks()) {
+          state = State.RUNNING;
+          scheduler.submitTask(context);
+        } else if (nActiveEval > 1) {
+          nActiveEval--;
+          context.close();
+        } else {
+          state = State.READY;
+          waitForCommands(context);
         }
       }
-      return getResult(false, "Not found");
     }
   }
-
-  /**
-   * Submit a command to schedule.
-   * @return
-   */
-  public String submitCommands(final List<String> args) {
-    if (args.size() != 1) {
-      return getResult(false, "Usage : only one ID at a time");
-    }
-
-    final String command = args.get(0);
-
-    synchronized (lock) {
-      final Integer id = taskCount.incrementAndGet();
-      taskQueue.add(new Pair(id, command));
-
-      if (readyToRun()) {
-        state = State.RUNNING;
-        lock.notify();
-      }
-      return getResult(true, "Task ID : "+id);
-    }
-  }
-
-  /**
-   * Cancel a Task waiting on the queue. A task cannot be canceled
-   * once it is running.
-   * @return
-   */
-  public String cancelTask(final List<String> args) {
-    if (args.size() != 1) {
-      return getResult(false, "Usage : only one ID at a time");
-    }
-
-    final Integer taskId = Integer.valueOf(args.get(0));
-
-    synchronized (lock) {
-      if (taskId.equals(runningTaskId)) {
-        return getResult(false, "The task is running");
-      } else if (finishedTaskId.contains(taskId)) {
-        return getResult(false, "Already finished");
-      }
-
-      for (final Pair<Integer, String> entity : taskQueue) {
-        if (taskId == entity.first) {
-          taskQueue.remove(entity);
-          canceledTaskId.add(taskId);
-          return getResult(true, "Canceled");
-        }
-      }
-      return getResult(false, "Not found");
-    }
-  }
-
-  /**
-   * Clear all the Tasks from the waiting queue.
-   * @return
-   */
-  public String clearList() {
-    final int count;
-    synchronized (lock) {
-      count = taskQueue.size();
-      for (Pair<Integer, String> entity : taskQueue) {
-        canceledTaskId.add(entity.first);
-      }
-      taskQueue.clear();
-    }
-    return getResult(true, count + " tasks removed.");
-  }
-
-
 
   /**
    * Non-retainable version of CompletedTaskHandler.
@@ -288,95 +151,181 @@ public final class SchedulerDriver {
   final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask task) {
-      synchronized (lock) {
-        finishedTaskId.add(runningTaskId);
-        runningTaskId = null;
+      final int taskId = Integer.valueOf(task.getId());
 
-        LOG.log(Level.INFO, "Task completed. Reuse the evaluator :", String.valueOf(retainable));
+      synchronized (SchedulerDriver.this) {
+        scheduler.setFinished(taskId);
+
+        LOG.log(Level.INFO, "Task completed. Reuse the evaluator : {0}", String.valueOf(retainable));
+        final ActiveContext context = task.getActiveContext();
 
         if (retainable) {
-          if (taskQueue.isEmpty()) {
-            state = State.READY;
-          }
-          waitForCommands(task.getActiveContext());
+          retainEvaluator(context);
         } else {
-          task.getActiveContext().close();
-          state = State.WAIT_EVALUATOR;
-          requestEvaluator();
+          reallocateEvaluator(context);
         }
       }
     }
   }
 
   /**
-   * Request an evaluator
+   * Get the list of tasks in the scheduler.
    */
-  private synchronized void requestEvaluator() {
-    requestor.submit(EvaluatorRequest.newBuilder()
-      .setMemory(128)
-      .setNumber(1)
-      .build());
+  public synchronized SchedulerResponse getList() {
+    return scheduler.getList();
   }
 
   /**
-   * @param command The command to execute
+   * Clear all the Tasks from the waiting queue.
    */
-  private void submit(final ActiveContext context, final Integer taskId, final String command) {
-    final Configuration taskConf = TaskConfiguration.CONF
-      .set(TaskConfiguration.TASK, ShellTask.class)
-      .set(TaskConfiguration.IDENTIFIER, "ShellTask"+taskId)
-      .build();
-    final Configuration commandConf = Tang.Factory.getTang().newConfigurationBuilder()
-      .bindNamedParameter(Command.class, command)
-      .build();
-
-    LOG.log(Level.INFO, "Submitting command : {0}", command);
-    final Configuration merged = Configurations.merge(taskConf, commandConf);
-    context.submitTask(merged);
+  public synchronized SchedulerResponse clearList() {
+    return scheduler.clear();
   }
 
   /**
-   * Pick up a command from the queue and run it. Wait until
+   * Get the status of a task.
+   */
+  public synchronized SchedulerResponse getTaskStatus(List<String> id) {
+    return scheduler.getTaskStatus(id);
+  }
+
+
+  /**
+   * Cancel a Task waiting on the queue. A task cannot be canceled
+   * once it is running.
+   */
+  public SchedulerResponse cancelTask(final List<String> args) {
+    if (args.size() != 1) {
+      return new SchedulerResponse(SchedulerResponse.SC_BAD_REQUEST, "Usage : only one ID at a time");
+    }
+
+    final Integer taskId = Integer.valueOf(args.get(0));
+
+    synchronized (SchedulerDriver.this) {
+      return scheduler.cancelTask(taskId);
+    }
+  }
+
+  /**
+   * Submit a command to schedule.
+   */
+  public SchedulerResponse submitCommands(final List<String> args) {
+    if (args.size() != 1) {
+      return new SchedulerResponse(SchedulerResponse.SC_BAD_REQUEST, "Usage : only one command at a time");
+    }
+
+    final String command = args.get(0);
+    final Integer id;
+
+    synchronized (SchedulerDriver.this) {
+      id = scheduler.assignTaskId();
+      scheduler.addTask(new TaskEntity(id, command));
+
+      if (state == State.READY) {
+        SchedulerDriver.this.notify(); // Wake up at {waitForCommands}
+      } else if (state == State.RUNNING && nMaxEval > nActiveEval + nRequestedEval) {
+        requestEvaluator(1);
+      }
+    }
+    return new SchedulerResponse(SchedulerResponse.SC_OK, "Task ID : " + id);
+  }
+
+  /**
+   * Update the maximum number of evaluators to hold.
+   * Request more evaluators in case there are pending tasks
+   * in the queue and the number of evaluators is less than the limit.
+   */
+  public SchedulerResponse setMaxEvaluators(final List<String> args) {
+    if (args.size() != 1) {
+      return new SchedulerResponse(SchedulerResponse.SC_BAD_REQUEST, "Usage : Only one value can be used");
+    }
+
+    final int nTarget = Integer.valueOf(args.get(0));
+
+    synchronized (SchedulerDriver.this) {
+      if (nTarget < nActiveEval + nRequestedEval) {
+        return new SchedulerResponse(SchedulerResponse.SC_FORBIDDEN,
+          nActiveEval + nRequestedEval + " evaluators are used now. Should be larger than that.");
+      }
+      nMaxEval = nTarget;
+
+      if (scheduler.hasPendingTasks()) {
+        final int nToRequest =
+          Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
+        requestEvaluator(nToRequest);
+      }
+      return new SchedulerResponse(SchedulerResponse.SC_OK,
+        "You can use evaluators up to " + nMaxEval + " evaluators.");
+    }
+  }
+
+  /**
+   * Request evaluators. Passing a non positive number is illegal,
+   * so it does not make a trial for that situation.
+   */
+  private void requestEvaluator(final int numToRequest) {
+    if (numToRequest <= 0) {
+      return;
+    }
+
+    synchronized (SchedulerDriver.this) {
+      nRequestedEval += numToRequest;
+      requestor.submit(EvaluatorRequest.newBuilder()
+        .setMemory(32)
+        .setNumber(numToRequest)
+        .build());
+    }
+  }
+
+  /**
+   * Pick up a command from the queue and submitTask it. Wait until
    * any command coming up if no command exists.
-   * @param context
    */
   private void waitForCommands(final ActiveContext context) {
-    synchronized (lock) {
-      while (taskQueue.isEmpty()) {
-        // Wait until any commands enter in the queue
+    synchronized (SchedulerDriver.this) {
+      while (!scheduler.hasPendingTasks()) {
+        // Wait until any command enters in the queue
         try {
-          lock.wait();
+          SchedulerDriver.this.wait();
         } catch (InterruptedException e) {
           LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
         }
       }
-
       // Run the first command from the queue.
-      final Pair<Integer, String> task = taskQueue.poll();
-      runningTaskId = task.first;
-      final String command = task.second;
-      submit(context, runningTaskId, command);
+      state = State.RUNNING;
+      scheduler.submitTask(context);
     }
   }
 
   /**
-   * @return {@code true} if it is possible to run commands.
+   * Retain the complete evaluators submitting another task
+   * until there is no need to reuse them.
    */
-  private boolean readyToRun() {
-    synchronized (lock) {
-      return state == State.READY && taskQueue.size() > 0;
+  private synchronized void retainEvaluator(final ActiveContext context) {
+    if (scheduler.hasPendingTasks()) {
+      scheduler.submitTask(context);
+    } else if (nActiveEval > 1) {
+      nActiveEval--;
+      context.close();
+    } else {
+      state = State.READY;
+      waitForCommands(context);
     }
   }
 
   /**
-   * Return the result including status and message
-   * @param success
-   * @param message
-   * @return
+   * Always close the complete evaluators and
+   * allocate a new evaluator if necessary.
    */
-  private static String getResult(final boolean success, final String message) {
-    final StringBuilder sb = new StringBuilder();
-    final String status = success ? "Success" : "Error";
-    return sb.append("[").append(status).append("] ").append(message).toString();
+  private synchronized void reallocateEvaluator(final ActiveContext context) {
+    nActiveEval--;
+    context.close();
+
+    if (scheduler.hasPendingTasks()) {
+      requestEvaluator(1);
+    } else if (nActiveEval <= 0) {
+      state = State.READY;
+      requestEvaluator(1);
+    }
   }
 }
