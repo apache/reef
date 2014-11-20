@@ -18,39 +18,51 @@
  */
 package org.apache.reef.webserver;
 
-import org.apache.reef.tang.annotations.DefaultImplementation;
+import javax.inject.Inject;
+import java.util.logging.Logger;
 
 /**
- * HttpServer interface
+ * HttpServer. It manages Jetty Server and Event Handlers
  */
-@DefaultImplementation(DefaultHttpServerImpl.class)
-public interface HttpServer {
+public final class DefaultHttpServerImpl implements HttpServer {
+  /**
+   * Standard Java logger.
+   */
+  private static final Logger LOG = Logger.getLogger(DefaultHttpServerImpl.class.getName());
+
+  @Inject
+  DefaultHttpServerImpl() {
+  }
 
   /**
-   * start the server
+   * It will be called from RuntimeStartHandler. As the Jetty server has been started at initialization phase, no need to start here.
    *
    * @throws Exception
    */
-  public void start() throws Exception;
+  @Override
+  public void start() throws Exception {
+  }
 
   /**
-   * stop the server
+   * stop Jetty Server. It will be called from RuntimeStopHandler
    *
    * @throws Exception
    */
-  public void stop() throws Exception;
+  @Override
+  public void stop() throws Exception {
+  }
+
+  @Override
+  public int getPort() {
+    return 0;
+  }
 
   /**
-   * get port number of the server
-   *
-   * @return
-   */
-  public int getPort();
-
-  /**
-   * Add a httpHandler to the server
+   * Add a HttpHandler to Jetty Handler
    *
    * @param httpHandler
    */
-  public void addHttpHandler(final HttpHandler httpHandler);
+  @Override
+  public void addHttpHandler(final HttpHandler httpHandler) {
+  }
 }

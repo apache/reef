@@ -137,6 +137,7 @@ public final class JobDriver {
             final EvaluatorRequestor evaluatorRequestor,
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
+    LOG.log(Level.INFO, "JobDriver constructor1");
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
@@ -188,17 +189,19 @@ public final class JobDriver {
         this.driverRestartRunningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartRunningTaskKey)];
       }
 
-      try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
-        final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-        NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
-        final String specList = httpServerEventBridge.getUriSpecification();
-        LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
-        if (specList != null) {
-          final String[] specs = specList.split(":");
-          for (final String s : specs) {
-            final HttpHandler h = new HttpServerBridgeEventHandler();
-            h.setUriSpecification(s);
-            this.httpServer.addHttpHandler(h);
+      if (!(httpServer instanceof DefaultHttpServerImpl)) {
+        try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
+          final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
+          NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
+          final String specList = httpServerEventBridge.getUriSpecification();
+          LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
+          if (specList != null) {
+            final String[] specs = specList.split(":");
+            for (final String s : specs) {
+              final HttpHandler h = new HttpServerBridgeEventHandler();
+              h.setUriSpecification(s);
+              this.httpServer.addHttpHandler(h);
+            }
           }
         }
       }

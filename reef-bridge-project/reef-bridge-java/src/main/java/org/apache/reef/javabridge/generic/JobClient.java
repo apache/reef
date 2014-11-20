@@ -56,6 +56,13 @@ public class JobClient {
    */
   private static final Logger LOG = Logger.getLogger(JobClient.class.getName());
 
+  private static final String USER_DIR = "user.dir";
+  private static final String DRIVER_CONFIG_FILE = "driver.config";
+  private static final String JOB_DRIVER_CONFIG_FILE = "jobDriver.config";
+  private static final String JOB_DRIVER_CH_FILE = "jobDriverClasshierarchy.bin";
+  private static final String HTTP_SERVER_CONFIG_FILE = "httpServer.config";
+  private static final String HTTP_SERVER_CH_FILE = "httpServerClasshierarchy.bin";
+
   /**
    * Reference to the REEF framework.
    * This variable is injected automatically in the constructor.
@@ -176,63 +183,11 @@ public class JobClient {
 
         for (final String s : globalLibString.split(",")) {
           File f = new File(s);
+          String path = f.getPath();
           this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getPath());
         }
       }
-
       this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
-    }
-  }
-
-  private void addGlobalLibraries() {
-    Path globalLibFile = Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
-    if (!Files.exists(globalLibFile)) {
-      LOG.log(Level.FINE, "Cannot find global classpath file at: {0}, assume there is none.", globalLibFile.toAbsolutePath());
-    } else {
-      String globalLibString = "";
-      try {
-        globalLibString = new String(Files.readAllBytes(globalLibFile));
-      } catch (final Exception e) {
-        LOG.log(Level.WARNING, "Cannot read from {0}, global libraries not added  " + globalLibFile.toAbsolutePath());
-      }
-
-      for (final String s : globalLibString.split(",")) {
-        File f = new File(s);
-        this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getPath());
-      }
-    }
-  }
-
-  public void addFilesForDriverConfig() throws BindException {
-    try (final LoggingScope ls = this.loggingScopeFactory.getNewLoggingScope("JobClient::getDriverConfig")) {
-      ConfigurationModule result = this.driverConfigModule;
-
-      // set the driver memory, id and job submission directory
-      this.driverConfigModule = result
-          .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId);
-
-      addGlobalLibraries();
-
-//      this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
-      this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getNameServerConfiguration());
-
-      driverConfiguration.getClassHierarchy().getNode(JobGlobalFiles.class.getName());
-      driverConfiguration.getClassHierarchy().getNode(DriverMemory.class.getName());
-      driverConfiguration.getClassHierarchy().getNode(DriverJobSubmissionDirectory.class.getName());
-//
-//      driverConfiguration.getClassHierarchy().getNode(DriverRestartContextActiveHandlers.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(TrackingURLProvider.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(HttpServer.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(DriverRestartTaskRunningHandlers.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(DriverRestartContextActiveHandlers.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(Clock.RuntimeStartHandler.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(HttpTrackingURLProvider.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(HttpServerImpl.class.getName());
-//
-//
-//      driverConfiguration.getClassHierarchy().getNode(ReefEventStateManager.DrivrRestartActiveContextStateHandler.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(ReefEventStateManager.DriverRestartTaskRunningStateHandler.class.getName());
-//      driverConfiguration.getClassHierarchy().getNode(org.apache.reef.webserver.HttpRuntimeStartHandler.class.getName());
     }
   }
 
@@ -256,54 +211,52 @@ public class JobClient {
         } catch (final BindException e) {
           LOG.log(Level.FINE, "Failed to bind", e);
         }
-        File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
-        Configuration c = Configurations.merge(this.driverConfiguration, clientConfig);
-        try {
-          new AvroConfigurationSerializer().toFile(c, driverConfig);
-          LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
-        } catch (final IOException e) {
-          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
-        }
+        serializeConfigFile(DRIVER_CONFIG_FILE, Configurations.merge(this.driverConfiguration, clientConfig));
       } else {
-        try {
-          addFilesForDriverConfig();
-        } catch (final BindException e) {
-          LOG.log(Level.FINE, "Failed to bind", e);
-        }
+        this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getNameServerConfiguration());
 
-        File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
-        File driverConfigText = new File(System.getProperty("user.dir") + "/driverText.config");
-        File classHierarchy = new File(System.getProperty("user.dir") + "/chproto.bin");
+        //make the classes available in the class hierarchy so that client can bind values to the configuration
+        driverConfiguration.getClassHierarchy().getNode(JobGlobalFiles.class.getName());
+        driverConfiguration.getClassHierarchy().getNode(JobGlobalLibraries.class.getName());
+        driverConfiguration.getClassHierarchy().getNode(DriverMemory.class.getName());
+        driverConfiguration.getClassHierarchy().getNode(DriverIdentifier.class.getName());
+        driverConfiguration.getClassHierarchy().getNode(DriverJobSubmissionDirectory.class.getName());
 
-        File httpConfig = new File(System.getProperty("user.dir") + "/http.config");
-        File httpConfigText = new File(System.getProperty("user.dir") + "/httpText.config");
-        File httpclassHierarchy = new File(System.getProperty("user.dir") + "/httpchproto.bin");
+        Configuration driverConfig = Configurations.merge(this.driverConfiguration, clientConfig);
+        Configuration httpConfig = getHTTPConfiguration();
 
-        Configuration driverConfiguration = Configurations.merge(this.driverConfiguration, clientConfig);
-        Configuration httpConfigration = getHTTPConfiguration();
+        serializeConfigFile(JOB_DRIVER_CONFIG_FILE, driverConfig);
+        serializeClassHierarchy(JOB_DRIVER_CH_FILE, driverConfig);
 
-        try {
-          ClassHierarchy ns = driverConfiguration.getClassHierarchy();
-          ProtocolBufferClassHierarchy.serialize(classHierarchy, ns);
-          //ClassHierarchy ns1 = ProtocolBufferClassHierarchy.deserialize(classHierarchy);
-
-          new AvroConfigurationSerializer().toFile(driverConfiguration, driverConfig);
-          new AvroConfigurationSerializer().toTextFile(driverConfiguration, driverConfigText);
-
-          ClassHierarchy httpns = httpConfigration.getClassHierarchy();
-          ProtocolBufferClassHierarchy.serialize(httpclassHierarchy, httpns);
-          //ClassHierarchy ns2 = ProtocolBufferClassHierarchy.deserialize(httpclassHierarchy);
-
-          new AvroConfigurationSerializer().toFile(httpConfigration, httpConfig);
-          new AvroConfigurationSerializer().toTextFile(httpConfigration, httpConfigText);
-
-          LOG.log(Level.INFO, "Driver configuration files created at " + driverConfig.getAbsolutePath());
-        } catch (final IOException e) {
-          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
-        }
-
-
+        serializeConfigFile(HTTP_SERVER_CONFIG_FILE, httpConfig);
+        serializeClassHierarchy(HTTP_SERVER_CH_FILE, httpConfig);
       }
+    }
+  }
+
+  private void serializeClassHierarchy(final String classHierarchyFileName, Configuration conf) {
+    File classHierarchyFile = new File(System.getProperty(USER_DIR) + "/" +  classHierarchyFileName);
+    ClassHierarchy ns = conf.getClassHierarchy();
+
+    try {
+        ProtocolBufferClassHierarchy.serialize(classHierarchyFile, ns);
+    } catch (final IOException e) {
+      throw new RuntimeException("Cannot create class hierarchy file at " + classHierarchyFile.getAbsolutePath());
+    }
+  }
+
+  private void serializeConfigFile(final String configFileName, Configuration conf) {
+    File configFile = new File(System.getProperty(USER_DIR) + "/" + configFileName);
+    File configTextFile = new File(System.getProperty(USER_DIR) + "/" + configFileName + ".txt");
+
+    try {
+      //Serialize the Configuration into a file
+      new AvroConfigurationSerializer().toFile(conf, configFile);
+
+      //Serialize the Configuration into a text file for easy read
+      new AvroConfigurationSerializer().toTextFile(conf, configTextFile);
+    } catch (final IOException e) {
+      throw new RuntimeException("Cannot create driver configuration file at " + configFile.getAbsolutePath());
     }
   }
 
