@@ -37,8 +37,6 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @DefaultImplementation(REEFImplementation.class)
 public interface REEF extends AutoCloseable {
 
-  static final String REEF_VERSION = "0.6-SNAPSHOT";
-
   /**
    * Close the resourcemanager connection.
    */
@@ -54,9 +52,4 @@ public interface REEF extends AutoCloseable {
    * @param driverConf The driver configuration: including everything it needs to execute.  @see DriverConfiguration
    */
   public void submit(final Configuration driverConf);
-
-  /**
-   * @return the version of REEF running.
-   */
-  public String getVersion();
 }

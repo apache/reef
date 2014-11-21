@@ -98,6 +98,18 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- The following binary files are generated from the sources and shouldn't be checked -->
+                        <exclude>src/test/resources/Event.bin</exclude>
+                        <exclude>src/test/resources/Task.bin</exclude>
+
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

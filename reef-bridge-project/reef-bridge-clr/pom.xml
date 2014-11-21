@@ -69,6 +69,24 @@ under the License.
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Build files are frequently overwritten by Visual Studio -->
+                        <exclude>src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</exclude>
+                        <exclude>src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.vcxproj</exclude>
+                        <exclude>src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.vcxproj.filters</exclude>
+                        <exclude>src/main/CSharp/CSharp/ClrHandler/ClrHandler.csproj</exclude>
+                        <!--End of Visual Studio build files-->
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <profiles>
         <profile>
             <id>Bridge</id>

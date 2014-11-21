@@ -47,11 +47,11 @@ public final class RunnableProcess implements Runnable {
   /**
    * Name of the file used for STDERR redirection.
    */
-  private static final String STD_ERROR_FILE_NAME = "STDERR.txt";
+  private final String standardErrorFileName;
   /**
    * Name of the file used for STDOUT redirection.
    */
-  private static final String STD_OUT_FILE_NAME = "STDOUT.txt";
+  private final String standardOutFileName;
 
   /**
    * Command to execute.
@@ -84,21 +84,27 @@ public final class RunnableProcess implements Runnable {
   private State state = State.INIT;   // synchronized on stateLock
 
   /**
-   * @param command         the command to execute.
-   * @param id              The ID of the process. This is used to name files and in the logs created by this process.
-   * @param folder          The folder in which this will store its stdout and stderr output
-   * @param processObserver will be informed of process state changes.
+   * @param command               the command to execute.
+   * @param id                    The ID of the process. This is used to name files and in the logs created by this process.
+   * @param folder                The folder in which this will store its stdout and stderr output
+   * @param processObserver       will be informed of process state changes.
+   * @param standardOutFileName   The name of the file used for redirecting STDOUT
+   * @param standardErrorFileName The name of the file used for redirecting STDERR
    */
   public RunnableProcess(final List<String> command,
                          final String id,
                          final File folder,
-                         final RunnableProcessObserver processObserver) {
+                         final RunnableProcessObserver processObserver,
+                         final String standardOutFileName,
+                         final String standardErrorFileName) {
     this.processObserver = processObserver;
     this.command = new ArrayList<>(command);
     this.id = id;
     this.folder = folder;
     assert (this.folder.isDirectory());
     this.folder.mkdirs();
+    this.standardOutFileName = standardOutFileName;
+    this.standardErrorFileName = standardErrorFileName;
     LOG.log(Level.FINEST, "RunnableProcess ready.");
   }
 
@@ -148,8 +154,8 @@ public final class RunnableProcess implements Runnable {
       }
 
       // Setup the stdout and stderr destinations.
-      final File errFile = new File(folder, STD_ERROR_FILE_NAME);
-      final File outFile = new File(folder, STD_OUT_FILE_NAME);
+      final File errFile = new File(folder, standardErrorFileName);
+      final File outFile = new File(folder, standardOutFileName);
 
       // Launch the process
       try {

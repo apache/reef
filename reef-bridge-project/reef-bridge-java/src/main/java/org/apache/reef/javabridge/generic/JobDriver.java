@@ -118,7 +118,6 @@ public final class JobDriver {
   private long driverRestartHandler = 0;
   private long driverRestartActiveContextHandler = 0;
   private long driverRestartRunningTaskHandler = 0;
-  private int nCLREvaluators = 0;
   private boolean clrBridgeSetup = false;
   private boolean isRestarted = false;
 
@@ -228,8 +227,8 @@ public final class JobDriver {
   private void submitEvaluator(final AllocatedEvaluator eval, EvaluatorType type) {
     synchronized (JobDriver.this) {
       eval.setType(type);
-      LOG.log(Level.INFO, "Allocated Evaluator: {0} expect {1} running {2}",
-          new Object[]{eval.getId(), JobDriver.this.nCLREvaluators, JobDriver.this.contexts.size()});
+      LOG.log(Level.INFO, "Allocated Evaluator: {0}, total running running {1}",
+          new Object[]{eval.getId(), JobDriver.this.contexts.size()});
       if (JobDriver.this.allocatedEvaluatorHandler == 0) {
         throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
       }
@@ -265,10 +264,7 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.evaluatorAllocated(allocatedEvaluator.getId())) {
         synchronized (JobDriver.this) {
           LOG.log(Level.INFO, "AllocatedEvaluatorHandler.OnNext");
-          if (JobDriver.this.nCLREvaluators > 0) {
             JobDriver.this.submitEvaluator(allocatedEvaluator, EvaluatorType.CLR);
-            JobDriver.this.nCLREvaluators--;
-          }
         }
       }
     }
@@ -282,8 +278,8 @@ public final class JobDriver {
     public void onNext(final ActiveContext context) {
       try (final LoggingScope ls = loggingScopeFactory.activeContextReceived(context.getId())) {
         synchronized (JobDriver.this) {
-          LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0} expect {1}",
-              new Object[]{context.getId(), JobDriver.this.nCLREvaluators});
+          LOG.log(Level.INFO, "ActiveContextHandler: Context available: {0}",
+              new Object[]{context.getId()});
           JobDriver.this.contexts.put(context.getId(), context);
           JobDriver.this.submit(context);
         }
@@ -370,7 +366,6 @@ public final class JobDriver {
       NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(JobDriver.this.failedEvaluatorHandler, failedEvaluatorBridge, JobDriver.this.interopLogger);
       int additionalRequestedEvaluatorNumber = failedEvaluatorBridge.getNewlyRequestedEvaluatorNumber();
       if (additionalRequestedEvaluatorNumber > 0) {
-        nCLREvaluators += additionalRequestedEvaluatorNumber;
         LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " + additionalRequestedEvaluatorNumber);
       }
       JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
@@ -536,8 +531,7 @@ public final class JobDriver {
           EvaluatorRequestorBridge evaluatorRequestorBridge = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
           NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(JobDriver.this.evaluatorRequestorHandler, evaluatorRequestorBridge, JobDriver.this.interopLogger);
           // get the evaluator numbers set by CLR handler
-          nCLREvaluators += evaluatorRequestorBridge.getEvaluatorNumber();
-          LOG.log(Level.INFO, "evaluator requested: " + nCLREvaluators);
+          LOG.log(Level.INFO, "evaluator requested at start up: " + evaluatorRequestorBridge.getEvaluatorNumber());
         }
       }
     }

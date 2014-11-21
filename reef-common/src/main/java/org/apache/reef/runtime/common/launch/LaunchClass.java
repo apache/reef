@@ -28,6 +28,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.util.REEFVersion;
 import org.apache.reef.wake.profiler.WakeProfiler;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.time.Clock;
@@ -62,7 +63,9 @@ public final class LaunchClass implements AutoCloseable, Runnable {
               final @Parameter(ErrorHandlerRID.class) String errorHandlerID,
               final @Parameter(ClockConfigurationPath.class) String evaluatorConfigurationPath,
               final @Parameter(ProfilingEnabled.class) boolean enableProfiling,
-              final ConfigurationSerializer configurationSerializer) {
+              final ConfigurationSerializer configurationSerializer,
+              final REEFVersion reefVersion) {
+    reefVersion.logVersion();
     this.remoteManager = remoteManager;
     this.launchID = launchID;
     this.errorHandlerID = errorHandlerID;
