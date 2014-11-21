@@ -25,6 +25,7 @@ import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.*;
+import org.apache.reef.io.network.naming.DefaultNameServerImpl;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
@@ -137,14 +138,17 @@ public final class JobDriver {
             final EvaluatorRequestor evaluatorRequestor,
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
-    LOG.log(Level.INFO, "JobDriver constructor1");
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
     this.nameServer = nameServer;
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    if (nameServer instanceof DefaultNameServerImpl) {
+      this.nameServerInfo = null;
+    } else {
+      this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    }
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -204,6 +208,9 @@ public final class JobDriver {
             }
           }
         }
+      }
+      else {
+        LOG.log(Level.INFO, "No http server registered.");
       }
       this.clrBridgeSetup = true;
     }

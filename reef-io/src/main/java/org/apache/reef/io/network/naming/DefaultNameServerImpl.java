@@ -20,7 +20,6 @@ package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.NameAssignment;
 import org.apache.reef.io.network.naming.serialization.*;
-import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
@@ -44,16 +43,31 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming server
+ * Naming server implementation
  */
-@DefaultImplementation(DefaultNameServerImpl.class)
-public interface NameServer extends Stage {
+public class DefaultNameServerImpl implements NameServer {
+
+  private static final Logger LOG = Logger.getLogger(DefaultNameServerImpl.class.getName());
+
+  @Inject
+  public DefaultNameServerImpl() {
+    LOG.log(Level.INFO, "DefaultNameServerImpl is used. No name server is registered");
+  }
 
   /**
-   * get port number
-   * @return
+   * Gets port
    */
-  public int getPort();
+  @Override
+  public int getPort() {
+    return 9999;
+  }
+
+  /**
+   * Closes resources
+   */
+  @Override
+  public void close() throws Exception {
+  }
 
   /**
    * Registers an (identifier, address) mapping locally
@@ -61,14 +75,18 @@ public interface NameServer extends Stage {
    * @param id   an identifier
    * @param addr an Internet socket address
    */
-  public void register(final Identifier id, final InetSocketAddress addr);
+  @Override
+  public void register(final Identifier id, final InetSocketAddress addr) {
+  }
 
   /**
    * Unregisters an identifier locally
    *
    * @param id an identifier
    */
-  public void unregister(final Identifier id);
+  @Override
+  public void unregister(final Identifier id) {
+  }
 
   /**
    * Finds an address for an identifier locally
@@ -76,13 +94,20 @@ public interface NameServer extends Stage {
    * @param id an identifier
    * @return an Internet socket address
    */
-  public InetSocketAddress lookup(final Identifier id);
+  @Override
+  public InetSocketAddress lookup(final Identifier id) {
+    return null;
+  }
 
   /**
    * Finds addresses for identifiers locally
    *
-   * @param identifiers an Iterable of identifiers
+   * @param identifiers an iterable of identifiers
    * @return a list of name assignments
    */
-  public List<NameAssignment> lookup(final Iterable<Identifier> identifiers);
+  @Override
+  public List<NameAssignment> lookup(final Iterable<Identifier> identifiers) {
+    return null;
+  }
+
 }

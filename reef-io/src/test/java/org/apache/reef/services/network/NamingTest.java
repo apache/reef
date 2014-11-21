@@ -83,7 +83,7 @@ public class NamingTest {
     idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
 
     // run a server
-    final NameServer server = new NameServer(0, this.factory);
+    final NameServer server = new NameServerImpl(0, this.factory);
     this.port = server.getPort();
     for (final Identifier id : idToAddrMap.keySet()) {
       server.register(id, idToAddrMap.get(id));
@@ -134,7 +134,7 @@ public class NamingTest {
       idToAddrMap.put(this.factory.getNewInstance("task3"), new InetSocketAddress(NetUtils.getLocalAddress(), 7003));
 
       // run a server
-      final NameServer server = new NameServer(0, this.factory);
+      final NameServer server = new NameServerImpl(0, this.factory);
       this.port = server.getPort();
       for (final Identifier id : idToAddrMap.keySet()) {
         server.register(id, idToAddrMap.get(id));
@@ -217,7 +217,7 @@ public class NamingTest {
 
     LOG.log(Level.FINEST, this.name.getMethodName());
 
-    final NameServer server = new NameServer(0, this.factory);
+    final NameServer server = new NameServerImpl(0, this.factory);
     this.port = server.getPort();
 
     // names to start with
@@ -278,7 +278,7 @@ public class NamingTest {
 
     LOG.log(Level.FINEST, this.name.getMethodName());
 
-    final NameServer server = new NameServer(0, this.factory);
+    final NameServer server = new NameServerImpl(0, this.factory);
     this.port = server.getPort();
 
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();

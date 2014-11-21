@@ -19,6 +19,7 @@
 package org.apache.reef.webserver;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -32,6 +33,7 @@ public final class DefaultHttpServerImpl implements HttpServer {
 
   @Inject
   DefaultHttpServerImpl() {
+    LOG.log(Level.INFO, "DefaultHttpServerImpl is used. No name Http Server is registered");
   }
 
   /**

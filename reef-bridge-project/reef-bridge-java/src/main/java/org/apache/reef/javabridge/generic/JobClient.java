@@ -20,7 +20,10 @@ package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.client.*;
 import org.apache.reef.driver.parameters.*;
+import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
+import org.apache.reef.io.network.naming.NameServerImpl;
+import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.javabridge.NativeInterop;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
@@ -59,9 +62,9 @@ public class JobClient {
   private static final String USER_DIR = "user.dir";
   private static final String DRIVER_CONFIG_FILE = "driver.config";
   private static final String JOB_DRIVER_CONFIG_FILE = "jobDriver.config";
-  private static final String JOB_DRIVER_CH_FILE = "jobDriverClasshierarchy.bin";
   private static final String HTTP_SERVER_CONFIG_FILE = "httpServer.config";
-  private static final String HTTP_SERVER_CH_FILE = "httpServerClasshierarchy.bin";
+  private static final String NAME_SERVER_CONFIG_FILE = "nameServer.config";
+  private static final String DRIVER_CH_FILE = "driverClassHierarchy.bin";
 
   /**
    * Reference to the REEF framework.
@@ -187,10 +190,17 @@ public class JobClient {
           this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getPath());
         }
       }
-      this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
     }
   }
 
+  private void updateDriverConfiguration(final File clrFolder) {
+    try {
+      addCLRFiles(clrFolder);
+    } catch (final BindException e) {
+      LOG.log(Level.FINE, "Failed to bind", e);
+    }
+    this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
+  }
   /**
    * Launch the job driver.
    *
@@ -199,37 +209,30 @@ public class JobClient {
   public void submit(final File clrFolder, final boolean submitDriver, final boolean createClientConfig, final Configuration clientConfig) {
     try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
       if (submitDriver) {
-        try {
-          addCLRFiles(clrFolder);
-        } catch (final BindException e) {
-          LOG.log(Level.FINE, "Failed to bind", e);
-        }
+        updateDriverConfiguration(clrFolder);
         this.reef.submit(this.driverConfiguration);
       } else if (!createClientConfig) {
-        try {
-          addCLRFiles(clrFolder);
-        } catch (final BindException e) {
-          LOG.log(Level.FINE, "Failed to bind", e);
-        }
+        updateDriverConfiguration(clrFolder);
         serializeConfigFile(DRIVER_CONFIG_FILE, Configurations.merge(this.driverConfiguration, clientConfig));
       } else {
-        this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getNameServerConfiguration());
+        this.driverConfiguration = this.driverConfigModule.build();
 
         //make the classes available in the class hierarchy so that client can bind values to the configuration
-        driverConfiguration.getClassHierarchy().getNode(JobGlobalFiles.class.getName());
-        driverConfiguration.getClassHierarchy().getNode(JobGlobalLibraries.class.getName());
-        driverConfiguration.getClassHierarchy().getNode(DriverMemory.class.getName());
-        driverConfiguration.getClassHierarchy().getNode(DriverIdentifier.class.getName());
-        driverConfiguration.getClassHierarchy().getNode(DriverJobSubmissionDirectory.class.getName());
+        final ClassHierarchy ns = driverConfiguration.getClassHierarchy();
+        ns.getNode(JobGlobalFiles.class.getName());
+        ns.getNode(JobGlobalLibraries.class.getName());
+        ns.getNode(DriverMemory.class.getName());
+        ns.getNode(DriverIdentifier.class.getName());
+        ns.getNode(DriverJobSubmissionDirectory.class.getName());
 
-        Configuration driverConfig = Configurations.merge(this.driverConfiguration, clientConfig);
-        Configuration httpConfig = getHTTPConfiguration();
+        final Configuration jobDriverConfig = Configurations.merge(this.driverConfiguration, clientConfig);
 
-        serializeConfigFile(JOB_DRIVER_CONFIG_FILE, driverConfig);
-        serializeClassHierarchy(JOB_DRIVER_CH_FILE, driverConfig);
+        serializeConfigFile(JOB_DRIVER_CONFIG_FILE, jobDriverConfig);
+        serializeConfigFile(HTTP_SERVER_CONFIG_FILE, getHTTPConfiguration());
+        serializeConfigFile(NAME_SERVER_CONFIG_FILE, getNameServerConfiguration());
 
-        serializeConfigFile(HTTP_SERVER_CONFIG_FILE, httpConfig);
-        serializeClassHierarchy(HTTP_SERVER_CH_FILE, httpConfig);
+        //do this at the end to ensure all nodes are in the class hierarchy
+        serializeClassHierarchy(DRIVER_CH_FILE, jobDriverConfig);
       }
     }
   }
