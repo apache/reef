@@ -37,7 +37,10 @@ public final class HttpServerImpl implements HttpServer {
    */
   private static final Logger LOG = Logger.getLogger(HttpServerImpl.class.getName());
 
-  private JettyHandler jettyHandler;
+  /**
+   *  JettyHandler injected in the constructor
+   */
+  private final JettyHandler jettyHandler;
 
   /**
    * Jetty server.

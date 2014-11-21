@@ -29,12 +29,9 @@ import org.apache.reef.util.logging.LogParser;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.util.logging.LoggingScopeImpl;
 import org.apache.reef.wake.EventHandler;
-
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-//import java.io.BufferedReader;
-//import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -155,10 +152,6 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       case "duration":
         final ArrayList<String> lines = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.DURATION, LoggingScopeImpl.TOKEN, null);
         writeLines(response, lines, "Performance...");
-
-        //for byte array format
-        //final byte[] durations = lines.toString().getBytes(Charset.forName("UTF-8"));
-        //response.getOutputStream().write(durations);
         break;
       case "stages":
         final ArrayList<String> starts = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.START_PREFIX, logLevelPrefix, null);
@@ -167,10 +160,6 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         final ArrayList<String> endStages = LogParser.findStages(exits, LogParser.endIndicators);
         final ArrayList<String> result = LogParser.mergeStages(startsStages, endStages);
         writeLines(response, result, "Current Stages...");
-
-        //for byte array format
-        //final byte[] stages = result.toString().getBytes(Charset.forName("UTF-8"));
-        //response.getOutputStream().write(stages);
         break;
       case "logfile":
         final List names = parsedHttpRequest.getQueryMap().get("filename");
@@ -182,9 +171,12 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         if (!fileName.equals(driverStdoutFile) && !fileName.equals(driverStderrFile)) {
           response.getWriter().println(String.format("Unsupported file names: [%s] ", fileName));
         }
-
-        final byte[] outputBody = readFile((String)names.get(0)).getBytes(Charset.forName("UTF-8"));
-        response.getOutputStream().write(outputBody);
+        try {
+          final byte[] outputBody = readFile((String) names.get(0)).getBytes(Charset.forName("UTF-8"));
+          response.getOutputStream().write(outputBody);
+        } catch(IOException e) {
+          response.getWriter().println(String.format("Cannot find the log file: [%s].", fileName));
+        }
         break;
       default:
         response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
