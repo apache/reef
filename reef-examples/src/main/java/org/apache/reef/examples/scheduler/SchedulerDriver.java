@@ -85,7 +85,7 @@ public final class SchedulerDriver {
   }
 
   /**
-   * The driver is ready to submitTask.
+   * The driver is ready to run.
    */
   final class StartHandler implements EventHandler<StartTime> {
     @Override
@@ -99,7 +99,7 @@ public final class SchedulerDriver {
   }
 
   /**
-   * Evaluator is allocated. This occurs every time to submitTask commands in Non-retainable version,
+   * Evaluator is allocated. This occurs every time to run commands in Non-retainable version,
    * while occurs only once in the Retainable version
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
@@ -286,7 +286,7 @@ public final class SchedulerDriver {
   }
 
   /**
-   * Pick up a command from the queue and submitTask it. Wait until
+   * Pick up a command from the queue and run it. Wait until
    * any command coming up if no command exists.
    */
   private void waitForCommands(final ActiveContext context) {
@@ -299,7 +299,7 @@ public final class SchedulerDriver {
           LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
         }
       }
-      // Run the first command from the queue.
+      // When wakes up, run the first command from the queue.
       state = State.RUNNING;
       scheduler.submitTask(context);
     }
