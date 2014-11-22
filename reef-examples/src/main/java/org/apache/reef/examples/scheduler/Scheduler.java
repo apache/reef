@@ -146,13 +146,7 @@ final class Scheduler {
   /**
    * Get the status of a Task.
    */
-  public synchronized SchedulerResponse getTaskStatus(final List<String> args) {
-    if (args.size() != 1) {
-      return SchedulerResponse.BAD_REQUEST("Usage : only one ID at a time");
-    }
-
-    final Integer taskId = Integer.valueOf(args.get(0));
-
+  public synchronized SchedulerResponse getTaskStatus(final int taskId) {
     if (runningTaskIds.contains(taskId)) {
       return SchedulerResponse.OK("Running");
     } else if (finishedTaskIds.contains(taskId)) {

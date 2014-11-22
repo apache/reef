@@ -187,8 +187,16 @@ public final class SchedulerDriver {
   /**
    * Get the status of a task.
    */
-  public synchronized SchedulerResponse getTaskStatus(List<String> id) {
-    return scheduler.getTaskStatus(id);
+  public SchedulerResponse getTaskStatus(List<String> args) {
+    if (args.size() != 1) {
+      return SchedulerResponse.BAD_REQUEST("Usage : only one ID at a time");
+    }
+
+    final Integer taskId = Integer.valueOf(args.get(0));
+
+    synchronized (SchedulerDriver.this) {
+      return scheduler.getTaskStatus(taskId);
+    }
   }
 
 
