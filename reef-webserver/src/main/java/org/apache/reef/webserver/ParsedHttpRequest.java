@@ -82,7 +82,7 @@ public final class ParsedHttpRequest {
           final String rValue = pair.substring(idx + 1);
           final String key = URLDecoder.decode(rKey, "UTF-8");
           final String value = URLDecoder.decode(rValue, "UTF-8");
-          List<String> valuesList = this.queryPairs.get(key);
+          List<String> valuesList = this.queryPairs.get(key.toLowerCase());
           if (valuesList == null) {
             valuesList = new ArrayList<>(1);
             this.queryPairs.put(key, valuesList);
