@@ -22,26 +22,61 @@ package org.apache.reef.examples.scheduler;
  * This class specifies the response from the Scheduler.
  * It includes the status code and message.
  */
-public class SchedulerResponse {
+final class SchedulerResponse {
   /**
    * 200 OK : The request succeeded normally.
    */
-  public static final int SC_OK = 200;
+  private static final int SC_OK = 200;
 
   /**
    * 400 BAD REQUEST : The request is syntactically incorrect.
    */
-  public static final int SC_BAD_REQUEST = 400;
+  private static final int SC_BAD_REQUEST = 400;
 
   /**
    * 403 FORBIDDEN : Syntactically okay but refused to process.
    */
-  public static final int SC_FORBIDDEN = 403;
+  private static final int SC_FORBIDDEN = 403;
 
   /**
    * 404 NOT FOUND :  The resource is not available.
    */
-  public static final int SC_NOT_FOUND = 404;
+  private static final int SC_NOT_FOUND = 404;
+
+  /**
+   * Create a response with OK status
+   */
+  public static SchedulerResponse OK(final String message){
+    return new SchedulerResponse (SC_OK, message);
+  }
+
+  /**
+   * Create a response with BAD_REQUEST status
+   */
+  public static SchedulerResponse BAD_REQUEST(final String message){
+    return new SchedulerResponse (SC_BAD_REQUEST, message);
+  }
+
+  /**
+   * Create a response with FORBIDDEN status
+   */
+  public static SchedulerResponse FORBIDDEN(final String message){
+    return new SchedulerResponse (SC_FORBIDDEN, message);
+  }
+
+  /**
+   * Create a response with NOT FOUND status
+   */
+  public static SchedulerResponse NOT_FOUND(final String message){
+    return new SchedulerResponse (SC_NOT_FOUND, message);
+  }
+
+  /**
+   * Return {@code true} if the response is OK.
+   */
+  public boolean isOK(){
+    return this.status == SC_OK;
+  }
 
   /**
    * Status code of the request based on RFC 2068.
@@ -58,7 +93,7 @@ public class SchedulerResponse {
    * @param status
    * @param message
    */
-  public SchedulerResponse(final int status, final String message) {
+  private SchedulerResponse(final int status, final String message) {
     this.status = status;
     this.message = message;
   }
@@ -66,14 +101,14 @@ public class SchedulerResponse {
   /**
    * Return the status code of this response.
    */
-  public int getStatus() {
+  int getStatus() {
     return status;
   }
 
   /**
    * Return the message of this response.
    */
-  public String getMessage() {
+  String getMessage() {
     return message;
   }
 }

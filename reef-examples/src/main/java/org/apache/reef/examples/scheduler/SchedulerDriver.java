@@ -49,13 +49,14 @@ public final class SchedulerDriver {
   /**
    * Possible states of the job driver. Can be one of:
    * <dl>
-   * <du><code>INIT</code></du><dd>Initial state. Ready to request an evaluator</dd>
-   * <du><code>READY</code></du><dd>Wait for the commands. Reactivated when a new Task arrives</dd>
+   * <du><code>INIT</code></du><dd>Initial state. Ready to request an evaluator.</dd>
+   * <du><code>WAIT_EVALUATORS</code></du><dd>Waiting for an evaluator allocated with no active evaluators.</dd>
+   * <du><code>READY</code></du><dd>Wait for the commands. Reactivated when a new Task arrives.</dd>
    * <du><code>RUNNING</code></du><dd>Run commands in the queue. Go back to READY state when the queue is empty.</dd>
    * </dl>
    */
   private enum State {
-    INIT, READY, RUNNING
+    INIT, WAIT_EVALUATORS, READY, RUNNING
   }
 
   /**
@@ -91,6 +92,7 @@ public final class SchedulerDriver {
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "Driver started at {0}", startTime);
       assert (state == State.INIT);
+      state = State.WAIT_EVALUATORS;
 
       requestEvaluator(1); // Allocate an initial evaluator to avoid idle state.
     }
@@ -196,7 +198,7 @@ public final class SchedulerDriver {
    */
   public SchedulerResponse cancelTask(final List<String> args) {
     if (args.size() != 1) {
-      return new SchedulerResponse(SchedulerResponse.SC_BAD_REQUEST, "Usage : only one ID at a time");
+      return SchedulerResponse.BAD_REQUEST("Usage : only one ID at a time");
     }
 
     final Integer taskId = Integer.valueOf(args.get(0));
@@ -211,7 +213,7 @@ public final class SchedulerDriver {
    */
   public SchedulerResponse submitCommands(final List<String> args) {
     if (args.size() != 1) {
-      return new SchedulerResponse(SchedulerResponse.SC_BAD_REQUEST, "Usage : only one command at a time");
+      return SchedulerResponse.BAD_REQUEST("Usage : only one command at a time");
     }
 
     final String command = args.get(0);
@@ -227,7 +229,7 @@ public final class SchedulerDriver {
         requestEvaluator(1);
       }
     }
-    return new SchedulerResponse(SchedulerResponse.SC_OK, "Task ID : " + id);
+    return SchedulerResponse.OK("Task ID : " + id);
   }
 
   /**
@@ -237,15 +239,14 @@ public final class SchedulerDriver {
    */
   public SchedulerResponse setMaxEvaluators(final List<String> args) {
     if (args.size() != 1) {
-      return new SchedulerResponse(SchedulerResponse.SC_BAD_REQUEST, "Usage : Only one value can be used");
+      return SchedulerResponse.BAD_REQUEST("Usage : Only one value can be used");
     }
 
     final int nTarget = Integer.valueOf(args.get(0));
 
     synchronized (SchedulerDriver.this) {
       if (nTarget < nActiveEval + nRequestedEval) {
-        return new SchedulerResponse(SchedulerResponse.SC_FORBIDDEN,
-          nActiveEval + nRequestedEval + " evaluators are used now. Should be larger than that.");
+        return SchedulerResponse.FORBIDDEN(nActiveEval + nRequestedEval + " evaluators are used now. Should be larger than that.");
       }
       nMaxEval = nTarget;
 
@@ -254,8 +255,7 @@ public final class SchedulerDriver {
           Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
         requestEvaluator(nToRequest);
       }
-      return new SchedulerResponse(SchedulerResponse.SC_OK,
-        "You can use evaluators up to " + nMaxEval + " evaluators.");
+      return SchedulerResponse.OK("You can use evaluators up to " + nMaxEval + " evaluators.");
     }
   }
 
@@ -324,7 +324,7 @@ public final class SchedulerDriver {
     if (scheduler.hasPendingTasks()) {
       requestEvaluator(1);
     } else if (nActiveEval <= 0) {
-      state = State.READY;
+      state = State.WAIT_EVALUATORS;
       requestEvaluator(1);
     }
   }

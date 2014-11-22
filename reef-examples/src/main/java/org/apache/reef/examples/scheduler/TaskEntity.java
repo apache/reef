@@ -32,11 +32,11 @@ class TaskEntity {
     this.command = command;
   }
 
-  public int getId() {
+  int getId() {
     return taskId;
   }
 
-  public String getCommand() {
+  String getCommand() {
     return command;
   }
 }

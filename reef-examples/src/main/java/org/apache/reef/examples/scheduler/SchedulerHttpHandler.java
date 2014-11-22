@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Receive HttpRequest so that it can handle the command list
  */
-public class SchedulerHttpHandler implements HttpHandler {
+final class SchedulerHttpHandler implements HttpHandler {
   final InjectionFuture<SchedulerDriver> schedulerDriver;
 
   private String uriSpecification = "reef-example-scheduler";
@@ -91,15 +91,17 @@ public class SchedulerHttpHandler implements HttpHandler {
         result = schedulerDriver.get().setMaxEvaluators(queryMap.get("num"));
         break;
       default:
-        result = new SchedulerResponse(SchedulerResponse.SC_NOT_FOUND, "Unsupported operation");
+        result = SchedulerResponse.NOT_FOUND("Unsupported operation");
     }
 
     // Send response to the http client
     final int status = result.getStatus();
     final String message= result.getMessage();
-    if (status != SchedulerResponse.SC_OK) {
+
+    if (result.isOK()) {
+      response.getOutputStream().println(message);
+    } else {
       response.sendError(status, message);
     }
-    response.getOutputStream().println(message);
   }
 }

@@ -88,7 +88,7 @@ public final class SchedulerREEF {
 
     final Configuration commandLineConf = CommandLine.parseToConfiguration(args, Retain.class);
 
-    // Merge the configurations to submitTask Driver
+    // Merge the configurations to run Driver
     final Configuration driverConf = Configurations.merge(getDriverConf(), getHttpConf(), commandLineConf);
 
     final REEF reef = tang.newInjector(runtimeConf).getInstance(REEF.class);

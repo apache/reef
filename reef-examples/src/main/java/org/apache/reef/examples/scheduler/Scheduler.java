@@ -26,6 +26,7 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -35,7 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * The body of Task scheduler. It owns a task queue
  * and tracks the record of scheduled tasks.
  */
-public class Scheduler {
+@ThreadSafe
+final class Scheduler {
   /**
    * Task queue containing a set of {@link TaskEntity}
    */
@@ -46,19 +48,19 @@ public class Scheduler {
    * runningTaskIds is better to be a Set because removal happens
    * when a task finishes. Lists should be enough for the other cases.
    */
-  private Set<Integer> runningTaskIds = new HashSet<>();
-  private List<Integer> finishedTaskIds = new ArrayList<>();
-  private List<Integer> canceledTaskIds = new ArrayList<>();
+  private final Set<Integer> runningTaskIds = new HashSet<>();
+  private final List<Integer> finishedTaskIds = new ArrayList<>();
+  private final List<Integer> canceledTaskIds = new ArrayList<>();
+
+  /**
+   * Counts how many tasks have been scheduled.
+   */
+  private final AtomicInteger taskCount = new AtomicInteger(0);
 
   @Inject
   public Scheduler() {
     taskQueue = new LinkedBlockingQueue<>();
   }
-
-  /**
-   * Counts how many tasks have been scheduled.
-   */
-  private AtomicInteger taskCount = new AtomicInteger(0);
 
   /**
    * Submit a task to the ActiveContext.
@@ -86,19 +88,20 @@ public class Scheduler {
    */
   public synchronized SchedulerResponse cancelTask(final int taskId) {
     if (runningTaskIds.contains(taskId)) {
-      return new SchedulerResponse(SchedulerResponse.SC_FORBIDDEN, "The task is running");
+      return SchedulerResponse.FORBIDDEN("The task is running");
     } else if (finishedTaskIds.contains(taskId)) {
-      return new SchedulerResponse(SchedulerResponse.SC_FORBIDDEN, "Already finished");
+      return SchedulerResponse.FORBIDDEN("Already finished");
     }
 
     for (final TaskEntity task : taskQueue) {
       if (taskId == task.getId()) {
         taskQueue.remove(task);
         canceledTaskIds.add(taskId);
-        return new SchedulerResponse(SchedulerResponse.SC_OK, "Canceled");
+        return SchedulerResponse.OK("Canceled");
       }
     }
-    return new SchedulerResponse(SchedulerResponse.SC_NOT_FOUND, "Not found");
+    final String message = new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
+    return SchedulerResponse.NOT_FOUND(message);
   }
 
   /**
@@ -110,7 +113,7 @@ public class Scheduler {
       canceledTaskIds.add(task.getId());
     }
     taskQueue.clear();
-    return new SchedulerResponse(SchedulerResponse.SC_OK, count + " tasks removed.");
+    return SchedulerResponse.OK(count + " tasks removed.");
   }
 
   /**
@@ -137,7 +140,7 @@ public class Scheduler {
     for (final int taskId : canceledTaskIds) {
       sb.append(" ").append(taskId);
     }
-    return new SchedulerResponse(SchedulerResponse.SC_OK, sb.toString());
+    return SchedulerResponse.OK(sb.toString());
   }
 
   /**
@@ -145,25 +148,26 @@ public class Scheduler {
    */
   public synchronized SchedulerResponse getTaskStatus(final List<String> args) {
     if (args.size() != 1) {
-      return new SchedulerResponse(SchedulerResponse.SC_BAD_REQUEST, "Usage : only one ID at a time");
+      return SchedulerResponse.BAD_REQUEST("Usage : only one ID at a time");
     }
 
     final Integer taskId = Integer.valueOf(args.get(0));
 
     if (runningTaskIds.contains(taskId)) {
-      return new SchedulerResponse(SchedulerResponse.SC_OK, "Running");
+      return SchedulerResponse.OK("Running");
     } else if (finishedTaskIds.contains(taskId)) {
-      return new SchedulerResponse(SchedulerResponse.SC_OK, "Finished");
+      return SchedulerResponse.OK("Finished");
     } else if (canceledTaskIds.contains(taskId)) {
-      return new SchedulerResponse(SchedulerResponse.SC_OK, "Canceled");
+      return SchedulerResponse.OK("Canceled");
     }
 
     for (final TaskEntity task : taskQueue) {
       if (taskId == task.getId()) {
-        return new SchedulerResponse(SchedulerResponse.SC_OK, "Waiting");
+        return SchedulerResponse.OK("Waiting");
       }
     }
-    return new SchedulerResponse(SchedulerResponse.SC_NOT_FOUND, "Not found");
+    final String message = new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
+    return SchedulerResponse.NOT_FOUND(message);
   }
 
   /**
