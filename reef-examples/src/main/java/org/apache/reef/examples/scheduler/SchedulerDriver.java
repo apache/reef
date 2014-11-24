@@ -199,7 +199,6 @@ public final class SchedulerDriver {
     }
   }
 
-
   /**
    * Cancel a Task waiting on the queue. A task cannot be canceled
    * once it is running.
@@ -254,7 +253,8 @@ public final class SchedulerDriver {
 
     synchronized (SchedulerDriver.this) {
       if (nTarget < nActiveEval + nRequestedEval) {
-        return SchedulerResponse.FORBIDDEN(nActiveEval + nRequestedEval + " evaluators are used now. Should be larger than that.");
+        return SchedulerResponse.FORBIDDEN(nActiveEval + nRequestedEval +
+          " evaluators are used now. Should be larger than that.");
       }
       nMaxEval = nTarget;
 
@@ -273,7 +273,7 @@ public final class SchedulerDriver {
    */
   private void requestEvaluator(final int numToRequest) {
     if (numToRequest <= 0) {
-      return;
+      throw new IllegalArgumentException("The number of evaluator request should be a positive integer");
     }
 
     synchronized (SchedulerDriver.this) {

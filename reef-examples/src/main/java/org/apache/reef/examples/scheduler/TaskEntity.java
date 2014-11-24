@@ -23,20 +23,49 @@ package org.apache.reef.examples.scheduler;
  * scheduler. Since REEF already has the class named {Task},
  * a different name is used for this class.
  */
-class TaskEntity {
-  private int taskId;
-  private String command;
+final class TaskEntity {
+  private final int taskId;
+  private final String command;
 
-  public TaskEntity(int taskId, String command) {
+  public TaskEntity(final int taskId, final String command) {
     this.taskId = taskId;
     this.command = command;
   }
 
+  /**
+   * Return the TaskID assigned to this Task.
+   */
   int getId() {
     return taskId;
   }
 
   String getCommand() {
     return command;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    TaskEntity that = (TaskEntity) o;
+
+    if (taskId != that.taskId) return false;
+    if (!command.equals(that.command)) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = taskId;
+    result = 31 * result + command.hashCode();
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return new StringBuilder().append("<Id=").append(taskId).
+      append(", Command=").append(command).append(">").toString();
   }
 }

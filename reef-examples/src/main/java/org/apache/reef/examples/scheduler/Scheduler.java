@@ -39,18 +39,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ThreadSafe
 final class Scheduler {
   /**
-   * Task queue containing a set of {@link TaskEntity}
+   * Tasks are waiting to be scheduled in the queue.
    */
   private final Queue<TaskEntity> taskQueue;
 
   /**
-   * Each collection handles the taskIds according to the task status.
-   * runningTaskIds is better to be a Set because removal happens
-   * when a task finishes. Lists should be enough for the other cases.
+   * Lists of {@link TaskEntity} for different states - Running / Finished / Canceled.
    */
-  private final Set<Integer> runningTaskIds = new HashSet<>();
-  private final List<Integer> finishedTaskIds = new ArrayList<>();
-  private final List<Integer> canceledTaskIds = new ArrayList<>();
+  private final List<TaskEntity> runningTasks = new ArrayList<>();
+  private final List<TaskEntity> finishedTasks = new ArrayList<>();
+  private final List<TaskEntity> canceledTasks = new ArrayList<>();
 
   /**
    * Counts how many tasks have been scheduled.
@@ -80,28 +78,28 @@ final class Scheduler {
 
     final Configuration merged = Configurations.merge(taskConf, commandConf);
     context.submitTask(merged);
-    runningTaskIds.add(taskId);
+    runningTasks.add(task);
   }
 
   /**
    * Update the record of task to mark it as canceled.
    */
   public synchronized SchedulerResponse cancelTask(final int taskId) {
-    if (runningTaskIds.contains(taskId)) {
-      return SchedulerResponse.FORBIDDEN("The task is running");
-    } else if (finishedTaskIds.contains(taskId)) {
-      return SchedulerResponse.FORBIDDEN("Already finished");
+    if (getTask(taskId, runningTasks) != null) {
+      return SchedulerResponse.FORBIDDEN("The task " + taskId + " is running");
+    } else if (getTask(taskId, finishedTasks) != null) {
+      return SchedulerResponse.FORBIDDEN("The task " + taskId + " has been finished");
     }
 
-    for (final TaskEntity task : taskQueue) {
-      if (taskId == task.getId()) {
-        taskQueue.remove(task);
-        canceledTaskIds.add(taskId);
-        return SchedulerResponse.OK("Canceled");
-      }
+    final TaskEntity task = getTask(taskId, taskQueue);
+    if (task == null) {
+      final String message = new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
+      return SchedulerResponse.NOT_FOUND(message);
+    } else {
+      taskQueue.remove(task);
+      canceledTasks.add(task);
+      return SchedulerResponse.OK("Canceled " + taskId);
     }
-    final String message = new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
-    return SchedulerResponse.NOT_FOUND(message);
   }
 
   /**
@@ -109,36 +107,36 @@ final class Scheduler {
    */
   public synchronized SchedulerResponse clear() {
     final int count = taskQueue.size();
-    for (TaskEntity task : taskQueue) {
-      canceledTaskIds.add(task.getId());
+    for (final TaskEntity task : taskQueue) {
+      canceledTasks.add(task);
     }
     taskQueue.clear();
     return SchedulerResponse.OK(count + " tasks removed.");
   }
 
   /**
-   * Get the list of Tasks. They are classified as their states.
+   * Get the list of Tasks, which are grouped by the states.
    */
   public synchronized SchedulerResponse getList() {
     final StringBuilder sb = new StringBuilder();
     sb.append("Running :");
-    for (final int taskId : runningTaskIds) {
-      sb.append(" ").append(taskId);
+    for (final TaskEntity running : runningTasks) {
+      sb.append(" ").append(running.getId());
     }
 
     sb.append("\nWaiting :");
-    for (final TaskEntity task : taskQueue) {
-      sb.append(" ").append(task.getId());
+    for (final TaskEntity waiting : taskQueue) {
+      sb.append(" ").append(waiting.getId());
     }
 
     sb.append("\nFinished :");
-    for (final int taskId : finishedTaskIds) {
-      sb.append(" ").append(taskId);
+    for (final TaskEntity finished : finishedTasks) {
+      sb.append(" ").append(finished.getId());
     }
 
     sb.append("\nCanceled :");
-    for (final int taskId : canceledTaskIds) {
-      sb.append(" ").append(taskId);
+    for (final TaskEntity canceled : canceledTasks) {
+      sb.append(" ").append(canceled.getId());
     }
     return SchedulerResponse.OK(sb.toString());
   }
@@ -147,21 +145,31 @@ final class Scheduler {
    * Get the status of a Task.
    */
   public synchronized SchedulerResponse getTaskStatus(final int taskId) {
-    if (runningTaskIds.contains(taskId)) {
-      return SchedulerResponse.OK("Running");
-    } else if (finishedTaskIds.contains(taskId)) {
-      return SchedulerResponse.OK("Finished");
-    } else if (canceledTaskIds.contains(taskId)) {
-      return SchedulerResponse.OK("Canceled");
-    }
 
-    for (final TaskEntity task : taskQueue) {
-      if (taskId == task.getId()) {
-        return SchedulerResponse.OK("Waiting");
+    for (final TaskEntity running : runningTasks) {
+      if (taskId == running.getId()) {
+        return SchedulerResponse.OK("Running : " + running.toString());
       }
     }
-    final String message = new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
-    return SchedulerResponse.NOT_FOUND(message);
+
+    for (final TaskEntity waiting : taskQueue) {
+      if (taskId == waiting.getId()) {
+        return SchedulerResponse.OK("Waiting : " + waiting.toString());
+      }
+    }
+
+    for (final TaskEntity finished : finishedTasks) {
+      if (taskId == finished.getId()) {
+        return SchedulerResponse.OK("Finished : " + finished.toString());
+      }
+    }
+
+    for (final TaskEntity finished : canceledTasks) {
+      if (taskId == finished.getId()) {
+        return SchedulerResponse.OK("Canceled: " + finished.toString());
+      }
+    }
+    return SchedulerResponse.NOT_FOUND(new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString());
   }
 
   /**
@@ -196,7 +204,23 @@ final class Scheduler {
    * Update the record of task to mark it as finished.
    */
   public synchronized void setFinished(final int taskId) {
-    runningTaskIds.remove(taskId);
-    finishedTaskIds.add(taskId);
+    final TaskEntity task = getTask(taskId, runningTasks);
+    runningTasks.remove(task);
+    finishedTasks.add(task);
+  }
+
+  /**
+   * Iterate over the collection to find a TaskEntity with ID.
+   */
+  private TaskEntity getTask(final int taskId, final Collection<TaskEntity> tasks) {
+    TaskEntity result = null;
+    for (final TaskEntity task : tasks) {
+      if (taskId == task.getId()) {
+        result = task;
+        break;
+      }
+    }
+    return result;
   }
 }
+
