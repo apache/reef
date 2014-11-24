@@ -32,7 +32,7 @@ import javax.inject.Inject;
 @TaskSide
 @Public
 public class HeartBeatTriggerManager {
-  final HeartBeatManager heartBeatManager;
+  private final HeartBeatManager heartBeatManager;
 
   @Inject
   HeartBeatTriggerManager(final HeartBeatManager heartBeatManager) {
