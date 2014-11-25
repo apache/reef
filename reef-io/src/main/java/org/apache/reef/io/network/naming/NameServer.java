@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.NameAssignment;
@@ -44,7 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming server
+ * Naming server interface
  */
 @DefaultImplementation(DefaultNameServerImpl.class)
 public interface NameServer extends Stage {

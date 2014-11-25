@@ -43,7 +43,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming server implementation
+ * Default Naming server implementation. It provides no implementation. When it is used, no NameServer is started.
  */
 public class DefaultNameServerImpl implements NameServer {
 
@@ -109,5 +109,4 @@ public class DefaultNameServerImpl implements NameServer {
   public List<NameAssignment> lookup(final Iterable<Identifier> identifiers) {
     return null;
   }
-
 }

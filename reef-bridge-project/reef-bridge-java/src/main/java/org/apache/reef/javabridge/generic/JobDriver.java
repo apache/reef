@@ -145,6 +145,7 @@ public final class JobDriver {
     this.driverStatusManager = driverStatusManager;
     if (nameServer instanceof DefaultNameServerImpl) {
       this.nameServerInfo = null;
+      LOG.log(Level.INFO, "No Name Server registered.");
     } else {
       this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
     }

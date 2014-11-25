@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.reef.webserver;
 
 import javax.inject.Inject;
@@ -23,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * HttpServer. It manages Jetty Server and Event Handlers
+ * DefaultHttpServerImpl. It provides an empty implementation for HttpServer. WHen it is used, no HttpServer is started.
  */
 public final class DefaultHttpServerImpl implements HttpServer {
   /**
