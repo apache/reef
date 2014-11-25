@@ -65,6 +65,9 @@ public class JobClient {
   private static final String HTTP_SERVER_CONFIG_FILE = "httpServer.config";
   private static final String NAME_SERVER_CONFIG_FILE = "nameServer.config";
   private static final String DRIVER_CH_FILE = "driverClassHierarchy.bin";
+  private static final String REEF_BRIDGE_PROJECT_DIR = "\\reef-bridge-project";
+  private static final String REEF_BRIDGE_JAVA_DIR = "\\reef-bridge-java";
+  private static final String TARGET_DIR = "\\target\\classes\\";
 
   /**
    * Reference to the REEF framework.
@@ -237,9 +240,16 @@ public class JobClient {
     }
   }
 
-  private void serializeClassHierarchy(final String classHierarchyFileName, Configuration conf) {
-    File classHierarchyFile = new File(System.getProperty(USER_DIR) + "/" +  classHierarchyFileName);
-    ClassHierarchy ns = conf.getClassHierarchy();
+  /**
+   * Serialize the ClassHierarchy in the Configuration in to a file with classHierarchyFileName
+   * @param classHierarchyFileName
+   * @param conf
+   */
+  private void serializeClassHierarchy(final String classHierarchyFileName, final Configuration conf) {
+    final String configFileFolder = getConfigFileFolder(classHierarchyFileName);
+    LOG.log(Level.INFO, "configFileFolder: " + configFileFolder);
+    final File classHierarchyFile = new File(configFileFolder);
+    final ClassHierarchy ns = conf.getClassHierarchy();
 
     try {
         ProtocolBufferClassHierarchy.serialize(classHierarchyFile, ns);
@@ -248,9 +258,16 @@ public class JobClient {
     }
   }
 
-  private void serializeConfigFile(final String configFileName, Configuration conf) {
-    File configFile = new File(System.getProperty(USER_DIR) + "/" + configFileName);
-    File configTextFile = new File(System.getProperty(USER_DIR) + "/" + configFileName + ".txt");
+  /**
+   * serialize Configuration object into a file with configFileName
+   * @param configFileName
+   * @param conf
+   */
+  private void serializeConfigFile(final String configFileName, final Configuration conf) {
+    final String configFileFolder = getConfigFileFolder(configFileName);
+    LOG.log(Level.INFO, "configFileFolder: " + configFileFolder);
+    final File configFile = new File(getConfigFileFolder(configFileName));
+    final File configTextFile = new File(getConfigFileFolder(configFileName) + ".txt");
 
     try {
       //Serialize the Configuration into a file
@@ -261,6 +278,22 @@ public class JobClient {
     } catch (final IOException e) {
       throw new RuntimeException("Cannot create driver configuration file at " + configFile.getAbsolutePath());
     }
+  }
+
+  /**
+   * return folder reef-bridge-project\reef-bridge-java\target\classes
+   * @param fileName
+   * @return
+   */
+  private String getConfigFileFolder(final String fileName) {
+    String userDir = System.getProperty(USER_DIR);
+    if (userDir.endsWith(REEF_BRIDGE_PROJECT_DIR)) {
+      return new StringBuilder().append(userDir).append(REEF_BRIDGE_JAVA_DIR).append(TARGET_DIR).append(fileName).toString();
+    }
+    if (userDir.endsWith(REEF_BRIDGE_JAVA_DIR)) {
+      return new StringBuilder().append(userDir).append(TARGET_DIR).append(fileName).toString();
+    }
+    return new StringBuilder().append(userDir).append(REEF_BRIDGE_PROJECT_DIR).append(REEF_BRIDGE_JAVA_DIR).append(TARGET_DIR).append(fileName).toString();
   }
 
   /**

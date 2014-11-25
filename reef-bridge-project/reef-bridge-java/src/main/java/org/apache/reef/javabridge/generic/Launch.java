@@ -164,13 +164,12 @@ public final class Launch {
       client.setDriverInfo(driverIdentifier, driverMemory, jobSubmissionDirectory);
 
       if (submit) {
-        client.submit(dotNetFolder, true, clientConfig, null);
+        client.submit(dotNetFolder, submit, clientConfig, null);
         client.waitForCompletion(waitTime);
       } else {
-        client.submit(dotNetFolder, false, clientConfig, config);
+        client.submit(dotNetFolder, submit, clientConfig, config);
         client.waitForCompletion(0);
       }
-
 
       LOG.info("Done!");
     } catch (final BindException | InjectionException | IOException ex) {
