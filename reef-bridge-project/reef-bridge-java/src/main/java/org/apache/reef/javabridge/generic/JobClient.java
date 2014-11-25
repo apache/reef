@@ -285,7 +285,7 @@ public class JobClient {
    * @return
    */
   private String getConfigFileFolder(final String fileName) {
-    String userDir = System.getProperty(USER_DIR);
+    final String userDir = System.getProperty(USER_DIR);
     if (userDir.endsWith(REEF_BRIDGE_PROJECT_DIR)) {
       return new StringBuilder().append(userDir).append(REEF_BRIDGE_JAVA_DIR).append(TARGET_DIR).append(fileName).toString();
     }
