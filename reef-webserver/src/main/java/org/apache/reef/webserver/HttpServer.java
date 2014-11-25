@@ -23,7 +23,6 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 /**
  * HttpServer interface
  */
-@DefaultImplementation(HttpServerImpl.class)
 public interface HttpServer {
 
   /**

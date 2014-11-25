@@ -34,12 +34,16 @@ import org.junit.Test;
  */
 public class TestHttpServer {
 
+  /**
+   * This is to test the case when using HttpRuntimeConfiguration.CONF with all the ther default bindings
+   * @throws Exception
+   */
   @Test
-  public void httpServerDefaultTest() throws Exception {
+  public void httpServerDefaultCONFTest() throws Exception {
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
     final Injector injector = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
     final HttpServer httpServer = injector.getInstance(HttpServer.class);
-    Assert.assertNotNull(httpServer);
+    Assert.assertTrue(httpServer instanceof HttpServerImpl);
     httpServer.stop();
   }
 
