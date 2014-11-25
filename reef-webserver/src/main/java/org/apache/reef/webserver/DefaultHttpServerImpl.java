@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DefaultHttpServerImpl. It provides an empty implementation for HttpServer. WHen it is used, no HttpServer is started.
+ * DefaultHttpServerImpl. It provides an empty implementation for HttpServer. When it is used, no HttpServer is created and started.
  */
 public final class DefaultHttpServerImpl implements HttpServer {
   /**
@@ -38,7 +38,7 @@ public final class DefaultHttpServerImpl implements HttpServer {
   }
 
   /**
-   * It will be called from RuntimeStartHandler. As the Jetty server has been started at initialization phase, no need to start here.
+   * It will be called from RuntimeStartHandler. No Jetty server in this case therefore do nothing.
    *
    * @throws Exception
    */
@@ -47,7 +47,7 @@ public final class DefaultHttpServerImpl implements HttpServer {
   }
 
   /**
-   * stop Jetty Server. It will be called from RuntimeStopHandler
+   * It will be called from RuntimeStopHandler Do nothing as no server is started.
    *
    * @throws Exception
    */
@@ -61,7 +61,7 @@ public final class DefaultHttpServerImpl implements HttpServer {
   }
 
   /**
-   * Add a HttpHandler to Jetty Handler
+   * Implement the interface only but do nothing.
    *
    * @param httpHandler
    */

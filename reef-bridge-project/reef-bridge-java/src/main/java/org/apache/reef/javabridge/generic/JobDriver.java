@@ -194,23 +194,23 @@ public final class JobDriver {
       }
 
       if (!(httpServer instanceof DefaultHttpServerImpl)) {
-        try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
-          final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-          NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
-          final String specList = httpServerEventBridge.getUriSpecification();
-          LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
-          if (specList != null) {
-            final String[] specs = specList.split(":");
-            for (final String s : specs) {
-              final HttpHandler h = new HttpServerBridgeEventHandler();
-              h.setUriSpecification(s);
-              this.httpServer.addHttpHandler(h);
-            }
+      try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
+        final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
+        NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
+        final String specList = httpServerEventBridge.getUriSpecification();
+        LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
+        if (specList != null) {
+          final String[] specs = specList.split(":");
+          for (final String s : specs) {
+            final HttpHandler h = new HttpServerBridgeEventHandler();
+            h.setUriSpecification(s);
+            this.httpServer.addHttpHandler(h);
           }
         }
       }
+      }
       else {
-        LOG.log(Level.INFO, "No http server registered.");
+        LOG.log(Level.INFO, "No http server is registered.");
       }
       this.clrBridgeSetup = true;
     }
