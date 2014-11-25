@@ -187,6 +187,7 @@ public final class JobDriver {
         this.driverRestartRunningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartRunningTaskKey)];
       }
 
+      if (!(httpServer instanceof DefaultHttpServerImpl)) {
       try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
         final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
         NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
@@ -200,6 +201,10 @@ public final class JobDriver {
             this.httpServer.addHttpHandler(h);
           }
         }
+      }
+      }
+      else {
+        LOG.log(Level.INFO, "No http server is registered.");
       }
       this.clrBridgeSetup = true;
     }
