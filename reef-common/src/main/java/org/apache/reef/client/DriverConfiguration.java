@@ -49,7 +49,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   /**
    * Identifies the driver and therefore the JOB. Expect to see this e.g. on YARN's dashboard.
    */
-  public static final RequiredParameter<String> DRIVER_IDENTIFIER = new RequiredParameter<>();
+  public static final OptionalParameter<String> DRIVER_IDENTIFIER = new OptionalParameter<>();
 
   /**
    * The amount of memory to be allocated for the Driver. This is the size of the AM container in YARN.

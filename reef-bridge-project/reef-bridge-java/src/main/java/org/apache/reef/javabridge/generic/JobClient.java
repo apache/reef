@@ -25,7 +25,6 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.BindException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.logging.LoggingScope;
@@ -37,7 +36,6 @@ import org.apache.reef.webserver.ReefEventStateManager;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,7 +119,7 @@ public class JobClient {
         .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class);
   }
 
-  private static Configuration getNameServerConfiguration() {
+  public static Configuration getNameServerConfiguration() {
     return NameServerConfiguration.CONF
         .set(NameServerConfiguration.NAME_SERVICE_PORT, 0)
         .build();
@@ -162,7 +160,6 @@ public class JobClient {
           .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId)
           .set(DriverConfiguration.DRIVER_JOB_SUBMISSION_DIRECTORY, this.jobSubmissionDirectory);
 
-
       Path globalLibFile = Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
       if (!Files.exists(globalLibFile)) {
         LOG.log(Level.FINE, "Cannot find global classpath file at: {0}, assume there is none.", globalLibFile.toAbsolutePath());
@@ -179,33 +176,33 @@ public class JobClient {
           this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getPath());
         }
       }
-
-      this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
     }
   }
 
+  private void updateDriverConfiguration(final File clrFolder) {
+    try {
+      addCLRFiles(clrFolder);
+    } catch (final BindException e) {
+      LOG.log(Level.FINE, "Failed to bind", e);
+    }
+    this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
+  }
   /**
    * Launch the job driver.
    *
    * @throws org.apache.reef.tang.exceptions.BindException configuration error.
    */
-  public void submit(final File clrFolder, final boolean submitDriver, final Configuration clientConfig) {
+  public void submit(final File clrFolder, final boolean submitDriver, final boolean createClientConfig, final Configuration clientConfig) {
     try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
-      try {
-        addCLRFiles(clrFolder);
-      } catch (final BindException e) {
-        LOG.log(Level.FINE, "Failed to bind", e);
-      }
       if (submitDriver) {
+        updateDriverConfiguration(clrFolder);
         this.reef.submit(this.driverConfiguration);
+      } else if (!createClientConfig) {
+        updateDriverConfiguration(clrFolder);
+        DriverConfigBuilder.serializeConfigFile(DriverConfigBuilder.DRIVER_CONFIG_FILE, Configurations.merge(this.driverConfiguration, clientConfig));
       } else {
-        File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
-        try {
-          new AvroConfigurationSerializer().toFile(Configurations.merge(this.driverConfiguration, clientConfig), driverConfig);
-          LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
-        } catch (final IOException e) {
-          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
-        }
+        final Configuration driverConfig = Configurations.merge(this.driverConfigModule.build(), clientConfig);
+        DriverConfigBuilder.buildDriverConfigurationFiles(driverConfig);
       }
     }
   }
