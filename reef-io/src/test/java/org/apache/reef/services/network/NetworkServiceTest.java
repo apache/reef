@@ -23,11 +23,14 @@ import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.impl.MessagingTransportFactory;
 import org.apache.reef.io.network.impl.NetworkService;
+import org.apache.reef.io.network.naming.DefaultNameServerImpl;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.services.network.util.Monitor;
 import org.apache.reef.services.network.util.StringCodec;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -35,7 +38,7 @@ import org.apache.reef.wake.remote.NetUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-
+import org.junit.Assert;
 import java.net.InetSocketAddress;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -446,6 +449,17 @@ public class NetworkServiceTest {
     }
 
     server.close();
+  }
+
+  /**
+   * Test injection for default class of NameServer
+   * @throws Exception
+   */
+  @Test
+  public void defaultNameServerTest() throws Exception {
+    final Injector injector = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+    final NameServer httpServer = injector.getInstance(NameServer.class);
+    Assert.assertTrue(httpServer instanceof DefaultNameServerImpl);
   }
 
   /**

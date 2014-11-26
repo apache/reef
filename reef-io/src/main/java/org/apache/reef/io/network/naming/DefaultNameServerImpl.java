@@ -19,24 +19,8 @@
 package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.NameAssignment;
-import org.apache.reef.io.network.naming.serialization.*;
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
-import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.Stage;
-import org.apache.reef.wake.impl.MultiEventHandler;
-import org.apache.reef.wake.impl.SyncStage;
-import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.NetUtils;
-import org.apache.reef.wake.remote.impl.TransportEvent;
-import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
-import org.apache.reef.webserver.AvroReefServiceInfo;
-import org.apache.reef.webserver.ReefEventStateManager;
-
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.logging.Level;
@@ -59,7 +43,7 @@ public class DefaultNameServerImpl implements NameServer {
    */
   @Override
   public int getPort() {
-    return 9999;
+    return 0;
   }
 
   /**
@@ -100,7 +84,7 @@ public class DefaultNameServerImpl implements NameServer {
   }
 
   /**
-   * Finds addresses for identifiers locally
+   * Finds NameAssignment for identifiers locally
    *
    * @param identifiers an iterable of identifiers
    * @return a list of name assignments
