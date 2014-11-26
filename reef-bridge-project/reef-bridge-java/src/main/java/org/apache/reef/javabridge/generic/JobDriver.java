@@ -25,6 +25,7 @@ import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.*;
+import org.apache.reef.io.network.naming.DefaultNameServerImpl;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
@@ -142,7 +143,12 @@ public final class JobDriver {
     this.evaluatorRequestor = evaluatorRequestor;
     this.nameServer = nameServer;
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    if (nameServer instanceof DefaultNameServerImpl) {
+      this.nameServerInfo = null;
+      LOG.log(Level.INFO, "No Name Server registered.");
+    } else {
+      this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    }
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
