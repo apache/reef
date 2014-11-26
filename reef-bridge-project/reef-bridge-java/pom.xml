@@ -124,7 +124,6 @@ under the License.
                   <mainClass>org.apache.reef.javabridge.generic.Launch</mainClass>
                   <arguments>
                     <argument>.</argument>
-                    <argument>-local=true</argument>
                     <argument>-submit=false</argument>
                     <argument>-client_config=true</argument>
                   </arguments>

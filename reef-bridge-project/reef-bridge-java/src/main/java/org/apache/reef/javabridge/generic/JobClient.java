@@ -19,29 +19,23 @@
 package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.client.*;
-import org.apache.reef.driver.parameters.*;
-import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
-import org.apache.reef.io.network.naming.NameServerImpl;
-import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.javabridge.NativeInterop;
-import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.BindException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.webserver.*;
+import org.apache.reef.webserver.HttpHandlerConfiguration;
+import org.apache.reef.webserver.HttpServerReefEventHandler;
+import org.apache.reef.webserver.ReefEventStateManager;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,16 +52,6 @@ public class JobClient {
    * Standard java logger.
    */
   private static final Logger LOG = Logger.getLogger(JobClient.class.getName());
-
-  private static final String USER_DIR = "user.dir";
-  private static final String DRIVER_CONFIG_FILE = "driver.config";
-  private static final String JOB_DRIVER_CONFIG_FILE = "jobDriver.config";
-  private static final String HTTP_SERVER_CONFIG_FILE = "httpServer.config";
-  private static final String NAME_SERVER_CONFIG_FILE = "nameServer.config";
-  private static final String DRIVER_CH_FILE = "driverClassHierarchy.bin";
-  private static final String REEF_BRIDGE_PROJECT_DIR = "\\reef-bridge-project";
-  private static final String REEF_BRIDGE_JAVA_DIR = "\\reef-bridge-java";
-  private static final String TARGET_DIR = "\\target\\classes\\";
 
   /**
    * Reference to the REEF framework.
@@ -135,7 +119,7 @@ public class JobClient {
         .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class);
   }
 
-  private static Configuration getNameServerConfiguration() {
+  public static Configuration getNameServerConfiguration() {
     return NameServerConfiguration.CONF
         .set(NameServerConfiguration.NAME_SERVICE_PORT, 0)
         .build();
@@ -215,84 +199,12 @@ public class JobClient {
         this.reef.submit(this.driverConfiguration);
       } else if (!createClientConfig) {
         updateDriverConfiguration(clrFolder);
-        serializeConfigFile(DRIVER_CONFIG_FILE, Configurations.merge(this.driverConfiguration, clientConfig));
+        DriverConfigBuilder.serializeConfigFile(DriverConfigBuilder.DRIVER_CONFIG_FILE, Configurations.merge(this.driverConfiguration, clientConfig));
       } else {
-        this.driverConfiguration = this.driverConfigModule.build();
-
-        //make the classes available in the class hierarchy so that client can bind values to the configuration
-        final ClassHierarchy ns = driverConfiguration.getClassHierarchy();
-        ns.getNode(JobGlobalFiles.class.getName());
-        ns.getNode(JobGlobalLibraries.class.getName());
-        ns.getNode(DriverMemory.class.getName());
-        ns.getNode(DriverIdentifier.class.getName());
-        ns.getNode(DriverJobSubmissionDirectory.class.getName());
-
-        final Configuration jobDriverConfig = Configurations.merge(this.driverConfiguration, clientConfig);
-
-        serializeConfigFile(JOB_DRIVER_CONFIG_FILE, jobDriverConfig);
-        serializeConfigFile(HTTP_SERVER_CONFIG_FILE, getHTTPConfiguration());
-        serializeConfigFile(NAME_SERVER_CONFIG_FILE, getNameServerConfiguration());
-
-        //do this at the end to ensure all nodes are in the class hierarchy
-        serializeClassHierarchy(DRIVER_CH_FILE, jobDriverConfig);
+        final Configuration driverConfig = Configurations.merge(this.driverConfigModule.build(), clientConfig);
+        DriverConfigBuilder.buildDriverConfigurationFiles(driverConfig);
       }
     }
-  }
-
-  /**
-   * Serialize the ClassHierarchy in the Configuration in to a file with classHierarchyFileName
-   * @param classHierarchyFileName
-   * @param conf
-   */
-  private void serializeClassHierarchy(final String classHierarchyFileName, final Configuration conf) {
-    final String configFileFolder = getConfigFileFolder(classHierarchyFileName);
-    LOG.log(Level.INFO, "configFileFolder: " + configFileFolder);
-    final File classHierarchyFile = new File(configFileFolder);
-    final ClassHierarchy ns = conf.getClassHierarchy();
-
-    try {
-        ProtocolBufferClassHierarchy.serialize(classHierarchyFile, ns);
-    } catch (final IOException e) {
-      throw new RuntimeException("Cannot create class hierarchy file at " + classHierarchyFile.getAbsolutePath());
-    }
-  }
-
-  /**
-   * serialize Configuration object into a file with configFileName
-   * @param configFileName
-   * @param conf
-   */
-  private void serializeConfigFile(final String configFileName, final Configuration conf) {
-    final String configFileFolder = getConfigFileFolder(configFileName);
-    LOG.log(Level.INFO, "configFileFolder: " + configFileFolder);
-    final File configFile = new File(getConfigFileFolder(configFileName));
-    final File configTextFile = new File(getConfigFileFolder(configFileName) + ".txt");
-
-    try {
-      //Serialize the Configuration into a file
-      new AvroConfigurationSerializer().toFile(conf, configFile);
-
-      //Serialize the Configuration into a text file for easy read
-      new AvroConfigurationSerializer().toTextFile(conf, configTextFile);
-    } catch (final IOException e) {
-      throw new RuntimeException("Cannot create driver configuration file at " + configFile.getAbsolutePath());
-    }
-  }
-
-  /**
-   * return folder reef-bridge-project\reef-bridge-java\target\classes
-   * @param fileName
-   * @return
-   */
-  private String getConfigFileFolder(final String fileName) {
-    final String userDir = System.getProperty(USER_DIR);
-    if (userDir.endsWith(REEF_BRIDGE_PROJECT_DIR)) {
-      return new StringBuilder().append(userDir).append(REEF_BRIDGE_JAVA_DIR).append(TARGET_DIR).append(fileName).toString();
-    }
-    if (userDir.endsWith(REEF_BRIDGE_JAVA_DIR)) {
-      return new StringBuilder().append(userDir).append(TARGET_DIR).append(fileName).toString();
-    }
-    return new StringBuilder().append(userDir).append(REEF_BRIDGE_PROJECT_DIR).append(REEF_BRIDGE_JAVA_DIR).append(TARGET_DIR).append(fileName).toString();
   }
 
   /**
