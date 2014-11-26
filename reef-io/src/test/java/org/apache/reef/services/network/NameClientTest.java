@@ -18,10 +18,7 @@
  */
 package org.apache.reef.services.network;
 
-import org.apache.reef.io.network.naming.NameCache;
-import org.apache.reef.io.network.naming.NameClient;
-import org.apache.reef.io.network.naming.NameLookupClient;
-import org.apache.reef.io.network.naming.NameServer;
+import org.apache.reef.io.network.naming.*;
 import org.apache.reef.io.network.naming.exception.NamingException;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Tang;
@@ -73,7 +70,7 @@ public class NameClientTest {
   @Test
   public final void testClose() throws Exception {
     IdentifierFactory factory = new StringIdentifierFactory();
-    try (NameServer server = new NameServer(0, factory)) {
+    try (NameServer server = new NameServerImpl(0, factory)) {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory, retryCount, retryTimeout,
           new NameCache(10000))) {
@@ -95,7 +92,7 @@ public class NameClientTest {
   @Test
   public final void testLookup() throws Exception {
     IdentifierFactory factory = new StringIdentifierFactory();
-    try (NameServer server = new NameServer(0, factory)) {
+    try (NameServer server = new NameServerImpl(0, factory)) {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory, retryCount, retryTimeout,
           new NameCache(150))) {

@@ -24,9 +24,12 @@ import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.impl.MessagingTransportFactory;
 import org.apache.reef.io.network.impl.NetworkService;
 import org.apache.reef.io.network.naming.NameServer;
+import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.services.network.util.Monitor;
 import org.apache.reef.services.network.util.StringCodec;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -34,7 +37,7 @@ import org.apache.reef.wake.remote.NetUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-
+import org.junit.Assert;
 import java.net.InetSocketAddress;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -62,7 +65,7 @@ public class NetworkServiceTest {
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServer(0, factory);
+    NameServer server = new NameServerImpl(0, factory);
     int nameServerPort = server.getPort();
 
     final int numMessages = 10;
@@ -120,7 +123,7 @@ public class NetworkServiceTest {
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServer(0, factory);
+    NameServer server = new NameServerImpl(0, factory);
     int nameServerPort = server.getPort();
 
     final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
@@ -194,7 +197,7 @@ public class NetworkServiceTest {
     final IdentifierFactory factory = new StringIdentifierFactory();
     final String nameServerAddr = NetUtils.getLocalAddress();
 
-    final NameServer server = new NameServer(0, factory);
+    final NameServer server = new NameServerImpl(0, factory);
     final int nameServerPort = server.getPort();
 
     BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
@@ -287,7 +290,7 @@ public class NetworkServiceTest {
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServer(0, factory);
+    NameServer server = new NameServerImpl(0, factory);
     int nameServerPort = server.getPort();
 
     final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
@@ -379,7 +382,7 @@ public class NetworkServiceTest {
     IdentifierFactory factory = new StringIdentifierFactory();
     String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServer(0, factory);
+    NameServer server = new NameServerImpl(0, factory);
     int nameServerPort = server.getPort();
 
     final int batchSize = 1024 * 1024;

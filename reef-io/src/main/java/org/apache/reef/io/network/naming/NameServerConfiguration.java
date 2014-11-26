@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.reef.io.network.naming;
 
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -45,5 +46,6 @@ public final class NameServerConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(NameServerParameters.NameServerPort.class, NAME_SERVICE_PORT)
       .bindNamedParameter(NameServerParameters.NameServerAddr.class, NAME_SERVER_HOSTNAME)
       .bindNamedParameter(NameServerParameters.NameServerIdentifierFactory.class, NAME_SERVER_IDENTIFIER_FACTORY)
+      .bindImplementation(NameServer.class, NameServerImpl.class)
       .build();
 }
