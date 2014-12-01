@@ -47,17 +47,6 @@ public class TestHttpServer {
     httpServer.stop();
   }
 
-  /**
-   * This is to test the case when there is no binding for HttpServer, DefaultHttpServerImpl will be used as a default implementation
-   * @throws Exception
-   */
-  @Test
-  public void defaultHttpServerTest() throws Exception {
-    final Injector injector = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
-    final HttpServer httpServer = injector.getInstance(HttpServer.class);
-    Assert.assertTrue(httpServer instanceof DefaultHttpServerImpl);
-  }
-
   @Test
   public void httpServerSpecifiedPortTest() throws Exception {
 
