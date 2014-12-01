@@ -23,7 +23,6 @@ import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.impl.MessagingTransportFactory;
 import org.apache.reef.io.network.impl.NetworkService;
-import org.apache.reef.io.network.naming.DefaultNameServerImpl;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
@@ -449,17 +448,6 @@ public class NetworkServiceTest {
     }
 
     server.close();
-  }
-
-  /**
-   * Test injection for default class of NameServer
-   * @throws Exception
-   */
-  @Test
-  public void defaultNameServerTest() throws Exception {
-    final Injector injector = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
-    final NameServer httpServer = injector.getInstance(NameServer.class);
-    Assert.assertTrue(httpServer instanceof DefaultNameServerImpl);
   }
 
   /**

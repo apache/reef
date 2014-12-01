@@ -47,7 +47,6 @@ import java.util.logging.Logger;
 /**
  * Naming server interface
  */
-@DefaultImplementation(DefaultNameServerImpl.class)
 public interface NameServer extends Stage {
 
   /**
