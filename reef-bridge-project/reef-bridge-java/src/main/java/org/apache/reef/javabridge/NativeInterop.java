@@ -89,7 +89,7 @@ public class NativeInterop {
 
   public static native void ClrBufferedLog(int level, String message);
 
-  public static native long[] CallClrSystemOnStartHandler(String dateTime);
+  public static native long[] CallClrSystemOnStartHandler(String dateTime, String httpServerPortNumber);
 
   public static native void ClrSystemAllocatedEvaluatorHandlerOnNext(
       long handle,
