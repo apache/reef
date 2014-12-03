@@ -124,9 +124,13 @@ public final class JobDriver {
    * Job driver constructor.
    * All parameters are injected from TANG automatically.
    *
-   * @param clock              Wake clock to schedule and check up running jobs.
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param httpServer Http Server
+   * @param nameServer Name Server
    * @param jobMessageObserver is used to send messages back to the client.
    * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
    */
   @Inject
   JobDriver(final Clock clock,
@@ -143,6 +147,88 @@ public final class JobDriver {
     this.nameServer = nameServer;
     this.driverStatusManager = driverStatusManager;
     this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    this.loggingScopeFactory = loggingScopeFactory;
+  }
+
+  /**
+   * Job driver constructor without HttpServer
+   * All parameters are injected from TANG automatically.
+   *
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param nameServer Name Server
+   * @param jobMessageObserver is used to send messages back to the client.
+   * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
+   */
+  @Inject
+  JobDriver(final Clock clock,
+            final NameServer nameServer,
+            final JobMessageObserver jobMessageObserver,
+            final EvaluatorRequestor evaluatorRequestor,
+            final DriverStatusManager driverStatusManager,
+            final LoggingScopeFactory loggingScopeFactory) {
+    this.clock = clock;
+    this.httpServer = null;
+    this.jobMessageObserver = jobMessageObserver;
+    this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = nameServer;
+    this.driverStatusManager = driverStatusManager;
+    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    this.loggingScopeFactory = loggingScopeFactory;
+  }
+
+  /**
+   * Job driver constructor without NameServer
+   * All parameters are injected from TANG automatically.
+   *
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param httpServer Http Server
+   * @param jobMessageObserver is used to send messages back to the client.
+   * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
+   */
+  @Inject
+  JobDriver(final Clock clock,
+            final HttpServer httpServer,
+            final JobMessageObserver jobMessageObserver,
+            final EvaluatorRequestor evaluatorRequestor,
+            final DriverStatusManager driverStatusManager,
+            final LoggingScopeFactory loggingScopeFactory) {
+    this.clock = clock;
+    this.httpServer = httpServer;
+    this.jobMessageObserver = jobMessageObserver;
+    this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = null;
+    this.driverStatusManager = driverStatusManager;
+    this.nameServerInfo = null;
+    this.loggingScopeFactory = loggingScopeFactory;
+  }
+
+  /**
+   * Job driver constructor without NameServer and HttpServer
+   * All parameters are injected from TANG automatically.
+   *
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param jobMessageObserver is used to send messages back to the client.
+   * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
+   */
+  @Inject
+  JobDriver(final Clock clock,
+            final JobMessageObserver jobMessageObserver,
+            final EvaluatorRequestor evaluatorRequestor,
+            final DriverStatusManager driverStatusManager,
+            final LoggingScopeFactory loggingScopeFactory) {
+    this.clock = clock;
+    this.httpServer = null;
+    this.jobMessageObserver = jobMessageObserver;
+    this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = null;
+    this.driverStatusManager = driverStatusManager;
+    this.nameServerInfo = null;
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -188,20 +274,20 @@ public final class JobDriver {
       }
 
       if (httpServer != null) {
-      try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
-        final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-        NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
-        final String specList = httpServerEventBridge.getUriSpecification();
-        LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
-        if (specList != null) {
-          final String[] specs = specList.split(":");
-          for (final String s : specs) {
-            final HttpHandler h = new HttpServerBridgeEventHandler();
-            h.setUriSpecification(s);
-            this.httpServer.addHttpHandler(h);
+        try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
+          final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
+          NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
+          final String specList = httpServerEventBridge.getUriSpecification();
+          LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
+          if (specList != null) {
+            final String[] specs = specList.split(":");
+            for (final String s : specs) {
+              final HttpHandler h = new HttpServerBridgeEventHandler();
+              h.setUriSpecification(s);
+              this.httpServer.addHttpHandler(h);
+            }
           }
         }
-      }
       }
       else {
         LOG.log(Level.INFO, "No http server is registered.");
@@ -662,7 +748,6 @@ public final class JobDriver {
     }
   }
 
-
   /**
    * Receive notification that the Context had failed.
    * Remove context from the list of active context and notify the client.
@@ -688,7 +773,6 @@ public final class JobDriver {
       }
     }
   }
-
 
   /**
    * Receive notification that a ContextMessage has been received
