@@ -100,14 +100,19 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_loadClrAsse
  * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_CallClrSystemOnStartHandler
-(JNIEnv * env, jclass jclassx, jstring dateTimeString) {
+(JNIEnv * env, jclass jclassx, jstring dateTimeString, jstring httpServerPort) {
   try {
     ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_CallClrSystemOnStartHandler");
     const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
     int lenConfig = env->GetStringLength(dateTimeString);
     String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);
     DateTime dt = DateTime::Now;
-    array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt);
+
+	const wchar_t* charPort = UnicodeCppStringFromJavaString (env, httpServerPort);
+    int lenPort = env->GetStringLength(httpServerPort);
+    String^  strPort = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charPort, lenPort);
+
+    array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt, strPort);
     return JavaLongArrayFromManagedLongArray(env, handlers);
   }
   catch (System::Exception^ ex) {
