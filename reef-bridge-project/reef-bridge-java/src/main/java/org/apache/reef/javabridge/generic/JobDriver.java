@@ -61,18 +61,30 @@ import java.util.logging.Logger;
 @Unit
 public final class JobDriver {
 
+  /**
+   * Logger for this class
+   */
   private static final Logger LOG = Logger.getLogger(JobDriver.class.getName());
+
   /**
    * String codec is used to encode the results
    * before passing them back to the client.
    */
   private static final ObjectSerializableCodec<String> JVM_CODEC = new ObjectSerializableCodec<>();
-  private final InteropLogger interopLogger = new InteropLogger();
-  //private final NameServer nameServer;
 
+  /**
+   * logger used in Interop
+   */
+  private final InteropLogger interopLogger = new InteropLogger();
+
+  /**
+   * Name server which is optional
+   */
   private final Optional<NameServer> nameServer;
-  private final String nameServerInfo;
-  //private final HttpServer httpServer;
+
+  /**
+   * http server which is optional
+   */
   private final Optional<HttpServer> httpServer;
 
   /**
@@ -84,16 +96,23 @@ public final class JobDriver {
    * We use it to send results from the driver back to the client.
    */
   private final JobMessageObserver jobMessageObserver;
+
   /**
    * Job driver uses EvaluatorRequestor
    * to request Evaluators that will run the Tasks.
    */
   private final EvaluatorRequestor evaluatorRequestor;
+
+  /**
+   *  DriverStatusManager is to monitor driver status
+   */
   private final DriverStatusManager driverStatusManager;
+
   /**
    * Shell execution results from each Evaluator.
    */
   private final List<String> results = new ArrayList<>();
+
   /**
    * Map from context ID to running evaluator context.
    */
@@ -145,12 +164,11 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = Optional.ofNullable(httpServer);
+    this.httpServer = Optional.of(httpServer);
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
     this.nameServer = Optional.ofNullable(nameServer);
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort();
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -173,12 +191,11 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = Optional.ofNullable(null);
+    this.httpServer = Optional.empty();
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = Optional.ofNullable(nameServer);
+    this.nameServer = Optional.of(nameServer);
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort();
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -201,12 +218,11 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = Optional.ofNullable(httpServer);
+    this.httpServer = Optional.of(httpServer);
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = Optional.ofNullable(null);
+    this.nameServer = Optional.empty();
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = null;
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -227,12 +243,11 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = Optional.ofNullable(null);
+    this.httpServer = Optional.empty();
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = Optional.ofNullable(null);
+    this.nameServer = Optional.empty();
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = null;
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -317,7 +332,9 @@ public final class JobDriver {
       if (JobDriver.this.allocatedEvaluatorHandler == 0) {
         throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
       }
-      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, JobDriver.this.nameServerInfo);
+
+      final String nameServerInfo = nameServer.isPresent() ? NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort() : null;
+      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, nameServerInfo);
       NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(JobDriver.this.allocatedEvaluatorHandler, allocatedEvaluatorBridge, this.interopLogger);
     }
   }
