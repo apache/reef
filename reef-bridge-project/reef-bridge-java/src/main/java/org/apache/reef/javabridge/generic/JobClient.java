@@ -36,6 +36,7 @@ import org.apache.reef.webserver.ReefEventStateManager;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -183,26 +184,27 @@ public class JobClient {
     try {
       addCLRFiles(clrFolder);
     } catch (final BindException e) {
-      LOG.log(Level.FINE, "Failed to bind", e);
+      LOG.log(Level.FINE, "Failed to bind CLR files", e);
     }
     this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
   }
+
   /**
    * Launch the job driver for submit or create config files
    *
    * @throws org.apache.reef.tang.exceptions.BindException configuration error.
    */
-  public void submit(final File clrFolder, final boolean submitDriver, final boolean createClientConfig, final Configuration clientConfig) {
+  public void submit(final File clrFolder, final boolean submitDriver, final Configuration clientConfig) {
     try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
+      updateDriverConfiguration(clrFolder);
       if (submitDriver) {
-        updateDriverConfiguration(clrFolder);
         this.reef.submit(this.driverConfiguration);
-      } else if (!createClientConfig) {
-        updateDriverConfiguration(clrFolder);
-        DriverConfigBuilder.serializeConfigFile(DriverConfigBuilder.DRIVER_CONFIG_FILE, Configurations.merge(this.driverConfiguration, clientConfig));
       } else {
-        final Configuration driverConfig = Configurations.merge(this.driverConfigModule.build(), clientConfig);
-        DriverConfigBuilder.buildDriverConfigurationFiles(driverConfig);
+        try {
+          DriverConfigBuilder.serializeDriverConfigFile(Configurations.merge(this.driverConfiguration, clientConfig));
+        } catch (IOException e) {
+          LOG.log(Level.SEVERE, "Failed to serializeDriverConfigFile", e);
+        }
       }
     }
   }

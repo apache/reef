@@ -20,10 +20,10 @@
 package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.driver.parameters.*;
-import org.apache.reef.tang.ClassHierarchy;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.*;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
+import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 
 import java.io.File;
@@ -55,7 +55,7 @@ public class DriverConfigBuilder {
    * Build driver config, httpServer config and Name server config files with java bindings
    * @param driverConfiguration
    */
-  public static void buildDriverConfigurationFiles(final Configuration driverConfiguration) {
+  public static void buildDriverConfigurationFiles(final Configuration driverConfiguration) throws IOException {
     //make the classes available in the class hierarchy so that clients can bind values to the configuration
     final ClassHierarchy ns = driverConfiguration.getClassHierarchy();
     ns.getNode(JobGlobalFiles.class.getName());
@@ -64,22 +64,36 @@ public class DriverConfigBuilder {
     ns.getNode(DriverIdentifier.class.getName());
     ns.getNode(DriverJobSubmissionDirectory.class.getName());
 
-    serializeConfigFile(JOB_DRIVER_CONFIG_FILE, driverConfiguration);
-    serializeConfigFile(HTTP_SERVER_CONFIG_FILE, JobClient.getHTTPConfiguration());
-    serializeConfigFile(NAME_SERVER_CONFIG_FILE, JobClient.getNameServerConfiguration());
+    serializeConfigFile(new File(getConfigFileFolder(JOB_DRIVER_CONFIG_FILE)), driverConfiguration);
+    serializeConfigFile(new File(getConfigFileFolder(HTTP_SERVER_CONFIG_FILE)), JobClient.getHTTPConfiguration());
+    serializeConfigFile(new File(getConfigFileFolder(NAME_SERVER_CONFIG_FILE)), JobClient.getNameServerConfiguration());
+
+    //for visualize the file content
+    serializeConfigTextFile(new File(getConfigFileFolder(JOB_DRIVER_CONFIG_FILE + ".txt")), driverConfiguration);
+    serializeConfigTextFile(new File(getConfigFileFolder(HTTP_SERVER_CONFIG_FILE + ".txt")), JobClient.getHTTPConfiguration());
+    serializeConfigTextFile(new File(getConfigFileFolder(NAME_SERVER_CONFIG_FILE + ".txt")), JobClient.getNameServerConfiguration());
 
     //do this at the end to ensure all nodes are in the class hierarchy
-    serializeClassHierarchy(DRIVER_CH_FILE, driverConfiguration);
+    //serializeClassHierarchy(DRIVER_CH_FILE, driverConfiguration);
+    final File classHierarchyFile = new File(getConfigFileFolder(DRIVER_CH_FILE));
+    serializeClassHierarchy(classHierarchyFile, driverConfiguration);
   }
+
   /**
-   * Serialize the ClassHierarchy in the Configuration in to a file with classHierarchyFileName
-   * @param classHierarchyFileName
+   * serializeDriverConfigFile for a given Driver Configuration
+   * @param driverConfiguration
+   * @throws IOException
+   */
+  public static void serializeDriverConfigFile(final Configuration driverConfiguration) throws IOException {
+    serializeConfigFile(new File(getConfigFileFolder(DRIVER_CONFIG_FILE)), driverConfiguration);
+  }
+
+  /**
+   * Serialize the ClassHierarchy in the Configuration in to a file with classHierarchyFile
+   * @param classHierarchyFile
    * @param conf
    */
-  public static void serializeClassHierarchy(final String classHierarchyFileName, final Configuration conf) {
-    final String configFileFolder = getConfigFileFolder(classHierarchyFileName);
-    LOG.log(Level.INFO, "configFileFolder: " + configFileFolder);
-    final File classHierarchyFile = new File(configFileFolder);
+  private static void serializeClassHierarchy(final File classHierarchyFile, final Configuration conf) {
     final ClassHierarchy ns = conf.getClassHierarchy();
 
     try {
@@ -91,23 +105,26 @@ public class DriverConfigBuilder {
 
   /**
    * Serialize Configuration object into a file with configFileName
-   * @param configFileName
+   * @param configFile
    * @param conf
    */
-  public static void serializeConfigFile(final String configFileName, final Configuration conf) {
-    final String configFileFolder = getConfigFileFolder(configFileName);
-    LOG.log(Level.INFO, "configFileFolder: " + configFileFolder);
-    final File configFile = new File(getConfigFileFolder(configFileName));
-    final File configTextFile = new File(getConfigFileFolder(configFileName) + ".txt");
-
+  private static void serializeConfigFile(final File configFile, final Configuration conf) throws IOException {
     try {
-      //Serialize the Configuration into a file
-      new AvroConfigurationSerializer().toFile(conf, configFile);
+      final Injector i = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+      final ConfigurationSerializer serializer = i.getInstance(ConfigurationSerializer.class);
+      serializer.toFile(conf, configFile);
+    } catch (final InjectionException e) {
+      throw new RuntimeException("Cannot inject ConfigurationSerializer.");
+    }
+  }
 
-      //Serialize the Configuration into a text file for easy read
-      new AvroConfigurationSerializer().toTextFile(conf, configTextFile);
-    } catch (final IOException e) {
-      throw new RuntimeException("Cannot create driver configuration file at " + configFile.getAbsolutePath());
+  private static void serializeConfigTextFile(final File configFile, final Configuration conf) throws IOException {
+    try {
+      final Injector i = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+      final ConfigurationSerializer serializer = i.getInstance(ConfigurationSerializer.class);
+      serializer.toTextFile(conf, configFile);
+    } catch (final InjectionException e) {
+      throw new RuntimeException("Cannot inject ConfigurationSerializer.");
     }
   }
 

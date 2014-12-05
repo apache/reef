@@ -81,7 +81,6 @@ public final class Launch {
     cl.registerShortNameOfClass(DriverIdentifier.class);
     cl.registerShortNameOfClass(DriverJobSubmissionDirectory.class);
     cl.registerShortNameOfClass(Submit.class);
-    cl.registerShortNameOfClass(ClientConfig.class);
     cl.processCommandLine(args);
     return confBuilder.build();
   }
@@ -158,16 +157,15 @@ public final class Launch {
       final String driverIdentifier = commandLineInjector.getNamedInstance(DriverIdentifier.class);
       final String jobSubmissionDirectory = commandLineInjector.getNamedInstance(DriverJobSubmissionDirectory.class);
       final boolean submit = commandLineInjector.getNamedInstance(Submit.class);
-      final boolean clientConfig = commandLineInjector.getNamedInstance(ClientConfig.class);
       final Injector injector = Tang.Factory.getTang().newInjector(config);
       final JobClient client = injector.getInstance(JobClient.class);
       client.setDriverInfo(driverIdentifier, driverMemory, jobSubmissionDirectory);
 
       if (submit) {
-        client.submit(dotNetFolder, submit, clientConfig, null);
+        client.submit(dotNetFolder, true, null);
         client.waitForCompletion(waitTime);
       } else {
-        client.submit(dotNetFolder, submit, clientConfig, config);
+        client.submit(dotNetFolder, false, config);
         client.waitForCompletion(0);
       }
 
@@ -225,14 +223,6 @@ public final class Launch {
   @NamedParameter(doc = "Whether or not to submit the reef job after driver config is constructed",
       short_name = "submit", default_value = "true")
   public static final class Submit implements Name<Boolean> {
-  }
-
-  /**
-   * Command line parameter = true to submit the job with driver config, or false to write config to current directory
-   */
-  @NamedParameter(doc = "Whether or not to create configuration files for .Net clients to consume",
-      short_name = "client_config", default_value = "false")
-  public static final class ClientConfig implements Name<Boolean> {
   }
 
   /**

@@ -121,11 +121,9 @@ under the License.
                   <goal>java</goal>
                 </goals>
                 <configuration>
-                  <mainClass>org.apache.reef.javabridge.generic.Launch</mainClass>
+                  <mainClass>org.apache.reef.javabridge.generic.DriverConfigCreator</mainClass>
                   <arguments>
-                    <argument>.</argument>
-                    <argument>-submit=false</argument>
-                    <argument>-client_config=true</argument>
+                    <argument>true</argument>
                   </arguments>
                 </configuration>
               </execution>

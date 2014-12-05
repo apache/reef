@@ -68,9 +68,13 @@ public final class JobDriver {
    */
   private static final ObjectSerializableCodec<String> JVM_CODEC = new ObjectSerializableCodec<>();
   private final InteropLogger interopLogger = new InteropLogger();
-  private final NameServer nameServer;
+  //private final NameServer nameServer;
+
+  private final Optional<NameServer> nameServer;
   private final String nameServerInfo;
-  private final HttpServer httpServer;
+  //private final HttpServer httpServer;
+  private final Optional<HttpServer> httpServer;
+
   /**
    * Wake clock is used to schedule periodical job check-ups.
    */
@@ -141,12 +145,12 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = httpServer;
+    this.httpServer = Optional.ofNullable(httpServer);
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = nameServer;
+    this.nameServer = Optional.ofNullable(nameServer);
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort();
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -169,12 +173,12 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = null;
+    this.httpServer = Optional.ofNullable(null);
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = nameServer;
+    this.nameServer = Optional.ofNullable(nameServer);
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort();
     this.loggingScopeFactory = loggingScopeFactory;
   }
 
@@ -197,10 +201,10 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = httpServer;
+    this.httpServer = Optional.ofNullable(httpServer);
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = null;
+    this.nameServer = Optional.ofNullable(null);
     this.driverStatusManager = driverStatusManager;
     this.nameServerInfo = null;
     this.loggingScopeFactory = loggingScopeFactory;
@@ -223,10 +227,10 @@ public final class JobDriver {
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory) {
     this.clock = clock;
-    this.httpServer = null;
+    this.httpServer = Optional.ofNullable(null);
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = null;
+    this.nameServer = Optional.ofNullable(null);
     this.driverStatusManager = driverStatusManager;
     this.nameServerInfo = null;
     this.loggingScopeFactory = loggingScopeFactory;
@@ -273,7 +277,7 @@ public final class JobDriver {
         this.driverRestartRunningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartRunningTaskKey)];
       }
 
-      if (httpServer != null) {
+      if (httpServer.isPresent()) {
         try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
           final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
           NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
@@ -284,7 +288,7 @@ public final class JobDriver {
             for (final String s : specs) {
               final HttpHandler h = new HttpServerBridgeEventHandler();
               h.setUriSpecification(s);
-              this.httpServer.addHttpHandler(h);
+              this.httpServer.get().addHttpHandler(h);
             }
           }
         }
