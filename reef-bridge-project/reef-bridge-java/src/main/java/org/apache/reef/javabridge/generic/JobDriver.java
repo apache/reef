@@ -309,7 +309,7 @@ public final class JobDriver {
         }
       }
       else {
-        LOG.log(Level.INFO, "No http server is registered.");
+        LOG.log(Level.FINE, "No http server is registered.");
       }
       this.clrBridgeSetup = true;
     }

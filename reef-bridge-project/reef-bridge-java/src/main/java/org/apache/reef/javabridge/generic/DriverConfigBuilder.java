@@ -40,8 +40,6 @@ public class DriverConfigBuilder {
    */
   private static final Logger LOG = Logger.getLogger(JobClient.class.getName());
 
-  public static final String DRIVER_CONFIG_FILE = "driver.config";
-
   private static final String USER_DIR = "user.dir";
   private static final String JOB_DRIVER_CONFIG_FILE = "jobDriver.config";
   private static final String HTTP_SERVER_CONFIG_FILE = "httpServer.config";
@@ -68,39 +66,10 @@ public class DriverConfigBuilder {
     serializeConfigFile(new File(getConfigFileFolder(HTTP_SERVER_CONFIG_FILE)), JobClient.getHTTPConfiguration());
     serializeConfigFile(new File(getConfigFileFolder(NAME_SERVER_CONFIG_FILE)), JobClient.getNameServerConfiguration());
 
-    //for visualize the file content
-    serializeConfigTextFile(new File(getConfigFileFolder(JOB_DRIVER_CONFIG_FILE + ".txt")), driverConfiguration);
-    serializeConfigTextFile(new File(getConfigFileFolder(HTTP_SERVER_CONFIG_FILE + ".txt")), JobClient.getHTTPConfiguration());
-    serializeConfigTextFile(new File(getConfigFileFolder(NAME_SERVER_CONFIG_FILE + ".txt")), JobClient.getNameServerConfiguration());
-
     //do this at the end to ensure all nodes are in the class hierarchy
     //serializeClassHierarchy(DRIVER_CH_FILE, driverConfiguration);
     final File classHierarchyFile = new File(getConfigFileFolder(DRIVER_CH_FILE));
-    serializeClassHierarchy(classHierarchyFile, driverConfiguration);
-  }
-
-  /**
-   * serializeDriverConfigFile for a given Driver Configuration
-   * @param driverConfiguration
-   * @throws IOException
-   */
-  public static void serializeDriverConfigFile(final Configuration driverConfiguration) throws IOException {
-    serializeConfigFile(new File(getConfigFileFolder(DRIVER_CONFIG_FILE)), driverConfiguration);
-  }
-
-  /**
-   * Serialize the ClassHierarchy in the Configuration in to a file with classHierarchyFile
-   * @param classHierarchyFile
-   * @param conf
-   */
-  private static void serializeClassHierarchy(final File classHierarchyFile, final Configuration conf) {
-    final ClassHierarchy ns = conf.getClassHierarchy();
-
-    try {
-      ProtocolBufferClassHierarchy.serialize(classHierarchyFile, ns);
-    } catch (final IOException e) {
-      throw new RuntimeException("Cannot create class hierarchy file at " + classHierarchyFile.getAbsolutePath());
-    }
+    ProtocolBufferClassHierarchy.serialize(classHierarchyFile, ns);
   }
 
   /**
@@ -118,22 +87,12 @@ public class DriverConfigBuilder {
     }
   }
 
-  private static void serializeConfigTextFile(final File configFile, final Configuration conf) throws IOException {
-    try {
-      final Injector i = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
-      final ConfigurationSerializer serializer = i.getInstance(ConfigurationSerializer.class);
-      serializer.toTextFile(conf, configFile);
-    } catch (final InjectionException e) {
-      throw new RuntimeException("Cannot inject ConfigurationSerializer.");
-    }
-  }
-
   /**
    * Return folder reef-bridge-project\reef-bridge-java\target\classes
    * @param fileName
    * @return
    */
-  private static String getConfigFileFolder(final String fileName) {
+  public static String getConfigFileFolder(final String fileName) {
     final String userDir = System.getProperty(USER_DIR);
     if (userDir.endsWith(REEF_BRIDGE_PROJECT_DIR)) {
       return new StringBuilder().append(userDir).append(REEF_BRIDGE_JAVA_DIR).append(TARGET_DIR).append(fileName).toString();

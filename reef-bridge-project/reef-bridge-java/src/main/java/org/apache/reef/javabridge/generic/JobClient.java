@@ -25,7 +25,9 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.BindException;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
@@ -86,6 +88,12 @@ public class JobClient {
    * A factory that provides LoggingScope
    */
   private final LoggingScopeFactory loggingScopeFactory;
+
+  /**
+   *  ConfigurationSerializer
+   */
+  ConfigurationSerializer configurationSerializer;
+
   /**
    * Clr Bridge client.
    * Parameters are injected automatically by TANG.
@@ -93,10 +101,11 @@ public class JobClient {
    * @param reef Reference to the REEF framework.
    */
   @Inject
-  JobClient(final REEF reef, final LoggingScopeFactory loggingScopeFactory) throws BindException {
+  JobClient(final REEF reef, final LoggingScopeFactory loggingScopeFactory, final AvroConfigurationSerializer serializer) throws BindException {
     this.loggingScopeFactory = loggingScopeFactory;
     this.reef = reef;
     this.driverConfigModule = getDriverConfiguration();
+    this.configurationSerializer = serializer;
   }
 
   public static ConfigurationModule getDriverConfiguration() {
@@ -200,10 +209,12 @@ public class JobClient {
       if (submitDriver) {
         this.reef.submit(this.driverConfiguration);
       } else {
+        File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
         try {
-          DriverConfigBuilder.serializeDriverConfigFile(Configurations.merge(this.driverConfiguration, clientConfig));
-        } catch (IOException e) {
-          LOG.log(Level.SEVERE, "Failed to serializeDriverConfigFile", e);
+          configurationSerializer.toFile(Configurations.merge(this.driverConfiguration, clientConfig), driverConfig);
+          LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
+        } catch (final IOException e) {
+          throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());
         }
       }
     }

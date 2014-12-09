@@ -50,7 +50,7 @@ public class DriverConfigCreator {
    * dropped at the class folder and then packed into the jar file.
    * @param args
    */
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws IOException{
     LOG.log(Level.INFO, "Entering DriverConfigCreator");
 
     final boolean isLocal;
@@ -68,7 +68,8 @@ public class DriverConfigCreator {
     try {
       DriverConfigBuilder.buildDriverConfigurationFiles(driverConfig);
     } catch (IOException e) {
-      LOG.log(Level.SEVERE, "Failed to buildDriverConfigurationFiles", e);
+      LOG.log(Level.SEVERE, "Failed to buildDriverConfigurationFiles.", e);
+      throw e;
     }
     LOG.log(Level.INFO, "Driver config files are created.");
   }
@@ -98,7 +99,7 @@ public class DriverConfigCreator {
     }
 
     return Tang.Factory.getTang()
-        .newConfigurationBuilder(runtimeConfiguration, clientConfiguration)
+        .newConfigurationBuilder(Configurations.merge(runtimeConfiguration, clientConfiguration))
         .build();
   }
 }
