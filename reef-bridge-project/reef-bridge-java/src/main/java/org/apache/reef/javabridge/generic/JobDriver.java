@@ -265,8 +265,8 @@ public final class JobDriver {
       }
 
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
-      String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
-      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber);
+      Optional<String> portNumber = httpServer.isPresent() ? Optional.of(Integer.toString((httpServer.get().getPort()))) : Optional.<String>empty();
+      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber.get());
       if (handlers != null) {
         if (handlers.length != NativeInterop.nHandlers) {
           throw new RuntimeException(
@@ -334,8 +334,8 @@ public final class JobDriver {
         throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
       }
 
-      final String nameServerInfo = nameServer.isPresent() ? NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort() : null;
-      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, nameServerInfo);
+      final Optional<String> nameServerInfo = nameServer.isPresent() ? Optional.of(NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort()) : Optional.<String>empty();
+      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, nameServerInfo.get());
       NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(JobDriver.this.allocatedEvaluatorHandler, allocatedEvaluatorBridge, this.interopLogger);
     }
   }
