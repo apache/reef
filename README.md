@@ -1,4 +1,4 @@
-REEF    
+REEF      
 ==== 
 
 REEF is the Retainable Evaluator Execution Framework. It makes it easier to write applications on top of resource managers (e.g. YARN). It is released under the Apache 2.0 license. To get started, there is a [Tutorial](https://github.com/Microsoft-CISL/REEF/wiki/How-to-download-and-compile-REEF). We also have a [website](http://www.reef-project.org/)
