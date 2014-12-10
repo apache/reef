@@ -33,6 +33,11 @@ under the License.
     <!-- This module shouldn't have many dependencies to make sure it is broadly usable across reef subprojects -->
     <dependencies>
         <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
             <groupId>net.jcip</groupId>
             <artifactId>jcip-annotations</artifactId>
         </dependency>
