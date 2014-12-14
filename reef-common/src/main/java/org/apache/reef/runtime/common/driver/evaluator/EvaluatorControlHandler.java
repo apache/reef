@@ -69,7 +69,9 @@ public final class EvaluatorControlHandler {
       throw new IllegalStateException("Trying to send an EvaluatorControlProto before the Evaluator ID is set.");
     }
     if (!this.stateManager.isRunning()) {
-      throw new IllegalStateException("Trying to send an EvaluatorControlProto to an Evaluator that isn't running.");
+      final String msg = "Trying to send an EvaluatorControlProto to Evaluator [" + this.evaluatorId +
+          "] that is in state [" + this.stateManager.toString() + "], not [RUNNING]";
+      throw new IllegalStateException(msg);
     }
     this.wrapped.get().onNext(evaluatorControlProto);
   }
