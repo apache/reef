@@ -145,7 +145,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   public JavaLaunchCommandBuilder setClassPath(final Collection<String> classPathElements) {
-    this.classPath = "\"" + StringUtils.join(classPathElements, File.pathSeparatorChar) + "\"";
+    this.classPath = StringUtils.join(classPathElements, File.pathSeparatorChar);
     return this;
   }
 
