@@ -27,6 +27,7 @@ import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.EnvironmentUtils;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
@@ -87,6 +88,12 @@ public class JobClient {
    * A factory that provides LoggingScope
    */
   private final LoggingScopeFactory loggingScopeFactory;
+
+  /**
+   *  ConfigurationSerializer
+   */
+  ConfigurationSerializer configurationSerializer;
+
   /**
    * Clr Bridge client.
    * Parameters are injected automatically by TANG.
@@ -94,10 +101,11 @@ public class JobClient {
    * @param reef Reference to the REEF framework.
    */
   @Inject
-  JobClient(final REEF reef, final LoggingScopeFactory loggingScopeFactory) throws BindException {
+  JobClient(final REEF reef, final LoggingScopeFactory loggingScopeFactory, final AvroConfigurationSerializer serializer) throws BindException {
     this.loggingScopeFactory = loggingScopeFactory;
     this.reef = reef;
     this.driverConfigModule = getDriverConfiguration();
+    this.configurationSerializer = serializer;
   }
 
   public static ConfigurationModule getDriverConfiguration() {
@@ -121,7 +129,7 @@ public class JobClient {
         .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class);
   }
 
-  private static Configuration getNameServerConfiguration() {
+  public static Configuration getNameServerConfiguration() {
     return NameServerConfiguration.CONF
         .set(NameServerConfiguration.NAME_SERVICE_PORT, 0)
         .build();
@@ -162,7 +170,6 @@ public class JobClient {
           .set(DriverConfiguration.DRIVER_IDENTIFIER, this.driverId)
           .set(DriverConfiguration.DRIVER_JOB_SUBMISSION_DIRECTORY, this.jobSubmissionDirectory);
 
-
       Path globalLibFile = Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
       if (!Files.exists(globalLibFile)) {
         LOG.log(Level.FINE, "Cannot find global classpath file at: {0}, assume there is none.", globalLibFile.toAbsolutePath());
@@ -179,29 +186,32 @@ public class JobClient {
           this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getPath());
         }
       }
-
-      this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
     }
   }
 
+  private void updateDriverConfiguration(final File clrFolder) {
+    try {
+      addCLRFiles(clrFolder);
+    } catch (final BindException e) {
+      LOG.log(Level.FINE, "Failed to bind CLR files", e);
+    }
+    this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
+  }
+
   /**
-   * Launch the job driver.
+   * Launch the job driver for submit or create config files
    *
    * @throws org.apache.reef.tang.exceptions.BindException configuration error.
    */
   public void submit(final File clrFolder, final boolean submitDriver, final Configuration clientConfig) {
     try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
-      try {
-        addCLRFiles(clrFolder);
-      } catch (final BindException e) {
-        LOG.log(Level.FINE, "Failed to bind", e);
-      }
+      updateDriverConfiguration(clrFolder);
       if (submitDriver) {
         this.reef.submit(this.driverConfiguration);
       } else {
         File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
         try {
-          new AvroConfigurationSerializer().toFile(Configurations.merge(this.driverConfiguration, clientConfig), driverConfig);
+          configurationSerializer.toFile(Configurations.merge(this.driverConfiguration, clientConfig), driverConfig);
           LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
         } catch (final IOException e) {
           throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());

@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.rmi.server.UID;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,8 +77,12 @@ final class JobSubmissionHelper {
   final ClientRuntimeProtocol.JobSubmissionProto.Builder getJobsubmissionProto(final Configuration driverConfiguration) throws InjectionException, IOException {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
+    String identifier = injector.getNamedInstance(DriverIdentifier.class);
+    if (identifier.equals(DriverIdentifier.unNamedDriverID)) {
+      identifier = UUID.randomUUID().toString();
+    }
     final ClientRuntimeProtocol.JobSubmissionProto.Builder jbuilder = ClientRuntimeProtocol.JobSubmissionProto.newBuilder()
-        .setIdentifier(injector.getNamedInstance(DriverIdentifier.class))
+        .setIdentifier(identifier)
         .setDriverMemory(injector.getNamedInstance(DriverMemory.class))
         .setUserName(System.getProperty("user.name"))
         .setConfiguration(configurationSerializer.toString(driverConfiguration));
