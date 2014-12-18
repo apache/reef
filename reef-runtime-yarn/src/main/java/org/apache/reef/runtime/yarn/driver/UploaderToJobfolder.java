@@ -40,8 +40,8 @@ import java.util.logging.Logger;
 /**
  * Uploads files to the current job folder.
  */
-final class UploaderToJobfolder {
-  private static final Logger LOG = Logger.getLogger(UploaderToJobfolder.class.getName());
+final class UploaderToJobFolder {
+  private static final Logger LOG = Logger.getLogger(UploaderToJobFolder.class.getName());
 
   /**
    * The path on (H)DFS which is used as the job's folder.
@@ -53,7 +53,7 @@ final class UploaderToJobfolder {
   private final FileSystem fileSystem;
 
   @Inject
-  UploaderToJobfolder(final @Parameter(JobSubmissionDirectory.class) String jobSubmissionDirectory,
+  UploaderToJobFolder(final @Parameter(JobSubmissionDirectory.class) String jobSubmissionDirectory,
                       final YarnConfiguration yarnConfiguration) throws IOException {
     this.jobSubmissionDirectory = jobSubmissionDirectory;
     this.fileSystem = FileSystem.get(yarnConfiguration);

@@ -18,16 +18,8 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.hadoop.yarn.api.records.LocalResourceType;
-import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.util.ConverterUtils;
-import org.apache.hadoop.yarn.util.Records;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
@@ -35,7 +27,6 @@ import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.DeleteTempFiles;
-import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
@@ -61,7 +52,7 @@ final class EvaluatorSetupHelper {
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
   private final TempFileCreator tempFileCreator;
-  private final UploaderToJobfolder uploader;
+  private final UploaderToJobFolder uploader;
   private final GlobalJarUploader globalJarUploader;
   private final boolean deleteTempFiles;
 
@@ -71,7 +62,7 @@ final class EvaluatorSetupHelper {
       final ConfigurationSerializer configurationSerializer,
       final TempFileCreator tempFileCreator,
       final @Parameter(DeleteTempFiles.class) boolean deleteTempFiles,
-      final UploaderToJobfolder uploader,
+      final UploaderToJobFolder uploader,
       final GlobalJarUploader globalJarUploader) throws IOException {
     this.tempFileCreator = tempFileCreator;
     this.deleteTempFiles = deleteTempFiles;

@@ -18,14 +18,8 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.hadoop.yarn.api.records.LocalResourceType;
-import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
-import org.apache.hadoop.yarn.util.ConverterUtils;
-import org.apache.hadoop.yarn.util.Records;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.util.JARFileMaker;
 
@@ -35,7 +29,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
 
 /**
  * Utility class that creates the JAR file with the global files on the driver and then uploads it to the job folder on
@@ -54,7 +47,7 @@ final class GlobalJarUploader implements Callable<Map<String, LocalResource>> {
   /**
    * Utility to actually perform the update.
    */
-  private final UploaderToJobfolder uploader;
+  private final UploaderToJobFolder uploader;
   /**
    * True, if globalResources contains the valid information which is cached after the first call to call().
    */
@@ -62,7 +55,7 @@ final class GlobalJarUploader implements Callable<Map<String, LocalResource>> {
 
   @Inject
   GlobalJarUploader(final REEFFileNames fileNames,
-                    final UploaderToJobfolder uploader) {
+                    final UploaderToJobFolder uploader) {
     this.fileNames = fileNames;
     this.uploader = uploader;
   }
