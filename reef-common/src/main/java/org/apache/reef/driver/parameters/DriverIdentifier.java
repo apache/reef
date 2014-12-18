@@ -24,8 +24,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * Driver Identifier
  */
-@NamedParameter(doc = "Driver Identifier", default_value = "Unnamed REEF Job")
+@NamedParameter(doc = "Driver Identifier", default_value = DriverIdentifier.DEFAULT_VALUE)
 public final class DriverIdentifier implements Name<String> {
+
   private DriverIdentifier() {
   }
+
+  public static final String DEFAULT_VALUE = "##NONE##DEFAULT##NEVERUSE##";
+
 }
