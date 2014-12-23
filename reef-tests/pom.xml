@@ -123,6 +123,29 @@ under the License.
                                 <propertyName>java.util.logging.config.class</propertyName>
                                 <propertyValue>org.apache.reef.util.logging.Config</propertyValue>
                             </systemPropertyVariables>
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>${env.YARN_CONF_DIR}</additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/contrib/capacity-scheduler/*.jar
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/lib/*
+                                </additionalClasspathElement>
+                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/*
+                                </additionalClasspathElement>
+                            </additionalClasspathElements>
                         </configuration>
                     </plugin>
                 </plugins>
