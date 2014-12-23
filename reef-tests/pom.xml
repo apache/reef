@@ -74,6 +74,17 @@ under the License.
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <descriptors>
@@ -112,29 +123,6 @@ under the License.
                                 <propertyName>java.util.logging.config.class</propertyName>
                                 <propertyValue>org.apache.reef.util.logging.Config</propertyValue>
                             </systemPropertyVariables>
-                            <additionalClasspathElements>
-                                <additionalClasspathElement>${env.YARN_CONF_DIR}</additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/lib/*
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/common/*
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/contrib/capacity-scheduler/*.jar
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/lib/*
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/hdfs/*
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/lib/*
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/yarn/*
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/lib/*
-                                </additionalClasspathElement>
-                                <additionalClasspathElement>${env.YARN_HOME}/share/hadoop/mapreduce/*
-                                </additionalClasspathElement>
-                            </additionalClasspathElements>
                         </configuration>
                     </plugin>
                 </plugins>
