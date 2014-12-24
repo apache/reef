@@ -18,12 +18,10 @@
 # under the License.
 #
 
+export REEF_TEST_YARN=true
 DEPENDENCY_JAR=`echo $REEF_HOME/reef-tests/target/reef-tests-*-test-jar-with-dependencies.jar`
+CLASSPATH=`yarn classpath`
 
-CLASSPATH=$YARN_HOME/share/hadoop/common/*:$YARN_HOME/share/hadoop/common/lib/*:$YARN_HOME/share/hadoop/yarn/*:$YARN_HOME/share/hadoop/hdfs/* YARN_CONF_DIR=$YARN_HOME/etc/hadoop
-
-CMD="java -cp 
-
-$YARN_CONF_DIR:$DEPENDENCY_JAR:$CLASSPATH org.junit.runner.JUnitCore org.apache.reef.tests.AllTestsSuite $*" 
+CMD="java -cp $YARN_CONF_DIR:$DEPENDENCY_JAR:$CLASSPATH org.junit.runner.JUnitCore org.apache.reef.tests.AllTestsSuite $*" 
 echo $CMD
 $CMD
