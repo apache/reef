@@ -36,7 +36,7 @@ public class TestClassLoaders {
         .getTang()
         .newConfigurationBuilder(
             new File("../tang-test-jarA/target/tang-test-jarA-1.0-SNAPSHOT.jar")
-                .toURI().toURL()).getClassHierarchy().getNode("com.example.A");
+                .toURI().toURL()).getClassHierarchy().getNode("org.apache.reef.tang.examples.A");
 
   }
 
@@ -53,8 +53,8 @@ public class TestClassLoaders {
         .toURL());
     cbA.addConfiguration(cbB.build());
 
-    cbA.getClassHierarchy().getNode("com.example.A");
-    cbA.getClassHierarchy().getNode("com.example.B");
+    cbA.getClassHierarchy().getNode("org.apache.reef.tang.examples.A");
+    cbA.getClassHierarchy().getNode("org.apache.reef.tang.examples.B");
 
     t.newInjector(cbA.build());
   }
@@ -71,8 +71,8 @@ public class TestClassLoaders {
         .toURL());
     cbA.addConfiguration(cbB.build());
 
-    cbA.getClassHierarchy().getNode("com.example.A");
-    cbA.getClassHierarchy().getNode("com.example.B");
+    cbA.getClassHierarchy().getNode("org.apache.reef.tang.examples.A");
+    cbA.getClassHierarchy().getNode("org.apache.reef.tang.examples.B");
 
     t.newInjector(cbA.build());
   }
@@ -88,18 +88,18 @@ public class TestClassLoaders {
     JavaConfigurationBuilder cbA2 = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    cbA1.getClassHierarchy().getNode("com.example.A");
-    cbA1.bind("com.example.A", "com.example.B");
-    cbA2.bind("com.example.A", "com.example.B");
-    Object o = t.newInjector(cbA1.build()).getInstance("com.example.A");
-    Object p = t.newInjector(cbA2.build()).getInstance("com.example.A");
+    cbA1.getClassHierarchy().getNode("org.apache.reef.tang.examples.A");
+    cbA1.bind("org.apache.reef.tang.examples.A", "org.apache.reef.tang.examples.B");
+    cbA2.bind("org.apache.reef.tang.examples.A", "org.apache.reef.tang.examples.B");
+    Object o = t.newInjector(cbA1.build()).getInstance("org.apache.reef.tang.examples.A");
+    Object p = t.newInjector(cbA2.build()).getInstance("org.apache.reef.tang.examples.A");
     Assert.assertSame(o.getClass(), p.getClass());
     JavaConfigurationBuilder cbAother = t.newConfigurationBuilder(new File(
         "../tang-test-jarA/target/tang-test-jarA-1.0-SNAPSHOT.jar").toURI()
         .toURL());
 
-    Assert.assertEquals(1, ((ClassNode<?>) (cbA1.getClassHierarchy().getNode("com.example.A"))).getInjectableConstructors().length);
-    Assert.assertEquals(0, ((ClassNode<?>) (cbAother.getClassHierarchy().getNode("com.example.A"))).getInjectableConstructors().length);
+    Assert.assertEquals(1, ((ClassNode<?>) (cbA1.getClassHierarchy().getNode("org.apache.reef.tang.examples.A"))).getInjectableConstructors().length);
+    Assert.assertEquals(0, ((ClassNode<?>) (cbAother.getClassHierarchy().getNode("org.apache.reef.tang.examples.A"))).getInjectableConstructors().length);
 
   }
 
@@ -111,8 +111,8 @@ public class TestClassLoaders {
     JavaConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    cbA1.bind("com.example.A", "com.example.B");
-    cbA1.getClassHierarchy().getNode("com.example.A");
-    t.newInjector(cbA1.build()).getInstance("com.example.B");
+    cbA1.bind("org.apache.reef.tang.examples.A", "org.apache.reef.tang.examples.B");
+    cbA1.getClassHierarchy().getNode("org.apache.reef.tang.examples.A");
+    t.newInjector(cbA1.build()).getInstance("org.apache.reef.tang.examples.B");
   }
 }
