@@ -104,7 +104,6 @@ public final class EnvironmentUtils {
    * @param <P>
    * @return
    * @deprecated in 0.2 this really should be in Tang.
-   * See <a href="https://github.com/Microsoft-CISL/TANG/issues/164">Tang #164</a> for details.
    */
   @Deprecated
   public static <P extends Param> ConfigurationModule addAll(
