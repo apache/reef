@@ -95,18 +95,18 @@ Tang encourages applications to use Plain Old Java Objects (POJOs), and emphasiz
 Tang aims to provide end users with error messages as early as possible, and encourages developers to throw exceptions inside of constructors.  This allows it to automatically provide additional information to end-users when things go wrong:
 
 ```
-Exception in thread "main" com.microsoft.tang.exceptions.InjectionException: Could not invoke constructor: new Timer(Integer Seconds = -1)
-	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:585)
-	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:449)
-	at com.microsoft.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:466)
-	at com.microsoft.tang.examples.Timer.main(Timer.java:48)
+Exception in thread "main" org.apache.reef.tang.exceptions.InjectionException: Could not invoke constructor: new Timer(Integer Seconds = -1)
+	at org.apache.reef.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:585)
+	at org.apache.reef.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:449)
+	at org.apache.reef.tang.implementation.java.InjectorImpl.getInstance(InjectorImpl.java:466)
+	at org.apache.reef.tang.examples.Timer.main(Timer.java:48)
 Caused by: java.lang.IllegalArgumentException: Cannot sleep for negative time!
-	at com.microsoft.tang.examples.Timer.<init>(Timer.java:25)
+	at org.apache.reef.tang.examples.Timer.<init>(Timer.java:25)
 	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
 	at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
 	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
 	at java.lang.reflect.Constructor.newInstance(Unknown Source)
-	at com.microsoft.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:569)
+	at org.apache.reef.tang.implementation.java.InjectorImpl.injectFromPlan(InjectorImpl.java:569)
 	... 3 more
 ```
 
@@ -117,9 +117,9 @@ package com.example;
 
 import javax.inject.Inject;
 
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Parameter;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Parameter;
 
 public class Timer {
   @NamedParameter(default_value="10",
@@ -148,7 +148,7 @@ A few things happened here.  First, we create the new configuration parameter by
 
 All instances of `Name` must be annotated with `@NamedParameter`, which takes the following optional parameters:
  * `default_value`: The default value of the constructor parameter, encoded as a string.  Tang will parse this value (and ones in config files and on the command line), and pass it into the constructor.  For convenience Tang includes a number of helper variants of default value.  `default_class` takes a Class (instead of a String), while `default_values` and `default_classes` take sets of values.
- * `short_name`: The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling `registerShortName()` on the instance of `com.microsoft.tang.formats.CommandLine` that will process the command line options.
+ * `short_name`: The name of the command line option associated with this parameter.  If omitted, no command line option will be created.  Short names must be registered by calling `registerShortName()` on the instance of `org.apache.reef.tang.formats.CommandLine` that will process the command line options.
  * `doc` (optional): Human readable documentation that describes the purpose of the parameter.
 
 Tang only invokes constructors that have been annotated with `@Inject`.  This allows injectable constructors to coexist with ones that should not be invoked via dependency injection (such as ones with destructive side effects, or that expect `null` references).  Constructor parameters must not be ambiguous.  If two parameters in the same constructor have the same type, then they must be annotated with `@Parameter`, which associates a named parameter with the argument.  Furthermore, two parameters to the same constructor cannot have the same name.  This allows Tang to safely invoke constructors without exposing low level details (such as parameter ordering) as configuration options.
@@ -168,24 +168,24 @@ The process of instantiting an object with Tang is called _injection_.  As with 
 
 
 ```java
-package com.microsoft.tang.examples.timer;
+package org.apache.reef.tang.examples.timer;
 
 import javax.inject.Inject;
 
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.Tang;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Tang;
 
-import com.microsoft.tang.annotations.DefaultImplementation;
-import com.microsoft.tang.annotations.Name;
-import com.microsoft.tang.annotations.NamedParameter;
-import com.microsoft.tang.annotations.Parameter;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Parameter;
 
-import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.InjectionException;
+import org.apache.reef.tang.exceptions.BindException;
+import org.apache.reef.tang.exceptions.InjectionException;
 
-import com.microsoft.tang.formats.ConfigurationModule;
-import com.microsoft.tang.formats.ConfigurationModuleBuilder;
-import com.microsoft.tang.formats.OptionalParameter;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalParameter;
 
 @DefaultImplementation(TimerImpl.class)
 public interface Timer {
@@ -258,9 +258,9 @@ Again, there are a few things going on here:
    - They provide Java APIs that expose `OptionalParameter`, `RequiredParameter`, `OptionalImplementation`, `RequiredImpementation` fields.  These fields tell users of the ConfigurationModule which subsystems of the application require which configuration parameters, and allow the author of the ConfigurationModule to use JavaDoc to document the parameters they export.
    - Finally, because ConfigurationModule data structures are populated at class load time (before the application begins to run), they can be inspected by Tang's static analysis tools.
 
-These tools are provided by `com.microsoft.tang.util.Tint`, which is included by default in all Tang builds.  As long as Tang is on the classpath, invoking:
+These tools are provided by `org.apache.reef.tang.util.Tint`, which is included by default in all Tang builds.  As long as Tang is on the classpath, invoking:
 ```
-java com.microsoft.tang.util.Tint --doc tangdoc.html
+java org.apache.reef.tang.util.Tint --doc tangdoc.html
 ```
 will perform full static analysis of all classes the class path, and emit a nicely formatted HTML document.  The documentation generated by Tint includes cross-references between configuration options, interfaces, classes, and the `ConfigurationModules` that use and set them. 
 
@@ -272,24 +272,24 @@ Note that this documentation is generated before the application code runs, so i
 
 Here are some sample Tint errors.  These (and others) can be run by passing `--tang-tests` into Tint, and ensuring that Tang's unit tests are on the class path.:
 ```
-interface com.microsoft.tang.MyEventHandlerIface declares its default implementation to be non-subclass class com.microsoft.tang.MyEventHandler
-class com.microsoft.tang.WaterBottleName defines a default class com.microsoft.tang.GasCan with a type that does not extend its target's type com.microsoft.tang.Bottle<com.microsoft.tang.Water>
-Named parameters com.microsoft.tang.examples.Timer$Seconds and com.microsoft.tang.examples.TimerV1$Seconds have the same short name: sec
-Named parameter com.microsoft.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>
-Found illegal @NamedParameter com.microsoft.tang.implementation.AnnotatedNotName does not implement Name<?>
-interface com.microsoft.tang.implementation.BadIfaceDefault declares its default implementation to be non-subclass class java.lang.String
-class com.microsoft.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String
-Named parameter com.microsoft.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String
-Class com.microsoft.tang.implementation.DanglingUnit has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.
-Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:com.microsoft.tang.implementation.InjectNonStaticLocalType$NonStaticLocal
-Named parameter com.microsoft.tang.implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.
+interface org.apache.reef.tang.MyEventHandlerIface declares its default implementation to be non-subclass class org.apache.reef.tang.MyEventHandler
+class org.apache.reef.tang.WaterBottleName defines a default class org.apache.reef.tang.GasCan with a type that does not extend its target's type org.apache.reef.tang.Bottle<org.apache.reef.tang.Water>
+Named parameters org.apache.reef.tang.examples.Timer$Seconds and org.apache.reef.tang.examples.TimerV1$Seconds have the same short name: sec
+Named parameter org.apache.reef.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>
+Found illegal @NamedParameter org.apache.reef.tang.implementation.AnnotatedNotName does not implement Name<?>
+interface org.apache.reef.tang.implementation.BadIfaceDefault declares its default implementation to be non-subclass class java.lang.String
+class org.apache.reef.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String
+Named parameter org.apache.reef.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String
+Class org.apache.reef.tang.implementation.DanglingUnit has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.
+Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:org.apache.reef.tang.implementation.InjectNonStaticLocalType$NonStaticLocal
+Named parameter org.apache.reef.tang.implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.
 Named parameter type mismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer
-public com.microsoft.tang.implementation.NonInjectableParam(int) is not injectable, but it has an @Parameter annotation.
-Detected explicit constructor in class enclosed in @Unit com.microsoft.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.
-Repeated constructor parameter detected.  Cannot inject constructor com.microsoft.tang.implementation.RepeatConstructorArg(int,int)
-Named parameters com.microsoft.tang.implementation.ShortNameFooA and com.microsoft.tang.implementation.ShortNameFooB have the same short name: foo
-Named parameter com.microsoft.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.
-Field com.microsoft.tang.formats.MyMissingBindConfigurationModule.BAD_CONF: Found declared options that were not used in binds: { FOO_NESS }
+public org.apache.reef.tang.implementation.NonInjectableParam(int) is not injectable, but it has an @Parameter annotation.
+Detected explicit constructor in class enclosed in @Unit org.apache.reef.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.
+Repeated constructor parameter detected.  Cannot inject constructor org.apache.reef.tang.implementation.RepeatConstructorArg(int,int)
+Named parameters org.apache.reef.tang.implementation.ShortNameFooA and org.apache.reef.tang.implementation.ShortNameFooB have the same short name: foo
+Named parameter org.apache.reef.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.
+Field org.apache.reef.tang.formats.MyMissingBindConfigurationModule.BAD_CONF: Found declared options that were not used in binds: { FOO_NESS }
 ```
 
 Injecting objects with `getInstance()`
@@ -352,12 +352,12 @@ Tang also provides a lower level configurtion API for applications that need mor
 
 ```java
 ...
-import com.microsoft.tang.Tang;
-import com.microsoft.tang.ConfigurationBuilder;
-import com.microsoft.tang.Configuration;
-import com.microsoft.tang.Injector;
-import com.microsoft.tang.exceptions.BindException;
-import com.microsoft.tang.exceptions.InjectionException;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.ConfigurationBuilder;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.exceptions.BindException;
+import org.apache.reef.tang.exceptions.InjectionException;
 
 ...
   public static void main(String[] args) throws BindException, InjectionException {
@@ -527,8 +527,8 @@ InjectionPlan objects explain what Tang would do to instantiate a new object, bu
 Add the following lines to the Timer example;
 
 ````java
-import com.microsoft.tang.implementation.InjectionPlan;
-import com.microsoft.tang.implementation.InjectorImpl;
+import org.apache.reef.tang.implementation.InjectionPlan;
+import org.apache.reef.tang.implementation.InjectorImpl;
 ...
     InjectorImpl injector = (InjectorImpl)tang.newInjector(conf);
     InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
@@ -544,7 +544,7 @@ Number of plans:1
 
 InjectionPlan objects can be serialized to protocol buffers.  The following file documents their format:
 
-https://github.com/Microsoft-CISL/TANG/blob/master/tang/src/main/proto/injection_plan.proto
+https://github.com/apache/incubator-reef/blob/master/reef-tang/tang/src/main/proto/injection_plan.proto
 
 ### ClassHierachy
 
@@ -554,33 +554,9 @@ Internally, in the example above, TypeHierarchy walks the class definition for T
 
 ClassHierarchy objects can be serialized to protocol buffers.  The following file documents their format:
 
-https://github.com/Microsoft-CISL/TANG/blob/master/tang/src/main/proto/class_hierarchy.proto
+https://github.com/apache/incubator-reef/blob/master/reef-tang/tang/src/main/proto/class_hierarchy.proto
 
 The java interfaces are available in this package:
 
-https://github.com/Microsoft-CISL/TANG/tree/master/tang/src/main/java/com/microsoft/tang/types
-
-## THIRD PARTY SOFTWARE
-This software is built using Maven.  Maven allows you to obtain software libraries from other sources as part of the build process.  Those libraries are offered and distributed by third parties under their own license terms.  Microsoft is not developing, distributing or licensing those libraries to you, but instead, as a convenience, enables you to use this software to obtain those libraries directly from the creators or providers.  By using the software, you acknowledge and agree that you are obtaining the libraries directly from the third parties and under separate license terms, and that it is your responsibility to locate, understand and comply with any such license terms.  Microsoft grants you no license rights for third-party software or libraries that are obtained using this software.
-
-The list of libraries pulled in this way includes, but is not limited to:
-
- * com.google.code.findbugs:jsr305:jar:1.3.9:compile
- * com.google.guava:guava:jar:11.0.2:compile
- * com.google.protobuf:protobuf-java:jar:2.5.0:compile
- * commons-cli:commons-cli:jar:1.2:compile
- * commons-configuration:commons-configuration:jar:1.9:compile
- * commons-lang:commons-lang:jar:2.6:compile
- * commons-logging:commons-logging:jar:1.1.1:compile
- * dom4j:dom4j:jar:1.6.1:compile
- * javax.inject:javax.inject:jar:1:compile
- * junit:junit:jar:4.10:test
- * org.hamcrest:hamcrest-core:jar:1.1:test
- * org.javassist:javassist:jar:3.16.1-GA:compile
- * org.mockito:mockito-core:jar:1.9.0:test
- * org.objenesis:objenesis:jar:1.0:test
- * org.reflections:reflections:jar:0.9.9-RC1:compile
- * xml-apis:xml-apis:jar:1.0.b2:compile
-
-An up-to-date list of dependencies pulled in this way can be generated via `mvn dependency:list` on the command line.
+https://github.com/apache/incubator-reef/tree/master/reef-tang/tang/src/main/java/org/apache/reef/tang/types
 
