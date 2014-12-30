@@ -23,7 +23,7 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.10-incubating-SNAPSHOT</version>
+        <version>0.10.0-incubating</version>
     </parent>
     <name>REEF Runtime for YARN</name>
     <artifactId>reef-runtime-yarn</artifactId>
