@@ -455,7 +455,7 @@ final class YarnContainerManager
           logContainerAddition(container.getId().toString());
           this.updateRuntimeStatus();
         } else {
-          LOG.log(Level.WARNING,  "Got an extra container {0} that doesn't match, releasing...", container.getId());
+          LOG.log(Level.WARNING, "Got an extra container {0} that doesn't match, releasing...", container.getId());
           this.resourceManager.releaseAssignedContainer(container.getId());
         }
       }
@@ -599,58 +599,58 @@ final class YarnContainerManager
         .build());
   }
 
-  private void writeToEvaluatorLog(final String entry) {
+  private void writeToEvaluatorLog(final String entry) throws IOException {
     final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
     config.setBoolean("dfs.support.append", true);
     config.setBoolean("dfs.support.broken.append", true);
-    final FileSystem fs;
-    boolean appendToLog = false;
-    try {
-      fs = FileSystem.get(config);
-    } catch (final IOException e) {
-      throw new RuntimeException("Cannot instantiate HDFS fs.", e);
-    }
+    final FileSystem fs = getFileSystemInstance();
     final Path path = new Path(getChangeLogLocation());
-    final BufferedWriter bw;
-    try {
-      appendToLog = fs.exists(path);
-      if (!appendToLog) {
-        bw = new BufferedWriter(new OutputStreamWriter(fs.create(path)));
-      } else {
-        bw = new BufferedWriter(new OutputStreamWriter(fs.append(path)));
-      }
+    final boolean appendToLog = fs.exists(path);
+
+    try (
+        final BufferedWriter bw = appendToLog ?
+            new BufferedWriter(new OutputStreamWriter(fs.append(path))) :
+            new BufferedWriter(new OutputStreamWriter(fs.create(path)));
+    ) {
       bw.write(entry);
-      bw.close();
     } catch (final IOException e) {
       if (appendToLog) {
+        LOG.log(Level.FINE, "Unable to add an entry to the Evaluator log. Attempting append by delete and recreate", e);
         appendByDeleteAndCreate(fs, path, entry);
-      } else {
-        throw new RuntimeException("Cannot open or write to log file", e);
       }
     }
+  }
+
+  private FileSystem getFileSystemInstance() throws IOException {
+    final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
+    config.setBoolean("dfs.support.append", true);
+    config.setBoolean("dfs.support.broken.append", true);
+    return FileSystem.get(config);
   }
 
   /**
    * For certain HDFS implementation, the append operation may not be supported (e.g., Azure blob - wasb)
    * in this case, we will emulate the append operation by reading the content, appending entry at the end,
    * then recreating the file with appended content.
+   *
+   * @throws java.io.IOException when the file can't be written.
    */
 
-  private void appendByDeleteAndCreate(final FileSystem fs, final Path path, final String appendEntry) {
-    try {
-      final InputStream inputStream = fs.open(path);
-      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+  private void appendByDeleteAndCreate(final FileSystem fs, final Path path, final String appendEntry) throws IOException {
+    final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    try (final InputStream inputStream = fs.open(path)) {
       IOUtils.copyBytes(inputStream, outputStream, 4096, true);
-
-      final String newContent = outputStream.toString() + appendEntry;
-      fs.delete(path, true);
-
-      final FSDataOutputStream newOutput = fs.create(path);
-      final InputStream newInput = new ByteArrayInputStream(newContent.getBytes());
-      IOUtils.copyBytes(newInput, newOutput, 4096, true);
-    } catch (final IOException e) {
-      throw new RuntimeException("Cannot append by read-append-delete-create with exception.", e);
     }
+
+    final String newContent = outputStream.toString() + appendEntry;
+    fs.delete(path, true);
+
+    try (final FSDataOutputStream newOutput = fs.create(path);
+         final InputStream newInput = new ByteArrayInputStream(newContent.getBytes())) {
+      IOUtils.copyBytes(newInput, newOutput, 4096, true);
+    }
+
   }
 
   private String getChangeLogLocation() {
@@ -659,12 +659,22 @@ final class YarnContainerManager
 
   private void logContainerAddition(final String containerId) {
     final String entry = ADD_FLAG + containerId + System.lineSeparator();
-    writeToEvaluatorLog(entry);
+    try {
+      writeToEvaluatorLog(entry);
+    } catch (final IOException e) {
+      LOG.log(Level.WARNING, "Unable to log the addition of container [" + containerId +
+          "] to the container log. Driver restart won't work properly.", e);
+    }
   }
 
   private void logContainerRemoval(final String containerId) {
     final String entry = REMOVE_FLAG + containerId + System.lineSeparator();
-    writeToEvaluatorLog(entry);
+    try {
+      writeToEvaluatorLog(entry);
+    } catch (final IOException e) {
+      LOG.log(Level.WARNING, "Unable to log the removal of container [" + containerId +
+          "] to the container log. Driver restart won't work properly.", e);
+    }
   }
 
 }
