@@ -26,13 +26,13 @@ under the License.
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
-    <description>The Retainable Evaluator Execution Framework.</description>
-    <url>http://www.reef-project.org</url>
+    <description>Retainable Evaluator Execution Framework</description>
+    <url>http://reef.incubator.apache.org</url>
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>16</version>
     </parent>
 
     <licenses>
