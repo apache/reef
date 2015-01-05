@@ -612,7 +612,9 @@ final class YarnContainerManager
             new BufferedWriter(new OutputStreamWriter(fs.append(path))) :
             new BufferedWriter(new OutputStreamWriter(fs.create(path)));
     ) {
-      bw.write(entry);
+      synchronized (this) {
+        bw.write(entry);
+      }
     } catch (final IOException e) {
       if (appendToLog) {
         LOG.log(Level.FINE, "Unable to add an entry to the Evaluator log. Attempting append by delete and recreate", e);
@@ -659,22 +661,25 @@ final class YarnContainerManager
 
   private void logContainerAddition(final String containerId) {
     final String entry = ADD_FLAG + containerId + System.lineSeparator();
-    try {
-      writeToEvaluatorLog(entry);
-    } catch (final IOException e) {
-      LOG.log(Level.WARNING, "Unable to log the addition of container [" + containerId +
-          "] to the container log. Driver restart won't work properly.", e);
-    }
+    logContainerChange(entry);
   }
 
   private void logContainerRemoval(final String containerId) {
     final String entry = REMOVE_FLAG + containerId + System.lineSeparator();
-    try {
-      writeToEvaluatorLog(entry);
-    } catch (final IOException e) {
-      LOG.log(Level.WARNING, "Unable to log the removal of container [" + containerId +
-          "] to the container log. Driver restart won't work properly.", e);
-    }
+    logContainerChange(entry);
   }
 
+  private void logContainerChange(final String entry)
+  {
+    synchronized (this){
+      try {
+        writeToEvaluatorLog(entry);
+      } catch (final IOException e) {
+        final String errorMsg = "Unable to log the change of container [" + entry +
+            "] to the container log. Driver restart won't work properly.";
+        LOG.log(Level.WARNING, errorMsg, e);
+        throw new RuntimeException(errorMsg);
+      }
+    }
+  }
 }
