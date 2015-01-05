@@ -28,7 +28,7 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-bridge-project</artifactId>
-        <version>0.10-incubating-SNAPSHOT</version>
+        <version>0.10.0-incubating-SNAPSHOT</version>
     </parent>
 
 
