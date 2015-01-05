@@ -1,0 +1,13 @@
+bin
+!Tests/ReefTests/bin/
+packages
+TestResults
+**/*.exe
+**/*.suo
+**/*.csproj.user
+**/obj
+**/.nuget/nuspec
+**/.nuget/packages
+*.sln.GhostDoc.xml
+
+

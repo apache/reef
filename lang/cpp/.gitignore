@@ -1,0 +1,7 @@
+**/*.sdf
+**/*.opensdf
+**/*.suo
+**/obj
+**/x64
+**/Debug
+reef-bridge-clr/src/main/CSharp/CSharp/ClrHandler/externals/Org.Apache.Reef.Driver.dll

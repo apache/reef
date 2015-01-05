@@ -1,0 +1,88 @@
+	------
+	Team
+	------
+	------
+
+~~ Licensed to the Apache Software Foundation (ASF) under one
+~~ or more contributor license agreements.  See the NOTICE file
+~~ distributed with this work for additional information
+~~ regarding copyright ownership.  The ASF licenses this file
+~~ to you under the Apache License, Version 2.0 (the
+~~ "License"); you may not use this file except in compliance
+~~ with the License.  You may obtain a copy of the License at
+~~
+~~ http://www.apache.org/licenses/LICENSE-2.0
+
+~~ Unless required by applicable law or agreed to in writing,
+~~ software distributed under the License is distributed on an
+~~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~~ KIND, either express or implied.  See the License for the
+~~ specific language governing permissions and limitations
+~~ under the License.
+
+Team
+
+    A successful project requires many people to play many roles. Some members write code or documentation, while others are valuable as testers, submitting patches and suggestions.
+
+    The team is comprised of Project Management Committee Members and Contributors. Members have direct access to the source of a project and actively evolve the code-base. Contributors improve the project through submission of patches and suggestions to the Members. The number of Contributors to the project is unbounded. Get involved today. All contributions to the project are greatly appreciated.
+
+* Mentors
+
+*------------*-------------------------*
+<<ID>> | <<Full Name>>              
+*------------*-------------------------*
+ cdouglas    | Chris Douglas
+*------------*-------------------------*
+ mattmann    | Chris Mattmann
+*------------*-------------------------*
+ rgardler    | Ross Gardler
+*------------*-------------------------*
+ omalley     | Owen O'Malley
+*------------*-------------------------*
+
+
+*Committers
+
+*------------*--------------------------*---------------------------*
+  <<ID>> ||         <<Full Name>>        ||       <<Affiliation(s)>>      |
+*------------*--------------------------*---------------------------*
+   weimer   |       Markus Weimer      |         Microsoft         |
+*------------*--------------------------*---------------------------*
+    motus   |     Sergiy Matusevych    |         Microsoft         |
+*------------*--------------------------*---------------------------*
+   juliaw   |        Julia Wang        |         Microsoft         |
+*------------*--------------------------*---------------------------*
+   shravan  | Shravan M Narayanamurthy |         Microsoft         |
+*------------*--------------------------*---------------------------*
+ yingdachen |        Yingda Chen       |         Microsoft         |
+*------------*--------------------------*---------------------------*
+   tmajest  |       Tony Majestro      |         Microsoft         |
+*------------*--------------------------*---------------------------*
+   sezgin   |       Beysim Sezgin      |         Microsoft         |
+*------------*--------------------------*---------------------------*
+  shulmanb  |       Boris Shulman      |         Microsoft         |
+*------------*--------------------------*---------------------------*
+    sears   |       Russell Sears      |        Purestorage        |
+*------------*--------------------------*---------------------------*
+    jrlee   |      Jung Ryong Lee      |         SK Telecom        |
+*------------*--------------------------*---------------------------*
+  jerryjung |       You Sun Jung       |         SK Telecom        |
+*------------*--------------------------*---------------------------*
+  dongjoon  |      Dong Joon Hyun      |         SK Telecom        |
+*------------*--------------------------*---------------------------*
+  joshrosen |        Josh Rosen        |        UC Berekely        |
+*------------*--------------------------*---------------------------*
+   tcondie  |       Tyson Condie       |            UCLA           |
+*------------*--------------------------*---------------------------*
+   bmyers   |       Brandon Myers      |  University of Washington |
+*------------*--------------------------*---------------------------*
+  yunseong  |       Yunseong Lee       | Seoul National University |
+*------------*--------------------------*---------------------------*
+  taegeonum |        Taegeon Um        | Seoul National University |
+*------------*--------------------------*---------------------------*
+  johnyangk |      Youngseok Yang      | Seoul National University |
+*------------*--------------------------*---------------------------*
+  chobrian  |         Brian Cho        | Seoul National University |
+*------------*--------------------------*---------------------------*
+   bgchun   |      Byung-Gon Chun      | Seoul National University |
+*------------*--------------------------*---------------------------*

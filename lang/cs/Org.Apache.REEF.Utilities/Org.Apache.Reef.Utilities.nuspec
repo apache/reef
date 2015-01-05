@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Org.Apache.REEF.Utilities</id>
+    <version>$version$</version>
+    <title>Org.Apache.REEF.Utilities</title>
+    <authors>The Apache REEF project</authors>
+    <owners>The Apache REEF project</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://reef.incubator.apache.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Common utilities such as logging shared across Reef/Wake/Tang</description>
+    <copyright>The Apache Software Foundation</copyright>
+    <tags>Reef/Wake/Tang common utilities</tags>
+    <dependencies>
+      <dependency id="Microsoft.Hadoop.Avro" version="1.4.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.dll" target="lib\net45" />
+      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.pdb" target="lib\net45" />
+  </files>
+</package>

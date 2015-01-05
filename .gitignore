@@ -1,21 +1,46 @@
-ml-data
-tmp
-tang.conf
-.DS_Store
+# ----------------------------------------------------------------------
+# Folders created by the various REEF runtimes during testing
+# ----------------------------------------------------------------------
+REEF_LOCAL_RUNTIME
+REEF_MESOS_RUNTIME
+#
+# ----------------------------------------------------------------------
+# Files generated during builds
+# ----------------------------------------------------------------------
 target
 generated
 build
-.settings
-.classpath
-.project
-*.sw[op]
+#
+# ----------------------------------------------------------------------
+# IDE settings
+# ----------------------------------------------------------------------
 .externalToolBuilders
 nbactions*.xml
 nb-configuration.xml
-*~
-\#*
+.settings
+.classpath
+.project
 *.iml
 .idea
 atlassian-ide-plugin.xml
-REEF_LOCAL_RUNTIME
+*.sln.DotSettings.user
+#
+# ----------------------------------------------------------------------
+# OS Files
+# ----------------------------------------------------------------------
+.DS_Store
+#
+# ----------------------------------------------------------------------
+# Temporary Files
+# ----------------------------------------------------------------------
+tmp
+*~
+\#*
+#
+# ----------------------------------------------------------------------
+# Unknown Files. Please clean up over time
+# ----------------------------------------------------------------------
+ml-data
+tang.conf
+*.sw[op]
 profile-*.json
