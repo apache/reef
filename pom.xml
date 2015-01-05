@@ -54,6 +54,30 @@ under the License.
         <jackson.version>1.9.13</jackson.version>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:apache/incubator-reef.git</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef.git</developerConnection>
+        <url>scm:git:git@github.com:apache/incubator-reef.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+    </developers>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://issues.apache.org/jira/browse/REEF</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Dev Mailing List</name>
+            <post>dev@reef.incubator.apache.org</post>
+            <subscribe>dev-subscribe@reef.incubator.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@reef.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-reef-dev/</archive>
+        </mailingList>
+    </mailingLists>
 
     <prerequisites>
         <maven>3.0</maven>
