@@ -21,7 +21,7 @@ under the License.
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.reef</groupId>
-    <version>0.10.0-incubating</version>
+    <version>0.11.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
@@ -57,7 +57,7 @@ under the License.
         <connection>scm:git:git@github.com:apache/incubator-reef.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef.git</developerConnection>
         <url>scm:git:git@github.com:apache/incubator-reef.git</url>
-        <tag>reef-project-0.10.0-incubating</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
