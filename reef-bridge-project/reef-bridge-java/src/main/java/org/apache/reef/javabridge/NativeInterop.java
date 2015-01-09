@@ -18,22 +18,9 @@
  */
 package org.apache.reef.javabridge;
 
-import org.apache.commons.compress.utils.IOUtils;
-import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.util.logging.LoggingScope;
-import org.apache.reef.util.logging.LoggingScopeFactory;
-
-import javax.inject.Inject;
-import java.io.*;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class NativeInterop {
-
-  //private static final Logger LOG = Logger.getLogger(NativeInterop.class.getName());
-
   public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
   public static final String EvaluatorRequestorKey = "EvaluatorRequestor";
