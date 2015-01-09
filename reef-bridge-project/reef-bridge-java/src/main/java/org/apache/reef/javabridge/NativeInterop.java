@@ -18,14 +18,9 @@
  */
 package org.apache.reef.javabridge;
 
-import org.apache.commons.compress.utils.IOUtils;
-
-import java.io.*;
-import java.util.Date;
 import java.util.HashMap;
 
 public class NativeInterop {
-
   public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
   public static final String EvaluatorRequestorKey = "EvaluatorRequestor";
@@ -67,23 +62,7 @@ public class NativeInterop {
     }
   };
 
-
   public static final int nHandlers = 17;
-  private static final String LIB_BIN = "/";
-  private static final String DLL_EXTENSION = ".dll";
-  private static final String CPP_BRIDGE = "JavaClrBridge";
-  private static final String tmpLoadingDirectory = System.getProperty("user.dir") + "/reef/CLRLoadingDirectory";
-  private static final String[] managedDlls = {
-      "ClrHandler",
-      "msvcr110",
-  };
-
-  static {
-    System.out.println("============== Driver Bridge initiated, loading DLLs at time " + new Date().toString() + "============== ");
-    new File(tmpLoadingDirectory).mkdir();
-    loadFromJar();
-    System.out.println("================== Done loading dlls for Driver at time " + new Date().toString() + " ================== \n");
-  }
 
   public static native void loadClrAssembly(String filePath);
 
@@ -184,79 +163,4 @@ public class NativeInterop {
       long handle,
       RunningTaskBridge runningTaskBridge
   );
-
-  private static void loadFromJar() {
-    // we need to put both DLLs to temp dir
-    loadLib(CPP_BRIDGE, false);
-    final File[] files = new File(System.getProperty("user.dir") + "/reef/global").listFiles(new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        return name.toLowerCase().endsWith(DLL_EXTENSION);
-      }
-    });
-    //System.out.println("Total dll files to load from " + System.getProperty("user.dir") + "/reef/global" + "  are: " + files.length );
-
-    for (int i = 0; i < files.length; i++) {
-      try {
-        final String fileName = files[i].getName();
-        String fileNameWithoutExtension = fileName;
-        if (fileName.indexOf(".") > 0) {
-          fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
-        }
-        loadLib(fileNameWithoutExtension, true);
-      } catch (final Exception e) {
-        System.out.println("exception lading dll library " + e);
-        throw e;
-      }
-    }
-
-    for (int i = 0; i < managedDlls.length; i++) {
-      loadLib(managedDlls[i], true);
-    }
-  }
-
-  /**
-   * Puts library to temp dir and loads to memory
-   */
-
-  private static void loadLib(String name, final boolean copyOnly) {
-    name = name + DLL_EXTENSION;
-    //System.out.println("LOADING " + System.getProperty("user.dir") + "/reef/global/" + name );
-
-    try {
-      final String path = "/ReefDriverAppDlls/" + name;
-      //System.out.println("trying to load: " +  NativeInterop.class.getClass().getResource(path).getPath());
-      final InputStream in = NativeInterop.class.getResourceAsStream(path);
-      // always write to different location
-      final File fileOut = new File(tmpLoadingDirectory + LIB_BIN + name);
-      final OutputStream out = new FileOutputStream(fileOut);
-      //System.out.println("after new FileOutputStream(fileOut)");
-      if (null == in) {
-        // System.out.println("Cannot find " + path);
-        return;
-      }
-      if (out == null) {
-        System.out.println("** out is null");
-      }
-
-      IOUtils.copy(in, out);
-      in.close();
-      out.close();
-
-      if (false == copyOnly) {
-        //System.out.println("Loading DLL not copyonly");
-        System.load(fileOut.toString());
-        //System.out.println("Loading DLL not copyonly done");
-      } else {
-        //System.out.println("Loading DLL copyonly");
-        if (null == fileOut) {
-          System.out.println("fileOut is NULL");
-        }
-        //System.out.println("fileOut.toString() " + fileOut.toString());
-        NativeInterop.loadClrAssembly(fileOut.toString());
-        //System.out.println("Done Loading DLL " +  fileOut.toString());
-      }
-    } catch (final Exception e) {
-      throw new UnsatisfiedLinkError("Failed to load required DLL " + name);
-    }
-  }
 }

@@ -47,6 +47,10 @@ public final class REEFFileNames {
   private static final String DRIVER_STDOUT = "driver.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
+  private static final String CPP_BRIDGE = "JavaClrBridge";
+  private static final String REEF_GLOBAL = "/reef/global";
+  private static final String REEF_DRIVER_APPDLL_DIR = "/ReefDriverAppDlls/";
+  private static final String TMP_LOAD_DIR = "/reef/CLRLoadingDirectory";
 
   @Inject
   public REEFFileNames() {
@@ -189,4 +193,24 @@ public final class REEFFileNames {
   public String getEvaluatorStdoutFileName() {
     return EVALUATOR_STDOUT;
   }
+
+  /**
+   * @return the name of cpp bridge file
+   */
+  public String getCppBridge() { return CPP_BRIDGE; }
+
+  /**
+   * @return reeg global file folder
+   */
+  public String getReefGlobal() { return REEF_GLOBAL; }
+
+  /**
+   * @return reef driver app dll directory
+   */
+  public String getReefDriverAppDllDir() { return REEF_DRIVER_APPDLL_DIR; }
+
+  /**
+   * @return temp load directory
+   */
+  public String getLoadDir() { return TMP_LOAD_DIR; }
 }

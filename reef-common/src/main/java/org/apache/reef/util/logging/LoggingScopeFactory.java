@@ -37,6 +37,7 @@ public class LoggingScopeFactory {
   public static final String DRIVER_START = "Driver Start Handler";
   public static final String DRIVER_STOP = "Driver Stop Handler";
   public static final String BRIDGE_SETUP = "Bridge setup";
+  public static final String LOAD_LIB = "Load libraries";
   public static final String EVALUATOR_REQUESTOR = "Evaluator requestor passed to C#";
   public static final String EVALUATOR_BRIDGE_SUBMIT = "Evaluator request submit cross bridge";
   public static final String EVALUATOR_SUBMIT = "Evaluator submit";
@@ -127,6 +128,14 @@ public class LoggingScopeFactory {
    */
   public LoggingScope setupBridge() {
     return new LoggingScopeImpl(LOG, logLevel, BRIDGE_SETUP);
+  }
+
+  /**
+   * The method is to measure the time used to load global files and libraries
+   * @return
+   */
+  public LoggingScope loadLib() {
+    return new LoggingScopeImpl(LOG, logLevel, LOAD_LIB);
   }
 
   /**
