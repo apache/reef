@@ -164,7 +164,11 @@ public final class JobDriver {
     LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
     try (final LoggingScope lb = this.loggingScopeFactory.setupBridge()) {
 
-      libLoader.loadLib();
+      try {
+        libLoader.loadLib();
+      } catch (IOException e) {
+        throw new RuntimeException("Fail to load CLR libraries");
+      }
 
       final CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
       if (handler == null) {

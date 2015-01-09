@@ -58,32 +58,28 @@ public class LibLoader {
   /**
    * Load CLR libraries
    */
-  public void loadLib() {
-    LOG.log(Level.INFO, "Loading DLLs for driver at time " + new Date().toString());
+  public void loadLib() throws IOException {
+    LOG.log(Level.INFO, "Loading DLLs for driver at time {0}." + new Date().toString());
     try (final LoggingScope lb = loggingScopeFactory.loadLib()) {
       final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
       LOG.log(Level.INFO, "load Folder: " + tempLoadDir);
       new File(tempLoadDir).mkdir();
 
-      try {
-        loadFromReefJar(this.reefFileNames.getCppBridge(), false);
+      loadFromReefJar(this.reefFileNames.getCppBridge(), false);
 
-        LoadLibFromGlobal();
+      loadLibFromGlobal();
 
-        for (int i = 0; i < MANAGED_DLLS.length; i++) {
-          loadFromReefJar(MANAGED_DLLS[i], true);
-        }
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      for (int i = 0; i < MANAGED_DLLS.length; i++) {
+        loadFromReefJar(MANAGED_DLLS[i], true);
       }
     }
-    LOG.log(Level.INFO, "Done loading DLLs for Driver at time " + new Date().toString());
+    LOG.log(Level.INFO, "Done loading DLLs for Driver at time {0}." + new Date().toString());
   }
 
   /**
    * Load assemblies at global folder
    */
-  private void LoadLibFromGlobal() {
+  private void loadLibFromGlobal() {
     final String globalFilePath = System.getProperty(USER_DIR) + this.reefFileNames.getReefGlobal();
     final File[] files = new File(globalFilePath).listFiles(new FilenameFilter() {
       public boolean accept(File dir, String name) {
@@ -110,6 +106,7 @@ public class LibLoader {
 
     name = name + DLL_EXTENSION;
     try {
+      File fileOut = null;
       // get input file from jar
       final String path = this.reefFileNames.getReefDriverAppDllDir() + name;
       LOG.log(Level.INFO, "Source file path: " + path);
@@ -117,21 +114,20 @@ public class LibLoader {
       if (url != null) {
         LOG.log(Level.INFO, "Source file: " + url.getPath());
       }
-      final InputStream in = NativeInterop.class.getResourceAsStream(path);
-
-      //copy to /reef/CLRLoadingDirectory
-      final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
-      final File fileOut = new File(tempLoadDir + LIB_BIN + name);
-      LOG.log(Level.INFO, "Destination file: " + fileOut.toString());
-      final OutputStream out = new FileOutputStream(fileOut);
-
-      if (null == in) {
-        LOG.log(Level.WARNING, "Cannot find " + path);
-        return;
+      try (final InputStream in = NativeInterop.class.getResourceAsStream(path)) {
+        //copy to /reef/CLRLoadingDirectory
+        final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
+        fileOut = new File(tempLoadDir + LIB_BIN + name);
+        LOG.log(Level.INFO, "Destination file: " + fileOut.toString());
+        if (null == in) {
+          LOG.log(Level.WARNING, "Cannot find " + path);
+          return;
+        }
+        try (final OutputStream out = new FileOutputStream(fileOut) ) {
+          IOUtils.copy(in, out);
+        }
       }
-
-      FileCopy(in, out);
-      LoadAssembly(fileOut, managed);
+      loadAssembly(fileOut, managed);
     } catch (final FileNotFoundException e) {
       LOG.log(Level.SEVERE, "File not find exception: ", name);
       throw e;
@@ -142,23 +138,11 @@ public class LibLoader {
   }
 
   /**
-   * Copy file from InputStream to OutputStream
-   * @param in
-   * @param out
-   * @throws IOException
-   */
-  private void FileCopy(final InputStream in, final OutputStream out) throws IOException{
-    IOUtils.copy(in, out);
-    in.close();
-    out.close();
-  }
-
-  /**
    * load assembly
    * @param fileOut
    * @param managed
    */
-  private void LoadAssembly(final File fileOut, boolean managed) {
+  private void loadAssembly(final File fileOut, final boolean managed) {
     if (managed) {
       NativeInterop.loadClrAssembly(fileOut.toString());
       LOG.log(Level.INFO, "Loading DLL managed done");
