@@ -22,17 +22,17 @@ under the License.
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.reef</groupId>
-    <version>0.10-incubating-SNAPSHOT</version>
+    <version>0.10.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
-    <description>The Retainable Evaluator Execution Framework.</description>
-    <url>http://www.reef-project.org</url>
+    <description>Retainable Evaluator Execution Framework</description>
+    <url>http://reef.incubator.apache.org</url>
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>16</version>
     </parent>
 
     <licenses>
@@ -54,6 +54,30 @@ under the License.
         <jackson.version>1.9.13</jackson.version>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:apache/incubator-reef.git</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef.git</developerConnection>
+        <url>scm:git:git@github.com:apache/incubator-reef.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+    </developers>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://issues.apache.org/jira/browse/REEF</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Dev Mailing List</name>
+            <post>dev@reef.incubator.apache.org</post>
+            <subscribe>dev-subscribe@reef.incubator.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@reef.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-reef-dev/</archive>
+        </mailingList>
+    </mailingLists>
 
     <prerequisites>
         <maven>3.0</maven>
@@ -123,7 +147,7 @@ under the License.
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10</version>
+                    <version>2.10.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

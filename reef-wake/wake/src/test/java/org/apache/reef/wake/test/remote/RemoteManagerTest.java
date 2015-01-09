@@ -104,7 +104,7 @@ public class RemoteManagerTest {
     ExecutorService smExecutor = Executors.newFixedThreadPool(1);
     ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
 
-    RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 2000);
+    RemoteManager sendingManager = getTestRemoteManager("sender", 9020, 3, 2000);
 
     Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000));
     Thread.sleep(1000);
@@ -129,7 +129,7 @@ public class RemoteManagerTest {
     ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
     ArrayList<Future<Integer>> smFutures = new ArrayList<Future<Integer>>(numOfSenderThreads);
 
-    RemoteManager sendingManager = getTestRemoteManager("sender", 9000, 3, 5000);
+    RemoteManager sendingManager = getTestRemoteManager("sender", 9030, 3, 5000);
 
     for (int i = 0; i < numOfSenderThreads; i++) {
       smFutures.add(smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000)));

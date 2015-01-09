@@ -27,7 +27,6 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
-import org.apache.reef.util.REEFVersion;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -76,7 +75,7 @@ final class JobSubmissionHelper {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
     final ClientRuntimeProtocol.JobSubmissionProto.Builder jbuilder = ClientRuntimeProtocol.JobSubmissionProto.newBuilder()
-        .setIdentifier(injector.getNamedInstance(DriverIdentifier.class))
+        .setIdentifier(returnOrGenerateDriverId(injector.getNamedInstance(DriverIdentifier.class)))
         .setDriverMemory(injector.getNamedInstance(DriverMemory.class))
         .setUserName(System.getProperty("user.name"))
         .setConfiguration(configurationSerializer.toString(driverConfiguration));
@@ -105,6 +104,24 @@ final class JobSubmissionHelper {
     return jbuilder;
   }
 
+
+  /**
+   * @param configuredId
+   * @return the given driver ID (if it is not the default) or generates a new unique one if it is.
+   */
+  private static String returnOrGenerateDriverId(final String configuredId) {
+    final String result;
+    if (configuredId.equals(DriverIdentifier.DEFAULT_VALUE)) {
+      // Generate a uniqe driver ID
+      LOG.log(Level.FINE, "No Job Identifier given. Generating a unique one.");
+      result = "REEF-" + System.getProperty("user.name", "UNKNOWN_USER") + "-" + System.currentTimeMillis();
+    } else {
+      result = configuredId;
+    }
+    return result;
+  }
+
+
   /**
    * Turns a pathname into the right protocol for job submission.
    *
@@ -113,7 +130,7 @@ final class JobSubmissionHelper {
    * @return
    * @throws IOException
    */
-  private ReefServiceProtos.FileResourceProto getFileResourceProto(final String fileName, final ReefServiceProtos.FileType type) throws IOException {
+  private static ReefServiceProtos.FileResourceProto getFileResourceProto(final String fileName, final ReefServiceProtos.FileType type) throws IOException {
     File file = new File(fileName);
     if (file.exists()) {
       // It is a local file and can be added.
@@ -151,7 +168,7 @@ final class JobSubmissionHelper {
    * @return
    * @throws IOException
    */
-  private File toJar(final File file) throws IOException {
+  private static File toJar(final File file) throws IOException {
     final File tempFolder = Files.createTempDirectory("reef-tmp-tempFolder").toFile();
     final File jarFile = File.createTempFile(file.getCanonicalFile().getName(), ".jar", tempFolder);
     LOG.log(Level.FINEST, "Adding contents of folder {0} to {1}", new Object[]{file, jarFile});

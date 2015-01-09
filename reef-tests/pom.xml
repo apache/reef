@@ -28,7 +28,7 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.10-incubating-SNAPSHOT</version>
+        <version>0.10.0-incubating-SNAPSHOT</version>
     </parent>
 
 
@@ -99,37 +99,6 @@ under the License.
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-
-                    <outputFile>
-                        ${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar
-                    </outputFile>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>yarn-default.xml</exclude>
-                                <exclude>yarn-version-info.properties</exclude>
-                                <exclude>core-default.xml</exclude>
-                                <exclude>LICENSE</exclude>
-                                <exclude>META-INF/*</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
             </plugin>
         </plugins>
     </build>

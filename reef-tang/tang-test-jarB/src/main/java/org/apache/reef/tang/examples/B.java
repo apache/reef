@@ -16,10 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.example;
+package org.apache.reef.tang.examples;
 
-import javax.inject.Inject;
+public class B extends A {
 
-public class A {
-  @Inject public A() {}
 }

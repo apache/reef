@@ -160,7 +160,8 @@ public final class JobDriver {
       }
 
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
-      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString());
+      String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
+      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber);
       if (handlers != null) {
         if (handlers.length != NativeInterop.nHandlers) {
           throw new RuntimeException(
@@ -683,7 +684,6 @@ public final class JobDriver {
       }
     }
   }
-
 
   /**
    * Receive notification that a ContextMessage has been received

@@ -23,7 +23,7 @@ Wake is completely push based.  This eliminates the need for push and pull based
 
 Systems such as Rx allow event handlers to be dynamically registered and torn down at runtime, allowing applications to evolve over time.  This leads to complicated setup and teardown protocols, where event handlers need to reason about the state of upstream and downstream handlers, both during setup and teardown, but also when routing messages at runtime.  It also encourages design patterns such as dynamic event dispatching that break standard compiler optimizations.  In contrast, Wake applications consist of immutable graphs of event handlers that are built up from sink to source.  This ensures that, once an event handler has been instantiated, all downstream handlers are ready to receive messages.
 
-Wake is designed to work with [Tang](https://github.com/Microsoft-CISL/Tang/), a dependency injection system that focuses on configuration and debuggability.  This makes it extremely easy to wire up complicated graphs of event handling logic.  In addition to making it easy to build up event-driven applications, Tang provides a range of static analysis tools and provides a simple aspect-style programming facility that supports Wake's latency and throughput profilers.
+Wake is designed to work with Tang, a dependency injection system that focuses on configuration and debuggability.  This makes it extremely easy to wire up complicated graphs of event handling logic.  In addition to making it easy to build up event-driven applications, Tang provides a range of static analysis tools and provides a simple aspect-style programming facility that supports Wake's latency and throughput profilers.
 
 
 Core API
@@ -31,7 +31,7 @@ Core API
 
 ### Event Handlers
 
-Wake provides two APIs for event handler implementations.  The first is the [EventHandler](wake/src/main/java/com/microsoft/wake/EventHandler.java) interface:
+Wake provides two APIs for event handler implementations.  The first is the [EventHandler](wake/src/main/java/org/apache/reef/wake/EventHandler.java) interface:
 ```java
 public interface EventHandler<T> {
   void onNext(T value);
@@ -39,7 +39,7 @@ public interface EventHandler<T> {
 ```
 Callers of `onNext()` should assume that it is asynchronous, and that it always succeeds.  Unrecoverable errors should be reported by throwing a runtime exception (which should not be caught, and will instead take down the process).  Recoverable errors are reported by invoking an event handler that contains the appropriate error handling logic.
 
-The latter approach can be implemented by registering separate event handlers for each type of error.  However, for convenience, it is formalized in Wake's simplified version of the Rx [Observer](wake/src/main/java/com/microsoft/wake/rx/Observer.java) interface:
+The latter approach can be implemented by registering separate event handlers for each type of error.  However, for convenience, it is formalized in Wake's simplified version of the Rx [Observer](wake/src/main/java/org/apache/reef/wake/rx/Observer.java) interface:
 ```java
 public interface Observer<T> {
   void onNext(final T value);
@@ -55,17 +55,17 @@ We chose these invariants because they are simple and easy to enforce.  In most 
 
 ### Stages
 
-Wake Stages are responsible for resource management.  The base [Stage](wake/src/main/java/com/microsoft/wake/Stage.java) interface is fairly simple:
+Wake Stages are responsible for resource management.  The base [Stage](wake/src/main/java/org/apache/reef/wake/Stage.java) interface is fairly simple:
 
 ```java
 public interface Stage extends AutoCloseable { }
 ```
 
-The only method it contains is `close()` from auto-closable.  This reflects the fact that Wake stages can either contain `EventHandler`s, as [EStage](wake/src/main/java/com/microsoft/wake/EStage.java) implementations do:
+The only method it contains is `close()` from auto-closable.  This reflects the fact that Wake stages can either contain `EventHandler`s, as [EStage](wake/src/main/java/org/apache/reef/wake/EStage.java) implementations do:
 ```java
 public interface EStage<T> extends EventHandler<T>, Stage { }
 ```
-or they can contain `Observable`s, as [RxStage](wake/src/main/java/com/microsoft/wake/rx/RxStage.java) implementations do:
+or they can contain `Observable`s, as [RxStage](wake/src/main/java/org/apache/reef/wake/rx/RxStage.java) implementations do:
 ```java
 public interface RxStage<T> extends Observer<T>, Stage { }
 ```
@@ -86,50 +86,9 @@ Helper libraries
 
 Wake includes a number of standard library packages:
 
- - ```com.microsoft.wake.time``` allows events to be scheduled in the future, and notifies the application when it starts and when it is being torn down.
- - ```com.microsoft.wake.remote``` provides networking primitives, including hooks into netty (a high-performance event-based networking library for Java).
- - ```com.microsoft.wake.metrics``` provides implementations of standard latency and throughput instrumentation.
- - ```com.microsoft.wake.profiler``` provides a graphical profiler that automatically instruments Tang-based Wake applications.
-
-Stage implementations
----------------------
-
-Profiling
----------
-
-THIRD PARTY SOFTWARE 
---------------------
-This software is built using Maven.  Maven allows you
-to obtain software libraries from other sources as part of the build process.
-Those libraries are offered and distributed by third parties under their own
-license terms.  Microsoft is not developing, distributing or licensing those
-libraries to you, but instead, as a convenience, enables you to use this
-software to obtain those libraries directly from the creators or providers.  By
-using the software, you acknowledge and agree that you are obtaining the
-libraries directly from the third parties and under separate license terms, and
-that it is your responsibility to locate, understand and comply with any such
-license terms.  Microsoft grants you no license rights for third-party software
-or libraries that are obtained using this software.
-
-The list of libraries pulled in this way includes, but is not limited to:
-
- * asm:asm:jar:3.3.1:compile
- * cglib:cglib:jar:2.2.2:compile
- * com.google.code.findbugs:jsr305:jar:1.3.9:compile
- * com.google.guava:guava:jar:11.0.2:compile
- * com.google.protobuf:protobuf-java:jar:2.5.0:compile
- * commons-cli:commons-cli:jar:1.2:compile
- * commons-configuration:commons-configuration:jar:1.9:compile
- * commons-lang:commons-lang:jar:2.6:compile
- * commons-logging:commons-logging:jar:1.1.1:compile
- * dom4j:dom4j:jar:1.6.1:compile
- * io.netty:netty:jar:3.5.10.Final:compile
- * javax.inject:javax.inject:jar:1:compile
- * junit:junit:jar:4.10:test
- * org.hamcrest:hamcrest-core:jar:1.1:test
- * org.javassist:javassist:jar:3.16.1-GA:compile
- * org.reflections:reflections:jar:0.9.9-RC1:compile
- * xml-apis:xml-apis:jar:1.0.b2:compile
+ - ```org.apache.reef.wake.time``` allows events to be scheduled in the future, and notifies the application when it starts and when it is being torn down.
+ - ```org.apache.reef.wake.remote``` provides networking primitives, including hooks into netty (a high-performance event-based networking library for Java).
+ - ```org.apache.reef.wake.metrics``` provides implementations of standard latency and throughput instrumentation.
+ - ```org.apache.reef.wake.profiler``` provides a graphical profiler that automatically instruments Tang-based Wake applications.
 
 
-An up-to-date list of dependencies pulled in this way can be generated via `mvn dependency:list` on the command line.
