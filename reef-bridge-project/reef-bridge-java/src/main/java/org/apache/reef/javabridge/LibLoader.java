@@ -59,7 +59,7 @@ public class LibLoader {
    * Load CLR libraries
    */
   public void loadLib() {
-    LOG.log(Level.INFO, "============== LOG Driver Bridge initiated, loading DLLs at time " + new Date().toString() + "============== ");
+    LOG.log(Level.INFO, "Loading DLLs for driver at time " + new Date().toString());
     try (final LoggingScope lb = loggingScopeFactory.loadLib()) {
       final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
       LOG.log(Level.INFO, "load Folder: " + tempLoadDir);
@@ -77,7 +77,7 @@ public class LibLoader {
         throw new RuntimeException(e);
       }
     }
-    LOG.log(Level.INFO, "================== LOG Done loading dlls for Driver at time \" + new Date().toString() + \" ================== \n");
+    LOG.log(Level.INFO, "Done loading DLLs for Driver at time " + new Date().toString());
   }
 
   /**
