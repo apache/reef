@@ -85,7 +85,17 @@ public final class JobDriver {
    * to request Evaluators that will run the Tasks.
    */
   private final EvaluatorRequestor evaluatorRequestor;
+
+  /**
+   * Driver status manager to monitor driver status
+   */
   private final DriverStatusManager driverStatusManager;
+
+  /**
+   *  NativeInterop has function to load libs when driver starts
+   */
+  private final LibLoader libLoader;
+
   /**
    * Shell execution results from each Evaluator.
    */
@@ -135,7 +145,8 @@ public final class JobDriver {
             final JobMessageObserver jobMessageObserver,
             final EvaluatorRequestor evaluatorRequestor,
             final DriverStatusManager driverStatusManager,
-            final LoggingScopeFactory loggingScopeFactory) {
+            final LoggingScopeFactory loggingScopeFactory,
+            final LibLoader libLoader) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
@@ -144,6 +155,7 @@ public final class JobDriver {
     this.driverStatusManager = driverStatusManager;
     this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
     this.loggingScopeFactory = loggingScopeFactory;
+    this.libLoader = libLoader;
   }
 
   private void setupBridge(final StartTime startTime) {
@@ -151,6 +163,9 @@ public final class JobDriver {
     // we can begin logging
     LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
     try (final LoggingScope lb = this.loggingScopeFactory.setupBridge()) {
+
+      libLoader.loadLib();
+
       final CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
       if (handler == null) {
         LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
