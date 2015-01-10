@@ -169,7 +169,6 @@ public final class Launch {
         client.waitForCompletion(0);
       }
 
-
       LOG.info("Done!");
     } catch (final BindException | InjectionException | IOException ex) {
       LOG.log(Level.SEVERE, "Job configuration error", ex);

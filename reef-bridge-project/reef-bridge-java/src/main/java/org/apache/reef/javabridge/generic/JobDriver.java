@@ -61,16 +61,32 @@ import java.util.logging.Logger;
 @Unit
 public final class JobDriver {
 
+  /**
+   * Logger for this class
+   */
   private static final Logger LOG = Logger.getLogger(JobDriver.class.getName());
+
   /**
    * String codec is used to encode the results
    * before passing them back to the client.
    */
   private static final ObjectSerializableCodec<String> JVM_CODEC = new ObjectSerializableCodec<>();
+
+  /**
+   * logger used in Interop
+   */
   private final InteropLogger interopLogger = new InteropLogger();
-  private final NameServer nameServer;
-  private final String nameServerInfo;
-  private final HttpServer httpServer;
+
+  /**
+   * Name server which is optional
+   */
+  private final Optional<NameServer> nameServer;
+
+  /**
+   * http server which is optional
+   */
+  private final Optional<HttpServer> httpServer;
+
   /**
    * Wake clock is used to schedule periodical job check-ups.
    */
@@ -80,6 +96,7 @@ public final class JobDriver {
    * We use it to send results from the driver back to the client.
    */
   private final JobMessageObserver jobMessageObserver;
+
   /**
    * Job driver uses EvaluatorRequestor
    * to request Evaluators that will run the Tasks.
@@ -87,7 +104,7 @@ public final class JobDriver {
   private final EvaluatorRequestor evaluatorRequestor;
 
   /**
-   * Driver status manager to monitor driver status
+   *  DriverStatusManager is to monitor driver status
    */
   private final DriverStatusManager driverStatusManager;
 
@@ -100,6 +117,7 @@ public final class JobDriver {
    * Shell execution results from each Evaluator.
    */
   private final List<String> results = new ArrayList<>();
+
   /**
    * Map from context ID to running evaluator context.
    */
@@ -134,9 +152,13 @@ public final class JobDriver {
    * Job driver constructor.
    * All parameters are injected from TANG automatically.
    *
-   * @param clock              Wake clock to schedule and check up running jobs.
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param httpServer Http Server
+   * @param nameServer Name Server
    * @param jobMessageObserver is used to send messages back to the client.
    * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
    */
   @Inject
   JobDriver(final Clock clock,
@@ -148,12 +170,96 @@ public final class JobDriver {
             final LoggingScopeFactory loggingScopeFactory,
             final LibLoader libLoader) {
     this.clock = clock;
-    this.httpServer = httpServer;
+    this.httpServer = Optional.of(httpServer);
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
-    this.nameServer = nameServer;
+    this.nameServer = Optional.ofNullable(nameServer);
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    this.loggingScopeFactory = loggingScopeFactory;
+    this.libLoader = libLoader;
+  }
+
+  /**
+   * Job driver constructor without HttpServer
+   * All parameters are injected from TANG automatically.
+   *
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param nameServer Name Server
+   * @param jobMessageObserver is used to send messages back to the client.
+   * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
+   */
+  @Inject
+  JobDriver(final Clock clock,
+            final NameServer nameServer,
+            final JobMessageObserver jobMessageObserver,
+            final EvaluatorRequestor evaluatorRequestor,
+            final DriverStatusManager driverStatusManager,
+            final LoggingScopeFactory loggingScopeFactory,
+            final LibLoader libLoader) {
+    this.clock = clock;
+    this.httpServer = Optional.empty();
+    this.jobMessageObserver = jobMessageObserver;
+    this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = Optional.of(nameServer);
+    this.driverStatusManager = driverStatusManager;
+    this.loggingScopeFactory = loggingScopeFactory;
+    this.libLoader = libLoader;
+  }
+
+  /**
+   * Job driver constructor without NameServer
+   * All parameters are injected from TANG automatically.
+   *
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param httpServer Http Server
+   * @param jobMessageObserver is used to send messages back to the client.
+   * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
+   */
+  @Inject
+  JobDriver(final Clock clock,
+            final HttpServer httpServer,
+            final JobMessageObserver jobMessageObserver,
+            final EvaluatorRequestor evaluatorRequestor,
+            final DriverStatusManager driverStatusManager,
+            final LoggingScopeFactory loggingScopeFactory,
+            final LibLoader libLoader) {
+    this.clock = clock;
+    this.httpServer = Optional.of(httpServer);
+    this.jobMessageObserver = jobMessageObserver;
+    this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = Optional.empty();
+    this.driverStatusManager = driverStatusManager;
+    this.loggingScopeFactory = loggingScopeFactory;
+    this.libLoader = libLoader;
+  }
+
+  /**
+   * Job driver constructor without NameServer and HttpServer
+   * All parameters are injected from TANG automatically.
+   *
+   * @param clock Wake clock to schedule and check up running jobs.
+   * @param jobMessageObserver is used to send messages back to the client.
+   * @param evaluatorRequestor is used to request Evaluators.
+   * @param driverStatusManager Driver status manager that listen to the events. Mainly used by ReefHttpHandler
+   * @param loggingScopeFactory Logging scope factory to produce LoggingScope objects
+   */
+  @Inject
+  JobDriver(final Clock clock,
+            final JobMessageObserver jobMessageObserver,
+            final EvaluatorRequestor evaluatorRequestor,
+            final DriverStatusManager driverStatusManager,
+            final LoggingScopeFactory loggingScopeFactory,
+            final LibLoader libLoader) {
+    this.clock = clock;
+    this.httpServer = Optional.empty();
+    this.jobMessageObserver = jobMessageObserver;
+    this.evaluatorRequestor = evaluatorRequestor;
+    this.nameServer = Optional.empty();
+    this.driverStatusManager = driverStatusManager;
     this.loggingScopeFactory = loggingScopeFactory;
     this.libLoader = libLoader;
   }
@@ -179,8 +285,8 @@ public final class JobDriver {
       }
 
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
-      String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
-      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber);
+      Optional<String> portNumber = httpServer.isPresent() ? Optional.of(Integer.toString((httpServer.get().getPort()))) : Optional.<String>empty();
+      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber.get());
       if (handlers != null) {
         if (handlers.length != NativeInterop.nHandlers) {
           throw new RuntimeException(
@@ -207,19 +313,24 @@ public final class JobDriver {
         this.driverRestartRunningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartRunningTaskKey)];
       }
 
-      try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
-        final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-        NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
-        final String specList = httpServerEventBridge.getUriSpecification();
-        LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
-        if (specList != null) {
-          final String[] specs = specList.split(":");
-          for (final String s : specs) {
-            final HttpHandler h = new HttpServerBridgeEventHandler();
-            h.setUriSpecification(s);
-            this.httpServer.addHttpHandler(h);
+      if (httpServer.isPresent()) {
+        try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
+          final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
+          NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
+          final String specList = httpServerEventBridge.getUriSpecification();
+          LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
+          if (specList != null) {
+            final String[] specs = specList.split(":");
+            for (final String s : specs) {
+              final HttpHandler h = new HttpServerBridgeEventHandler();
+              h.setUriSpecification(s);
+              this.httpServer.get().addHttpHandler(h);
+            }
           }
         }
+      }
+      else {
+        LOG.log(Level.FINE, "No http server is registered.");
       }
       this.clrBridgeSetup = true;
     }
@@ -242,7 +353,9 @@ public final class JobDriver {
       if (JobDriver.this.allocatedEvaluatorHandler == 0) {
         throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
       }
-      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, JobDriver.this.nameServerInfo);
+
+      final Optional<String> nameServerInfo = nameServer.isPresent() ? Optional.of(NetUtils.getLocalAddress() + ":" + this.nameServer.get().getPort()) : Optional.<String>empty();
+      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, nameServerInfo.get());
       NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(JobDriver.this.allocatedEvaluatorHandler, allocatedEvaluatorBridge, this.interopLogger);
     }
   }
@@ -676,7 +789,6 @@ public final class JobDriver {
       }
     }
   }
-
 
   /**
    * Receive notification that the Context had failed.
