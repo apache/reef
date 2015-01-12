@@ -357,6 +357,22 @@ under the License.
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>${hadoop.version}</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-jcl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-yarn-common</artifactId>
                 <version>${hadoop.version}</version>
                 <scope>provided</scope>
@@ -571,6 +587,12 @@ under the License.
                 <version>${jackson.version}</version>
             </dependency>
             <!-- End of Jackson -->
+
+            <dependency>
+                <groupId>org.apache.mesos</groupId>
+                <artifactId>mesos</artifactId>
+                <version>0.21.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -587,6 +609,7 @@ under the License.
         <module>reef-runtime-hdinsight</module>
         <module>reef-runtime-local</module>
         <module>reef-runtime-yarn</module>
+        <module>reef-runtime-mesos</module>
         <module>reef-tang</module>
         <module>reef-tests</module>
         <module>reef-wake</module>

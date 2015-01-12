@@ -50,6 +50,11 @@ under the License.
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>reef-runtime-mesos</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>reef-poison</artifactId>
             <version>${project.version}</version>
         </dependency>

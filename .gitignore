@@ -18,4 +18,5 @@ nb-configuration.xml
 .idea
 atlassian-ide-plugin.xml
 REEF_LOCAL_RUNTIME
+REEF_MESOS_RUNTIME
 profile-*.json

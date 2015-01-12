@@ -18,14 +18,15 @@
  */
 package org.apache.reef.tests;
 
+import org.apache.reef.runtime.mesos.client.MesosClientConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.BindException;
 
 /**
- * A TestEnvironment for the YARN resourcemanager.
+ * A TestEnvironment for the Mesos resourcemanager.
  */
-public final class YarnTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
+public final class MesosTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
 
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
@@ -39,7 +40,14 @@ public final class YarnTestEnvironment extends TestEnvironmentBase implements Te
   public synchronized final Configuration getRuntimeConfiguration() {
     assert (this.ready);
     try {
-      return YarnClientConfiguration.CONF.build();
+      if (System.getenv("REEF_TEST_MESOS_MASTER_IP").equals("")) {
+        throw new RuntimeException("REEF_TEST_MESOS_MASTER_IP unspecified");
+      }
+
+      final String masterIp = System.getenv("REEF_TEST_MESOS_MASTER_IP");
+      return MesosClientConfiguration.CONF
+          .set(MesosClientConfiguration.MASTER_IP, masterIp)
+          .build();
     } catch (final BindException ex) {
       throw new RuntimeException(ex);
     }
