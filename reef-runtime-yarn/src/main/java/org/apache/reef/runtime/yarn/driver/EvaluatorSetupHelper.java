@@ -18,16 +18,8 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.hadoop.yarn.api.records.LocalResourceType;
-import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.util.ConverterUtils;
-import org.apache.hadoop.yarn.util.Records;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
@@ -35,7 +27,6 @@ import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.DeleteTempFiles;
-import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
@@ -58,49 +49,41 @@ final class EvaluatorSetupHelper {
 
   private static final Logger LOG = Logger.getLogger(EvaluatorSetupHelper.class.getName());
 
-  private final String jobSubmissionDirectory;
-  private final Map<String, LocalResource> globalResources;
   private final REEFFileNames fileNames;
   private final ConfigurationSerializer configurationSerializer;
-  private final FileSystem fileSystem;
   private final TempFileCreator tempFileCreator;
+  private final UploaderToJobFolder uploader;
+  private final GlobalJarUploader globalJarUploader;
   private final boolean deleteTempFiles;
 
   @Inject
   EvaluatorSetupHelper(
-      final @Parameter(JobSubmissionDirectory.class) String jobSubmissionDirectory,
-      final YarnConfiguration yarnConfiguration,
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer,
       final TempFileCreator tempFileCreator,
-      final @Parameter(DeleteTempFiles.class) boolean deleteTempFiles) throws IOException {
+      final @Parameter(DeleteTempFiles.class) boolean deleteTempFiles,
+      final UploaderToJobFolder uploader,
+      final GlobalJarUploader globalJarUploader) throws IOException {
     this.tempFileCreator = tempFileCreator;
     this.deleteTempFiles = deleteTempFiles;
+    this.globalJarUploader = globalJarUploader;
 
-    this.fileSystem = FileSystem.get(yarnConfiguration);
-    this.jobSubmissionDirectory = jobSubmissionDirectory;
     this.fileNames = fileNames;
     this.configurationSerializer = configurationSerializer;
-    this.globalResources = this.setup();
+    this.uploader = uploader;
   }
 
-  public Map<String, LocalResource> getGlobalResources() {
-    return this.globalResources;
+  /**
+   * @return the map to be used in formulating the evaluator launch submission.
+   */
+  Map<String, LocalResource> getGlobalResources() {
+    try {
+      return this.globalJarUploader.call();
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to upload the global JAR file to the job folder.", e);
+    }
   }
 
-  private Map<String, LocalResource> setup() throws IOException {
-    final Map<String, LocalResource> result = new HashMap<>(1);
-    final Path pathToGlobalJar = this.uploadToJobFolder(makeGlobalJar());
-    result.put(this.fileNames.getGlobalFolderPath(), makeLocalResourceForJarFile(pathToGlobalJar));
-    return result;
-  }
-
-  private File makeGlobalJar() throws IOException {
-    final File jarFile = new File(
-        this.fileNames.getGlobalFolderName() + this.fileNames.getJarFileSuffix());
-    new JARFileMaker(jarFile).addChildren(this.fileNames.getGlobalFolder()).close();
-    return jarFile;
-  }
 
   /**
    * Sets up the LocalResources for a new Evaluator.
@@ -109,7 +92,7 @@ final class EvaluatorSetupHelper {
    * @return
    * @throws IOException
    */
-  public Map<String, LocalResource> getResources(
+  Map<String, LocalResource> getResources(
       final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto)
       throws IOException {
 
@@ -119,10 +102,8 @@ final class EvaluatorSetupHelper {
     final File localStagingFolder = this.tempFileCreator.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix());
 
     // Write the configuration
-    final File configurationFile = new File(
-        localStagingFolder, this.fileNames.getEvaluatorConfigurationName());
-    this.configurationSerializer.toFile(
-        makeEvaluatorConfiguration(resourceLaunchProto), configurationFile);
+    final File configurationFile = new File(localStagingFolder, this.fileNames.getEvaluatorConfigurationName());
+    this.configurationSerializer.toFile(makeEvaluatorConfiguration(resourceLaunchProto), configurationFile);
 
     // Copy files to the staging folder
     JobJarMaker.copy(resourceLaunchProto.getFileList(), localStagingFolder);
@@ -133,8 +114,8 @@ final class EvaluatorSetupHelper {
     new JARFileMaker(localFile).addChildren(localStagingFolder).close();
 
     // Upload the JAR to the job folder
-    final Path pathToEvaluatorJar = uploadToJobFolder(localFile);
-    result.put(this.fileNames.getLocalFolderPath(), makeLocalResourceForJarFile(pathToEvaluatorJar));
+    final Path pathToEvaluatorJar = this.uploader.uploadToJobFolder(localFile);
+    result.put(this.fileNames.getLocalFolderPath(), this.uploader.makeLocalResourceForJarFile(pathToEvaluatorJar));
 
     if (this.deleteTempFiles) {
       LOG.log(Level.FINE, "Marking [{0}] for deletion at the exit of this JVM and deleting [{1}]",
@@ -156,44 +137,11 @@ final class EvaluatorSetupHelper {
    * @throws IOException
    */
 
-  private Configuration makeEvaluatorConfiguration(
-      final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) throws IOException {
+  private Configuration makeEvaluatorConfiguration(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto)
+      throws IOException {
     return Tang.Factory.getTang()
         .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf()))
         .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
         .build();
-  }
-
-  /**
-   * Uploads the given file to the job folder on (H)DFS.
-   *
-   * @param file
-   * @return
-   * @throws IOException
-   */
-  private Path uploadToJobFolder(final File file) throws IOException {
-    final Path source = new Path(file.getAbsolutePath());
-    final Path destination = new Path(this.jobSubmissionDirectory + "/" + file.getName());
-    LOG.log(Level.FINE, "Uploading {0} to {1}", new Object[]{source, destination});
-    this.fileSystem.copyFromLocalFile(false, true, source, destination);
-    return destination;
-  }
-
-  /**
-   * Creates a LocalResource instance for the JAR file referenced by the given Path
-   *
-   * @param path
-   * @return
-   * @throws IOException
-   */
-  private LocalResource makeLocalResourceForJarFile(final Path path) throws IOException {
-    final LocalResource localResource = Records.newRecord(LocalResource.class);
-    final FileStatus status = FileContext.getFileContext(this.fileSystem.getUri()).getFileStatus(path);
-    localResource.setType(LocalResourceType.ARCHIVE);
-    localResource.setVisibility(LocalResourceVisibility.APPLICATION);
-    localResource.setResource(ConverterUtils.getYarnUrlFromPath(status.getPath()));
-    localResource.setTimestamp(status.getModificationTime());
-    localResource.setSize(status.getLen());
-    return localResource;
   }
 }
