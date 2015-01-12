@@ -285,8 +285,8 @@ public final class JobDriver {
       }
 
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
-      Optional<String> portNumber = httpServer.isPresent() ? Optional.of(Integer.toString((httpServer.get().getPort()))) : Optional.<String>empty();
-      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber.get());
+      final Optional<String> portNumber = httpServer.isPresent() ? Optional.of(Integer.toString((httpServer.get().getPort()))) : Optional.<String>empty();
+      final long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber.get());
       if (handlers != null) {
         if (handlers.length != NativeInterop.nHandlers) {
           throw new RuntimeException(

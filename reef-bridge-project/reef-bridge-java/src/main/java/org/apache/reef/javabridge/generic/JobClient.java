@@ -92,7 +92,7 @@ public class JobClient {
   /**
    *  ConfigurationSerializer
    */
-  ConfigurationSerializer configurationSerializer;
+  private final ConfigurationSerializer configurationSerializer;
 
   /**
    * Clr Bridge client.

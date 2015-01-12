@@ -54,8 +54,7 @@ public class DriverConfigCreator {
     LOG.log(Level.INFO, "Entering DriverConfigCreator");
 
     final boolean isLocal;
-    if (args.length > 0)
-    {
+    if (args.length > 0) {
       isLocal = Boolean.valueOf(args[0]);
     } else {
       isLocal = true;
