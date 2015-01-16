@@ -45,11 +45,10 @@ public final class TestEnvironmentFactory {
       return new YarnTestEnvironment();
     } else if (isMesos) {
       LOG.log(Level.INFO, "Running tests on Mesos");
+      return new MesosTestEnvironment();
     } else {
       LOG.log(Level.INFO, "Running tests on Local");
       return new LocalTestEnvironment();
     }
-
-    return isYarn ? new YarnTestEnvironment() : new LocalTestEnvironment();
   }
 }
