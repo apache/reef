@@ -44,7 +44,6 @@ public class HelloREEFMesos {
    * MASTER_IP = localhost:5050 as default
    */
   public static void main(final String[] args) throws InjectionException {
-
     final LauncherStatus status = DriverLauncher
         .getLauncher(MesosClientConfiguration.CONF
             .set(MesosClientConfiguration.MASTER_IP, "localhost:5050")
