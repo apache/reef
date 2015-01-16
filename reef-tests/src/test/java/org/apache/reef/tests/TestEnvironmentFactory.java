@@ -36,7 +36,20 @@ public final class TestEnvironmentFactory {
    */
   public static TestEnvironment getNewTestEnvironment() {
     final boolean isYarn = Boolean.parseBoolean(System.getenv("REEF_TEST_YARN"));
-    LOG.log(Level.INFO, "Running tests on YARN: {0}", isYarn);
+    final boolean isMesos = Boolean.parseBoolean(System.getenv("REEF_TEST_MESOS"));
+
+    if (isYarn && isMesos) {
+      throw new RuntimeException("Cannot test on two runtimes at once");
+    } else if (isYarn) {
+      LOG.log(Level.INFO, "Running tests on YARN");
+      return new YarnTestEnvironment();
+    } else if (isMesos) {
+      LOG.log(Level.INFO, "Running tests on Mesos");
+    } else {
+      LOG.log(Level.INFO, "Running tests on Local");
+      return new LocalTestEnvironment();
+    }
+
     return isYarn ? new YarnTestEnvironment() : new LocalTestEnvironment();
   }
 }
