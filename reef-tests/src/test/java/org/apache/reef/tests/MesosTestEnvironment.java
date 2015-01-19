@@ -40,8 +40,11 @@ public final class MesosTestEnvironment extends TestEnvironmentBase implements T
   public synchronized final Configuration getRuntimeConfiguration() {
     assert (this.ready);
     try {
-      final String masterIp = System.getenv("REEF_TEST_MESOS_MASTER_IP").equals("") ?
-          "localhost:5050" : System.getenv("REEF_TEST_MESOS_MASTER_IP");
+      if (System.getenv("REEF_TEST_MESOS_MASTER_IP").equals("")) {
+        throw new RuntimeException("REEF_TEST_MESOS_MASTER_IP unspecified");
+      }
+
+      final String masterIp = System.getenv("REEF_TEST_MESOS_MASTER_IP");
       return MesosClientConfiguration.CONF
           .set(MesosClientConfiguration.MASTER_IP, masterIp)
           .build();

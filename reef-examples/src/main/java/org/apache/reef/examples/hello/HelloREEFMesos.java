@@ -41,7 +41,8 @@ public class HelloREEFMesos {
   }
 
   /**
-   * MASTER_IP = localhost:5050 as default
+   * MASTER_IP(Mesos Master IP) is set to "localhost:5050".
+   * You may change it to suit your cluster environment.
    */
   public static void main(final String[] args) throws InjectionException {
     final LauncherStatus status = DriverLauncher
