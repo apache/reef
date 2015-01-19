@@ -1,0 +1,16 @@
+option java_package = "org.apache.reef.runtime.mesos.proto";
+option java_outer_classname = "ReefRuntimeMesosProtocol";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+
+message EvaluatorLaunchProto {
+  required string command = 1;
+}
+
+message EvaluatorReleaseProto {
+}
+
+message REEFRuntimeMesosMessage {
+  optional EvaluatorLaunchProto evaluatorLaunch = 1;
+  optional EvaluatorReleaseProto evaluatorRelease = 2;
+}
