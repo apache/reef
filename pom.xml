@@ -587,6 +587,7 @@ under the License.
         <module>reef-runtime-hdinsight</module>
         <module>reef-runtime-local</module>
         <module>reef-runtime-yarn</module>
+        <module>reef-runtime-mesos</module>
         <module>reef-tang</module>
         <module>reef-tests</module>
         <module>reef-wake</module>
