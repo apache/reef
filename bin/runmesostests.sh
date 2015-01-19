@@ -19,7 +19,7 @@
 #
 
 if [ "$#" -ne 1 ]; then
-    echo "Illegal number of parameters"
+    echo "Please specify REEF_TEST_MESOS_MASTER_IP as an argument"
     exit 1
 fi
 
