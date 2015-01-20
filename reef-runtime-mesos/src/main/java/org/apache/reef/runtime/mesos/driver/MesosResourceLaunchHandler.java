@@ -30,10 +30,12 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.common.launch.LaunchCommandBuilder;
+import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -45,30 +47,32 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @DriverSide
 @Private
 final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
   private final ConfigurationSerializer configurationSerializer;
   private final RemoteManager remoteManager;
-  private final Executors executors;
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
+  private final double jvmHeapFactor;
+  private final REEFExecutors executors;
 
   @Inject
   MesosResourceLaunchHandler(final ConfigurationSerializer configurationSerializer,
                              final RemoteManager remoteManager,
-                             final Executors executors,
                              final REEFFileNames fileNames,
-                             final ClasspathProvider classpath) {
+                             final REEFExecutors executors,
+                             final ClasspathProvider classpath,
+                             final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
-    this.executors = executors;
     this.fileNames = fileNames;
+    this.executors = executors;
     this.classpath = classpath;
+    this.jvmHeapFactor = 1.0 - jvmHeapSlack;
   }
+
 
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) {
@@ -107,7 +111,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(resourceLaunchProto.getIdentifier())
           .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-          .setMemory(this.executors.getEvaluatorMemory(resourceLaunchProto.getIdentifier()))
+          .setMemory((int) (this.jvmHeapFactor * this.executors.getMemory(resourceLaunchProto.getIdentifier())))
           .build();
 
       this.executors.launchEvaluator(resourceLaunchProto.getIdentifier(),

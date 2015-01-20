@@ -31,8 +31,6 @@ import java.util.logging.Logger;
  */
 @Immutable
 public final class MesosClasspathProvider implements RuntimeClasspathProvider {
-  private static final Logger LOG = Logger.getLogger(MesosClasspathProvider.class.getName());
-
   private static final String HADOOP_CONF_DIR = System.getenv("HADOOP_CONF_DIR");
   private static final String HADOOP_HOME = System.getenv("HADOOP_HOME");
   private static final String HADOOP_COMMON_HOME = System.getenv("HADOOP_COMMON_HOME");
@@ -40,7 +38,7 @@ public final class MesosClasspathProvider implements RuntimeClasspathProvider {
   private static final String HADOOP_HDFS_HOME = System.getenv("HADOOP_HDFS_HOME");
   private static final String HADOOP_MAPRED_HOME = System.getenv("HADOOP_MAPRED_HOME");
 
-  // Used when we can't get a classpath from YARN
+  // Used when we can't get a classpath from Hadoop
   private static final String[] LEGACY_CLASSPATH_LIST = new String[]{
       HADOOP_CONF_DIR,
       HADOOP_HOME + "/*",

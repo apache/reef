@@ -34,10 +34,10 @@ import javax.inject.Inject;
 @Private
 final class EvaluatorLaunchHandler implements EventHandler<RemoteMessage<EvaluatorLaunchProto>> {
   // EvaluatorLaunchHandler is registered in MesosExecutor. Hence, we need an InjectionFuture here.
-  private final InjectionFuture<MesosExecutor> mesosExecutor;
+  private final InjectionFuture<REEFExecutor> mesosExecutor;
 
   @Inject
-  EvaluatorLaunchHandler(final InjectionFuture<MesosExecutor> mesosExecutor) {
+  EvaluatorLaunchHandler(final InjectionFuture<REEFExecutor> mesosExecutor) {
     this.mesosExecutor = mesosExecutor;
   }
 

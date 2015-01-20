@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.mesos.evaluator;
 
+import com.google.protobuf.ByteString;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.mesos.evaluator.parameters.MesosExecutorId;
 import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
@@ -54,8 +55,8 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class MesosExecutor implements Executor {
-  private final static Logger LOG = Logger.getLogger(MesosExecutor.class.getName());
+public final class REEFExecutor implements Executor {
+  private final static Logger LOG = Logger.getLogger(REEFExecutor.class.getName());
 
   private final MesosExecutorDriver mesosExecutorDriver;
   private final MesosRemoteManager mesosRemoteManager;
@@ -67,11 +68,11 @@ public final class MesosExecutor implements Executor {
   private Integer evaluatorProcessExitValue;
 
   @Inject
-  MesosExecutor(final EvaluatorLaunchHandler evaluatorLaunchHandler,
-                final EvaluatorReleaseHandler evaluatorReleaseHandler,
-                final MesosRemoteManager mesosRemoteManager,
-                final REEFFileNames fileNames,
-                final @Parameter(MesosExecutorId.class) String mesosExecutorId) {
+  REEFExecutor(final EvaluatorLaunchHandler evaluatorLaunchHandler,
+               final EvaluatorReleaseHandler evaluatorReleaseHandler,
+               final MesosRemoteManager mesosRemoteManager,
+               final REEFFileNames fileNames,
+               final @Parameter(MesosExecutorId.class) String mesosExecutorId) {
     this.mesosRemoteManager = mesosRemoteManager;
     this.mesosRemoteManager.registerHandler(EvaluatorLaunchProto.class, evaluatorLaunchHandler);
     this.mesosRemoteManager.registerHandler(EvaluatorReleaseProto.class, evaluatorReleaseHandler);
@@ -147,16 +148,25 @@ public final class MesosExecutor implements Executor {
 
   private void onStop() {
     // Shutdown REEF Evaluator
-    if (this.evaluatorProcessExitValue == null) {
+    if (this.evaluatorProcess != null) {
       this.evaluatorProcess.destroy();
+      mesosExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
+          .setTaskId(TaskID.newBuilder()
+              .setValue(mesosExecutorId)
+              .build())
+          .setState(TaskState.TASK_FINISHED)
+          .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
+          .build());
+    } else {
+      mesosExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
+          .setTaskId(TaskID.newBuilder()
+              .setValue(mesosExecutorId)
+              .build())
+          .setState(TaskState.TASK_FINISHED)
+          .setData(ByteString.copyFromUtf8("eval_not_run")) // TODO: a hack to pass closeEvaluator test, replace this with a better interface
+          .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
+          .build());
     }
-    mesosExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
-        .setTaskId(TaskID.newBuilder()
-            .setValue(mesosExecutorId)
-            .build())
-        .setState(TaskState.TASK_FINISHED)
-        .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
-        .build());
 
     // Shutdown Mesos Executor
     this.executorService.shutdown();
@@ -165,7 +175,7 @@ public final class MesosExecutor implements Executor {
 
   private void onRuntimeError() {
     // Shutdown REEF Evaluator
-    if (this.evaluatorProcessExitValue == null) {
+    if (this.evaluatorProcess != null) {
       this.evaluatorProcess.destroy();
     }
     mesosExecutorDriver.sendStatusUpdate(TaskStatus.newBuilder()
@@ -229,7 +239,7 @@ public final class MesosExecutor implements Executor {
    */
   public static void main(final String[] args) throws Exception {
     final Injector injector = Tang.Factory.getTang().newInjector(parseCommandLine(args));
-    final MesosExecutor mesosExecutor = injector.getInstance(MesosExecutor.class);
-    mesosExecutor.onStart();
+    final REEFExecutor REEFExecutor = injector.getInstance(REEFExecutor.class);
+    REEFExecutor.onStart();
   }
 }

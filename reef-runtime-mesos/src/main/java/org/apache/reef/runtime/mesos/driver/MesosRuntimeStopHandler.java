@@ -24,15 +24,15 @@ import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 import javax.inject.Inject;
 
 final class MesosRuntimeStopHandler implements EventHandler<RuntimeStop> {
-  private final MesosScheduler mesosScheduler;
+  private final REEFScheduler REEFScheduler;
 
   @Inject
-  MesosRuntimeStopHandler(final MesosScheduler mesosScheduler) {
-    this.mesosScheduler = mesosScheduler;
+  MesosRuntimeStopHandler(final REEFScheduler REEFScheduler) {
+    this.REEFScheduler = REEFScheduler;
   }
 
   @Override
   public void onNext(final RuntimeStop runtimeStop) {
-    this.mesosScheduler.onStop();
+    this.REEFScheduler.onStop();
   }
 }

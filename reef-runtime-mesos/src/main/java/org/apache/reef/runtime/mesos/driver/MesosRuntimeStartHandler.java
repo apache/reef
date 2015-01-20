@@ -24,15 +24,15 @@ import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 import javax.inject.Inject;
 
 final class MesosRuntimeStartHandler implements EventHandler<RuntimeStart> {
-  private final MesosScheduler mesosScheduler;
+  private final REEFScheduler REEFScheduler;
 
   @Inject
-  MesosRuntimeStartHandler(final MesosScheduler mesosScheduler) {
-    this.mesosScheduler = mesosScheduler;
+  MesosRuntimeStartHandler(final REEFScheduler REEFScheduler) {
+    this.REEFScheduler = REEFScheduler;
   }
 
   @Override
   public void onNext(final RuntimeStart runtimeStart){
-    this.mesosScheduler.onStart();
+    this.REEFScheduler.onStart();
   }
 }

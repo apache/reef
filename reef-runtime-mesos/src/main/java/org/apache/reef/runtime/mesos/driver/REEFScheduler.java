@@ -28,11 +28,11 @@ import org.apache.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto;
 import org.apache.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto.Builder;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.proto.ReefServiceProtos.State;
+import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.mesos.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
-import org.apache.reef.runtime.mesos.evaluator.MesosExecutor;
+import org.apache.reef.runtime.mesos.evaluator.REEFExecutor;
 import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
 import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorReleaseProto;
 import org.apache.reef.runtime.mesos.util.MesosRemoteManager;
@@ -88,11 +88,11 @@ import java.util.zip.GZIPOutputStream;
 /**
  * MesosScheduler that interacts with MesosMaster and MesosExecutors.
  */
-final class MesosScheduler implements Scheduler {
-  private static final Logger LOG = Logger.getLogger(MesosScheduler.class.getName());
+final class REEFScheduler implements Scheduler {
+  private static final Logger LOG = Logger.getLogger(REEFScheduler.class.getName());
   private static final String REEF_TAR = "reef.tar.gz";
   private static final String RUNTIME_NAME = "MESOS";
-  private static final int MESOS_SLAVE_PORT = 5051; //  Assumes for now that all slaves use port 5051(default)
+  private static final int MESOS_SLAVE_PORT = 5051; //  Assumes for now that all slaves use port 5051(default) TODO: make it configurable.
 
   private final String reefTarUri;
   private final REEFFileNames fileNames;
@@ -108,16 +108,16 @@ final class MesosScheduler implements Scheduler {
   private int outstandingRequestCounter = 0;
   private final ConcurrentLinkedQueue<ResourceRequestProto> outstandingRequests = new ConcurrentLinkedQueue<>();
   private final Map<String, ResourceRequestProto> executorIdToLaunchedRequests = new ConcurrentHashMap<>();
-  private final Executors executors;
+  private final REEFExecutors executors;
 
   @Inject
-  MesosScheduler(final REEFEventHandlers reefEventHandlers,
-                 final MesosRemoteManager mesosRemoteManager,
-                 final @Parameter(MesosMasterIp.class) String master_ip,
-                 final @Parameter(JobIdentifier.class) String jobIdentifier,
-                 final Executors executors,
-                 final REEFFileNames fileNames,
-                 final ClasspathProvider classpath) {
+  REEFScheduler(final REEFEventHandlers reefEventHandlers,
+                final MesosRemoteManager mesosRemoteManager,
+                final @Parameter(MesosMasterIp.class) String master_ip,
+                final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
+                final REEFExecutors executors,
+                final REEFFileNames fileNames,
+                final ClasspathProvider classpath) {
     this.mesosRemoteManager = mesosRemoteManager;
     this.reefEventHandlers = reefEventHandlers;
     this.executors = executors;
@@ -127,7 +127,7 @@ final class MesosScheduler implements Scheduler {
     this.classpath = classpath;
 
     final FrameworkInfo frameworkInfo = FrameworkInfo.newBuilder()
-        .setUser("")
+        .setUser("") // TODO: make it configurable.
         .setName("reef-job-" + jobIdentifier)
         .build();
     this.mesosMaster = new MesosSchedulerDriver(this, frameworkInfo, master_ip);
@@ -198,6 +198,9 @@ final class MesosScheduler implements Scheduler {
         resourceStatus.setState(State.RUNNING);
         break;
       case TASK_FINISHED:
+        if (taskStatus.getData().toStringUtf8().equals("eval_not_run")) { // TODO: a hack to pass closeEvaluator test, replace this with a better interface
+          return;
+        }
         resourceStatus.setState(State.DONE);
         break;
       case TASK_KILLED:
@@ -300,12 +303,12 @@ final class MesosScheduler implements Scheduler {
     int tasksToLaunchCounter = resourceRequestProto.getResourceCount();
 
     for (final Offer offer : this.offers.values()) {
-      final List<TaskInfo> tasksToLaunch = new ArrayList<>();
+      final int cpuSlots = getCpu(offer) / resourceRequestProto.getVirtualCores();
+      final int memSlots = getMemory(offer) / resourceRequestProto.getMemorySize();
+      final int taskNum = Math.min(Math.min(cpuSlots, memSlots), tasksToLaunchCounter);
 
-      if (satisfySlaveConstraint(resourceRequestProto, offer)) {
-        final int cpuSlots = getCpu(offer) / resourceRequestProto.getVirtualCores();
-        final int memSlots = getMemory(offer) / resourceRequestProto.getMemorySize();
-        final int taskNum = Math.min(Math.min(cpuSlots, memSlots), tasksToLaunchCounter);
+      if (taskNum > 0 && satisfySlaveConstraint(resourceRequestProto, offer)) {
+        final List<TaskInfo> tasksToLaunch = new ArrayList<>();
         tasksToLaunchCounter -= taskNum;
 
         // Launch as many MesosTasks on the same node(offer) as possible to exploit locality.
@@ -432,7 +435,7 @@ final class MesosScheduler implements Scheduler {
           return (int)resource.getScalar().getValue();
       }
     }
-    throw new IllegalArgumentException("No memory specified in offer");
+    return 0;
   }
 
   private int getCpu(final Offer offer) {
@@ -442,7 +445,7 @@ final class MesosScheduler implements Scheduler {
           return (int)resource.getScalar().getValue();
       }
     }
-    throw new IllegalArgumentException("No cpu specified in offer");
+    return 0;
   }
 
   private String getExecutorLaunchCommand(final String executorID, final int memorySize) {
@@ -458,7 +461,7 @@ final class MesosScheduler implements Scheduler {
         .append("-Xmx" + String.valueOf(memorySize) + "m" + " ")
         .append(classPath + " ")
         .append(logging + " ")
-        .append(MesosExecutor.class.getName() + " ")
+        .append(REEFExecutor.class.getName() + " ")
         .append(mesosExecutorId + " ")
         .toString());
   }

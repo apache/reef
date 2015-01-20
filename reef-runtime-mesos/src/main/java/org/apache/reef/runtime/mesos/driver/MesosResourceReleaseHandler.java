@@ -24,21 +24,19 @@ import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @DriverSide
 @Private
 final class MesosResourceReleaseHandler implements ResourceReleaseHandler {
-  private final MesosScheduler mesosScheduler;
+  private final REEFScheduler REEFScheduler;
 
   @Inject
-  MesosResourceReleaseHandler(final MesosScheduler mesosScheduler) {
-    this.mesosScheduler = mesosScheduler;
+  MesosResourceReleaseHandler(final REEFScheduler REEFScheduler) {
+    this.REEFScheduler = REEFScheduler;
   }
 
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceReleaseProto resourceReleaseProto) {
-    mesosScheduler.onResourceRelease(resourceReleaseProto);
+    REEFScheduler.onResourceRelease(resourceReleaseProto);
   }
 }

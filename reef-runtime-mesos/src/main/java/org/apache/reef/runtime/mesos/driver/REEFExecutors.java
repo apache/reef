@@ -18,10 +18,8 @@
  */
 package org.apache.reef.runtime.mesos.driver;
 
-import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
 import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorReleaseProto;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -32,20 +30,18 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The Driver's view of MesosExecutors running in the cluster.
  */
-final class Executors {
-  private final Map<String, Executor> executors = new ConcurrentHashMap<>();
-  private final double jvmHeapFactor;
+final class REEFExecutors {
+  private final Map<String, REEFExecutor> executors = new ConcurrentHashMap<>();
 
   @Inject
-  Executors(final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
-    this.jvmHeapFactor = 1.0 - jvmHeapSlack;
+  REEFExecutors() {
   }
 
   public void add(final String id,
                   final int memory,
                   final EventHandler<EvaluatorLaunchProto> evaluatorLaunchHandler,
                   final EventHandler<EvaluatorReleaseProto> evaluatorReleaseHandler) {
-    executors.put(id, new Executor(memory, evaluatorLaunchHandler, evaluatorReleaseHandler));
+    executors.put(id, new REEFExecutor(memory, evaluatorLaunchHandler, evaluatorReleaseHandler));
   }
 
   public void remove(final String id) {
@@ -54,31 +50,17 @@ final class Executors {
 
   public Set<String> getExecutorIds() { return executors.keySet(); }
 
-  public int getEvaluatorMemory(final String id) {
-    return (int) (this.jvmHeapFactor * executors.get(id).memory);
+  public int getMemory(final String id) {
+    return executors.get(id).getMemory();
   }
 
   public void launchEvaluator(final String id,
                               final EvaluatorLaunchProto evaluatorLaunchProto) {
-    executors.get(id).evaluatorLaunchHandler.onNext(evaluatorLaunchProto);
+    executors.get(id).launchEvaluator(evaluatorLaunchProto);
   }
 
   public void releaseEvaluator(final String id,
                                final EvaluatorReleaseProto evaluatorReleaseProto) {
-    executors.get(id).evaluatorReleaseHandler.onNext(evaluatorReleaseProto);
-  }
-
-  final class Executor {
-    private final int memory;
-    private final EventHandler<EvaluatorLaunchProto> evaluatorLaunchHandler;
-    private final EventHandler<EvaluatorReleaseProto> evaluatorReleaseHandler;
-
-    Executor(final int memory,
-             final EventHandler<EvaluatorLaunchProto> evaluatorLaunchHandler,
-             final EventHandler<EvaluatorReleaseProto> evaluatorReleaseHandler) {
-      this.memory = memory;
-      this.evaluatorLaunchHandler = evaluatorLaunchHandler;
-      this.evaluatorReleaseHandler = evaluatorReleaseHandler;
-    }
+    executors.get(id).releaseEvaluator(evaluatorReleaseProto);
   }
 }

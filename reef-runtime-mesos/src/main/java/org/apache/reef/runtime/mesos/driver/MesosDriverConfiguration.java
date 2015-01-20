@@ -28,7 +28,6 @@ import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.mesos.MesosClasspathProvider;
-import org.apache.reef.runtime.mesos.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
 import org.apache.reef.runtime.mesos.util.HDFSConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -75,7 +74,6 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
 
       .bindNamedParameter(MesosMasterIp.class, MESOS_MASTER_IP)
-      .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
       .bindConstructor(Configuration.class, HDFSConfigurationConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, MesosClasspathProvider.class)
 
