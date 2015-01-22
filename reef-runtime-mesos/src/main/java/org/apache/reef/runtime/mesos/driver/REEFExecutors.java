@@ -18,8 +18,9 @@
  */
 package org.apache.reef.runtime.mesos.driver;
 
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorReleaseProto;
+import org.apache.reef.runtime.mesos.util.EvaluatorControl;
+import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
+import org.apache.reef.runtime.mesos.util.EvaluatorRelease;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -39,9 +40,8 @@ final class REEFExecutors {
 
   public void add(final String id,
                   final int memory,
-                  final EventHandler<EvaluatorLaunchProto> evaluatorLaunchHandler,
-                  final EventHandler<EvaluatorReleaseProto> evaluatorReleaseHandler) {
-    executors.put(id, new REEFExecutor(memory, evaluatorLaunchHandler, evaluatorReleaseHandler));
+                  final EventHandler<EvaluatorControl> evaluatorControlHandler) {
+    executors.put(id, new REEFExecutor(memory, evaluatorControlHandler));
   }
 
   public void remove(final String id) {
@@ -54,13 +54,11 @@ final class REEFExecutors {
     return executors.get(id).getMemory();
   }
 
-  public void launchEvaluator(final String id,
-                              final EvaluatorLaunchProto evaluatorLaunchProto) {
-    executors.get(id).launchEvaluator(evaluatorLaunchProto);
+  public void launchEvaluator(final EvaluatorLaunch evaluatorLaunch) {
+    executors.get(evaluatorLaunch.getIdentifier().toString()).launchEvaluator(evaluatorLaunch);
   }
 
-  public void releaseEvaluator(final String id,
-                               final EvaluatorReleaseProto evaluatorReleaseProto) {
-    executors.get(id).releaseEvaluator(evaluatorReleaseProto);
+  public void releaseEvaluator(final EvaluatorRelease evaluatorRelease) {
+    executors.get(evaluatorRelease.getIdentifier().toString()).releaseEvaluator(evaluatorRelease);
   }
 }

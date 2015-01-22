@@ -23,6 +23,8 @@ import org.apache.reef.wake.remote.RemoteIdentifierFactory;
 import org.apache.reef.wake.remote.RemoteManager;
 import org.apache.reef.wake.remote.RemoteMessage;
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
+import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
+import org.apache.reef.wake.remote.impl.StringCodec;
 
 import javax.inject.Inject;
 
@@ -37,11 +39,11 @@ public final class MesosRemoteManager {
 
   @Inject
   MesosRemoteManager(final RemoteIdentifierFactory factory,
-                     final MesosMessageCodec mesosMessageCodec,
-                     final MesosErrorHandler mesosErrorHandler) {
+                     final MesosErrorHandler mesosErrorHandler,
+                     final MesosRemoteManagerCodec codec) {
     this.factory = factory;
     this.raw = new DefaultRemoteManagerImplementation("MESOS_EXECUTOR", "##UNKNOWN##", 0,
-        mesosMessageCodec, mesosErrorHandler, false, 3, 10000);
+        codec, mesosErrorHandler, false, 3, 10000);
   }
 
   public <T> EventHandler<T> getHandler(

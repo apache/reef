@@ -21,8 +21,9 @@ package org.apache.reef.runtime.mesos.evaluator;
 import com.google.protobuf.ByteString;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.mesos.evaluator.parameters.MesosExecutorId;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorReleaseProto;
+import org.apache.reef.runtime.mesos.util.EvaluatorControl;
+import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
+import org.apache.reef.runtime.mesos.util.EvaluatorRelease;
 import org.apache.reef.runtime.mesos.util.MesosRemoteManager;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -68,14 +69,12 @@ public final class REEFExecutor implements Executor {
   private Integer evaluatorProcessExitValue;
 
   @Inject
-  REEFExecutor(final EvaluatorLaunchHandler evaluatorLaunchHandler,
-               final EvaluatorReleaseHandler evaluatorReleaseHandler,
+  REEFExecutor(final EvaluatorControlHandler evaluatorControlHandler,
                final MesosRemoteManager mesosRemoteManager,
                final REEFFileNames fileNames,
                final @Parameter(MesosExecutorId.class) String mesosExecutorId) {
     this.mesosRemoteManager = mesosRemoteManager;
-    this.mesosRemoteManager.registerHandler(EvaluatorLaunchProto.class, evaluatorLaunchHandler);
-    this.mesosRemoteManager.registerHandler(EvaluatorReleaseProto.class, evaluatorReleaseHandler);
+    this.mesosRemoteManager.registerHandler(EvaluatorControl.class, evaluatorControlHandler);
     this.mesosExecutorDriver = new MesosExecutorDriver(this);
     this.executorService = Executors.newCachedThreadPool();
     this.fileNames = fileNames;
@@ -191,16 +190,21 @@ public final class REEFExecutor implements Executor {
     this.mesosExecutorDriver.stop();
   }
 
-  public final void onEvaluatorRelease() {
+  public final void onEvaluatorRelease(final EvaluatorRelease evaluatorRelease) {
+    LOG.log(Level.INFO, "Release!!!! {0}", evaluatorRelease.toString());
+    assert(evaluatorRelease.getIdentifier().toString().equals(this.mesosExecutorId));
     this.onStop();
   }
 
-  public final void onEvaluatorLaunch(final EvaluatorLaunchProto evaluatorLaunchProto) {
+  public final void onEvaluatorLaunch(final EvaluatorLaunch evaluatorLaunch) {
+    LOG.log(Level.INFO, "Launch!!!! {0}", evaluatorLaunch.toString());
+    assert(evaluatorLaunch.getIdentifier().toString().equals(this.mesosExecutorId));
     final ExecutorService evaluatorLaunchExecutorService = Executors.newSingleThreadExecutor();
     evaluatorLaunchExecutorService.submit(new Thread() {
       public void run() {
         try {
-          final List<String> command = Arrays.asList(evaluatorLaunchProto.getCommand().split(" "));
+          final List<String> command = Arrays.asList(evaluatorLaunch.getCommand().toString().split(" "));
+          LOG.log(Level.INFO, "Command!!!! {0}", command);
           final FileSystem fileSystem = FileSystem.get(new Configuration());
           final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + mesosExecutorId);
           final File localFolder = new File(fileNames.getREEFFolderName(), fileNames.getLocalFolderName());

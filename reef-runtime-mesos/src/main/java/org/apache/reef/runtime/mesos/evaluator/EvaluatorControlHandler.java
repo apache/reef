@@ -20,7 +20,7 @@ package org.apache.reef.runtime.mesos.evaluator;
 
 import org.apache.reef.annotations.audience.EvaluatorSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
+import org.apache.reef.runtime.mesos.util.EvaluatorControl;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.RemoteMessage;
@@ -32,17 +32,24 @@ import javax.inject.Inject;
  */
 @EvaluatorSide
 @Private
-final class EvaluatorLaunchHandler implements EventHandler<RemoteMessage<EvaluatorLaunchProto>> {
+final class EvaluatorControlHandler implements EventHandler<RemoteMessage<EvaluatorControl>> {
   // EvaluatorLaunchHandler is registered in MesosExecutor. Hence, we need an InjectionFuture here.
   private final InjectionFuture<REEFExecutor> mesosExecutor;
 
   @Inject
-  EvaluatorLaunchHandler(final InjectionFuture<REEFExecutor> mesosExecutor) {
+  EvaluatorControlHandler(final InjectionFuture<REEFExecutor> mesosExecutor) {
     this.mesosExecutor = mesosExecutor;
   }
 
   @Override
-  public void onNext(final RemoteMessage<EvaluatorLaunchProto> remoteMessage) {
-    this.mesosExecutor.get().onEvaluatorLaunch(remoteMessage.getMessage());
+  public void onNext(final RemoteMessage<EvaluatorControl> remoteMessage) {
+    final EvaluatorControl evaluatorControl = remoteMessage.getMessage();
+    if (evaluatorControl.getEvaluatorLaunch() != null) {
+      this.mesosExecutor.get().onEvaluatorLaunch(evaluatorControl.getEvaluatorLaunch());
+    } else if (evaluatorControl.getEvaluatorRelease() != null) {
+      this.mesosExecutor.get().onEvaluatorRelease(evaluatorControl.getEvaluatorRelease());
+    } else {
+      throw new IllegalArgumentException();
+    }
   }
 }

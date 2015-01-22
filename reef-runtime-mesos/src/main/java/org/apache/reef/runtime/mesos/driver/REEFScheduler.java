@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.mesos.driver;
 
 import com.google.protobuf.ByteString;
+import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.proto.DriverRuntimeProtocol.NodeDescriptorProto;
 import org.apache.reef.proto.DriverRuntimeProtocol.ResourceAllocationProto;
@@ -33,10 +34,12 @@ import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
 import org.apache.reef.runtime.mesos.evaluator.REEFExecutor;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorReleaseProto;
+import org.apache.reef.runtime.mesos.util.EvaluatorControl;
+import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
+import org.apache.reef.runtime.mesos.util.EvaluatorRelease;
 import org.apache.reef.runtime.mesos.util.MesosRemoteManager;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.Encoder;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
@@ -46,17 +49,14 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.mesos.Protos;
 import org.apache.mesos.Protos.CommandInfo;
 import org.apache.mesos.Protos.CommandInfo.URI;
 import org.apache.mesos.Protos.ExecutorID;
 import org.apache.mesos.Protos.ExecutorInfo;
 import org.apache.mesos.Protos.Filters;
-import org.apache.mesos.Protos.FrameworkInfo;
 import org.apache.mesos.Protos.Offer;
 import org.apache.mesos.Protos.Resource;
-import org.apache.mesos.Protos.Status;
 import org.apache.mesos.Protos.TaskID;
 import org.apache.mesos.Protos.TaskInfo;
 import org.apache.mesos.Protos.Value;
@@ -80,7 +80,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
@@ -93,16 +92,17 @@ final class REEFScheduler implements Scheduler {
   private static final String REEF_TAR = "reef.tar.gz";
   private static final String RUNTIME_NAME = "MESOS";
   private static final int MESOS_SLAVE_PORT = 5051; //  Assumes for now that all slaves use port 5051(default) TODO: make it configurable.
+  private static final String REEF_JOB_NAME_PREFIX = "reef-job-";
 
   private final String reefTarUri;
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
 
   private final REEFEventHandlers reefEventHandlers;
-  private final ExecutorService executorService;
   private final MesosRemoteManager mesosRemoteManager;
 
   private final SchedulerDriver mesosMaster;
+  private final EStage<SchedulerDriver> schedulerDriverEStage;
   private final Map<String, Offer> offers = new ConcurrentHashMap<>();
 
   private int outstandingRequestCounter = 0;
@@ -113,24 +113,25 @@ final class REEFScheduler implements Scheduler {
   @Inject
   REEFScheduler(final REEFEventHandlers reefEventHandlers,
                 final MesosRemoteManager mesosRemoteManager,
-                final @Parameter(MesosMasterIp.class) String master_ip,
-                final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
                 final REEFExecutors executors,
                 final REEFFileNames fileNames,
-                final ClasspathProvider classpath) {
+                final EStage<SchedulerDriver> schedulerDriverEStage,
+                final ClasspathProvider classpath,
+                final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
+                final @Parameter(MesosMasterIp.class) String masterIp) {
     this.mesosRemoteManager = mesosRemoteManager;
     this.reefEventHandlers = reefEventHandlers;
     this.executors = executors;
     this.fileNames = fileNames;
-    this.executorService = java.util.concurrent.Executors.newSingleThreadExecutor();
     this.reefTarUri = getReefTarUri(jobIdentifier);
     this.classpath = classpath;
+    this.schedulerDriverEStage = schedulerDriverEStage;
 
-    final FrameworkInfo frameworkInfo = FrameworkInfo.newBuilder()
+    final Protos.FrameworkInfo frameworkInfo = Protos.FrameworkInfo.newBuilder()
         .setUser("") // TODO: make it configurable.
-        .setName("reef-job-" + jobIdentifier)
+        .setName(REEF_JOB_NAME_PREFIX + jobIdentifier)
         .build();
-    this.mesosMaster = new MesosSchedulerDriver(this, frameworkInfo, master_ip);
+    this.mesosMaster = new MesosSchedulerDriver(this, frameworkInfo, masterIp);
   }
 
   @Override
@@ -187,6 +188,8 @@ final class REEFScheduler implements Scheduler {
 
   @Override
   public void statusUpdate(final SchedulerDriver driver, final Protos.TaskStatus taskStatus) {
+    LOG.log(Level.SEVERE, "Task Status Update:", taskStatus.toString());
+
     final DriverRuntimeProtocol.ResourceStatusProto.Builder resourceStatus =
         DriverRuntimeProtocol.ResourceStatusProto.newBuilder().setIdentifier(taskStatus.getTaskId().getValue());
 
@@ -262,24 +265,22 @@ final class REEFScheduler implements Scheduler {
   @Override
   public void error(final SchedulerDriver driver, final String message) {
     this.onRuntimeError(new RuntimeException(message));
-
   }
 
   /////////////////////////////////////////////////////////////////
   // HELPER METHODS
 
   public void onStart() {
-    this.executorService.submit(new Runnable() {
-      public void run() {
-        final Status status = mesosMaster.run();
-        LOG.log(Level.INFO, "MesosMaster(SchedulerDriver) ended with status {0}", status);
-      }
-    });
-    this.executorService.shutdown();
+    this.schedulerDriverEStage.onNext(this.mesosMaster);
   }
 
   public void onStop() {
     this.mesosMaster.stop();
+    try {
+      this.schedulerDriverEStage.close();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void onResourceRequest(final ResourceRequestProto resourceRequestProto) {
@@ -289,7 +290,7 @@ final class REEFScheduler implements Scheduler {
   }
 
   public void onResourceRelease(final ResourceReleaseProto resourceReleaseProto) {
-    this.executors.releaseEvaluator(resourceReleaseProto.getIdentifier(), EvaluatorReleaseProto.getDefaultInstance());
+    this.executors.releaseEvaluator(new EvaluatorRelease(resourceReleaseProto.getIdentifier()));
     this.executors.remove(resourceReleaseProto.getIdentifier());
     updateRuntimeStatus();
   }
@@ -374,12 +375,9 @@ final class REEFScheduler implements Scheduler {
     final ResourceRequestProto resourceRequestProto =
         this.executorIdToLaunchedRequests.remove(taskStatus.getTaskId().getValue());
 
-    final EventHandler<EvaluatorLaunchProto> evaluatorLaunchHandler =
-        this.mesosRemoteManager.getHandler(taskStatus.getMessage(), EvaluatorLaunchProto.class);
-    final EventHandler<EvaluatorReleaseProto> evaluatorReleaseHandler =
-        this.mesosRemoteManager.getHandler(taskStatus.getMessage(), EvaluatorReleaseProto.class);
-    this.executors.add(taskStatus.getTaskId().getValue(), resourceRequestProto.getMemorySize(),
-        evaluatorLaunchHandler, evaluatorReleaseHandler);
+    final EventHandler<EvaluatorControl> evaluatorControlHandler =
+        this.mesosRemoteManager.getHandler(taskStatus.getMessage(), EvaluatorControl.class);
+    this.executors.add(taskStatus.getTaskId().getValue(), resourceRequestProto.getMemorySize(), evaluatorControlHandler);
 
     final ResourceAllocationProto alloc = DriverRuntimeProtocol.ResourceAllocationProto.newBuilder()
         .setIdentifier(taskStatus.getTaskId().getValue())
@@ -406,8 +404,12 @@ final class REEFScheduler implements Scheduler {
   }
 
   private void onRuntimeError(final Throwable throwable) {
-    this.executorService.shutdown();
     this.mesosMaster.stop();
+    try {
+      this.schedulerDriverEStage.close();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
 
     final Builder runtimeStatusBuilder = RuntimeStatusProto.newBuilder()
         .setState(State.FAILED)

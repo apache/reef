@@ -32,7 +32,7 @@ import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.common.launch.LaunchCommandBuilder;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
+import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
@@ -47,6 +47,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @DriverSide
 @Private
@@ -57,6 +59,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
   private final ClasspathProvider classpath;
   private final double jvmHeapFactor;
   private final REEFExecutors executors;
+  private static final Logger LOG = Logger.getLogger(MesosResourceLaunchHandler.class.getName());
 
   @Inject
   MesosResourceLaunchHandler(final ConfigurationSerializer configurationSerializer,
@@ -77,6 +80,8 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
   @Override
   public void onNext(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) {
     try {
+      LOG.log(Level.INFO, "resourceLaunchProto. {0}", resourceLaunchProto.toString());
+
       final File localStagingFolder =
           Files.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix()).toFile();
 
@@ -95,6 +100,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
       final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + resourceLaunchProto.getIdentifier() + "/");
       FileUtil.copy(localStagingFolder, fileSystem, hdfsFolder, false, new org.apache.hadoop.conf.Configuration());
 
+      // TODO: Replace REEFExecutor with a simple launch command (we only need to launch REEFExecutor)
       final LaunchCommandBuilder commandBuilder;
       switch (resourceLaunchProto.getType()) {
         case JVM:
@@ -114,10 +120,8 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
           .setMemory((int) (this.jvmHeapFactor * this.executors.getMemory(resourceLaunchProto.getIdentifier())))
           .build();
 
-      this.executors.launchEvaluator(resourceLaunchProto.getIdentifier(),
-          EvaluatorLaunchProto.newBuilder()
-              .setCommand(StringUtils.join(command, ' '))
-              .build());
+      this.executors.launchEvaluator(
+          new EvaluatorLaunch(resourceLaunchProto.getIdentifier(), StringUtils.join(command, ' ')));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

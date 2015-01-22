@@ -34,6 +34,9 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.wake.EStage;
+import org.apache.reef.wake.StageConfiguration;
+import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.time.Clock;
 
 /**
@@ -65,6 +68,11 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
+  /**
+   * Capacity for runnning Mesos Scheduler Driver
+   */
+  public static final RequiredParameter<Integer> SCHEDULER_DRIVER_CAPACITY = new RequiredParameter<>();
+
   public static ConfigurationModule CONF = new MesosDriverConfiguration()
       .bindImplementation(ResourceLaunchHandler.class, MesosResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, MesosResourceReleaseHandler.class)
@@ -76,6 +84,10 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(MesosMasterIp.class, MESOS_MASTER_IP)
       .bindConstructor(Configuration.class, HDFSConfigurationConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, MesosClasspathProvider.class)
+
+      .bindNamedParameter(StageConfiguration.Capacity.class, SCHEDULER_DRIVER_CAPACITY)
+      .bindNamedParameter(StageConfiguration.StageHandler.class, MesosSchedulerDriverExecutor.class)
+      .bindImplementation(EStage.class, SingleThreadStage.class)
 
           // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, JOB_IDENTIFIER)

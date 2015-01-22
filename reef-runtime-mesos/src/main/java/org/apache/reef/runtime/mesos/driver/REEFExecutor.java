@@ -18,8 +18,9 @@
  */
 package org.apache.reef.runtime.mesos.driver;
 
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorLaunchProto;
-import org.apache.reef.runtime.mesos.proto.ReefRuntimeMesosProtocol.EvaluatorReleaseProto;
+import org.apache.reef.runtime.mesos.util.EvaluatorControl;
+import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
+import org.apache.reef.runtime.mesos.util.EvaluatorRelease;
 import org.apache.reef.wake.EventHandler;
 
 /**
@@ -27,23 +28,20 @@ import org.apache.reef.wake.EventHandler;
  */
 final class REEFExecutor {
   private final int memory;
-  private final EventHandler<EvaluatorLaunchProto> evaluatorLaunchHandler;
-  private final EventHandler<EvaluatorReleaseProto> evaluatorReleaseHandler;
+  private final EventHandler<EvaluatorControl> evaluatorControlHandler;
 
   REEFExecutor(final int memory,
-               final EventHandler<EvaluatorLaunchProto> evaluatorLaunchHandler,
-               final EventHandler<EvaluatorReleaseProto> evaluatorReleaseHandler) {
+               final EventHandler<EvaluatorControl> evaluatorControlHandler) {
     this.memory = memory;
-    this.evaluatorLaunchHandler = evaluatorLaunchHandler;
-    this.evaluatorReleaseHandler = evaluatorReleaseHandler;
+    this.evaluatorControlHandler = evaluatorControlHandler;
   }
 
-  public void launchEvaluator(final EvaluatorLaunchProto evaluatorLaunchProto) {
-    this.evaluatorLaunchHandler.onNext(evaluatorLaunchProto);
+  public void launchEvaluator(final EvaluatorLaunch evaluatorLaunch) {
+    this.evaluatorControlHandler.onNext(new EvaluatorControl(evaluatorLaunch, null));
   }
 
-  public void releaseEvaluator(final EvaluatorReleaseProto evaluatorReleaseProto) {
-    this.evaluatorReleaseHandler.onNext(evaluatorReleaseProto);
+  public void releaseEvaluator(final EvaluatorRelease evaluatorRelease) {
+    this.evaluatorControlHandler.onNext(new EvaluatorControl(null, evaluatorRelease));
   }
 
   public int getMemory() {
