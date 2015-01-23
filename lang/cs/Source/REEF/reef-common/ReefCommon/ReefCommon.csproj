@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{545A0582-4105-44CE-B99C-B1379514A630}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Org.Apache.Reef.Common</RootNamespace>
+    <AssemblyName>Org.Apache.Reef.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\bin\Debug\Org.Apache.Reef.Common\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\bin\Release\Microsoft.Reef.Common\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Hadoop.Avro">
+      <HintPath>..\..\..\..\packages\Microsoft.Hadoop.Avro.1.4.0.0\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\..\..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\..\..\..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\..\..\..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="api\AbstractFailure.cs" />
+    <Compile Include="api\IAbstractFailure.cs" />
+    <Compile Include="api\IFailure.cs" />
+    <Compile Include="api\IResourceLaunchHandler.cs" />
+    <Compile Include="api\IResourceReleaseHandler.cs" />
+    <Compile Include="api\IResourceRequestHandler.cs" />
+    <Compile Include="avro\AvroDriverInfo.cs" />
+    <Compile Include="avro\AvroHttpRequest.cs" />
+    <Compile Include="avro\AvroHttpSerializer.cs" />
+    <Compile Include="avro\AvroJsonSerializer.cs" />
+    <Compile Include="avro\AvroReefServiceInfo.cs" />
+    <Compile Include="catalog\capabilities\CPU.cs" />
+    <Compile Include="catalog\capabilities\ICapability.cs" />
+    <Compile Include="catalog\capabilities\RAM.cs" />
+    <Compile Include="catalog\INodeDescriptor.cs" />
+    <Compile Include="catalog\IRackDescriptor.cs" />
+    <Compile Include="catalog\IResourceCatalog.cs" />
+    <Compile Include="catalog\NodeDescriptorImpl.cs" />
+    <Compile Include="catalog\RackDescriptorImpl.cs" />
+    <Compile Include="catalog\ResourceCatalogImpl.cs" />
+    <Compile Include="ClientJobStatusHandler.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="context\ContextMessage.cs" />
+    <Compile Include="context\IContextMessage.cs" />
+    <Compile Include="context\IContextMessageHandler.cs" />
+    <Compile Include="context\IContextMessageSource.cs" />
+    <Compile Include="EvaluatorHeartBeatSanityChecker.cs" />
+    <Compile Include="evaluator\DefaultLocalHttpDriverConnection.cs" />
+    <Compile Include="evaluator\DefaultYarnClusterHttpDriverConnection.cs" />
+    <Compile Include="evaluator\DefaultYarnOneBoxHttpDriverConnection.cs" />
+    <Compile Include="evaluator\DriverInformation.cs" />
+    <Compile Include="evaluator\EvaluatorOperationState.cs" />
+    <Compile Include="evaluator\EvaluatorRuntimeState.cs" />
+    <Compile Include="evaluator\EvaluatorType.cs" />
+    <Compile Include="evaluator\IDriverConnection.cs" />
+    <Compile Include="events\IContextStart.cs" />
+    <Compile Include="events\IContextStop.cs" />
+    <Compile Include="exceptions\EvaluatorException.cs" />
+    <Compile Include="exceptions\JobException.cs" />
+    <Compile Include="FailedRuntime.cs" />
+    <Compile Include="IContextAndTaskSubmittable.cs" />
+    <Compile Include="IContextSubmittable.cs" />
+    <Compile Include="IJobMessageObserver.cs" />
+    <Compile Include="io\INameClient.cs" />
+    <Compile Include="io\NameAssignment.cs" />
+    <Compile Include="io\NamingConfiguration.cs" />
+    <Compile Include="io\NamingConfigurationOptions.cs" />
+    <Compile Include="ITaskSubmittable.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="protobuf\cs\ClientRuntime.pb.cs" />
+    <Compile Include="protobuf\cs\codec\EvaluatorHeartbeatProtoCodec.cs" />
+    <Compile Include="protobuf\cs\codec\REEFMessageCodec.cs" />
+    <Compile Include="protobuf\cs\DriverRuntime.pb.cs" />
+    <Compile Include="protobuf\cs\EvaluatorRunTime.pb.cs" />
+    <Compile Include="protobuf\cs\ReefProtocol.pb.cs" />
+    <Compile Include="protobuf\cs\ReefService.pb.cs" />
+    <Compile Include="protobuf\cs\Serializer.cs" />
+    <Compile Include="runtime\evaluator\Constants.cs" />
+    <Compile Include="runtime\evaluator\context\ContextClientCodeException.cs" />
+    <Compile Include="runtime\evaluator\context\ContextConfiguration.cs" />
+    <Compile Include="runtime\evaluator\context\ContextLifeCycle.cs" />
+    <Compile Include="runtime\evaluator\context\ContextManager.cs" />
+    <Compile Include="runtime\evaluator\context\ContextRuntime.cs" />
+    <Compile Include="runtime\evaluator\context\ContextStartImpl.cs" />
+    <Compile Include="runtime\evaluator\context\ContextStopImpl.cs" />
+    <Compile Include="runtime\evaluator\context\RootContextLauncher.cs" />
+    <Compile Include="runtime\evaluator\EvaluatorRuntime.cs" />
+    <Compile Include="runtime\evaluator\EvaluatorSettings.cs" />
+    <Compile Include="runtime\evaluator\HeartBeatManager.cs" />
+    <Compile Include="runtime\evaluator\ReefMessageProtoObserver.cs" />
+    <Compile Include="runtime\evaluator\task\CloseEventImpl.cs" />
+    <Compile Include="runtime\evaluator\task\DriverMessageImpl.cs" />
+    <Compile Include="runtime\evaluator\task\SuspendEventImpl.cs" />
+    <Compile Include="runtime\evaluator\task\TaskClientCodeException.cs" />
+    <Compile Include="runtime\evaluator\task\TaskLifeCycle.cs" />
+    <Compile Include="runtime\evaluator\task\TaskRuntime.cs" />
+    <Compile Include="runtime\evaluator\task\TaskStartImpl.cs" />
+    <Compile Include="runtime\evaluator\task\TaskState.cs" />
+    <Compile Include="runtime\evaluator\task\TaskStatus.cs" />
+    <Compile Include="runtime\evaluator\task\TaskStopImpl.cs" />
+    <Compile Include="runtime\evaluator\utils\EvaluatorConfigurations.cs" />
+    <Compile Include="runtime\evaluator\utils\RemoteManager.cs" />
+    <Compile Include="runtime\MachineStatus.cs" />
+    <Compile Include="services\IService.cs" />
+    <Compile Include="services\ServiceConfiguration.cs" />
+    <Compile Include="services\ServicesConfigurationOptions.cs" />
+    <Compile Include="tasks\defaults\DefaultDriverMessageHandler.cs" />
+    <Compile Include="tasks\defaults\DefaultTaskMessageSource.cs" />
+    <Compile Include="tasks\events\ICloseEvent.cs" />
+    <Compile Include="tasks\events\IDriverMessage.cs" />
+    <Compile Include="tasks\events\ISuspendEvent.cs" />
+    <Compile Include="tasks\events\ITaskStart.cs" />
+    <Compile Include="tasks\events\ITaskStop.cs" />
+    <Compile Include="tasks\IDriverMessageHandler.cs" />
+    <Compile Include="tasks\IRunningTask.cs" />
+    <Compile Include="tasks\ITask.cs" />
+    <Compile Include="tasks\ITaskMessageSource.cs" />
+    <Compile Include="tasks\TaskConfiguration.cs" />
+    <Compile Include="tasks\TaskConfigurationOptions.cs" />
+    <Compile Include="tasks\TaskMessage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="protobuf\proto\client_runtime.proto" />
+    <None Include="protobuf\proto\driver_runtime.proto" />
+    <None Include="protobuf\proto\evaluator_runtime.proto" />
+    <None Include="protobuf\proto\reef_protocol.proto" />
+    <None Include="protobuf\proto\reef_service_protos.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="protobuf\tools\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Tang\Tang\Tang.csproj">
+      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
+      <Name>Tang</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Utilities\Utilities.csproj">
+      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\WAKE\Wake\Wake.csproj">
+      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
+      <Name>Wake</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

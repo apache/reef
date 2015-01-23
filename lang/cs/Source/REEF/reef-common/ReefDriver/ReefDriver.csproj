@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A6BAA2A7-F52F-4329-884E-1BCF711D6805}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Org.Apache.Reef.Driver</RootNamespace>
+    <AssemblyName>Org.Apache.Reef.Driver</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\bin\Debug\Org.Apache.Reef.Driver\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\bin\Release\Microsoft.Reef.Driver\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Hadoop.Avro">
+      <HintPath>..\..\..\..\packages\Microsoft.Hadoop.Avro.1.4.0.0\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\..\..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="bridge\BridgeLogger.cs" />
+    <Compile Include="bridge\clr2java\IActiveContextClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IAllocatedEvaluaotrClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IClosedContextClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IClr2Java.cs" />
+    <Compile Include="bridge\clr2java\ICompletedEvaluatorClr2Java.cs" />
+    <Compile Include="bridge\clr2java\ICompletedTaskClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IContextMessageClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IEvaluatorRequestorClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IFailedContextClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IFailedEvaluatorClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IFailedTaskClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IHttpServerBridgeClr2Java.cs" />
+    <Compile Include="bridge\clr2java\IRunningTaskClr2Java.cs" />
+    <Compile Include="bridge\clr2java\ISuspendedTaskClr2Java.cs" />
+    <Compile Include="bridge\clr2java\ITaskMessageClr2Java.cs" />
+    <Compile Include="bridge\ClrClientHelper.cs" />
+    <Compile Include="bridge\ClrHandlerHelper.cs" />
+    <Compile Include="bridge\ClrSystemHandler.cs" />
+    <Compile Include="bridge\ClrSystemHandlerWrapper.cs" />
+    <Compile Include="bridge\DriverBridge.cs" />
+    <Compile Include="bridge\DriverBridgeConfiguration.cs" />
+    <Compile Include="bridge\DriverBridgeConfigurationOptions.cs" />
+    <Compile Include="bridge\events\ActiveContext.cs" />
+    <Compile Include="bridge\events\AllocatedEvaluator.cs" />
+    <Compile Include="bridge\events\ClosedContext.cs" />
+    <Compile Include="bridge\events\CompletedEvaluator.cs" />
+    <Compile Include="bridge\events\CompletedTask.cs" />
+    <Compile Include="bridge\events\ContextMessage.cs" />
+    <Compile Include="bridge\events\EvaluatorRequstor.cs" />
+    <Compile Include="bridge\events\FailedContext.cs" />
+    <Compile Include="bridge\events\FailedEvaluator.cs" />
+    <Compile Include="bridge\events\FailedTask.cs" />
+    <Compile Include="bridge\events\RunningTask.cs" />
+    <Compile Include="bridge\events\SuspendedTask.cs" />
+    <Compile Include="bridge\events\TaskMessage.cs" />
+    <Compile Include="bridge\HttpMessage.cs" />
+    <Compile Include="bridge\HttpServerHandler.cs" />
+    <Compile Include="bridge\HttpServerPort.cs" />
+    <Compile Include="bridge\IHttpHandler.cs" />
+    <Compile Include="bridge\IHttpMessage.cs" />
+    <Compile Include="bridge\ReefHttpRequest.cs" />
+    <Compile Include="bridge\ReefHttpResponse.cs" />
+    <Compile Include="ClientManager.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="context\ContextConfiguration.cs" />
+    <Compile Include="context\ContextConfigurationOptions.cs" />
+    <Compile Include="context\defaults\DefaultContextMessageSource.cs" />
+    <Compile Include="context\defaults\DefaultContextStartHandler.cs" />
+    <Compile Include="context\defaults\DefaultContextStopHandler.cs" />
+    <Compile Include="context\EvaluatorContext.cs" />
+    <Compile Include="context\IActiveContext.cs" />
+    <Compile Include="context\IClosedContext.cs" />
+    <Compile Include="context\IContext.cs" />
+    <Compile Include="context\IFailedContext.cs" />
+    <Compile Include="contract\IBridgeContract.cs" />
+    <Compile Include="defaults\DefaultClientCloseHandler.cs" />
+    <Compile Include="defaults\DefaultClientCloseWithMessageHandler.cs" />
+    <Compile Include="defaults\DefaultClientMessageHandler.cs" />
+    <Compile Include="defaults\DefaultContextActiveHandler.cs" />
+    <Compile Include="defaults\DefaultContextClosureHandler.cs" />
+    <Compile Include="defaults\DefaultContextFailureHandler.cs" />
+    <Compile Include="defaults\DefaultContextMessageHandler.cs" />
+    <Compile Include="defaults\DefaultCustomTraceListener.cs" />
+    <Compile Include="defaults\DefaultDriverRestartContextActiveHandler.cs" />
+    <Compile Include="defaults\DefaultDriverRestartHandler.cs" />
+    <Compile Include="defaults\DefaultDriverRestartTaskRunningHandler.cs" />
+    <Compile Include="defaults\DefaultEvaluatorAllocationHandler.cs" />
+    <Compile Include="defaults\DefaultEvaluatorCompletionHandler.cs" />
+    <Compile Include="defaults\DefaultEvaluatorFailureHandler.cs" />
+    <Compile Include="defaults\DefaultEvaluatorRequestorHandler.cs" />
+    <Compile Include="defaults\DefaultHttpHandler.cs" />
+    <Compile Include="defaults\DefaultTaskCompletionHandler.cs" />
+    <Compile Include="defaults\DefaultTaskFailureHandler.cs" />
+    <Compile Include="defaults\DefaultTaskMessageHandler.cs" />
+    <Compile Include="defaults\DefaultTaskRunningHandler.cs" />
+    <Compile Include="defaults\DefaultTaskSuspensionHandler.cs" />
+    <Compile Include="DriverConfigGenerator.cs" />
+    <Compile Include="DriverConfigurationSettings.cs" />
+    <Compile Include="DriverManager.cs" />
+    <Compile Include="DriverRuntimeConfiguration.cs" />
+    <Compile Include="DriverRuntimeConfigurationOptions.cs" />
+    <Compile Include="DriverSubmissionSettings.cs" />
+    <Compile Include="EvaluatorManager.cs" />
+    <Compile Include="evaluator\EvaluatorDescriptorImpl.cs" />
+    <Compile Include="evaluator\EvaluatorRequest.cs" />
+    <Compile Include="evaluator\EvaluatorRequestBuilder.cs" />
+    <Compile Include="evaluator\IAllocatedEvaluator.cs" />
+    <Compile Include="evaluator\ICompletedEvaluator.cs" />
+    <Compile Include="evaluator\IEvaluatorDescriptor.cs" />
+    <Compile Include="evaluator\IEvaluatorRequest .cs" />
+    <Compile Include="evaluator\IEvaluatorRequestor.cs" />
+    <Compile Include="evaluator\IFailedEvaluator.cs" />
+    <Compile Include="FailedJob.cs" />
+    <Compile Include="IDriver.cs" />
+    <Compile Include="IStartHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="task\ICompletedTask.cs" />
+    <Compile Include="task\IFailedTask.cs" />
+    <Compile Include="task\IRunningTask.cs" />
+    <Compile Include="task\ISuspendedTask.cs" />
+    <Compile Include="task\ITaskMessage.cs" />
+    <Compile Include="task\RunningTaskImpl.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Tang\Tang\Tang.csproj">
+      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
+      <Name>Tang</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Utilities\Utilities.csproj">
+      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\WAKE\Wake\Wake.csproj">
+      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
+      <Name>Wake</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ReefCommon\ReefCommon.csproj">
+      <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
+      <Name>ReefCommon</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

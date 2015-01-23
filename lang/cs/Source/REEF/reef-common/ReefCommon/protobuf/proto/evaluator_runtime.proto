@@ -1,0 +1,74 @@
+
+option java_package = "org.apache.reef.proto";
+option java_outer_classname = "EvaluatorRuntimeProtocol";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+
+import "reef_service_protos.proto";
+
+// Stop the evaluator
+message StopEvaluatorProto {
+}
+
+// Kill the evaluator
+message KillEvaluatorProto {
+}
+
+// Start a task
+message StartTaskProto {
+    required string context_id = 1;
+    required string configuration = 2;
+}
+
+message AddContextProto {
+    required string parent_context_id = 1;
+    required string context_configuration = 2;
+    optional string service_configuration = 3;
+}
+
+message RemoveContextProto {
+    required string context_id = 1;
+}
+
+// Stop the task
+message StopTaskProto {
+}
+
+// Suspend the task
+message SuspendTaskProto {
+}
+
+/////////////////////////////////////////
+// Message aggregators
+
+message ContextMessageProto {
+    required string context_id = 1;
+    required bytes message = 2;
+}
+
+message ContextControlProto {
+    optional bytes task_message = 1;
+    optional ContextMessageProto context_message = 2;
+
+    optional AddContextProto    add_context    = 5;
+    optional RemoveContextProto remove_context = 6;
+    optional StartTaskProto     start_task     = 7;
+    optional StopTaskProto      stop_task      = 8;
+    optional SuspendTaskProto   suspend_task   = 9;
+}
+
+message EvaluatorHeartbeatProto {
+    required int64 timestamp = 1;
+    required EvaluatorStatusProto evaluator_status = 2;
+    repeated ContextStatusProto   context_status   = 3;
+    optional TaskStatusProto      task_status      = 4;
+    optional bool                 recovery         = 5;  
+}
+
+message EvaluatorControlProto {
+    required int64 timestamp = 1;
+    required string identifier = 2;
+
+    optional ContextControlProto context_control = 3;
+    optional KillEvaluatorProto kill_evaluator = 4;
+}

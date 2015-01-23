@@ -1,0 +1,26 @@
+import "client_runtime.proto";
+
+import "evaluator_runtime.proto";
+
+import "reef_service_protos.proto";
+
+
+option java_package = "com.Org.Apache.Reef.proto";
+
+option java_generic_services = true;
+
+option java_generate_equals_and_hash = true;
+
+option java_outer_classname = "REEFProtocol";
+
+message REEFMessage {
+    // Messages defined in client_runtime.proto
+    optional JobSubmissionProto jobSubmission = 1;
+    optional JobControlProto jobControl = 2;
+    // Messages defined in reef_service_protos.proto
+    optional RuntimeErrorProto runtimeError = 3;
+    optional JobStatusProto jobStatus = 4;
+    // Messages from evaluator_runtime.proto
+    optional EvaluatorControlProto evaluatorControl = 5;
+    optional EvaluatorHeartbeatProto evaluatorHeartBeat = 6;
+}

@@ -1,0 +1,38 @@
+option java_package = "org.apache.reef.proto";
+option java_outer_classname = "ClientRuntimeProtocol";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+
+import "reef_service_protos.proto";
+
+// Messages from REEF Client -> Driver Runtime
+
+message JobSubmissionProto {
+	required string identifier     = 1; // the job identifier
+	required string remote_id      = 2; // the remote identifier
+	required string configuration  = 5; // the runtime configuration
+	required string user_name      = 6; // the user name
+
+  optional SIZE   driver_size    = 7;
+  optional int32  driver_memory  = 8;
+  optional int32  priority       = 9;
+  optional string queue          = 10;
+
+	repeated FileResourceProto global_file = 11; // files that should be placed on the driver and all subsequent evaluators
+	repeated FileResourceProto local_File  = 12; // files that should be placed on the driver only
+
+}
+
+enum Signal {
+	SIG_TERMINATE = 1;
+	SIG_SUSPEND   = 2;
+	SIG_RESUME    = 3;
+}
+
+message JobControlProto {
+	required string identifier = 1;
+	optional Signal signal     = 2;
+	optional bytes message     = 3;
+}
+
+
