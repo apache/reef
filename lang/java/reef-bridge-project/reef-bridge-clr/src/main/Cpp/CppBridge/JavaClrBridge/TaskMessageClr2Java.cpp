@@ -18,41 +18,43 @@
  */
 #include "Clr2JavaImpl.h"
 
-namespace Microsoft {
-  namespace Reef {
-    namespace Driver {
-      namespace Bridge {
-        ref class ManagedLog {
-          internal:
-            static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
-        };
+namespace Org {
+  namespace Apache {
+		namespace Reef {
+			namespace Driver {
+				namespace Bridge {
+					ref class ManagedLog {
+						internal:
+							static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>");
+					};
 
-        TaskMessageClr2Java::TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage) {
-          ManagedLog::LOGGER->LogStart("TaskMessageClr2Java::TaskMessageClr2Java");
-          pin_ptr<JavaVM*> pJavaVm = &_jvm;
-          if (env->GetJavaVM(pJavaVm) != 0) {
-            ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
-          }
-          _jobjectTaskMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jtaskMessage));
+					TaskMessageClr2Java::TaskMessageClr2Java(JNIEnv *env, jobject jtaskMessage) {
+						ManagedLog::LOGGER->LogStart("TaskMessageClr2Java::TaskMessageClr2Java");
+						pin_ptr<JavaVM*> pJavaVm = &_jvm;
+						if (env->GetJavaVM(pJavaVm) != 0) {
+							ManagedLog::LOGGER->LogError("Failed to get JavaVM", nullptr);
+						}
+						_jobjectTaskMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jtaskMessage));
 
-          jclass jclassTaskMessage = env->GetObjectClass (_jobjectTaskMessage);
-          jfieldID jidTaskId = env->GetFieldID(jclassTaskMessage, "taskId", "Ljava/lang/String;");
-          _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectTaskMessage, jidTaskId)));
-          ManagedLog::LOGGER->LogStop("TaskMessageClr2Java::TaskMessageClr2Java");
-        }
+						jclass jclassTaskMessage = env->GetObjectClass (_jobjectTaskMessage);
+						jfieldID jidTaskId = env->GetFieldID(jclassTaskMessage, "taskId", "Ljava/lang/String;");
+						_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectTaskMessage, jidTaskId)));
+						ManagedLog::LOGGER->LogStop("TaskMessageClr2Java::TaskMessageClr2Java");
+					}
 
-        void TaskMessageClr2Java::OnError(String^ message) {
-          ManagedLog::LOGGER->Log("TaskMessageClr2Java::OnError");
-          JNIEnv *env = RetrieveEnv(_jvm);
-          HandleClr2JavaError(env, message, _jobjectTaskMessage);
-        }
+					void TaskMessageClr2Java::OnError(String^ message) {
+						ManagedLog::LOGGER->Log("TaskMessageClr2Java::OnError");
+						JNIEnv *env = RetrieveEnv(_jvm);
+						HandleClr2JavaError(env, message, _jobjectTaskMessage);
+					}
 
-        String^ TaskMessageClr2Java::GetId() {
-          ManagedLog::LOGGER->Log("TaskMessageClr2Java::GetId");
-          JNIEnv *env = RetrieveEnv(_jvm);
-          return ManagedStringFromJavaString(env, _jstringId);
-        }
-      }
-    }
+					String^ TaskMessageClr2Java::GetId() {
+						ManagedLog::LOGGER->Log("TaskMessageClr2Java::GetId");
+						JNIEnv *env = RetrieveEnv(_jvm);
+						return ManagedStringFromJavaString(env, _jstringId);
+					}
+				}
+			}
+		}
   }
 }
