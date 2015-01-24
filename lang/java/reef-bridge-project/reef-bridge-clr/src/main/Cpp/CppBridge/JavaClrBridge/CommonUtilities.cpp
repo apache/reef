@@ -18,34 +18,36 @@
  */
 #include "Clr2JavaImpl.h"
 
-namespace Microsoft {
-  namespace Reef {
-    namespace Driver {
-      namespace Bridge {
-        ref class ManagedLog {
-          internal:
-            static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>CommonUtilities");
-        };
+namespace Org {
+  namespace Apache {
+		namespace Reef {
+			namespace Driver {
+				namespace Bridge {
+					ref class ManagedLog {
+						internal:
+							static BridgeLogger^ LOGGER = BridgeLogger::GetLogger("<C++>CommonUtilities");
+					};
 
-        IEvaluatorDescriptor^ CommonUtilities::RetrieveEvaluatorDescriptor(jobject object, JavaVM* jvm) {
-          ManagedLog::LOGGER->LogStart("CommonUtilities::GetEvaluatorDescriptor");
-          JNIEnv *env = RetrieveEnv(jvm);
-          jclass jclassActiveContext = env->GetObjectClass (object);
-          jmethodID jmidGetEvaluatorDescriptor = env->GetMethodID(jclassActiveContext, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");
+					IEvaluatorDescriptor^ CommonUtilities::RetrieveEvaluatorDescriptor(jobject object, JavaVM* jvm) {
+						ManagedLog::LOGGER->LogStart("CommonUtilities::GetEvaluatorDescriptor");
+						JNIEnv *env = RetrieveEnv(jvm);
+						jclass jclassActiveContext = env->GetObjectClass (object);
+						jmethodID jmidGetEvaluatorDescriptor = env->GetMethodID(jclassActiveContext, "getEvaluatorDescriptorSring", "()Ljava/lang/String;");
 
-          if (jmidGetEvaluatorDescriptor == NULL) {
-            ManagedLog::LOGGER->Log("jmidGetEvaluatorDescriptor is NULL");
-            return nullptr;
-          }
-          jstring jevaluatorDescriptorString = (jstring)env -> CallObjectMethod(
-                                                 object,
-                                                 jmidGetEvaluatorDescriptor);
-          String^ evaluatorDescriptorString = ManagedStringFromJavaString(env, jevaluatorDescriptorString);
-          ManagedLog::LOGGER->LogStop("InteropUtil::GetEvaluatorDescriptor");
+						if (jmidGetEvaluatorDescriptor == NULL) {
+							ManagedLog::LOGGER->Log("jmidGetEvaluatorDescriptor is NULL");
+							return nullptr;
+						}
+						jstring jevaluatorDescriptorString = (jstring)env -> CallObjectMethod(
+																									 object,
+																									 jmidGetEvaluatorDescriptor);
+						String^ evaluatorDescriptorString = ManagedStringFromJavaString(env, jevaluatorDescriptorString);
+						ManagedLog::LOGGER->LogStop("InteropUtil::GetEvaluatorDescriptor");
 
-          return gcnew EvaluatorDescriptorImpl(evaluatorDescriptorString);
-        }
-      }
-    }
+						return gcnew EvaluatorDescriptorImpl(evaluatorDescriptorString);
+					}
+				}
+			}
+		}
   }
 }

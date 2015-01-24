@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(CLRLaunchCommandBuilder.class.getName());
-  private static final String EVALUATOR_PATH = "reef/global/Microsoft.Reef.Evaluator.exe";
+  private static final String EVALUATOR_PATH = "reef/global/Org.Apache.Reef.Evaluator.exe";
 
 
   private String standardErrPath = null;

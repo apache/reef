@@ -61,8 +61,6 @@ namespace Microsoft {
           fwprintf (stdout, formatBuf);
           fflush (stdout);
         }
-
-
       }
 
       void InteropReturnInfo::AddExceptionString(String^ exceptionString) {
@@ -85,7 +83,6 @@ namespace Microsoft {
         jobject obj = _env->CallObjectMethod(_jobjectInteropReturnInfo, _jmidgetReturnCode);
         return (int)obj;
       }
-
     }
   }
 }

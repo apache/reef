@@ -37,17 +37,20 @@ import java.util.Set;
  */
 public class ClassHierarchyDeserializationTest {
 
+  /**
+   * generate task.bin from running .Net ClassHierarchyBuilder.exe
+   */
   @Test
   public void testDeserializationForTasks() {
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin); // A
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-      Node n1 = ch.getNode("Microsoft.Reef.Tasks.StreamTask1, Microsoft.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
-      Assert.assertTrue(n1.getFullName().equals("Microsoft.Reef.Tasks.StreamTask1, Microsoft.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
+      Node n1 = ch.getNode("Org.Apache.Reef.Tasks.StreamTask1, Org.Apache.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+      Assert.assertTrue(n1.getFullName().equals("Org.Apache.Reef.Tasks.StreamTask1, Org.Apache.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 
-      Node n2 = ch.getNode("Microsoft.Reef.Tasks.HelloTask, Microsoft.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
-      Assert.assertTrue(n2.getFullName().equals("Microsoft.Reef.Tasks.HelloTask, Microsoft.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
+      Node n2 = ch.getNode("Org.Apache.Reef.Tasks.HelloTask, Org.Apache.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+      Assert.assertTrue(n2.getFullName().equals("Org.Apache.Reef.Tasks.HelloTask, Org.Apache.Reef.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 
       final ConfigurationBuilder taskConfigurationBuilder1 = Tang.Factory.getTang()
           .newConfigurationBuilder(ch);
@@ -63,6 +66,9 @@ public class ClassHierarchyDeserializationTest {
     }
   }
 
+  /**
+   * generate event.bin from .Net Tang test case TestSerilization.TestGenericClass
+   */
   @Test
   public void testDeserializationForEvent() {
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
