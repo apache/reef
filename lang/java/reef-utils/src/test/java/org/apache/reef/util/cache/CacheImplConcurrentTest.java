@@ -30,6 +30,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Test concurrent access of CacheImpl
+ */
 public final class CacheImplConcurrentTest {
 
   private Cache<String, Integer> cache;
@@ -43,6 +46,11 @@ public final class CacheImplConcurrentTest {
     cache = new CacheImpl<>(currentTime, timeoutMillis);
   }
 
+  /**
+   * Test that the value computed on a get is returned for that key
+   * on the first and subsequent concurrent calls.
+   * In particular, for this test the first call takes awhile to compute.
+   */
   @Test
   public void testGetReturnsFirstValue() throws ExecutionException, InterruptedException {
     final String key = "testGetReturnsFirstValue";
@@ -83,17 +91,24 @@ public final class CacheImplConcurrentTest {
     }
 
     es.shutdown();
-    assertTrue(es.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS));
+    assertTrue("Tasks should finish before timeout", es.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS));
   }
 
+  /**
+   * Test that the same value computed on a get is returned for that key
+   * on all concurrent calls.
+   * In particular, for this test each thread would have computed a distinct value,
+   * but only one thread "comes first" and all other threads return this value.
+   */
   @Test
   public void testGetReturnsSameValue() throws InterruptedException {
     final String key = "testGetReturnsSameValue";
     final int[] values = new int[numConcurrentCalls];
     final int[] getValues = new int[numConcurrentCalls];
+    final int nullValue = -1;
     for (int i = 0; i < numConcurrentCalls; i++) {
       values[i] = i;
-      getValues[i] = -1;
+      getValues[i] = nullValue;
     }
 
     final ExecutorService es = Executors.newFixedThreadPool(numConcurrentCalls);
@@ -113,16 +128,23 @@ public final class CacheImplConcurrentTest {
     }
 
     es.shutdown();
-    assertTrue(es.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS));
+    assertTrue("Tasks should finish before timeout", es.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS));
 
-    assertNotEquals(-1, getValues[0]);
+    assertNotEquals("The value should be set", nullValue, getValues[0]);
     for (int i = 1; i < numConcurrentCalls; i++) {
       assertEquals(getValues[i-1], getValues[i]);
     }
   }
 
+  /**
+   * Test that all gets called before an invalidate returns the same value, and all
+   * gets called after the invalidate returns a newly computed value.
+   * In particular, for this test the computation for the initial get is still
+   * running while the subsequent gets and invalidate are called.
+   */
   @Test
-  public void testInvalidateDuringCallableExecution() throws ExecutionException, InterruptedException {    final String key = "testGet";
+  public void testInvalidateDuringCallableExecution() throws ExecutionException, InterruptedException {
+    final String key = "testGet";
     final int firstValue = 20;
     final int secondValue = 40;
 
@@ -143,8 +165,11 @@ public final class CacheImplConcurrentTest {
 
     Thread.sleep(500);
 
-    final int indexToInvalidateOn = numConcurrentCalls / 2;
-    for (int i = 1; i < numConcurrentCalls; i++) {
+    // In this test, the calls are sequential, but we still run the same number of calls
+    final int numSequentialCalls = numConcurrentCalls;
+
+    final int indexToInvalidateOn = numSequentialCalls / 2;
+    for (int i = 1; i < numSequentialCalls; i++) {
       final int index = i;
       if (index == indexToInvalidateOn) {
         cache.invalidate(key);
@@ -168,44 +193,6 @@ public final class CacheImplConcurrentTest {
     }
 
     es.shutdown();
-    assertTrue(es.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS));
-  }
-
-  @Test
-  public void testExpireOnGetSameKey() throws ExecutionException, InterruptedException {
-    final String key = "testExpireOnGetSameKey";
-    final int firstValue = 20;
-    final int secondValue = 40;
-
-    final int getFirstValue = cache.get(key, new ImmediateInteger(firstValue));
-    assertEquals(firstValue, getFirstValue);
-
-    // Sleep enough to trigger timeout
-    Thread.sleep(timeoutMillis + timeoutMillis/2);
-
-    // The next cached value should be retrieved after timeout
-    final int getSecondValue = cache.get(key, new ImmediateInteger(secondValue));
-    assertEquals(secondValue, getSecondValue);
-  }
-
-  @Test
-  public void testExpireOnGetDifferentKey() throws ExecutionException, InterruptedException {
-    final String key = "testExpireOnGetDifferentKey";
-    final String differentKey = "differentKey";
-    final int firstValue = 20;
-    final int secondValue = 40;
-
-    final int getFirstValue = cache.get(key, new ImmediateInteger(firstValue));
-    assertEquals(firstValue, getFirstValue);
-
-    // Sleep enough to trigger timeout
-    Thread.sleep(timeoutMillis + timeoutMillis/2);
-
-    final int getDifferentValue = cache.get(differentKey, new ImmediateInteger(firstValue));
-    assertEquals(firstValue, getDifferentValue);
-
-    // The next cached value should be retrieved after timeout
-    final int getSecondValue = cache.get(key, new ImmediateInteger(secondValue));
-    assertEquals(secondValue, getSecondValue);
+    assertTrue("Tasks should finish before timeout", es.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS));
   }
 }
