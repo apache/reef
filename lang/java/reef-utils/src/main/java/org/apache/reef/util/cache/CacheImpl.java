@@ -32,8 +32,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Entries that have expired are collected and invalidated on get calls.
  * This obviates the need for a separate thread to invalidate expired entries, at
  * the cost of some increase in get call latency.
- * The invalidation sweep is only initiated after a check interval has passed,
- * and at most one invalidation sweep is run at a time.
+ * The invalidation sweep is only initiated after an interval (expireCheckInterval)
+ * has passed, and at most one invalidation sweep is run at a time.
+ *
+ * Operations on a single key are linearizable. The argument is:
+ * 1. The putIfAbsent call in get guarantees that loadAndGet is called exactly once
+ *    for a WrappedValue instance that is put into the map: All putIfAbsent calls
+ *    that return the WrappedValue instance will return the value loaded by loadAndGet.
+ * 2. Concurrent putIfAbsent and remove calls on a key have an ordering: if putIfAbsent
+ *    returns null then it happened after the remove (and a new value will be loaded);
+ *    else if it returns non-null then it happened before the remove
+ *    (and the previous value will be returned).
  */
 public final class CacheImpl<K, V> implements Cache<K, V> {
   private final ConcurrentMap<K, WrappedValue<V>> internalMap;
