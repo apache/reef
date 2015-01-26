@@ -18,31 +18,29 @@
  */
 package org.apache.reef.io.network.naming;
 
-import com.google.common.cache.CacheBuilder;
-import org.apache.reef.io.network.Cache;
+import org.apache.reef.util.cache.Cache;
+import org.apache.reef.util.cache.CacheImpl;
+import org.apache.reef.util.cache.SystemTime;
 import org.apache.reef.wake.Identifier;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Naming cache implementation
  */
 public class NameCache implements Cache<Identifier, InetSocketAddress> {
 
-  private final com.google.common.cache.Cache<Identifier, InetSocketAddress> cache;
+  private final Cache<Identifier, InetSocketAddress> cache;
 
   /**
    * Constructs a naming cache
    *
-   * @param timeout a cache entry timeout after access
+   * @param timeout a cache entry timeout after write
    */
   public NameCache(long timeout) {
-    cache = CacheBuilder.newBuilder()
-        .expireAfterWrite(timeout, TimeUnit.MILLISECONDS)
-        .build();
+    cache = new CacheImpl<>(new SystemTime(), timeout);
   }
 
   /**
