@@ -597,25 +597,25 @@ under the License.
     </dependencyManagement>
 
     <modules>
-        <module>reef-annotations</module>
-        <module>reef-bridge-project</module>
-        <module>reef-checkpoint</module>
-        <module>reef-common</module>
-        <module>reef-examples</module>
-        <module>reef-examples-clr</module>
-        <module>reef-examples-hdinsight</module>
-        <module>reef-io</module>
-        <module>reef-poison</module>
-        <module>reef-runtime-hdinsight</module>
-        <module>reef-runtime-local</module>
-        <module>reef-runtime-yarn</module>
-        <module>reef-runtime-mesos</module>
-        <module>reef-tang</module>
-        <module>reef-tests</module>
-        <module>reef-wake</module>
-        <module>reef-webserver</module>
-        <module>reef-utils-hadoop</module>
-        <module>reef-utils</module>
+        <module>lang/java/reef-annotations</module>
+        <module>lang/java/reef-bridge-project</module>
+        <module>lang/java/reef-checkpoint</module>
+        <module>lang/java/reef-common</module>
+        <module>lang/java/reef-examples</module>
+        <module>lang/java/reef-examples-clr</module>
+        <module>lang/java/reef-examples-hdinsight</module>
+        <module>lang/java/reef-io</module>
+        <module>lang/java/reef-poison</module>
+        <module>lang/java/reef-runtime-hdinsight</module>
+        <module>lang/java/reef-runtime-local</module>
+        <module>lang/java/reef-runtime-yarn</module>
+        <module>lang/java/reef-runtime-mesos</module>
+        <module>lang/java/reef-tang</module>
+        <module>lang/java/reef-tests</module>
+        <module>lang/java/reef-wake</module>
+        <module>lang/java/reef-webserver</module>
+        <module>lang/java/reef-utils-hadoop</module>
+        <module>lang/java/reef-utils</module>
     </modules>
 
     <profiles>
@@ -648,7 +648,7 @@ under the License.
                 </os>
             </activation>
             <modules>
-                <module>reef-bridge-project</module>
+                <module>lang/java/reef-bridge-project</module>
             </modules>
 
         </profile>
