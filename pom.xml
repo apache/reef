@@ -235,11 +235,26 @@ under the License.
                             <exclude>.gitattributes</exclude>
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
-                            <exclude>.idea/**</exclude>
-                            <exclude>target/**</exclude>
+                            <exclude>lang/java/.idea/**</exclude>
+                            <exclude>**/target/**</exclude>
                             <exclude>README.*</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
+                            <!-- The below are .Net exclusion -->
+                            <exclude>lang/cs/bin/**</exclude>
+                            <exclude>lang/cs/packages/**</exclude>
+			    <exclude>lang/cs/.nuget/**</exclude>
+			    <exclude>lang/cs/*.sln</exclude>
+			    <exclude>**/obj/**</exclude>
+			    <exclude>**/packages.config</exclude>
+			    <exclude>**/protobuf/**</exclude>
+			    <exclude>**/avro/**</exclude>
+			    <exclude>**/*.csproj.user</exclude>
+			    <exclude>**/*.csproj</exclude>
+			    <exclude>**/*.conf</exclude>
+			    <exclude>**/*.csv</exclude>
+			    <exclude>**/*.bin</exclude>
+			    <exclude>**/*.iml</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
