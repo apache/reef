@@ -240,21 +240,20 @@ under the License.
                             <exclude>README.*</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
-                            <!-- The below are .Net exclusion -->
+                            <!-- The below are auto generated during the .Net build -->
                             <exclude>lang/cs/bin/**</exclude>
                             <exclude>lang/cs/packages/**</exclude>
-			    <exclude>lang/cs/.nuget/**</exclude>
-			    <exclude>lang/cs/*.sln</exclude>
 			    <exclude>**/obj/**</exclude>
-			    <exclude>**/packages.config</exclude>
-			    <exclude>**/protobuf/**</exclude>
-			    <exclude>**/avro/**</exclude>
 			    <exclude>**/*.csproj.user</exclude>
-			    <exclude>**/*.csproj</exclude>
-			    <exclude>**/*.conf</exclude>
-			    <exclude>**/*.csv</exclude>
-			    <exclude>**/*.bin</exclude>
-			    <exclude>**/*.iml</exclude>
+			    <!-- The below are auto generated files for serialization -->
+			    <exclude>**/protobuf/cs/*.pb.cs</exclude>
+			    <exclude>**/avro/**</exclude>
+			    <!-- The below are binary data files used in tests -->
+			    <exclude>lang/cs/Tests/ReefTests/ConfigFiles/evaluator.conf</exclude>
+			    <exclude>lang/cs/Tests/ReefTests/data/mouseData.csv</exclude>
+			    <exclude>lang/cs/Tests/ReefTests/data/mouseData_small.csv</exclude>
+			    <exclude>lang/cs/Tests/TangTests/evaluator.conf</exclude>
+			    <exclude> lang/cs/Tests/TangTests/simpleConstructorJavaProto.bin</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
