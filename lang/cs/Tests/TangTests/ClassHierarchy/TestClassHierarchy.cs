@@ -17,8 +17,7 @@
  * under the License.
  */
 
-using System;
-﻿using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.Reef.Tang.Annotations;
 using Org.Apache.Reef.Tang.Examples;
 using Org.Apache.Reef.Tang.Exceptions;
@@ -26,8 +25,8 @@ using Org.Apache.Reef.Tang.Implementations;
 using Org.Apache.Reef.Tang.Interface;
 using Org.Apache.Reef.Tang.Types;
 using Org.Apache.Reef.Tang.Util;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.Reef.Tang.Examples;
+using System;
+using System.Collections.Generic;
 
 namespace Org.Apache.Reef.Tang.Test.ClassHierarchy
 {

@@ -17,16 +17,15 @@
  * under the License.
  */
 
-using System;
-using System.Reflection;
-using Org.Apache.Reef.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.Reef.Tang.Annotations;
 using Org.Apache.Reef.Tang.Examples;
 using Org.Apache.Reef.Tang.Implementations;
 using Org.Apache.Reef.Tang.Interface;
 using Org.Apache.Reef.Tang.Util;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.Reef.Tang.Examples;
+using Org.Apache.Reef.Tasks;
+using System;
+using System.Reflection;
 
 namespace Org.Apache.Reef.Tang.Test.Injection
 {
