@@ -235,11 +235,23 @@ under the License.
                             <exclude>.gitattributes</exclude>
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
-                            <exclude>.idea/**</exclude>
-                            <exclude>target/**</exclude>
+                            <exclude>lang/java/.idea/**</exclude>
+                            <exclude>**/target/**</exclude>
                             <exclude>README.*</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
+                            <!-- The below are auto generated during the .Net build -->
+                            <exclude>lang/cs/bin/**</exclude>
+                            <exclude>lang/cs/packages/**</exclude>
+                            <exclude>**/obj/**</exclude>
+                            <exclude>**/*.csproj.user</exclude>
+                            <!-- The below are auto generated files for serialization -->
+                            <exclude>**/protobuf/cs/*.pb.cs</exclude>
+                            <exclude>**/avro/**</exclude>
+                            <!-- The below are binary data files used in tests -->
+                            <exclude>lang/cs/Tests/ReefTests/ConfigFiles/evaluator.conf</exclude>
+                            <exclude>lang/cs/Tests/TangTests/evaluator.conf</exclude>
+                            <exclude>lang/cs/Tests/TangTests/simpleConstructorJavaProto.bin</exclude>
                         </excludes>
                     </configuration>
                 </plugin>

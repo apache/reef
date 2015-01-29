@@ -1,0 +1,10 @@
+bin
+!Tests/ReefTests/bin/
+packages
+TestResults
+**/*.exe
+**/*.suo
+**/*.csproj.user
+**/obj
+
+
