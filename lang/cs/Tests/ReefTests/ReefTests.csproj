@@ -109,20 +109,8 @@ under the License.
     <Compile Include="Functional.Tests\Messaging\MessageDriver.cs" />
     <Compile Include="Functional.Tests\Messaging\MessageTask.cs" />
     <Compile Include="Functional.Tests\Messaging\TestTaskMessage.cs" />
-    <Compile Include="Functional.Tests\ML\KMeans\TestKMeans.cs" />
-    <Compile Include="Functional.Tests\MPI\BroadcastReduceTest\BroadcastReduceDriver.cs" />
-    <Compile Include="Functional.Tests\MPI\BroadcastReduceTest\BroadcastReduceTest.cs" />
-    <Compile Include="Functional.Tests\MPI\BroadcastReduceTest\MasterTask.cs" />
-    <Compile Include="Functional.Tests\MPI\BroadcastReduceTest\SlaveTask.cs" />
-    <Compile Include="Functional.Tests\MPI\MpiTestConfig.cs" />
-    <Compile Include="Functional.Tests\MPI\MpiTestConstants.cs" />
-    <Compile Include="Functional.Tests\MPI\ScatterReduceTest\MasterTask.cs" />
-    <Compile Include="Functional.Tests\MPI\ScatterReduceTest\ScatterReduceDriver.cs" />
-    <Compile Include="Functional.Tests\MPI\ScatterReduceTest\ScatterReduceTest.cs" />
-    <Compile Include="Functional.Tests\MPI\ScatterReduceTest\SlaveTask.cs" />
     <Compile Include="Functional.Tests\ReefFunctionalTest.cs" />
     <Compile Include="IO.Tests\BlockingCollectionExtensionTests.cs" />
-    <Compile Include="IO.Tests\MpiTests.cs" />
     <Compile Include="IO.Tests\NameServerTests.cs" />
     <Compile Include="IO.Tests\NetworkServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -136,12 +124,6 @@ under the License.
     <None Include="ConfigFiles\evaluator.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="data\mouseData.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\mouseData_small.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -152,14 +134,6 @@ under the License.
     <ProjectReference Include="..\..\Source\REEF\reef-applications\Evaluator\Evaluator.csproj">
       <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
       <Name>Evaluator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\REEF\reef-applications\ML\MLHandlers\MLHandlers.csproj">
-      <Project>{173472a3-023a-4485-8a2f-2aa1baa3f960}</Project>
-      <Name>MLHandlers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\REEF\reef-applications\ML\MLTasks\MLTasks.csproj">
-      <Project>{9fd257a5-7fed-494f-906a-a6030f44ab7c}</Project>
-      <Name>MLTasks</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\REEF\reef-common\ReefCommon\ReefCommon.csproj">
       <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
