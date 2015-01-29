@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Common build paths --> 
+  <PropertyGroup>
+    <BinDir Condition="$(BinDir) == '' Or $(BinDir) == '*Undefined*'">$(SolutionDir)\bin</BinDir>
+    <SourceDir Condition="$(SourceDir) == '' Or $(SourceDir) == '*Undefined*'">$(SolutionDir)\Source</SourceDir>
+    <PackagesDir Condition="$(PackagesDir) == '' Or $(PackagesDir) == '*Undefined*'">$(SolutionDir)\packages</PackagesDir>
+  </PropertyGroup>
+
+  <!-- Package versions -->
+  <PropertyGroup>
+    <AvroVersion>1.4.0.0</AvroVersion> 
+    <NewtonsoftJsonVersion>6.0.8</NewtonsoftJsonVersion> 
+    <ProtobufVersion>2.0.0.668</ProtobufVersion> 
+    <RxVersion>2.2.5</RxVersion> 
+  </PropertyGroup>
+</Project>
+
