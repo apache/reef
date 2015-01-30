@@ -235,7 +235,9 @@ under the License.
                             <exclude>.gitattributes</exclude>
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
-                            <exclude>lang/java/.idea/**</exclude>
+                            <!-- Intellij idea project files -->
+                            <exclude>lang/java/.idea/**</exclude>                            
+                            <exclude>**/*.iml</exclude>
                             <exclude>**/target/**</exclude>
                             <exclude>README.*</exclude>
                             <!-- The below are sometimes created during tests -->
