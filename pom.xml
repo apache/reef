@@ -613,7 +613,9 @@ under the License.
 
     <modules>
         <module>lang/java/reef-annotations</module>
-        <module>lang/java/reef-bridge-project</module>
+        <module>lang/java/reef-bridge-java</module>
+        <module>lang/cpp/reef-bridge-clr</module>
+        <module>lang/reef-bridge</module>
         <module>lang/java/reef-checkpoint</module>
         <module>lang/java/reef-common</module>
         <module>lang/java/reef-examples</module>
@@ -663,7 +665,7 @@ under the License.
                 </os>
             </activation>
             <modules>
-                <module>lang/java/reef-bridge-project</module>
+                <module>lang/reef-bridge</module>
             </modules>
 
         </profile>
