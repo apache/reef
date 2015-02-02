@@ -243,20 +243,22 @@ under the License.
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <!-- The Visual Studio build files -->
-                            <exclude>lang/cs/ReefDotNet.sln</exclude>
+                            <exclude>*.sln</exclude>
                             <exclude>**/*.csproj.user</exclude>
                             <!-- The below are auto generated during the .Net build -->                            
-                            <exclude>lang/cs/bin/**</exclude>
+                            <exclude>**/bin/**</exclude>
                             <exclude>**/obj/**</exclude>
+                            <exclude>**/Release/**</exclude>
+                            <exclude>**/Debug/**</exclude>
                             <!-- NuGet dependencies downloaded as part of the build -->
-                            <exclude>lang/cs/packages/**</exclude>
+                            <exclude>**/packages/**</exclude>
                             <!-- The below are auto generated files for serialization -->
-                            <exclude>lang/cs/Source/REEF/reef-common/ReefCommon/protobuf/cs/*</exclude>
-                            <exclude>lang/cs/Source/REEF/reef-common/ReefCommon/avro/*</exclude>
+                            <exclude>**/ReefCommon/protobuf/cs/*</exclude>
+                            <exclude>**/ReefCommon/avro/*</exclude>
                             <!-- The below are binary data files used in tests -->
-                            <exclude>lang/cs/Tests/ReefTests/ConfigFiles/evaluator.conf</exclude>
-                            <exclude>lang/cs/Tests/TangTests/evaluator.conf</exclude>
-                            <exclude>lang/cs/Tests/TangTests/simpleConstructorJavaProto.bin</exclude>
+                            <exclude>**/ConfigFiles/evaluator.conf</exclude>
+                            <exclude>**/TangTests/evaluator.conf</exclude>
+                            <exclude>**/TangTests/simpleConstructorJavaProto.bin</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -614,6 +616,7 @@ under the License.
     </dependencyManagement>
 
     <modules>
+        <module>lang/cs</module>
         <module>lang/java/reef-annotations</module>
         <module>lang/java/reef-bridge-java</module>
         <module>lang/cpp/reef-bridge-clr</module>
