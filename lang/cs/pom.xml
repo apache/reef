@@ -20,85 +20,21 @@ under the License.
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>reef-bridge-clr</artifactId>
-    <name>REEF Bridge CLR</name>
-    <description>Bridge between JVM and CLR.</description>
-
-
+    <artifactId>reef-dotnet</artifactId>
+    <name>REEF Dot Net</name>
+    <description>Reef Dot Net</description>
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
         <version>0.11.0-incubating-SNAPSHOT</version>
-        <relativePath>../../..</relativePath>
+        <relativePath>../..</relativePath>
     </parent>
-
-
-    <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-runtime-local</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-runtime-yarn</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-io</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-checkpoint</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-dotnet</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>reef-bridge-java</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <!-- Build files are frequently overwritten by Visual Studio -->
-                        <exclude>src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln</exclude>
-                        <exclude>src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.vcxproj</exclude>
-                        <exclude>src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.vcxproj.filters</exclude>
-                        <exclude>src/main/CSharp/CSharp/ClrHandler/ClrHandler.csproj</exclude>
-                        <!--End of Visual Studio build files-->
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
     <profiles>
         <profile>
-            <id>Bridge</id>
+            <id>DotNet</id>
             <build>
                 <plugins>
-                    <plugin>
+                   <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
@@ -111,7 +47,7 @@ under the License.
                                 <configuration>
                                     <arguments>
                                         <argument>
-                                            ${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln
+                                           ${project.basedir}/ReefDotNet.sln
                                         </argument>
                                         <argument>/p:Configuration="Release"</argument>
                                         <argument>/p:Platform="x64"</argument>
@@ -128,7 +64,7 @@ under the License.
                                 <configuration>
                                     <arguments>
                                         <argument>
-                                            ${project.basedir}/src/main/Cpp/CppBridge/JavaClrBridge/JavaClrBridge.sln
+                                            ${project.basedir}/ReefDotNet.sln
                                         </argument>
                                         <argument>/p:Configuration="Release"</argument>
                                         <argument>/p:Platform="x64"</argument>
@@ -141,22 +77,21 @@ under the License.
                         </executions>
                     </plugin>
                     <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
                         <executions>
                             <execution>
-                                <id>copy-external-dlls</id>
-                                <phase>process-resources</phase>
+                                <id>copy-driver-files</id>
+                                <phase>compile</phase>
                                 <goals>
-                                    <goal>copy-resources</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <overwrite>true</overwrite>
-                                    <outputDirectory>${basedir}/target/classes</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>src/main/CSharp/CSharp/ClrHandler/externals</directory>
-                                        </resource>
-                                    </resources>
+                                    <target name="copy driver dll file to class cpp project">
+                                        <copy file="${project.basedir}/bin/x64/Release/Org.Apache.Reef.Driver/Org.Apache.Reef.Driver.dll" tofile="${basedir}\target\classes\Org.Apache.Reef.Driver.dll" />
+                                        <copy file="${project.basedir}/bin/x64/Release/Org.Apache.Reef.Driver/Org.Apache.Reef.Driver.dll" tofile="../cpp/reef-bridge-clr/src/main/CSharp/CSharp/ClrHandler/externals/Org.Apache.Reef.Driver.dll" />
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
