@@ -239,7 +239,7 @@ under the License.
                             <exclude>lang/java/.idea/**</exclude>                            
                             <exclude>**/*.iml</exclude>
                             <exclude>**/target/**</exclude>
-                            <exclude>README.*</exclude>
+			    <exclude>**/README.*</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <!-- The Visual Studio build files -->
