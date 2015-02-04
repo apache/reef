@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<project name="Apache REEF" xmlns="http://maven.apache.org/DECORATION/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.3.1</version>
+
+    </skin>
+    <custom>
+        
+        
+        <fluidoSkin>
+			<breadcrumbDivider>|</breadcrumbDivider>
+            <topBarEnabled>true</topBarEnabled>
+			<!-- Should always add up to 12 -->
+		    <leftColumnClass>span2</leftColumnClass>
+		    <bodyColumnClass>span10</bodyColumnClass>
+			
+            <sideBarEnabled>true</sideBarEnabled>
+      		<!-- Makes the top bar color = black
+      			<navBarStyle>navbar-inverse</navBarStyle>
+      		 -->
+      		 
+        </fluidoSkin>
+    </custom>
+    
+  <bannerLeft>
+    <src>REEFLogo.png</src>
+    <href></href>
+  </bannerLeft>
+  <bannerRight>
+    <src>ApacheIncubator.png</src>
+    <href>http://incubator.apache.org/</href>
+  </bannerRight>
+  
+  <version position="none"/>
+  <publishDate position="none"/>
+  
+    <body>   
+	    <breadcrumbs>
+	      <item name="Apache REEF" href="index.html"/>
+	    </breadcrumbs>
+        <links>
+            <item name="Apache REEF GitHub" href="https://github.com/apache/incubator-reef"/>
+	        <item name="Apache" href="http://www.apache.org"/>
+	        <item name="Apache Incubator" href="http://incubator.apache.org/"/>
+        </links>
+        <menu name="Apache REEF">
+            <item name="Overview" href="index.html"/>
+            <item name="FAQ" href="faq.html"/>
+            <item name="License" href="license.html"/>
+            <item name="Downloads" href="downloads.html"/>
+            <item name="0.10.0-incubating API" href="apidocs/0.10.0-incubating/index.html"/>
+        </menu>
+
+        <menu name="Documentation">
+            <item name="Introduction to REEF" href="introduction.html"/>
+            <item name="REEF Tutorial" href="tutorial.html"/>
+            <item name="Further REEF Examples" href="reef-examples.html"/>
+            <item name="Glossary" href="glossary.html"/>
+            <item name="Tang" href="tang.html"/>
+            <item name="Wake" href="wake.html"/>
+        </menu>
+        <menu name="Contribution">
+            <item name="Contributing" href="contributing.html"/>
+            <item name="Committer Guide" href="committer-guide.html"/>
+            <item name="Coding Guidelines" href="coding-guideline.html"/>
+        </menu>
+        <menu name="Community">
+            <item name="Team" href="team.html"/>
+            <item name="Mailing List" href="mailing-list.html"/>
+            <item name="Issue Tracker" href="issue-tracker.html"/>
+            <item name="Powered By" href="powered-by.html"/>
+        </menu>
+        <menu name="ASF">
+            <item name="Apache Software Foundation" href="http://www.apache.org/foundation/"/>
+            <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works.html"/>
+            <item name="Apache Incubator" href="http://incubator.apache.org/"/>
+            <item name="Apache License" href="http://www.apache.org/licenses/LICENSE-2.0.html"/>
+            <item name="Sponsorship" href="http://www.apache.org/foundation/sponsorship.html"/>
+            <item name="Thanks" href="http://www.apache.org/foundation/thanks.html"/>
+        </menu>
+		<footer>
+			<div class="container-fluid">
+				<div class="row-fluid">
+				        <a href="http://www.apache.org">Apache Software Foundation</a>.
+						All Rights Reserved.
+				</div>
+			</div>
+
+			<div class="row span12">
+				    Apache REEF, REEF, Apache, the Apache feather logo, and the Apache REEF logo are trademarks
+		        of The Apache Software Foundation. All other marks mentioned may be trademarks or registered
+		        trademarks of their respective owners.
+	        </div>
+        </footer>                
+        <!-- 
+        	this command gives a bunch of information about the Maven site creation project
+        	<menu ref="reports"/> 
+        -->
+    </body>
+</project>
