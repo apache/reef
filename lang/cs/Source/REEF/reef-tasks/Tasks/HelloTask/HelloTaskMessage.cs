@@ -17,12 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Globalization;
 
-namespace Org.Apache.Reef.Tasks
+namespace Org.Apache.REEF.Tasks
 {
     public class HelloTaskMessage : ITaskMessageSource
     {

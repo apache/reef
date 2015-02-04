@@ -17,10 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Wake.RX;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Wake.RX;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Observers
+namespace Org.Apache.REEF.IO.Network.Naming.Observers
 {
     /// <summary>
     /// Handler for unregistering an identifier with the NameServer

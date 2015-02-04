@@ -19,15 +19,15 @@
 
 using System.IO;
 using Microsoft.Hadoop.Avro;
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Exceptions;
-using Org.Apache.Reef.Tang.Implementations;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
-namespace Org.Apache.Reef.IO.Network.Utilities
+namespace Org.Apache.REEF.IO.Network.Utilities
 {
     internal class Utils
     {

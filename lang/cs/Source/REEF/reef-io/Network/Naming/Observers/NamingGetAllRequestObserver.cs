@@ -18,11 +18,11 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Wake.RX;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Wake.RX;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Observers
+namespace Org.Apache.REEF.IO.Network.Naming.Observers
 {
     /// <summary>
     /// Handler for NameService for events of type NamingGetAllRequest. 

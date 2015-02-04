@@ -23,10 +23,10 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote;
 using ProtoBuf;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService.Codec
+namespace Org.Apache.REEF.IO.Network.NetworkService.Codec
 {
     [ProtoContract]
     public class NsMessageProto

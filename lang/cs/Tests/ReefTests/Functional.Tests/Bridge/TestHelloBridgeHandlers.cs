@@ -21,17 +21,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Org.Apache.Reef.Driver.Bridge;
-using Org.Apache.Reef.Driver.Defaults;
-using Org.Apache.Reef.Examples.HelloCLRBridge;
-using Org.Apache.Reef.Examples.HelloCLRBridge.Handlers;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver.Defaults;
+using Org.Apache.REEF.Examples.HelloCLRBridge;
+using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     [TestClass]
     public class TestHelloBridgeHandlers : ReefFunctionalTest

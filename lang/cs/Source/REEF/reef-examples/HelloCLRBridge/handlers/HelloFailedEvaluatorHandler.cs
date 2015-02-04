@@ -17,12 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver.Bridge;
-using Org.Apache.Reef.Driver.Evaluator;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 
-namespace Org.Apache.Reef.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.HelloCLRBridge
 {
     public class HelloFailedEvaluatorHandler : IObserver<IFailedEvaluator>
     {

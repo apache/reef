@@ -17,10 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Tang.Annotations;
 using System.Diagnostics;
 
-namespace Org.Apache.Reef.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.HelloCLRBridge
 {
     /// <summary>
     /// This is a sample implemenation on how custom trace listner can be implemented

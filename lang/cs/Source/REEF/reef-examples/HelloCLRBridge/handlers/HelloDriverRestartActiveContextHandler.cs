@@ -17,13 +17,13 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Driver.Evaluator;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Globalization;
 
-namespace Org.Apache.Reef.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.HelloCLRBridge
 {
     public class HelloDriverRestartActiveContextHandler : IObserver<IActiveContext>
     {

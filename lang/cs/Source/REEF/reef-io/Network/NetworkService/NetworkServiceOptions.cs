@@ -17,11 +17,11 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Wake;
-using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService
+namespace Org.Apache.REEF.IO.Network.NetworkService
 {
     public class NetworkServiceOptions
     {

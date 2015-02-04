@@ -17,15 +17,15 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Driver.Evaluator;
-using Org.Apache.Reef.Driver.Task;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Globalization;
 
-namespace Org.Apache.Reef.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 {
     /// <summary>
     /// Sample implementaion of RunningTaskHandler

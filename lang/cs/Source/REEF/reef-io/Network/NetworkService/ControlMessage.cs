@@ -17,7 +17,7 @@
  * under the License.
  */
 
-namespace Org.Apache.Reef.IO.Network.NetworkService
+namespace Org.Apache.REEF.IO.Network.NetworkService
 {
     public enum ControlMessage
     {

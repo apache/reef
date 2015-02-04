@@ -17,9 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Events
+namespace Org.Apache.REEF.IO.Network.Naming.Events
 {
     /// <summary>
     /// Event representing a lookup, registering, or unregistering of 

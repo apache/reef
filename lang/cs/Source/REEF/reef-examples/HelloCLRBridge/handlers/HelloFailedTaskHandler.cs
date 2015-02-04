@@ -17,13 +17,13 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver.Task;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Globalization;
 
-namespace Org.Apache.Reef.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.HelloCLRBridge
 {
     public class HelloFailedTaskHandler : IObserver<IFailedTask>
     {

@@ -21,7 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Org.Apache.Reef.IO.Network.Utilities
+namespace Org.Apache.REEF.IO.Network.Utilities
 {
     public static class BlockingCollectionExtensions
     {

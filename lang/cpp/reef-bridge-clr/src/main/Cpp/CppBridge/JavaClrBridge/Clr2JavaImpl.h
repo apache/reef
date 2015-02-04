@@ -21,19 +21,19 @@
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
 #using "clrhandler.dll"
-#using "Org.Apache.Reef.Driver.dll"
+#using "Org.Apache.REEF.Driver.dll"
 
 using namespace System;
 using namespace System::IO;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
-using namespace Org::Apache::Reef::Driver::Bridge;
-using namespace Org::Apache::Reef::Driver::Evaluator;
+using namespace Org::Apache::REEF::Driver::Bridge;
+using namespace Org::Apache::REEF::Driver::Evaluator;
 
 namespace Org {
   namespace Apache {
-		namespace Reef {
+		namespace REEF {
 			namespace Driver {
 				namespace Bridge {
 					public ref class CommonUtilities {

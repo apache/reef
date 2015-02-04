@@ -19,11 +19,11 @@
 
 using System.Collections.Concurrent;
 using System.Net;
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Wake.Remote.Impl;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
-namespace Org.Apache.Reef.IO.Network.Naming
+namespace Org.Apache.REEF.IO.Network.Naming
 {
     /// <summary>
     /// Helper class to send register and unregister events to the NameServer.

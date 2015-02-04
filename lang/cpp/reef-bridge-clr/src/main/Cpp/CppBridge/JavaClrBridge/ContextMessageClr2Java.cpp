@@ -20,7 +20,7 @@
 
 namespace Org {
   namespace Apache {
-		namespace Reef {
+		namespace REEF {
 			namespace Driver {
 				namespace Bridge {
 					ref class ManagedLog {

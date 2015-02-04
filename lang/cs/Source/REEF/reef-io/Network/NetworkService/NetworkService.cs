@@ -22,18 +22,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reactive;
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming;
-using Org.Apache.Reef.IO.Network.NetworkService.Codec;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Tang.Exceptions;
-using Org.Apache.Reef.Wake;
-using Org.Apache.Reef.Wake.Remote;
-using Org.Apache.Reef.Wake.Remote.Impl;
-using Org.Apache.Reef.Wake.Util;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.IO.Network.NetworkService.Codec;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.Util;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService
+namespace Org.Apache.REEF.IO.Network.NetworkService
 {
     /// <summary>
     /// Network service used for Reef Task communication.

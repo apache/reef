@@ -23,13 +23,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming;
-using Org.Apache.Reef.Tang.Formats;
-using Org.Apache.Reef.Tang.Util;
-using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService
+namespace Org.Apache.REEF.IO.Network.NetworkService
 {
     public class NetworkServiceConfiguration : ConfigurationModuleBuilder
     {

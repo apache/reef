@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Events
+namespace Org.Apache.REEF.IO.Network.Naming.Events
 {
     /// <summary>
     /// Event to request look up of IPEndpoints in the Name Service

@@ -17,10 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Codec
+namespace Org.Apache.REEF.IO.Network.Naming.Codec
 {
     internal class NamingRegisterResponseCodec : ICodec<NamingRegisterResponse>
     {

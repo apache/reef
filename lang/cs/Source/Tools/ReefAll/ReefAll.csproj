@@ -29,7 +29,6 @@ under the License.
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..</SolutionDir>
-    
   </PropertyGroup>
   <Import Project="$(SolutionDir)\Source\build.props" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -87,29 +86,25 @@ under the License.
       <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
       <Name>Evaluator</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SourceDir)\REEF\reef-common\ReefCommon\ReefCommon.csproj">
-      <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
-      <Name>ReefCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SourceDir)\REEF\reef-common\ReefDriver\ReefDriver.csproj">
-      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
-      <Name>ReefDriver</Name>
-    </ProjectReference>
     <ProjectReference Include="$(SourceDir)\REEF\reef-io\NetWork\NetWork.csproj">
       <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
       <Name>NetWork</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SourceDir)\Tang\Tang\Tang.csproj">
+    <ProjectReference Include="..\..\..\Org.Apache.Reef.Common\Org.Apache.Reef.Common.csproj">
+      <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
+      <Name>Org.Apache.Reef.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Org.Apache.Reef.Driver\Org.Apache.Reef.Driver.csproj">
+      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
+      <Name>Org.Apache.Reef.Driver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Org.Apache.Reef.Tang\Org.Apache.Reef.Tang.csproj">
       <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
-      <Name>Tang</Name>
+      <Name>Org.Apache.Reef.Tang</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SourceDir)\Utilities\Utilities.csproj">
-      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SourceDir)\WAKE\Wake\Wake.csproj">
+    <ProjectReference Include="..\..\..\Org.Apache.Reef.Wake\Org.Apache.Reef.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
-      <Name>Wake</Name>
+      <Name>Org.Apache.Reef.Wake</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

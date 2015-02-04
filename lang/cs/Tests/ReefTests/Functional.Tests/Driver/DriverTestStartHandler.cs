@@ -17,13 +17,13 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver;
-using Org.Apache.Reef.Driver.bridge;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Wake.Time;
+using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.bridge;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.Time;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     public class DriverTestStartHandler : IStartHandler
     {
