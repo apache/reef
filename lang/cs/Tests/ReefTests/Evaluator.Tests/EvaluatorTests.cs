@@ -27,6 +27,7 @@ using Org.Apache.Reef.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using Org.Apache.Reef.Tang.Implementations.Tang;
 
 namespace Org.Apache.Reef.Test
 {

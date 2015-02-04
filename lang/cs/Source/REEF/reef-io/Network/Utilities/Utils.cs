@@ -23,9 +23,9 @@ using Org.Apache.Reef.Driver.Context;
 using Org.Apache.Reef.Tasks;
 using Org.Apache.Reef.Utilities.Logging;
 using Org.Apache.Reef.Tang.Exceptions;
-using Org.Apache.Reef.Tang.Implementations;
 using Org.Apache.Reef.Tang.Interface;
 using Org.Apache.Reef.Tang.Util;
+using Org.Apache.Reef.Tang.Implementations.Tang;
 
 namespace Org.Apache.Reef.IO.Network.Utilities
 {

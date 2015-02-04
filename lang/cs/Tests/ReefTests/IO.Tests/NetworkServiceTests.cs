@@ -37,6 +37,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Org.Apache.Reef.Tang.Implementations.Tang;
 
 namespace Org.Apache.Reef.Test.IO.Tests
 {

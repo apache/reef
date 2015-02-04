@@ -33,6 +33,7 @@ using Org.Apache.Reef.Tang.Interface;
 using Org.Apache.Reef.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.Reef.Wake.Util;
+using Org.Apache.Reef.Tang.Implementations.Tang;
 
 namespace Org.Apache.Reef.Test
 {

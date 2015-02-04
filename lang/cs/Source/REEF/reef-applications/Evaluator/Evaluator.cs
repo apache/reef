@@ -17,6 +17,23 @@
  * under the License.
  */
 
+using Org.Apache.Reef.Common;
+using Org.Apache.Reef.Common.Context;
+using Org.Apache.Reef.Common.Evaluator.Context;
+using Org.Apache.Reef.Common.ProtoBuf.ReefProtocol;
+using Org.Apache.Reef.Driver.Bridge;
+using Org.Apache.Reef.Services;
+using Org.Apache.Reef.Tang.Formats;
+using Org.Apache.Reef.Tang.Implementations.InjectionPlan;
+using Org.Apache.Reef.Tang.Implementations.Tang;
+using Org.Apache.Reef.Tang.Interface;
+using Org.Apache.Reef.Tasks;
+using Org.Apache.Reef.Utilities;
+using Org.Apache.Reef.Utilities.Diagnostics;
+using Org.Apache.Reef.Utilities.Logging;
+using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.Reef.Wake.Remote.Impl;
+using Org.Apache.Reef.Wake.Time.Runtime.Event;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -26,22 +43,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.Reef.Common;
-using Org.Apache.Reef.Common.Context;
-using Org.Apache.Reef.Common.Evaluator.Context;
-using Org.Apache.Reef.Common.ProtoBuf.ReefProtocol;
-using Org.Apache.Reef.Driver.Bridge;
-using Org.Apache.Reef.Services;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Utilities.Diagnostics;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Formats;
-using Org.Apache.Reef.Tang.Implementations;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Wake.Remote;
-using Org.Apache.Reef.Wake.Remote.Impl;
-using Org.Apache.Reef.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.Reef.Evaluator
 {
