@@ -27,7 +27,7 @@ under the License.
     <AssemblyName>Org.Apache.Reef.Tang.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -35,7 +35,7 @@ under the License.
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
+    <OutputPath>..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -45,7 +45,7 @@ under the License.
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
+    <OutputPath>..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -54,7 +54,7 @@ under the License.
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
+    <OutputPath>..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -63,21 +63,21 @@ under the License.
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
+    <OutputPath>..\bin\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Hadoop.Avro">
-      <HintPath>..\..\packages\Microsoft.Hadoop.Avro.1.4.0.0\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Hadoop.Avro.1.4.0.0\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net">
-      <HintPath>..\..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -155,31 +155,37 @@ under the License.
     <None Include="evaluator.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="simpleConstructorJavaProto.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\REEF\reef-common\ReefCommon\ReefCommon.csproj">
+    <ProjectReference Include="..\Org.Apache.Reef.Tang.Examples\Org.Apache.Reef.Tang.Examples.csproj">
+      <Project>{711b7f32-196e-4c21-9dbd-ad59c4a7cf77}</Project>
+      <Name>Org.Apache.Reef.Tang.Examples</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.Reef.Tang\Org.Apache.Reef.Tang.csproj">
+      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
+      <Name>Org.Apache.Reef.Tang</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.Reef.Utilities\Org.Apache.Reef.Utilities.csproj">
+      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
+      <Name>Org.Apache.Reef.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.Reef.Wake\Org.Apache.Reef.Wake.csproj">
+      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
+      <Name>Org.Apache.Reef.Wake</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\REEF\reef-common\ReefCommon\ReefCommon.csproj">
       <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
       <Name>ReefCommon</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\REEF\reef-tasks\Tasks\Tasks.csproj">
+    <ProjectReference Include="..\Source\REEF\reef-tasks\Tasks\Tasks.csproj">
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
       <Name>Tasks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\TANG\Examples\Examples.csproj">
-      <Project>{31b4389e-925a-4181-a1f6-21a1a0ad8a1c}</Project>
-      <Name>Examples</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\TANG\Tang\Tang.csproj">
-      <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
-      <Name>Tang</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\WAKE\Wake\Wake.csproj">
-      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
-      <Name>Wake</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

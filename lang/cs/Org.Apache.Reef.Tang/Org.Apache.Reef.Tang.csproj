@@ -28,7 +28,7 @@ under the License.
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\Source\build.props" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -178,9 +178,9 @@ under the License.
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(SourceDir)\Utilities\Utilities.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.Reef.Utilities\Org.Apache.Reef.Utilities.csproj">
       <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Utilities</Name>
+      <Name>Org.Apache.Reef.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -24,11 +24,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Tang")]
+[assembly: AssemblyTitle("Org.Apache.Reef.Wake")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tang")]
+[assembly: AssemblyProduct("Org.Apache.Reef.Wake")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -39,7 +39,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9be5f89c-7b7e-4236-ac54-10fda8eef58e")]
+[assembly: Guid("86a66ac8-0c8e-4652-b533-670e800cb0ea")]
 
 // Version information for an assembly consists of the following four values:
 //

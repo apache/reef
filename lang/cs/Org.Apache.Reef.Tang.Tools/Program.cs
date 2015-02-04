@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace Org.Apache.Reef.Tools
+namespace Org.Apache.Reef.Tang.Tools
 {
     public class ClassHierarchyBuilder
     {

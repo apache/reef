@@ -28,7 +28,7 @@ under the License.
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\Source\build.props" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -195,13 +195,13 @@ under the License.
     <Folder Include="Util\Util\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(SourceDir)\Tang\Tang\Tang.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.Reef.Tang\Org.Apache.Reef.Tang.csproj">
       <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
-      <Name>Tang</Name>
+      <Name>Org.Apache.Reef.Tang</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SourceDir)\Utilities\Utilities.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.Reef.Utilities\Org.Apache.Reef.Utilities.csproj">
       <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Utilities</Name>
+      <Name>Org.Apache.Reef.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
