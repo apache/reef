@@ -98,10 +98,6 @@ under the License.
       <Project>{a33c20fb-a76e-494c-80c5-bce4bad876d3}</Project>
       <Name>RetainedEvalCLRBridge</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SourceDir)\Reef\reef-io\NetWork\NetWork.csproj">
-      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
-      <Name>NetWork</Name>
-    </ProjectReference>
     <ProjectReference Include="$(SourceDir)\Reef\reef-tasks\Tasks\Tasks.csproj">
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
       <Name>Tasks</Name>
@@ -117,6 +113,10 @@ under the License.
     <ProjectReference Include="..\..\..\..\Org.Apache.Reef.Driver\Org.Apache.Reef.Driver.csproj">
       <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
       <Name>Org.Apache.Reef.Driver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
+      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
+      <Name>Org.Apache.REEF.Network</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\Org.Apache.Reef.Wake\Org.Apache.Reef.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>

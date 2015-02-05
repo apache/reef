@@ -18,8 +18,8 @@
  */
 
 using Org.Apache.REEF.Common.io;
-using Org.Apache.REEF.IO.Network.Naming;
-using Org.Apache.REEF.IO.Network.NetworkService;
+using Org.Apache.REEF.Network.Naming;
+using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Interface;

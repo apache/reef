@@ -22,7 +22,7 @@ using Org.Apache.REEF.Common.io;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.bridge;
 using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;

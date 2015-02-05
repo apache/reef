@@ -22,7 +22,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Tasks.Events;
 using Org.Apache.REEF.Utilities;

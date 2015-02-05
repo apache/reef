@@ -24,7 +24,7 @@ using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.HelloCLRBridge;
 using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
-using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Interface;
