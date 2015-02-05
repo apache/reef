@@ -17,19 +17,19 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver;
-using Org.Apache.Reef.Driver.Bridge;
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Driver.Evaluator;
-using Org.Apache.Reef.Examples.RetainedEvalBridge;
-using Org.Apache.Reef.Examples.RetainedEvalCLRBridge;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Examples.RetainedEvalBridge;
+using Org.Apache.REEF.Examples.RetainedEvalCLRBridge;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Org.Apache.Reef.Interop.Examples.RetainedEval
+namespace Org.Apache.REEF.Interop.Examples.RetainedEval
 {
     public class RetainedEvalStartHandler : IStartHandler
     {

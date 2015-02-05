@@ -19,7 +19,7 @@
 
 using System;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService
+namespace Org.Apache.REEF.IO.Network.NetworkService
 {
     /// <summary>
     /// Represents a connection between two endpoints named by identifiers

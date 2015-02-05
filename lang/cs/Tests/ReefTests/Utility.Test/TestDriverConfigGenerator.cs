@@ -18,10 +18,10 @@
  */
 
 using System;
-using Org.Apache.Reef.Driver;
+using Org.Apache.REEF.Driver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Org.Apache.Reef.Test.Utility.Test
+namespace Org.Apache.REEF.Test.Utility.Test
 {
     [TestClass]
     public class TestDriverConfigGenerator

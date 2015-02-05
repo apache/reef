@@ -17,12 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Wake.RX;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Wake.RX;
 using System.Collections.Generic;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Observers
+namespace Org.Apache.REEF.IO.Network.Naming.Observers
 {
     /// <summary>
     /// Handler for looking up IPEndpoints registered with the NameServer

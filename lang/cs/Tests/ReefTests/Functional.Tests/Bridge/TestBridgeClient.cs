@@ -17,15 +17,15 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver;
-using Org.Apache.Reef.Utilities.Logging;
+using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Utilities.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     [TestClass]
     public class TestBridgeClient : ReefFunctionalTest
@@ -68,7 +68,7 @@ namespace Org.Apache.Reef.Test
 
         private void RunClrBridgeClient(bool runOnYarn)
         {
-            const string clrBridgeClient = "Org.Apache.Reef.CLRBridgeClient.exe";
+            const string clrBridgeClient = "Org.Apache.REEF.CLRBridgeClient.exe";
             List<string> arguments = new List<string>();
             arguments.Add(runOnYarn.ToString());
             arguments.Add(Constants.BridgeLaunchClass);

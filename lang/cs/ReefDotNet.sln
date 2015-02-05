@@ -26,23 +26,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReefAll", "Source\Tools\Ree
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReefTests", "Tests\ReefTests\ReefTests.csproj", "{988F90CF-A48D-4938-A4D2-FA3B758FB5A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Tang", "Org.Apache.Reef.Tang\Org.Apache.Reef.Tang.csproj", "{97DBB573-3994-417A-9F69-FFA25F00D2A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Tang", "Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj", "{97DBB573-3994-417A-9F69-FFA25F00D2A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Tang.Examples", "Org.Apache.Reef.Tang.Examples\Org.Apache.Reef.Tang.Examples.csproj", "{711B7F32-196E-4C21-9DBD-AD59C4A7CF77}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Tang.Examples", "Org.Apache.REEF.Tang.Examples\Org.Apache.REEF.Tang.Examples.csproj", "{711B7F32-196E-4C21-9DBD-AD59C4A7CF77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Tang.Tests", "Org.APache.Reef.Tang.Tests\Org.Apache.Reef.Tang.Tests.csproj", "{D5EB94D0-3ABA-4853-9050-E36B196E17D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Tang.Tests", "Org.Apache.REEF.Tang.Tests\Org.Apache.REEF.Tang.Tests.csproj", "{D5EB94D0-3ABA-4853-9050-E36B196E17D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Tang.Tools", "Org.Apache.Reef.Tang.Tools\Org.Apache.Reef.Tang.Tools.csproj", "{34A9CD98-0D15-4CA0-AEA5-E53593A31047}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Tang.Tools", "Org.Apache.REEF.Tang.Tools\Org.Apache.REEF.Tang.Tools.csproj", "{34A9CD98-0D15-4CA0-AEA5-E53593A31047}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Utilities", "Org.Apache.Reef.Utilities\Org.Apache.Reef.Utilities.csproj", "{79E7F89A-1DFB-45E1-8D43-D71A954AEB98}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Utilities", "Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj", "{79E7F89A-1DFB-45E1-8D43-D71A954AEB98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Wake", "Org.Apache.Reef.Wake\Org.Apache.Reef.Wake.csproj", "{CDFB3464-4041-42B1-9271-83AF24CD5008}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Wake", "Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj", "{CDFB3464-4041-42B1-9271-83AF24CD5008}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Wake.Tests", "Org.Apache.Reef.Wake.Tests\Org.Apache.Reef.Wake.Tests.csproj", "{214C64C6-04E5-4867-B69A-E3502EA50871}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Wake.Tests", "Org.Apache.REEF.Wake.Tests\Org.Apache.REEF.Wake.Tests.csproj", "{214C64C6-04E5-4867-B69A-E3502EA50871}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Common", "Org.Apache.Reef.Common\Org.Apache.Reef.Common.csproj", "{545A0582-4105-44CE-B99C-B1379514A630}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Common", "Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj", "{545A0582-4105-44CE-B99C-B1379514A630}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.Reef.Driver", "Org.Apache.Reef.Driver\Org.Apache.Reef.Driver.csproj", "{A6BAA2A7-F52F-4329-884E-1BCF711D6805}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Driver", "Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj", "{A6BAA2A7-F52F-4329-884E-1BCF711D6805}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

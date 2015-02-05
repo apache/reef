@@ -17,14 +17,14 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Tang.Implementations.Tang;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
-using Org.Apache.Reef.Tasks;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tasks;
 using System;
 
-namespace Org.Apache.Reef.Examples.RetainedEvalBridge
+namespace Org.Apache.REEF.Examples.RetainedEvalBridge
 {
     public class RetainedEvalActiveContextHandler : IObserver<IActiveContext>
     {

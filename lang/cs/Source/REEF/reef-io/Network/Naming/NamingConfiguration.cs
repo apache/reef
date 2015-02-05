@@ -23,10 +23,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Org.Apache.Reef.Tang.Formats;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.Reef.Naming
+namespace Org.Apache.REEF.Naming
 {
     public class NamingConfiguration : ConfigurationModuleBuilder
     {

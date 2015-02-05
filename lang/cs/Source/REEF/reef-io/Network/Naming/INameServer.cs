@@ -20,11 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.Reef.IO.Network.Naming
+namespace Org.Apache.REEF.IO.Network.Naming
 {
     /// <summary>
     /// Service that manages names and IPEndpoints for well known hosts.

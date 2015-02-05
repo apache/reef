@@ -17,7 +17,7 @@
  * under the License.
  */
 
-using Org.Apache.Reef.IO.Network.Utilities;
+using Org.Apache.REEF.IO.Network.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
@@ -26,7 +26,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Org.Apache.Reef.Test.IO.Tests
+namespace Org.Apache.REEF.Test.IO.Tests
 {
     [TestClass]
     public class BlockingCollectionExtensionTests

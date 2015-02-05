@@ -17,17 +17,17 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Driver.Evaluator;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Tang.Formats;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using System;
 using System.Globalization;
 
-namespace Org.Apache.Reef.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.HelloCLRBridge
 {
     public class HelloActiveContextHandler : IObserver<IActiveContext>
     {

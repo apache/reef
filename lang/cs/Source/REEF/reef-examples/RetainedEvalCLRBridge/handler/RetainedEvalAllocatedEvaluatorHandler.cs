@@ -17,12 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Driver.Evaluator;
-using Org.Apache.Reef.Tang.Interface;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Tang.Interface;
 using System;
 
-namespace Org.Apache.Reef.Examples.RetainedEvalBridge
+namespace Org.Apache.REEF.Examples.RetainedEvalBridge
 {
     public class RetainedEvalAllocatedEvaluatorHandler : IObserver<IAllocatedEvaluator>
     {

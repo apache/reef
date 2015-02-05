@@ -17,19 +17,19 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Common.Avro;
-using Org.Apache.Reef.Common.Evaluator;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Tang.Formats;
-using Org.Apache.Reef.Tang.Implementations;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Common.Avro;
+using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using Org.Apache.Reef.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     [TestClass]
     public class EvaluatorTests

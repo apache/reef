@@ -17,11 +17,11 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Wake.Time;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.Time;
 using System;
 
-namespace Org.Apache.Reef.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.HelloCLRBridge
 {
     public class HelloRestartHandler : IObserver<StartTime>
     {

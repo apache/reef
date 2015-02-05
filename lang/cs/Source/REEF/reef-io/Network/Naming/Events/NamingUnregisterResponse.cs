@@ -17,7 +17,7 @@
  * under the License.
  */
 
-namespace Org.Apache.Reef.IO.Network.Naming.Events
+namespace Org.Apache.REEF.IO.Network.Naming.Events
 {
     /// <summary>
     /// Response event for unregistering of an IPEndpoint with the Name Service

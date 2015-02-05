@@ -18,9 +18,9 @@
  */
 
 using System.Threading;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.Reef.Tasks
+namespace Org.Apache.REEF.Tasks
 {
     public class StreamTask1 : ITask
     {

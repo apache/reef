@@ -24,18 +24,18 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming;
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Tang.Implementations;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.Reef.Wake.Util;
-using Org.Apache.Reef.Tang.Implementations.Tang;
+using Org.Apache.REEF.Wake.Util;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     [TestClass]
     public class NameServerTests

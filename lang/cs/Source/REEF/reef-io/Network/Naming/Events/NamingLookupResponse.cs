@@ -19,9 +19,9 @@
 
 using System.Collections.Generic;
 using Microsoft.Hadoop.Avro;
-using Org.Apache.Reef.Common.io;
+using Org.Apache.REEF.Common.io;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Events
+namespace Org.Apache.REEF.IO.Network.Naming.Events
 {
     /// <summary>
     /// Event for lookup response in Name Service.

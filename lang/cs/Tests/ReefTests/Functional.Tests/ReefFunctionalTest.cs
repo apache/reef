@@ -25,17 +25,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using Org.Apache.Reef.Driver;
-using Org.Apache.Reef.Driver.bridge;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Interface;
+using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.bridge;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Interface;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Timer = System.Timers.Timer;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     public class ReefFunctionalTest
     {

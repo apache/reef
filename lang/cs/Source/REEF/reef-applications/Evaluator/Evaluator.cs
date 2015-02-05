@@ -17,23 +17,23 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Common;
-using Org.Apache.Reef.Common.Context;
-using Org.Apache.Reef.Common.Evaluator.Context;
-using Org.Apache.Reef.Common.ProtoBuf.ReefProtocol;
-using Org.Apache.Reef.Driver.Bridge;
-using Org.Apache.Reef.Services;
-using Org.Apache.Reef.Tang.Formats;
-using Org.Apache.Reef.Tang.Implementations.InjectionPlan;
-using Org.Apache.Reef.Tang.Implementations.Tang;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Utilities.Diagnostics;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Wake.Remote;
-using Org.Apache.Reef.Wake.Remote.Impl;
-using Org.Apache.Reef.Wake.Time.Runtime.Event;
+using Org.Apache.REEF.Common;
+using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Evaluator.Context;
+using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Services;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.Time.Runtime.Event;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -44,7 +44,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Org.Apache.Reef.Evaluator
+namespace Org.Apache.REEF.Evaluator
 {
     public class Evaluator
     {
@@ -71,7 +71,7 @@ namespace Org.Apache.Reef.Evaluator
 
             using (_logger.LogScope("Evaluator::Main"))
             {
-                string debugEnabledString = Environment.GetEnvironmentVariable("Org.Apache.Reef.EvaluatorDebug");
+                string debugEnabledString = Environment.GetEnvironmentVariable("Org.Apache.REEF.EvaluatorDebug");
                 if (!string.IsNullOrWhiteSpace(debugEnabledString) &&
                     debugEnabledString.Equals("enabled", StringComparison.OrdinalIgnoreCase))
                 {

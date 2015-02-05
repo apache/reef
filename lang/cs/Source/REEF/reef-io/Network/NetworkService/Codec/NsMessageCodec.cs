@@ -17,14 +17,14 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Wake;
-using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Remote;
 using ProtoBuf;
 using System;
 using System.IO;
 using System.Linq;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService.Codec
+namespace Org.Apache.REEF.IO.Network.NetworkService.Codec
 {
     /// <summary>
     /// Codec to serialize NsMessages for NetworkService.

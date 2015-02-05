@@ -17,10 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Common;
+using Org.Apache.REEF.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     [TestClass]
     public class EvaluatorConfigurationsTests
