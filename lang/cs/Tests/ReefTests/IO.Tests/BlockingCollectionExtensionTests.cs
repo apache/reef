@@ -17,7 +17,7 @@
  * under the License.
  */
 
-using Org.Apache.REEF.IO.Network.Utilities;
+using Org.Apache.REEF.Network.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;

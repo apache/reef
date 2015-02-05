@@ -152,6 +152,14 @@ under the License.
       <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
       <Name>Org.Apache.Reef.Driver</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.csproj">
+      <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
+      <Name>Org.Apache.REEF.Evaluator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
+      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
+      <Name>Org.Apache.REEF.Network</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Org.Apache.Reef.Tang\Org.Apache.Reef.Tang.csproj">
       <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
       <Name>Org.Apache.Reef.Tang</Name>
@@ -168,17 +176,9 @@ under the License.
       <Project>{5094c35b-4fdb-4322-ac05-45d684501cbf}</Project>
       <Name>CLRBridgeClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\REEF\reef-applications\Evaluator\Evaluator.csproj">
-      <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
-      <Name>Evaluator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Source\REEF\reef-examples\HelloCLRBridge\HelloCLRBridge.csproj">
       <Project>{a78dd8e8-31d0-4506-8738-daa9da86d55b}</Project>
       <Name>HelloCLRBridge</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\REEF\reef-io\NetWork\NetWork.csproj">
-      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
-      <Name>NetWork</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\REEF\reef-tasks\Tasks\Tasks.csproj">
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>

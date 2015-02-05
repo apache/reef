@@ -30,7 +30,7 @@ using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
