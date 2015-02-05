@@ -31,7 +31,7 @@ using namespace System::IO;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
-using namespace Org::Apache::Reef::Driver::Bridge;
+using namespace Org::Apache::REEF::Driver::Bridge;
 
 ref class ManagedLog {
   internal:

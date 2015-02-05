@@ -17,7 +17,7 @@
  * under the License.
  */
 
-namespace Org.Apache.Reef.IO.Network.Naming.Events
+namespace Org.Apache.REEF.IO.Network.Naming.Events
 {
     /// <summary>
     /// Event to request all registered identifiers and their mapped

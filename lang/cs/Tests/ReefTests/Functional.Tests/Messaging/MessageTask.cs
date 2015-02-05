@@ -22,15 +22,15 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using Org.Apache.Reef.IO.Network.Naming;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Tasks.Events;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Utilities.Diagnostics;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Tasks.Events;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     public class MessageTask : ITask, ITaskMessageSource
     {

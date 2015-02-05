@@ -17,18 +17,18 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming;
-using Org.Apache.Reef.IO.Network.NetworkService;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Tang.Implementations;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.IO.Network.NetworkService;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.Reef.Wake;
-using Org.Apache.Reef.Wake.Remote;
-using Org.Apache.Reef.Wake.Remote.Impl;
-using Org.Apache.Reef.Wake.Util;
+using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -37,8 +37,9 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
-namespace Org.Apache.Reef.Test.IO.Tests
+namespace Org.Apache.REEF.Test.IO.Tests
 {
     [TestClass]
     public class NetworkServiceTests

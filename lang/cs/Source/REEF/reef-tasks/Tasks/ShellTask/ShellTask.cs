@@ -17,9 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Utilities.Diagnostics;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -28,7 +28,7 @@ using System.Text;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "allow name parameter class to be embedded")]
 
-namespace Org.Apache.Reef.Tasks
+namespace Org.Apache.REEF.Tasks
 {
     public class ShellTask : ITask
     {

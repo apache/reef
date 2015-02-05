@@ -22,23 +22,23 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Text;
-using Org.Apache.Reef.Driver;
-using Org.Apache.Reef.Driver.Bridge;
-using Org.Apache.Reef.Driver.Context;
-using Org.Apache.Reef.Driver.Evaluator;
-using Org.Apache.Reef.Driver.Task;
-using Org.Apache.Reef.IO.Network.Naming;
-using Org.Apache.Reef.Services;
-using Org.Apache.Reef.Tasks;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Utilities.Diagnostics;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Tang.Implementations.Configuration;
-using Org.Apache.Reef.Tang.Interface;
-using Org.Apache.Reef.Tang.Util;
+using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.IO.Network.Naming;
+using Org.Apache.REEF.Services;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.Reef.Test
+namespace Org.Apache.REEF.Test
 {
     public class MessageDriver : IStartHandler, IObserver<IAllocatedEvaluator>, IObserver<IEvaluatorRequestor>, IObserver<ITaskMessage>, IObserver<IRunningTask>
     {

@@ -89,8 +89,8 @@ under the License.
                                 </goals>
                                 <configuration>
                                     <target name="copy driver dll file to class cpp project">
-                                        <copy file="${project.basedir}/bin/x64/Release/Org.Apache.Reef.Driver/Org.Apache.Reef.Driver.dll" tofile="${basedir}\target\classes\Org.Apache.Reef.Driver.dll" />
-                                        <copy file="${project.basedir}/bin/x64/Release/Org.Apache.Reef.Driver/Org.Apache.Reef.Driver.dll" tofile="../cpp/reef-bridge-clr/src/main/CSharp/CSharp/ClrHandler/externals/Org.Apache.Reef.Driver.dll" />
+                                        <copy file="${project.basedir}/bin/x64/Release/Org.Apache.REEF.Driver/Org.Apache.REEF.Driver.dll" tofile="${basedir}\target\classes\Org.Apache.REEF.Driver.dll" />
+                                        <copy file="${project.basedir}/bin/x64/Release/Org.Apache.REEF.Driver/Org.Apache.REEF.Driver.dll" tofile="../cpp/reef-bridge-clr/src/main/CSharp/CSharp/ClrHandler/externals/Org.Apache.REEF.Driver.dll" />
                                     </target>
                                 </configuration>
                             </execution>

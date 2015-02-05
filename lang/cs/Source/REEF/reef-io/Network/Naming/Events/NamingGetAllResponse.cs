@@ -18,9 +18,9 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.Reef.Common.io;
+using Org.Apache.REEF.Common.io;
 
-namespace Org.Apache.Reef.IO.Network.Naming.Events
+namespace Org.Apache.REEF.IO.Network.Naming.Events
 {
     /// <summary>
     /// Response event for looking up all registered identifiers and their

@@ -18,10 +18,10 @@
  */
 
 using System;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Wake.Remote;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService.Codec
+namespace Org.Apache.REEF.IO.Network.NetworkService.Codec
 {
     public class ControlMessageCodec : ICodec<ControlMessage>
     {

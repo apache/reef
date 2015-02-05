@@ -17,17 +17,17 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.IO.Network.Naming.Codec;
-using Org.Apache.Reef.IO.Network.Naming.Events;
-using Org.Apache.Reef.Utilities.Diagnostics;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Annotations;
-using Org.Apache.Reef.Wake;
-using Org.Apache.Reef.Wake.Remote;
-using Org.Apache.Reef.Wake.Remote.Impl;
-using Org.Apache.Reef.Wake.RX;
-using Org.Apache.Reef.Wake.RX.Impl;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.IO.Network.Naming.Codec;
+using Org.Apache.REEF.IO.Network.Naming.Events;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.RX;
+using Org.Apache.REEF.Wake.RX.Impl;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -35,7 +35,7 @@ using System.Linq;
 using System.Net;
 using System.Reactive;
 
-namespace Org.Apache.Reef.IO.Network.Naming
+namespace Org.Apache.REEF.IO.Network.Naming
 {
     /// <summary>
     /// Client for the Reef name service. 

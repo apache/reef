@@ -17,17 +17,17 @@
  * under the License.
  */
 
-using Org.Apache.Reef.Common.io;
-using Org.Apache.Reef.Tasks.Events;
-using Org.Apache.Reef.Utilities;
-using Org.Apache.Reef.Utilities.Logging;
-using Org.Apache.Reef.Tang.Annotations;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Tasks.Events;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
 
-namespace Org.Apache.Reef.Tasks
+namespace Org.Apache.REEF.Tasks
 {
     public class HelloTask : ITask
     {

@@ -18,9 +18,9 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.Reef.Wake;
+using Org.Apache.REEF.Wake;
 
-namespace Org.Apache.Reef.IO.Network.NetworkService
+namespace Org.Apache.REEF.IO.Network.NetworkService
 {
     /// <summary>
     /// Message sent between NetworkServices

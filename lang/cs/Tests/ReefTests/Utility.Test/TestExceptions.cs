@@ -18,11 +18,11 @@
  */
 
 using System;
-using Org.Apache.Reef.Utilities.Diagnostics;
-using Org.Apache.Reef.Utilities.Logging;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Org.Apache.Reef.Test.Utility.Test
+namespace Org.Apache.REEF.Test.Utility.Test
 {
     [TestClass]
     public class TestExceptions
