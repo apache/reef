@@ -22,7 +22,7 @@ under the License.
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.reef</groupId>
-    <version>0.10-incubating-SNAPSHOT</version>
+    <version>0.11.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
@@ -54,6 +54,30 @@ under the License.
         <jackson.version>1.9.13</jackson.version>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:apache/incubator-reef.git</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef.git</developerConnection>
+        <url>scm:git:git@github.com:apache/incubator-reef.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+    </developers>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://issues.apache.org/jira/browse/REEF</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Dev Mailing List</name>
+            <post>dev@reef.incubator.apache.org</post>
+            <subscribe>dev-subscribe@reef.incubator.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@reef.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-reef-dev/</archive>
+        </mailingList>
+    </mailingLists>
 
     <prerequisites>
         <maven>3.0</maven>
@@ -123,7 +147,7 @@ under the License.
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10</version>
+                    <version>2.10.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -211,11 +235,30 @@ under the License.
                             <exclude>.gitattributes</exclude>
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
-                            <exclude>.idea/**</exclude>
-                            <exclude>target/**</exclude>
-                            <exclude>README.*</exclude>
+                            <!-- Intellij idea project files -->
+                            <exclude>lang/java/.idea/**</exclude>                            
+                            <exclude>**/*.iml</exclude>
+                            <exclude>**/target/**</exclude>
+			    <exclude>**/README.*</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
+                            <!-- The Visual Studio build files -->
+                            <exclude>*.sln</exclude>
+                            <exclude>**/*.csproj.user</exclude>
+                            <!-- The below are auto generated during the .Net build -->                            
+                            <exclude>**/bin/**</exclude>
+                            <exclude>**/obj/**</exclude>
+                            <exclude>**/Release/**</exclude>
+                            <exclude>**/Debug/**</exclude>
+                            <!-- NuGet dependencies downloaded as part of the build -->
+                            <exclude>**/packages/**</exclude>
+                            <!-- The below are auto generated files for serialization -->
+                            <exclude>**/ReefCommon/protobuf/cs/*</exclude>
+                            <exclude>**/ReefCommon/avro/*</exclude>
+                            <!-- The below are binary data files used in tests -->
+                            <exclude>**/ConfigFiles/evaluator.conf</exclude>
+                            <exclude>**/TangTests/evaluator.conf</exclude>
+                            <exclude>**/TangTests/simpleConstructorJavaProto.bin</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -318,6 +361,22 @@ under the License.
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>
+                <version>${hadoop.version}</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-jcl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
                 <version>${hadoop.version}</version>
                 <scope>provided</scope>
                 <exclusions>
@@ -547,28 +606,38 @@ under the License.
                 <version>${jackson.version}</version>
             </dependency>
             <!-- End of Jackson -->
+
+            <dependency>
+                <groupId>org.apache.mesos</groupId>
+                <artifactId>mesos</artifactId>
+                <version>0.21.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <modules>
-        <module>reef-annotations</module>
-        <module>reef-bridge-project</module>
-        <module>reef-checkpoint</module>
-        <module>reef-common</module>
-        <module>reef-examples</module>
-        <module>reef-examples-clr</module>
-        <module>reef-examples-hdinsight</module>
-        <module>reef-io</module>
-        <module>reef-poison</module>
-        <module>reef-runtime-hdinsight</module>
-        <module>reef-runtime-local</module>
-        <module>reef-runtime-yarn</module>
-        <module>reef-tang</module>
-        <module>reef-tests</module>
-        <module>reef-wake</module>
-        <module>reef-webserver</module>
-        <module>reef-utils-hadoop</module>
-        <module>reef-utils</module>
+        <module>lang/cs</module>
+        <module>lang/java/reef-annotations</module>
+        <module>lang/java/reef-bridge-java</module>
+        <module>lang/cpp/reef-bridge-clr</module>
+        <module>lang/reef-bridge</module>
+        <module>lang/java/reef-checkpoint</module>
+        <module>lang/java/reef-common</module>
+        <module>lang/java/reef-examples</module>
+        <module>lang/java/reef-examples-clr</module>
+        <module>lang/java/reef-examples-hdinsight</module>
+        <module>lang/java/reef-io</module>
+        <module>lang/java/reef-poison</module>
+        <module>lang/java/reef-runtime-hdinsight</module>
+        <module>lang/java/reef-runtime-local</module>
+        <module>lang/java/reef-runtime-yarn</module>
+        <module>lang/java/reef-runtime-mesos</module>
+        <module>lang/java/reef-tang</module>
+        <module>lang/java/reef-tests</module>
+        <module>lang/java/reef-wake</module>
+        <module>lang/java/reef-webserver</module>
+        <module>lang/java/reef-utils-hadoop</module>
+        <module>lang/java/reef-utils</module>
     </modules>
 
     <profiles>
@@ -601,7 +670,7 @@ under the License.
                 </os>
             </activation>
             <modules>
-                <module>reef-bridge-project</module>
+                <module>lang/reef-bridge</module>
             </modules>
 
         </profile>

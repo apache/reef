@@ -16,7 +16,13 @@ contains only basic setup instructions.
 
 ## Building REEF
 
-REEF is built using [Apache Maven](http://maven.apache.org/).
+Requirements
+
+* Java 7 Development Kit
+* [Apache Maven](http://maven.apache.org) 3 or newer. Make sure that mvn is in your PATH.
+* [Protocol Buffers](https://code.google.com/p/protobuf/) Compiler (protoc) 2.5. Make sure that protoc is in your PATH.
+
+REEF is built using Apache Maven.
 To build REEF and its example programs, run:
 
     mvn -DskipTests clean install
