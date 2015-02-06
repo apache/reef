@@ -33,6 +33,7 @@ using Org.Apache.REEF.Tang.Util;
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
 {
@@ -153,7 +154,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         public void TestGetConfgiFromProtoBufClassHierarchy()
         {
             Type iTaskType = typeof(Org.Apache.REEF.Tasks.ITask);
-            Type helloTaskType = typeof(Org.Apache.REEF.Tasks.HelloTask);
+            Type helloTaskType = typeof(HelloTask);
             Type identifierType = typeof (TaskConfigurationOptions.Identifier);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { FileNames.Common, FileNames.Tasks });

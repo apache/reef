@@ -28,6 +28,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tasks.ShellTask;
 
 namespace Org.Apache.REEF.Test
 {
