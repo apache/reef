@@ -18,22 +18,28 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tasks;
 
-namespace Org.Apache.REEF.Tang.Examples
+namespace Org.Apache.REEF.Examples.Tasks.FailedTask
 {
-    public class FileNames
+    public class FailedTask : ITask
     {
-        public static string Examples = @"Org.Apache.REEF.Tang.Examples";
-        public static string Common = @"Org.Apache.REEF.Common";
-        public static string Tasks = @"Org.Apache.REEF.Examples.Tasks";
-        public static string Seconds = "Org.Apache.REEF.Tang.Examples.Timer+Seconds";
-        public static string Timer = "Org.Apache.REEF.Tang.Examples.Timer";
-        public static string B = "Org.Apache.REEF.Tang.Examples.B";
-        public static string B1 = "Org.Apache.REEF.Tang.Examples.B+B1";
-        public static string B2 = "Org.Apache.REEF.Tang.Examples.B+B1+B2";
+        [Inject]
+        public FailedTask()
+        {
+        }
+
+        public byte[] Call(byte[] memento)
+        {
+            Console.WriteLine("I am about to fail.");
+            Thread.Sleep(2 * 1000);
+            throw new ApplicationException("bite me.");
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

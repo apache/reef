@@ -17,23 +17,35 @@
  * under the License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tasks;
 
-namespace Org.Apache.REEF.Tang.Examples
+namespace Org.Apache.REEF.Examples.Tasks.StreamingTasks
 {
-    public class FileNames
+    public class StreamTask2 : ITask
     {
-        public static string Examples = @"Org.Apache.REEF.Tang.Examples";
-        public static string Common = @"Org.Apache.REEF.Common";
-        public static string Tasks = @"Org.Apache.REEF.Examples.Tasks";
-        public static string Seconds = "Org.Apache.REEF.Tang.Examples.Timer+Seconds";
-        public static string Timer = "Org.Apache.REEF.Tang.Examples.Timer";
-        public static string B = "Org.Apache.REEF.Tang.Examples.B";
-        public static string B1 = "Org.Apache.REEF.Tang.Examples.B+B1";
-        public static string B2 = "Org.Apache.REEF.Tang.Examples.B+B1+B2";
+        [Inject]
+        public StreamTask2()
+        {
+        }
+
+        public byte[] Call(byte[] memento)
+        {
+            System.Console.WriteLine("Hello, Streaming 2!!");
+
+            SISecondNode();
+
+            return null;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void SISecondNode()
+        {
+            //var a = new SISecondNodeXAM();
+            //a.Process(2222, 1111);
+        }
     }
 }

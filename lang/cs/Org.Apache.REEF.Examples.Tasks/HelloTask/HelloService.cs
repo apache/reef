@@ -19,21 +19,40 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Org.Apache.REEF.Services;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Tang.Examples
+namespace Org.Apache.REEF.Examples.Tasks.HelloTask
 {
-    public class FileNames
+    public class HelloService : IService
     {
-        public static string Examples = @"Org.Apache.REEF.Tang.Examples";
-        public static string Common = @"Org.Apache.REEF.Common";
-        public static string Tasks = @"Org.Apache.REEF.Examples.Tasks";
-        public static string Seconds = "Org.Apache.REEF.Tang.Examples.Timer+Seconds";
-        public static string Timer = "Org.Apache.REEF.Tang.Examples.Timer";
-        public static string B = "Org.Apache.REEF.Tang.Examples.B";
-        public static string B1 = "Org.Apache.REEF.Tang.Examples.B+B1";
-        public static string B2 = "Org.Apache.REEF.Tang.Examples.B+B1+B2";
+        private IList<string> _guests;
+
+        [Inject]
+        public HelloService()
+        {
+            if (_guests == null)
+            {
+                _guests = new List<string>();
+                _guests.Add("MR.SMITH");
+            }
+        }
+
+        public IList<string> Guests
+        {
+            get
+            {
+                return _guests;
+            }
+        }
+
+        public void AddGuest(string guestName)
+        {
+            if (string.IsNullOrWhiteSpace(guestName))
+            {
+                throw new ArgumentException("can't do with empty name.");
+            }
+            Guests.Add(guestName);
+        }
     }
 }

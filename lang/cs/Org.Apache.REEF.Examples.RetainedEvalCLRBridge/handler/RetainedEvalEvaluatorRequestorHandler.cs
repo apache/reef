@@ -17,23 +17,32 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver.Evaluator;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Org.Apache.REEF.Tang.Examples
+namespace Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler
 {
-    public class FileNames
+    public class RetainedEvalEvaluatorRequestorHandler : IObserver<IEvaluatorRequestor>
     {
-        public static string Examples = @"Org.Apache.REEF.Tang.Examples";
-        public static string Common = @"Org.Apache.REEF.Common";
-        public static string Tasks = @"Org.Apache.REEF.Examples.Tasks";
-        public static string Seconds = "Org.Apache.REEF.Tang.Examples.Timer+Seconds";
-        public static string Timer = "Org.Apache.REEF.Tang.Examples.Timer";
-        public static string B = "Org.Apache.REEF.Tang.Examples.B";
-        public static string B1 = "Org.Apache.REEF.Tang.Examples.B+B1";
-        public static string B2 = "Org.Apache.REEF.Tang.Examples.B+B1+B2";
+        public void OnNext(IEvaluatorRequestor requestor)
+        {
+            int evaluatorsNumber = 1;
+            int memory = 512;
+            string rack = "WonderlandRack";
+            EvaluatorRequest request = new EvaluatorRequest(evaluatorsNumber, memory, rack);
+
+            requestor.Submit(request);
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

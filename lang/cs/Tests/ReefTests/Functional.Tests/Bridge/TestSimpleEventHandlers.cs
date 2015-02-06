@@ -25,7 +25,6 @@ using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.HelloCLRBridge;
-using Org.Apache.REEF.Examples.HelloCLRBridge.handlers;
 using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tasks;
@@ -33,6 +32,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Test
 {
