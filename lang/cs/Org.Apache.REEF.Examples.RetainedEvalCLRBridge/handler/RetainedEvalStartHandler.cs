@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler;
-using Org.Apache.REEF.Tasks.ShellTask;
+using Org.Apache.REEF.Examples.Tasks.ShellTask;
 
 namespace Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler
 {

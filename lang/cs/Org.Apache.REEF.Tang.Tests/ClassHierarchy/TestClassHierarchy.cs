@@ -26,9 +26,9 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tasks.HelloTask;
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {

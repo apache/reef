@@ -23,8 +23,8 @@ under the License.
     <ProjectGuid>{75503F90-7B82-4762-9997-94B5C68F15DB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Org.Apache.REEF.Tasks</RootNamespace>
-    <AssemblyName>Org.Apache.REEF.Tasks</AssemblyName>
+    <RootNamespace>Org.Apache.REEF.Examples.Tasks</RootNamespace>
+    <AssemblyName>Org.Apache.REEF.Examples.Tasks</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>

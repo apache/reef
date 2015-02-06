@@ -17,18 +17,19 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "allow name parameter class to be embedded")]
 
-namespace Org.Apache.REEF.Tasks.ShellTask
+namespace Org.Apache.REEF.Examples.Tasks.ShellTask
 {
     public class ShellTask : ITask
     {

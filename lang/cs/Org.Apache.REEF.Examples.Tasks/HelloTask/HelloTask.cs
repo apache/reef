@@ -17,17 +17,18 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.io;
-using Org.Apache.REEF.Tasks.Events;
-using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tasks;
+using Org.Apache.REEF.Tasks.Events;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Tasks.HelloTask
+namespace Org.Apache.REEF.Examples.Tasks.HelloTask
 {
     public class HelloTask : ITask
     {

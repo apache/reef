@@ -18,8 +18,9 @@
  */
 
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tasks;
 
-namespace Org.Apache.REEF.Tasks.StreamingTasks
+namespace Org.Apache.REEF.Examples.Tasks.StreamingTasks
 {
     public class StreamTask2 : ITask
     {

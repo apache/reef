@@ -17,11 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Threading;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tasks;
 
-namespace Org.Apache.REEF.Tasks.FailedTask
+namespace Org.Apache.REEF.Examples.Tasks.FailedTask
 {
     public class FailedTask : ITask
     {

@@ -30,7 +30,7 @@ using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Tasks.HelloTask;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Test
 {

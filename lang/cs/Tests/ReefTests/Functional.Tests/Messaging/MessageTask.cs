@@ -22,6 +22,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Tasks.Events;
@@ -29,7 +30,6 @@ using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Test
 {

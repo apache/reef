@@ -26,8 +26,8 @@ using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Tang.Tests.Format
 {

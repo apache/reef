@@ -22,8 +22,8 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tasks;
-using Org.Apache.REEF.Tasks.ShellTask;
 using System;
+using Org.Apache.REEF.Examples.Tasks.ShellTask;
 
 namespace Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler
 {

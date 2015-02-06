@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Examples.Tasks.ShellTask;
+using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tasks.HelloTask;
-using Org.Apache.REEF.Tasks.ShellTask;
-using Org.Apache.REEF.Tasks.StreamingTasks;
 
 namespace Org.Apache.REEF.Tang.Tools
 {

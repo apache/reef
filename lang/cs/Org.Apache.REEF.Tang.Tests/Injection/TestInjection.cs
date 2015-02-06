@@ -26,10 +26,10 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tasks;
-using Org.Apache.REEF.Tasks.HelloTask;
-using Org.Apache.REEF.Tasks.StreamingTasks;
 using System;
 using System.Reflection;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {

@@ -17,12 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Services;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Services;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Tasks.HelloTask
+namespace Org.Apache.REEF.Examples.Tasks.HelloTask
 {
     public class HelloService : IService
     {
