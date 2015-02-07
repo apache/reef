@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Tang.Examples
     {
         public static string Examples = @"Org.Apache.REEF.Tang.Examples";
         public static string Common = @"Org.Apache.REEF.Common";
-        public static string Tasks = @"Org.Apache.REEF.Examples.Tasks";
+        public static string Tasks = @"Org.Apache.REEF.Examples";
         public static string Seconds = "Org.Apache.REEF.Tang.Examples.Timer+Seconds";
         public static string Timer = "Org.Apache.REEF.Tang.Examples.Timer";
         public static string B = "Org.Apache.REEF.Tang.Examples.B";

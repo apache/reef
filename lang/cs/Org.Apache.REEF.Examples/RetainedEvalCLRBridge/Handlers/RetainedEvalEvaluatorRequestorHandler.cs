@@ -17,11 +17,11 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Evaluator;
-using System;
 
-namespace Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler
+namespace Org.Apache.REEF.Examples.RetainedEvalCLRBridge.Handlers
 {
     public class RetainedEvalEvaluatorRequestorHandler : IObserver<IEvaluatorRequestor>
     {

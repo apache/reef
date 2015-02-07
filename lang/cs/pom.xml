@@ -47,7 +47,7 @@ under the License.
                                 <configuration>
                                     <arguments>
                                         <argument>
-                                           ${project.basedir}/ReefDotNet.sln
+                                           ${project.basedir}/Org.Apache.REEF.sln
                                         </argument>
                                         <argument>/p:Configuration="Release"</argument>
                                         <argument>/p:Platform="x64"</argument>
@@ -64,7 +64,7 @@ under the License.
                                 <configuration>
                                     <arguments>
                                         <argument>
-                                            ${project.basedir}/ReefDotNet.sln
+                                            ${project.basedir}/Org.Apache.REEF.sln
                                         </argument>
                                         <argument>/p:Configuration="Release"</argument>
                                         <argument>/p:Platform="x64"</argument>
