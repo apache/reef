@@ -17,15 +17,15 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Examples.Tasks.ShellTask;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tasks;
-using System;
-using Org.Apache.REEF.Examples.Tasks.ShellTask;
 
-namespace Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler
+namespace Org.Apache.REEF.Examples.RetainedEvalCLRBridge.Handlers
 {
     public class RetainedEvalActiveContextHandler : IObserver<IActiveContext>
     {

@@ -17,19 +17,18 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Tasks;
-using Org.Apache.REEF.Tang.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler;
 using Org.Apache.REEF.Examples.Tasks.ShellTask;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tasks;
 
-namespace Org.Apache.REEF.Examples.RetainedCLREvalBridge.Handler
+namespace Org.Apache.REEF.Examples.RetainedEvalCLRBridge.Handlers
 {
     public class RetainedEvalStartHandler : IStartHandler
     {
