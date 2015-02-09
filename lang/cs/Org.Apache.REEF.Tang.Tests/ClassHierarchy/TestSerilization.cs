@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+ using System;
 using System.Collections.Generic;
 using System.Reflection;
 ﻿using Org.Apache.REEF.Tasks;
@@ -26,7 +26,9 @@ using Org.Apache.REEF.Tang.Protobuf;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Tang.Examples;
+ using Org.Apache.REEF.Examples.Tasks.HelloTask;
+ using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
+ using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
@@ -97,10 +99,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchyForTask()
         {
-            Type streamTask1Type = typeof (Org.Apache.REEF.Tasks.StreamTask1);
-            Type helloTaskType = typeof (Org.Apache.REEF.Tasks.HelloTask);
+            Type streamTask1Type = typeof (StreamTask1);
+            Type helloTaskType = typeof (HelloTask);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Org.Apache.REEF.Tasks.HelloTask).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
             IClassNode StreamTask1ClassNode = (IClassNode)ns.GetNode(streamTask1Type.AssemblyQualifiedName);
             IClassNode HelloTaskClassNode = (IClassNode)ns.GetNode(helloTaskType.AssemblyQualifiedName);
 
@@ -137,10 +139,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchyAndBind()
         {
-            Type streamTask1Type = typeof(Org.Apache.REEF.Tasks.StreamTask1);
-            Type helloTaskType = typeof(Org.Apache.REEF.Tasks.HelloTask);
+            Type streamTask1Type = typeof(StreamTask1);
+            Type helloTaskType = typeof(HelloTask);
 
-            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Org.Apache.REEF.Tasks.HelloTask).Assembly.GetName().Name });
+            IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
             IClassNode StreamTask1ClassNode = (IClassNode)ns.GetNode(streamTask1Type.AssemblyQualifiedName);
             IClassNode HelloTaskClassNode = (IClassNode)ns.GetNode(helloTaskType.AssemblyQualifiedName);
 
@@ -157,7 +159,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
                   .NewConfigurationBuilder(ns);
             cb.AddConfiguration(TaskConfiguration.ConfigurationModule
              .Set(TaskConfiguration.Identifier, "Hello_From_Streaming1")
-             .Set(TaskConfiguration.Task, GenericType<Org.Apache.REEF.Tasks.StreamTask1>.Class)
+             .Set(TaskConfiguration.Task, GenericType<StreamTask1>.Class)
              .Build());
 
             IConfiguration taskConfiguration = cb.Build();

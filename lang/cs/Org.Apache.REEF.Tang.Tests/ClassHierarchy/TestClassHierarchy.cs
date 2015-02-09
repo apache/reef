@@ -28,6 +28,7 @@ using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
@@ -402,8 +403,8 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [TestMethod]
         public void TestHelloTaskNode()
         {
-            var node = ns.GetNode(typeof(Org.Apache.REEF.Tasks.HelloTask).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(Org.Apache.REEF.Tasks.HelloTask)));
+            var node = ns.GetNode(typeof(HelloTask).AssemblyQualifiedName);
+            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(HelloTask)));
         }
 
         [TestMethod]

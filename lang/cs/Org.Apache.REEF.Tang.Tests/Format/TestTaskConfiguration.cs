@@ -26,6 +26,7 @@ using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Tang.Tests.Format
@@ -103,7 +104,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                                                     .Build();
 
             IInjector injector1 = TangFactory.GetTang().NewInjector(conf1);
-            var task1 = (Org.Apache.REEF.Tasks.HelloTask)injector1.GetInstance(typeof(ITask));
+            var task1 = (HelloTask)injector1.GetInstance(typeof(ITask));
             Assert.IsNotNull(task1);
 
             var serializer = new AvroConfigurationSerializer();
@@ -111,7 +112,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             IConfiguration conf2 = serializer.FromByteArray(bytes);
 
             IInjector injector2 = TangFactory.GetTang().NewInjector(conf2);
-            var task2 = (Org.Apache.REEF.Tasks.HelloTask)injector2.GetInstance(typeof(ITask));
+            var task2 = (HelloTask)injector2.GetInstance(typeof(ITask));
             Assert.IsNotNull(task2);
         }
 
@@ -131,7 +132,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 .Build();
 
             IInjector injector1 = TangFactory.GetTang().NewInjector(conf1);
-            var task1 = (Org.Apache.REEF.Tasks.HelloTask)injector1.GetInstance(typeof(ITask));
+            var task1 = (HelloTask)injector1.GetInstance(typeof(ITask));
             Assert.IsNotNull(task1);
 
             var serializer = new AvroConfigurationSerializer();
@@ -139,14 +140,14 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             IConfiguration conf2 = serializer.FromByteArray(bytes);
 
             IInjector injector2 = TangFactory.GetTang().NewInjector(conf2);
-            var task2 = (Org.Apache.REEF.Tasks.HelloTask)injector2.GetInstance(typeof(ITask));
+            var task2 = (HelloTask)injector2.GetInstance(typeof(ITask));
             Assert.IsNotNull(task2);
 
             serializer.ToFileStream(conf1, "TaskConfiguration.bin");
             IConfiguration conf3 = serializer.FromFileStream("TaskConfiguration.bin");
 
             IInjector injector3 = TangFactory.GetTang().NewInjector(conf3);
-            var task3 = (Org.Apache.REEF.Tasks.HelloTask)injector3.GetInstance(typeof(ITask));
+            var task3 = (HelloTask)injector3.GetInstance(typeof(ITask));
             Assert.IsNotNull(task3);
         }
     }

@@ -250,11 +250,12 @@ under the License.
                             <exclude>**/obj/**</exclude>
                             <exclude>**/Release/**</exclude>
                             <exclude>**/Debug/**</exclude>
+                            <exclude>**/TestResults/**</exclude>
                             <!-- NuGet dependencies downloaded as part of the build -->
                             <exclude>**/packages/**</exclude>
                             <!-- The below are auto generated files for serialization -->
-                            <exclude>**/ReefCommon/protobuf/cs/*</exclude>
-                            <exclude>**/ReefCommon/avro/*</exclude>
+                            <exclude>**/Org.Apache.REEF.Common/protobuf/cs/*</exclude>
+                            <exclude>**/Org.Apache.REEF.Common/avro/*</exclude>
                             <!-- The below are binary data files used in tests -->
                             <exclude>**/ConfigFiles/evaluator.conf</exclude>
                             <exclude>**/TangTests/evaluator.conf</exclude>
