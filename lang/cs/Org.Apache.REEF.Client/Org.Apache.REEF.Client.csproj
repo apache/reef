@@ -31,6 +31,9 @@ under the License.
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
+  <PropertyGroup>
+    <BuildPackage>false</BuildPackage>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
