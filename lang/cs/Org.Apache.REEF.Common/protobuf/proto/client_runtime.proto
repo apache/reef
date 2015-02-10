@@ -1,0 +1,56 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+option java_package = "org.apache.reef.proto";
+option java_outer_classname = "ClientRuntimeProtocol";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+
+import "reef_service_protos.proto";
+
+// Messages from REEF Client -> Driver Runtime
+
+message JobSubmissionProto {
+	required string identifier     = 1; // the job identifier
+	required string remote_id      = 2; // the remote identifier
+	required string configuration  = 5; // the runtime configuration
+	required string user_name      = 6; // the user name
+
+  optional SIZE   driver_size    = 7;
+  optional int32  driver_memory  = 8;
+  optional int32  priority       = 9;
+  optional string queue          = 10;
+
+	repeated FileResourceProto global_file = 11; // files that should be placed on the driver and all subsequent evaluators
+	repeated FileResourceProto local_File  = 12; // files that should be placed on the driver only
+
+}
+
+enum Signal {
+	SIG_TERMINATE = 1;
+	SIG_SUSPEND   = 2;
+	SIG_RESUME    = 3;
+}
+
+message JobControlProto {
+	required string identifier = 1;
+	optional Signal signal     = 2;
+	optional bytes message     = 3;
+}
+
+
