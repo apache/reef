@@ -25,7 +25,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Remoting;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Wake;

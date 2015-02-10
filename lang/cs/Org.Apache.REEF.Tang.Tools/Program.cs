@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
@@ -26,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Examples.Tasks.ShellTask;
 using Org.Apache.REEF.Examples.Tasks.StreamingTasks;

@@ -22,6 +22,7 @@ using System.Collections.Generic;
 
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Impl;
+using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Wake.Time

@@ -18,7 +18,7 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming.Events;
 using Org.Apache.REEF.Wake.RX;
 

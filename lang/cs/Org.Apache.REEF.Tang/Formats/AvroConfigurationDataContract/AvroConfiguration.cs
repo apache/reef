@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace Org.Apache.REEF.Tang.Formats
+namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
 {
     [KnownType(typeof(HashSet<ConfigurationEntry>))]
     [DataContract(Name = "AvroConfiguration", Namespace = "org.apache.reef.tang.formats.avro")]

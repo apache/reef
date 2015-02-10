@@ -20,20 +20,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Wake.RX.Impl;
-using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Wake.Time.Event;
+using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
-namespace Org.Apache.REEF.Wake.Time.Runtime.Event
+namespace Org.Apache.REEF.Wake.Time.Runtime
 {
     public class RuntimeClock : IClock
     {

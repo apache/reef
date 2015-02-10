@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using Org.Apache.REEF.Services;
+using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Examples.Tasks.HelloTask

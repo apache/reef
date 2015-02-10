@@ -17,15 +17,13 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Client;
-using Org.Apache.REEF.Common.ProtoBuf.ClienRuntimeProto;
-using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
-using Org.Apache.REEF.Common.ProtoBuf.ReefServiceProto;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Time;
 using System;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Common
 {

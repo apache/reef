@@ -19,8 +19,8 @@
 
 using System.IO;
 using Microsoft.Hadoop.Avro;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;

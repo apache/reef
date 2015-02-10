@@ -27,6 +27,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Time;
+using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
 

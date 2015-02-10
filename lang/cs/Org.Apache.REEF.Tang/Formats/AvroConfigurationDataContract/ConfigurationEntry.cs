@@ -19,7 +19,7 @@
 
 using System.Runtime.Serialization;
 
-namespace Org.Apache.REEF.Tang.Formats
+namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
 {
     [DataContract(Name = "ConfigurationEntry", Namespace = "org.apache.reef.tang.formats.avro")]
     [KnownType(typeof(string))]

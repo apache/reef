@@ -27,7 +27,7 @@
 //------------------------------------------------------------------------------
 
 // Generated from: class_hierarchy.proto
-namespace ClassHierarchyProto
+namespace Org.Apache.REEF.Tang.Protobuf
 {
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Node")]
   public partial class Node : global::ProtoBuf.IExtensible

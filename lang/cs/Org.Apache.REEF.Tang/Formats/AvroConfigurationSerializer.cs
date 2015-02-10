@@ -33,6 +33,7 @@ using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Newtonsoft.Json;
+using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 

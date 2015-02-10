@@ -21,9 +21,6 @@ using Org.Apache.REEF.Common.Api;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Exceptions;
-using Org.Apache.REEF.Common.ProtoBuf.DriverRuntimeProto;
-using Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto;
-using Org.Apache.REEF.Common.ProtoBuf.ReefServiceProto;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -39,8 +36,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-
-using TaskMessage = Org.Apache.REEF.Tasks.TaskMessage;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+using Org.Apache.REEF.Driver.Bridge.Events;
+using TaskMessage = Org.Apache.REEF.Common.Tasks.TaskMessage;
 
 namespace Org.Apache.REEF.Driver
 {
