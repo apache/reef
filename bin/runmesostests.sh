@@ -26,7 +26,7 @@ fi
 export REEF_TEST_MESOS=true
 export REEF_TEST_MESOS_MASTER_IP=$1
 
-DEPENDENCY_JAR=`echo $REEF_HOME/reef-tests/target/reef-tests-*-test-jar-with-dependencies.jar`
+DEPENDENCY_JAR=`echo $REEF_HOME/lang/java/reef-tests/target/reef-tests-*-test-jar-with-dependencies.jar`
 CLASSPATH=`hadoop classpath`
 
 CMD="java -cp $DEPENDENCY_JAR:$CLASSPATH org.junit.runner.JUnitCore org.apache.reef.tests.AllTestsSuite"
