@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.ProtoBuf.ClienRuntimeProto;
 using System;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 
 // TODO
 namespace Org.Apache.REEF.Driver

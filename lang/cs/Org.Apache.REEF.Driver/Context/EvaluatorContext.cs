@@ -19,7 +19,7 @@
 
 using System;
 using System.Globalization;
-using Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Interface;

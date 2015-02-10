@@ -7,10 +7,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using Org.Apache.REEF.Common.ProtoBuf.ReefServiceProto;
 // Generated from: evaluator_runtime.proto
 // Note: requires additional types generated from: reef_service_protos.proto
-namespace Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto
+namespace Org.Apache.REEF.Common.protobuf.ReefProtocol
 {
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"StopEvaluatorProto")]
   public partial class StopEvaluatorProto : global::ProtoBuf.IExtensible

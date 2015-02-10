@@ -20,7 +20,7 @@
 using System;
 using System.Globalization;
 using System.Threading;
-using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;

@@ -19,9 +19,7 @@
 
 using System;
 using System.Globalization;
-using Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto;
-using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
-using Org.Apache.REEF.Common.ProtoBuf.ReefServiceProto;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;

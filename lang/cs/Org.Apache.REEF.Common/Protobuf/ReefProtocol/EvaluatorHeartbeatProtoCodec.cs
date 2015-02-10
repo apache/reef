@@ -17,10 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Common.ProtoBuf.ReefProtocol
+namespace Org.Apache.REEF.Common.protobuf.ReefProtocol
 {
     public class EvaluatorHeartbeatProtoCodec : ICodec<EvaluatorHeartbeatProto>
     {

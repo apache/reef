@@ -22,10 +22,6 @@ using Org.Apache.REEF.Common.Api;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Exceptions;
-using Org.Apache.REEF.Common.ProtoBuf.DriverRuntimeProto;
-using Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto;
-using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
-using Org.Apache.REEF.Common.ProtoBuf.ReefServiceProto;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Utilities;
@@ -39,6 +35,7 @@ using Org.Apache.REEF.Wake.Time.Runtime.Event;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 
 namespace Org.Apache.REEF.Driver

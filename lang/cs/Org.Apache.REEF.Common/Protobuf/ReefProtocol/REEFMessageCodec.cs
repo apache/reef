@@ -19,7 +19,7 @@
 
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Common.ProtoBuf.ReefProtocol
+namespace Org.Apache.REEF.Common.protobuf.ReefProtocol
 {
     public class REEFMessageCodec : ICodec<REEFMessage>
     {

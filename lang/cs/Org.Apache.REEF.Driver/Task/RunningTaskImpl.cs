@@ -18,10 +18,10 @@
  */
 
 using Org.Apache.REEF.Common;
-using Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Utilities.Logging;
 using System.Globalization;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.Driver.Task
 {

@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.ProtoBuf.DriverRuntimeProto;
 using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections.Generic;
@@ -25,6 +24,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using Org.Apache.REEF.Common.Catalog.Capabilities;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.Common.Catalog
 {

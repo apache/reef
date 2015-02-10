@@ -19,7 +19,6 @@
 
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
@@ -40,6 +39,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;

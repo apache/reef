@@ -17,21 +17,18 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto;
-using Org.Apache.REEF.Common.ProtoBuf.ReefServiceProto;
-using Org.Apache.REEF.Utilities;
-
-using ProtoBuf;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Org.Apache.REEF.Utilities;
+using ProtoBuf;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1403:FileMayOnlyContainASingleNamespace", Justification = "Serializers for all protobuf types")]
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Serializers for all protobuf types")]
 
-namespace Org.Apache.REEF.Common.ProtoBuf.ReefProtocol
+namespace Org.Apache.REEF.Common.protobuf.ReefProtocol
 {
     /// <summary>
     /// Add serializer/deserializer to REEFMessage
@@ -66,10 +63,7 @@ namespace Org.Apache.REEF.Common.ProtoBuf.ReefProtocol
             return b;
         }
     }
-}
 
-namespace Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto
-{
     /// <summary>
     /// Add serializer/deserializer to EvaluatorHeartbeatProto
     /// </summary>
@@ -105,10 +99,10 @@ namespace Org.Apache.REEF.Common.ProtoBuf.EvaluatorRunTimeProto
             foreach (ContextStatusProto contextStatusProto in context_status)
             {
                 contextStatus += string.Format(CultureInfo.InvariantCulture, "evaluator {0} has context {1} in state {2} with recovery flag {3}",
-                                               evaluator_status.evaluator_id,
-                                               contextStatusProto.context_id,
-                                               contextStatusProto.context_state,
-                                               contextStatusProto.recovery);
+                    evaluator_status.evaluator_id,
+                    contextStatusProto.context_id,
+                    contextStatusProto.context_state,
+                    contextStatusProto.recovery);
             }
             if (task_status != null && task_status.task_message != null && task_status.task_message.Count > 0)
             {

@@ -20,7 +20,7 @@
 using System;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake.Remote;

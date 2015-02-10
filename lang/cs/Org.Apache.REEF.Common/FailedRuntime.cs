@@ -18,9 +18,9 @@
  */
 
 using Org.Apache.REEF.Common.Api;
-using Org.Apache.REEF.Common.ProtoBuf.ReefServiceProto;
 using Org.Apache.REEF.Utilities;
 using System;
+using Org.Apache.REEF.Common.protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.Common
 {
