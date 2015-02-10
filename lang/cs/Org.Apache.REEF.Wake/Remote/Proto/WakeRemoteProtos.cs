@@ -17,12 +17,10 @@
  * under the License.
  */
 
-using ProtoBuf;
-using System;
 using System.IO;
-using System.Runtime.Serialization;
+using ProtoBuf;
 
-namespace Org.Apache.REEF.Wake.Remote.Proto.WakeRemoteProtos
+namespace Org.Apache.REEF.Wake.Remote.Proto
 {
     /// <summary>
     /// Message p buff

@@ -27,7 +27,7 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Driver</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
@@ -89,83 +89,83 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="bridge\BridgeLogger.cs" />
-    <Compile Include="bridge\clr2java\IActiveContextClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IAllocatedEvaluaotrClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IClosedContextClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IClr2Java.cs" />
-    <Compile Include="bridge\clr2java\ICompletedEvaluatorClr2Java.cs" />
-    <Compile Include="bridge\clr2java\ICompletedTaskClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IContextMessageClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IEvaluatorRequestorClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IFailedContextClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IFailedEvaluatorClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IFailedTaskClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IHttpServerBridgeClr2Java.cs" />
-    <Compile Include="bridge\clr2java\IRunningTaskClr2Java.cs" />
-    <Compile Include="bridge\clr2java\ISuspendedTaskClr2Java.cs" />
-    <Compile Include="bridge\clr2java\ITaskMessageClr2Java.cs" />
-    <Compile Include="bridge\ClrClientHelper.cs" />
-    <Compile Include="bridge\ClrHandlerHelper.cs" />
-    <Compile Include="bridge\ClrSystemHandler.cs" />
-    <Compile Include="bridge\ClrSystemHandlerWrapper.cs" />
-    <Compile Include="bridge\DriverBridge.cs" />
-    <Compile Include="bridge\DriverBridgeConfiguration.cs" />
-    <Compile Include="bridge\DriverBridgeConfigurationOptions.cs" />
-    <Compile Include="bridge\events\ActiveContext.cs" />
-    <Compile Include="bridge\events\AllocatedEvaluator.cs" />
-    <Compile Include="bridge\events\ClosedContext.cs" />
-    <Compile Include="bridge\events\CompletedEvaluator.cs" />
-    <Compile Include="bridge\events\CompletedTask.cs" />
-    <Compile Include="bridge\events\ContextMessage.cs" />
-    <Compile Include="bridge\events\EvaluatorRequstor.cs" />
-    <Compile Include="bridge\events\FailedContext.cs" />
-    <Compile Include="bridge\events\FailedEvaluator.cs" />
-    <Compile Include="bridge\events\FailedTask.cs" />
-    <Compile Include="bridge\events\RunningTask.cs" />
-    <Compile Include="bridge\events\SuspendedTask.cs" />
-    <Compile Include="bridge\events\TaskMessage.cs" />
-    <Compile Include="bridge\HttpMessage.cs" />
-    <Compile Include="bridge\HttpServerHandler.cs" />
-    <Compile Include="bridge\HttpServerPort.cs" />
-    <Compile Include="bridge\IHttpHandler.cs" />
-    <Compile Include="bridge\IHttpMessage.cs" />
-    <Compile Include="bridge\ReefHttpRequest.cs" />
-    <Compile Include="bridge\ReefHttpResponse.cs" />
+    <Compile Include="Bridge\BridgeLogger.cs" />
+    <Compile Include="Bridge\Clr2java\IActiveContextClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IAllocatedEvaluaotrClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IClosedContextClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\ICompletedEvaluatorClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\ICompletedTaskClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IContextMessageClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IEvaluatorRequestorClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IFailedContextClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IFailedEvaluatorClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IFailedTaskClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IHttpServerBridgeClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IRunningTaskClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\ISuspendedTaskClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\ITaskMessageClr2Java.cs" />
+    <Compile Include="Bridge\ClrClientHelper.cs" />
+    <Compile Include="Bridge\ClrHandlerHelper.cs" />
+    <Compile Include="Bridge\ClrSystemHandler.cs" />
+    <Compile Include="Bridge\ClrSystemHandlerWrapper.cs" />
+    <Compile Include="Bridge\DriverBridge.cs" />
+    <Compile Include="Bridge\DriverBridgeConfiguration.cs" />
+    <Compile Include="Bridge\DriverBridgeConfigurationOptions.cs" />
+    <Compile Include="Bridge\Events\ActiveContext.cs" />
+    <Compile Include="Bridge\Events\AllocatedEvaluator.cs" />
+    <Compile Include="Bridge\Events\ClosedContext.cs" />
+    <Compile Include="Bridge\Events\CompletedEvaluator.cs" />
+    <Compile Include="Bridge\Events\CompletedTask.cs" />
+    <Compile Include="Bridge\Events\ContextMessage.cs" />
+    <Compile Include="Bridge\Events\EvaluatorRequstor.cs" />
+    <Compile Include="Bridge\Events\FailedContext.cs" />
+    <Compile Include="Bridge\Events\FailedEvaluator.cs" />
+    <Compile Include="Bridge\Events\FailedTask.cs" />
+    <Compile Include="Bridge\Events\RunningTask.cs" />
+    <Compile Include="Bridge\Events\SuspendedTask.cs" />
+    <Compile Include="Bridge\Events\TaskMessage.cs" />
+    <Compile Include="Bridge\HttpMessage.cs" />
+    <Compile Include="Bridge\HttpServerHandler.cs" />
+    <Compile Include="Bridge\HttpServerPort.cs" />
+    <Compile Include="Bridge\IHttpHandler.cs" />
+    <Compile Include="Bridge\IHttpMessage.cs" />
+    <Compile Include="Bridge\ReefHttpRequest.cs" />
+    <Compile Include="Bridge\ReefHttpResponse.cs" />
     <Compile Include="ClientManager.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="context\ContextConfiguration.cs" />
-    <Compile Include="context\ContextConfigurationOptions.cs" />
-    <Compile Include="context\defaults\DefaultContextMessageSource.cs" />
-    <Compile Include="context\defaults\DefaultContextStartHandler.cs" />
-    <Compile Include="context\defaults\DefaultContextStopHandler.cs" />
-    <Compile Include="context\EvaluatorContext.cs" />
-    <Compile Include="context\IActiveContext.cs" />
-    <Compile Include="context\IClosedContext.cs" />
-    <Compile Include="context\IContext.cs" />
-    <Compile Include="context\IFailedContext.cs" />
-    <Compile Include="contract\IBridgeContract.cs" />
-    <Compile Include="defaults\DefaultClientCloseHandler.cs" />
-    <Compile Include="defaults\DefaultClientCloseWithMessageHandler.cs" />
-    <Compile Include="defaults\DefaultClientMessageHandler.cs" />
-    <Compile Include="defaults\DefaultContextActiveHandler.cs" />
-    <Compile Include="defaults\DefaultContextClosureHandler.cs" />
-    <Compile Include="defaults\DefaultContextFailureHandler.cs" />
-    <Compile Include="defaults\DefaultContextMessageHandler.cs" />
-    <Compile Include="defaults\DefaultCustomTraceListener.cs" />
-    <Compile Include="defaults\DefaultDriverRestartContextActiveHandler.cs" />
-    <Compile Include="defaults\DefaultDriverRestartHandler.cs" />
-    <Compile Include="defaults\DefaultDriverRestartTaskRunningHandler.cs" />
-    <Compile Include="defaults\DefaultEvaluatorAllocationHandler.cs" />
-    <Compile Include="defaults\DefaultEvaluatorCompletionHandler.cs" />
-    <Compile Include="defaults\DefaultEvaluatorFailureHandler.cs" />
-    <Compile Include="defaults\DefaultEvaluatorRequestorHandler.cs" />
-    <Compile Include="defaults\DefaultHttpHandler.cs" />
-    <Compile Include="defaults\DefaultTaskCompletionHandler.cs" />
-    <Compile Include="defaults\DefaultTaskFailureHandler.cs" />
-    <Compile Include="defaults\DefaultTaskMessageHandler.cs" />
-    <Compile Include="defaults\DefaultTaskRunningHandler.cs" />
-    <Compile Include="defaults\DefaultTaskSuspensionHandler.cs" />
+    <Compile Include="Context\ContextConfiguration.cs" />
+    <Compile Include="Context\ContextConfigurationOptions.cs" />
+    <Compile Include="Context\Defaults\DefaultContextMessageSource.cs" />
+    <Compile Include="Context\Defaults\DefaultContextStartHandler.cs" />
+    <Compile Include="Context\Defaults\DefaultContextStopHandler.cs" />
+    <Compile Include="Context\EvaluatorContext.cs" />
+    <Compile Include="Context\IActiveContext.cs" />
+    <Compile Include="Context\IClosedContext.cs" />
+    <Compile Include="Context\IContext.cs" />
+    <Compile Include="Context\IFailedContext.cs" />
+    <Compile Include="Contract\IBridgeContract.cs" />
+    <Compile Include="Defaults\DefaultClientCloseHandler.cs" />
+    <Compile Include="Defaults\DefaultClientCloseWithMessageHandler.cs" />
+    <Compile Include="Defaults\DefaultClientMessageHandler.cs" />
+    <Compile Include="Defaults\DefaultContextActiveHandler.cs" />
+    <Compile Include="Defaults\DefaultContextClosureHandler.cs" />
+    <Compile Include="Defaults\DefaultContextFailureHandler.cs" />
+    <Compile Include="Defaults\DefaultContextMessageHandler.cs" />
+    <Compile Include="Defaults\DefaultCustomTraceListener.cs" />
+    <Compile Include="Defaults\DefaultDriverRestartContextActiveHandler.cs" />
+    <Compile Include="Defaults\DefaultDriverRestartHandler.cs" />
+    <Compile Include="Defaults\DefaultDriverRestartTaskRunningHandler.cs" />
+    <Compile Include="Defaults\DefaultEvaluatorAllocationHandler.cs" />
+    <Compile Include="Defaults\DefaultEvaluatorCompletionHandler.cs" />
+    <Compile Include="Defaults\DefaultEvaluatorFailureHandler.cs" />
+    <Compile Include="Defaults\DefaultEvaluatorRequestorHandler.cs" />
+    <Compile Include="Defaults\DefaultHttpHandler.cs" />
+    <Compile Include="Defaults\DefaultTaskCompletionHandler.cs" />
+    <Compile Include="Defaults\DefaultTaskFailureHandler.cs" />
+    <Compile Include="Defaults\DefaultTaskMessageHandler.cs" />
+    <Compile Include="Defaults\DefaultTaskRunningHandler.cs" />
+    <Compile Include="Defaults\DefaultTaskSuspensionHandler.cs" />
     <Compile Include="DriverConfigGenerator.cs" />
     <Compile Include="DriverConfigurationSettings.cs" />
     <Compile Include="DriverManager.cs" />
@@ -173,25 +173,25 @@ under the License.
     <Compile Include="DriverRuntimeConfigurationOptions.cs" />
     <Compile Include="DriverSubmissionSettings.cs" />
     <Compile Include="EvaluatorManager.cs" />
-    <Compile Include="evaluator\EvaluatorDescriptorImpl.cs" />
-    <Compile Include="evaluator\EvaluatorRequest.cs" />
-    <Compile Include="evaluator\EvaluatorRequestBuilder.cs" />
-    <Compile Include="evaluator\IAllocatedEvaluator.cs" />
-    <Compile Include="evaluator\ICompletedEvaluator.cs" />
-    <Compile Include="evaluator\IEvaluatorDescriptor.cs" />
-    <Compile Include="evaluator\IEvaluatorRequest .cs" />
-    <Compile Include="evaluator\IEvaluatorRequestor.cs" />
-    <Compile Include="evaluator\IFailedEvaluator.cs" />
+    <Compile Include="Evaluator\EvaluatorDescriptorImpl.cs" />
+    <Compile Include="Evaluator\EvaluatorRequest.cs" />
+    <Compile Include="Evaluator\EvaluatorRequestBuilder.cs" />
+    <Compile Include="Evaluator\IAllocatedEvaluator.cs" />
+    <Compile Include="Evaluator\ICompletedEvaluator.cs" />
+    <Compile Include="Evaluator\IEvaluatorDescriptor.cs" />
+    <Compile Include="Evaluator\IEvaluatorRequest .cs" />
+    <Compile Include="Evaluator\IEvaluatorRequestor.cs" />
+    <Compile Include="Evaluator\IFailedEvaluator.cs" />
     <Compile Include="FailedJob.cs" />
     <Compile Include="IDriver.cs" />
     <Compile Include="IStartHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="task\ICompletedTask.cs" />
-    <Compile Include="task\IFailedTask.cs" />
-    <Compile Include="task\IRunningTask.cs" />
-    <Compile Include="task\ISuspendedTask.cs" />
-    <Compile Include="task\ITaskMessage.cs" />
-    <Compile Include="task\RunningTaskImpl.cs" />
+    <Compile Include="Task\ICompletedTask.cs" />
+    <Compile Include="Task\IFailedTask.cs" />
+    <Compile Include="Task\IRunningTask.cs" />
+    <Compile Include="Task\ISuspendedTask.cs" />
+    <Compile Include="Task\ITaskMessage.cs" />
+    <Compile Include="Task\RunningTaskImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -209,7 +209,7 @@ under the License.
       <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
       <Name>Org.Apache.REEF.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>

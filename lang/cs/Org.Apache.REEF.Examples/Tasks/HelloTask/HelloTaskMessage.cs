@@ -19,8 +19,8 @@
 
 using System;
 using System.Globalization;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Examples.Tasks.HelloTask

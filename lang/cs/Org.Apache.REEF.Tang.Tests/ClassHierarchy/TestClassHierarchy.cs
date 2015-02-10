@@ -28,6 +28,7 @@ using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
@@ -410,15 +411,15 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [TestMethod]
         public void TestITackNode()
         {
-            var node = ns.GetNode(typeof(Org.Apache.REEF.Tasks.ITask).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(Org.Apache.REEF.Tasks.ITask)));
+            var node = ns.GetNode(typeof(ITask).AssemblyQualifiedName);
+            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(ITask)));
         }
 
         [TestMethod]
         public void TestNamedParameterIdentifier()
         {
-            var node = ns.GetNode(typeof(Org.Apache.REEF.Tasks.TaskConfigurationOptions.Identifier).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(Org.Apache.REEF.Tasks.TaskConfigurationOptions.Identifier)));
+            var node = ns.GetNode(typeof(TaskConfigurationOptions.Identifier).AssemblyQualifiedName);
+            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(TaskConfigurationOptions.Identifier)));
         }
         [TestMethod]
         public void TestInterface()

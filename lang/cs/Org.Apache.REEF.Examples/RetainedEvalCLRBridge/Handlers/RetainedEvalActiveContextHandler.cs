@@ -18,12 +18,12 @@
  */
 
 using System;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Examples.Tasks.ShellTask;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tasks;
 
 namespace Org.Apache.REEF.Examples.RetainedEvalCLRBridge.Handlers
 {

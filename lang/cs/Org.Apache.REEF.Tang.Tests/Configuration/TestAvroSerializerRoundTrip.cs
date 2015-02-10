@@ -21,6 +21,7 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Tests.SmokeTest;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
 {

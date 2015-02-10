@@ -39,8 +39,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-
-using TaskMessage = Org.Apache.REEF.Tasks.TaskMessage;
+using Org.Apache.REEF.Driver.Bridge.Events;
+using TaskMessage = Org.Apache.REEF.Common.Tasks.TaskMessage;
 
 namespace Org.Apache.REEF.Driver
 {

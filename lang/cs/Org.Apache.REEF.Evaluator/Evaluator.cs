@@ -19,15 +19,12 @@
 
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Evaluator.Context;
 using Org.Apache.REEF.Common.ProtoBuf.ReefProtocol;
 using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Services;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
@@ -43,6 +40,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Common.Runtime.Evaluator;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
+using Org.Apache.REEF.Common.Services;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Wake.Time.Runtime;
+using Constants = Org.Apache.REEF.Common.Runtime.Evaluator.Constants;
 
 namespace Org.Apache.REEF.Evaluator
 {

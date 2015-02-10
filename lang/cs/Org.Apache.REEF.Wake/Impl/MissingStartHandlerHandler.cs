@@ -20,6 +20,7 @@
 using System;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Time;
+using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Wake.Impl
 {

@@ -119,12 +119,6 @@ under the License.
     <Compile Include="Naming\NameLookupClient.cs" />
     <Compile Include="Naming\NameRegisterClient.cs" />
     <Compile Include="Naming\NameServer.cs" />
-    <Compile Include="Naming\NamingConfiguration.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Naming\NamingConfigurationOptions.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Naming\Observers\NamingGetAllRequestObserver.cs" />
     <Compile Include="Naming\Observers\NamingLookupRequestObserver.cs" />
     <Compile Include="Naming\Observers\NamingRegisterRequestObserver.cs" />

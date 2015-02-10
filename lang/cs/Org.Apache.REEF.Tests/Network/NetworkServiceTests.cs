@@ -23,7 +23,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;

@@ -41,22 +41,22 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
         public static void Serialize(string fileName, IClassHierarchy classHierarchy)
         {
-            ClassHierarchyProto.Node node = Serialize(classHierarchy);
+            Org.Apache.REEF.Tang.Protobuf.Node node = Serialize(classHierarchy);
 
             using (var file = File.Create(fileName))
             {
-                Serializer.Serialize<ClassHierarchyProto.Node>(file, node);
+                Serializer.Serialize<Org.Apache.REEF.Tang.Protobuf.Node>(file, node);
             }
         }
 
-        public static ClassHierarchyProto.Node Serialize(IClassHierarchy classHierarchy)
+        public static Org.Apache.REEF.Tang.Protobuf.Node Serialize(IClassHierarchy classHierarchy)
         {
             return SerializeNode(classHierarchy.GetNamespace());
         }
 
-        private static ClassHierarchyProto.Node SerializeNode(INode n)
+        private static Org.Apache.REEF.Tang.Protobuf.Node SerializeNode(INode n)
         {
-            IList<ClassHierarchyProto.Node> children = new List<ClassHierarchyProto.Node>();
+            IList<Org.Apache.REEF.Tang.Protobuf.Node> children = new List<Org.Apache.REEF.Tang.Protobuf.Node>();
 
             foreach (INode child in n.GetChildren())
             {
@@ -75,13 +75,13 @@ namespace Org.Apache.REEF.Tang.Protobuf
                     others.Remove(c);
                 }
 
-                IList<ClassHierarchyProto.ConstructorDef> injectableConstructors = new List<ClassHierarchyProto.ConstructorDef>();
+                IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> injectableConstructors = new List<Org.Apache.REEF.Tang.Protobuf.ConstructorDef>();
                 foreach (IConstructorDef inj in injectable)
                 {
                     injectableConstructors.Add(SerializeConstructorDef(inj));
                 }
 
-                IList<ClassHierarchyProto.ConstructorDef> otherConstructors = new List<ClassHierarchyProto.ConstructorDef>();
+                IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> otherConstructors = new List<Org.Apache.REEF.Tang.Protobuf.ConstructorDef>();
                 foreach (IConstructorDef other in others)
                 {
                     otherConstructors.Add(SerializeConstructorDef(other));
@@ -112,9 +112,9 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return null;
         }
 
-        private static ClassHierarchyProto.ConstructorDef SerializeConstructorDef(IConstructorDef def)
+        private static Org.Apache.REEF.Tang.Protobuf.ConstructorDef SerializeConstructorDef(IConstructorDef def)
         {
-            IList<ClassHierarchyProto.ConstructorArg> args = new List<ClassHierarchyProto.ConstructorArg>();
+            IList<Org.Apache.REEF.Tang.Protobuf.ConstructorArg> args = new List<Org.Apache.REEF.Tang.Protobuf.ConstructorArg>();
             foreach (IConstructorArg arg in def.GetArgs())
             {
                 args.Add(NewConstructorArg(arg.Gettype(), arg.GetNamedParameterName(), arg.IsInjectionFuture()));
@@ -122,22 +122,22 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return newConstructorDef(def.GetClassName(), args);
         }
 
-        private static ClassHierarchyProto.ConstructorArg NewConstructorArg(
+        private static Org.Apache.REEF.Tang.Protobuf.ConstructorArg NewConstructorArg(
             string fullArgClassName, string namedParameterName, bool isFuture)
         {
-            ClassHierarchyProto.ConstructorArg constArg = new ClassHierarchyProto.ConstructorArg();
+            Org.Apache.REEF.Tang.Protobuf.ConstructorArg constArg = new Org.Apache.REEF.Tang.Protobuf.ConstructorArg();
             constArg.full_arg_class_name = fullArgClassName;
             constArg.named_parameter_name = namedParameterName;
             constArg.is_injection_future = isFuture;
             return constArg;
         }
 
-        private static ClassHierarchyProto.ConstructorDef newConstructorDef(
-             String fullClassName, IList<ClassHierarchyProto.ConstructorArg> args)
+        private static Org.Apache.REEF.Tang.Protobuf.ConstructorDef newConstructorDef(
+             String fullClassName, IList<Org.Apache.REEF.Tang.Protobuf.ConstructorArg> args)
         {
-            ClassHierarchyProto.ConstructorDef constDef = new ClassHierarchyProto.ConstructorDef();
+            Org.Apache.REEF.Tang.Protobuf.ConstructorDef constDef = new Org.Apache.REEF.Tang.Protobuf.ConstructorDef();
             constDef.full_class_name = fullClassName;
-            foreach (ClassHierarchyProto.ConstructorArg arg in args)
+            foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorArg arg in args)
             {
                 constDef.args.Add(arg);
             }
@@ -145,14 +145,14 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return constDef;
         }
 
-        private static ClassHierarchyProto.Node NewClassNode(String name,
+        private static Org.Apache.REEF.Tang.Protobuf.Node NewClassNode(String name,
             String fullName, bool isInjectionCandidate,
             bool isExternalConstructor, bool isUnit,
-            IList<ClassHierarchyProto.ConstructorDef> injectableConstructors,
-            IList<ClassHierarchyProto.ConstructorDef> otherConstructors,
-            IList<String> implFullNames, IList<ClassHierarchyProto.Node> children)
+            IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> injectableConstructors,
+            IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> otherConstructors,
+            IList<String> implFullNames, IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
         {
-            ClassHierarchyProto.ClassNode classNode = new ClassHierarchyProto.ClassNode();
+            Org.Apache.REEF.Tang.Protobuf.ClassNode classNode = new Org.Apache.REEF.Tang.Protobuf.ClassNode();
             classNode.is_injection_candidate = isInjectionCandidate;
             foreach (var ic in injectableConstructors)
             {
@@ -168,7 +168,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 classNode.impl_full_names.Add(implFullName);
             }
 
-            ClassHierarchyProto.Node n = new ClassHierarchyProto.Node();
+            Org.Apache.REEF.Tang.Protobuf.Node n = new Org.Apache.REEF.Tang.Protobuf.Node();
             n.name = name;
             n.full_name = fullName;
             n.class_node = classNode;
@@ -181,14 +181,14 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return n;
         }
 
-        private static ClassHierarchyProto.Node NewNamedParameterNode(string name,
+        private static Org.Apache.REEF.Tang.Protobuf.Node NewNamedParameterNode(string name,
             string fullName, string simpleArgClassName, string fullArgClassName,
             bool isSet, bool isList, string documentation, // can be null
             string shortName, // can be null
             string[] instanceDefault, // can be null
-            IList<ClassHierarchyProto.Node> children)
+            IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
         {
-            ClassHierarchyProto.NamedParameterNode namedParameterNode = new ClassHierarchyProto.NamedParameterNode();
+            Org.Apache.REEF.Tang.Protobuf.NamedParameterNode namedParameterNode = new Org.Apache.REEF.Tang.Protobuf.NamedParameterNode();
             namedParameterNode.simple_arg_class_name = simpleArgClassName;
             namedParameterNode.full_arg_class_name = fullArgClassName;
             namedParameterNode.is_set = isSet;
@@ -209,7 +209,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 namedParameterNode.instance_default.Add(id);
             }
 
-            ClassHierarchyProto.Node n = new ClassHierarchyProto.Node();
+            Org.Apache.REEF.Tang.Protobuf.Node n = new Org.Apache.REEF.Tang.Protobuf.Node();
             n.name = name;
             n.full_name = fullName;
             n.named_parameter_node = namedParameterNode;
@@ -222,11 +222,11 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return n;
         }
 
-        private static ClassHierarchyProto.Node NewPackageNode(string name,
-            string fullName, IList<ClassHierarchyProto.Node> children)
+        private static Org.Apache.REEF.Tang.Protobuf.Node NewPackageNode(string name,
+            string fullName, IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
         {
-            ClassHierarchyProto.PackageNode packageNode = new ClassHierarchyProto.PackageNode();
-            ClassHierarchyProto.Node n = new ClassHierarchyProto.Node();
+            Org.Apache.REEF.Tang.Protobuf.PackageNode packageNode = new Org.Apache.REEF.Tang.Protobuf.PackageNode();
+            Org.Apache.REEF.Tang.Protobuf.Node n = new Org.Apache.REEF.Tang.Protobuf.Node();
             n.name = name;
             n.full_name = fullName;
             n.package_node = packageNode;
@@ -241,11 +241,11 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
         public static IClassHierarchy DeSerialize(string fileName)
         {
-            ClassHierarchyProto.Node root;
+            Org.Apache.REEF.Tang.Protobuf.Node root;
 
             using (var file = File.OpenRead(fileName))
             {
-                root = Serializer.Deserialize<ClassHierarchyProto.Node>(file);
+                root = Serializer.Deserialize<Org.Apache.REEF.Tang.Protobuf.Node>(file);
             }
 
             return new ProtocolBufferClassHierarchy(root);
@@ -256,7 +256,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             this.rootNode = new PackageNodeImpl();
         }
 
-        public ProtocolBufferClassHierarchy(ClassHierarchyProto.Node root)
+        public ProtocolBufferClassHierarchy(Org.Apache.REEF.Tang.Protobuf.Node root)
         {
             this.rootNode = new PackageNodeImpl();
             if (root.package_node == null)
@@ -264,14 +264,14 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Expected a package node.  Got: " + root), LOGGER); 
             }
             // Register all the classes.
-            foreach (ClassHierarchyProto.Node child in root.children)
+            foreach (Org.Apache.REEF.Tang.Protobuf.Node child in root.children)
             {
                 ParseSubHierarchy(rootNode, child);
             }
             
             BuildHashTable(rootNode);
 
-            foreach (ClassHierarchyProto.Node child in root.children)
+            foreach (Org.Apache.REEF.Tang.Protobuf.Node child in root.children)
             {
                 WireUpInheritanceRelationships(child);
             }
@@ -286,7 +286,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
         }
 
-        private static void ParseSubHierarchy(INode parent, ClassHierarchyProto.Node n)
+        private static void ParseSubHierarchy(INode parent, Org.Apache.REEF.Tang.Protobuf.Node n)
         {
             INode parsed = null;
             if (n.package_node != null)
@@ -295,7 +295,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
             else if (n.named_parameter_node != null)
             {
-                ClassHierarchyProto.NamedParameterNode np = n.named_parameter_node;
+                Org.Apache.REEF.Tang.Protobuf.NamedParameterNode np = n.named_parameter_node;
                 parsed = new NamedParameterNodeImpl(parent, n.name,
                     n.full_name, np.full_arg_class_name, np.simple_arg_class_name,
                     np.is_set, np.is_list, np.documentation, np.short_name,
@@ -303,17 +303,17 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
             else if (n.class_node != null)
             {
-                ClassHierarchyProto.ClassNode cn = n.class_node;
+                Org.Apache.REEF.Tang.Protobuf.ClassNode cn = n.class_node;
                 IList<IConstructorDef> injectableConstructors = new List<IConstructorDef>();
                 IList<IConstructorDef> allConstructors = new List<IConstructorDef>();
 
-                foreach (ClassHierarchyProto.ConstructorDef injectable in cn.InjectableConstructors)
+                foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorDef injectable in cn.InjectableConstructors)
                 {
                     IConstructorDef def = ParseConstructorDef(injectable, true);
                     injectableConstructors.Add(def);
                     allConstructors.Add(def);
                 }
-                foreach (ClassHierarchyProto.ConstructorDef other in cn.OtherConstructors)
+                foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorDef other in cn.OtherConstructors)
                 {
                     IConstructorDef def = ParseConstructorDef(other, false);
                     allConstructors.Add(def);
@@ -331,27 +331,27 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Bad protocol buffer: got abstract node" + n), LOGGER); 
             }
 
-            foreach (ClassHierarchyProto.Node child in n.children)
+            foreach (Org.Apache.REEF.Tang.Protobuf.Node child in n.children)
             {
                 ParseSubHierarchy(parsed, child);
             }
         }
 
-        private static IConstructorDef ParseConstructorDef(ClassHierarchyProto.ConstructorDef def, bool isInjectable)
+        private static IConstructorDef ParseConstructorDef(Org.Apache.REEF.Tang.Protobuf.ConstructorDef def, bool isInjectable)
         {
             IList<IConstructorArg> args = new List<IConstructorArg>();
-            foreach (ClassHierarchyProto.ConstructorArg arg in def.args)
+            foreach (Org.Apache.REEF.Tang.Protobuf.ConstructorArg arg in def.args)
             {
                 args.Add(new ConstructorArgImpl(arg.full_arg_class_name, arg.named_parameter_name, arg.is_injection_future));
             }
             return new ConstructorDefImpl(def.full_class_name, args.ToArray(), isInjectable);
         }
 
-        private void WireUpInheritanceRelationships(ClassHierarchyProto.Node n)
+        private void WireUpInheritanceRelationships(Org.Apache.REEF.Tang.Protobuf.Node n)
         {
             if (n.class_node != null)
             {
-                ClassHierarchyProto.ClassNode cn = n.class_node;
+                Org.Apache.REEF.Tang.Protobuf.ClassNode cn = n.class_node;
                 IClassNode iface = null;
                 try
                 {

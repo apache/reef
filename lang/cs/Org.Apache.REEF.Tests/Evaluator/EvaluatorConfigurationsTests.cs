@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 
 namespace Org.Apache.REEF.Tests.Evaluator
 {
