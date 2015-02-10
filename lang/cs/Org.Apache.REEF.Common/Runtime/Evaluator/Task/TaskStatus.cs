@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
@@ -290,24 +290,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             switch (_state)
             {
                 case TaskState.Init:
-                    return protobuf.ReefProtocol.State.INIT;
+                    return Protobuf.ReefProtocol.State.INIT;
                 case TaskState.CloseRequested:
                 case TaskState.SuspendRequested:
                 case TaskState.Running:
-                    return protobuf.ReefProtocol.State.RUNNING;
+                    return Protobuf.ReefProtocol.State.RUNNING;
                 case TaskState.Done:
-                    return protobuf.ReefProtocol.State.DONE;
+                    return Protobuf.ReefProtocol.State.DONE;
                 case TaskState.Suspended:
-                    return protobuf.ReefProtocol.State.SUSPEND;
+                    return Protobuf.ReefProtocol.State.SUSPEND;
                 case TaskState.Failed:
-                    return protobuf.ReefProtocol.State.FAILED;
+                    return Protobuf.ReefProtocol.State.FAILED;
                 case TaskState.Killed:
-                    return protobuf.ReefProtocol.State.KILLED;
+                    return Protobuf.ReefProtocol.State.KILLED;
                 default:
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Unknown state: " + _state), LOGGER);
                     break;
             }
-            return protobuf.ReefProtocol.State.FAILED; //this line should not be reached as default case will throw exception
+            return Protobuf.ReefProtocol.State.FAILED; //this line should not be reached as default case will throw exception
         }
 
         private ICollection<TaskMessage> GetMessages()

@@ -20,7 +20,7 @@
 using Org.Apache.REEF.Common.Api;
 using Org.Apache.REEF.Utilities;
 using System;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.Common
 {

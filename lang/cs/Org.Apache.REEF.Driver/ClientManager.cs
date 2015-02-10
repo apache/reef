@@ -18,7 +18,7 @@
  */
 
 using System;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 
 // TODO
 namespace Org.Apache.REEF.Driver

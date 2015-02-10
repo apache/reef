@@ -21,14 +21,13 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using Org.Apache.REEF.Utilities;
 using ProtoBuf;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1403:FileMayOnlyContainASingleNamespace", Justification = "Serializers for all protobuf types")]
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Serializers for all protobuf types")]
 
-namespace Org.Apache.REEF.Common.protobuf.ReefProtocol
+namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
 {
     /// <summary>
     /// Add serializer/deserializer to REEFMessage

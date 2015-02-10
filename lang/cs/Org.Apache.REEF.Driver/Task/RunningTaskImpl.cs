@@ -21,7 +21,7 @@ using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Utilities.Logging;
 using System.Globalization;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.Driver.Task
 {

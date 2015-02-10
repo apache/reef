@@ -35,7 +35,7 @@ using Org.Apache.REEF.Wake.Time.Runtime.Event;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 
 namespace Org.Apache.REEF.Driver

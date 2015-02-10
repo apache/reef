@@ -20,7 +20,7 @@
 using System;
 using System.Globalization;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Interface;

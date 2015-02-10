@@ -10,7 +10,7 @@
 // Generated from: client_runtime.proto
 // Note: requires additional types generated from: reef_service_protos.proto
 
-namespace Org.Apache.REEF.Common.protobuf.ReefProtocol{
+namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol{
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"JobSubmissionProto")]
   public partial class JobSubmissionProto : global::ProtoBuf.IExtensible
   {

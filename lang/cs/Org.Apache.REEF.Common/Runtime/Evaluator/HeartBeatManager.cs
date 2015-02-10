@@ -25,7 +25,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using Org.Apache.REEF.Common.Evaluator;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;

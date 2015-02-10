@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 
 // Generated from: reef_service_protos.proto
-namespace Org.Apache.REEF.Common.protobuf.ReefProtocol
+namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
 
 {
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"FileResourceProto")]

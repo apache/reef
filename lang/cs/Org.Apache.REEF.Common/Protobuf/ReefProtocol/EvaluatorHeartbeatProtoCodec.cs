@@ -19,7 +19,7 @@
 
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Common.protobuf.ReefProtocol
+namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
 {
     public class EvaluatorHeartbeatProtoCodec : ICodec<EvaluatorHeartbeatProto>
     {

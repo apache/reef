@@ -36,7 +36,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using TaskMessage = Org.Apache.REEF.Common.Tasks.TaskMessage;
 

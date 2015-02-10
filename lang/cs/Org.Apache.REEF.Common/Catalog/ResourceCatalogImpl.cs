@@ -24,7 +24,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using Org.Apache.REEF.Common.Catalog.Capabilities;
-using Org.Apache.REEF.Common.protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.Common.Catalog
 {
