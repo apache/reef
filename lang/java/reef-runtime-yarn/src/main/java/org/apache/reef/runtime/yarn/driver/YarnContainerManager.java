@@ -599,7 +599,7 @@ final class YarnContainerManager
         .build());
   }
 
-  private void writeToEvaluatorLog(final String entry) throws IOException {
+  private synchronized void writeToEvaluatorLog(final String entry) throws IOException {
     final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
     config.setBoolean("dfs.support.append", true);
     config.setBoolean("dfs.support.broken.append", true);
@@ -612,9 +612,7 @@ final class YarnContainerManager
             new BufferedWriter(new OutputStreamWriter(fs.append(path))) :
             new BufferedWriter(new OutputStreamWriter(fs.create(path)));
     ) {
-      synchronized (this) {
         bw.write(entry);
-      }
     } catch (final IOException e) {
       if (appendToLog) {
         LOG.log(Level.FINE, "Unable to add an entry to the Evaluator log. Attempting append by delete and recreate", e);
@@ -671,15 +669,13 @@ final class YarnContainerManager
 
   private void logContainerChange(final String entry)
   {
-    synchronized (this){
-      try {
-        writeToEvaluatorLog(entry);
-      } catch (final IOException e) {
-        final String errorMsg = "Unable to log the change of container [" + entry +
-            "] to the container log. Driver restart won't work properly.";
-        LOG.log(Level.WARNING, errorMsg, e);
-        throw new RuntimeException(errorMsg);
-      }
+    try {
+      writeToEvaluatorLog(entry);
+    } catch (final IOException e) {
+      final String errorMsg = "Unable to log the change of container [" + entry +
+          "] to the container log. Driver restart won't work properly.";
+      LOG.log(Level.WARNING, errorMsg, e);
+      throw new RuntimeException(errorMsg);
     }
   }
 }
