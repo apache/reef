@@ -72,6 +72,7 @@ under the License.
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -95,6 +96,24 @@ under the License.
     <Compile Include="HelloCLRBridge\Handlers\HelloStartHandler.cs" />
     <Compile Include="HelloCLRBridge\Handlers\HelloTaskMessageHandler.cs" />
     <Compile Include="HelloCLRBridge\HelloTraceListener.cs" />
+    <Compile Include="MachineLearning\KMeans\Centroids.cs" />
+    <Compile Include="MachineLearning\KMeans\codecs\CentroidsCodec.cs" />
+    <Compile Include="MachineLearning\KMeans\codecs\DataVectorCodec.cs" />
+    <Compile Include="MachineLearning\KMeans\codecs\ProcessedResultsCodec.cs" />
+    <Compile Include="MachineLearning\KMeans\Constants.cs" />
+    <Compile Include="MachineLearning\KMeans\Contracts\CentroidsContract.cs" />
+    <Compile Include="MachineLearning\KMeans\Contracts\DataVectorContract.cs" />
+    <Compile Include="MachineLearning\KMeans\Contracts\PartialMeanContract.cs" />
+    <Compile Include="MachineLearning\KMeans\Contracts\ProcessedResultsContract.cs" />
+    <Compile Include="MachineLearning\KMeans\DataPartitionCache.cs" />
+    <Compile Include="MachineLearning\KMeans\DataVector.cs" />
+    <Compile Include="MachineLearning\KMeans\KMeansConfiguratioinOptions.cs" />
+    <Compile Include="MachineLearning\KMeans\KMeansDriverHandlers.cs" />
+    <Compile Include="MachineLearning\KMeans\KMeansMasterTask.cs" />
+    <Compile Include="MachineLearning\KMeans\KMeansSlaveTask.cs" />
+    <Compile Include="MachineLearning\KMeans\LegacyKMeansTask.cs" />
+    <Compile Include="MachineLearning\KMeans\PartialMean.cs" />
+    <Compile Include="MachineLearning\KMeans\ProcessedResults.cs" />
     <Compile Include="RetainedEvalCLRBridge\Handlers\RetainedEvalActiveContextHandler.cs" />
     <Compile Include="RetainedEvalCLRBridge\Handlers\RetainedEvalAllocatedEvaluatorHandler.cs" />
     <Compile Include="RetainedEvalCLRBridge\Handlers\RetainedEvalEvaluatorRequestorHandler.cs" />
