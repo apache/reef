@@ -126,6 +126,17 @@ under the License.
     <Compile Include="Functional\Messaging\MessageDriver.cs" />
     <Compile Include="Functional\Messaging\MessageTask.cs" />
     <Compile Include="Functional\Messaging\TestTaskMessage.cs" />
+    <Compile Include="Functional\ML\KMeans\TestKMeans.cs" />
+    <Compile Include="Functional\MPI\BroadcastReduceTest\BroadcastReduceDriver.cs" />
+    <Compile Include="Functional\MPI\BroadcastReduceTest\BroadcastReduceTest.cs" />
+    <Compile Include="Functional\MPI\BroadcastReduceTest\MasterTask.cs" />
+    <Compile Include="Functional\MPI\BroadcastReduceTest\SlaveTask.cs" />
+    <Compile Include="Functional\MPI\MpiTestConfig.cs" />
+    <Compile Include="Functional\MPI\MpiTestConstants.cs" />
+    <Compile Include="Functional\MPI\ScatterReduceTest\MasterTask.cs" />
+    <Compile Include="Functional\MPI\ScatterReduceTest\ScatterReduceDriver.cs" />
+    <Compile Include="Functional\MPI\ScatterReduceTest\ScatterReduceTest.cs" />
+    <Compile Include="Functional\MPI\ScatterReduceTest\SlaveTask.cs" />
     <Compile Include="Functional\ReefFunctionalTest.cs" />
     <Compile Include="Network\BlockingCollectionExtensionTests.cs" />
     <Compile Include="Network\NameServerTests.cs" />
