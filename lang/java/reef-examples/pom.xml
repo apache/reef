@@ -231,7 +231,7 @@ under the License.
                                 </argument>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
-                                <argument>org.apache.reef.examples.groupcomm.matmul.MatMultREEF</argument>
+                                <argument>org.apache.reef.examples.nggroup.matmul.MatMultREEF</argument>
                             </arguments>
                         </configuration>
                     </plugin>

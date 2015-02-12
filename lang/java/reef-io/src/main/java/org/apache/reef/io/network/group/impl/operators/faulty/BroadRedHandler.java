@@ -1,0 +1,123 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.reef.io.network.group.impl.operators.faulty;
+
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class BroadRedHandler implements EventHandler<Message<ReefNetworkGroupCommProtos.GroupCommMessage>> {
+
+  @NamedParameter(doc = "List of Identifiers on which the handler should listen")
+  public static class IDs implements Name<Set<String>> {
+  }
+
+  private static Object ctrlLock = new Object();
+  private static AtomicBoolean firstSync = new AtomicBoolean(false);
+  private static CountDownLatch srcAddLatch = new CountDownLatch(2);
+
+
+  private final BroadcastHandler broadHandler;
+  private final ReduceHandler redHandler;
+
+  @Inject
+  public BroadRedHandler(BroadcastHandler broadHandler, ReduceHandler redHandler) {
+    this.broadHandler = broadHandler;
+    this.redHandler = redHandler;
+  }
+
+  @Override
+  public void onNext(Message<ReefNetworkGroupCommProtos.GroupCommMessage> msg) {
+    ReefNetworkGroupCommProtos.GroupCommMessage oneVal = null;
+    if (msg.getData().iterator().hasNext())
+      oneVal = msg.getData().iterator().next();
+    switch (oneVal.getType()) {
+      case Reduce:
+        redHandler.onNext(msg);
+        break;
+      case Broadcast:
+        broadHandler.onNext(msg);
+        break;
+      case SourceAdd:
+        synchronized (ctrlLock) {
+          redHandler.onNext(msg);
+          broadHandler.onNext(msg);
+          srcAddLatch.countDown();
+        }
+        break;
+      case SourceDead:
+        synchronized (ctrlLock) {
+          redHandler.onNext(msg);
+          broadHandler.onNext(msg);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  public static void waitForSrcAdd(BroadcastOp.Sender<?> brSender, ReduceOp.Receiver<?> redReceiver) {
+    if (firstSync.compareAndSet(false, true)) {
+      try {
+        srcAddLatch.await();
+      } catch (InterruptedException e) {
+        throw new RuntimeException("Interrupted while waiting for src add", e);
+      }
+      synchronized (ctrlLock) {
+        brSender.sync();
+        redReceiver.sync();
+      }
+    }
+  }
+
+  public static void waitForSrcAdd(BroadcastOp.Receiver<?> brReceiver, ReduceOp.Sender<?> redSender) {
+    if (firstSync.compareAndSet(false, true)) {
+      try {
+        srcAddLatch.await();
+      } catch (InterruptedException e) {
+        throw new RuntimeException("Interrupted while waiting for src add", e);
+      }
+      synchronized (ctrlLock) {
+        brReceiver.sync();
+        redSender.sync();
+      }
+    }
+  }
+
+  public static void sync(BroadcastOp.Sender<?> brSender, ReduceOp.Receiver<?> redReceiver) {
+    synchronized (ctrlLock) {
+      brSender.sync();
+      redReceiver.sync();
+    }
+  }
+
+  public static void sync(BroadcastOp.Receiver<?> brReceiver, ReduceOp.Sender<?> redSender) {
+    synchronized (ctrlLock) {
+      brReceiver.sync();
+      redSender.sync();
+    }
+  }
+}
