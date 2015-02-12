@@ -29,7 +29,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.bridge;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;

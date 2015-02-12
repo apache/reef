@@ -20,9 +20,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Org.Apache.REEF.Driver.bridge;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;

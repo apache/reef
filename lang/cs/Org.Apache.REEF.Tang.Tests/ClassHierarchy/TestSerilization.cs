@@ -19,13 +19,13 @@
  using System;
 using System.Collections.Generic;
 using System.Reflection;
-﻿using Org.Apache.REEF.Tasks;
-﻿using Org.Apache.REEF.Tang.Implementations;
+ using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+ using Org.Apache.REEF.Common.Tasks;
  using Org.Apache.REEF.Examples.Tasks.HelloTask;
  using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
  using Org.Apache.REEF.Tang.Examples;
@@ -176,7 +176,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             cb.BindNamedParameter<Timer.Seconds, Int32>(GenericType < Timer.Seconds>.Class, "2");
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
-            InjectionPlan ip = injector.GetInjectionPlan(timerType);
+            Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan ip = injector.GetInjectionPlan(timerType);
             ProtocolBufferInjectionPlan.Serialize("timerplan.bin", ip);
             var ch = conf.GetClassHierarchy();
             var ip1 = ProtocolBufferInjectionPlan.DeSerialize("timerplan.bin", ch);
@@ -192,7 +192,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { FileNames.Examples });
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
-            InjectionPlan ip = injector.GetInjectionPlan(simpleConstructorType);
+            Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan ip = injector.GetInjectionPlan(simpleConstructorType);
 
             ProtocolBufferInjectionPlan.Serialize("plan.bin", ip);
             var ch = conf.GetClassHierarchy();

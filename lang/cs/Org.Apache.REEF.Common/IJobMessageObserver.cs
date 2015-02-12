@@ -19,7 +19,7 @@
 
 using System;
 
-namespace Org.Apache.REEF.Common.Client
+namespace Org.Apache.REEF.Common
 {
     /// <summary>
     ///  The driver uses this interface to communicate with the job client.

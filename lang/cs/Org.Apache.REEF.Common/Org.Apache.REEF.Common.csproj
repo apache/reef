@@ -28,47 +28,9 @@ under the License.
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Hadoop.Avro">
       <HintPath>$(PackagesDir)\Microsoft.Hadoop.Avro.1.4.0.0\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
@@ -95,117 +57,114 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="api\AbstractFailure.cs" />
-    <Compile Include="api\IAbstractFailure.cs" />
-    <Compile Include="api\IFailure.cs" />
-    <Compile Include="api\IResourceLaunchHandler.cs" />
-    <Compile Include="api\IResourceReleaseHandler.cs" />
-    <Compile Include="api\IResourceRequestHandler.cs" />
-    <Compile Include="avro\AvroDriverInfo.cs" />
-    <Compile Include="avro\AvroHttpRequest.cs" />
-    <Compile Include="avro\AvroHttpSerializer.cs" />
-    <Compile Include="avro\AvroJsonSerializer.cs" />
-    <Compile Include="avro\AvroReefServiceInfo.cs" />
-    <Compile Include="catalog\capabilities\CPU.cs" />
-    <Compile Include="catalog\capabilities\ICapability.cs" />
-    <Compile Include="catalog\capabilities\RAM.cs" />
-    <Compile Include="catalog\INodeDescriptor.cs" />
-    <Compile Include="catalog\IRackDescriptor.cs" />
-    <Compile Include="catalog\IResourceCatalog.cs" />
-    <Compile Include="catalog\NodeDescriptorImpl.cs" />
-    <Compile Include="catalog\RackDescriptorImpl.cs" />
-    <Compile Include="catalog\ResourceCatalogImpl.cs" />
+    <Compile Include="Api\AbstractFailure.cs" />
+    <Compile Include="Api\IAbstractFailure.cs" />
+    <Compile Include="Api\IFailure.cs" />
+    <Compile Include="Api\IResourceLaunchHandler.cs" />
+    <Compile Include="Api\IResourceReleaseHandler.cs" />
+    <Compile Include="Api\IResourceRequestHandler.cs" />
+    <Compile Include="Avro\AvroDriverInfo.cs" />
+    <Compile Include="Avro\AvroHttpRequest.cs" />
+    <Compile Include="Avro\AvroHttpSerializer.cs" />
+    <Compile Include="Avro\AvroJsonSerializer.cs" />
+    <Compile Include="Avro\AvroReefServiceInfo.cs" />
+    <Compile Include="Catalog\Capabilities\CPU.cs" />
+    <Compile Include="Catalog\Capabilities\ICapability.cs" />
+    <Compile Include="Catalog\Capabilities\RAM.cs" />
+    <Compile Include="Catalog\INodeDescriptor.cs" />
+    <Compile Include="Catalog\IRackDescriptor.cs" />
+    <Compile Include="Catalog\IResourceCatalog.cs" />
+    <Compile Include="Catalog\NodeDescriptorImpl.cs" />
+    <Compile Include="Catalog\RackDescriptorImpl.cs" />
+    <Compile Include="Catalog\ResourceCatalogImpl.cs" />
     <Compile Include="ClientJobStatusHandler.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="context\ContextMessage.cs" />
-    <Compile Include="context\IContextMessage.cs" />
-    <Compile Include="context\IContextMessageHandler.cs" />
-    <Compile Include="context\IContextMessageSource.cs" />
+    <Compile Include="Context\ContextMessage.cs" />
+    <Compile Include="Context\IContextMessage.cs" />
+    <Compile Include="Context\IContextMessageHandler.cs" />
+    <Compile Include="Context\IContextMessageSource.cs" />
     <Compile Include="EvaluatorHeartBeatSanityChecker.cs" />
-    <Compile Include="evaluator\DefaultLocalHttpDriverConnection.cs" />
-    <Compile Include="evaluator\DefaultYarnClusterHttpDriverConnection.cs" />
-    <Compile Include="evaluator\DefaultYarnOneBoxHttpDriverConnection.cs" />
-    <Compile Include="evaluator\DriverInformation.cs" />
-    <Compile Include="evaluator\EvaluatorOperationState.cs" />
-    <Compile Include="evaluator\EvaluatorRuntimeState.cs" />
-    <Compile Include="evaluator\EvaluatorType.cs" />
-    <Compile Include="evaluator\IDriverConnection.cs" />
-    <Compile Include="events\IContextStart.cs" />
-    <Compile Include="events\IContextStop.cs" />
-    <Compile Include="exceptions\EvaluatorException.cs" />
-    <Compile Include="exceptions\JobException.cs" />
+    <Compile Include="Evaluator\DefaultLocalHttpDriverConnection.cs" />
+    <Compile Include="Evaluator\DefaultYarnClusterHttpDriverConnection.cs" />
+    <Compile Include="Evaluator\DefaultYarnOneBoxHttpDriverConnection.cs" />
+    <Compile Include="Evaluator\DriverInformation.cs" />
+    <Compile Include="Evaluator\EvaluatorOperationState.cs" />
+    <Compile Include="Evaluator\EvaluatorRuntimeState.cs" />
+    <Compile Include="Evaluator\EvaluatorType.cs" />
+    <Compile Include="Evaluator\IDriverConnection.cs" />
+    <Compile Include="Events\IContextStart.cs" />
+    <Compile Include="Events\IContextStop.cs" />
+    <Compile Include="Exceptions\EvaluatorException.cs" />
+    <Compile Include="Exceptions\JobException.cs" />
     <Compile Include="FailedRuntime.cs" />
     <Compile Include="IContextAndTaskSubmittable.cs" />
     <Compile Include="IContextSubmittable.cs" />
     <Compile Include="IJobMessageObserver.cs" />
-    <Compile Include="io\INameClient.cs" />
-    <Compile Include="io\NameAssignment.cs" />
-    <Compile Include="io\NamingConfiguration.cs" />
-    <Compile Include="io\NamingConfigurationOptions.cs" />
+    <Compile Include="Io\INameClient.cs" />
+    <Compile Include="Io\NameAssignment.cs" />
+    <Compile Include="Io\NamingConfiguration.cs" />
+    <Compile Include="Io\NamingConfigurationOptions.cs" />
     <Compile Include="ITaskSubmittable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="protobuf\cs\ClientRuntime.pb.cs" />
-    <Compile Include="protobuf\cs\codec\EvaluatorHeartbeatProtoCodec.cs" />
-    <Compile Include="protobuf\cs\codec\REEFMessageCodec.cs" />
-    <Compile Include="protobuf\cs\DriverRuntime.pb.cs" />
-    <Compile Include="protobuf\cs\EvaluatorRunTime.pb.cs" />
-    <Compile Include="protobuf\cs\ReefProtocol.pb.cs" />
-    <Compile Include="protobuf\cs\ReefService.pb.cs" />
-    <Compile Include="protobuf\cs\Serializer.cs" />
-    <Compile Include="runtime\evaluator\Constants.cs" />
-    <Compile Include="runtime\evaluator\context\ContextClientCodeException.cs" />
-    <Compile Include="runtime\evaluator\context\ContextConfiguration.cs" />
-    <Compile Include="runtime\evaluator\context\ContextLifeCycle.cs" />
-    <Compile Include="runtime\evaluator\context\ContextManager.cs" />
-    <Compile Include="runtime\evaluator\context\ContextRuntime.cs" />
-    <Compile Include="runtime\evaluator\context\ContextStartImpl.cs" />
-    <Compile Include="runtime\evaluator\context\ContextStopImpl.cs" />
-    <Compile Include="runtime\evaluator\context\RootContextLauncher.cs" />
-    <Compile Include="runtime\evaluator\EvaluatorRuntime.cs" />
-    <Compile Include="runtime\evaluator\EvaluatorSettings.cs" />
-    <Compile Include="runtime\evaluator\HeartBeatManager.cs" />
-    <Compile Include="runtime\evaluator\ReefMessageProtoObserver.cs" />
-    <Compile Include="runtime\evaluator\task\CloseEventImpl.cs" />
-    <Compile Include="runtime\evaluator\task\DriverMessageImpl.cs" />
-    <Compile Include="runtime\evaluator\task\SuspendEventImpl.cs" />
-    <Compile Include="runtime\evaluator\task\TaskClientCodeException.cs" />
-    <Compile Include="runtime\evaluator\task\TaskLifeCycle.cs" />
-    <Compile Include="runtime\evaluator\task\TaskRuntime.cs" />
-    <Compile Include="runtime\evaluator\task\TaskStartImpl.cs" />
-    <Compile Include="runtime\evaluator\task\TaskState.cs" />
-    <Compile Include="runtime\evaluator\task\TaskStatus.cs" />
-    <Compile Include="runtime\evaluator\task\TaskStopImpl.cs" />
-    <Compile Include="runtime\evaluator\utils\EvaluatorConfigurations.cs" />
-    <Compile Include="runtime\evaluator\utils\RemoteManager.cs" />
+    <Compile Include="Protobuf\ReefProtocol\ClientRuntime.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\DriverRuntime.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\EvaluatorHeartbeatProtoCodec.cs" />
+    <Compile Include="Protobuf\ReefProtocol\EvaluatorRunTime.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\REEFMessageCodec.cs" />
+    <Compile Include="Protobuf\ReefProtocol\ReefProtocol.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\ReefService.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\Serializer.cs" />
+    <Compile Include="Runtime\Evaluator\Constants.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextClientCodeException.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextConfiguration.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextLifeCycle.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextManager.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextRuntime.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextStartImpl.cs" />
+    <Compile Include="Runtime\Evaluator\Context\ContextStopImpl.cs" />
+    <Compile Include="Runtime\Evaluator\Context\RootContextLauncher.cs" />
+    <Compile Include="Runtime\Evaluator\EvaluatorRuntime.cs" />
+    <Compile Include="Runtime\Evaluator\EvaluatorSettings.cs" />
+    <Compile Include="Runtime\Evaluator\HeartBeatManager.cs" />
+    <Compile Include="Runtime\Evaluator\ReefMessageProtoObserver.cs" />
+    <Compile Include="Runtime\Evaluator\Task\CloseEventImpl.cs" />
+    <Compile Include="Runtime\Evaluator\Task\DriverMessageImpl.cs" />
+    <Compile Include="Runtime\Evaluator\Task\SuspendEventImpl.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskClientCodeException.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskLifeCycle.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskRuntime.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskStartImpl.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskState.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskStatus.cs" />
+    <Compile Include="Runtime\Evaluator\Task\TaskStopImpl.cs" />
+    <Compile Include="Runtime\Evaluator\Utils\EvaluatorConfigurations.cs" />
+    <Compile Include="Runtime\Evaluator\Utils\RemoteManager.cs" />
     <Compile Include="runtime\MachineStatus.cs" />
-    <Compile Include="services\IService.cs" />
-    <Compile Include="services\ServiceConfiguration.cs" />
-    <Compile Include="services\ServicesConfigurationOptions.cs" />
-    <Compile Include="tasks\defaults\DefaultDriverMessageHandler.cs" />
-    <Compile Include="tasks\defaults\DefaultTaskMessageSource.cs" />
-    <Compile Include="tasks\events\ICloseEvent.cs" />
-    <Compile Include="tasks\events\IDriverMessage.cs" />
-    <Compile Include="tasks\events\ISuspendEvent.cs" />
-    <Compile Include="tasks\events\ITaskStart.cs" />
-    <Compile Include="tasks\events\ITaskStop.cs" />
-    <Compile Include="tasks\IDriverMessageHandler.cs" />
-    <Compile Include="tasks\IRunningTask.cs" />
-    <Compile Include="tasks\ITask.cs" />
-    <Compile Include="tasks\ITaskMessageSource.cs" />
-    <Compile Include="tasks\TaskConfiguration.cs" />
-    <Compile Include="tasks\TaskConfigurationOptions.cs" />
-    <Compile Include="tasks\TaskMessage.cs" />
+    <Compile Include="Services\IService.cs" />
+    <Compile Include="Services\ServiceConfiguration.cs" />
+    <Compile Include="Services\ServicesConfigurationOptions.cs" />
+    <Compile Include="Tasks\Defaults\DefaultDriverMessageHandler.cs" />
+    <Compile Include="Tasks\Defaults\DefaultTaskMessageSource.cs" />
+    <Compile Include="Tasks\Events\ICloseEvent.cs" />
+    <Compile Include="Tasks\Events\IDriverMessage.cs" />
+    <Compile Include="Tasks\Events\ISuspendEvent.cs" />
+    <Compile Include="Tasks\Events\ITaskStart.cs" />
+    <Compile Include="Tasks\Events\ITaskStop.cs" />
+    <Compile Include="Tasks\IDriverMessageHandler.cs" />
+    <Compile Include="Tasks\IRunningTask.cs" />
+    <Compile Include="Tasks\ITask.cs" />
+    <Compile Include="Tasks\ITaskMessageSource.cs" />
+    <Compile Include="Tasks\TaskConfiguration.cs" />
+    <Compile Include="Tasks\TaskConfigurationOptions.cs" />
+    <Compile Include="Tasks\TaskMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="protobuf\proto\client_runtime.proto" />
-    <None Include="protobuf\proto\driver_runtime.proto" />
-    <None Include="protobuf\proto\evaluator_runtime.proto" />
-    <None Include="protobuf\proto\reef_protocol.proto" />
-    <None Include="protobuf\proto\reef_service_protos.proto" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="protobuf\tools\" />
+    <None Include="Protobuf\Proto\client_runtime.proto" />
+    <None Include="Protobuf\Proto\driver_runtime.proto" />
+    <None Include="Protobuf\Proto\evaluator_runtime.proto" />
+    <None Include="Protobuf\Proto\reef_protocol.proto" />
+    <None Include="Protobuf\Proto\reef_service_protos.proto" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
@@ -216,7 +175,7 @@ under the License.
       <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
       <Name>Org.Apache.REEF.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>

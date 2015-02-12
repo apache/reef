@@ -17,7 +17,7 @@
  * under the License.
  */
 
-namespace Org.Apache.REEF.Wake.Time
+namespace Org.Apache.REEF.Wake.Time.Event
 {
     /// <summary>
     /// Represents the Time at which a component stops.

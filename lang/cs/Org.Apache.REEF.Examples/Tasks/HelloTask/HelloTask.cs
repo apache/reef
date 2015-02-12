@@ -21,10 +21,10 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tasks;
-using Org.Apache.REEF.Tasks.Events;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 

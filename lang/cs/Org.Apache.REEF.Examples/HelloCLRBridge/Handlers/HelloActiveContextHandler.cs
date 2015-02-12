@@ -19,7 +19,6 @@
 
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
@@ -27,6 +26,7 @@ using Org.Apache.REEF.Tang.Util;
 using System;
 using System.Globalization;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Common.Tasks;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 {

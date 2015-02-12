@@ -19,12 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ClassHierarchyProto;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;

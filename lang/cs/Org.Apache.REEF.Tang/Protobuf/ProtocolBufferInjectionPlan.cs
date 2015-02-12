@@ -35,81 +35,81 @@ namespace Org.Apache.REEF.Tang.Protobuf
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ProtocolBufferInjectionPlan));
 
-        private static InjectionPlanProto.InjectionPlan NewConstructor(string fullName, List<InjectionPlanProto.InjectionPlan> plans) 
+        private static Org.Apache.REEF.Tang.Protobuf.InjectionPlan NewConstructor(string fullName, List<Org.Apache.REEF.Tang.Protobuf.InjectionPlan> plans) 
         {
-            InjectionPlanProto.Constructor cconstr = new InjectionPlanProto.Constructor();
-            foreach (InjectionPlanProto.InjectionPlan p in plans)
+            Org.Apache.REEF.Tang.Protobuf.Constructor cconstr = new Org.Apache.REEF.Tang.Protobuf.Constructor();
+            foreach (Org.Apache.REEF.Tang.Protobuf.InjectionPlan p in plans)
             {
                 cconstr.args.Add(p);
             }
 
-            InjectionPlanProto.InjectionPlan plan = new InjectionPlanProto.InjectionPlan();
+            Org.Apache.REEF.Tang.Protobuf.InjectionPlan plan = new Org.Apache.REEF.Tang.Protobuf.InjectionPlan();
             plan.name = fullName;
             plan.constructor = cconstr;
             return plan;
         }
 
-        private static InjectionPlanProto.InjectionPlan NewSubplan(string fullName, int selectedPlan, List<InjectionPlanProto.InjectionPlan> plans) 
+        private static Org.Apache.REEF.Tang.Protobuf.InjectionPlan NewSubplan(string fullName, int selectedPlan, List<Org.Apache.REEF.Tang.Protobuf.InjectionPlan> plans) 
         {
-            InjectionPlanProto.Subplan subPlan = new InjectionPlanProto.Subplan();
+            Org.Apache.REEF.Tang.Protobuf.Subplan subPlan = new Org.Apache.REEF.Tang.Protobuf.Subplan();
 
             subPlan.selected_plan = selectedPlan;
-            foreach (InjectionPlanProto.InjectionPlan p in plans)
+            foreach (Org.Apache.REEF.Tang.Protobuf.InjectionPlan p in plans)
             {
                 subPlan.plans.Add(p);
             }
 
-            InjectionPlanProto.InjectionPlan plan = new InjectionPlanProto.InjectionPlan();
+            Org.Apache.REEF.Tang.Protobuf.InjectionPlan plan = new Org.Apache.REEF.Tang.Protobuf.InjectionPlan();
             plan.name = fullName;
             plan.subplan = subPlan;
             return plan;
         }
 
-        private static InjectionPlanProto.InjectionPlan NewInstance(string fullName, string value)
+        private static Org.Apache.REEF.Tang.Protobuf.InjectionPlan NewInstance(string fullName, string value)
         {
-            InjectionPlanProto.Instance instance = new InjectionPlanProto.Instance();
+            Org.Apache.REEF.Tang.Protobuf.Instance instance = new Org.Apache.REEF.Tang.Protobuf.Instance();
             instance.value = value;
 
-            InjectionPlanProto.InjectionPlan plan = new InjectionPlanProto.InjectionPlan();
+            Org.Apache.REEF.Tang.Protobuf.InjectionPlan plan = new Org.Apache.REEF.Tang.Protobuf.InjectionPlan();
             plan.name = fullName;
             plan.instance = instance;
             return plan;
 
         }
 
-        public static void Serialize(string fileName, InjectionPlan ip)
+        public static void Serialize(string fileName, Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan ip)
         {
-            InjectionPlanProto.InjectionPlan plan = Serialize(ip);
+            Org.Apache.REEF.Tang.Protobuf.InjectionPlan plan = Serialize(ip);
 
             using (var file = File.Create(fileName))
             {
-                Serializer.Serialize<InjectionPlanProto.InjectionPlan>(file, plan);
+                Serializer.Serialize<Org.Apache.REEF.Tang.Protobuf.InjectionPlan>(file, plan);
             }
         }
 
-        public static InjectionPlanProto.InjectionPlan Serialize(InjectionPlan ip) 
+        public static Org.Apache.REEF.Tang.Protobuf.InjectionPlan Serialize(Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan ip) 
         {
-            if (ip is Constructor) 
+            if (ip is Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor) 
             {
-                Constructor cons = (Constructor) ip;
-                InjectionPlan[] args = cons.GetArgs();
-                InjectionPlanProto.InjectionPlan[] protoArgs = new InjectionPlanProto.InjectionPlan[args.Length];
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor cons = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor) ip;
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[] args = cons.GetArgs();
+                Org.Apache.REEF.Tang.Protobuf.InjectionPlan[] protoArgs = new Org.Apache.REEF.Tang.Protobuf.InjectionPlan[args.Length];
                 for (int i = 0; i < args.Length; i++) 
                 {
                     protoArgs[i] = Serialize(args[i]);
                 }
-                return NewConstructor(ip.GetNode().GetFullName(), protoArgs.ToList<InjectionPlanProto.InjectionPlan>());
+                return NewConstructor(ip.GetNode().GetFullName(), protoArgs.ToList<Org.Apache.REEF.Tang.Protobuf.InjectionPlan>());
             } 
-            if (ip is Subplan) 
+            if (ip is Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan) 
             {
-                Subplan sp = (Subplan) ip;
-                InjectionPlan[] args = sp.GetPlans();
-                InjectionPlanProto.InjectionPlan[] subPlans = new InjectionPlanProto.InjectionPlan[args.Length];
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan sp = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan) ip;
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[] args = sp.GetPlans();
+                Org.Apache.REEF.Tang.Protobuf.InjectionPlan[] subPlans = new Org.Apache.REEF.Tang.Protobuf.InjectionPlan[args.Length];
                 for (int i = 0; i < args.Length; i++) 
                 {
                     subPlans[i] = Serialize(args[i]);
                 }
-                return NewSubplan(ip.GetNode().GetFullName(), sp.GetSelectedIndex(), subPlans.ToList<InjectionPlanProto.InjectionPlan>());
+                return NewSubplan(ip.GetNode().GetFullName(), sp.GetSelectedIndex(), subPlans.ToList<Org.Apache.REEF.Tang.Protobuf.InjectionPlan>());
 
             } 
             if (ip is CsInstance) 
@@ -122,27 +122,27 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return null;
         }
 
-        public static InjectionPlan DeSerialize(string fileName, IClassHierarchy ch)
+        public static Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan DeSerialize(string fileName, IClassHierarchy ch)
         {
-            InjectionPlanProto.InjectionPlan protoPlan;
+            Org.Apache.REEF.Tang.Protobuf.InjectionPlan protoPlan;
 
             using (var file = File.OpenRead(fileName))
             {
-                protoPlan = Serializer.Deserialize<InjectionPlanProto.InjectionPlan>(file);
+                protoPlan = Serializer.Deserialize<Org.Apache.REEF.Tang.Protobuf.InjectionPlan>(file);
             }
 
             return Deserialize(ch, protoPlan);
         }
 
-        public static InjectionPlan Deserialize(IClassHierarchy ch, InjectionPlanProto.InjectionPlan ip) 
+        public static Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan Deserialize(IClassHierarchy ch, Org.Apache.REEF.Tang.Protobuf.InjectionPlan ip) 
         {
             string fullName = ip.name;
             if (ip.constructor != null) 
             {
-                InjectionPlanProto.Constructor cons = ip.constructor;
+                Org.Apache.REEF.Tang.Protobuf.Constructor cons = ip.constructor;
                 IClassNode cn = (IClassNode) ch.GetNode(fullName);
 
-                InjectionPlanProto.InjectionPlan[] protoBufArgs = cons.args.ToArray();
+                Org.Apache.REEF.Tang.Protobuf.InjectionPlan[] protoBufArgs = cons.args.ToArray();
 
                 IClassNode[] cnArgs = new IClassNode[protoBufArgs.Length];
 
@@ -160,34 +160,34 @@ namespace Org.Apache.REEF.Tang.Protobuf
                     }
                 }
 
-                InjectionPlan[] ipArgs = new InjectionPlan[protoBufArgs.Length];
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[] ipArgs = new Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[protoBufArgs.Length];
 
                 for (int i = 0; i < protoBufArgs.Length; i++) 
                 {
-                    ipArgs[i] = (InjectionPlan) Deserialize(ch, protoBufArgs[i]);
+                    ipArgs[i] = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan)Deserialize(ch, protoBufArgs[i]);
                 }
 
                 IConstructorDef constructor = cn.GetConstructorDef(cnArgs);
-                return new Constructor(cn, constructor, ipArgs);
+                return new Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor(cn, constructor, ipArgs);
             }
             if (ip.instance != null) 
             {
-                InjectionPlanProto.Instance ins = ip.instance;
+                Org.Apache.REEF.Tang.Protobuf.Instance ins = ip.instance;
                 object instance = Parse(ip.name, ins.value);
                 return new CsInstance(ch.GetNode(ip.name), instance);
             } 
             if (ip.subplan != null) 
             {
-                InjectionPlanProto.Subplan subplan = ip.subplan;
-                InjectionPlanProto.InjectionPlan[] protoBufPlans = subplan.plans.ToArray();
-          
-                InjectionPlan[] subPlans = new InjectionPlan[protoBufPlans.Length];
+                Org.Apache.REEF.Tang.Protobuf.Subplan subplan = ip.subplan;
+                Org.Apache.REEF.Tang.Protobuf.InjectionPlan[] protoBufPlans = subplan.plans.ToArray();
+
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[] subPlans = new Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[protoBufPlans.Length];
                 for (int i = 0; i < protoBufPlans.Length; i++) 
                 {
-                    subPlans[i] = (InjectionPlan) Deserialize(ch, protoBufPlans[i]);
+                    subPlans[i] = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan)Deserialize(ch, protoBufPlans[i]);
                 }
                 INode n = ch.GetNode(fullName);
-                return new Subplan(n, subPlans);
+                return new Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan(n, subPlans);
             } 
             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException("Encountered unknown type of InjectionPlan: " + ip), LOGGER);
             return null;

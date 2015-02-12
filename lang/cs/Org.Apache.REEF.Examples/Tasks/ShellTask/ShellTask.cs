@@ -22,8 +22,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 

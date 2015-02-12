@@ -19,8 +19,7 @@
  using System;
 using System.Collections.Generic;
 using System.Reflection;
-﻿using Org.Apache.REEF.Tasks;
-﻿using Org.Apache.REEF.Tang.Annotations;
+ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Examples;
 ﻿using Org.Apache.REEF.Tang.Exceptions;
 ﻿using Org.Apache.REEF.Tang.Formats;
@@ -31,7 +30,9 @@ using Org.Apache.REEF.Tang.Protobuf;
 using Org.Apache.REEF.Tang.Util;
 ﻿using Org.Apache.REEF.Tang.Tests.ScenarioTest;
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+ using Org.Apache.REEF.Common.Tasks;
  using Org.Apache.REEF.Examples.Tasks.HelloTask;
+ using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
  using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
@@ -153,7 +154,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         [TestMethod]
         public void TestGetConfgiFromProtoBufClassHierarchy()
         {
-            Type iTaskType = typeof(Org.Apache.REEF.Tasks.ITask);
+            Type iTaskType = typeof(ITask);
             Type helloTaskType = typeof(HelloTask);
             Type identifierType = typeof (TaskConfigurationOptions.Identifier);
 

@@ -19,7 +19,7 @@
 
 using System;
 
-namespace Org.Apache.REEF.Wake.Time
+namespace Org.Apache.REEF.Wake.Time.Event
 {
     /// <summary>
     ///  Represents a timer event.

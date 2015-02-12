@@ -23,7 +23,7 @@ using System.Reflection;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Proto.WakeRemoteProtos;
+using Org.Apache.REEF.Wake.Remote.Proto;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {

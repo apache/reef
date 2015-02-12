@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reactive;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Utilities.Logging;

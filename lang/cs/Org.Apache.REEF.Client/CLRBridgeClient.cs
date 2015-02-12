@@ -19,7 +19,6 @@
 
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.bridge;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;

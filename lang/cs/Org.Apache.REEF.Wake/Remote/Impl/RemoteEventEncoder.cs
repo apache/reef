@@ -17,7 +17,7 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Wake.Remote.Proto.WakeRemoteProtos;
+using Org.Apache.REEF.Wake.Remote.Proto;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {

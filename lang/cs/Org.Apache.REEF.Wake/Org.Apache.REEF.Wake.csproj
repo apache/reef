@@ -28,47 +28,9 @@ under the License.
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="protobuf-net">
       <HintPath>$(PackagesDir)\protobuf-net.$(ProtobufVersion)\lib\net40\protobuf-net.dll</HintPath>
@@ -90,6 +52,8 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractEStage.cs" />
+    <Compile Include="Examples\P2p\IEventSource.cs" />
+    <Compile Include="Examples\P2p\Pull2Push.cs" />
     <Compile Include="IEStage.cs" />
     <Compile Include="IEventHandler.cs" />
     <Compile Include="IIdentifier.cs" />
@@ -106,6 +70,7 @@ under the License.
     <Compile Include="IObserverFactory.cs" />
     <Compile Include="IStage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Remote\Proto\WakeRemoteProtosGen.cs" />
     <Compile Include="Remote\ICodec.cs" />
     <Compile Include="Remote\ICodecFactory.cs" />
     <Compile Include="Remote\IDecoder.cs" />
@@ -155,10 +120,6 @@ under the License.
     <Compile Include="RX\IStaticObservable.cs" />
     <Compile Include="RX\ISubject.cs" />
     <Compile Include="RX\ObserverCompletedException.cs" />
-    <Compile Include="src\main\cs\Examples\P2p\IEventSource.cs" />
-    <Compile Include="src\main\cs\Examples\P2p\Pull2Push.cs" />
-    <Compile Include="src\main\cs\PeriodicEvent.cs" />
-    <Compile Include="Protobuf\WakeRemoteProtosGen.cs" />
     <Compile Include="Time\Event\Alarm.cs" />
     <Compile Include="Time\Event\StartTime.cs" />
     <Compile Include="Time\Event\StopTime.cs" />
@@ -187,9 +148,10 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Protobuf\RemoteProtocol.proto" />
+    <None Include="Remote\Proto\RemoteProtocol.proto" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Proto\" />
     <Folder Include="Time\Time\Event\" />
     <Folder Include="Time\Time\Runtime\Event\" />
     <Folder Include="Util\Util\" />

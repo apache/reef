@@ -20,10 +20,10 @@
 using System;
 using System.Globalization;
 using System.Threading;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tasks;
-using Org.Apache.REEF.Tasks.Events;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;

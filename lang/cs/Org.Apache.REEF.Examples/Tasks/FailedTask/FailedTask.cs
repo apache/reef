@@ -19,8 +19,8 @@
 
 using System;
 using System.Threading;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tasks;
 
 namespace Org.Apache.REEF.Examples.Tasks.FailedTask
 {

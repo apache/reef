@@ -18,8 +18,8 @@
  */
 
 using System;
-using Org.Apache.REEF.Common.io;
-using Org.Apache.REEF.Services;
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake;
 

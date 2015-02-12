@@ -23,7 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;

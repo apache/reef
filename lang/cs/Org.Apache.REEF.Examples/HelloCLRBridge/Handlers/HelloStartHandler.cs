@@ -18,13 +18,12 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.bridge;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;
 

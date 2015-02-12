@@ -17,24 +17,24 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Services;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Org.Apache.REEF.Common.Services;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers

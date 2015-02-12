@@ -27,7 +27,7 @@
 //------------------------------------------------------------------------------
 
 // Generated from: injection_plan.proto
-namespace InjectionPlanProto
+namespace Org.Apache.REEF.Tang.Protobuf
 {
     [global::System.Serializable, global::ProtoBuf.ProtoContract(Name = @"InjectionPlan")]
     public partial class InjectionPlan : global::ProtoBuf.IExtensible

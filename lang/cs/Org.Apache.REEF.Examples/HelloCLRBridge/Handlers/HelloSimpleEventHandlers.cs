@@ -24,7 +24,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Common.io;
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
@@ -32,12 +33,12 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Tasks;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using IRunningTask = Org.Apache.REEF.Driver.Task.IRunningTask;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 {
