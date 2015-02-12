@@ -33,12 +33,11 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * default ExternalMap provided by StorageManagerRam.
  */
 public class RamMap<T> implements ExternalMap<T> {
-  private final ConcurrentSkipListMap<CharSequence, T> map
-      = new ConcurrentSkipListMap<CharSequence, T>();
+
+  private final ConcurrentSkipListMap<CharSequence, T> map = new ConcurrentSkipListMap<CharSequence, T>();
 
   @Inject
   public RamMap(RamStorageService ramStore) {
-    //this.localStore = localStore;
   }
 
   @Override
@@ -70,5 +69,4 @@ public class RamMap<T> implements ExternalMap<T> {
   public Iterable<Entry<CharSequence, T>> getAll(Set<? extends CharSequence> keys) {
     return new GetAllIterable<>(keys, this);
   }
-
 }

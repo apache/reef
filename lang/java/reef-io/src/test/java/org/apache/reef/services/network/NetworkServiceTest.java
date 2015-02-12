@@ -28,8 +28,6 @@ import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.services.network.util.Monitor;
 import org.apache.reef.services.network.util.StringCodec;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -37,7 +35,7 @@ import org.apache.reef.wake.remote.NetUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.junit.Assert;
+
 import java.net.InetSocketAddress;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,8 +53,6 @@ public class NetworkServiceTest {
 
   /**
    * NetworkService messaging test
-   *
-   * @throws Exception
    */
   @Test
   public void testMessagingNetworkService() throws Exception {
@@ -113,8 +109,6 @@ public class NetworkServiceTest {
 
   /**
    * NetworkService messaging rate benchmark
-   *
-   * @throws Exception
    */
   @Test
   public void testMessagingNetworkServiceRate() throws Exception {
@@ -187,8 +181,6 @@ public class NetworkServiceTest {
 
   /**
    * NetworkService messaging rate benchmark
-   *
-   * @throws Exception
    */
   @Test
   public void testMessagingNetworkServiceRateDisjoint() throws Exception {
@@ -372,8 +364,6 @@ public class NetworkServiceTest {
 
   /**
    * NetworkService messaging rate benchmark
-   *
-   * @throws Exception
    */
   @Test
   public void testMessagingNetworkServiceBatchingRate() throws Exception {
@@ -452,8 +442,6 @@ public class NetworkServiceTest {
 
   /**
    * Test message handler
-   *
-   * @param <T> type
    */
   class MessageHandler<T> implements EventHandler<Message<T>> {
 
@@ -470,13 +458,17 @@ public class NetworkServiceTest {
 
     @Override
     public void onNext(Message<T> value) {
+
       count.incrementAndGet();
 
-      //System.out.print(name + " received " + value.getData() + " from " + value.getSrcId() + " to " + value.getDestId());
-      for (T obj : value.getData()) {
-        // System.out.print(" data: " + obj);
+      LOG.log(Level.FINEST,
+          "OUT: {0} received {1} from {2} to {3}",
+          new Object[] { name, value.getData(), value.getSrcId(), value.getDestId() });
+
+      for (final T obj : value.getData()) {
+        LOG.log(Level.FINEST, "OUT: data: {0}", obj);
       }
-      //LOG.log(Level.FINEST, );
+
       if (count.get() == expected) {
         monitor.mnotify();
       }

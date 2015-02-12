@@ -33,8 +33,8 @@ import java.util.List;
 public final class BlockingEventHandler<T> implements EventHandler<T> {
 
   private final int expectedSize;
-  private final EventHandler<Iterable<T>> destination;
   private List<T> events = new ArrayList<>();
+  private final EventHandler<Iterable<T>> destination;
 
   public BlockingEventHandler(final int expectedSize, final EventHandler<Iterable<T>> destination) {
     this.expectedSize = expectedSize;
