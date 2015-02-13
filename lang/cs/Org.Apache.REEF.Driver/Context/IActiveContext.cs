@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common;
 using System;
+using Org.Apache.REEF.Common;
 
 namespace Org.Apache.REEF.Driver.Context
 {

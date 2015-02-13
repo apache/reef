@@ -28,13 +28,13 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
 {
     public class SlaveTask : ITask
     {
-        private static Logger _logger = Logger.GetLogger(typeof(SlaveTask));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
 
-        private int _numIterations;
-        private IMpiClient _mpiClient;
-        private ICommunicationGroupClient _commGroup;
-        private IBroadcastReceiver<int> _broadcastReceiver;
-        private IReduceSender<int> _triangleNumberSender;
+        private readonly int _numIterations;
+        private readonly IMpiClient _mpiClient;
+        private readonly ICommunicationGroupClient _commGroup;
+        private readonly IBroadcastReceiver<int> _broadcastReceiver;
+        private readonly IReduceSender<int> _triangleNumberSender;
 
         [Inject]
         public SlaveTask(

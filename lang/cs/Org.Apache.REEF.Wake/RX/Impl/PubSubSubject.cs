@@ -19,10 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Subjects;
 using System.Reflection;
-using System.Text;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -39,9 +36,9 @@ namespace Org.Apache.REEF.Wake.RX.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(PubSubSubject<T>));
 
-        private Dictionary<Type, List<object>> _classToObserversMap;
+        private readonly Dictionary<Type, List<object>> _classToObserversMap;
         private bool _completed;
-        private object _mutex;
+        private readonly object _mutex;
 
         /// <summary>
         /// Constructs a pub-sub Subject
@@ -139,9 +136,9 @@ namespace Org.Apache.REEF.Wake.RX.Impl
         /// </summary>
         private class DisposableResource<U> : IDisposable
         {
-            private Dictionary<Type, List<object>> _observersMap;
-            private IObserver<U> _observer;
-            private object _mutex;
+            private readonly Dictionary<Type, List<object>> _observersMap;
+            private readonly IObserver<U> _observer;
+            private readonly object _mutex;
             private bool _disposed;
             
             public DisposableResource(Dictionary<Type, List<object>> observersMap, IObserver<U> observer, object mutex)

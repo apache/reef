@@ -30,14 +30,14 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {
     public class KMeansSlaveTask : ITask
     {
-        private static Logger _logger = Logger.GetLogger(typeof(KMeansSlaveTask));
-        private int _clustersNum;
-        private IMpiClient _mpiClient;
-        private ICommunicationGroupClient _commGroup;
-        private IBroadcastReceiver<Centroids> _dataBroadcastReceiver;
-        private IBroadcastReceiver<ControlMessage> _controlBroadcastReceiver;
-        private IReduceSender<ProcessedResults> _partialMeansSender;
-        private DataPartitionCache _dataPartition;
+        private static readonly Logger _logger = Logger.GetLogger(typeof(KMeansSlaveTask));
+        private readonly int _clustersNum;
+        private readonly IMpiClient _mpiClient;
+        private readonly ICommunicationGroupClient _commGroup;
+        private readonly IBroadcastReceiver<Centroids> _dataBroadcastReceiver;
+        private readonly IBroadcastReceiver<ControlMessage> _controlBroadcastReceiver;
+        private readonly IReduceSender<ProcessedResults> _partialMeansSender;
+        private readonly DataPartitionCache _dataPartition;
 
         [Inject]
         public KMeansSlaveTask(

@@ -19,15 +19,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Reactive;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService.Codec;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
@@ -41,14 +39,14 @@ namespace Org.Apache.REEF.Network.NetworkService
     /// <typeparam name="T">The message type</typeparam>
     public class NetworkService<T> : INetworkService<T>
     {
-        private Logger LOGGER = Logger.GetLogger(typeof(NetworkService<>));
+        private readonly Logger LOGGER = Logger.GetLogger(typeof(NetworkService<>));
 
-        private IRemoteManager<NsMessage<T>> _remoteManager;
-        private IObserver<NsMessage<T>> _messageHandler; 
-        private ICodec<NsMessage<T>> _codec; 
+        private readonly IRemoteManager<NsMessage<T>> _remoteManager;
+        private readonly IObserver<NsMessage<T>> _messageHandler; 
+        private readonly ICodec<NsMessage<T>> _codec; 
         private IIdentifier _localIdentifier;
         private IDisposable _messageHandlerDisposable;
-        private Dictionary<IIdentifier, IConnection<T>> _connectionMap;  
+        private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;  
 
         /// <summary>
         /// Create a new NetworkFactory.

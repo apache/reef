@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Examples.Tasks.StreamingTasks
 {
     public class StreamTask1 : ITask
     {
-        private string _ipAddress;
+        private readonly string _ipAddress;
 
         [Inject]
         public StreamTask1([Parameter(typeof(IpAddress))] string ipAddress)

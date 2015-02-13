@@ -17,11 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common;
-using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Utilities.Logging;
 using System.Globalization;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Task
 {
@@ -29,11 +28,11 @@ namespace Org.Apache.REEF.Driver.Task
    {
        private static readonly Logger LOGGER = Logger.GetLogger(typeof(RunningTaskImpl));
        
-       private string _id;
+       private readonly string _id;
 
-       private EvaluatorManager _evaluatorManager;
+       private readonly EvaluatorManager _evaluatorManager;
 
-       private EvaluatorContext _evaluatorContext;
+       private readonly EvaluatorContext _evaluatorContext;
 
        public RunningTaskImpl(EvaluatorManager evaluatorManager, string taskId, EvaluatorContext evaluatorContext)
        {

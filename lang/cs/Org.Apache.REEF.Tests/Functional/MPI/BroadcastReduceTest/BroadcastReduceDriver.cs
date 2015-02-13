@@ -46,12 +46,12 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastReduceDriver));
 
-        private int _numEvaluators;
-        private int _numIterations;
+        private readonly int _numEvaluators;
+        private readonly int _numIterations;
 
-        private IMpiDriver _mpiDriver;
-        private ICommunicationGroupDriver _commGroup;
-        private TaskStarter _mpiTaskStarter;
+        private readonly IMpiDriver _mpiDriver;
+        private readonly ICommunicationGroupDriver _commGroup;
+        private readonly TaskStarter _mpiTaskStarter;
 
         [Inject]
         public BroadcastReduceDriver(

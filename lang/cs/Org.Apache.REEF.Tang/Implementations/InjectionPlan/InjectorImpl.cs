@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+
+using System;
 using System.Collections.Generic;
-﻿using System.Globalization;
-﻿using System.Linq;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-﻿using Org.Apache.REEF.Utilities.Logging;
-﻿using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
@@ -37,9 +37,9 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(InjectorImpl));
 
-        IDictionary<INamedParameterNode, object> namedParameterInstances = new MonotonicTreeMap<INamedParameterNode, object>();
-        private ICsClassHierarchy classHierarchy;
-        private IConfiguration configuration;
+        readonly IDictionary<INamedParameterNode, object> namedParameterInstances = new MonotonicTreeMap<INamedParameterNode, object>();
+        private readonly ICsClassHierarchy classHierarchy;
+        private readonly IConfiguration configuration;
         readonly IDictionary<IClassNode, Object> instances = new MonotonicTreeMap<IClassNode, Object>();
         private Aspect aspect;
         private readonly ISet<IInjectionFuture<object>> pendingFutures = new HashSet<IInjectionFuture<object>>();

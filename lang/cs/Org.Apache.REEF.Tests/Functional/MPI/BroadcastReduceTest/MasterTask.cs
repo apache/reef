@@ -29,15 +29,15 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
 {
     public class MasterTask : ITask
     {
-        private static Logger _logger = Logger.GetLogger(typeof(MasterTask));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(MasterTask));
 
-        private int _numIters;
-        private int _numReduceSenders;
+        private readonly int _numIters;
+        private readonly int _numReduceSenders;
 
-        private IMpiClient _mpiClient;
-        private ICommunicationGroupClient _commGroup;
-        private IBroadcastSender<int> _broadcastSender;
-        private IReduceReceiver<int> _sumReducer;
+        private readonly IMpiClient _mpiClient;
+        private readonly ICommunicationGroupClient _commGroup;
+        private readonly IBroadcastSender<int> _broadcastSender;
+        private readonly IReduceReceiver<int> _sumReducer;
 
         [Inject]
         public MasterTask(

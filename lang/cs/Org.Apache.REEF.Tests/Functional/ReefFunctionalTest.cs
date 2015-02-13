@@ -49,13 +49,13 @@ namespace Org.Apache.REEF.Tests.Functional
 
         private bool _testSuccess = false;
         private bool _onLocalRuntime = false;
-        private string _className = Constants.BridgeLaunchClass;
-        private string _clrFolder = ".";
-        private string _reefJar = Path.Combine(_binFolder, Constants.BridgeJarFileName);
-        private string _runCommand = Path.Combine(_binFolder, _cmdFile);
+        private readonly string _className = Constants.BridgeLaunchClass;
+        private readonly string _clrFolder = ".";
+        private readonly string _reefJar = Path.Combine(_binFolder, Constants.BridgeJarFileName);
+        private readonly string _runCommand = Path.Combine(_binFolder, _cmdFile);
 
         // TODO: once things stablize, we would like to toggle this to be false and only enable when needed for debugging test failures.
-        private bool _enableRealtimeLogUpload = true; 
+        private readonly bool _enableRealtimeLogUpload = true; 
 
         protected string TestId { get; set; }
 

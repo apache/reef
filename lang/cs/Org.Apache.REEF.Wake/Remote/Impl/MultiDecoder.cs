@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Proto;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
@@ -34,8 +33,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     public class MultiDecoder<T> : IDecoder<T>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(MultiDecoder<T>));
-        private Dictionary<Type, object> _decoderMap;
-        private Dictionary<string, Type> _nameMap;
+        private readonly Dictionary<Type, object> _decoderMap;
+        private readonly Dictionary<string, Type> _nameMap;
 
         /// <summary>
         /// Constructs a decoder that decodes bytes based on the class type

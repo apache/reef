@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private Optional<ContextRuntime> _childContext = Optional<ContextRuntime>.Empty();
 
         // The parent context, if any.
-        private Optional<ContextRuntime> _parentContext = Optional<ContextRuntime>.Empty();
+        private readonly Optional<ContextRuntime> _parentContext = Optional<ContextRuntime>.Empty();
 
         // The currently running task, if any.
         private Optional<TaskRuntime> _task = Optional<TaskRuntime>.Empty();

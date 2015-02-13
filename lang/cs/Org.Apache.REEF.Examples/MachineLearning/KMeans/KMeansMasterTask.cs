@@ -33,15 +33,15 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {
     public class KMeansMasterTask : ITask
     {
-        private static Logger _logger = Logger.GetLogger(typeof(KMeansMasterTask));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(KMeansMasterTask));
 
         private int _iteration = 0;
 
-        private ICommunicationGroupClient _commGroup;
-        private IBroadcastSender<Centroids> _dataBroadcastSender;
-        private IBroadcastSender<ControlMessage> _controlBroadcastSender;
-        private IReduceReceiver<ProcessedResults> _meansReducerReceiver;
-        private string _kMeansExecutionDirectory;
+        private readonly ICommunicationGroupClient _commGroup;
+        private readonly IBroadcastSender<Centroids> _dataBroadcastSender;
+        private readonly IBroadcastSender<ControlMessage> _controlBroadcastSender;
+        private readonly IReduceReceiver<ProcessedResults> _meansReducerReceiver;
+        private readonly string _kMeansExecutionDirectory;
         private Centroids _centroids;
         private bool _isInitialIteration;
 

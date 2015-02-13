@@ -17,10 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Tang.Tests.SmokeTest
 {

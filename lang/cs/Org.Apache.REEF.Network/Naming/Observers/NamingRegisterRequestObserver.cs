@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Network.Naming.Observers
     /// </summary>
     internal class NamingRegisterRequestObserver : AbstractObserver<NamingRegisterRequest>
     {
-        private NameServer _server;
+        private readonly NameServer _server;
 
         public NamingRegisterRequestObserver(NameServer server)
         {

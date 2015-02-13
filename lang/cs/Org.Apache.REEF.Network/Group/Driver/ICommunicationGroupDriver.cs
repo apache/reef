@@ -17,10 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Operators;
+using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Tang.Interface;
-using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Network.Group.Driver
 {

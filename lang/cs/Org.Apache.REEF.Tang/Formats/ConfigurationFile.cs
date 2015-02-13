@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-﻿using Org.Apache.REEF.Utilities.Logging;
-﻿using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Types;
-﻿using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Formats
 {

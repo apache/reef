@@ -17,8 +17,6 @@
  * under the License.
  */
 
-using System.Collections.Generic;
-
 using Org.Apache.REEF.Common.Catalog;
 
 namespace Org.Apache.REEF.Driver.Evaluator

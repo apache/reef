@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         private const string SmallMouseDataFile = @"mouseData_small.csv";
         private const string MouseDataFile = @"mouseData.csv";
 
-        private bool _useSmallDataSet = false;
+        private readonly bool _useSmallDataSet = false;
         private string _dataFile = MouseDataFile;
 
         [TestInitialize()]

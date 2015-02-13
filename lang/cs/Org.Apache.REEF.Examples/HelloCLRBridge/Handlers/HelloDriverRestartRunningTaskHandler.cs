@@ -21,8 +21,8 @@ using System;
 using System.Globalization;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 {

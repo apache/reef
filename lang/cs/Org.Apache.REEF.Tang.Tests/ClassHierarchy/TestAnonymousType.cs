@@ -20,12 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Examples;
-using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {

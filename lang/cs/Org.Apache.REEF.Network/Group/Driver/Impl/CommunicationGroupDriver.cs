@@ -17,19 +17,17 @@
  * under the License.
  */
 
+using System.Collections.Generic;
+using System.Reflection;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
-using Org.Apache.REEF.Network.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using System.Collections.Generic;
-using System.Reflection;
-using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
@@ -42,17 +40,17 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupDriver));
 
-        private string _groupName;
-        private string _driverId;
-        private int _numTasks;
+        private readonly string _groupName;
+        private readonly string _driverId;
+        private readonly int _numTasks;
         private int _tasksAdded;
         private bool _finalized;
 
-        private AvroConfigurationSerializer _confSerializer;
+        private readonly AvroConfigurationSerializer _confSerializer;
 
-        private object _topologyLock;
-        private Dictionary<string, object> _operatorSpecs;
-        private Dictionary<string, object> _topologies;
+        private readonly object _topologyLock;
+        private readonly Dictionary<string, object> _operatorSpecs;
+        private readonly Dictionary<string, object> _topologies;
 
         /// <summary>
         /// Create a new CommunicationGroupDriver.

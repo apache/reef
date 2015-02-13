@@ -18,15 +18,14 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
 {

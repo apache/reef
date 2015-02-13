@@ -18,9 +18,8 @@
  */
 
 using System;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,17 +17,16 @@
  * under the License.
  */
 
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Org.Apache.REEF.Utilities.Logging;
-﻿using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Utilities.Logging;
 using ProtoBuf;
-using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 
 namespace Org.Apache.REEF.Tang.Protobuf
 {

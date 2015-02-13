@@ -17,12 +17,11 @@
  * under the License.
  */
 
+using System.IO;
+using System.Linq;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
 using ProtoBuf;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace Org.Apache.REEF.Network.NetworkService.Codec
 {
@@ -32,8 +31,8 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
     /// <typeparam name="T">The message type</typeparam>
     public class NsMessageCodec<T> : ICodec<NsMessage<T>>
     {
-        private ICodec<T> _codec;
-        private IIdentifierFactory _idFactory;
+        private readonly ICodec<T> _codec;
+        private readonly IIdentifierFactory _idFactory;
 
         /// <summary>
         /// Create new NsMessageCodec.

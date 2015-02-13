@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Network.Naming.Events;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Naming

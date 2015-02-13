@@ -17,19 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common;
-using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
-using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
-using Org.Apache.REEF.Wake.Time.Runtime.Event;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -45,8 +32,18 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Time.Runtime;
-using Constants = Org.Apache.REEF.Common.Runtime.Evaluator.Constants;
+using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Evaluator
 {

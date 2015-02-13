@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         // the queue can only contains the following:
         // 1. all failed heartbeats (regular and event-based) before entering RECOVERY state
         // 2. event-based heartbeats generated in RECOVERY state (since there will be no attempt to send regular heartbeat)
-        private Queue<EvaluatorHeartbeatProto> _queuedHeartbeats = new Queue<EvaluatorHeartbeatProto>();
+        private readonly Queue<EvaluatorHeartbeatProto> _queuedHeartbeats = new Queue<EvaluatorHeartbeatProto>();
 
         public HeartBeatManager(EvaluatorSettings settings, IRemoteIdentifier remoteId)
         {

@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
 using System.Diagnostics;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Driver.Defaults
 {

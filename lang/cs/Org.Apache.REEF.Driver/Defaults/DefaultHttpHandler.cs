@@ -19,9 +19,9 @@
 
 using System.Net;
 using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Driver.Defaults
 {
