@@ -18,7 +18,6 @@
  */
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Tang.Formats

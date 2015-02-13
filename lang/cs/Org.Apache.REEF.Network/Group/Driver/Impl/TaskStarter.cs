@@ -23,9 +23,9 @@ using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Network.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
@@ -34,15 +34,15 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// </summary>
     public class TaskStarter
     {
-        private static Logger LOGGER = Logger.GetLogger(typeof(TaskStarter));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStarter));
 
-        private object _lock;
-        private int _numTasks;
+        private readonly object _lock;
+        private readonly int _numTasks;
         private int _tasksAdded;
-        private string _masterTaskId;
+        private readonly string _masterTaskId;
 
-        private IMpiDriver _mpiDriver;
-        private List<Tuple<string, IConfiguration, IActiveContext>> _taskTuples; 
+        private readonly IMpiDriver _mpiDriver;
+        private readonly List<Tuple<string, IConfiguration, IActiveContext>> _taskTuples; 
 
         /// <summary>
         /// Create new TaskStarter.

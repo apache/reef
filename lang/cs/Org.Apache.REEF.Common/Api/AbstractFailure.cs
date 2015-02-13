@@ -17,9 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities;
 using System;
 using System.Globalization;
+using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Api

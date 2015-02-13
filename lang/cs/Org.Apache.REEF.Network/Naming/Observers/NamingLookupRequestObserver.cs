@@ -17,10 +17,10 @@
  * under the License.
  */
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming.Events;
 using Org.Apache.REEF.Wake.RX;
-using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Network.Naming.Observers
 {
@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Network.Naming.Observers
     /// </summary>
     internal class NamingLookupRequestObserver : AbstractObserver<NamingLookupRequest>
     {
-        private NameServer _server;
+        private readonly NameServer _server;
 
         public NamingLookupRequestObserver(NameServer server)
         {

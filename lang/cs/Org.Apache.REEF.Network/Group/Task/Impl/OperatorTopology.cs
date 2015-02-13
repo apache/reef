@@ -17,17 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Group.Driver;
-using Org.Apache.REEF.Network.Group.Driver.Impl;
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Network.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Wake.Remote;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -35,6 +24,16 @@ using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Group.Driver.Impl;
+using Org.Apache.REEF.Network.Group.Operators;
+using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Network.Utilities;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -49,20 +48,20 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private const int DefaultTimeout = 10000;
         private const int RetryCount = 5;
 
-        private static Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
 
-        private string _groupName;
-        private string _operatorName;
-        private string _selfId;
+        private readonly string _groupName;
+        private readonly string _operatorName;
+        private readonly string _selfId;
         private string _driverId;
 
-        private NodeStruct _parent;
-        private List<NodeStruct> _children;
-        private Dictionary<string, NodeStruct> _idToNodeMap;
-        private ICodec<T> _codec;
-        private INameClient _nameClient;
-        private Sender _sender;
-        private BlockingCollection<NodeStruct> _nodesWithData;
+        private readonly NodeStruct _parent;
+        private readonly List<NodeStruct> _children;
+        private readonly Dictionary<string, NodeStruct> _idToNodeMap;
+        private readonly ICodec<T> _codec;
+        private readonly INameClient _nameClient;
+        private readonly Sender _sender;
+        private readonly BlockingCollection<NodeStruct> _nodesWithData;
             
         /// <summary>
         /// Creates a new OperatorTopology object.

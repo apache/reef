@@ -18,19 +18,16 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Wake.Util
 {
     public class NetworkUtils
     {
         private static IPAddress _localAddress;
-        private static Random _random = new Random();
+        private static readonly Random _random = new Random();
 
         /// <summary>
         /// Returns the first usable IP Address for the machine.

@@ -17,23 +17,23 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Network.Naming.Codec;
-using Org.Apache.REEF.Network.Naming.Events;
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
-using Org.Apache.REEF.Wake.RX;
-using Org.Apache.REEF.Wake.RX.Impl;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reactive;
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Network.Naming.Codec;
+using Org.Apache.REEF.Network.Naming.Events;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.RX;
+using Org.Apache.REEF.Wake.RX.Impl;
 
 namespace Org.Apache.REEF.Network.Naming
 {
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     public class NameClient : INameClient
     {
-        private static Logger _logger = Logger.GetLogger(typeof(NameClient));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(NameClient));
 
         private BlockingCollection<NamingLookupResponse> _lookupResponseQueue;
         private BlockingCollection<NamingGetAllResponse> _getAllResponseQueue;
@@ -261,7 +261,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         private class ClientObserver : AbstractObserver<TransportEvent<NamingEvent>>
         {
-            private IObserver<NamingEvent> _handler;
+            private readonly IObserver<NamingEvent> _handler;
 
             public ClientObserver(IObserver<NamingEvent> handler)
             {

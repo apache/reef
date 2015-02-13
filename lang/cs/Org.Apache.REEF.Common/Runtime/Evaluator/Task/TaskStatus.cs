@@ -34,8 +34,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly HeartBeatManager _heartBeatManager;
         private readonly Optional<ISet<ITaskMessageSource>> _evaluatorMessageSources;
 
-        private string _taskId;
-        private string _contextId;
+        private readonly string _taskId;
+        private readonly string _contextId;
         private Optional<Exception> _lastException = Optional<Exception>.Empty();
         private Optional<byte[]> _result = Optional<byte[]>.Empty();
         private TaskState _state;

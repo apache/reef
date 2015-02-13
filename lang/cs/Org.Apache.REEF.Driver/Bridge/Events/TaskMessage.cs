@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     [DataContract]
     internal class TaskMessage : ITaskMessage
     {
-        private ITaskMessageClr2Java _taskMessageClr2Java;
+        private readonly ITaskMessageClr2Java _taskMessageClr2Java;
         private byte[] _message;
         private string _instanceId;
 

@@ -17,19 +17,17 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-
-using Org.Apache.REEF.Wake.Time;
+using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Driver.Bridge
@@ -72,39 +70,39 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private static ClrSystemHandler<StartTime> _driverRestartSubscriber;
 
-        private IObserver<StartTime> _driverRestartHandler; 
+        private readonly IObserver<StartTime> _driverRestartHandler; 
 
-        private ISet<IObserver<IEvaluatorRequestor>> _evaluatorRequestHandlers;
+        private readonly ISet<IObserver<IEvaluatorRequestor>> _evaluatorRequestHandlers;
 
-        private ISet<IObserver<IAllocatedEvaluator>> _allocatedEvaluatorHandlers;
+        private readonly ISet<IObserver<IAllocatedEvaluator>> _allocatedEvaluatorHandlers;
 
-        private ISet<IObserver<IActiveContext>> _activeContextHandlers;
+        private readonly ISet<IObserver<IActiveContext>> _activeContextHandlers;
 
-        private ISet<IObserver<IActiveContext>> _driverRestartActiveContextHandlers;
+        private readonly ISet<IObserver<IActiveContext>> _driverRestartActiveContextHandlers;
 
-        private ISet<IObserver<ITaskMessage>> _taskMessageHandlers;
+        private readonly ISet<IObserver<ITaskMessage>> _taskMessageHandlers;
 
-        private ISet<IObserver<IFailedTask>> _failedTaskHandlers;
+        private readonly ISet<IObserver<IFailedTask>> _failedTaskHandlers;
 
-        private ISet<IObserver<ISuspendedTask>> _suspendedTaskHandlers;
+        private readonly ISet<IObserver<ISuspendedTask>> _suspendedTaskHandlers;
 
-        private ISet<IObserver<IRunningTask>> _runningTaskHandlers;
+        private readonly ISet<IObserver<IRunningTask>> _runningTaskHandlers;
 
-        private ISet<IObserver<IRunningTask>> _driverRestartRunningTaskHandlers;
+        private readonly ISet<IObserver<IRunningTask>> _driverRestartRunningTaskHandlers;
 
-        private ISet<IObserver<IFailedEvaluator>> _failedEvaluatorHandlers;
+        private readonly ISet<IObserver<IFailedEvaluator>> _failedEvaluatorHandlers;
 
-        private ISet<IObserver<ICompletedEvaluator>> _completedEvaluatorHandlers;
+        private readonly ISet<IObserver<ICompletedEvaluator>> _completedEvaluatorHandlers;
 
-        private ISet<IObserver<IClosedContext>> _closedContextHandlers;
+        private readonly ISet<IObserver<IClosedContext>> _closedContextHandlers;
 
-        private ISet<IObserver<IFailedContext>> _failedContextHandlers;
+        private readonly ISet<IObserver<IFailedContext>> _failedContextHandlers;
 
-        private ISet<IObserver<IContextMessage>> _contextMessageHandlers;
+        private readonly ISet<IObserver<IContextMessage>> _contextMessageHandlers;
 
-        private ISet<IObserver<ICompletedTask>> _completedTaskHandlers;
+        private readonly ISet<IObserver<ICompletedTask>> _completedTaskHandlers;
 
-        private HttpServerHandler _httpServerHandler;
+        private readonly HttpServerHandler _httpServerHandler;
 
         [Inject]
         public DriverBridge(

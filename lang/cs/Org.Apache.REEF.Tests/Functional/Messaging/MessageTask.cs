@@ -81,7 +81,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public class MessagingDriverMessageHandler : IDriverMessageHandler
         {
-            private MessageTask _parentTask;
+            private readonly MessageTask _parentTask;
 
             [Inject]
             public MessagingDriverMessageHandler(MessageTask task)

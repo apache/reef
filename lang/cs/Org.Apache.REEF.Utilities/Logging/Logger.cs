@@ -53,9 +53,9 @@ namespace Org.Apache.REEF.Utilities.Logging
 
         private static List<TraceListener> _traceListeners;
 
-        private string _name;       
+        private readonly string _name;       
 
-        private TraceSource _traceSource;
+        private readonly TraceSource _traceSource;
 
         private Logger(string name)
         {

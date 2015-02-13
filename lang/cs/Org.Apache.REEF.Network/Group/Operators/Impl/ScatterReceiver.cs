@@ -17,12 +17,8 @@
  * under the License.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
-using System.Text;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
@@ -40,8 +36,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     {
         private const int DefaultVersion = 1;
 
-        private ICommunicationGroupNetworkObserver _networkHandler;
-        private OperatorTopology<T> _topology;
+        private readonly ICommunicationGroupNetworkObserver _networkHandler;
+        private readonly OperatorTopology<T> _topology;
 
         /// <summary>
         /// Creates a new ScatterReceiver.

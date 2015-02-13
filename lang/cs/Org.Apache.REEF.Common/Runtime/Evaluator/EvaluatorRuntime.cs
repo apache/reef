@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private State _state = State.INIT;
 
-        private IDisposable _evaluatorControlChannel; 
+        private readonly IDisposable _evaluatorControlChannel; 
 
         [Inject]
         public EvaluatorRuntime(

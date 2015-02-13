@@ -27,13 +27,11 @@ using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Time;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Time.Event;
 using ContextMessage = Org.Apache.REEF.Driver.Bridge.Events.ContextMessage;
 

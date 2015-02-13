@@ -18,10 +18,7 @@
  */
 
 using System;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,7 +29,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// </summary>
     public class Channel
     {
-        private NetworkStream _stream;
+        private readonly NetworkStream _stream;
 
         /// <summary>
         /// Constructs a new Channel with the the connected NetworkStream.

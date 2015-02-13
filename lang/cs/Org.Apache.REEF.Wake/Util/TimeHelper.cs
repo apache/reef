@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.Threading;
 
 namespace Org.Apache.REEF.Wake.Util
 {

@@ -31,9 +31,9 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
     /// </summary>
     public class LegacyKMeansTask
     {
-        private int _clustersNum;
-        private DataPartitionCache _dataPartition;
-        private string _kMeansExecutionDirectory;
+        private readonly int _clustersNum;
+        private readonly DataPartitionCache _dataPartition;
+        private readonly string _kMeansExecutionDirectory;
 
         private Centroids _centroids;
         private List<PartialMean> _partialMeans;

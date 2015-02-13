@@ -20,10 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
@@ -33,11 +31,11 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
 using IRunningTask = Org.Apache.REEF.Driver.Task.IRunningTask;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
@@ -77,7 +75,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(HelloSimpleEventHandlers));
         private IAllocatedEvaluator _allocatedEvaluator;
         private IActiveContext _activeContext;
-        private IList<IActiveContext> _activeContexts = new List<IActiveContext>();
+        private readonly IList<IActiveContext> _activeContexts = new List<IActiveContext>();
         private DriverStatus driveStatus;
         private TaskContext _taskContext;
 
@@ -354,9 +352,9 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 
     class TaskContext
     {
-        private IList<string> taskIds = new List<string>();
+        private readonly IList<string> taskIds = new List<string>();
 
-        private IDictionary<string, TaskStatus> tasks = new Dictionary<string, TaskStatus>();
+        private readonly IDictionary<string, TaskStatus> tasks = new Dictionary<string, TaskStatus>();
 
         public TaskContext()
         {

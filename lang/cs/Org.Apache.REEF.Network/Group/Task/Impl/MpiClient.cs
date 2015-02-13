@@ -17,19 +17,18 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote.Impl;
-using System;
-using System.Collections.Generic;
-using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -38,9 +37,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     public class MpiClient : IMpiClient
     {
-        private Dictionary<string, ICommunicationGroupClient> _commGroups;
+        private readonly Dictionary<string, ICommunicationGroupClient> _commGroups;
 
-        private INetworkService<GroupCommunicationMessage> _networkService;
+        private readonly INetworkService<GroupCommunicationMessage> _networkService;
 
         /// <summary>
         /// Creates a new MpiClient and registers the task ID with the Name Server.

@@ -17,11 +17,11 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using System;
 
 namespace Org.Apache.REEF.Driver.Defaults
 {

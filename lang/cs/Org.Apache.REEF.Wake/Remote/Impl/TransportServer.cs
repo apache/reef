@@ -17,14 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
 using System;
-using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
@@ -36,10 +34,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TransportServer<>));
 
-        private TcpListener _listener;
-        private CancellationTokenSource _cancellationSource;
-        private IObserver<TransportEvent<T>> _remoteObserver;
-        private ICodec<T> _codec; 
+        private readonly TcpListener _listener;
+        private readonly CancellationTokenSource _cancellationSource;
+        private readonly IObserver<TransportEvent<T>> _remoteObserver;
+        private readonly ICodec<T> _codec; 
         private bool _disposed;
         private Task _serverTask;
 

@@ -17,20 +17,15 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
@@ -41,13 +36,13 @@ namespace Org.Apache.REEF.Network.Group.Topology
     /// <typeparam name="T">The message type</typeparam>
     public class FlatTopology<T> : ITopology<T>
     {
-        private string _groupName;
-        private string _operatorName;
+        private readonly string _groupName;
+        private readonly string _operatorName;
 
-        private string _rootId;
-        private string _driverId;
+        private readonly string _rootId;
+        private readonly string _driverId;
 
-        private Dictionary<string, TaskNode> _nodes;
+        private readonly Dictionary<string, TaskNode> _nodes;
         private TaskNode _root;
 
         /// <summary>

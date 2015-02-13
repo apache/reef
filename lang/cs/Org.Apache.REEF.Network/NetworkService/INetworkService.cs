@@ -20,7 +20,6 @@
 using System;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Services;
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake;
 
 namespace Org.Apache.REEF.Network.NetworkService

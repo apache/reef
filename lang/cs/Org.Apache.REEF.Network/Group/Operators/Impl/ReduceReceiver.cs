@@ -17,13 +17,12 @@
  * under the License.
  */
 
+using System.Reactive;
 using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
-using System.Reactive;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -35,8 +34,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     {
         private const int DefaultVersion = 1;
 
-        private ICommunicationGroupNetworkObserver _networkHandler;
-        private OperatorTopology<T> _topology;
+        private readonly ICommunicationGroupNetworkObserver _networkHandler;
+        private readonly OperatorTopology<T> _topology;
 
         /// <summary>
         /// Creates a new ReduceReceiver.

@@ -17,10 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Time;
 using System;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Driver.Defaults

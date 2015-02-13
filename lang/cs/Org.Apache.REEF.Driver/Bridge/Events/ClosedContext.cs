@@ -28,9 +28,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     public class ClosedContext : IClosedContext
     {
-        private string _id;
+        private readonly string _id;
 
-        private string _evaluatorId;
+        private readonly string _evaluatorId;
 
         public ClosedContext(IClosedContextClr2Java clr2java)
         {

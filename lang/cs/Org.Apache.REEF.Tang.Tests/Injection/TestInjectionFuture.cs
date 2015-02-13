@@ -17,13 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
@@ -135,7 +134,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [DefaultImplementation(typeof(Futurist), "Futurist")]
         public class Futurist 
         {
-            private IInjectionFuture<FlyingCar> fcar;
+            private readonly IInjectionFuture<FlyingCar> fcar;
             [Inject]
             public Futurist(IInjectionFuture<FlyingCar> car) 
             {
@@ -151,7 +150,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
   
         public class PickyFuturist : Futurist 
         {
-            private IInjectionFuture<FlyingCar> fCar;
+            private readonly IInjectionFuture<FlyingCar> fCar;
             [Inject]
             public PickyFuturist([Parameter(typeof(MyFlyingCar))] IInjectionFuture<FlyingCar> myFlyingCar) : base(myFlyingCar)
             {
@@ -168,8 +167,8 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [DefaultImplementation(typeof(FlyingCar), "")]
         public class FlyingCar 
         {
-            private string color;
-            private Futurist driver;
+            private readonly string color;
+            private readonly Futurist driver;
             
             [Inject]
             public FlyingCar([Parameter(typeof(Color))] string color, Futurist driver) 

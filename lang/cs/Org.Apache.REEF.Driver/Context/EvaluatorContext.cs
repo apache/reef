@@ -33,11 +33,11 @@ namespace Org.Apache.REEF.Driver.Context
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorContext));
         
-        private string _identifier;
+        private readonly string _identifier;
 
-        private Optional<string> _parentId;
+        private readonly Optional<string> _parentId;
 
-        private EvaluatorManager _evaluatorManager;
+        private readonly EvaluatorManager _evaluatorManager;
 
         private bool _disposed = false;
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+
+using System;
 using System.Collections.Generic;
-﻿using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
@@ -28,14 +29,14 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         /// It is from Type.FullName. This name is used as Name in a Node. 
         /// It is not unique for a generic type with different type of arguments.
         /// It is used for toString or debug info as AssemblyQualifiedName is really long
-        private String name;
+        private readonly String name;
 
         /// It is from Type.AssemblyQualifiedName. THis name is used as full name in a Node
         /// It is unique for a generic type with different type of arguments.
-        private String fullName; //it comes from 
+        private readonly String fullName; //it comes from 
 
         //parent node in the class hierarchy
-        private INode parent; 
+        private readonly INode parent; 
         
         //children in the class hierarchy
         protected IDictionary<String, INode> children = new MonotonicTreeMap<string, INode>();

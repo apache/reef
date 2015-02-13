@@ -17,21 +17,21 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Network.Naming.Codec;
-using Org.Apache.REEF.Network.Naming.Events;
-using Org.Apache.REEF.Network.Naming.Observers;
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
-using Org.Apache.REEF.Wake.RX;
-using Org.Apache.REEF.Wake.RX.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Network.Naming.Codec;
+using Org.Apache.REEF.Network.Naming.Events;
+using Org.Apache.REEF.Network.Naming.Observers;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.RX;
+using Org.Apache.REEF.Wake.RX.Impl;
 
 namespace Org.Apache.REEF.Network.Naming
 {
@@ -41,10 +41,10 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     public class NameServer : INameServer
     {
-        private static Logger _logger = Logger.GetLogger(typeof(NameServer));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(NameServer));
 
-        private TransportServer<NamingEvent> _server;
-        private Dictionary<string, IPEndPoint> _idToAddrMap;
+        private readonly TransportServer<NamingEvent> _server;
+        private readonly Dictionary<string, IPEndPoint> _idToAddrMap;
         
         /// <summary>
         /// Create a new NameServer to run on the specified port.
@@ -178,7 +178,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         private class ServerHandler : AbstractObserver<TransportEvent<NamingEvent>>
         {
-            private IObserver<NamingEvent> _handler; 
+            private readonly IObserver<NamingEvent> _handler; 
 
             public ServerHandler(IObserver<NamingEvent> handler)
             {

@@ -18,12 +18,10 @@
  */
 
 using System;
-using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake;
-using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -32,8 +30,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// </summary>
     public class Sender
     {
-        private INetworkService<GroupCommunicationMessage> _networkService;
-        private IIdentifierFactory _idFactory;
+        private readonly INetworkService<GroupCommunicationMessage> _networkService;
+        private readonly IIdentifierFactory _idFactory;
 
         /// <summary>
         /// Creates a new Sender.

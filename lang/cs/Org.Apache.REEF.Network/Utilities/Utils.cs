@@ -17,21 +17,19 @@
  * under the License.
  */
 
-using System.IO;
-using Microsoft.Hadoop.Avro;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Utilities
 {
     internal class Utils
     {
-        private static Logger LOGGER = Logger.GetLogger(typeof(Utils));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(Utils));
 
         /// <summary>
         /// Returns the TaskIdentifier from the Configuration.

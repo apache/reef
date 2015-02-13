@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Examples.Tasks.HelloTask
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(HelloTask));
 
-        private INameClient _nameClient = null;
+        private readonly INameClient _nameClient = null;
 
         [Inject]
         public HelloTask()
@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Examples.Tasks.HelloTask
 
         public class HelloDriverMessageHandler : IDriverMessageHandler
         {
-            private HelloTask _parentTask;
+            private readonly HelloTask _parentTask;
 
             [Inject]
             public HelloDriverMessageHandler(HelloTask task)

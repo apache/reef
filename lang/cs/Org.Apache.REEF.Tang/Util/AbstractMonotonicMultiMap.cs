@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Tang.Util
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-        private IDictionary<K, ISet<V>> map;
+        private readonly IDictionary<K, ISet<V>> map;
 
         private int size = 0;
 

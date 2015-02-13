@@ -17,26 +17,24 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Api;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Exceptions;
-using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
-using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 
 namespace Org.Apache.REEF.Driver
 {
@@ -52,25 +50,25 @@ namespace Org.Apache.REEF.Driver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DriverManager));
         
-        private IInjector _injector;
+        private readonly IInjector _injector;
 
-        private IInjectionFuture<IClock> _clockFuture; 
+        private readonly IInjectionFuture<IClock> _clockFuture; 
 
-        private ResourceCatalogImpl _resourceCatalog;
+        private readonly ResourceCatalogImpl _resourceCatalog;
 
         private IInjectionFuture<IResourceRequestHandler> _futureResourceRequestHandler;
         
-        private Dictionary<string, EvaluatorManager> _evaluators = new Dictionary<string, EvaluatorManager>();
+        private readonly Dictionary<string, EvaluatorManager> _evaluators = new Dictionary<string, EvaluatorManager>();
 
-        private EvaluatorHeartBeatSanityChecker _sanityChecker = new EvaluatorHeartBeatSanityChecker();
+        private readonly EvaluatorHeartBeatSanityChecker _sanityChecker = new EvaluatorHeartBeatSanityChecker();
 
-        private ClientJobStatusHandler _clientJobStatusHandler;
+        private readonly ClientJobStatusHandler _clientJobStatusHandler;
 
-        private IDisposable _heartbeatConnectionChannel;
+        private readonly IDisposable _heartbeatConnectionChannel;
 
-        private IDisposable _errorChannel;
+        private readonly IDisposable _errorChannel;
 
-        private IObserver<RuntimeErrorProto> _runtimeErrorHandler;
+        private readonly IObserver<RuntimeErrorProto> _runtimeErrorHandler;
 
         public DriverManager(
             IInjector injector,

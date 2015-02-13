@@ -17,14 +17,13 @@
  * under the License.
  */
 
+using System;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Examples;
-using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using System;
-using System.Reflection;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {

@@ -29,9 +29,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// </summary>
     public class TransportClient<T> : IDisposable
     {
-        private ILink<T> _link;
-        private IObserver<TransportEvent<T>> _observer;
-        private CancellationTokenSource _cancellationSource;
+        private readonly ILink<T> _link;
+        private readonly IObserver<TransportEvent<T>> _observer;
+        private readonly CancellationTokenSource _cancellationSource;
         private bool _disposed;
 
         /// <summary>

@@ -17,12 +17,12 @@
  * under the License.
  */
 
+using System;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Time;
-using System;
-using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Common
@@ -31,13 +31,13 @@ namespace Org.Apache.REEF.Common
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClientJobStatusHandler));
 
-        private IClock _clock;
+        private readonly IClock _clock;
 
-        private string _jobId;
+        private readonly string _jobId;
 
-        private IObserver<JobStatusProto> _jobStatusHandler;
+        private readonly IObserver<JobStatusProto> _jobStatusHandler;
 
-        private IDisposable _jobControlChannel;
+        private readonly IDisposable _jobControlChannel;
 
         State _state = State.INIT;
 

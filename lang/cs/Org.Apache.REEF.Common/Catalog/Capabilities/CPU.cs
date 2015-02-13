@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Common.Catalog.Capabilities
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CPU));
 
-        private int _cores;
+        private readonly int _cores;
 
         public CPU(int cores)
         {

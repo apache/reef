@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
@@ -211,7 +211,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
         class FooParser : IExternalConstructor<Foo>
         {
-            private Foo foo;
+            private readonly Foo foo;
             [Inject]
             public FooParser(string s)
             {
@@ -226,7 +226,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
         class BarParser : IExternalConstructor<Foo>
         {
-            private Bar bar;
+            private readonly Bar bar;
             [Inject]
             public BarParser(String s)
             {
@@ -275,7 +275,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
         class TypeParser : IExternalConstructor<ParseableType>
         {
-            ParseableType instance;
+            readonly ParseableType instance;
             [Inject]
             public TypeParser(String s)
             {

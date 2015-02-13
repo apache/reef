@@ -18,16 +18,14 @@
  */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Remoting;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
 
@@ -40,11 +38,11 @@ namespace Org.Apache.REEF.Network.NetworkService
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(NsConnection<T>));
 
-        private IIdentifier _sourceId;
-        private IIdentifier _destId;
-        private INameClient _nameClient;
-        private IRemoteManager<NsMessage<T>> _remoteManager; 
-        private Dictionary<IIdentifier, IConnection<T>> _connectionMap;
+        private readonly IIdentifier _sourceId;
+        private readonly IIdentifier _destId;
+        private readonly INameClient _nameClient;
+        private readonly IRemoteManager<NsMessage<T>> _remoteManager; 
+        private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
         private IObserver<NsMessage<T>> _remoteSender;
 
         /// <summary>

@@ -18,7 +18,6 @@
  */
 
 using System;
-
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge
@@ -30,7 +29,7 @@ namespace Org.Apache.REEF.Driver.Bridge
     /// </summary>
     public class BridgeLogger
     {
-        private Logger _logger;
+        private readonly Logger _logger;
 
         public BridgeLogger(string name)
         {

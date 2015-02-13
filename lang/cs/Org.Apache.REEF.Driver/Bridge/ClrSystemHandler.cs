@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Driver.Bridge
 {
     public class ClrSystemHandler<T> : IObserver<T>, IObservable<T>
     {
-        List<IObserver<T>> userHandlers = new List<IObserver<T>>();
+        readonly List<IObserver<T>> userHandlers = new List<IObserver<T>>();
 
         public void OnNext(T value)
         {

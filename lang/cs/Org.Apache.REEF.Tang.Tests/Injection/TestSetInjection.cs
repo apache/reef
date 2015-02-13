@@ -19,13 +19,12 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
@@ -328,7 +327,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public class Integer : INumber
         {
-            private int val;
+            private readonly int val;
           
             public Integer(int v)
             {
@@ -377,7 +376,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public class Float : INumber
         {
-            private float val;
+            private readonly float val;
 
             [Inject]
             public Float(float v)
@@ -428,7 +427,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         
         public class Integer1 : INumber
         {
-            private int val;
+            private readonly int val;
 
             [Inject]
             public Integer1([Parameter(typeof(NamedInt))] int v)
@@ -483,7 +482,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public class Integer2 : INumber
         {
-            private int val;
+            private readonly int val;
 
             [Inject]
             public Integer2()
@@ -533,7 +532,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public class Integer3 : INumber
         {
-            private int val;
+            private readonly int val;
 
             [Inject]
             public Integer3([Parameter(typeof(NamedInt))] int v)
@@ -588,7 +587,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public class Float1 : INumber
         {
-            private float val;
+            private readonly float val;
 
             [Inject]
             public Float1([Parameter(typeof(NamedFloat))] float v)

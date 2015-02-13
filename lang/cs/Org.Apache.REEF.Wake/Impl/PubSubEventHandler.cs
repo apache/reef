@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Wake.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(PubSubEventHandler<T>));
 
-        private Dictionary<Type, List<object>> _classToHandlersMap;
+        private readonly Dictionary<Type, List<object>> _classToHandlersMap;
 
         /// <summary>
         /// Construct a pub-sub event handler

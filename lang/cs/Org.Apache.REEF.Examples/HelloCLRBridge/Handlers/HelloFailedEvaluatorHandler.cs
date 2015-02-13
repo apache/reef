@@ -17,10 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Driver.Bridge;
+using System;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
-using System;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 {
@@ -28,7 +27,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
     {
         private static int _failureCount = 0;
 
-        private static int _maxTrial = 2;
+        private static readonly int _maxTrial = 2;
 
         [Inject]
         public HelloFailedEvaluatorHandler()

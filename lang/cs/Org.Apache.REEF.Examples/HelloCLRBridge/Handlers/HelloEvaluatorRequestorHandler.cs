@@ -17,10 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Driver.Evaluator;
 using System;
-
+using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
