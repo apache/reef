@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
-using System.Collections;
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-﻿using Org.Apache.REEF.Utilities.Logging;
-﻿using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
@@ -32,11 +32,11 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Constructor));
 
-        IConstructorDef constructor;  //which constructor to use
-        InjectionPlan[] args; //constructor arguments in which we already got injectionPlan for each (nested cases)
-        int numAlternatives;
-        bool isAmbiguous;
-        bool isInjectable;
+        readonly IConstructorDef constructor;  //which constructor to use
+        readonly InjectionPlan[] args; //constructor arguments in which we already got injectionPlan for each (nested cases)
+        readonly int numAlternatives;
+        readonly bool isAmbiguous;
+        readonly bool isInjectable;
 
         public InjectionPlan[] GetArgs() 
         {

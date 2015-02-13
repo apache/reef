@@ -17,9 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities;
-
 using Newtonsoft.Json;
+using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Avro
 {

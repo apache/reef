@@ -17,12 +17,11 @@
  * under the License.
  */
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Common.Exceptions;
-using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
-using System.Collections.Generic;
-using Org.Apache.REEF.Driver.Bridge.Events;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-﻿using Org.Apache.REEF.Utilities.Logging;
-﻿using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
@@ -30,7 +31,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ParameterParser));
 
-        MonotonicTreeMap<String, ConstructorInfo> parsers = new MonotonicTreeMap<String, ConstructorInfo>();
+        readonly MonotonicTreeMap<String, ConstructorInfo> parsers = new MonotonicTreeMap<String, ConstructorInfo>();
 
         //ec: ACons, tc: A
         public void AddParser(Type ec)

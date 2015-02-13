@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.Globalization;
 using System.Text;
 using Org.Apache.REEF.Utilities.Logging;
 

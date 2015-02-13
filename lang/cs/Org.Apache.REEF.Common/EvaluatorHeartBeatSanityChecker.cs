@@ -17,18 +17,18 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common
 {
     public class EvaluatorHeartBeatSanityChecker
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorHeartBeatSanityChecker));
-        
-        Dictionary<string, long> _timeStamps = new Dictionary<string, long>();
+
+        readonly Dictionary<string, long> _timeStamps = new Dictionary<string, long>();
 
         public void check(string id, long timeStamp)
         {

@@ -25,15 +25,15 @@ namespace Org.Apache.REEF.Common.Catalog
 {
     public class NodeDescriptorImpl : INodeDescriptor
     {
-        private RackDescriptorImpl _rack;
+        private readonly RackDescriptorImpl _rack;
 
-        private string _id;
+        private readonly string _id;
 
         private IPEndPoint _address;
 
         private RAM _ram;
 
-        private IList<ICapability> _capabilities;
+        private readonly IList<ICapability> _capabilities;
 
         public NodeDescriptorImpl()
         {

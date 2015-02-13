@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 {
     public class HttpServer
     {
-        private Server _server;
+        private readonly Server _server;
 
         [Inject]
         public HttpServer(JettyHandler jettyHandler)

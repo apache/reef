@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Driver;
 using System.Collections.Concurrent;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 
@@ -28,7 +27,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     internal class NodeStruct
     {
-        private BlockingCollection<GroupCommunicationMessage> _messageQueue;
+        private readonly BlockingCollection<GroupCommunicationMessage> _messageQueue;
 
         /// <summary>
         /// Creates a new NodeStruct.

@@ -17,12 +17,12 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Globalization;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Defaults
 {

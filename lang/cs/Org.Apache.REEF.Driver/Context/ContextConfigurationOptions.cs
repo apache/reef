@@ -17,14 +17,13 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Events;
-using Org.Apache.REEF.Driver.Defaults;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Formats;
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Driver.Context.Defaults;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Formats;
 
 namespace Org.Apache.REEF.Driver.Context
 {

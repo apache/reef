@@ -18,7 +18,6 @@
  */
 
 using System;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver
 {

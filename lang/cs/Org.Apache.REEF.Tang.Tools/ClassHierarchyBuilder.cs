@@ -17,10 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Protobuf;
-using Org.Apache.REEF.Tang.Types;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -30,6 +26,9 @@ using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Examples.Tasks.ShellTask;
 using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Protobuf;
+using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Tools
 {

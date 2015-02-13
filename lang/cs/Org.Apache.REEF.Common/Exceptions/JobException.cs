@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Common.Exceptions
 {
     public class JobException : Exception, IIdentifiable
     {
-        private string _jobId;
+        private readonly string _jobId;
 
         public JobException(string jobId)
         {

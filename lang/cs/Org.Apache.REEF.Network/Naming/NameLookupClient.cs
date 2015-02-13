@@ -33,9 +33,9 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     internal class NameLookupClient
     {
-        private TransportClient<NamingEvent> _client;
-        private BlockingCollection<NamingLookupResponse> _lookupResponseQueue;
-        private BlockingCollection<NamingGetAllResponse> _getAllResponseQueue;
+        private readonly TransportClient<NamingEvent> _client;
+        private readonly BlockingCollection<NamingLookupResponse> _lookupResponseQueue;
+        private readonly BlockingCollection<NamingGetAllResponse> _getAllResponseQueue;
 
         /// <summary>
         /// Constructs a new NameLookupClient.

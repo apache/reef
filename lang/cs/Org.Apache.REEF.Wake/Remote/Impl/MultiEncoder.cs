@@ -31,9 +31,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// </summary>
     public class MultiEncoder<T> : IEncoder<T>
     {
-        private static Logger _logger = Logger.GetLogger(typeof(MultiEncoder<>));
-        private Dictionary<Type, object> _encoderMap;
-        private Dictionary<Type, string> _nameMap;
+        private static readonly Logger _logger = Logger.GetLogger(typeof(MultiEncoder<>));
+        private readonly Dictionary<Type, object> _encoderMap;
+        private readonly Dictionary<Type, string> _nameMap;
 
         /// <summary>
         /// Constructs an encoder that encodes an object to bytes based on the class name

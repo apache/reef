@@ -30,8 +30,8 @@ namespace Org.Apache.REEF.Network.Naming
     /// </summary>
     internal class NameRegisterClient
     {
-        private TransportClient<NamingEvent> _client;
-        private BlockingCollection<NamingRegisterResponse> _registerResponseQueue;
+        private readonly TransportClient<NamingEvent> _client;
+        private readonly BlockingCollection<NamingRegisterResponse> _registerResponseQueue;
         private BlockingCollection<NamingUnregisterResponse> _unregisterResponseQueue;
 
         public NameRegisterClient(TransportClient<NamingEvent> client,

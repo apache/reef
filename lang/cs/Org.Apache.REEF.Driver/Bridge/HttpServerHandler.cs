@@ -17,16 +17,15 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Avro;
-using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
+using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
@@ -39,9 +38,9 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private static readonly string SPEC = "SPEC";
 
-        private IDictionary<string, IHttpHandler> eventHandlers = new Dictionary<string, IHttpHandler>();
+        private readonly IDictionary<string, IHttpHandler> eventHandlers = new Dictionary<string, IHttpHandler>();
 
-        private HttpServerPort httpServerPort;
+        private readonly HttpServerPort httpServerPort;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpServerHandler" /> class.

@@ -17,11 +17,11 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
 using System.Globalization;
 using System.Net;
 using System.Text;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     public class SocketRemoteIdentifier : IRemoteIdentifier
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(SocketRemoteIdentifier));
-        private IPEndPoint _addr;
+        private readonly IPEndPoint _addr;
 
         public SocketRemoteIdentifier(IPEndPoint addr)
         {

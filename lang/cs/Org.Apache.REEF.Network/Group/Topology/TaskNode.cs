@@ -17,13 +17,7 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Util;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
@@ -38,7 +32,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
         private string _driverId;
 
         private TaskNode _parent;
-        private List<TaskNode> _children;
+        private readonly List<TaskNode> _children;
 
         public TaskNode(
             string groupName, 

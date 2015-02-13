@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
 using System.Diagnostics;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge
 {
@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
     /// </summary>
     public class HelloTraceListener : TraceListener
     {
-        private TraceListener _listener;
+        private readonly TraceListener _listener;
 
         [Inject]
         public HelloTraceListener()

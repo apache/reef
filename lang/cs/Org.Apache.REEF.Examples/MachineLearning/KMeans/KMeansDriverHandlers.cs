@@ -53,16 +53,16 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(KMeansDriverHandlers));
         private readonly object _lockObj = new object();
-        private string _executionDirectory;
+        private readonly string _executionDirectory;
 
         // TODO: we may want to make this injectable
-        private int _partitionsNumber = 2;
-        private int _clustersNumber = 3;
-        private int _totalEvaluators;
+        private readonly int _partitionsNumber = 2;
+        private readonly int _clustersNumber = 3;
+        private readonly int _totalEvaluators;
         private int _partitionInex = 0;
-        private IMpiDriver _mpiDriver;
-        private ICommunicationGroupDriver _commGroup;
-        private TaskStarter _mpiTaskStarter;
+        private readonly IMpiDriver _mpiDriver;
+        private readonly ICommunicationGroupDriver _commGroup;
+        private readonly TaskStarter _mpiTaskStarter;
 
         [Inject]
         public KMeansDriverHandlers()

@@ -17,9 +17,9 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Common.Api;
 using Org.Apache.REEF.Utilities;
-using System;
 
 namespace Org.Apache.REEF.Driver
 {

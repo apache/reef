@@ -17,10 +17,10 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
-using System;
 
 namespace Org.Apache.REEF.Wake.RX.Impl
 {

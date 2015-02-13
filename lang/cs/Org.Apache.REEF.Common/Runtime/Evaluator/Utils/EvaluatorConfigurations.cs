@@ -30,9 +30,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorConfigurations));
 
-        private AvroConfiguration _avroConfiguration;
+        private readonly AvroConfiguration _avroConfiguration;
 
-        private string _configFile;
+        private readonly string _configFile;
 
         private string _applicationId;
 

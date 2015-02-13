@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         private readonly HeartBeatManager _heartBeatManager;
 
-        private RootContextLauncher _rootContextLauncher;
+        private readonly RootContextLauncher _rootContextLauncher;
 
         public ContextManager(HeartBeatManager heartBeatManager, Optional<ServiceConfiguration> rootServiceConfig, Optional<TaskConfiguration> rootTaskConfig)
         {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,27 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-﻿using Org.Apache.REEF.Utilities.Logging;
-﻿using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
     public class ClassHierarchyImpl : ICsClassHierarchy
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof (ClassHierarchyImpl));
-        private INode rootNode;
-        private MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
-        private IList<string> assemblies;
-        private AssemblyLoader loader = null;
+        private readonly INode rootNode;
+        private readonly MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
+        private readonly IList<string> assemblies;
+        private readonly AssemblyLoader loader = null;
 
         public ParameterParser Parameterparser = new ParameterParser();
 

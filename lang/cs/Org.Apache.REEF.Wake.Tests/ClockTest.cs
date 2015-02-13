@@ -26,10 +26,8 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Wake.Time.Runtime;
-using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
@@ -148,7 +146,7 @@ namespace Org.Apache.REEF.Wake.Tests
 
         private class HeartbeatObserver : IObserver<Alarm>
         {
-            private RuntimeClock _clock;
+            private readonly RuntimeClock _clock;
 
             public HeartbeatObserver(RuntimeClock clock)
             {

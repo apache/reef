@@ -29,12 +29,12 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
 {
     public class SlaveTask : ITask
     {
-        private static Logger _logger = Logger.GetLogger(typeof(SlaveTask));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
 
-        private IMpiClient _mpiClient;
-        private ICommunicationGroupClient _commGroup;
-        private IScatterReceiver<int> _scatterReceiver;
-        private IReduceSender<int> _sumSender;
+        private readonly IMpiClient _mpiClient;
+        private readonly ICommunicationGroupClient _commGroup;
+        private readonly IScatterReceiver<int> _scatterReceiver;
+        private readonly IReduceSender<int> _sumSender;
 
         [Inject]
         public SlaveTask(IMpiClient mpiClient)

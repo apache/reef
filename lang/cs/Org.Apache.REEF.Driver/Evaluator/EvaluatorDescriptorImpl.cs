@@ -17,15 +17,15 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
 
         private int _virtualCore;
 
-        private string _rack = "default_rack";
+        private readonly string _rack = "default_rack";
 
         public EvaluatorDescriptorImpl(string serializedString)
         {

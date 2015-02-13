@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -25,6 +24,7 @@ using System.Net;
 using System.Text;
 using Org.Apache.REEF.Common.Catalog.Capabilities;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Catalog
 {
@@ -32,11 +32,11 @@ namespace Org.Apache.REEF.Common.Catalog
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ResourceCatalogImpl));
         
-        private static string defaultRackName = "default-rack";
+        private static readonly string defaultRackName = "default-rack";
 
-        private Dictionary<string, RackDescriptorImpl> _racks = new Dictionary<string, RackDescriptorImpl>();
+        private readonly Dictionary<string, RackDescriptorImpl> _racks = new Dictionary<string, RackDescriptorImpl>();
  
-        private Dictionary<string, NodeDescriptorImpl> _nodes = new Dictionary<string, NodeDescriptorImpl>();
+        private readonly Dictionary<string, NodeDescriptorImpl> _nodes = new Dictionary<string, NodeDescriptorImpl>();
 
         public string Name { get; set; }
 

@@ -17,17 +17,11 @@
  * under the License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     public class RemoteEventEndPoint<T>
     {
-        private IRemoteIdentifier _id;
+        private readonly IRemoteIdentifier _id;
 
         public RemoteEventEndPoint(IRemoteIdentifier id)
         {

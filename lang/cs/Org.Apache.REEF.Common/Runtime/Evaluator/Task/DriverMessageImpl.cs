@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     public class DriverMessageImpl : IDriverMessage
     {
-        private Optional<byte[]> _value;
+        private readonly Optional<byte[]> _value;
  
         public DriverMessageImpl()
         {

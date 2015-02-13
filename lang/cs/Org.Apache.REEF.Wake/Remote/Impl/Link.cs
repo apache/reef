@@ -18,16 +18,13 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
@@ -39,9 +36,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Link<T>));
 
-        private IPEndPoint _localEndpoint;
-        private ICodec<T> _codec;
-        private Channel _channel;
+        private readonly IPEndPoint _localEndpoint;
+        private readonly ICodec<T> _codec;
+        private readonly Channel _channel;
         private bool _disposed;
 
         /// <summary>

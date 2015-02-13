@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Microsoft.Hadoop.Avro;
 using System.IO;
+using Microsoft.Hadoop.Avro;
 
 namespace Org.Apache.REEF.Common.Avro
 {

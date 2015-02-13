@@ -18,10 +18,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Wake.Time.Runtime.Event

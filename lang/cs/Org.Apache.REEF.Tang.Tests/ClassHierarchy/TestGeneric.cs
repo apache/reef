@@ -18,11 +18,10 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Examples;
-using Org.Apache.REEF.Tang.Implementations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Wake.RX;
+using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Wake.RX;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {

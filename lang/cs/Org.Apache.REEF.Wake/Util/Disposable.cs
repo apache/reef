@@ -18,10 +18,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Wake.Util
 {
@@ -30,8 +26,8 @@ namespace Org.Apache.REEF.Wake.Util
     /// </summary>
     internal class Disposable : IDisposable
     {
-        private Action _disposeFunction;
-        private bool _disposed;
+        private readonly Action _disposeFunction;
+        private readonly bool _disposed;
 
         private Disposable(Action disposeFunction)
         {

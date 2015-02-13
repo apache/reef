@@ -17,9 +17,7 @@
  * under the License.
  */
 
-using System.Threading;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Impl

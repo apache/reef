@@ -30,12 +30,12 @@ using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
@@ -51,14 +51,14 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
         private static Logger LOGGER = Logger.GetLogger(typeof(MpiDriver));
 
-        private string _driverId;
-        private string _nameServerAddr;
-        private int _nameServerPort;
+        private readonly string _driverId;
+        private readonly string _nameServerAddr;
+        private readonly int _nameServerPort;
         private int _contextIds;
 
-        private Dictionary<string, ICommunicationGroupDriver> _commGroups; 
-        private AvroConfigurationSerializer _configSerializer;
-        private NameServer _nameServer;
+        private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups; 
+        private readonly AvroConfigurationSerializer _configSerializer;
+        private readonly NameServer _nameServer;
 
         /// <summary>
         /// Create a new MpiDriver object.

@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     public class RemoteEventDecoder<T> : IDecoder<IRemoteEvent<T>>
     {
-        private IDecoder<T> _decoder;
+        private readonly IDecoder<T> _decoder;
 
         public RemoteEventDecoder(IDecoder<T> decoder)
         {

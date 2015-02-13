@@ -19,14 +19,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.RX.Impl;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
@@ -37,8 +30,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// </summary>
     internal class ObserverContainer<T> : IObserver<TransportEvent<IRemoteEvent<T>>>
     {
-        private ConcurrentDictionary<IPEndPoint, IObserver<T>> _endpointMap;
-        private ConcurrentDictionary<Type, IObserver<IRemoteMessage<T>>> _typeMap;
+        private readonly ConcurrentDictionary<IPEndPoint, IObserver<T>> _endpointMap;
+        private readonly ConcurrentDictionary<Type, IObserver<IRemoteMessage<T>>> _typeMap;
         private IObserver<T> _universalObserver;
 
         /// <summary>

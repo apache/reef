@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         private HashSet<IObserver<IContextStop>> _contextStopHandlers;
 
-        private HashSet<IContextMessageSource> _contextMessageSources;
+        private readonly HashSet<IContextMessageSource> _contextMessageSources;
 
         // @Inject
         public ContextLifeCycle(

@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Examples.Tasks.HelloTask
 {
     public class HelloService : IService
     {
-        private IList<string> _guests;
+        private readonly IList<string> _guests;
 
         [Inject]
         public HelloService()

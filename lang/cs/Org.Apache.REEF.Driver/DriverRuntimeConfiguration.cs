@@ -18,10 +18,7 @@
  */
 
 using Org.Apache.REEF.Common;
-using Org.Apache.REEF.Common.Api;
 using Org.Apache.REEF.Common.Catalog;
-using Org.Apache.REEF.Common.Evaluator;
-using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
