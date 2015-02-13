@@ -41,8 +41,7 @@ public class LibLoader {
   private static final String DLL_EXTENSION = ".dll";
   private static final String USER_DIR = "user.dir";
   private static final String[] MANAGED_DLLS = {
-      "ClrHandler",
-      "msvcr110",
+      "ClrHandler"
   };
 
   private final LoggingScopeFactory loggingScopeFactory;
