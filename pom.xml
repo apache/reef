@@ -253,6 +253,7 @@ under the License.
                             <exclude>**/Debug/**</exclude>
                             <exclude>**/TestResults/**</exclude>
                             <exclude>**/x64/**</exclude>
+                            <exclude>**/dotnethello/**</exclude>
                             
                             <!-- NuGet dependencies downloaded as part of the build -->
                             <exclude>**/packages/**</exclude>
