@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Org.Apache.Reef.All</id>
+    <version>$version$</version>
+    <title>Org.Apache.Reef.All</title>
+    <authors>The Apache REEF project</authors>
+    <owners>The Apache REEF project</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://reef.incubator.apache.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provide single entry point that references all necesary REEF/WAKE/TAKE projects.</description>
+    <copyright>The Apache Software Foundation</copyright>
+    <tags>Single entry point to reference all Reef/Wake/Tang projects </tags>
+     <dependencies>
+      <dependency id="Org.Apache.Reef.Evaluator" version="$version$" />
+      <dependency id="Org.Apache.Reef.Driver" version="$version$" />  
+      <dependency id="Org.Apache.Reef.Utilities" version="$version$" />      
+      <dependency id="Org.Apache.Reef.Network" version="$version$" />  
+      <dependency id="Org.Apache.Reef.Common" version="$version$" />            
+      <dependency id="Org.Apache.Tang" version="$version$" />
+      <dependency id="Org.Apache.Wake" version="$version$" />
+    </dependencies>
+  </metadata>
+</package>
