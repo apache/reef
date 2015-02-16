@@ -56,9 +56,9 @@ under the License.
     </properties>
 
     <scm>
-        <connection>scm:git:git@github.com:apache/incubator-reef.git</connection>
-        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef.git</developerConnection>
-        <url>scm:git:git@github.com:apache/incubator-reef.git</url>
+        <connection>scm:git:git@github.com:apache/incubator-reef</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef</developerConnection>
+        <url>scm:git:git@github.com:apache/incubator-reef</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -665,6 +665,7 @@ under the License.
         <module>lang/java/reef-webserver</module>
         <module>lang/java/reef-utils-hadoop</module>
         <module>lang/java/reef-utils</module>
+        <module>website</module>
     </modules>
 
     <profiles>
