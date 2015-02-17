@@ -52,6 +52,7 @@ under the License.
         <avro.version>1.7.7</avro.version>
         <jetty.version>6.1.26</jetty.version>
         <jackson.version>1.9.13</jackson.version>
+        <protobuf.version>2.5.0</protobuf.version>
     </properties>
 
     <scm>
@@ -133,6 +134,28 @@ under the License.
                 <plugin>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.7</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <tasks>
+                                    <exec executable="protoc" outputproperty="protoc.version">
+                                        <arg value="--version"/>
+                                    </exec>
+                                    <fail message="${protobuf.version} expected, but protoc version was: ${protoc.version}">
+                                        <condition>
+                                            <not>
+                                                <contains substring="${protobuf.version}" string="${protoc.version}"/>
+                                            </not>
+                                        </condition>
+                                    </fail>
+                                </tasks>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -357,7 +380,7 @@ under the License.
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>2.5.0</version>
+                <version>${protobuf.version}</version>
             </dependency>
             <!-- End of Protocol Buffers -->
 
