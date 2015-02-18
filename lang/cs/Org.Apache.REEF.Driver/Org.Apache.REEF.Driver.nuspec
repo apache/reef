@@ -14,9 +14,9 @@
     <dependencies>
       <dependency id="Microsoft.Hadoop.Avro" version="1.4.0.0" />
       <dependency id="protobuf-net" version="2.0.0.668" />
-      <dependency id="Org.Apache.REEF.Common" version="$version$" />            
-      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />            
-      <dependency id="Org.Apache.REEF.Tang" version="$version$" />      
+      <dependency id="Org.Apache.REEF.Common" version="$version$" />
+      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
+      <dependency id="Org.Apache.REEF.Tang" version="$version$" />
       <dependency id="Org.Apache.REEF.Wake" version="$version$" />
     </dependencies>
   </metadata>

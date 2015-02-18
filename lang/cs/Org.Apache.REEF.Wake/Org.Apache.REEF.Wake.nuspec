@@ -15,7 +15,7 @@
     <dependencies>
       <dependency id="protobuf-net" version="2.0.0.668" />
       <dependency id="Rx-Core" version="2.2.5" />
-      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />            
+      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
       <dependency id="Org.Apache.REEF.Tang" version="$version$" />
     </dependencies>
   </metadata>
