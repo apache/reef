@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Org.Apache.Reef.Evaluator</id>
+    <id>Org.Apache.REEF.Evaluator</id>
     <version>$version$</version>
-    <title>Org.Apache.Reef.Evaluator</title>
+    <title>Org.Apache.REEF.Evaluator</title>
     <authors>The Apache REEF project</authors>
     <owners>The Apache REEF project</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -12,19 +12,19 @@
     <description>Evaluator for REEF.NET</description>
     <copyright>The Apache Software Foundation</copyright>
     <dependencies>
-      <dependency id="Org.Apache.Reef.Common" version="$version$" />
-      <dependency id="Org.Apache.Reef.Driver" version="$version$" />
+      <dependency id="Org.Apache.REEF.Common" version="$version$" />
+      <dependency id="Org.Apache.REEF.Driver" version="$version$" />
       <dependency id="Org.Apache.Tang" version="$version$" />
       <dependency id="Org.Apache.Wake" version="$version$" />
-      <dependency id="Org.Apache.Reef.Utilities" version="$version$" />            
+      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
       <dependency id="Rx-Core" version="2.2.5" />
       <dependency id="protobuf-net" version="2.0.0.668" />
     </dependencies>
   </metadata>
 
   <files>
-    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.Reef.Evaluator\Org.Apache.Reef.Evaluator.exe" target="tools" />
-    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.Reef.Evaluator\NugetExeFix.txt" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.exe" target="tools" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Evaluator\NugetExeFix.txt" target="lib\net45" />
   </files>
 </package>
 

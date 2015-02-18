@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Org.Apache.Reef.Common</id>
+    <id>Org.Apache.REEF.Common</id>
     <version>$version$</version>
-    <title>Org.Apache.Reef.Common</title>
+    <title>Org.Apache.REEF.Common</title>
     <authors>The Apache REEF project</authors>
     <owners>The Apache REEF project</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -16,14 +16,13 @@
       <dependency id="Microsoft.Hadoop.Avro" version="1.4.0.0" />
       <dependency id="protobuf-net" version="2.0.0.668" />
       <dependency id="Rx-Core" version="2.2.5"  />
-      <dependency id="Org.Apache.Reef.Utilities" version="$version$" />            
-      <dependency id="Org.Apache.Reef.Tang" version="$version$" />      
-      <dependency id="Org.Apache.Reef.Wake" version="$version$" />
+      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
+      <dependency id="Org.Apache.REEF.Tang" version="$version$" />
+      <dependency id="Org.Apache.REEF.Wake" version="$version$" />
     </dependencies>
   </metadata>
-
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.Reef.Common\Org.Apache.Reef.Common.dll" target="lib\net45" />
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.Reef.Common\Org.Apache.Reef.Common.pdb" target="lib\net45" />
+      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Common\Org.Apache.REEF.Common.dll" target="lib\net45" />
+      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Common\Org.Apache.REEF.Common.pdb" target="lib\net45" />
   </files>
 </package>

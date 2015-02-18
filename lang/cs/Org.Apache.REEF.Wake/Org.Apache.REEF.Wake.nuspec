@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Org.Apache.Reef.Wake</id>
+    <id>Org.Apache.REEF.Wake</id>
     <version>$version$</version>
-    <title>Org.Apache.Reef.Wake</title>
+    <title>Org.Apache.REEF.Wake</title>
     <authors>The Apache REEF project</authors>
     <owners>The Apache REEF project</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -15,12 +15,12 @@
     <dependencies>
       <dependency id="protobuf-net" version="2.0.0.668" />
       <dependency id="Rx-Core" version="2.2.5" />
-      <dependency id="Org.Apache.Reef.Utilities" version="$version$" />            
-      <dependency id="Org.Apache.Reef.Tang" version="$version$" />
+      <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
+      <dependency id="Org.Apache.REEF.Tang" version="$version$" />
     </dependencies>
   </metadata>
   <files>
-    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.Reef.Wake\Org.Apache.Reef.Wake.dll" target="lib\net45" />
-    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.Reef.Wake\Org.Apache.Reef.Wake.pdb" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.pdb" target="lib\net45" />
   </files>
 </package>
