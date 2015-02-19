@@ -79,9 +79,15 @@ under the License.
         <PaddedSolutionDir Condition=" '$(OS)' == 'Windows_NT'">"$(SolutionDir) "</PaddedSolutionDir>
         <PaddedSolutionDir Condition=" '$(OS)' != 'Windows_NT' ">"$(SolutionDir)"</PaddedSolutionDir>
 
+        <!-- Nuspec file -->
+        <FinalizedNuspecFile>$(SolutionDir)\.nuget\nuspec\$(AssemblyName).nuspec</FinalizedNuspecFile>
+
+        <!-- Project path -->
+        <NugetProjectPath>$(SolutionDir)\$(RootNamespace)</NugetProjectPath>
+
         <!-- Commands -->
         <RestoreCommand>$(NuGetCommand) install "$(PackagesConfig)" -source "$(PackageSources)"  $(NonInteractiveSwitch) $(RequireConsentSwitch) -solutionDir $(PaddedSolutionDir)</RestoreCommand>
-        <BuildCommand>$(NuGetCommand) pack "$(ProjectPath)" -Properties "Configuration=$(Configuration);Platform=$(Platform)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" -symbols</BuildCommand>
+        <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
 
         <!-- We need to ensure packages are restored prior to assembly resolve -->
         <BuildDependsOn Condition="$(RestorePackages) == 'true'">
@@ -94,6 +100,11 @@ under the License.
             $(BuildDependsOn);
             BuildPackage;
         </BuildDependsOn>
+    </PropertyGroup>
+
+    <!-- Make sure clean will clean up .nuget/packages and .nuget/nuspec directories -->
+    <PropertyGroup>
+        <CleanDependsOn>$(CleanDependsOn);CleanNugetPackages</CleanDependsOn>
     </PropertyGroup>
 
     <Target Name="CheckPrerequisites">
@@ -120,7 +131,10 @@ under the License.
               Condition="'$(OS)' == 'Windows_NT' And Exists('$(PackagesConfig)')" />
     </Target>
 
-    <Target Name="BuildPackage" DependsOnTargets="CheckPrerequisites">
+    <Target Name="BuildPackage" DependsOnTargets="BuildNupkg; MoveNuGetPackage">
+    </Target>
+
+    <Target Name="BuildNupkg" DependsOnTargets="CheckPrerequisites; FinalizeNuspecFiles">
         <Exec Command="$(BuildCommand)"
               Condition=" '$(OS)' != 'Windows_NT' " />
 
@@ -128,6 +142,41 @@ under the License.
               LogStandardErrorAsError="true"
               Condition=" '$(OS)' == 'Windows_NT' " />
     </Target>
+
+    <Target Name="FinalizeNuspecFiles">
+        <PropertyGroup>
+            <FinalizeNuspecScript>$(SolutionDir)\.nuget\finalizeNuspec.ps1</FinalizeNuspecScript>
+            <ScriptCommand Condition="'$(IsSnapshot)' == 'true'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir) -Snapshot -SnapshotNumber $(SnapshotNumber)</ScriptCommand>
+            <ScriptCommand Condition="'$(IsSnapshot)' == 'false'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir)</ScriptCommand>
+        </PropertyGroup>
+        <Message Text="===SCRIPT: $(ScriptCommand)" />
+
+        <Exec Command="powershell -NonInteractive -NoProfile -Command $(ScriptCommand)" >
+        </Exec>
+    </Target>
+
+    <Target Name="MoveNuGetPackage" DependsOnTargets="BuildNupkg">
+        <ItemGroup>
+            <NugetPackageFiles Include="$(SolutionDir)\bin\$(Platform)\$(Configuration)\$(RootNamespace)\*.nupkg" />
+        </ItemGroup>
+
+        <PropertyGroup>
+            <NugetPackageOutputDir>$(SolutionDir)\.nuget\packages</NugetPackageOutputDir>
+        </PropertyGroup>
+
+        <Copy SourceFiles="@(NugetPackageFiles)" DestinationFolder="$(NugetPackageOutputDir)" />
+    </Target>
+
+    <Target Name="CleanNugetPackages">
+        <PropertyGroup>
+            <NuspecFilesDir>$(SolutionDir)\.nuget\nuspec</NuspecFilesDir>
+            <PackagesDir>$(SolutionDir)\.nuget\packages</PackagesDir>
+        </PropertyGroup>
+
+        <RemoveDir Directories="$(NuspecFilesDir);$(PackagesDir)" />
+    </Target>
+
+
 
     <UsingTask TaskName="DownloadNuGet" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
         <ParameterGroup>
