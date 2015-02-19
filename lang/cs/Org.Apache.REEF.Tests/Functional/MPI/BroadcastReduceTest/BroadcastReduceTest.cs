@@ -64,6 +64,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
                 .BindNamedParameter<MpiTestConfig.NumIterations, int>(
                     GenericType<MpiTestConfig.NumIterations>.Class,
                     MpiTestConstants.NumIterations.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<MpiTestConfig.FanOut, int>(
+                    GenericType<MpiTestConfig.FanOut>.Class,
+                    MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
                     GenericType<MpiTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))

@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Reactive;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -37,6 +38,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<T> _topology;
+        private readonly IReduceFunction<T> _reduceFunction;
 
         /// <summary>
         /// Creates a new ReduceSender.
@@ -50,12 +52,13 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
             OperatorTopology<T> topology, 
-            ICommunicationGroupNetworkObserver networkHandler)
+            ICommunicationGroupNetworkObserver networkHandler,
+            IReduceFunction<T> reduceFunction)
         {
             OperatorName = operatorName;
             GroupName = groupName;
             Version = DefaultVersion;
-
+            _reduceFunction = reduceFunction;
             _networkHandler = networkHandler;
             _topology = topology;
             _topology.Initialize();
@@ -80,7 +83,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public int Version { get; private set; }
 
         /// <summary>
-        /// Sends the data to the operator's ReduceReceiver to be aggregated.
+        /// Sends data to the operator's ReduceReceiver to be aggregated.
         /// </summary>
         /// <param name="data">The data to send</param>
         public void Send(T data)
@@ -90,7 +93,26 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
                 throw new ArgumentNullException("data");    
             }
 
-            _topology.SendToParent(data, MessageType.Data);
+            //middle notes
+            if (_topology.HasChildren())
+            {
+                var reducedValueOfChildren = _topology.ReceiveFromChildren(_reduceFunction);
+
+                var mergeddData = new List<T>();
+                mergeddData.Add(data);
+                if (reducedValueOfChildren != null)
+                {
+                    mergeddData.Add(reducedValueOfChildren);
+                }
+                T reducedValue = _reduceFunction.Reduce(mergeddData);
+
+                _topology.SendToParent(reducedValue, MessageType.Data);
+            }
+            else
+            {
+                //leaf node
+                _topology.SendToParent(data, MessageType.Data);
+            }
         }
     }
 }

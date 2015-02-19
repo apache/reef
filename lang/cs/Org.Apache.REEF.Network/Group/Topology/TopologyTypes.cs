@@ -17,18 +17,11 @@
  * under the License.
  */
 
-namespace Org.Apache.REEF.Tests.Functional.MPI
+namespace Org.Apache.REEF.Network.Group.Topology
 {
-    internal class MpiTestConstants
+    public enum TopologyTypes
     {
-        public const string DriverId = "BroadcastReduceDriver";
-        public const string GroupName = "BroadcastReduceGroup";
-        public const string BroadcastOperatorName = "Broadcast";
-        public const string ReduceOperatorName = "Reduce";
-        public const string ScatterOperatorName = "Scatter";
-        public const string MasterTaskId = "MasterTask";
-        public const string SlaveTaskId = "SlaveTask-";
-        public const int NumIterations = 10;
-        public const int FanOut = 2;
+        Flat = 0,
+        Tree = 1
     }
 }

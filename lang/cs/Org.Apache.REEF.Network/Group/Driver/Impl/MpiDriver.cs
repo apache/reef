@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private readonly string _nameServerAddr;
         private readonly int _nameServerPort;
         private int _contextIds;
+        private int _fanOut;
 
         private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups; 
         private readonly AvroConfigurationSerializer _configSerializer;
@@ -70,10 +71,12 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public MpiDriver(
             [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
             [Parameter(typeof(MpiConfigurationOptions.MasterTaskId))] string masterTaskId,
+            [Parameter(typeof(MpiConfigurationOptions.FanOut))] int fanOut,
             AvroConfigurationSerializer configSerializer)
         {
             _driverId = driverId;
             _contextIds = -1;
+            _fanOut = fanOut;
             MasterTaskId = masterTaskId;
 
             _configSerializer = configSerializer;
@@ -111,7 +114,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 throw new ArgumentException("Group Name already registered with MpiDriver");
             }
 
-            var commGroup = new CommunicationGroupDriver(groupName, _driverId, numTasks, _configSerializer);
+            var commGroup = new CommunicationGroupDriver(groupName, _driverId, numTasks, _fanOut, _configSerializer);
             _commGroups[groupName] = commGroup;
             return commGroup;
         }

@@ -98,9 +98,9 @@ namespace Org.Apache.REEF.Tests.Network
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 3;
-            int value = 1;
+            int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             ICommunicationGroupDriver commGroup = mpiDriver.NewCommunicationGroup(
                 groupName,
@@ -156,14 +156,14 @@ namespace Org.Apache.REEF.Tests.Network
             IBroadcastReceiver<int> broadcastReceiver2 = commGroups[2].GetBroadcastReceiver<int>(broadcastOperatorName);
             IReduceSender<int> triangleNumberSender2 = commGroups[2].GetReduceSender<int>(reduceOperatorName);
 
-            for (int i = 1; i <= 10; i++)
+            for (int j = 1; j <= 10; j++)
             {
-                broadcastSender.Send(i);
+                broadcastSender.Send(j);
 
                 int n1 = broadcastReceiver1.Receive();
                 int n2 = broadcastReceiver2.Receive();
-                Assert.AreEqual(i, n1);
-                Assert.AreEqual(i, n2);
+                Assert.AreEqual(j, n1);
+                Assert.AreEqual(j, n2);
 
                 int triangleNum1 = TriangleNumber(n1);
                 triangleNumberSender1.Send(triangleNum1);
@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.Tests.Network
                 triangleNumberSender2.Send(triangleNum2);
 
                 int sum = sumReducer.Reduce();
-                int expected = TriangleNumber(i) * (numTasks - 1);
+                int expected = TriangleNumber(j) * (numTasks - 1);
                 Assert.AreEqual(sum, expected);
             }
         }
@@ -185,9 +185,9 @@ namespace Org.Apache.REEF.Tests.Network
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 5;
-            int value = 1;
+            int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             ICommunicationGroupDriver commGroup = mpiDriver.NewCommunicationGroup(
                 groupName,
@@ -260,10 +260,10 @@ namespace Org.Apache.REEF.Tests.Network
 
             sender.Send(data, order);
 
-            ScatterReceiveReduce(receiver1, sumSender1);
-            ScatterReceiveReduce(receiver2, sumSender2);
-            ScatterReceiveReduce(receiver3, sumSender3);
             ScatterReceiveReduce(receiver4, sumSender4);
+            ScatterReceiveReduce(receiver3, sumSender3);
+            ScatterReceiveReduce(receiver2, sumSender2);
+            ScatterReceiveReduce(receiver1, sumSender1);
 
             int sum = sumReducer.Reduce();
 
@@ -291,19 +291,15 @@ namespace Org.Apache.REEF.Tests.Network
             string operatorName = "broadcast";
             string masterTaskId = "task0";
             string driverId = "Driver Id";
-            int numTasks = 3;
+            int numTasks = 10;
             int value = 1337;
+            int fanOut = 3;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddBroadcast(operatorName, new BroadcastOperatorSpec<int>(masterTaskId, new IntCodec()))
                 .Build();
-
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
@@ -358,8 +354,9 @@ namespace Org.Apache.REEF.Tests.Network
             int value1 = 1337;
             int value2 = 42;
             int value3 = 99;
+            int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddBroadcast(operatorName, new BroadcastOperatorSpec<int>(masterTaskId, new IntCodec()))
@@ -418,21 +415,14 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestReduceOperator()
         {
-            //NameServer nameServer = new NameServer(0);
-
             string groupName = "group1";
             string operatorName = "reduce";
             int numTasks = 4;
-            IMpiDriver mpiDriver = new MpiDriver("driverid", "task0", new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver("driverid", "task0", 2, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddReduce(operatorName, new ReduceOperatorSpec<int>("task0", new IntCodec(), new SumFunction()))
                 .Build();
-
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
@@ -472,9 +462,9 @@ namespace Org.Apache.REEF.Tests.Network
             Assert.IsNotNull(sender2);
             Assert.IsNotNull(sender3);
 
+            sender3.Send(5);
             sender1.Send(1);
             sender2.Send(3);
-            sender3.Send(5);
 
             Assert.AreEqual(9, receiver.Reduce());
         }
@@ -485,7 +475,7 @@ namespace Org.Apache.REEF.Tests.Network
             string groupName = "group1";
             string operatorName = "reduce";
             int numTasks = 4;
-            IMpiDriver mpiDriver = new MpiDriver("driverid", "task0", new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver("driverid", "task0", 2, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddReduce(operatorName, new ReduceOperatorSpec<int>("task0", new IntCodec(), new SumFunction()))
@@ -529,43 +519,37 @@ namespace Org.Apache.REEF.Tests.Network
             Assert.IsNotNull(sender2);
             Assert.IsNotNull(sender3);
 
+            sender3.Send(5);
             sender1.Send(1);
             sender2.Send(3);
-            sender3.Send(5);
             Assert.AreEqual(9, receiver.Reduce());
 
+            sender3.Send(6);
             sender1.Send(2);
             sender2.Send(4);
-            sender3.Send(6);
             Assert.AreEqual(12, receiver.Reduce());
 
+            sender3.Send(9);
             sender1.Send(3);
             sender2.Send(6);
-            sender3.Send(9);
             Assert.AreEqual(18, receiver.Reduce());
         }
 
         [TestMethod]
         public void TestScatterOperator()
         {
-            //NameServer nameServer = new NameServer(0);
-
             string groupName = "group1";
             string operatorName = "scatter";
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 5;
+            int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
                 .Build();
-
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
@@ -620,24 +604,18 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestScatterOperator2()
         {
-            //NameServer nameServer = new NameServer(0);
-
             string groupName = "group1";
             string operatorName = "scatter";
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 5;
+            int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
                 .Build();
-
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
@@ -703,24 +681,18 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestScatterOperator3()
         {
-            //NameServer nameServer = new NameServer(0);
-
             string groupName = "group1";
             string operatorName = "scatter";
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 4;
+            int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
                 .Build();
-
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
@@ -783,24 +755,18 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestScatterOperator4()
         {
-            //NameServer nameServer = new NameServer(0);
-
             string groupName = "group1";
             string operatorName = "scatter";
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 4;
+            int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
 
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
                 .Build();
-
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
@@ -895,7 +861,7 @@ namespace Org.Apache.REEF.Tests.Network
                 handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec());
         }
 
-        private GroupCommunicationMessage CreateGcm(string message, string from, string to)
+       private GroupCommunicationMessage CreateGcm(string message, string from, string to)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             return new GroupCommunicationMessage("g1", "op1", from, to, data, MessageType.Data);
