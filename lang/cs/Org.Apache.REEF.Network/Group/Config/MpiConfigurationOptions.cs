@@ -44,6 +44,11 @@ namespace Org.Apache.REEF.Network.Group.Config
         {
         }
 
+        [NamedParameter("with of the tree in typology")]
+        public class FanOut : Name<int>
+        {
+        }
+
         [NamedParameter("Serialized communication group configuration")]
         public class SerializedGroupConfigs : Name<ISet<string>>
         {

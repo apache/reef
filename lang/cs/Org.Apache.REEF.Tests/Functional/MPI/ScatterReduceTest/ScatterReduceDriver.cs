@@ -53,6 +53,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
         [Inject]
         public ScatterReduceDriver(
             [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof(MpiTestConfig.FanOut))] int fanOut,
             AvroConfigurationSerializer confSerializer)
         {
             Identifier = "BroadcastStartHandler";
@@ -61,6 +62,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
             _mpiDriver = new MpiDriver(
                 MpiTestConstants.DriverId,
                 MpiTestConstants.MasterTaskId,
+                fanOut,
                 confSerializer);
 
             _commGroup = _mpiDriver.NewCommunicationGroup(

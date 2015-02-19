@@ -57,6 +57,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
         public BroadcastReduceDriver(
             [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
             [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations,
+            [Parameter(typeof(MpiTestConfig.FanOut))] int fanOut,
             AvroConfigurationSerializer confSerializer)
         {
             Identifier = "BroadcastStartHandler";
@@ -66,6 +67,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
             _mpiDriver = new MpiDriver(
                 MpiTestConstants.DriverId,
                 MpiTestConstants.MasterTaskId,
+                fanOut,
                 confSerializer);
 
             _commGroup = _mpiDriver.NewCommunicationGroup(

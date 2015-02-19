@@ -117,6 +117,14 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
+      <Project>{5094c35b-4fdb-4322-ac05-45d684501cbf}</Project>
+      <Name>Org.Apache.REEF.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.csproj">
+      <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
+      <Name>Org.Apache.REEF.Evaluator</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\reef-bridge-0.11.0-incubating-SNAPSHOT-shaded.jar">

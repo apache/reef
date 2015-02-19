@@ -58,6 +58,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         // TODO: we may want to make this injectable
         private readonly int _partitionsNumber = 2;
         private readonly int _clustersNumber = 3;
+        private readonly int _fanOut = 2;
         private readonly int _totalEvaluators;
         private int _partitionInex = 0;
         private readonly IMpiDriver _mpiDriver;
@@ -78,7 +79,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 _executionDirectory); 
 
             _totalEvaluators = _partitionsNumber + 1;
-            _mpiDriver = new MpiDriver(Identifier, Constants.MasterTaskId, new AvroConfigurationSerializer());
+            _mpiDriver = new MpiDriver(Identifier, Constants.MasterTaskId, _fanOut, new AvroConfigurationSerializer());
 
             _commGroup = _mpiDriver.NewCommunicationGroup(
                Constants.KMeansCommunicationGroupName,

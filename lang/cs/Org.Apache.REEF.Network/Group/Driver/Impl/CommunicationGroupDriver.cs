@@ -45,6 +45,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private readonly int _numTasks;
         private int _tasksAdded;
         private bool _finalized;
+        private int _fanOut;
 
         private readonly AvroConfigurationSerializer _confSerializer;
 
@@ -63,6 +64,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             string groupName,
             string driverId, 
             int numTasks,
+            int fanOut,
             AvroConfigurationSerializer confSerializer)
         {
             _confSerializer = confSerializer;
@@ -71,6 +73,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             _numTasks = numTasks;
             _tasksAdded = 0;
             _finalized = false;
+            _fanOut = fanOut;
 
             _topologyLock = new object();
 
@@ -100,7 +103,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
             }
 
-            ITopology<T> topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
+            //ITopology<T> topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
+            ITopology<T> topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec, _fanOut);
             _topologies[operatorName] = topology;
             _operatorSpecs[operatorName] = spec;
 
@@ -123,7 +127,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
             }
 
-            ITopology<T> topology = new FlatTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec);
+            //ITopology<T> topology = new FlatTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec);
+            ITopology<T> topology = new TreeTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec, _fanOut);
             _topologies[operatorName] = topology;
             _operatorSpecs[operatorName] = spec;
 

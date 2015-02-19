@@ -32,5 +32,10 @@ namespace Org.Apache.REEF.Tests.Functional.MPI
         public class NumEvaluators : Name<int>
         {
         }
+
+        [NamedParameter("tree width")]
+        public class FanOut : Name<int>
+        {
+        }
     }
 }

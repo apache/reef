@@ -32,23 +32,37 @@ namespace Org.Apache.REEF.Network.Group.Topology
         private string _driverId;
 
         private TaskNode _parent;
+        private TaskNode _sibling;
+        private bool _isRoot;
+
         private readonly List<TaskNode> _children;
 
         public TaskNode(
             string groupName, 
             string operatorName, 
             string taskId, 
-            string driverId)
+            string driverId,
+            bool isRoot)
         {
             _groupName = groupName;
             _operatorName = operatorName;
             _taskId = taskId;
             _driverId = driverId;
+            _isRoot = isRoot;
 
             _children = new List<TaskNode>();
         }
 
-        public string TaskId { get; private set; }
+        public string TaskId
+        {
+            get { return _taskId; } 
+            private set { _taskId = value;  }
+        }
+
+        public void SetSibling(TaskNode leaf) 
+        {
+            _sibling = leaf;
+        }
 
         public void AddChild(TaskNode child)
         {
@@ -59,5 +73,24 @@ namespace Org.Apache.REEF.Network.Group.Topology
         {
             _parent = parent;
         }
+
+        public TaskNode GetParent()
+        {
+            return _parent;
+        }
+
+        public TaskNode Successor()
+        {           
+            return _sibling;
+        }
+
+        public int GetNumberOfChildren() {
+            return _children.Count;
+        }
+
+        public IList<TaskNode> GetChildren()
+        {
+            return _children;
+        } 
     }
 }

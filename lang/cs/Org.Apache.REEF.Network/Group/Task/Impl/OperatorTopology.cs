@@ -98,20 +98,37 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _children = new List<NodeStruct>();
             _idToNodeMap = new Dictionary<string, NodeStruct>();
 
+            //if (rootId != null)
+            //{
+            //    _parent = new NodeStruct(rootId);
+            //    _idToNodeMap[rootId] = _parent;
+            //}
+            //else
+            //{
+            //    _parent = null;
+            //}
+
+            //foreach (string childId in childIds)
+            //{
+            //    NodeStruct node = new NodeStruct(childId);
+            //    _children.Add(node);
+            //    _idToNodeMap[childId] = node;
+            //}
+
             if (_selfId.Equals(rootId))
             {
                 _parent = null;
-                foreach (string childId in childIds)
-                {
-                    NodeStruct node = new NodeStruct(childId);
-                    _children.Add(node);
-                    _idToNodeMap[childId] = node;
-                }
             }
             else
             {
                 _parent = new NodeStruct(rootId);
                 _idToNodeMap[rootId] = _parent;
+            }
+            foreach (string childId in childIds)
+            {
+                NodeStruct node = new NodeStruct(childId);
+                _children.Add(node);
+                _idToNodeMap[childId] = node;
             }
         }
 

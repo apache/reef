@@ -85,7 +85,9 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <returns>The incoming message</returns>
         public T Receive()
         {
-            return _topology.ReceiveFromParent();
+            var data = _topology.ReceiveFromParent();
+            _topology.SendToChildren(data, MessageType.Data);
+            return data;
         }
     }
 }
