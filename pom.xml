@@ -134,28 +134,6 @@ under the License.
                 <plugin>
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.7</version>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <tasks>
-                                    <exec executable="protoc" outputproperty="protoc.version">
-                                        <arg value="--version"/>
-                                    </exec>
-                                    <fail message="${protobuf.version} expected, but protoc version was: ${protoc.version}">
-                                        <condition>
-                                            <not>
-                                                <contains substring="${protobuf.version}" string="${protoc.version}"/>
-                                            </not>
-                                        </condition>
-                                    </fail>
-                                </tasks>
-                            </configuration>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -259,24 +237,24 @@ under the License.
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
                             <!-- Intellij idea project files -->
-                            <exclude>lang/java/.idea/**</exclude>                            
+                            <exclude>lang/java/.idea/**</exclude>
                             <exclude>**/*.iml</exclude>
                             <exclude>**/target/**</exclude>
-			                      <exclude>**/README.*</exclude>
+                            <exclude>**/README.*</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <!-- The Visual Studio build files -->
                             <exclude>**/*.sln*</exclude>
                             <exclude>**/*.vcxproj*</exclude>
                             <exclude>**/*.csproj*</exclude>
-                            <!-- The below are auto generated during the .Net build -->                            
+                            <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
                             <exclude>**/obj/**</exclude>
                             <exclude>**/Release/**</exclude>
                             <exclude>**/Debug/**</exclude>
                             <exclude>**/TestResults/**</exclude>
                             <exclude>**/x64/**</exclude>
-                            
+
                             <!-- NuGet dependencies downloaded as part of the build -->
                             <exclude>**/packages/**</exclude>
                             <!-- The below are auto generated files for serialization -->
