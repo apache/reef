@@ -277,69 +277,71 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
-  public synchronized void onEvaluatorHeartbeatMessage(
+  public void onEvaluatorHeartbeatMessage(
       final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
 
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto =
         evaluatorHeartbeatProtoRemoteMessage.getMessage();
     LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
 
-    if (this.stateManager.isDoneOrFailedOrKilled()) {
-      LOG.log(Level.FINE, "Ignoring an heartbeat received for Evaluator {0} which is already in state {1}.",
-          new Object[]{this.getId(), this.stateManager});
-      return;
-    }
-
-    this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
-    final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
-
-    // first message from a running evaluator trying to re-establish communications
-    if (evaluatorHeartbeatProto.getRecovery()) {
-      this.evaluatorControlHandler.setRemoteID(evaluatorRID);
-      this.stateManager.setRunning();
-
-      this.driverStatusManager.oneContainerRecovered();
-      final int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
-
-      LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-      final int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
-
-      if (numRecoveredContainers > expectedEvaluatorsNumber) {
-        LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
-            new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
-        throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
-      } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
-        LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
-        this.driverStatusManager.setRestartCompleted();
-        this.messageDispatcher.OnDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
-      } else {
-        LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
-            new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+    synchronized (this.evaluatorDescriptor) {
+      if (this.stateManager.isDoneOrFailedOrKilled()) {
+        LOG.log(Level.FINE, "Ignoring an heartbeat received for Evaluator {0} which is already in state {1}.",
+            new Object[]{this.getId(), this.stateManager});
+        return;
       }
-    }
 
-    // If this is the first message from this Evaluator, register it.
-    if (this.stateManager.isSubmitted()) {
-      this.evaluatorControlHandler.setRemoteID(evaluatorRID);
-      this.stateManager.setRunning();
-      LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
-    }
+      this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
+      final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
 
-    // Process the Evaluator status message
-    if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
-      this.onEvaluatorStatusMessage(evaluatorHeartbeatProto.getEvaluatorStatus());
-    }
+      // first message from a running evaluator trying to re-establish communications
+      if (evaluatorHeartbeatProto.getRecovery()) {
+        this.evaluatorControlHandler.setRemoteID(evaluatorRID);
+        this.stateManager.setRunning();
 
-    // Process the Context status message(s)
-    final boolean informClientOfNewContexts = !evaluatorHeartbeatProto.hasTaskStatus();
-    this.contextRepresenters.onContextStatusMessages(evaluatorHeartbeatProto.getContextStatusList(),
-        informClientOfNewContexts);
+        this.driverStatusManager.oneContainerRecovered();
+        final int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
 
-    // Process the Task status message
-    if (evaluatorHeartbeatProto.hasTaskStatus()) {
-      this.onTaskStatusMessage(evaluatorHeartbeatProto.getTaskStatus());
+        LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
+        final int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
+
+        if (numRecoveredContainers > expectedEvaluatorsNumber) {
+          LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
+              new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+          throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
+        } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
+          LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
+          this.driverStatusManager.setRestartCompleted();
+          this.messageDispatcher.OnDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
+        } else {
+          LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
+              new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+        }
+      }
+
+      // If this is the first message from this Evaluator, register it.
+      if (this.stateManager.isSubmitted()) {
+        this.evaluatorControlHandler.setRemoteID(evaluatorRID);
+        this.stateManager.setRunning();
+        LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
+      }
+
+      // Process the Evaluator status message
+      if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
+        this.onEvaluatorStatusMessage(evaluatorHeartbeatProto.getEvaluatorStatus());
+      }
+
+      // Process the Context status message(s)
+      final boolean informClientOfNewContexts = !evaluatorHeartbeatProto.hasTaskStatus();
+      this.contextRepresenters.onContextStatusMessages(evaluatorHeartbeatProto.getContextStatusList(),
+          informClientOfNewContexts);
+
+      // Process the Task status message
+      if (evaluatorHeartbeatProto.hasTaskStatus()) {
+        this.onTaskStatusMessage(evaluatorHeartbeatProto.getTaskStatus());
+      }
+      LOG.log(Level.FINE, "DONE with evaluator heartbeat from Evaluator {0}", this.getId());
     }
-    LOG.log(Level.FINE, "DONE with evaluator heartbeat from Evaluator {0}", this.getId());
   }
 
   /**
