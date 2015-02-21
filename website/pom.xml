@@ -86,22 +86,7 @@ under the License.
                     <ignorePathsToDelete>
                         <ignorePathToDelete>apidocs</ignorePathToDelete>
                     </ignorePathsToDelete>
-                    <providerImplementations>
-                        <svn>javasvn</svn>
-                    </providerImplementations>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.google.code.maven-scm-provider-svnjava</groupId>
-                        <artifactId>maven-scm-provider-svnjava</artifactId>
-                        <version>2.1.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.tmatesoft.svnkit</groupId>
-                        <artifactId>svnkit</artifactId>
-                        <version>1.8.7</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
