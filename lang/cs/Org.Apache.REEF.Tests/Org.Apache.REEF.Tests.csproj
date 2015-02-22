@@ -41,6 +41,9 @@ under the License.
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>$(PackagesDir)\Rx-Core.$(RxVersion)\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System.Reactive.Interfaces">
       <HintPath>$(PackagesDir)\Rx-Interfaces.$(RxVersion)\lib\net45\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
@@ -69,6 +72,7 @@ under the License.
     <Compile Include="Functional\MPI\ScatterReduceTest\SlaveTask.cs" />
     <Compile Include="Functional\ReefFunctionalTest.cs" />
     <Compile Include="Network\BlockingCollectionExtensionTests.cs" />
+    <Compile Include="Network\GroupCommunicationTests.cs" />
     <Compile Include="Network\NameServerTests.cs" />
     <Compile Include="Network\NetworkServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

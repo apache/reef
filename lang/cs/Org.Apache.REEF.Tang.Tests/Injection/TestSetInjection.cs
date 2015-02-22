@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
@@ -57,7 +58,6 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             Assert.IsTrue(actual.Contains("one"));
             Assert.IsTrue(actual.Contains("two"));
             Assert.IsTrue(actual.Contains("three"));
-            //Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -73,11 +73,44 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             Assert.IsTrue(actual.Contains(new Integer(42)));
             Assert.IsTrue(actual.Contains(new Float(42.0001f)));
-            //Assert.AreEqual(expected, actual);
+            Assert.AreEqual(actual.Count, expected.Count);
         }
 
         [TestMethod]
-        public void testStringInjectBound()
+        public void TestBindVolatileParameterForSet()
+        {
+            IInjector i = TangFactory.GetTang().NewInjector();
+            ISet<INumber> numbers = new HashSet<INumber>();
+            numbers.Add(new Integer(42));
+            numbers.Add(new Float(42.0001f));
+            i.BindVolatileParameter(GenericType<SetOfClasses>.Class, numbers);
+            ISet<INumber> actual = ((Pool)i.GetInstance(typeof(Pool))).Numbers;
+
+            Assert.IsTrue(actual.Contains(new Integer(42)));
+            Assert.IsTrue(actual.Contains(new Float(42.0001f)));
+        }
+
+        [TestMethod]
+        public void TestInjectionWithSetFromSameInterface()
+        {
+            IConfiguration c = TangFactory.GetTang()
+                .NewConfigurationBuilder()
+                .BindImplementation(GenericType<INumber>.Class, GenericType<PoolNumber>.Class)
+                .Build();
+          
+            IInjector i = TangFactory.GetTang().NewInjector(c);
+            ISet<INumber> numbers = new HashSet<INumber>();
+            numbers.Add(new Integer(42));
+            numbers.Add(new Float(42.0001f));
+            i.BindVolatileParameter(GenericType<SetOfClasses>.Class, numbers);
+            var actual = ((PoolNumber)i.GetInstance(typeof(INumber))).Numbers;
+           
+            Assert.IsTrue(actual.Contains(new Integer(42)));
+            Assert.IsTrue(actual.Contains(new Float(42.0001f)));
+        }
+
+        [TestMethod]
+        public void TestStringInjectBound()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
             cb.BindSetEntry<SetOfNumbers, string>(GenericType<SetOfNumbers>.Class, "four");
@@ -94,6 +127,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             Assert.IsTrue(actual.Contains("four"));
             Assert.IsTrue(actual.Contains("five"));
             Assert.IsTrue(actual.Contains("six"));
+            Assert.AreEqual(actual.Count, expected.Count);
         }
 
         [TestMethod]
@@ -318,6 +352,22 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             }
 
             public ISet<INumber> Numbers { get; set; }
+        }
+
+        public class PoolNumber : INumber
+        {
+            [Inject]
+            private PoolNumber([Parameter(typeof(SetOfClasses))] ISet<INumber> numbers)
+            {
+                this.Numbers = numbers;
+            }
+
+            public ISet<INumber> Numbers { get; set; }
+
+            public int CompareTo(object obj)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [NamedParameter(DefaultClass = typeof(Integer))]
