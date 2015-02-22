@@ -44,6 +44,15 @@ namespace Org.Apache.REEF.Network.Group.Topology
 
         private int _fanOut;
 
+        /// <summary>
+        /// Creates a new TreeTopology.
+        /// </summary>
+        /// <param name="operatorName">The operator name</param>
+        /// <param name="groupName">The name of the topology's CommunicationGroup</param>
+        /// <param name="rootId">The root Task identifier</param>
+        /// <param name="driverId">The driver identifier</param>
+        /// <param name="operatorSpec">The operator specification</param>
+        /// <param name="fanOut">The number of chldren for a tree node</param>
         public TreeTopology(
             string operatorName, 
             string groupName, 
@@ -61,13 +70,22 @@ namespace Org.Apache.REEF.Network.Group.Topology
             _fanOut = fanOut;
 
             _nodes = new Dictionary<string, TaskNode>(); 
-
         }
 
         public IOperatorSpec<T> OperatorSpec { get; set; }
 
+        /// <summary>
+        /// Gets the task configuration for the operator topology.
+        /// </summary>
+        /// <param name="taskId">The task identifier</param>
+        /// <returns>The task configuration</returns>
         public IConfiguration GetTaskConfiguration(string taskId)
         {
+            if (taskId == null)
+            {
+                throw new ArgumentException("TaskId is null when GetTaskConfiguration");
+            }
+
             TaskNode selfTaskNode = GetTaskNode(taskId);
             if (selfTaskNode == null)
             {
@@ -75,7 +93,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
             }
 
             string parentId;
-            TaskNode parent = selfTaskNode.GetParent();
+            TaskNode parent = selfTaskNode.Parent;
             if (parent == null)
             {
                 parentId = selfTaskNode.TaskId;
@@ -152,7 +170,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
             {
                 throw new ArgumentNullException("taskId");
             }
-            else if (_nodes.ContainsKey(taskId))
+            if (_nodes.ContainsKey(taskId))
             {
                 throw new ArgumentException("Task has already been added to the topology");
             }
@@ -165,14 +183,16 @@ namespace Org.Apache.REEF.Network.Group.Topology
             {
                 AddChild(taskId);
             }
-            //_prev = GetTaskNode(taskId);
         }
 
         private TaskNode GetTaskNode(string taskId)
         {
             TaskNode n;
-            _nodes.TryGetValue(taskId, out n);
-            return n;
+            if (_nodes.TryGetValue(taskId, out n))
+            {
+                return n;
+            }
+            throw new ArgumentException("cannot find task node in the nodes.");
         }
 
         private void AddChild(string taskId)
@@ -187,15 +207,13 @@ namespace Org.Apache.REEF.Network.Group.Topology
 
         private void SetRootNode(string rootId) 
         {
-            TaskNode node = new TaskNode(_groupName, _operatorName, rootId, _driverId, true);
-            _root = node;
+            _root = new TaskNode(_groupName, _operatorName, rootId, _driverId, true);
             _logicalRoot = _root;
             _prev = _root;
 
             foreach (TaskNode n in _nodes.Values) 
             {
                 AddTaskNode(n);
-                //_prev = n;
             }
             _nodes[rootId] = _root;
         }
@@ -204,11 +222,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
         {
             if (_logicalRoot.GetNumberOfChildren() >= _fanOut) 
             {
-                _logicalRoot = _logicalRoot.Successor();
+                _logicalRoot = _logicalRoot.Successor;
             }
-            node.SetParent(_logicalRoot);
+            node.Parent = _logicalRoot;
             _logicalRoot.AddChild(node);
-            _prev.SetSibling(node);
+            _prev.Successor = node;
             _prev = node;
         }
     }

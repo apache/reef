@@ -93,9 +93,7 @@ under the License.
     <Compile Include="Group\Topology\FlatTopology.cs" />
     <Compile Include="Group\Topology\ITopology.cs" />
     <Compile Include="Group\Topology\TaskNode.cs" />
-    <Compile Include="Group\Topology\TreeTopology.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Group\Topology\TreeTopology.cs" />
     <Compile Include="Naming\Codec\NamingLookupRequestCodec.cs" />
     <Compile Include="Naming\Codec\NamingLookupResponseCodec.cs" />
     <Compile Include="Naming\Codec\NamingRegisterRequestCodec.cs" />

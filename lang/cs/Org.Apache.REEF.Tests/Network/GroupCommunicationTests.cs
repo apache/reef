@@ -98,7 +98,6 @@ namespace Org.Apache.REEF.Tests.Network
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 3;
-            int value = 1;
             int fanOut = 2;
 
             IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
@@ -186,7 +185,6 @@ namespace Org.Apache.REEF.Tests.Network
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 10;
-            int value = 1;
             int fanOut = 3;
 
             IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
@@ -331,7 +329,6 @@ namespace Org.Apache.REEF.Tests.Network
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 5;
-            int value = 1;
             int fanOut = 2;
 
             IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());

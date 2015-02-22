@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<T> _topology;
-        private IReduceFunction<T> _reduceFunction;
+        private readonly IReduceFunction<T> _reduceFunction;
 
         /// <summary>
         /// Creates a new ReduceSender.
