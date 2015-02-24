@@ -45,8 +45,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <typeparam name="T">The message type</typeparam>
     public class OperatorTopology<T> : IObserver<GroupCommunicationMessage>
     {
-        private const int DefaultTimeout = 10000;
-        private const int RetryCount = 5;
+        private const int DefaultTimeout = 50000;
+        private const int RetryCount = 10;
 
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
 
@@ -212,7 +212,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
             if (_children.Count <= 0)
             {
-                throw new ArgumentException("Cannot scatter, no children available");
+                return;
+                //throw new ArgumentException("Cannot scatter, no children available");
             }
 
             int count = (int) Math.Ceiling(((double) messages.Count) / _children.Count);

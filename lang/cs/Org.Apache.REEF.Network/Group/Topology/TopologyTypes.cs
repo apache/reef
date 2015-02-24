@@ -17,23 +17,11 @@
  * under the License.
  */
 
-namespace Org.Apache.REEF.Network.Group.Operators
+namespace Org.Apache.REEF.Network.Group.Topology
 {
-    /// <summary>
-    /// MPI Operator used to send messages to be reduced by the ReduceReceiver.
-    /// </summary>
-    /// <typeparam name="T">The message type</typeparam>
-    public interface IReduceSender<T> : IMpiOperator<T>
+    public enum TopologyTypes
     {
-        /// <summary>
-        /// Get reduced data from children, reduce with the data given, then sends reduced data to parent
-        /// </summary>
-        /// <param name="data">The data to send</param>
-        void Send(T data);
-
-        /// <summary>
-        /// Get reduced data from children, then send it parent
-        /// </summary>
-        void Send();
+        Flat = 0,
+        Tree = 1
     }
 }

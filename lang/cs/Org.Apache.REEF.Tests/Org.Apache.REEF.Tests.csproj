@@ -73,6 +73,7 @@ under the License.
     <Compile Include="Functional\ReefFunctionalTest.cs" />
     <Compile Include="Network\BlockingCollectionExtensionTests.cs" />
     <Compile Include="Network\GroupCommunicationTests.cs" />
+    <Compile Include="Network\GroupCommunicationTreeTopologyTests.cs" />
     <Compile Include="Network\NameServerTests.cs" />
     <Compile Include="Network\NetworkServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

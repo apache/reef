@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private readonly int _numTasks;
         private int _tasksAdded;
         private bool _finalized;
-        private int _fanOut;
+        private readonly int _fanOut;
 
         private readonly AvroConfigurationSerializer _confSerializer;
 
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="confSerializer">Used to serialize task configuration</param>
         public CommunicationGroupDriver(
             string groupName,
-            string driverId, 
+            string driverId,
             int numTasks,
             int fanOut,
             AvroConfigurationSerializer confSerializer)
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <summary>
         /// Returns the list of task ids that belong to this Communication Group
         /// </summary>
-        public List<string> TaskIds { get; private set; } 
+        public List<string> TaskIds { get; private set; }
 
         /// <summary>
         /// Adds the Broadcast MPI operator to the communication group.
@@ -95,16 +95,26 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="spec">The specification that defines the Broadcast operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
         public ICommunicationGroupDriver AddBroadcast<T>(
-            string operatorName, 
-            BroadcastOperatorSpec<T> spec)
+            string operatorName,
+            BroadcastOperatorSpec<T> spec,
+            TopologyTypes topologyType = TopologyTypes.Flat)
         {
             if (_finalized)
             {
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
             }
 
-            //ITopology<T> topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
-            ITopology<T> topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec, _fanOut);
+            ITopology<T> topology;
+
+            if (topologyType == TopologyTypes.Flat)
+            {
+                topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
+            }
+            else
+            {
+                topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec,
+                    _fanOut);
+            }
             _topologies[operatorName] = topology;
             _operatorSpecs[operatorName] = spec;
 
@@ -119,16 +129,26 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="spec">The specification that defines the Reduce operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
         public ICommunicationGroupDriver AddReduce<T>(
-            string operatorName, 
-            ReduceOperatorSpec<T> spec)
+            string operatorName,
+            ReduceOperatorSpec<T> spec,
+            TopologyTypes topologyType = TopologyTypes.Flat)
         {
             if (_finalized)
             {
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
             }
 
-            //ITopology<T> topology = new FlatTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec);
-            ITopology<T> topology = new TreeTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec, _fanOut);
+            ITopology<T> topology;
+
+            if (topologyType == TopologyTypes.Flat)
+            {
+                topology = new FlatTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec);
+            }
+            else
+            {
+                topology = new TreeTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec,
+                    _fanOut);
+            }
             _topologies[operatorName] = topology;
             _operatorSpecs[operatorName] = spec;
 
@@ -142,14 +162,24 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="spec">The specification that defines the Scatter operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
-        public ICommunicationGroupDriver AddScatter<T>(string operatorName, ScatterOperatorSpec<T> spec)
+        public ICommunicationGroupDriver AddScatter<T>(string operatorName, ScatterOperatorSpec<T> spec, TopologyTypes topologyType = TopologyTypes.Flat)
         {
             if (_finalized)
             {
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
             }
 
-            ITopology<T> topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
+            ITopology<T> topology; 
+
+            if (topologyType == TopologyTypes.Flat)
+            {
+                topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
+            }
+            else
+            {
+                topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec,
+                    _fanOut);
+            }
             _topologies[operatorName] = topology;
             _operatorSpecs[operatorName] = spec;
 
@@ -250,14 +280,14 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         {
             var topology = _topologies[operatorName];
             MethodInfo info = topology.GetType().GetMethod("AddTask");
-            info.Invoke(topology, new[] { (object) taskId });
+            info.Invoke(topology, new[] { (object)taskId });
         }
 
         private IConfiguration GetOperatorConfiguration(string operatorName, string taskId)
         {
             var topology = _topologies[operatorName];
             MethodInfo info = topology.GetType().GetMethod("GetTaskConfiguration");
-            return (IConfiguration) info.Invoke(topology, new[] { (object) taskId });
+            return (IConfiguration)info.Invoke(topology, new[] { (object)taskId });
         }
     }
 }

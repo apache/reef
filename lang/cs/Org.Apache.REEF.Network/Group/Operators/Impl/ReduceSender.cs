@@ -83,7 +83,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public int Version { get; private set; }
 
         /// <summary>
-        /// Sends the data to the operator's ReduceReceiver to be aggregated.
+        /// Get reduced data from children, reduce with the data given, then sends reduced data to parent
         /// </summary>
         /// <param name="data">The data to send</param>
         public void Send(T data)
@@ -94,6 +94,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             }
 
             var reducedValueOfChildren = _topology.ReceiveFromChildren(_reduceFunction);
+
             var mergeddData = new List<T>();
             mergeddData.Add(data);
             if (reducedValueOfChildren != null)
@@ -103,7 +104,15 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             T reducedValue = _reduceFunction.Reduce(mergeddData);
 
             _topology.SendToParent(reducedValue, MessageType.Data);
-            //_topology.SendToParent(data, MessageType.Data);
+        }
+
+        /// <summary>
+        /// Get reduced data from children, then send it parent
+        /// </summary>
+        public void Send()
+        {
+            var reducedValueOfChildren = _topology.ReceiveFromChildren(_reduceFunction);
+            _topology.SendToParent(reducedValueOfChildren, MessageType.Data);
         }
     }
 }

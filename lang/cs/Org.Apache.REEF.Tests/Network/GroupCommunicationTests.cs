@@ -156,14 +156,14 @@ namespace Org.Apache.REEF.Tests.Network
             IBroadcastReceiver<int> broadcastReceiver2 = commGroups[2].GetBroadcastReceiver<int>(broadcastOperatorName);
             IReduceSender<int> triangleNumberSender2 = commGroups[2].GetReduceSender<int>(reduceOperatorName);
 
-            for (int i = 1; i <= 10; i++)
+            for (int j = 1; j <= 10; j++)
             {
-                broadcastSender.Send(i);
+                broadcastSender.Send(j);
 
                 int n1 = broadcastReceiver1.Receive();
                 int n2 = broadcastReceiver2.Receive();
-                Assert.AreEqual(i, n1);
-                Assert.AreEqual(i, n2);
+                Assert.AreEqual(j, n1);
+                Assert.AreEqual(j, n2);
 
                 int triangleNum1 = TriangleNumber(n1);
                 triangleNumberSender1.Send(triangleNum1);
@@ -171,151 +171,7 @@ namespace Org.Apache.REEF.Tests.Network
                 triangleNumberSender2.Send(triangleNum2);
 
                 int sum = sumReducer.Reduce();
-                int expected = TriangleNumber(i) * (numTasks - 1);
-                Assert.AreEqual(sum, expected);
-            }
-        }
-
-        [TestMethod]
-        public void TestBroadcastReduceOperatorsForTree()
-        {
-            string groupName = "group1";
-            string broadcastOperatorName = "broadcast";
-            string reduceOperatorName = "reduce";
-            string masterTaskId = "task0";
-            string driverId = "Driver Id";
-            int numTasks = 10;
-            int fanOut = 3;
-
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
-
-            ICommunicationGroupDriver commGroup = mpiDriver.NewCommunicationGroup(
-                groupName,
-                numTasks)
-                .AddBroadcast(
-                    broadcastOperatorName,
-                    new BroadcastOperatorSpec<int>(
-                    masterTaskId,
-                    new IntCodec()))
-                .AddReduce(
-                    reduceOperatorName,
-                    new ReduceOperatorSpec<int>(
-                    masterTaskId,
-                    new IntCodec(),
-                    new SumFunction()))
-                .Build();
-
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
-
-            //for master task
-            IBroadcastSender<int> broadcastSender = commGroups[0].GetBroadcastSender<int>(broadcastOperatorName);
-            IReduceReceiver<int> sumReducer = commGroups[0].GetReduceReceiver<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver1 = commGroups[1].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender1 = commGroups[1].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver2 = commGroups[2].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender2 = commGroups[2].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver3 = commGroups[3].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender3 = commGroups[3].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver4 = commGroups[4].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender4 = commGroups[4].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver5 = commGroups[5].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender5 = commGroups[5].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver6 = commGroups[6].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender6 = commGroups[6].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver7 = commGroups[7].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender7 = commGroups[7].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver8 = commGroups[8].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender8 = commGroups[8].GetReduceSender<int>(reduceOperatorName);
-
-            IBroadcastReceiver<int> broadcastReceiver9 = commGroups[9].GetBroadcastReceiver<int>(broadcastOperatorName);
-            IReduceSender<int> triangleNumberSender9 = commGroups[9].GetReduceSender<int>(reduceOperatorName);
-
-            for (int i = 1; i <= 10; i++)
-            {
-                broadcastSender.Send(i);
-
-                int n1 = broadcastReceiver1.Receive();
-                int n2 = broadcastReceiver2.Receive();
-                int n3 = broadcastReceiver3.Receive();
-                int n4 = broadcastReceiver4.Receive();
-                int n5 = broadcastReceiver5.Receive();
-                int n6 = broadcastReceiver6.Receive();
-                int n7 = broadcastReceiver7.Receive();
-                int n8 = broadcastReceiver8.Receive();
-                int n9 = broadcastReceiver9.Receive();
-                Assert.AreEqual(i, n1);
-                Assert.AreEqual(i, n2);
-                Assert.AreEqual(i, n3);
-                Assert.AreEqual(i, n4);
-                Assert.AreEqual(i, n5);
-                Assert.AreEqual(i, n6);
-                Assert.AreEqual(i, n7);
-                Assert.AreEqual(i, n8);
-                Assert.AreEqual(i, n9);
-
-                int triangleNum9 = TriangleNumber(n9);
-                triangleNumberSender9.Send(triangleNum9);
-
-                int triangleNum8 = TriangleNumber(n8);
-                triangleNumberSender8.Send(triangleNum8);
-
-                int triangleNum7 = TriangleNumber(n7);
-                triangleNumberSender7.Send(triangleNum7);
-
-                int triangleNum6 = TriangleNumber(n6);
-                triangleNumberSender6.Send(triangleNum6);
-
-                int triangleNum5 = TriangleNumber(n5);
-                triangleNumberSender5.Send(triangleNum5);
-
-                int triangleNum4 = TriangleNumber(n4);
-                triangleNumberSender4.Send(triangleNum4);
-
-                int triangleNum3 = TriangleNumber(n3);
-                triangleNumberSender3.Send(triangleNum3);
-
-                int triangleNum2 = TriangleNumber(n2);
-                triangleNumberSender2.Send(triangleNum2);
-
-                int triangleNum1 = TriangleNumber(n1);
-                triangleNumberSender1.Send(triangleNum1);
-
-                int sum = sumReducer.Reduce();
-                int expected = TriangleNumber(i) * (numTasks - 1);
+                int expected = TriangleNumber(j) * (numTasks - 1);
                 Assert.AreEqual(sum, expected);
             }
         }
@@ -562,110 +418,6 @@ namespace Org.Apache.REEF.Tests.Network
         }
 
         [TestMethod]
-        public void TestBroadcastOperatorForTree()
-        {
-            string groupName = "group1";
-            string operatorName = "broadcast";
-            string driverId = "driverId";
-            string masterTaskId = "task0";
-            int numTasks = 10;
-            int value1 = 1337;
-            int value2 = 42;
-            int value3 = 99;
-            int fanOut = 3;
-
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
-
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddBroadcast(operatorName, new BroadcastOperatorSpec<int>(masterTaskId, new IntCodec()))
-                .Build();
-
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            IList<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
-
-            IBroadcastSender<int> sender = commGroups[0].GetBroadcastSender<int>(operatorName);
-            IBroadcastReceiver<int> receiver1 = commGroups[1].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver2 = commGroups[2].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver3 = commGroups[3].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver4 = commGroups[4].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver5 = commGroups[5].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver6 = commGroups[6].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver7 = commGroups[7].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver8 = commGroups[8].GetBroadcastReceiver<int>(operatorName);
-            IBroadcastReceiver<int> receiver9 = commGroups[9].GetBroadcastReceiver<int>(operatorName);
-
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
-            Assert.IsNotNull(receiver4);
-            Assert.IsNotNull(receiver5);
-            Assert.IsNotNull(receiver6);
-            Assert.IsNotNull(receiver7);
-            Assert.IsNotNull(receiver8);
-            Assert.IsNotNull(receiver9);
-
-            sender.Send(value1);
-            Assert.AreEqual(value1, receiver1.Receive());
-            Assert.AreEqual(value1, receiver2.Receive());
-            Assert.AreEqual(value1, receiver3.Receive());
-            Assert.AreEqual(value1, receiver4.Receive());
-            Assert.AreEqual(value1, receiver5.Receive());
-            Assert.AreEqual(value1, receiver6.Receive());
-            Assert.AreEqual(value1, receiver7.Receive());
-            Assert.AreEqual(value1, receiver8.Receive());
-            Assert.AreEqual(value1, receiver9.Receive());
-
-            sender.Send(value2);
-            Assert.AreEqual(value2, receiver1.Receive());
-            Assert.AreEqual(value2, receiver2.Receive());
-            Assert.AreEqual(value2, receiver3.Receive());
-            Assert.AreEqual(value2, receiver4.Receive());
-            Assert.AreEqual(value2, receiver5.Receive());
-            Assert.AreEqual(value2, receiver6.Receive());
-            Assert.AreEqual(value2, receiver7.Receive());
-            Assert.AreEqual(value2, receiver8.Receive());
-            Assert.AreEqual(value2, receiver9.Receive());
-
-            sender.Send(value3);
-            Assert.AreEqual(value3, receiver1.Receive());
-            Assert.AreEqual(value3, receiver2.Receive());
-            Assert.AreEqual(value3, receiver3.Receive());
-            Assert.AreEqual(value3, receiver4.Receive());
-            Assert.AreEqual(value3, receiver5.Receive());
-            Assert.AreEqual(value3, receiver6.Receive());
-            Assert.AreEqual(value3, receiver7.Receive());
-            Assert.AreEqual(value3, receiver8.Receive());
-            Assert.AreEqual(value3, receiver9.Receive());
-        }
-
-        [TestMethod]
         public void TestReduceOperator()
         {
             string groupName = "group1";
@@ -721,83 +473,6 @@ namespace Org.Apache.REEF.Tests.Network
 
             Assert.AreEqual(9, receiver.Reduce());
         }
-
-        [TestMethod]
-        public void TestReduceOperatorForTree()
-        {
-            string groupName = "group1";
-            string operatorName = "reduce";
-            int numTasks = 10;
-            int fanOut = 3;
-            IMpiDriver mpiDriver = new MpiDriver("driverid", "task0", fanOut, new AvroConfigurationSerializer());
-
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddReduce(operatorName, new ReduceOperatorSpec<int>("task0", new IntCodec(), new SumFunction()))
-                .Build();
-
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-            IList<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration taskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(taskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
-
-            IReduceReceiver<int> receiver = commGroups[0].GetReduceReceiver<int>(operatorName);
-            IReduceSender<int> sender1 = commGroups[1].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender2 = commGroups[2].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender3 = commGroups[3].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender4 = commGroups[4].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender5 = commGroups[5].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender6 = commGroups[6].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender7 = commGroups[7].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender8 = commGroups[8].GetReduceSender<int>(operatorName);
-            IReduceSender<int> sender9 = commGroups[9].GetReduceSender<int>(operatorName);
-
-            Assert.IsNotNull(receiver);
-            Assert.IsNotNull(sender1);
-            Assert.IsNotNull(sender2);
-            Assert.IsNotNull(sender3);
-            Assert.IsNotNull(sender4);
-            Assert.IsNotNull(sender5);
-            Assert.IsNotNull(sender6);
-            Assert.IsNotNull(sender7);
-            Assert.IsNotNull(sender8);
-            Assert.IsNotNull(sender9);
-
-            sender9.Send(9);
-            sender8.Send(8);
-            sender7.Send(7);
-            sender6.Send(6);
-            sender5.Send(5);
-            sender4.Send(4);
-            sender3.Send(3);
-            sender2.Send(2);
-            sender1.Send(1);
-
-            Assert.AreEqual(45, receiver.Reduce());
-        }
-
 
         [TestMethod]
         public void TestReduceOperator2()
@@ -1175,23 +850,6 @@ namespace Org.Apache.REEF.Tests.Network
 
             ICodec<int> codec = TangFactory.GetTang().NewInjector(conf).GetInstance<ICodec<int>>();
             Assert.AreEqual(3, codec.Decode(codec.Encode(3)));
-        }
-
-        [TestMethod]
-        public void TestTreeTopology()
-        {
-            TreeTopology<int> topology = new TreeTopology<int>("Operator", "Operator", "task1", "driverid",
-                new BroadcastOperatorSpec<int>("task1", new IntCodec()), 2);
-            for (int i = 1; i < 8; i++)
-            {
-                string taskid = "task" + i;
-                topology.AddTask(taskid);
-            }
-
-            for (int i = 1; i < 8; i++)
-            {
-                var conf = topology.GetTaskConfiguration("task" + i);
-            }
         }
 
         [TestMethod]

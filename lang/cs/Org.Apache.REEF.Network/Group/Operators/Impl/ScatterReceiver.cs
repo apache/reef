@@ -91,7 +91,9 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <returns>The sublist of messages</returns>
         public List<T> Receive()
         {
-            return _topology.ReceiveListFromParent();
+            List<T> elements = _topology.ReceiveListFromParent();
+            _topology.ScatterToChildren(elements, MessageType.Data);
+            return elements;
         }
     }
 }
