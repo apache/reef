@@ -30,10 +30,5 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// </summary>
         /// <param name="data">The data to send</param>
         void Send(T data);
-
-        /// <summary>
-        /// Get reduced data from children, then send it parent
-        /// </summary>
-        void Send();
     }
 }

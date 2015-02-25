@@ -93,26 +93,26 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
                 throw new ArgumentNullException("data");    
             }
 
-            var reducedValueOfChildren = _topology.ReceiveFromChildren(_reduceFunction);
-
-            var mergeddData = new List<T>();
-            mergeddData.Add(data);
-            if (reducedValueOfChildren != null)
+            //middle notes
+            if (_topology.HasChildren())
             {
-                mergeddData.Add(reducedValueOfChildren);
+                var reducedValueOfChildren = _topology.ReceiveFromChildren(_reduceFunction);
+
+                var mergeddData = new List<T>();
+                mergeddData.Add(data);
+                if (reducedValueOfChildren != null)
+                {
+                    mergeddData.Add(reducedValueOfChildren);
+                }
+                T reducedValue = _reduceFunction.Reduce(mergeddData);
+
+                _topology.SendToParent(reducedValue, MessageType.Data);
             }
-            T reducedValue = _reduceFunction.Reduce(mergeddData);
-
-            _topology.SendToParent(reducedValue, MessageType.Data);
-        }
-
-        /// <summary>
-        /// Get reduced data from children, then send it parent
-        /// </summary>
-        public void Send()
-        {
-            var reducedValueOfChildren = _topology.ReceiveFromChildren(_reduceFunction);
-            _topology.SendToParent(reducedValueOfChildren, MessageType.Data);
+            else
+            {
+                //leaf node
+                _topology.SendToParent(data, MessageType.Data);
+            }
         }
     }
 }

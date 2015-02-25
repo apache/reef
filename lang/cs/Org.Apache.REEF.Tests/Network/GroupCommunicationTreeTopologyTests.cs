@@ -695,7 +695,6 @@ namespace Org.Apache.REEF.Tests.Network
             Assert.AreEqual(8, data3[3]);
         }
 
-
         [TestMethod]
         public void TestScatterOperator5()
         {
@@ -812,7 +811,7 @@ namespace Org.Apache.REEF.Tests.Network
                     new ReduceOperatorSpec<int>(
                         masterTaskId,
                         new IntCodec(),
-                        new SumFunction()))
+                        new SumFunction()), TopologyTypes.Tree)
                 .Build();
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
@@ -866,7 +865,6 @@ namespace Org.Apache.REEF.Tests.Network
             Assert.IsNotNull(receiver4);
 
             List<int> data = Enumerable.Range(1, 100).ToList();
-            //List<string> order = new List<string> { "task4", "task3", "task2", "task1" };
 
             sender.Send(data);
 
@@ -885,13 +883,11 @@ namespace Org.Apache.REEF.Tests.Network
             int sum2 = data2.Sum();
             sumSender2.Send(sum2);
 
-            //middle nodes only passes through data
             int sum1 = data1.Sum();
-            sumSender1.Send();
+            sumSender1.Send(sum1);
 
             int sum = sumReducer.Reduce();
-
-            Assert.AreEqual(sum, data.Sum());
+            Assert.AreEqual(sum, 6325);
         }
 
         private static void ScatterReceiveReduce(IScatterReceiver<int> receiver, IReduceSender<int> sumSender)

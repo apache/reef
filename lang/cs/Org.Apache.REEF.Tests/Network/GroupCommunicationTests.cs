@@ -301,11 +301,6 @@ namespace Org.Apache.REEF.Tests.Network
                 .AddBroadcast(operatorName, new BroadcastOperatorSpec<int>(masterTaskId, new IntCodec()))
                 .Build();
 
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
-
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
             {
@@ -543,8 +538,6 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestScatterOperator()
         {
-            //NameServer nameServer = new NameServer(0);
-
             string groupName = "group1";
             string operatorName = "scatter";
             string masterTaskId = "task0";
@@ -557,11 +550,6 @@ namespace Org.Apache.REEF.Tests.Network
             var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
                 .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
                 .Build();
-
-            //for (int i = 0; i < numTasks; i++)
-            //{
-            //    nameServer.Register("task" + i, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21));
-            //}
 
             List<IConfiguration> partialConfigs = new List<IConfiguration>();
             for (int i = 0; i < numTasks; i++)
@@ -873,7 +861,7 @@ namespace Org.Apache.REEF.Tests.Network
                 handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec());
         }
 
-        private GroupCommunicationMessage CreateGcm(string message, string from, string to)
+       private GroupCommunicationMessage CreateGcm(string message, string from, string to)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             return new GroupCommunicationMessage("g1", "op1", from, to, data, MessageType.Data);

@@ -86,7 +86,10 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public T Receive()
         {
             var data = _topology.ReceiveFromParent();
-            _topology.SendToChildren(data, MessageType.Data);
+            if (_topology.HasChildren())
+            {
+                _topology.SendToChildren(data, MessageType.Data);
+            }
             return data;
         }
     }

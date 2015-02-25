@@ -213,7 +213,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             if (_children.Count <= 0)
             {
                 return;
-                //throw new ArgumentException("Cannot scatter, no children available");
             }
 
             int count = (int) Math.Ceiling(((double) messages.Count) / _children.Count);
@@ -343,6 +342,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
         public void OnCompleted()
         {
+        }
+
+        public bool HasChildren()
+        {
+            return _children.Count > 0 ? true : false;
         }
 
         /// <summary>
