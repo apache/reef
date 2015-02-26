@@ -45,15 +45,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <typeparam name="T">The message type</typeparam>
     public class OperatorTopology<T> : IObserver<GroupCommunicationMessage>
     {
-        private const int DefaultTimeout = 50000;
-        private const int RetryCount = 10;
-
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
 
         private readonly string _groupName;
         private readonly string _operatorName;
         private readonly string _selfId;
         private string _driverId;
+        private readonly int _timeout;
+        private readonly int _retryCount;
 
         private readonly NodeStruct _parent;
         private readonly List<NodeStruct> _children;
@@ -81,6 +80,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
+            [Parameter(typeof(MpiConfigurationOptions.Timeout))] int timrout,
+            [Parameter(typeof(MpiConfigurationOptions.RetryCount))] int retryCount,
             [Parameter(typeof(MpiConfigurationOptions.TopologyRootTaskId))] string rootId,
             [Parameter(typeof(MpiConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
             NetworkService<GroupCommunicationMessage> networkService,
@@ -91,6 +92,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _groupName = groupName;
             _selfId = taskId;
             _driverId = driverId;
+            _timeout = timrout;
+            _retryCount = retryCount;
             _codec = codec;
             _nameClient = networkService.NamingClient;
             _sender = sender;
@@ -126,14 +129,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             {
                 if (_parent != null)
                 {
-                    WaitForTaskRegistration(_parent.Identifier, RetryCount);
+                    WaitForTaskRegistration(_parent.Identifier, _retryCount);
                 }
 
                 if (_children.Count > 0)
                 {
                     foreach (NodeStruct child in _children)
                     {
-                        WaitForTaskRegistration(child.Identifier, RetryCount);
+                        WaitForTaskRegistration(child.Identifier, _retryCount);
                     }
                 }
             }
@@ -346,7 +349,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
         public bool HasChildren()
         {
-            return _children.Count > 0 ? true : false;
+            return _children.Count > 0;
         }
 
         /// <summary>
@@ -355,7 +358,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>A NodeStruct with incoming data.</returns>
         private NodeStruct GetNodeWithData()
         {
-            CancellationTokenSource timeoutSource = new CancellationTokenSource(DefaultTimeout);
+            CancellationTokenSource timeoutSource = new CancellationTokenSource(_timeout);
 
             try
             {

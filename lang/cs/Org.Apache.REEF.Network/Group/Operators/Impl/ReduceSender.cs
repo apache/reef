@@ -83,7 +83,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public int Version { get; private set; }
 
         /// <summary>
-        /// Get reduced data from children, reduce with the data given, then sends reduced data to parent
+        /// Sends data to the operator's ReduceReceiver to be aggregated.
         /// </summary>
         /// <param name="data">The data to send</param>
         public void Send(T data)

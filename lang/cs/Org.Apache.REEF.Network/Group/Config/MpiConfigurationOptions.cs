@@ -39,6 +39,16 @@ namespace Org.Apache.REEF.Network.Group.Config
         {
         }
 
+        [NamedParameter("Timeout for receiving data", defaultValue: "50000")]
+        public class Timeout : Name<int>
+        {
+        }
+
+        [NamedParameter("Retry times", defaultValue: "5")]
+        public class RetryCount : Name<int>
+        {
+        }
+
         [NamedParameter("Master task identifier")]
         public class MasterTaskId : Name<string>
         {

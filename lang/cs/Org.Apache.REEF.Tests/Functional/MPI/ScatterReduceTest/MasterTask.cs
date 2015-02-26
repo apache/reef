@@ -50,7 +50,6 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
         public byte[] Call(byte[] memento)
         {
             List<int> data = Enumerable.Range(1, 100).ToList();
-            //List<string> order = GetScatterOrder();
             _scatterSender.Send(data);
 
             int sum = _sumReducer.Reduce();
