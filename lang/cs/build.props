@@ -66,13 +66,6 @@ under the License.
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <!-- REEF version -->
-  <PropertyGroup>
-    <PomFileVersion>__POM_VERSION__</PomFileVersion>
-    <SnapshotVersion>0</SnapshotVersion>
-    <ReefVersion>$(PomFileVersion)-SNAPSHOT-$(SnapshotVersion)</ReefVersion>
-  </PropertyGroup>
-
   <!-- Package versions -->
   <PropertyGroup>
     <AvroVersion>1.4.0.0</AvroVersion> 
