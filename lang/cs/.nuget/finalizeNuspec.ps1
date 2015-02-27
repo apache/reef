@@ -17,12 +17,11 @@ under the License.
 
 Param(
     [Parameter(Mandatory=$true)]
-    [string]$solutionDir,
+    [string]$SolutionDir,
 
-    [Parameter(Mandatory=$true)]
-    [bool]$isSnapshot,
+    [switch]$Snapshot,
 
-    [int]$snapshotNumber
+    [int]$SnapshotNumber
 )
 
 Function Get-Nuspec-Version {
@@ -31,7 +30,7 @@ Function Get-Nuspec-Version {
     Extracts the NuGet version number from the pom.xml file in the source directory.
     #>
 
-    $pomPath = "$solutionDir\pom.xml"
+    $pomPath = "$SolutionDir\pom.xml"
     $pom = [xml] (Get-Content $pomPath)
     $version = $pom.project.parent.version -replace '-incubating-SNAPSHOT',''
     return $version
@@ -45,7 +44,7 @@ Function Prep-Nuspec-Files {
     to the new nuspec directory.
     #>
 
-    $nuspecDir = "$solutionDir\.nuget\nuspec"
+    $nuspecDir = "$SolutionDir\.nuget\nuspec"
 
     # Delete the directory if it already exists
     if (Test-Path $nuspecDir) {
@@ -56,7 +55,7 @@ Function Prep-Nuspec-Files {
     mkdir -Force $nuspecDir
 
     # Copy over temporary nuspec files into new nuspec directory
-    $tempNuspecFiles = Get-ChildItem $solutionDir\**\*.nuspec
+    $tempNuspecFiles = Get-ChildItem $SolutionDir\**\*.nuspec
     foreach ($tempNuspecFile in $tempNuspecFiles) {
         Copy-Item $tempNuspecFile.FullName $nuspecDir
     }
@@ -70,14 +69,14 @@ Function Finalize-Nuspec-Version {
 
     param([string]$version)
 
-    if ($isSnapshot) {
-        $fullVersion = "$version-SNAPSHOT-$snapshotNumber"
+    if ($Snapshot) {
+        $fullVersion = "$version-SNAPSHOT-$SnapshotNumber"
     } 
     else {
         $fullVersion = $version
     }
 
-    $nuspecDir = "$solutionDir\.nuget\nuspec"
+    $nuspecDir = "$SolutionDir\.nuget\nuspec"
     $nuspecFiles = Get-ChildItem $nuspecDir
     
     # Replace the $version$ token with the specified version in each nuspec file
@@ -87,18 +86,7 @@ Function Finalize-Nuspec-Version {
     }
 }
 
-function ExitWithCode 
-{ 
-    param ( 
-        $exitcode 
-    )
-
-    $host.SetShouldExit($exitcode) 
-    exit 
-}
-
-
 Prep-Nuspec-Files
 $version = Get-Nuspec-Version
 Finalize-Nuspec-Version($version)
-ExitWithCode -exitcode $LASTEXITCODE 
+Exit $LASTEXITCODE 

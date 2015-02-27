@@ -66,6 +66,12 @@ under the License.
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
+  <!-- REEF NuGet properties -->
+  <PropertyGroup>
+    <IsSnapshot>true</IsSnapshot>
+    <SnapshotNumber>0</SnapshotNumber>
+  </PropertyGroup>
+
   <!-- Package versions -->
   <PropertyGroup>
     <AvroVersion>1.4.0.0</AvroVersion> 

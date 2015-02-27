@@ -145,11 +145,11 @@ under the License.
 
     <Target Name="FinalizeNuspecFiles">
         <PropertyGroup>
-            <IsSnapshot>$true</IsSnapshot>
-            <SnapshotNumber>0</SnapshotNumber>
             <FinalizeNuspecScript>$(SolutionDir)\.nuget\finalizeNuspec.ps1</FinalizeNuspecScript>
-            <ScriptCommand>$(FinalizeNuspecScript) $(SolutionDir) $(IsSnapshot) $(SnapshotNumber)</ScriptCommand>
+            <ScriptCommand Condition="'$(IsSnapshot)' == 'true'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir) -Snapshot -SnapshotNumber $(SnapshotNumber)</ScriptCommand>
+            <ScriptCommand Condition="'$(IsSnapshot)' == 'false'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir)</ScriptCommand>
         </PropertyGroup>
+        <Message Text="===SCRIPT: $(ScriptCommand)" />
 
         <Exec Command="powershell -NonInteractive -NoProfile -Command $(ScriptCommand)" >
         </Exec>
