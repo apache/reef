@@ -70,6 +70,8 @@ under the License.
   <PropertyGroup>
     <IsSnapshot>true</IsSnapshot>
     <SnapshotNumber>0</SnapshotNumber>
+    <PushPackages>false</PushPackages>
+    <NuGetRepository>https://www.nuget.org</NuGetRepository>
   </PropertyGroup>
 
   <!-- Package versions -->
