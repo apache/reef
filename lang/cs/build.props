@@ -70,6 +70,14 @@ under the License.
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
+  <!-- REEF NuGet properties -->
+  <PropertyGroup>
+    <IsSnapshot>true</IsSnapshot>
+    <SnapshotNumber>0</SnapshotNumber>
+    <PushPackages>false</PushPackages>
+    <NuGetRepository>https://www.nuget.org</NuGetRepository>
+  </PropertyGroup>
+
   <!-- Package versions -->
   <PropertyGroup>
     <AvroVersion>1.4.0.0</AvroVersion> 
@@ -77,5 +85,6 @@ under the License.
     <ProtobufVersion>2.0.0.668</ProtobufVersion> 
     <RxVersion>2.2.5</RxVersion> 
   </PropertyGroup>
+
 </Project>
 

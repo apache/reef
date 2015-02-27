@@ -6,5 +6,7 @@ TestResults
 **/*.suo
 **/*.csproj.user
 **/obj
+**/.nuget/nuspec
+**/.nuget/packages
 
 
