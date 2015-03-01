@@ -28,6 +28,7 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -101,12 +102,7 @@ class NSConnection<T> implements Connection<T> {
    */
   @Override
   public void write(final T obj) throws NetworkException {
-    try {
-      this.link.write(new NSMessage<T>(this.srcId, this.destId, obj));
-    } catch (final IOException ex) {
-      LOG.log(Level.WARNING, "Could not write to " + this.destId, ex);
-      throw new NetworkException(ex);
-    }
+    this.link.write(new NSMessage<T>(this.srcId, this.destId, obj));
   }
 
   /**
@@ -129,6 +125,10 @@ final class NSMessageLinkListener<T> implements LinkListener<NSMessage<T>> {
   }
 
   @Override
-  public void messageReceived(final NSMessage<T> message) {
+  public void onSuccess(final NSMessage<T> message) {
+  }
+
+  @Override
+  public void onException(final Throwable cause, final SocketAddress remoteAddress, final NSMessage<T> message) {
   }
 }

@@ -39,9 +39,11 @@ import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.LinkListener;
 import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
@@ -204,11 +206,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
     }
 
     final Connection<T> newConnection = new NSConnection<T>(
-        this.myId, destId, new LinkListener<T>() {
-      @Override
-      public void messageReceived(final Object message) {
-      }
-    }, this);
+        this.myId, destId, new LoggingLinkListener<T>(), this);
 
     final Connection<T> existing = this.idToConnMap.putIfAbsent(destId, newConnection);
     return existing == null ? newConnection : existing;
