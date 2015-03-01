@@ -125,10 +125,10 @@ final class NSMessageLinkListener<T> implements LinkListener<NSMessage<T>> {
   }
 
   @Override
-  public void onSuccess(NSMessage<T> message) {
+  public void onSuccess(final NSMessage<T> message) {
   }
 
   @Override
-  public void onException(Throwable cause, SocketAddress remoteAddress, NSMessage<T> message) {
+  public void onException(final Throwable cause, final SocketAddress remoteAddress, final NSMessage<T> message) {
   }
 }

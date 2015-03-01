@@ -39,7 +39,7 @@ public class LoggingLinkListener<T> implements LinkListener<T> {
   @Override
   public void onSuccess(T message) {
     if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, "The message is successfully sent : " + message);
+      LOG.log(Level.FINEST, "The message is successfully sent : {0}", new Object[]{message});
     }
   }
 
@@ -49,7 +49,8 @@ public class LoggingLinkListener<T> implements LinkListener<T> {
   @Override
   public void onException(Throwable cause, SocketAddress remoteAddress, T message) {
     if (LOG.isLoggable(Level.FINEST)) {
-      LOG.log(Level.FINEST, "The message to " + remoteAddress + " is failed to be sent : " + message + ", cause : " + cause);
+      LOG.log(Level.FINEST, "The message to {0} is failed to be sent. message : {1}, cause : {2}"
+          , new Object[]{remoteAddress, message, cause});
     }
   }
 }
