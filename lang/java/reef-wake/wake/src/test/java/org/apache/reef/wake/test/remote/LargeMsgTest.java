@@ -86,11 +86,7 @@ public class LargeMsgTest {
 
       @Override
       public void onNext(byte[] value) {
-        try {
-          link.write(value);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+        link.write(value);
       }
     }, 3, new LoggingEventHandler<Throwable>());
     writeSubmitter.onNext(values[0]);

@@ -242,13 +242,7 @@ class NamingLookupRequestHandler implements EventHandler<NamingLookupRequest> {
   public void onNext(final NamingLookupRequest value) {
     final List<NameAssignment> nas = server.lookup(value.getIdentifiers());
     final byte[] resp = codec.encode(new NamingLookupResponse(nas));
-    try {
-      value.getLink().write(resp);
-    } catch (final IOException e) {
-      //Actually, there is no way Link.write can throw and IOException
-      //after netty4 merge. This needs to cleaned up
-      LOG.throwing("NamingLookupRequestHandler", "onNext", e);
-    }
+    value.getLink().write(resp);
   }
 }
 
@@ -272,13 +266,7 @@ class NamingRegisterRequestHandler implements EventHandler<NamingRegisterRequest
   public void onNext(final NamingRegisterRequest value) {
     server.register(value.getNameAssignment().getIdentifier(), value.getNameAssignment().getAddress());
     final byte[] resp = codec.encode(new NamingRegisterResponse(value));
-    try {
-      value.getLink().write(resp);
-    } catch (final IOException e) {
-      //Actually, there is no way Link.write can throw and IOException
-      //after netty4 merge. This needs to cleaned up
-      LOG.throwing("NamingRegisterRequestHandler", "onNext", e);
-    }
+    value.getLink().write(resp);
   }
 }
 

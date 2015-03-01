@@ -20,11 +20,12 @@ package org.apache.reef.wake.remote.transport.netty;
 
 import org.apache.reef.wake.remote.transport.LinkListener;
 
+import java.net.SocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Link listener that logs a message received
+ * Link listener that logs whether the message is sent successfully
  *
  * @param <T> type
  */
@@ -33,14 +34,22 @@ public class LoggingLinkListener<T> implements LinkListener<T> {
   private static final Logger LOG = Logger.getLogger(LoggingLinkListener.class.getName());
 
   /**
-   * Handles the message received
-   *
-   * @param message the message
+   * Called when the sent message is transferred successfully
    */
   @Override
-  public void messageReceived(T message) {
-    if (LOG.isLoggable(Level.FINEST))
-      LOG.log(Level.FINEST, "The linklistener " + this.getClass().toString() + "has received " + message);
+  public void onSuccess(T message) {
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "The message is successfully sent : " + message);
+    }
   }
 
+  /**
+   * Called when the sent message to remoteAddress is failed to be transferred.
+   */
+  @Override
+  public void onException(Throwable cause, SocketAddress remoteAddress, T message) {
+    if (LOG.isLoggable(Level.FINEST)) {
+      LOG.log(Level.FINEST, "The message to " + remoteAddress + " is failed to be sent : " + message + ", cause : " + cause);
+    }
+  }
 }

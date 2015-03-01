@@ -42,6 +42,7 @@ import org.apache.reef.wake.remote.transport.Transport;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
@@ -206,7 +207,13 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
     final Connection<T> newConnection = new NSConnection<T>(
         this.myId, destId, new LinkListener<T>() {
       @Override
-      public void messageReceived(final Object message) {
+      public void onSuccess(T message) {
+
+      }
+
+      @Override
+      public void onException(Throwable cause, SocketAddress remoteAddress, T message) {
+
       }
     }, this);
 

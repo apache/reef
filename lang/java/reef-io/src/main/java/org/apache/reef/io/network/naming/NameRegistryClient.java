@@ -145,7 +145,11 @@ public class NameRegistryClient implements Stage, NamingRegistry {
     Link<NamingMessage> link = transport.open(serverSocketAddr, codec,
         new LinkListener<NamingMessage>() {
           @Override
-          public void messageReceived(NamingMessage message) {
+          public void onSuccess(NamingMessage message) {
+          }
+
+          @Override
+          public void onException(Throwable cause, SocketAddress remoteAddress, NamingMessage message) {
           }
         });
     link.write(new NamingUnregisterRequest(id));

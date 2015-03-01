@@ -75,7 +75,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
         LOG.log(Level.FINEST, "{0}", event);
         linkRef.get().write(encoder.encode(event));
       }
-    } catch (InterruptedException | IOException e) {
+    } catch (InterruptedException e) {
       e.printStackTrace();
       throw new RemoteRuntimeException(e);
     }
@@ -112,9 +112,6 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
           LOG.log(Level.FINEST, "Send an event from " + linkRef.get().getLocalAddress() + " to " + linkRef.get().getRemoteAddress() + " value " + value);
         linkRef.get().write(encoder.encode(value));
       }
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      throw new RemoteRuntimeException(ex);
     } catch (RemoteRuntimeException ex2) {
       ex2.printStackTrace();
       throw ex2;
