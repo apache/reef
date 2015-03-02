@@ -16,18 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.api.task;
+
+import org.apache.reef.annotations.Provided;
+import org.apache.reef.annotations.audience.TaskSide;
+import org.apache.reef.io.network.group.impl.task.GroupCommClientImpl;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.tang.annotations.Name;
+
 
 /**
- * Elastic Group Communications for REEF.
- *
- * Provides MPI style Group Communication operators for collective communication
- * between tasks. These should be primarily used for any form of
- * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
- *
- * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
- * The fluent way to describe these operators is available org.apache.reef.io.network.group.config
- * The implementation of these operators are available in org.apache.reef.io.network.group.impl
- * Currently only a basic implementation is available
+ * The task side interface for the Group Communication Service
  */
-package org.apache.reef.io.network.group;
+@TaskSide
+@Provided
+@DefaultImplementation(value = GroupCommClientImpl.class)
+public interface GroupCommClient {
+
+  /**
+   * @param string
+   * @return The communication group client with the given name that gives access
+   * to the operators configured on it that will be used to do group communication
+   */
+  CommunicationGroupClient getCommunicationGroup(Class<? extends Name<String>> groupName);
+}

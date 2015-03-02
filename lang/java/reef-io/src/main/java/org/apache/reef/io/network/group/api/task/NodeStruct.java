@@ -16,18 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.api.task;
+
+import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 
 /**
- * Elastic Group Communications for REEF.
+ * The actual node that is part of the operator topology
  *
- * Provides MPI style Group Communication operators for collective communication
- * between tasks. These should be primarily used for any form of
- * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
+ * Receives data from the handlers & provides them to the
+ * operators/OperatorTopologyStruct when they need it.
  *
- * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
- * The fluent way to describe these operators is available org.apache.reef.io.network.group.config
- * The implementation of these operators are available in org.apache.reef.io.network.group.impl
- * Currently only a basic implementation is available
+ * This implementation decouples the send & receive.
  */
-package org.apache.reef.io.network.group;
+public interface NodeStruct {
+
+  String getId();
+
+  int getVersion();
+
+  void setVersion(int version);
+
+  byte[] getData();
+
+  void addData(GroupCommunicationMessage msg);
+}

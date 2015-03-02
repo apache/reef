@@ -16,18 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.examples.group.bgd.loss;
+
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * Elastic Group Communications for REEF.
- *
- * Provides MPI style Group Communication operators for collective communication
- * between tasks. These should be primarily used for any form of
- * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
- *
- * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
- * The fluent way to describe these operators is available org.apache.reef.io.network.group.config
- * The implementation of these operators are available in org.apache.reef.io.network.group.impl
- * Currently only a basic implementation is available
+ * Interface for Loss Functions.
  */
-package org.apache.reef.io.network.group;
+@DefaultImplementation(SquaredErrorLossFunction.class)
+public interface LossFunction {
+
+  /**
+   * Computes the loss incurred by predicting f, if y is the true label.
+   *
+   * @param y the label
+   * @param f the prediction
+   * @return the loss incurred by predicting f, if y is the true label.
+   */
+  double computeLoss(final double y, final double f);
+
+  /**
+   * Computes the gradient with respect to f, if y is the true label.
+   *
+   * @param y the label
+   * @param f the prediction
+   * @return the gradient with respect to f
+   */
+  double computeGradient(final double y, final double f);
+}

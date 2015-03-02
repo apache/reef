@@ -16,18 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.examples.group.utils.math;
+
 
 /**
- * Elastic Group Communications for REEF.
- *
- * Provides MPI style Group Communication operators for collective communication
- * between tasks. These should be primarily used for any form of
- * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
- *
- * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
- * The fluent way to describe these operators is available org.apache.reef.io.network.group.config
- * The implementation of these operators are available in org.apache.reef.io.network.group.impl
- * Currently only a basic implementation is available
+ * A sparse vector represented by an index and value array.
  */
-package org.apache.reef.io.network.group;
+public final class SparseVector extends AbstractImmutableVector {
+
+  private final double[] values;
+  private final int[] indices;
+  private final int size;
+
+
+  public SparseVector(final double[] values, final int[] indices, final int size) {
+    this.values = values;
+    this.indices = indices;
+    this.size = size;
+  }
+
+  public SparseVector(final double[] values, final int[] indices) {
+    this(values, indices, -1);
+  }
+
+
+  @Override
+  public double get(final int index) {
+    for (int i = 0; i < indices.length; ++i) {
+      if (indices[i] == index) {
+        return values[i];
+      }
+    }
+    return 0;
+  }
+
+  @Override
+  public int size() {
+    return this.size;
+  }
+}

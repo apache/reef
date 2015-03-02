@@ -16,18 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.impl.task;
 
-/**
- * Elastic Group Communications for REEF.
- *
- * Provides MPI style Group Communication operators for collective communication
- * between tasks. These should be primarily used for any form of
- * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
- *
- * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
- * The fluent way to describe these operators is available org.apache.reef.io.network.group.config
- * The implementation of these operators are available in org.apache.reef.io.network.group.impl
- * Currently only a basic implementation is available
- */
-package org.apache.reef.io.network.group;
+import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
+import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
+
+import java.util.logging.Logger;
+
+public class ChildNodeStruct extends NodeStructImpl {
+
+  private static final Logger LOG = Logger.getLogger(ChildNodeStruct.class.getName());
+
+  public ChildNodeStruct(final String id, final int version) {
+    super(id, version);
+  }
+
+  @Override
+  public boolean checkDead(final GroupCommunicationMessage gcm) {
+    LOG.entering("ChildNodeStruct", "checkDead", gcm);
+    final boolean retVal = gcm.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildDead ? true : false;
+    LOG.exiting("ChildNodeStruct", "checkDead", gcm);
+    return retVal;
+  }
+
+}

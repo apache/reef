@@ -16,18 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.impl.utils;
+
+import org.apache.reef.wake.EventHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Elastic Group Communications for REEF.
  *
- * Provides MPI style Group Communication operators for collective communication
- * between tasks. These should be primarily used for any form of
- * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
- *
- * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
- * The fluent way to describe these operators is available org.apache.reef.io.network.group.config
- * The implementation of these operators are available in org.apache.reef.io.network.group.impl
- * Currently only a basic implementation is available
  */
-package org.apache.reef.io.network.group;
+public class BroadcastingEventHandler<T> implements EventHandler<T> {
+
+  List<EventHandler<T>> handlers = new ArrayList<>();
+
+  public void addHandler(final EventHandler<T> handler) {
+    handlers.add(handler);
+  }
+
+  @Override
+  public void onNext(final T msg) {
+    for (final EventHandler<T> handler : handlers) {
+      handler.onNext(msg);
+    }
+  }
+
+}

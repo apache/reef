@@ -16,18 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.api;
+
+import org.apache.reef.annotations.audience.TaskSide;
 
 /**
- * Elastic Group Communications for REEF.
- *
- * Provides MPI style Group Communication operators for collective communication
- * between tasks. These should be primarily used for any form of
- * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
- *
- * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
- * The fluent way to describe these operators is available org.apache.reef.io.network.group.config
- * The implementation of these operators are available in org.apache.reef.io.network.group.impl
- * Currently only a basic implementation is available
+ * Represents the changes in Topology that happened in a communication group
+ * from the last time the user asked for topology changes
  */
-package org.apache.reef.io.network.group;
+@TaskSide
+public interface GroupChanges {
+
+  boolean exist();
+}
