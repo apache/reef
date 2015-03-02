@@ -54,7 +54,7 @@ import java.util.logging.Logger;
 /**
  * Naming lookup client
  */
-public class NameLookupClient implements Stage, NamingLookup {
+public final class NameLookupClient implements Stage, NamingLookup {
 
   private static final Logger LOG = Logger.getLogger(NameLookupClient.class.getName());
   private final SocketAddress serverSocketAddr;
@@ -217,12 +217,20 @@ public class NameLookupClient implements Stage, NamingLookup {
   @NamedParameter(doc = "How many times should I retry?", short_name = "retryCount", default_value = "10")
   public static class RetryCount implements Name<Integer> {
   }
+
+  @NamedParameter(doc = "When should a name lookup client request timeout(msec)?", default_value = "30000")
+  public final static class RequestTimeout implements Name<Long> {
+  }
+
+  @NamedParameter(doc = "How much time name lookup client caching(msec)?", default_value = "30000")
+  public final static class CacheTimeout implements Name<Long> {
+  }
 }
 
 /**
  * Naming lookup client transport event handler
  */
-class NamingLookupClientHandler implements EventHandler<TransportEvent> {
+final class NamingLookupClientHandler implements EventHandler<TransportEvent> {
 
   private final EventHandler<NamingLookupResponse> handler;
   private final Codec<NamingMessage> codec;
@@ -242,7 +250,7 @@ class NamingLookupClientHandler implements EventHandler<TransportEvent> {
 /**
  * Naming lookup response handler
  */
-class NamingLookupResponseHandler implements EventHandler<NamingLookupResponse> {
+final class NamingLookupResponseHandler implements EventHandler<NamingLookupResponse> {
 
   private final BlockingQueue<NamingLookupResponse> replyQueue;
 
