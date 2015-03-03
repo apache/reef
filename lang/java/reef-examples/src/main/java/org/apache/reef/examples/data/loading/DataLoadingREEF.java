@@ -50,7 +50,11 @@ public class DataLoadingREEF {
 
   private static final Logger LOG = Logger.getLogger(DataLoadingREEF.class.getName());
 
-  private static final int NUM_LOCAL_THREADS = 16;
+  /**
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   */
+  private static final int MAX_NUMBER_OF_EVALUATORS = 16;
+
   private static final int NUM_SPLITS = 6;
   private static final int NUM_COMPUTE_EVALUATORS = 2;
 
@@ -77,7 +81,7 @@ public class DataLoadingREEF {
     if (isLocal) {
       LOG.log(Level.INFO, "Running Data Loading demo on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
+          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .build();
     } else {
       LOG.log(Level.INFO, "Running Data Loading demo on YARN");

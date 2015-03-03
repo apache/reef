@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 public class BroadcastREEF {
   private static final Logger LOG = Logger.getLogger(BroadcastREEF.class.getName());
 
-  private static final String NUM_LOCAL_THREADS = "20";
+  private static final String MAX_NUMBER_OF_EVALUATORS = "20";
 
   /**
    * Number of milliseconds to wait for the job to complete.
@@ -103,7 +103,7 @@ public class BroadcastREEF {
     if (local) {
       LOG.log(Level.INFO, "Running Broadcast example using group API on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
+          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .build();
     } else {
       LOG.log(Level.INFO, "Running Broadcast example using group API on YARN");
