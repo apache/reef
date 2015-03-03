@@ -38,6 +38,10 @@ import java.io.IOException;
  * REEF TaskScheduler.
  */
 public final class SchedulerREEF {
+  /**
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   */
+  private static final int MAX_NUMBER_OF_EVALUATORS = 3;
 
   /**
    * Command line parameter = true to reuse evaluators,
@@ -102,7 +106,7 @@ public final class SchedulerREEF {
    */
   public final static void main(String[] args) throws InjectionException, IOException, ParseException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-      .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 3)
+      .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
       .build();
     runTaskScheduler(runtimeConfiguration, args);
   }

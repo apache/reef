@@ -26,7 +26,7 @@ import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.utils.RemoteManager;
-import org.apache.reef.runtime.local.client.parameters.NumberOfProcesses;
+import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.tang.annotations.Parameter;
@@ -78,7 +78,7 @@ final class ContainerManager implements AutoCloseable {
       final RemoteManager remoteManager,
       final RuntimeClock clock,
       final REEFFileNames fileNames,
-      final @Parameter(NumberOfProcesses.class) int capacity,
+      final @Parameter(MaxNumberOfEvaluators.class) int capacity,
       final @Parameter(RootFolder.class) String rootFolderName,
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
       EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler,

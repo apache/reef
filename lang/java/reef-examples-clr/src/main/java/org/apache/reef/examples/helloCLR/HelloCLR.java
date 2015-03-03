@@ -83,7 +83,7 @@ public final class HelloCLR {
    */
   public static void main(final String[] args) throws BindException, InjectionException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
         .build();
 
     final File dotNetFolder = new File(args[0]).getAbsoluteFile();

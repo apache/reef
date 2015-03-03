@@ -27,7 +27,6 @@ import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
-import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
 import org.apache.reef.runtime.local.process.LoggingRunnableProcessObserver;
 import org.apache.reef.runtime.local.process.RunnableProcess;
 import org.apache.reef.tang.Configuration;

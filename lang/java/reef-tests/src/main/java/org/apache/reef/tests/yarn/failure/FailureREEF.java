@@ -39,8 +39,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class FailureREEF {
-
-  public static final int NUM_LOCAL_THREADS = 16;
+  /**
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   */
+  public static final int MAX_NUMBER_OF_EVALUATORS = 16;
 
   private static final Logger LOG = Logger.getLogger(FailureREEF.class.getName());
 
@@ -71,7 +73,7 @@ public final class FailureREEF {
     if (isLocal) {
       LOG.log(Level.INFO, "Running Failure demo on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
+          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .build();
     } else {
       LOG.log(Level.INFO, "Running Failure demo on YARN");

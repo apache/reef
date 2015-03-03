@@ -68,7 +68,7 @@ public class Client {
   @Test
   public void testMultipleInstances() throws BindException, InjectionException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
         .build();
     final LauncherStatus status = runReefJob(runtimeConfiguration, JOB_TIMEOUT);
     Assert.assertTrue("Reef Job MultipleHandlerInstances failed: " + status, status.isSuccess());

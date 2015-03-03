@@ -46,9 +46,9 @@ import java.util.logging.Logger;
 public final class Launch {
 
   /**
-   * Number of REEF worker threads in local mode.
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
    */
-  private static final int NUM_LOCAL_THREADS = JobDriver.totalEvaluators;
+  private static final int MAX_NUMBER_OF_EVALUATORS = JobDriver.totalEvaluators;
   /**
    * Standard Java logger
    */
@@ -118,7 +118,7 @@ public final class Launch {
     if (isLocal) {
       LOG.log(Level.INFO, "Running on the local runtime");
       runtimeConfiguration = LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
+          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .build();
     } else {
       LOG.log(Level.INFO, "Running on YARN");

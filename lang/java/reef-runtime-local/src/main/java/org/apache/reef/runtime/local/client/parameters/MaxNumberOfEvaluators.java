@@ -22,8 +22,8 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The maximum number of processes to use at once
+ * The maximum number of evaluators to allow to run at once
  */
-@NamedParameter(default_value = "4", doc = "The maximum number of processes to use at once", short_name = "nThreads")
-public final class NumberOfProcesses implements Name<Integer> {
+@NamedParameter(default_value = "4", doc = "The maximum number of evaluators to allow to run at once", short_name = "maxEvaluators")
+public final class MaxNumberOfEvaluators implements Name<Integer> {
 }
