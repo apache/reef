@@ -34,7 +34,18 @@ namespace Org.Apache.REEF.Tests.Functional.MPI
         }
 
         [NamedParameter("tree width")]
+
         public class FanOut : Name<int>
+        {
+        }
+
+        [NamedParameter("integer id of the evaluator")]
+        public class EvaluatorId : Name<string>
+        {
+        }
+
+        [NamedParameter("Chunk size for pipelining")]
+        public class ChunkSize : Name<int>
         {
         }
     }

@@ -18,24 +18,30 @@
  */
 
 using System.Reactive;
+using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI operator used to receive and reduce messages.
+    /// MPI operator used to receive and reduce messages in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
     public class ReduceReceiver<T> : IReduceReceiver<T>
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(ReduceReceiver<T>));
+
         private const int DefaultVersion = 1;
 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
-        private readonly OperatorTopology<T> _topology;
+        private readonly OperatorTopology<PipelineMessage<T>> _topology;
+        private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
 
         /// <summary>
         /// Creates a new ReduceReceiver.
@@ -45,25 +51,31 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="topology">The task's operator topology graph</param>
         /// <param name="networkHandler">Handles incoming messages from other tasks</param>
         /// <param name="reduceFunction">The class used to aggregate all incoming messages</param>
+        /// <param name="dataConverter">The converter used to convert original 
+        /// message to pipelined ones and vice versa.</param>
         [Inject]
         public ReduceReceiver(
             [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
-            OperatorTopology<T> topology, 
+            OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
-            IReduceFunction<T> reduceFunction)
+            IReduceFunction<T> reduceFunction,
+            IPipelineDataConverter<T> dataConverter)
         {
             OperatorName = operatorName;
             GroupName = groupName;
             Version = DefaultVersion;
             ReduceFunction = reduceFunction;
 
+            _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _networkHandler = networkHandler;
             _topology = topology;
             _topology.Initialize();
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             _networkHandler.Register(operatorName, msgHandler);
+
+            PipelineDataConverter = dataConverter;
         }
 
         /// <summary>
@@ -87,13 +99,42 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public IReduceFunction<T> ReduceFunction { get; private set; }
 
         /// <summary>
+        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
+        /// </summary>        
+        public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+
+        /// <summary>
         /// Receives messages sent by all ReduceSenders and aggregates them
         /// using the specified IReduceFunction.
         /// </summary>
         /// <returns>The single aggregated data</returns>
         public T Reduce()
         {
-            return _topology.ReceiveFromChildren(ReduceFunction);
+            PipelineMessage<T> message;
+            List<PipelineMessage<T>> messageList = new List<PipelineMessage<T>>();
+
+            LOGGER.Log(Level.Info, "starting receiving reduce pipelined message");
+
+            do
+            {
+                message = _topology.ReceiveFromChildren(_pipelinedReduceFunc);
+                messageList.Add(message);
+
+                /*var intmess = message as PipelineMessage<int[]>;
+
+                if (intmess != null)
+                {
+                    LOGGER.Log(Level.Info, "***************** receiver receiving message ******************** " + intmess.IsLast);
+                    for (int i = 0; i < intmess.Data.Length; i++)
+                    {
+                        LOGGER.Log(Level.Info, intmess.Data[i].ToString());
+                    }
+                }*/
+
+            } while (!message.IsLast);
+            //LOGGER.Log(Level.Info, "ending receiving reduce pipelined message");
+
+            return PipelineDataConverter.FullMessage(messageList);
         }
     }
 }

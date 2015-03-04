@@ -201,6 +201,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             {
                 try
                 {
+                    LOGGER.Log(Level.Info, "$$$$$$$$$$$$ c;osing the stream $$$$$$$$$$$$$$$$$");
+                    LOGGER.Log(Level.Info, "$$$$$$$$$$$$ c;osing the stream $$$$$$$$$$$$$$$$$ " + Client.GetStream().ToString());
+
                     Client.GetStream().Close();
                 }
                 catch (InvalidOperationException)

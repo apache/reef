@@ -30,5 +30,6 @@ namespace Org.Apache.REEF.Tests.Functional.MPI
         public const string SlaveTaskId = "SlaveTask-";
         public const int NumIterations = 10;
         public const int FanOut = 2;
+        public const int ChunkSize = 1;
     }
 }
