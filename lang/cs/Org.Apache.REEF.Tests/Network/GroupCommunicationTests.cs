@@ -27,6 +27,7 @@ using System.Reactive;
 using System.Text;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Codec;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -41,8 +42,6 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tests.Functional.MPI;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
@@ -100,51 +99,21 @@ namespace Org.Apache.REEF.Tests.Network
             int numTasks = 3;
             int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            var mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.NewCommunicationGroup(
-                groupName,
-                numTasks)
-                .AddBroadcast(
+            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+                .AddBroadcast<int>(
                     broadcastOperatorName,
-                    new BroadcastOperatorSpec<int>(
                     masterTaskId,
-                    new IntCodec()))
-                .AddReduce(
+                    new IntCodec())
+                .AddReduce<int>(
                     reduceOperatorName,
-                    new ReduceOperatorSpec<int>(
                     masterTaskId,
                     new IntCodec(),
-                    new SumFunction()))
+                    new SumFunction())
                 .Build();
 
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            var commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             //for master task
             IBroadcastSender<int> broadcastSender = commGroups[0].GetBroadcastSender<int>(broadcastOperatorName);
@@ -175,7 +144,7 @@ namespace Org.Apache.REEF.Tests.Network
                 Assert.AreEqual(sum, expected);
             }
         }
-
+ 
         [TestMethod]
         public void TestScatterReduceOperators()
         {
@@ -187,52 +156,21 @@ namespace Org.Apache.REEF.Tests.Network
             int numTasks = 5;
             int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.NewCommunicationGroup(
-                groupName,
-                numTasks)
-                .AddScatter(
+            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+                .AddScatter<int>(
                     scatterOperatorName,
-                    new ScatterOperatorSpec<int>(
-                        masterTaskId,
-                        new IntCodec()))
+                    masterTaskId,
+                    new IntCodec())
                 .AddReduce(
                     reduceOperatorName,
-                    new ReduceOperatorSpec<int>(
                         masterTaskId,
                         new IntCodec(),
-                        new SumFunction()))
+                        new SumFunction())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(scatterOperatorName);
             IReduceReceiver<int> sumReducer = commGroups[0].GetReduceReceiver<int>(reduceOperatorName);
@@ -270,18 +208,6 @@ namespace Org.Apache.REEF.Tests.Network
             Assert.AreEqual(sum, data.Sum());
         }
 
-        private static void ScatterReceiveReduce(IScatterReceiver<int> receiver, IReduceSender<int> sumSender)
-        {
-            List<int> data1 = receiver.Receive();
-            int sum1 = data1.Sum();
-            sumSender.Send(sum1);
-        }
-
-        private int TriangleNumber(int n)
-        {
-            return Enumerable.Range(1, n).Sum();
-        }
-
         [TestMethod]
         public void TestBroadcastOperator()
         {
@@ -295,40 +221,47 @@ namespace Org.Apache.REEF.Tests.Network
             int value = 1337;
             int fanOut = 3;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddBroadcast(operatorName, new BroadcastOperatorSpec<int>(masterTaskId, new IntCodec()))
+            var commGroup = mpiDriver.DefaultGroup
+                .AddBroadcast(operatorName, masterTaskId, new IntCodec())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
+            IBroadcastSender<int> sender = commGroups[0].GetBroadcastSender<int>(operatorName);
+            IBroadcastReceiver<int> receiver1 = commGroups[1].GetBroadcastReceiver<int>(operatorName);
+            IBroadcastReceiver<int> receiver2 = commGroups[2].GetBroadcastReceiver<int>(operatorName);
 
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
+            Assert.IsNotNull(sender);
+            Assert.IsNotNull(receiver1);
+            Assert.IsNotNull(receiver2);
 
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
+            sender.Send(value);
+            Assert.AreEqual(value, receiver1.Receive());
+            Assert.AreEqual(value, receiver2.Receive());
+        }
 
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+        [TestMethod]
+        public void TestBroadcastOperatorWithDefaultCodec()
+        {
+            NameServer nameServer = new NameServer(0);
+
+            string groupName = "group1";
+            string operatorName = "broadcast";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 10;
+            int value = 1337;
+            int fanOut = 3;
+
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+
+            var commGroup = mpiDriver.DefaultGroup
+                .AddBroadcast(operatorName, masterTaskId)
+                .Build();
+
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IBroadcastSender<int> sender = commGroups[0].GetBroadcastSender<int>(operatorName);
             IBroadcastReceiver<int> receiver1 = commGroups[1].GetBroadcastReceiver<int>(operatorName);
@@ -356,40 +289,13 @@ namespace Org.Apache.REEF.Tests.Network
             int value3 = 99;
             int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddBroadcast(operatorName, new BroadcastOperatorSpec<int>(masterTaskId, new IntCodec()))
-                .Build();
+            var commGroup = mpiDriver.DefaultGroup
+              .AddBroadcast(operatorName, masterTaskId, new IntCodec())
+              .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            IList<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IBroadcastSender<int> sender = commGroups[0].GetBroadcastSender<int>(operatorName);
             IBroadcastReceiver<int> receiver1 = commGroups[1].GetBroadcastReceiver<int>(operatorName);
@@ -418,39 +324,17 @@ namespace Org.Apache.REEF.Tests.Network
             string groupName = "group1";
             string operatorName = "reduce";
             int numTasks = 4;
-            IMpiDriver mpiDriver = new MpiDriver("driverid", "task0", 2, new AvroConfigurationSerializer());
+            string driverId = "driverid";
+            string masterTaskId = "task0";
+            int fanOut = 2;
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddReduce(operatorName, new ReduceOperatorSpec<int>("task0", new IntCodec(), new SumFunction()))
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+
+            var commGroup = mpiDriver.DefaultGroup
+                .AddReduce(operatorName, "task0", new IntCodec(), new SumFunction())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-            IList<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration taskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(taskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IReduceReceiver<int> receiver = commGroups[0].GetReduceReceiver<int>(operatorName);
             IReduceSender<int> sender1 = commGroups[1].GetReduceSender<int>(operatorName);
@@ -475,39 +359,17 @@ namespace Org.Apache.REEF.Tests.Network
             string groupName = "group1";
             string operatorName = "reduce";
             int numTasks = 4;
-            IMpiDriver mpiDriver = new MpiDriver("driverid", "task0", 2, new AvroConfigurationSerializer());
+            string driverId = "driverid";
+            string masterTaskId = "task0";
+            int fanOut = 2;
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddReduce(operatorName, new ReduceOperatorSpec<int>("task0", new IntCodec(), new SumFunction()))
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+
+            var commGroup = mpiDriver.DefaultGroup
+                .AddReduce(operatorName, "task0", new IntCodec(), new SumFunction())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-            IList<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration taskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(taskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IReduceReceiver<int> receiver = commGroups[0].GetReduceReceiver<int>(operatorName);
             IReduceSender<int> sender1 = commGroups[1].GetReduceSender<int>(operatorName);
@@ -545,40 +407,52 @@ namespace Org.Apache.REEF.Tests.Network
             int numTasks = 5;
             int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
+            var commGroup = mpiDriver.DefaultGroup
+                .AddScatter(operatorName, masterTaskId, new IntCodec())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
+            IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
+            IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
+            IScatterReceiver<int> receiver2 = commGroups[2].GetScatterReceiver<int>(operatorName);
+            IScatterReceiver<int> receiver3 = commGroups[3].GetScatterReceiver<int>(operatorName);
+            IScatterReceiver<int> receiver4 = commGroups[4].GetScatterReceiver<int>(operatorName);
 
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
+            Assert.IsNotNull(sender);
+            Assert.IsNotNull(receiver1);
+            Assert.IsNotNull(receiver2);
+            Assert.IsNotNull(receiver3);
+            Assert.IsNotNull(receiver4);
 
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
+            List<int> data = new List<int> { 1, 2, 3, 4 };
 
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            sender.Send(data);
+            Assert.AreEqual(1, receiver1.Receive().Single());
+            Assert.AreEqual(2, receiver2.Receive().Single());
+            Assert.AreEqual(3, receiver3.Receive().Single());
+            Assert.AreEqual(4, receiver4.Receive().Single());
+        }
+
+        [TestMethod]
+        public void TestScatterOperatorWithDefaultCodec()
+        {
+            string groupName = "group1";
+            string operatorName = "scatter";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            int numTasks = 5;
+            int fanOut = 2;
+
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+
+            var commGroup = mpiDriver.DefaultGroup
+                .AddScatter(operatorName, masterTaskId)
+                .Build();
+
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -611,40 +485,13 @@ namespace Org.Apache.REEF.Tests.Network
             int numTasks = 5;
             int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
+            var commGroup = mpiDriver.DefaultGroup
+                .AddScatter(operatorName, masterTaskId, new IntCodec())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -688,40 +535,13 @@ namespace Org.Apache.REEF.Tests.Network
             int numTasks = 4;
             int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
+            var commGroup = mpiDriver.DefaultGroup
+                .AddScatter(operatorName, masterTaskId, new IntCodec())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -762,41 +582,13 @@ namespace Org.Apache.REEF.Tests.Network
             int numTasks = 4;
             int fanOut = 2;
 
-            IMpiDriver mpiDriver = new MpiDriver(driverId, masterTaskId, fanOut, new AvroConfigurationSerializer());
+            IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            var commGroup = mpiDriver.NewCommunicationGroup(groupName, numTasks)
-                .AddScatter(operatorName, new ScatterOperatorSpec<int>(masterTaskId, new IntCodec()))
+            var commGroup = mpiDriver.DefaultGroup
+                .AddScatter(operatorName, masterTaskId, new IntCodec())
                 .Build();
 
-            List<IConfiguration> partialConfigs = new List<IConfiguration>();
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                    TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, taskId)
-                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
-                        .Build())
-                    .Build();
-                commGroup.AddTask(taskId);
-                partialConfigs.Add(partialTaskConfig);
-            }
-
-            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
-
-            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
-
-            for (int i = 0; i < numTasks; i++)
-            {
-                string taskId = "task" + i;
-                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
-                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
-
-                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
-                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
-            }
-
+            List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
             IScatterReceiver<int> receiver2 = commGroups[2].GetScatterReceiver<int>(operatorName);
@@ -853,7 +645,54 @@ namespace Org.Apache.REEF.Tests.Network
             Assert.AreEqual(10, reduceFunction.Reduce(new int[] { 1, 2, 3, 4 }));
         }
 
-        private NetworkService<GroupCommunicationMessage> BuildNetworkService(
+        public static IMpiDriver GetInstanceOfMpiDriver(string driverId, string masterTaskId, string groupName, int fanOut, int numTasks)
+        {
+            var c = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(driverId)
+                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(masterTaskId)
+                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(groupName)
+                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(fanOut.ToString())
+                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString())
+                .BindImplementation(GenericType<IConfigurationSerializer>.Class, GenericType<AvroConfigurationSerializer>.Class)
+                .Build();
+
+            IMpiDriver mpiDriver = TangFactory.GetTang().NewInjector(c).GetInstance<MpiDriver>();
+            return mpiDriver;
+        }
+
+        public static List<ICommunicationGroupClient> CommGroupClients(string groupName, int numTasks, IMpiDriver mpiDriver, ICommunicationGroupDriver commGroup)
+        {
+            List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
+            IConfiguration serviceConfig = mpiDriver.GetServiceConfiguration();
+
+            List<IConfiguration> partialConfigs = new List<IConfiguration>();
+            for (int i = 0; i < numTasks; i++)
+            {
+                string taskId = "task" + i;
+                IConfiguration partialTaskConfig = TangFactory.GetTang().NewConfigurationBuilder(
+                    TaskConfiguration.ConfigurationModule
+                        .Set(TaskConfiguration.Identifier, taskId)
+                        .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
+                        .Build())
+                    .Build();
+                commGroup.AddTask(taskId);
+                partialConfigs.Add(partialTaskConfig);
+            }
+
+            for (int i = 0; i < numTasks; i++)
+            {
+                string taskId = "task" + i;
+                IConfiguration mpiTaskConfig = mpiDriver.GetMpiTaskConfiguration(taskId);
+                IConfiguration mergedConf = Configurations.Merge(mpiTaskConfig, partialConfigs[i], serviceConfig);
+                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
+
+                IMpiClient mpiClient = injector.GetInstance<IMpiClient>();
+                commGroups.Add(mpiClient.GetCommunicationGroup(groupName));
+            }
+            return commGroups;
+        }
+
+        public static NetworkService<GroupCommunicationMessage> BuildNetworkService(
             IPEndPoint nameServerEndpoint, IObserver<NsMessage<GroupCommunicationMessage>> handler)
         {
             return new NetworkService<GroupCommunicationMessage>(
@@ -861,36 +700,48 @@ namespace Org.Apache.REEF.Tests.Network
                 handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec());
         }
 
-       private GroupCommunicationMessage CreateGcm(string message, string from, string to)
+        private GroupCommunicationMessage CreateGcm(string message, string from, string to)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             return new GroupCommunicationMessage("g1", "op1", from, to, data, MessageType.Data);
         }
 
-        private class SumFunction : IReduceFunction<int>
+        private static void ScatterReceiveReduce(IScatterReceiver<int> receiver, IReduceSender<int> sumSender)
         {
-            [Inject]
-            public SumFunction()
-            {
-            }
-
-            public int Reduce(IEnumerable<int> elements)
-            {
-                return elements.Sum();
-            }
+            List<int> data1 = receiver.Receive();
+            int sum1 = data1.Sum();
+            sumSender.Send(sum1);
         }
 
-        private class MyTask : ITask
+        public static int TriangleNumber(int n)
         {
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
+            return Enumerable.Range(1, n).Sum();
+        }
+    }
 
-            public byte[] Call(byte[] memento)
-            {
-                throw new NotImplementedException();
-            }
+    public class SumFunction : IReduceFunction<int>
+    {
+        [Inject]
+        public SumFunction()
+        {
+        }
+
+        public int Reduce(IEnumerable<int> elements)
+        {
+            return elements.Sum();
+        }
+    }
+
+    public class MyTask : ITask
+    {
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] Call(byte[] memento)
+        {
+            throw new NotImplementedException();
         }
     }
 }

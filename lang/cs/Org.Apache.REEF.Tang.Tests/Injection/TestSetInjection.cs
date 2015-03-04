@@ -61,6 +61,26 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         }
 
         [TestMethod]
+        public void TestStringInjectNoDefault()
+        {
+            BoxNoDefault b = (BoxNoDefault)TangFactory.GetTang().NewInjector().GetInstance(typeof(BoxNoDefault));
+            ISet<string> actual = b.Numbers; 
+            Assert.AreEqual(actual.Count, 0);
+        }
+
+        [TestMethod]
+        public void TestStringInjectNoDefaultWithValue()
+        {
+            var cb = TangFactory.GetTang().NewConfigurationBuilder();
+            cb.BindSetEntry<SetOfNumbersNoDefault, string>(GenericType<SetOfNumbersNoDefault>.Class, "123");
+            BoxNoDefault b = (BoxNoDefault)TangFactory.GetTang().NewInjector(cb.Build()).GetInstance(typeof(BoxNoDefault));
+
+            ISet<string> actual = b.Numbers;
+
+            Assert.AreEqual(actual.Count, 1);
+        }
+
+        [TestMethod]
         public void TestObjectInjectDefault()
         {
             IInjector i = TangFactory.GetTang().NewInjector();
@@ -325,6 +345,21 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [NamedParameter(DefaultValues = new string[] { "one", "two", "three" })]
         public class SetOfNumbers : Name<ISet<string>>
         {
+        }
+
+        [NamedParameter()]
+        public class SetOfNumbersNoDefault : Name<ISet<string>>
+        {
+        }
+        public class BoxNoDefault
+        {
+            [Inject]
+            public BoxNoDefault([Parameter(typeof(SetOfNumbersNoDefault))] ISet<string> numbers)
+            {
+                this.Numbers = numbers;
+            }
+
+            public ISet<string> Numbers { get; set; }
         }
 
         public class Box

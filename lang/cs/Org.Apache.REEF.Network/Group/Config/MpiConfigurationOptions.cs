@@ -54,6 +54,16 @@ namespace Org.Apache.REEF.Network.Group.Config
         {
         }
 
+        [NamedParameter("Group name", defaultValue: "Group1")]
+        public class GroupName : Name<string>
+        {
+        }
+
+        [NamedParameter("Number of tasks", defaultValue: "5")]
+        public class NumberOfTasks : Name<int>
+        {
+        }
+
         [NamedParameter("with of the tree in topology", defaultValue:"2")]
         public class FanOut : Name<int>
         {

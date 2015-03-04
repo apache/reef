@@ -27,6 +27,7 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -57,33 +58,22 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
         public BroadcastReduceDriver(
             [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
             [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations,
-            [Parameter(typeof(MpiTestConfig.FanOut))] int fanOut,
-            AvroConfigurationSerializer confSerializer)
+            MpiDriver mpiDriver)
         {
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
-
-            _mpiDriver = new MpiDriver(
-                MpiTestConstants.DriverId,
-                MpiTestConstants.MasterTaskId,
-                fanOut,
-                confSerializer);
-
-            _commGroup = _mpiDriver.NewCommunicationGroup(
-                MpiTestConstants.GroupName, 
-                numEvaluators)
+            _mpiDriver = mpiDriver;
+            _commGroup = _mpiDriver.DefaultGroup
                     .AddBroadcast(
                         MpiTestConstants.BroadcastOperatorName,
-                        new BroadcastOperatorSpec<int>(
-                            MpiTestConstants.MasterTaskId,
-                            new IntCodec()))
+                       MpiTestConstants.MasterTaskId,
+                            new IntCodec())
                     .AddReduce(
                         MpiTestConstants.ReduceOperatorName,
-                        new ReduceOperatorSpec<int>(
                             MpiTestConstants.MasterTaskId,
                             new IntCodec(), 
-                            new SumFunction()))
+                            new SumFunction())
                     .Build();
 
             _mpiTaskStarter = new TaskStarter(_mpiDriver, numEvaluators);

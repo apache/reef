@@ -45,6 +45,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <typeparam name="T">The message type</typeparam>
     public class OperatorTopology<T> : IObserver<GroupCommunicationMessage>
     {
+        private const int DefaultTimeout = 50000;
+        private const int RetryCount = 10;
+
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
 
         private readonly string _groupName;

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
@@ -26,6 +27,7 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -34,6 +36,7 @@ using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -54,33 +57,22 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
         [Inject]
         public ScatterReduceDriver(
             [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
-            [Parameter(typeof(MpiTestConfig.FanOut))] int fanOut,
-            AvroConfigurationSerializer confSerializer)
+            MpiDriver mpiDriver)
         {
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
-
-            _mpiDriver = new MpiDriver(
-                MpiTestConstants.DriverId,
-                MpiTestConstants.MasterTaskId,
-                fanOut,
-                confSerializer);
-
-            _commGroup = _mpiDriver.NewCommunicationGroup(
-                MpiTestConstants.GroupName, 
-                numEvaluators)
+            _mpiDriver = mpiDriver; 
+            _commGroup = _mpiDriver.DefaultGroup
                     .AddScatter(
                         MpiTestConstants.ScatterOperatorName,
-                        new ScatterOperatorSpec<int>(
                             MpiTestConstants.MasterTaskId,
-                            new IntCodec()),
+                            new IntCodec(),
                             TopologyTypes.Tree)
                     .AddReduce(
                         MpiTestConstants.ReduceOperatorName,
-                        new ReduceOperatorSpec<int>(
                             MpiTestConstants.MasterTaskId,
                             new IntCodec(), 
-                            new SumFunction()))
+                            new SumFunction())
                     .Build();
 
             _mpiTaskStarter = new TaskStarter(_mpiDriver, numEvaluators);
