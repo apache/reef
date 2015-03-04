@@ -62,5 +62,21 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             _messageQueue.Add(gcm);
         }
+
+        /// <summary>
+        /// Tells whether there is a message in queue or not.
+        /// </summary>
+        /// <returns>True if queue is non empty, false otherwise.</returns>
+        public bool HasMessage()
+        {
+            if (_messageQueue.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

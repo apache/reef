@@ -17,9 +17,11 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake.Remote;
@@ -56,8 +58,9 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <param name="masterTaskId">The master task id in broadcast operator</param>
         /// <param name="codecType">The Codec used for serialization</param>
         /// <param name="topologyType">The topology type for the operator</param>
+        /// <param name="pipelineDataConverter">The class used to convert data back and forth to pipelined one</param>
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
-        ICommunicationGroupDriver AddBroadcast<T>(string operatorName, string masterTaskId, ICodec<T> codecType, TopologyTypes topologyType = TopologyTypes.Flat);
+        ICommunicationGroupDriver AddBroadcast<T>(string operatorName, string masterTaskId, ICodec<T> codecType, TopologyTypes topologyType = TopologyTypes.Flat, IPipelineDataConverter<T> pipelineDataConverter = null);
 
         /// <summary>
         /// Adds the Broadcast MPI operator to the communication group. Default to IntCodec
@@ -88,9 +91,9 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <param name="codecType">The codec used for serializing messages.</param>
         /// <param name="reduceFunction">The class used to aggregate all messages.</param>
         /// <param name="topologyType">The topology for the operator</param>
+        /// <param name="pipelineDataConverter">The class used to convert data back and forth to pipelined one</param>
         /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
-        ICommunicationGroupDriver AddReduce<T>(string operatorName, string masterTaskId, ICodec<T> codecType, IReduceFunction<T> reduceFunction, TopologyTypes topologyType = TopologyTypes.Flat);
-
+        ICommunicationGroupDriver AddReduce<T>(string operatorName, string masterTaskId, ICodec<T> codecType, IReduceFunction<T> reduceFunction, TopologyTypes topologyType = TopologyTypes.Flat, IPipelineDataConverter<T> pipelineDataConverter = null);
         /// <summary>
         /// Adds the Scatter MPI operator to the communication group.
         /// </summary>

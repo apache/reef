@@ -18,25 +18,27 @@
  */
 
 using System.Reactive;
+using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI Operator used to receive broadcast messages.
+    /// MPI Operator used to receive broadcast messages in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The type of message being sent.</typeparam>
     public class BroadcastReceiver<T> : IBroadcastReceiver<T>
     {
-        private const int DefaultVersion = 1;
-
+        private const int PipelineVersion = 2; 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
-        private readonly OperatorTopology<T> _topology;
-
+        private readonly OperatorTopology<PipelineMessage<T>> _topology;
+        private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastReceiver<T>));
         /// <summary>
         /// Creates a new BroadcastReceiver.
         /// </summary>
@@ -45,16 +47,19 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// operator belongs to</param>
         /// <param name="topology">The node's topology graph</param>
         /// <param name="networkHandler">The incoming message handler</param>
+        /// <param name="dataConverter">The converter used to convert original 
+        /// message to pipelined ones and vice versa.</param>
         [Inject]
         public BroadcastReceiver(
             [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
-            OperatorTopology<T> topology, 
-            ICommunicationGroupNetworkObserver networkHandler)
+            OperatorTopology<PipelineMessage<T>> topology,
+            ICommunicationGroupNetworkObserver networkHandler,
+            IPipelineDataConverter<T> dataConverter)
         {
             OperatorName = operatorName;
             GroupName = groupName;
-            Version = DefaultVersion;
+            Version = PipelineVersion;
 
             _networkHandler = networkHandler;
             _topology = topology;
@@ -62,6 +67,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             _networkHandler.Register(operatorName, msgHandler);
+           
+            PipelineDataConverter = dataConverter;
         }
 
         /// <summary>
@@ -73,6 +80,9 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the name of the CommunicationGroup that the operator belongs to.
         /// </summary>
         public string GroupName { get; private set; }
+        /// <summary>
+        /// Returns the operator version.
+        /// </summary>
 
         /// <summary>
         /// Returns the operator version.
@@ -80,17 +90,34 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public int Version { get; private set; }
 
         /// <summary>
+        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
+        /// </summary>        
+        public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+        
+        
+        /// <summary>
         /// Receive a message from parent BroadcastSender.
         /// </summary>
-        /// <returns>The incoming message</returns>
+        /// <returns>The incoming message</returns>        
         public T Receive()
         {
-            var data = _topology.ReceiveFromParent();
-            if (_topology.HasChildren())
+            PipelineMessage<T> message;
+            var messageList = new List<PipelineMessage<T>>();
+
+            do
             {
-                _topology.SendToChildren(data, MessageType.Data);
-            }
-            return data;
+                message = _topology.ReceiveFromParent();
+                
+                if (_topology.HasChildren())
+                {
+                    _topology.SendToChildren(message, MessageType.Data);
+                }
+                
+                messageList.Add(message);
+            } while (!message.IsLast);
+            
+            return PipelineDataConverter.FullMessage(messageList);
         }
+
     }
 }

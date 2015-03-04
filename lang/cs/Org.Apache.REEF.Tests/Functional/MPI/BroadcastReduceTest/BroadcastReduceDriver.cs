@@ -32,6 +32,7 @@ using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
@@ -68,12 +69,14 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
                     .AddBroadcast(
                         MpiTestConstants.BroadcastOperatorName,
                        MpiTestConstants.MasterTaskId,
-                            new IntCodec())
+                            new IntCodec(),
+                            TopologyTypes.Tree)
                     .AddReduce(
                         MpiTestConstants.ReduceOperatorName,
                             MpiTestConstants.MasterTaskId,
                             new IntCodec(), 
-                            new SumFunction())
+                            new SumFunction(),
+                            TopologyTypes.Tree)
                     .Build();
 
             _mpiTaskStarter = new TaskStarter(_mpiDriver, numEvaluators);

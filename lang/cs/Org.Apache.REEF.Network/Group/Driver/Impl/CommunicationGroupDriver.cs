@@ -22,6 +22,8 @@ using System.Reflection;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
@@ -125,8 +127,9 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             return this;
         }
 
+
         /// <summary>
-        /// Adds the Broadcast MPI operator to the communication group.
+        /// Adds the Broadcast MPI operator to the communication group, the non-pipelined version.
         /// </summary>
         /// <typeparam name="T">The type of messages that operators will send</typeparam>
         /// <param name="operatorName">The name of the broadcast operator</param>
@@ -136,6 +139,22 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
         public ICommunicationGroupDriver AddBroadcast<T>(string operatorName, string masterTaskId, ICodec<T> codecType, TopologyTypes topologyType = TopologyTypes.Flat)
         {
+            return AddBroadcast(operatorName, masterTaskId, codecType, topologyType,
+                new DefaultPipelineDataConverter<T>());
+        }
+
+        /// <summary>
+        /// Adds the Broadcast MPI operator to the communication group.
+        /// </summary>
+        /// <typeparam name="T">The type of messages that operators will send</typeparam>
+        /// <param name="operatorName">The name of the broadcast operator</param>
+        /// <param name="masterTaskId">The master task id in broadcast operator</param>
+        /// <param name="codecType">The Codec used for serialization</param>
+        /// <param name="topologyType">The topology type for the operator</param>
+        /// <param name="pipelineDataConverter">The class type used to convert data back and forth to pipelined one</param>
+        /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
+        public ICommunicationGroupDriver AddBroadcast<T>(string operatorName, string masterTaskId, ICodec<T> codecType, TopologyTypes topologyType, IPipelineDataConverter<T> pipelineDataConverter)
+        {
             if (_finalized)
             {
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
@@ -143,7 +162,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
             var spec = new BroadcastOperatorSpec<T>(
                 masterTaskId,
-                codecType);
+                codecType,
+                pipelineDataConverter);
 
             ITopology<T> topology;
             if (topologyType == TopologyTypes.Flat)
@@ -177,7 +197,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Adds the Reduce MPI operator to the communication group.
+        /// Adds the Reduce MPI operator to the communication group, the non-pipelined version
         /// </summary>
         /// <typeparam name="T">The type of messages that operators will send</typeparam>
         /// <param name="operatorName">The name of the reduce operator</param>
@@ -193,6 +213,29 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             IReduceFunction<T> reduceFunction,
             TopologyTypes topologyType = TopologyTypes.Flat)
         {
+            return AddReduce(operatorName, masterTaskId, codecType, reduceFunction, topologyType,
+                new DefaultPipelineDataConverter<T>());
+        }
+
+        /// <summary>
+        /// Adds the Reduce MPI operator to the communication group.
+        /// </summary>
+        /// <typeparam name="T">The type of messages that operators will send</typeparam>
+        /// <param name="operatorName">The name of the reduce operator</param>
+        /// <param name="masterTaskId">The master task id for the typology</param>
+        /// <param name="codecType">The codec used for serializing messages.</param>
+        /// <param name="reduceFunction">The class used to aggregate all messages.</param>
+        /// <param name="topologyType">The topology for the operator</param>
+        /// <param name="pipelineDataConverter">The class type used to convert data back and forth to pipelined one</param>
+        /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
+        public ICommunicationGroupDriver AddReduce<T>(
+            string operatorName,
+            string masterTaskId,
+            ICodec<T> codecType,
+            IReduceFunction<T> reduceFunction,
+            TopologyTypes topologyType,
+            IPipelineDataConverter<T> pipelineDataConverter)
+        {
             if (_finalized)
             {
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
@@ -201,6 +244,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             var spec = new ReduceOperatorSpec<T>(
                 masterTaskId,
                 codecType,
+                pipelineDataConverter,
                 reduceFunction);
 
             ITopology<T> topology;

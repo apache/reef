@@ -1,0 +1,68 @@
+﻿Build started 3/31/2015 3:35:50 PM.
+     1>Project "C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj" on node 3 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"..\..\java\reef-bridge-java\target\classes" /IC:\Java\jdk1.8.0_31\\include /IC:\Java\jdk1.8.0_31\\include\win32 /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\\" /AI"C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral" /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\Facades\\" /Zi /clr /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"x64\Debug\Org.Apache.REEF.Bridge.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\mscorlib.dll" /FU"C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.dll" /errorReport:prompt /clr:nostdlib Stdafx.cpp
+         Stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"..\..\java\reef-bridge-java\target\classes" /IC:\Java\jdk1.8.0_31\\include /IC:\Java\jdk1.8.0_31\\include\win32 /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\\" /AI"C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral" /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\Facades\\" /Zi /clr /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\mscorlib.dll" /FU"C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.dll" /errorReport:prompt /clr:nostdlib ActiveContextClr2Java.cpp AllocatedEvaluatorClr2Java.cpp AssemblyInfo.cpp AssemblyUtil.cpp BinaryUtil.cpp ClosedContextClr2Java.cpp CommonUtilities.cpp CompletedEvaluatorClr2Java.cpp CompletedTaskClr2Java.cpp ContextMessageClr2Java.cpp EvaluatorRequestorClr2Java.cpp FailedContextClr2Java.cpp FailedEvaluatorClr2Java.cpp FailedTaskClr2Java.cpp HttpServerClr2Java.cpp InteropLogger.cpp InteropReturnInfo.cpp InteropUtil.cpp JavaClrBridge.cpp RunningTaskClr2Java.cpp SuspendedTaskClr2Java.cpp TaskMessageClr2Java.cpp
+         ActiveContextClr2Java.cpp
+         AllocatedEvaluatorClr2Java.cpp
+         AssemblyInfo.cpp
+         AssemblyUtil.cpp
+         BinaryUtil.cpp
+         ClosedContextClr2Java.cpp
+         CommonUtilities.cpp
+         CompletedEvaluatorClr2Java.cpp
+         CompletedTaskClr2Java.cpp
+         ContextMessageClr2Java.cpp
+         EvaluatorRequestorClr2Java.cpp
+         FailedContextClr2Java.cpp
+         FailedEvaluatorClr2Java.cpp
+         FailedTaskClr2Java.cpp
+         HttpServerClr2Java.cpp
+         InteropLogger.cpp
+         InteropReturnInfo.cpp
+         InteropUtil.cpp
+         JavaClrBridge.cpp
+         RunningTaskClr2Java.cpp
+         Generating Code...
+         Compiling...
+         SuspendedTaskClr2Java.cpp
+         TaskMessageClr2Java.cpp
+         Generating Code...
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"..\..\java\reef-bridge-java\target\classes" /IC:\Java\jdk1.8.0_31\\include /IC:\Java\jdk1.8.0_31\\include\win32 /Zi /clr /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /TP /errorReport:prompt "C:\Users\dhrumaha\AppData\Local\Temp\.NETFramework,Version=v4.5.AssemblyAttributes.cpp"
+         .NETFramework,Version=v4.5.AssemblyAttributes.cpp
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"x64\Debug\app.res" app.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.dll" /INCREMENTAL /NOLOGO /LIBPATH:..\bin\x64\Debug\Org.Apache.REEF.Driver /LIBPATH:..\bin\x64\Debug\Org.Apache.REEF.Driver /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.pdb" /ASSEMBLYDEBUG /TLBID:1 /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X64 /ignore:4248 /DLL x64\Debug\app.res
+         x64\Debug\ActiveContextClr2Java.obj
+         x64\Debug\AllocatedEvaluatorClr2Java.obj
+         x64\Debug\AssemblyInfo.obj
+         x64\Debug\AssemblyUtil.obj
+         x64\Debug\BinaryUtil.obj
+         x64\Debug\ClosedContextClr2Java.obj
+         x64\Debug\CommonUtilities.obj
+         x64\Debug\CompletedEvaluatorClr2Java.obj
+         x64\Debug\CompletedTaskClr2Java.obj
+         x64\Debug\ContextMessageClr2Java.obj
+         x64\Debug\EvaluatorRequestorClr2Java.obj
+         x64\Debug\FailedContextClr2Java.obj
+         x64\Debug\FailedEvaluatorClr2Java.obj
+         x64\Debug\FailedTaskClr2Java.obj
+         x64\Debug\HttpServerClr2Java.obj
+         x64\Debug\InteropLogger.obj
+         x64\Debug\InteropReturnInfo.obj
+         x64\Debug\InteropUtil.obj
+         x64\Debug\JavaClrBridge.obj
+         x64\Debug\RunningTaskClr2Java.obj
+         x64\Debug\Stdafx.obj
+         x64\Debug\SuspendedTaskClr2Java.obj
+         x64\Debug\TaskMessageClr2Java.obj
+         "x64\Debug\.NETFramework,Version=v4.5.AssemblyAttributes.obj"
+            Creating library C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.lib and object C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.exp
+         Org.Apache.REEF.Bridge.vcxproj -> C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\bin\x64\Debug\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.dll
+     1>Done Building Project "C:\Users\dhrumaha\Desktop\projects\REEF\incubator-reef\lang\cs\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:14.01
