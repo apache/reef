@@ -32,8 +32,6 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.local.client.parameters.DefaultMemorySize;
 import org.apache.reef.runtime.local.client.parameters.DefaultNumberOfCores;
-import org.apache.reef.runtime.local.driver.parameters.GlobalFiles;
-import org.apache.reef.runtime.local.driver.parameters.GlobalLibraries;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -46,7 +44,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,8 +75,6 @@ public final class ResourceManager {
       final ContainerManager containerManager,
       final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
       final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
-      final @Parameter(GlobalLibraries.class) Set<String> globalLibraries,
-      final @Parameter(GlobalFiles.class) Set<String> globalFiles,
       final @Parameter(DefaultMemorySize.class) int defaultMemorySize,
       final @Parameter(DefaultNumberOfCores.class) int defaultNumberOfCores,
       final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
