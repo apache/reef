@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Exceptions;
@@ -28,6 +29,8 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
@@ -94,6 +97,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="operatorName">The name of the broadcast operator</param>
         /// <param name="spec">The specification that defines the Broadcast operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
+        [System.Obsolete("use AddBroadcast<T>(string operatorName, string masterTaskId, ICodec<T> codecType, TopologyTypes topologyType = TopologyTypes.Flat)")]
         public ICommunicationGroupDriver AddBroadcast<T>(
             string operatorName,
             BroadcastOperatorSpec<T> spec,
@@ -122,12 +126,109 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
+        /// Adds the Broadcast MPI operator to the communication group.
+        /// </summary>
+        /// <typeparam name="T">The type of messages that operators will send</typeparam>
+        /// <param name="operatorName">The name of the broadcast operator</param>
+        /// <param name="masterTaskId">The master task id in broadcast operator</param>
+        /// <param name="codecType">The Codec used for serialization</param>
+        /// <param name="topologyType">The topology type for the operator</param>
+        /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
+        public ICommunicationGroupDriver AddBroadcast<T>(string operatorName, string masterTaskId, ICodec<T> codecType, TopologyTypes topologyType = TopologyTypes.Flat)
+        {
+            if (_finalized)
+            {
+                throw new IllegalStateException("Can't add operators once the spec has been built.");
+            }
+
+            var spec = new BroadcastOperatorSpec<T>(
+                masterTaskId,
+                codecType);
+
+            ITopology<T> topology;
+            if (topologyType == TopologyTypes.Flat)
+            {
+                topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
+            }
+            else
+            {
+                topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec,
+                    _fanOut);
+            }
+
+            _topologies[operatorName] = topology;
+            _operatorSpecs[operatorName] = spec;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the Broadcast MPI operator to the communication group. Default to IntCodec
+        /// </summary>
+        /// <typeparam name="T">The type of messages that operators will send</typeparam>
+        /// <param name="operatorName">The name of the broadcast operator</param>
+        /// <param name="masterTaskId">The master task id in broadcast operator</param>
+        /// <param name="topologyType">The topology type for the operator</param>
+        /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
+        public ICommunicationGroupDriver AddBroadcast(string operatorName, string masterTaskId,
+            TopologyTypes topologyType = TopologyTypes.Flat)
+        {
+            return AddBroadcast(operatorName, masterTaskId, new IntCodec(), topologyType);
+        }
+
+        /// <summary>
+        /// Adds the Reduce MPI operator to the communication group.
+        /// </summary>
+        /// <typeparam name="T">The type of messages that operators will send</typeparam>
+        /// <param name="operatorName">The name of the reduce operator</param>
+        /// <param name="masterTaskId">The master task id for the typology</param>
+        /// <param name="codecType">The codec used for serializing messages.</param>
+        /// <param name="reduceFunction">The class used to aggregate all messages.</param>
+        /// <param name="topologyType">The topology for the operator</param>
+        /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
+        public ICommunicationGroupDriver AddReduce<T>(
+            string operatorName,
+            string masterTaskId,
+            ICodec<T> codecType,
+            IReduceFunction<T> reduceFunction,
+            TopologyTypes topologyType = TopologyTypes.Flat)
+        {
+            if (_finalized)
+            {
+                throw new IllegalStateException("Can't add operators once the spec has been built.");
+            }
+
+            var spec = new ReduceOperatorSpec<T>(
+                masterTaskId,
+                codecType,
+                reduceFunction);
+
+            ITopology<T> topology;
+
+            if (topologyType == TopologyTypes.Flat)
+            {
+                topology = new FlatTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec);
+            }
+            else
+            {
+                topology = new TreeTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId, spec,
+                    _fanOut);
+            }
+
+            _topologies[operatorName] = topology;
+            _operatorSpecs[operatorName] = spec;
+
+            return this;
+        }
+
+        /// <summary>
         /// Adds the Reduce MPI operator to the communication group.
         /// </summary>
         /// <typeparam name="T">The type of messages that operators will send</typeparam>
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="spec">The specification that defines the Reduce operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
+        [System.Obsolete("use AddReduce<T>(string operatorName, string masterTaskId, ICodec<T> codecType, IReduceFunction<T> reduceFunction, TopologyTypes topologyType = TopologyTypes.Flat)")]
         public ICommunicationGroupDriver AddReduce<T>(
             string operatorName,
             ReduceOperatorSpec<T> spec,
@@ -162,6 +263,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="spec">The specification that defines the Scatter operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
+        [System.Obsolete("use AddScatter<T>(string operatorName, string senderId, ICodec<T> codecType, TopologyTypes topologyType = TopologyTypes.Flat)")]
         public ICommunicationGroupDriver AddScatter<T>(string operatorName, ScatterOperatorSpec<T> spec, TopologyTypes topologyType = TopologyTypes.Flat)
         {
             if (_finalized)
@@ -169,7 +271,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
             }
 
-            ITopology<T> topology; 
+            ITopology<T> topology;
 
             if (topologyType == TopologyTypes.Flat)
             {
@@ -184,6 +286,53 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             _operatorSpecs[operatorName] = spec;
 
             return this;
+        }
+
+        /// <summary>
+        /// Adds the Scatter MPI operator to the communication group.
+        /// </summary>
+        /// <typeparam name="T">The type of messages that operators will send</typeparam>
+        /// <param name="operatorName">The name of the scatter operator</param>
+        /// <param name="senderId">The sender id</param>
+        /// <param name="codecType">The codec used for serializing messages.</param>
+        /// <param name="topologyType">type of topology used in the operaor</param>
+        /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
+        public ICommunicationGroupDriver AddScatter<T>(string operatorName, string senderId, ICodec<T> codecType, TopologyTypes topologyType = TopologyTypes.Flat)
+        {
+            if (_finalized)
+            {
+                throw new IllegalStateException("Can't add operators once the spec has been built.");
+            }
+
+            var spec = new ScatterOperatorSpec<T>(senderId, codecType);
+
+            ITopology<T> topology;
+
+            if (topologyType == TopologyTypes.Flat)
+            {
+                topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec);
+            }
+            else
+            {
+                topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId, spec,
+                    _fanOut);
+            }
+            _topologies[operatorName] = topology;
+            _operatorSpecs[operatorName] = spec;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the Scatter MPI operator to the communication group with default Codec
+        /// </summary>
+        /// <param name="operatorName">The name of the scatter operator</param>
+        /// <param name="senderId">The sender id</param>
+        /// <param name="topologyType">type of topology used in the operaor</param>
+        /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
+        public ICommunicationGroupDriver AddScatter(string operatorName, string senderId, TopologyTypes topologyType = TopologyTypes.Flat)
+        {
+            return AddScatter(operatorName, senderId, new IntCodec(), topologyType);
         }
 
         /// <summary>

@@ -24,7 +24,9 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -64,9 +66,6 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
                 .BindNamedParameter<MpiTestConfig.NumIterations, int>(
                     GenericType<MpiTestConfig.NumIterations>.Class,
                     MpiTestConstants.NumIterations.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter<MpiTestConfig.FanOut, int>(
-                    GenericType<MpiTestConfig.FanOut>.Class,
-                    MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
                     GenericType<MpiTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))

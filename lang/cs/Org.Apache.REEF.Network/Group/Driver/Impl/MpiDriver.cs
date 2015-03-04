@@ -52,10 +52,11 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private static Logger LOGGER = Logger.GetLogger(typeof(MpiDriver));
 
         private readonly string _driverId;
-        private readonly string _nameServerAddr;
+        private readonly string _nameServerAddr;           
         private readonly int _nameServerPort;
         private int _contextIds;
         private int _fanOut;
+        private string _groupName;
 
         private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups; 
         private readonly AvroConfigurationSerializer _configSerializer;
@@ -66,7 +67,9 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// </summary>
         /// <param name="driverId">Identifer for the REEF driver</param>
         /// <param name="masterTaskId">Identifer for MPI master task</param>
+        /// <param name="fanOut">fanOut for tree topology</param>
         /// <param name="configSerializer">Used to serialize task configuration</param>
+        [System.Obsolete("user the other constructor")]
         [Inject]
         public MpiDriver(
             [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
@@ -89,9 +92,49 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
+        /// Create a new MpiDriver object.
+        /// </summary>
+        /// <param name="driverId">Identifer for the REEF driver</param>
+        /// <param name="masterTaskId">Identifer for MPI master task</param>
+        /// <param name="fanOut">fanOut for tree topology</param>
+        /// <param name="groupName">default communication group name</param>
+        /// <param name="numberOfTasks">Number of tasks in the default group</param>
+        /// <param name="configSerializer">Used to serialize task configuration</param>
+        [Inject]
+        public MpiDriver(
+            [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
+            [Parameter(typeof(MpiConfigurationOptions.MasterTaskId))] string masterTaskId,
+            [Parameter(typeof(MpiConfigurationOptions.FanOut))] int fanOut,
+            [Parameter(typeof(MpiConfigurationOptions.GroupName))] string groupName,
+            [Parameter(typeof(MpiConfigurationOptions.NumberOfTasks))] int numberOfTasks,
+            AvroConfigurationSerializer configSerializer)
+        {
+            _driverId = driverId;
+            _contextIds = -1;
+            _fanOut = fanOut;
+            MasterTaskId = masterTaskId;
+            _groupName = groupName;
+
+            _configSerializer = configSerializer;
+            _commGroups = new Dictionary<string, ICommunicationGroupDriver>();
+            _nameServer = new NameServer(0);
+
+            IPEndPoint localEndpoint = _nameServer.LocalEndpoint;
+            _nameServerAddr = localEndpoint.Address.ToString();
+            _nameServerPort = localEndpoint.Port;
+
+            NewCommunicationGroup(groupName, numberOfTasks);
+        }
+
+        /// <summary>
         /// Returns the identifier for the master task
         /// </summary>
         public string MasterTaskId { get; private set; }
+
+        public ICommunicationGroupDriver DefaultGroup
+        {
+            get { return _commGroups[_groupName]; }
+        }
 
         /// <summary>
         /// Create a new CommunicationGroup with the given name and number of tasks/operators. 
@@ -163,10 +206,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
         /// <summary>
         /// Get the configuration for a particular task.  
-        ///
         /// The task may belong to many Communication Groups, so each one is serialized
         /// in the configuration as a SerializedGroupConfig.
-        ///
         /// The user must merge their part of task configuration (task id, task class)
         /// with this returned MPI task configuration.
         /// </summary>

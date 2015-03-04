@@ -27,6 +27,7 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -56,34 +57,32 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
         [Inject]
         public BroadcastReduceDriver(
             [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
-            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations,
-            [Parameter(typeof(MpiTestConfig.FanOut))] int fanOut,
-            AvroConfigurationSerializer confSerializer)
+            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations)
         {
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
 
-            _mpiDriver = new MpiDriver(
-                MpiTestConstants.DriverId,
-                MpiTestConstants.MasterTaskId,
-                fanOut,
-                confSerializer);
+            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(MpiTestConstants.DriverId)
+                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(MpiTestConstants.MasterTaskId)
+                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
+                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(_numEvaluators.ToString())
+                .Build();
 
-            _commGroup = _mpiDriver.NewCommunicationGroup(
-                MpiTestConstants.GroupName, 
-                numEvaluators)
+            _mpiDriver = TangFactory.GetTang().NewInjector(mpiDriverConfig).GetInstance<MpiDriver>();
+
+            _commGroup = _mpiDriver.DefaultGroup
                     .AddBroadcast(
                         MpiTestConstants.BroadcastOperatorName,
-                        new BroadcastOperatorSpec<int>(
-                            MpiTestConstants.MasterTaskId,
-                            new IntCodec()))
+                       MpiTestConstants.MasterTaskId,
+                            new IntCodec())
                     .AddReduce(
                         MpiTestConstants.ReduceOperatorName,
-                        new ReduceOperatorSpec<int>(
                             MpiTestConstants.MasterTaskId,
                             new IntCodec(), 
-                            new SumFunction()))
+                            new SumFunction())
                     .Build();
 
             _mpiTaskStarter = new TaskStarter(_mpiDriver, numEvaluators);

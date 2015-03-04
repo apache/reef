@@ -30,6 +30,7 @@ using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
@@ -79,15 +80,23 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 _executionDirectory); 
 
             _totalEvaluators = _partitionsNumber + 1;
-            _mpiDriver = new MpiDriver(Identifier, Constants.MasterTaskId, _fanOut, new AvroConfigurationSerializer());
 
-            _commGroup = _mpiDriver.NewCommunicationGroup(
-               Constants.KMeansCommunicationGroupName,
-               _totalEvaluators)
-                   .AddBroadcast(Constants.CentroidsBroadcastOperatorName, new BroadcastOperatorSpec<Centroids>(Constants.MasterTaskId, new CentroidsCodec()))
-                   .AddBroadcast(Constants.ControlMessageBroadcastOperatorName, new BroadcastOperatorSpec<ControlMessage>(Constants.MasterTaskId, new ControlMessageCodec()))
-                   .AddReduce(Constants.MeansReduceOperatorName, new ReduceOperatorSpec<ProcessedResults>(Constants.MasterTaskId, new ProcessedResultsCodec(), new KMeansMasterTask.AggregateMeans()))
+            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(Identifier)
+                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(Constants.MasterTaskId)
+                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(Constants.KMeansCommunicationGroupName)
+                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(_fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(_totalEvaluators.ToString())
+                .Build();
+
+            _mpiDriver = TangFactory.GetTang().NewInjector(mpiDriverConfig).GetInstance<MpiDriver>();
+
+            _commGroup = _mpiDriver.DefaultGroup
+                   .AddBroadcast(Constants.CentroidsBroadcastOperatorName,Constants.MasterTaskId, new CentroidsCodec())
+                   .AddBroadcast(Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId, new ControlMessageCodec())
+                   .AddReduce(Constants.MeansReduceOperatorName, Constants.MasterTaskId, new ProcessedResultsCodec(), new KMeansMasterTask.AggregateMeans())
                    .Build();
+
             _mpiTaskStarter = new TaskStarter(_mpiDriver, _totalEvaluators);
 
             CreateClassHierarchy();  
