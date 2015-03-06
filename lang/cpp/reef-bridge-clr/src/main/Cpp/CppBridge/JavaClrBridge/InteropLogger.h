@@ -31,19 +31,19 @@ using namespace Org::Apache::REEF::Interop;
 
 namespace Org {
   namespace Apache {
-	  namespace REEF{
-		  namespace Interop {
-			  public ref class InteropLogger : public ILogger {
-				  jobject _jobjectInteropLogger;
-				  jclass  _jclassInteropLogger;
-				  jmethodID _jmidLog;
-				  JNIEnv* _env;
+    namespace REEF {
+      namespace Interop {
+        public ref class InteropLogger : public ILogger {
+          jobject _jobjectInteropLogger;
+          jclass  _jclassInteropLogger;
+          jmethodID _jmidLog;
+          JNIEnv* _env;
 
-			  public:
-				  InteropLogger(JNIEnv* env, jobject jobjectInteropLogger);
-				  virtual void Log(TraceLevel traceLevel, String^ message);
-			  };
-		  } // namespace Interop
-	  } // namespace REEF
+        public:
+          InteropLogger(JNIEnv* env, jobject jobjectInteropLogger);
+          virtual void Log(TraceLevel traceLevel, String^ message);
+        };
+      } // namespace Interop
+    } // namespace REEF
   } // namespace Apache
 } // namespace Org
