@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JavaClrBridge", "JavaClrBridge.vcxproj", "{2825FD53-350B-4294-8CFC-8DD2F4F4F285}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Org.Apache.REEF.Bridge.JavaClrBridge", "JavaClrBridge.vcxproj", "{2825FD53-350B-4294-8CFC-8DD2F4F4F285}"
 	ProjectSection(ProjectDependencies) = postProject
 		{443A7B61-5C91-4F67-9FCD-81BC6FABFDBD} = {443A7B61-5C91-4F67-9FCD-81BC6FABFDBD}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClrHandler", "..\..\..\CSharp\CSharp\ClrHandler\ClrHandler.csproj", "{443A7B61-5C91-4F67-9FCD-81BC6FABFDBD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Bridge.Clr", "..\..\..\CSharp\CSharp\ClrHandler\Org.Apache.REEF.Bridge.Clr.csproj", "{443A7B61-5C91-4F67-9FCD-81BC6FABFDBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

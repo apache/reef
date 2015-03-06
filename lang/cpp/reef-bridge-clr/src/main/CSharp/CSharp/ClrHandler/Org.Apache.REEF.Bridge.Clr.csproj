@@ -7,8 +7,8 @@
     <ProjectGuid>{443A7B61-5C91-4F67-9FCD-81BC6FABFDBD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClrHandler</RootNamespace>
-    <AssemblyName>ClrHandler</AssemblyName>
+    <RootNamespace>Org.Apache.REEF.Bridge.Clr</RootNamespace>
+    <AssemblyName>Org.Apache.REEF.Bridge.Clr</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
