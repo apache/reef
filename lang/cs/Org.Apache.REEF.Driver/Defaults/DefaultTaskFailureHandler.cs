@@ -17,11 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Globalization;
+using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Driver.Defaults
 {

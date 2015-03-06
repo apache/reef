@@ -17,8 +17,6 @@
  * under the License.
  */
 
-using System;
-using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Operators

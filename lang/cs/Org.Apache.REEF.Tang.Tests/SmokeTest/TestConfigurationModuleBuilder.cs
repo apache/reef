@@ -17,13 +17,11 @@
  * under the License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Tang.Tests.Format;
 
 namespace Org.Apache.REEF.Tang.Tests.SmokeTest
 {

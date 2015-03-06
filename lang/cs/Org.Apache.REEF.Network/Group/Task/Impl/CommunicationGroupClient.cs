@@ -17,22 +17,21 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using System;
-using System.Collections.Generic;
-using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -43,14 +42,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     {
         private readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupClient));
 
-        private string _taskId;
+        private readonly string _taskId;
         private string _driverId;
 
-        private Dictionary<string, IInjector> _operatorInjectors; 
-        private Dictionary<string, object> _operators;
-        private NetworkService<GroupCommunicationMessage> _networkService; 
-        private IMpiNetworkObserver _mpiNetworkHandler;
-        private ICommunicationGroupNetworkObserver _commGroupNetworkHandler;
+        private readonly Dictionary<string, IInjector> _operatorInjectors; 
+        private readonly Dictionary<string, object> _operators;
+        private readonly NetworkService<GroupCommunicationMessage> _networkService; 
+        private readonly IMpiNetworkObserver _mpiNetworkHandler;
+        private readonly ICommunicationGroupNetworkObserver _commGroupNetworkHandler;
 
         /// <summary>
         /// Creates a new CommunicationGroupClient.

@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Logging;
 using System;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Wake.RX
 {

@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Wake.Time.Event
     /// </summary>
     public abstract class Alarm : Time
     {
-        private IObserver<Alarm> _handler;
+        private readonly IObserver<Alarm> _handler;
 
         public Alarm(long timestamp, IObserver<Alarm> handler) : base(timestamp)
         {

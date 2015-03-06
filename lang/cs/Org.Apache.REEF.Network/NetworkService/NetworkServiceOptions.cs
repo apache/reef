@@ -18,8 +18,6 @@
  */
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.NetworkService
 {

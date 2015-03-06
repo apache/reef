@@ -19,14 +19,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Formats
 {

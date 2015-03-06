@@ -30,6 +30,19 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.DefaultThreadFactory;
@@ -40,17 +53,6 @@ import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.exception.TransportRuntimeException;
-
-import java.io.IOException;
-import java.net.BindException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Messaging transport implementation with Netty
@@ -207,7 +209,7 @@ public class NettyMessagingTransport implements Transport {
 
     Link<T> link = null;
 
-    for (int i = 0; i < this.numberOfTries; ++i) {
+    for (int i = 0; i <= this.numberOfTries; ++i) {
       LinkReference linkRef = this.addrToLinkRefMap.get(remoteAddr);
 
       if (linkRef != null) {
@@ -218,6 +220,11 @@ public class NettyMessagingTransport implements Transport {
         if (link != null) {
           return link;
         }
+      }
+      
+      if (i == this.numberOfTries) {
+        // Connection failure 
+        throw new ConnectException("Connection to " + remoteAddr + " refused");
       }
 
       LOG.log(Level.FINE, "No cached link for {0} thread {1}",
@@ -282,6 +289,7 @@ public class NettyMessagingTransport implements Transport {
         }
       }
     }
+    
     return link;
   }
 

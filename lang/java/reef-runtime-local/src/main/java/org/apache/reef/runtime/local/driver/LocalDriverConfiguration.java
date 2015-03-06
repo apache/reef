@@ -18,15 +18,15 @@
  */
 package org.apache.reef.runtime.local.driver;
 
+import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
 import org.apache.reef.runtime.local.client.parameters.NumberOfProcesses;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
-import org.apache.reef.runtime.local.driver.parameters.GlobalFiles;
-import org.apache.reef.runtime.local.driver.parameters.GlobalLibraries;
-import org.apache.reef.runtime.local.driver.parameters.LocalFiles;
-import org.apache.reef.runtime.local.driver.parameters.LocalLibraries;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
@@ -37,23 +37,6 @@ import org.apache.reef.tang.formats.RequiredParameter;
  * LocalDriverRuntimeConfiguration.
  */
 public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
-
-  /**
-   * Files for the driver only.
-   */
-  public static final OptionalParameter<String> LOCAL_FILES = new OptionalParameter<>();
-  /**
-   * Libraries for the driver only.
-   */
-  public static final OptionalParameter<String> LOCAL_LIBRARIES = new OptionalParameter<>();
-  /**
-   * Files for the driver and all evaluators.
-   */
-  public static final OptionalParameter<String> GLOBAL_FILES = new OptionalParameter<>();
-  /**
-   * Libraries for the driver and all evaluators.
-   */
-  public static final OptionalParameter<String> GLOBAL_LIBRARIES = new OptionalParameter<>();
   /**
    * The maximum number or processes to spawn.
    */
@@ -67,12 +50,22 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
+  /**
+   * The remote identifier to use for communications back to the client
+   */
+  public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
+
+  /**
+   * The identifier of the Job submitted.
+   */
+  public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
 
   public static final ConfigurationModule CONF = new LocalDriverConfiguration()
-      .bindSetEntry(LocalFiles.class, LOCAL_FILES)
-      .bindSetEntry(LocalLibraries.class, LOCAL_LIBRARIES)
-      .bindSetEntry(GlobalFiles.class, GLOBAL_FILES)
-      .bindSetEntry(GlobalLibraries.class, GLOBAL_LIBRARIES)
+      .bindImplementation(ResourceLaunchHandler.class, LocalResourceLaunchHandler.class)
+      .bindImplementation(ResourceRequestHandler.class, LocalResourceRequestHandler.class)
+      .bindImplementation(ResourceReleaseHandler.class, LocalResourceReleaseHandler.class)
+      .bindNamedParameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
+      .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, JOB_IDENTIFIER)
       .bindNamedParameter(NumberOfProcesses.class, NUMBER_OF_PROCESSES)
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)

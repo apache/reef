@@ -17,12 +17,6 @@
  * under the License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
@@ -32,7 +26,7 @@ namespace Org.Apache.REEF.Network.Group.Operators
     public interface IReduceSender<T> : IMpiOperator<T>
     {
         /// <summary>
-        /// Sends data to the operator's ReduceReceiver to be aggregated.
+        /// Get reduced data from children, reduce with the data given, then sends reduced data to parent
         /// </summary>
         /// <param name="data">The data to send</param>
         void Send(T data);

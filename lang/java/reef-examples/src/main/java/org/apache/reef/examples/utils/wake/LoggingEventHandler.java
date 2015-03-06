@@ -31,28 +31,27 @@ import java.util.logging.Logger;
  */
 public class LoggingEventHandler<T> implements EventHandler<T> {
 
+  private static final Logger LOG = Logger.getLogger(LoggingEventHandler.class.getName());
+
   private final EventHandler<T> downstreamEventHandler;
-  private final String prefix;
-  private final String suffix;
+  private final String format;
 
   /**
-   * @param prefix                 to be logged before the event
    * @param downstreamEventHandler the event handler to hand the event to
-   * @param suffix                 to be logged after the event
+   * @param format                 Format string to log the event, e.g. "Event {0} received".
    */
-  public LoggingEventHandler(final String prefix, EventHandler<T> downstreamEventHandler, final String suffix) {
+  public LoggingEventHandler(EventHandler<T> downstreamEventHandler, final String format) {
     this.downstreamEventHandler = downstreamEventHandler;
-    this.prefix = prefix;
-    this.suffix = suffix;
+    this.format = format;
   }
 
   public LoggingEventHandler(final EventHandler<T> downstreamEventHandler) {
-    this("", downstreamEventHandler, "");
+    this(downstreamEventHandler, "{0}");
   }
 
   @Override
   public void onNext(final T value) {
-    Logger.getLogger(LoggingEventHandler.class.getName()).log(Level.INFO, prefix + value.toString() + suffix);
+    LOG.log(Level.INFO, this.format, value);
     this.downstreamEventHandler.onNext(value);
   }
 }

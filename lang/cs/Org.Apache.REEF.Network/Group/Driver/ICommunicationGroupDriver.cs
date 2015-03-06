@@ -17,10 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Tang.Interface;
 using System.Collections.Generic;
+using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Topology;
+using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Driver
 {
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <param name="operatorName">The name of the broadcast operator</param>
         /// <param name="spec">The specification that defines the Broadcast operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
-        ICommunicationGroupDriver AddBroadcast<T>(string operatorName, BroadcastOperatorSpec<T> spec);
+        ICommunicationGroupDriver AddBroadcast<T>(string operatorName, BroadcastOperatorSpec<T> spec, TopologyTypes topologyType = TopologyTypes.Flat);
 
         /// <summary>
         /// Adds the Reduce MPI operator to the communication group.
@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="spec">The specification that defines the Reduce operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
-        ICommunicationGroupDriver AddReduce<T>(string operatorName, ReduceOperatorSpec<T> spec);
+        ICommunicationGroupDriver AddReduce<T>(string operatorName, ReduceOperatorSpec<T> spec, TopologyTypes topologyType = TopologyTypes.Flat);
 
         /// <summary>
         /// Adds the Scatter MPI operator to the communication group.
@@ -60,8 +60,9 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <typeparam name="T">The type of messages that operators will send</typeparam>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="spec">The specification that defines the Scatter operator</param>
+        /// <param name="topologyType">type of topology used in the operaor</param>
         /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
-        ICommunicationGroupDriver AddScatter<T>(string operatorName, ScatterOperatorSpec<T> spec);
+        ICommunicationGroupDriver AddScatter<T>(string operatorName, ScatterOperatorSpec<T> spec, TopologyTypes topologyType = TopologyTypes.Flat);
 
         /// <summary>
         /// Finalizes the CommunicationGroupDriver.

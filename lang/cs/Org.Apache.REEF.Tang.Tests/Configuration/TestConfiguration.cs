@@ -16,25 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- using System;
+
+using System;
 using System.Collections.Generic;
-using System.Reflection;
- using Org.Apache.REEF.Tang.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Examples;
-﻿using Org.Apache.REEF.Tang.Exceptions;
-﻿using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations;
-﻿using Org.Apache.REEF.Tang.Implementations.Configuration;
-﻿using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Protobuf;
-using Org.Apache.REEF.Tang.Util;
-﻿using Org.Apache.REEF.Tang.Tests.ScenarioTest;
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
- using Org.Apache.REEF.Common.Tasks;
- using Org.Apache.REEF.Examples.Tasks.HelloTask;
- using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
- using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
+using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Protobuf;
+using Org.Apache.REEF.Tang.Tests.ScenarioTest;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
 {
@@ -549,7 +548,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
 
     class NamedParamterNoDefault
     {
-        private string str;
+        private readonly string str;
 
         [NamedParameter]
         public class NamedString : Name<string>

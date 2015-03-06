@@ -17,9 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Wake.Impl
 {

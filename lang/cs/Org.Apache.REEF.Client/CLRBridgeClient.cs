@@ -17,34 +17,34 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client
 {
     public class CLRBridgeClient
     {
         public const string ReefHome = "REEF_HOME";
-        public const string DefaultClrFolder = @"lang\java\reef-bridge-project\reef-bridge\dotnetHello";
-        public const string DefaultReefJar = @"lang\java\reef-bridge-project\reef-bridge\target\" + Constants.BridgeJarFileName;
+        public const string DefaultClrFolder = @"lang\reef-bridge\dotnetHello";
+        public const string DefaultReefJar = @"lang\reef-bridge\target\" + Constants.BridgeJarFileName;
         public const string DefaultRunCommand = "run.cmd";
 
         private static string _clrFolder = null;
         private static string _reefJar = null;
         private static string _className = Constants.BridgeLaunchClass;
         private static string _runCommand = DefaultRunCommand;
-        private static string _submitControlForAllocatedEvaluator = "submitContextAndTask"; // submitContext, submitContextAndTask, submitContextAndServiceAndTask
+        private static readonly string _submitControlForAllocatedEvaluator = "submitContextAndTask"; // submitContext, submitContextAndTask, submitContextAndServiceAndTask
 
         public static HashSet<string> AppDll
         {

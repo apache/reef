@@ -27,8 +27,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     public class RunningTask : IRunningTask
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(RunningTask));
-        private IRunningTaskClr2Java _runningTaskClr2Java;
-        private IActiveContextClr2Java _activeContextClr2Java;
+        private readonly IRunningTaskClr2Java _runningTaskClr2Java;
+        private readonly IActiveContextClr2Java _activeContextClr2Java;
 
         public RunningTask(IRunningTaskClr2Java runningTaskClr2Java)
         {

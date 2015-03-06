@@ -69,15 +69,9 @@ public final class EvaluatorControlHandler {
       throw new IllegalStateException("Trying to send an EvaluatorControlProto before the Evaluator ID is set.");
     }
     if (!this.stateManager.isRunning()) {
-      final String msg = new StringBuilder()
-          .append("Trying to send an EvaluatorControlProto to Evaluator [")
-          .append(this.evaluatorId)
-          .append("] that is in state [")
-          .append(this.stateManager.toString())
-          .append("], not [RUNNING]. The control message was: ")
-          .append(evaluatorControlProto.toString())
-          .toString();
-      throw new IllegalStateException(msg);
+      LOG.log(Level.WARNING, "Trying to send an EvaluatorControlProto to Evaluator [{0}] that is in state [{1}], not [RUNNING]. The control message was: {2}",
+          new Object[]{this.evaluatorId, this.stateManager, evaluatorControlProto});
+      return;
     }
     this.wrapped.get().onNext(evaluatorControlProto);
   }

@@ -19,13 +19,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Wake.Util
 {
@@ -33,9 +30,9 @@ namespace Org.Apache.REEF.Wake.Util
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(FixedThreadPoolTaskService));
 
-        TaskFactory factory;
+        readonly TaskFactory factory;
 
-        List<Task> tasks = new List<Task>();        
+        readonly List<Task> tasks = new List<Task>();        
         bool shuttingDown;
 
         internal FixedThreadPoolTaskService(int maxDegreeOfParallelism)

@@ -17,8 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Driver.Bridge;
-
 namespace Org.Apache.REEF.Driver.Bridge
 {
     public interface IHttpHandler

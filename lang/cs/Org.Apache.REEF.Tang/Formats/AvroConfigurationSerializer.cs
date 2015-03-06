@@ -26,16 +26,15 @@ using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Hadoop.Avro;
 using Microsoft.Hadoop.Avro.Container;
-using Org.Apache.REEF.Utilities.Logging;
+using Newtonsoft.Json;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Tang.Implementations;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Types;
-using Newtonsoft.Json;
 using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Formats
 {

@@ -16,11 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
-using System;
-using System.Collections.Generic;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {

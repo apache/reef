@@ -18,6 +18,8 @@
  */
 package org.apache.reef.wake.remote.transport;
 
+import java.net.SocketAddress;
+
 /**
  * Link listener
  *
@@ -26,9 +28,18 @@ package org.apache.reef.wake.remote.transport;
 public interface LinkListener<T> {
 
   /**
-   * Handles the received message
+   * Called when the sent message is successfully transferred
    *
-   * @param message the message
+   * @param message the sent message
    */
-  public void messageReceived(T message);
+  public void onSuccess(T message);
+
+  /**
+   * Called when the sent message to remoteAddress is failed to be transferred.
+   *
+   * @param cause the cause of exception
+   * @param remoteAddress the exception occurred remote address
+   * @param message the send message
+   */
+  public void onException(Throwable cause, SocketAddress remoteAddress, T message);
 }

@@ -17,13 +17,7 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Util;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
@@ -38,32 +32,57 @@ namespace Org.Apache.REEF.Network.Group.Topology
         private string _driverId;
 
         private TaskNode _parent;
-        private List<TaskNode> _children;
+        private TaskNode _successor;
+        private bool _isRoot;
+
+        private readonly List<TaskNode> _children;
 
         public TaskNode(
             string groupName, 
             string operatorName, 
             string taskId, 
-            string driverId)
+            string driverId,
+            bool isRoot)
         {
             _groupName = groupName;
             _operatorName = operatorName;
             _taskId = taskId;
             _driverId = driverId;
+            _isRoot = isRoot;
 
             _children = new List<TaskNode>();
         }
 
-        public string TaskId { get; private set; }
+        public string TaskId
+        {
+            get { return _taskId; } 
+            private set { _taskId = value;  }
+        }
+
+        public TaskNode Successor
+        {
+            get { return _successor; }
+            set { _successor = value; }
+        }
+
+        public TaskNode Parent
+        {
+            get { return _parent; }
+            set { _parent = value; }
+        }
 
         public void AddChild(TaskNode child)
         {
             _children.Add(child);
         }
 
-        public void SetParent(TaskNode parent)
-        {
-            _parent = parent;
+        public int GetNumberOfChildren() {
+            return _children.Count;
         }
+
+        public IList<TaskNode> GetChildren()
+        {
+            return _children;
+        } 
     }
 }

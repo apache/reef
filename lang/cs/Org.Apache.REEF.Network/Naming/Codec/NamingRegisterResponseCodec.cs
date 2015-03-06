@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Network.Naming.Codec
 {
     internal class NamingRegisterResponseCodec : ICodec<NamingRegisterResponse>
     {
-        private NamingRegisterRequestCodec _codec;
+        private readonly NamingRegisterRequestCodec _codec;
 
         public NamingRegisterResponseCodec(NamingRegisterRequestCodec codec)
         {

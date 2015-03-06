@@ -20,17 +20,21 @@ package org.apache.reef.wake.remote.transport.netty;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import org.apache.reef.wake.remote.Encoder;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Link implementation with Netty
+ *
+ * If you set a LinkListener<T>, it keeps message until writeAndFlush operation completes
+ * and notifies whether the sent message transferred successfully through the listener.
  */
 public class NettyLink<T> implements Link<T> {
 
@@ -71,22 +75,15 @@ public class NettyLink<T> implements Link<T> {
    * @param message the message
    */
   @Override
-  public void write(final T message) throws IOException {
+  public void write(final T message) {
     LOG.log(Level.FINEST, "write {0} {1}", new Object[]{channel, message});
     byte[] allData = encoder.encode(message);
     // byte[] -> ByteBuf
-    channel.writeAndFlush(Unpooled.wrappedBuffer(allData));
-  }
-
-  /**
-   * Handles the message received
-   *
-   * @param message the message
-   */
-  @Override
-  public void messageReceived(final T message) {
-    if (listener != null) {
-      listener.messageReceived(message);
+    if (listener !=  null) {
+      channel.writeAndFlush(Unpooled.wrappedBuffer(allData))
+          .addListener(new NettyChannelFutureListener<>(message, listener));
+    } else {
+      channel.writeAndFlush(Unpooled.wrappedBuffer(allData));
     }
   }
 
@@ -113,5 +110,25 @@ public class NettyLink<T> implements Link<T> {
   @Override
   public String toString() {
     return "localAddr: " + getLocalAddress() + " remoteAddr: " + getRemoteAddress();
+  }
+}
+
+class NettyChannelFutureListener<T> implements ChannelFutureListener {
+
+  private final T message;
+  private LinkListener<T> listener;
+
+  NettyChannelFutureListener(final T message, final LinkListener<T> listener) {
+    this.message = message;
+    this.listener = listener;
+  }
+
+  @Override
+  public void operationComplete(ChannelFuture channelFuture) throws Exception {
+    if (channelFuture.isSuccess()) {
+      listener.onSuccess(message);
+    } else {
+      listener.onException(channelFuture.cause(), channelFuture.channel().remoteAddress(), message);
+    }
   }
 }

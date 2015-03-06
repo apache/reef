@@ -17,18 +17,11 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities.Diagnostics;
+using System;
+using System.Collections.Generic;
+using System.Net;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Reactive;
-using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
@@ -39,10 +32,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultRemoteManager<T>));
 
-        private ObserverContainer<T> _observerContainer;
-        private TransportServer<IRemoteEvent<T>> _server; 
-        private Dictionary<IPEndPoint, ProxyObserver> _cachedClients;
-        private ICodec<IRemoteEvent<T>> _codec;
+        private readonly ObserverContainer<T> _observerContainer;
+        private readonly TransportServer<IRemoteEvent<T>> _server; 
+        private readonly Dictionary<IPEndPoint, ProxyObserver> _cachedClients;
+        private readonly ICodec<IRemoteEvent<T>> _codec;
 
         /// <summary>
         /// Constructs a DefaultRemoteManager listening on the specified address and any
@@ -286,7 +279,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         private class ProxyObserver : IObserver<T>, IDisposable
         {
-            private TransportClient<IRemoteEvent<T>> _client;
+            private readonly TransportClient<IRemoteEvent<T>> _client;
             private int _messageCount;
 
             /// <summary>

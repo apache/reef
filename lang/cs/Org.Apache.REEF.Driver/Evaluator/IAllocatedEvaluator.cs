@@ -17,11 +17,10 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Utilities;
-using System;
-using System.Net;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {

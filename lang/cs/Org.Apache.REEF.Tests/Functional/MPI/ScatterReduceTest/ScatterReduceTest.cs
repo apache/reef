@@ -64,6 +64,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
                 .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
                     GenericType<MpiTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<MpiTestConfig.FanOut, int>(
+                    GenericType<MpiTestConfig.FanOut>.Class,
+                    MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture))
                 .Build();
                     
             HashSet<string> appDlls = new HashSet<string>();

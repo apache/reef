@@ -26,11 +26,11 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     public class FailedContext : IFailedContext
     {
-        private string _id;
+        private readonly string _id;
 
-        private string _evaluatorId;
+        private readonly string _evaluatorId;
 
-        private string _parentId;
+        private readonly string _parentId;
 
         public FailedContext(IFailedContextClr2Java clr2Java)
         {

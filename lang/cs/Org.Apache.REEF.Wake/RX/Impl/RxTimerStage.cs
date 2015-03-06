@@ -19,7 +19,6 @@
 
 using System;
 using System.Timers;
-
 using Org.Apache.REEF.Wake.Impl;
 
 namespace Org.Apache.REEF.Wake.RX.Impl

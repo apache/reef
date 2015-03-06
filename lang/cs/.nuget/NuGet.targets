@@ -19,7 +19,7 @@ under the License.
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\</SolutionDir>
+        <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..</SolutionDir>
 
         <!-- Enable the restore command to run before builds -->
         <RestorePackages Condition="  '$(RestorePackages)' == '' ">false</RestorePackages>
@@ -50,7 +50,7 @@ under the License.
 
     <PropertyGroup Condition=" '$(OS)' != 'Windows_NT'">
         <!-- We need to launch nuget.exe with the mono command if we're not on windows -->
-        <NuGetToolsPath>$(SolutionDir).nuget</NuGetToolsPath>
+        <NuGetToolsPath>$(SolutionDir)\.nuget</NuGetToolsPath>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -71,7 +71,7 @@ under the License.
         <NuGetCommand Condition=" '$(OS)' == 'Windows_NT'">"$(NuGetExePath)"</NuGetCommand>
         <NuGetCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 "$(NuGetExePath)"</NuGetCommand>
 
-        <PackageOutputDir Condition="$(PackageOutputDir) == ''">$(TargetDir.Trim('\\'))</PackageOutputDir>
+        <PackageOutputDir Condition="$(PackageOutputDir) == ''">$(SolutionDir)\.nuget\packages</PackageOutputDir>
 
         <RequireConsentSwitch Condition=" $(RequireRestoreConsent) == 'true' ">-RequireConsent</RequireConsentSwitch>
         <NonInteractiveSwitch Condition=" '$(VisualStudioVersion)' != '' AND '$(OS)' == 'Windows_NT' ">-NonInteractive</NonInteractiveSwitch>
@@ -79,9 +79,15 @@ under the License.
         <PaddedSolutionDir Condition=" '$(OS)' == 'Windows_NT'">"$(SolutionDir) "</PaddedSolutionDir>
         <PaddedSolutionDir Condition=" '$(OS)' != 'Windows_NT' ">"$(SolutionDir)"</PaddedSolutionDir>
 
+        <!-- Nuspec file -->
+        <FinalizedNuspecFile>$(SolutionDir)\.nuget\nuspec\$(AssemblyName).nuspec</FinalizedNuspecFile>
+
+        <!-- Project path -->
+        <NugetProjectPath>$(SolutionDir)\$(RootNamespace)</NugetProjectPath>
+
         <!-- Commands -->
         <RestoreCommand>$(NuGetCommand) install "$(PackagesConfig)" -source "$(PackageSources)"  $(NonInteractiveSwitch) $(RequireConsentSwitch) -solutionDir $(PaddedSolutionDir)</RestoreCommand>
-        <BuildCommand>$(NuGetCommand) pack "$(ProjectPath)" -Properties "Configuration=$(Configuration);Platform=$(Platform)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" -symbols</BuildCommand>
+        <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
 
         <!-- We need to ensure packages are restored prior to assembly resolve -->
         <BuildDependsOn Condition="$(RestorePackages) == 'true'">
@@ -94,6 +100,21 @@ under the License.
             $(BuildDependsOn);
             BuildPackage;
         </BuildDependsOn>
+
+        <BuildDependsOn Condition="$(PushPackages) == 'true'">
+            $(BuildDependsOn);
+            PushPackages;
+        </BuildDependsOn>
+    </PropertyGroup>
+
+    <!-- Make sure clean will clean up .nuget/packages and .nuget/nuspec directories -->
+    <PropertyGroup>
+        <CleanDependsOn>$(CleanDependsOn);CleanNugetPackages</CleanDependsOn>
+    </PropertyGroup>
+
+    <!-- Make sure clean will clean up .nuget/packages and .nuget/nuspec directories -->
+    <PropertyGroup>
+        <CleanDependsOn>$(CleanDependsOn);CleanNugetPackages</CleanDependsOn>
     </PropertyGroup>
 
     <Target Name="CheckPrerequisites">
@@ -105,6 +126,7 @@ under the License.
         parallel builds will have to wait for it to complete.
         -->
         <MsBuild Targets="_DownloadNuGet" Projects="$(MSBuildThisFileFullPath)" Properties="Configuration=NOT_IMPORTANT;DownloadNuGetExe=$(DownloadNuGetExe)" />
+        <MakeDir Directories="$(PackageOutputDir)" />
     </Target>
 
     <Target Name="_DownloadNuGet">
@@ -120,13 +142,51 @@ under the License.
               Condition="'$(OS)' == 'Windows_NT' And Exists('$(PackagesConfig)')" />
     </Target>
 
-    <Target Name="BuildPackage" DependsOnTargets="CheckPrerequisites">
+    <Target Name="BuildPackage" DependsOnTargets="CheckPrerequisites; FinalizeNuspecFiles">
         <Exec Command="$(BuildCommand)"
               Condition=" '$(OS)' != 'Windows_NT' " />
 
         <Exec Command="$(BuildCommand)"
               LogStandardErrorAsError="true"
               Condition=" '$(OS)' == 'Windows_NT' " />
+    </Target>
+
+    <Target Name="FinalizeNuspecFiles">
+        <PropertyGroup>
+            <FinalizeNuspecScript>$(SolutionDir)\.nuget\finalizeNuspec.ps1</FinalizeNuspecScript>
+            <ScriptCommand Condition="'$(IsSnapshot)' == 'true'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir) -Snapshot -SnapshotNumber $(SnapshotNumber)</ScriptCommand>
+            <ScriptCommand Condition="'$(IsSnapshot)' == 'false'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir)</ScriptCommand>
+        </PropertyGroup>
+
+        <Exec Command="powershell -NonInteractive -NoProfile -Command $(ScriptCommand)"
+            LogStandardErrorAsError="true">
+        </Exec>
+    </Target>
+
+    <Target Name="CleanNugetPackages">
+        <PropertyGroup>
+            <NuspecFilesDir>$(SolutionDir)\.nuget\nuspec</NuspecFilesDir>
+            <PackagesDir>$(SolutionDir)\.nuget\packages</PackagesDir>
+        </PropertyGroup>
+
+        <RemoveDir Directories="$(NuspecFilesDir);$(PackagesDir)" />
+    </Target>
+
+    <Target Name="PushPackages" >
+        <ItemGroup>
+            <PackageFile Include="$(SolutionDir).nuget\packages\$(RootNamespace)*.nupkg" />
+        </ItemGroup>
+
+        <PropertyGroup>
+            <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
+            <PushCommand Condition="'$(NuGetApiKey)' != '' AND '$(NuGetApiKey)' != '*Undefined*'">$(NuGetCommand) push @(PackageFile) $(NuGetApiKey) -Source $(NuGetRepository)</PushCommand>
+        </PropertyGroup>
+
+        <Exec 
+            Condition="'$(BuildPackage)' == 'true'"
+            Command="$(PushCommand)"
+            LogStandardErrorAsError="true">
+        </Exec>
     </Target>
 
     <UsingTask TaskName="DownloadNuGet" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">

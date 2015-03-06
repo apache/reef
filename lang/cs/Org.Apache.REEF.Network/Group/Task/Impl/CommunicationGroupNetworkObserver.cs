@@ -17,11 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Driver;
-using Org.Apache.REEF.Network.Group.Driver.Impl;
-using Org.Apache.REEF.Tang.Annotations;
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Network.Group.Driver.Impl;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -30,7 +29,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     public class CommunicationGroupNetworkObserver : ICommunicationGroupNetworkObserver
     {
-        private Dictionary<string, IObserver<GroupCommunicationMessage>> _handlers;
+        private readonly Dictionary<string, IObserver<GroupCommunicationMessage>> _handlers;
             
         /// <summary>
         /// Creates a new CommunicationGroupNetworkObserver.

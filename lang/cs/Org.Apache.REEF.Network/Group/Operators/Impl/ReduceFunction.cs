@@ -25,8 +25,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     public class ReduceFunction<T> : IReduceFunction<T>
     {
-        private Func<T, T, T> _reduceFunction;
-        private T _initialValue;
+        private readonly Func<T, T, T> _reduceFunction;
+        private readonly T _initialValue;
  
         private ReduceFunction(Func<T, T, T> reduceFunction)
         {

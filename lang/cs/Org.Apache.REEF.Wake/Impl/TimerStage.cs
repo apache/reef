@@ -19,8 +19,6 @@
 
 using System.Timers;
 
-using Org.Apache.REEF.Wake;
-
 namespace Org.Apache.REEF.Wake.Impl
 {
     /// <summary>Stage that triggers an event handler periodically</summary>

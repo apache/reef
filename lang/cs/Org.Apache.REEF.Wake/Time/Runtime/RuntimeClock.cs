@@ -35,15 +35,15 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(RuntimeClock));
 
-        private ITimer _timer;
-        private PubSubSubject<Time> _handlers;
-        private ISet<Time> _schedule;
+        private readonly ITimer _timer;
+        private readonly PubSubSubject<Time> _handlers;
+        private readonly ISet<Time> _schedule;
 
-        private IInjectionFuture<ISet<IObserver<StartTime>>> _startHandler;
-        private IInjectionFuture<ISet<IObserver<StopTime>>> _stopHandler;
+        private readonly IInjectionFuture<ISet<IObserver<StartTime>>> _startHandler;
+        private readonly IInjectionFuture<ISet<IObserver<StopTime>>> _stopHandler;
         private IInjectionFuture<ISet<IObserver<RuntimeStart>>> _runtimeStartHandler;
         private IInjectionFuture<ISet<IObserver<RuntimeStop>>> _runtimeStopHandler;
-        private IInjectionFuture<ISet<IObserver<IdleClock>>> _idleHandler;
+        private readonly IInjectionFuture<ISet<IObserver<IdleClock>>> _idleHandler;
 
         private bool _disposed;
             

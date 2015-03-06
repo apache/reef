@@ -57,6 +57,10 @@ under the License.
   <publishDate position="none"/>
   
     <body>   
+        <head>
+            <script src="js/test2.js" type="text/javascript"></script>
+        </head>
+        
 	    <breadcrumbs>
 	      <item name="Apache REEF" href="index.html"/>
 	    </breadcrumbs>

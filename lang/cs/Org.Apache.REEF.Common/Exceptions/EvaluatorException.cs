@@ -17,9 +17,9 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Utilities;
 using System;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Exceptions
 {

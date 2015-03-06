@@ -17,17 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Group.Driver;
-using Org.Apache.REEF.Network.Group.Driver.Impl;
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Network.Utilities;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Wake.Remote;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -35,6 +24,16 @@ using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Group.Driver.Impl;
+using Org.Apache.REEF.Network.Group.Operators;
+using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Network.Utilities;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -46,23 +45,22 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <typeparam name="T">The message type</typeparam>
     public class OperatorTopology<T> : IObserver<GroupCommunicationMessage>
     {
-        private const int DefaultTimeout = 10000;
-        private const int RetryCount = 5;
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
 
-        private static Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
-
-        private string _groupName;
-        private string _operatorName;
-        private string _selfId;
+        private readonly string _groupName;
+        private readonly string _operatorName;
+        private readonly string _selfId;
         private string _driverId;
+        private readonly int _timeout;
+        private readonly int _retryCount;
 
-        private NodeStruct _parent;
-        private List<NodeStruct> _children;
-        private Dictionary<string, NodeStruct> _idToNodeMap;
-        private ICodec<T> _codec;
-        private INameClient _nameClient;
-        private Sender _sender;
-        private BlockingCollection<NodeStruct> _nodesWithData;
+        private readonly NodeStruct _parent;
+        private readonly List<NodeStruct> _children;
+        private readonly Dictionary<string, NodeStruct> _idToNodeMap;
+        private readonly ICodec<T> _codec;
+        private readonly INameClient _nameClient;
+        private readonly Sender _sender;
+        private readonly BlockingCollection<NodeStruct> _nodesWithData;
             
         /// <summary>
         /// Creates a new OperatorTopology object.
@@ -82,6 +80,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
+            [Parameter(typeof(MpiConfigurationOptions.Timeout))] int timrout,
+            [Parameter(typeof(MpiConfigurationOptions.RetryCount))] int retryCount,
             [Parameter(typeof(MpiConfigurationOptions.TopologyRootTaskId))] string rootId,
             [Parameter(typeof(MpiConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
             NetworkService<GroupCommunicationMessage> networkService,
@@ -92,6 +92,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _groupName = groupName;
             _selfId = taskId;
             _driverId = driverId;
+            _timeout = timrout;
+            _retryCount = retryCount;
             _codec = codec;
             _nameClient = networkService.NamingClient;
             _sender = sender;
@@ -102,17 +104,17 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             if (_selfId.Equals(rootId))
             {
                 _parent = null;
-                foreach (string childId in childIds)
-                {
-                    NodeStruct node = new NodeStruct(childId);
-                    _children.Add(node);
-                    _idToNodeMap[childId] = node;
-                }
             }
             else
             {
                 _parent = new NodeStruct(rootId);
                 _idToNodeMap[rootId] = _parent;
+            }
+            foreach (string childId in childIds)
+            {
+                NodeStruct node = new NodeStruct(childId);
+                _children.Add(node);
+                _idToNodeMap[childId] = node;
             }
         }
 
@@ -127,14 +129,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             {
                 if (_parent != null)
                 {
-                    WaitForTaskRegistration(_parent.Identifier, RetryCount);
+                    WaitForTaskRegistration(_parent.Identifier, _retryCount);
                 }
 
                 if (_children.Count > 0)
                 {
                     foreach (NodeStruct child in _children)
                     {
-                        WaitForTaskRegistration(child.Identifier, RetryCount);
+                        WaitForTaskRegistration(child.Identifier, _retryCount);
                     }
                 }
             }
@@ -213,7 +215,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
             if (_children.Count <= 0)
             {
-                throw new ArgumentException("Cannot scatter, no children available");
+                return;
             }
 
             int count = (int) Math.Ceiling(((double) messages.Count) / _children.Count);
@@ -345,13 +347,18 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
         }
 
+        public bool HasChildren()
+        {
+            return _children.Count > 0;
+        }
+
         /// <summary>
         /// Get a node containing an incoming message.
         /// </summary>
         /// <returns>A NodeStruct with incoming data.</returns>
         private NodeStruct GetNodeWithData()
         {
-            CancellationTokenSource timeoutSource = new CancellationTokenSource(DefaultTimeout);
+            CancellationTokenSource timeoutSource = new CancellationTokenSource(_timeout);
 
             try
             {

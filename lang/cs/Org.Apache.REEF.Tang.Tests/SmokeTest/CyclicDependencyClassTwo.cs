@@ -18,7 +18,6 @@
  */
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 
 namespace Org.Apache.REEF.Tang.Tests.SmokeTest

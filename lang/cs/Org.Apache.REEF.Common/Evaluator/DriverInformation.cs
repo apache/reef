@@ -17,8 +17,6 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Avro;
-using Org.Apache.REEF.Utilities.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -26,6 +24,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Org.Apache.REEF.Common.Avro;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
@@ -33,13 +33,13 @@ namespace Org.Apache.REEF.Common.Evaluator
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DriverInformation));
         
-        private string _rid;
+        private readonly string _rid;
 
-        private string _startTime;
+        private readonly string _startTime;
 
-        private string _nameServerId;
+        private readonly string _nameServerId;
 
-        private IList<AvroReefServiceInfo> _services;
+        private readonly IList<AvroReefServiceInfo> _services;
 
         public DriverInformation(string rid, string startTime, IList<AvroReefServiceInfo> services)
         {

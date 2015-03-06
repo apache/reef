@@ -152,7 +152,7 @@ namespace Org.Apache.REEF.Tests.Network
 
         private class MessageHandler : IObserver<NsMessage<string>>
         {
-            private BlockingCollection<string> _queue;
+            private readonly BlockingCollection<string> _queue;
 
             public MessageHandler(BlockingCollection<string> queue)
             {

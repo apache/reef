@@ -26,13 +26,13 @@ namespace Org.Apache.REEF.Common.Runtime
 {
     public class MachineStatus
     {
-        private static PerformanceCounter _cpuCounter;
+        private static readonly PerformanceCounter _cpuCounter;
 
-        private static PerformanceCounter _ramCounter;
+        private static readonly PerformanceCounter _ramCounter;
 
-        private static PerformanceCounter _processCpuCounter;
+        private static readonly PerformanceCounter _processCpuCounter;
 
-        private static Process _process;
+        private static readonly Process _process;
 
         private static bool _checkStatus;
 

@@ -18,7 +18,6 @@
  */
 
 using System;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Evaluator;
 
 namespace Org.Apache.REEF.Examples.RetainedEvalCLRBridge.Handlers

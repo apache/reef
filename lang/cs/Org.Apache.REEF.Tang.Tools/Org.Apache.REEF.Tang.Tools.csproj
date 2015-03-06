@@ -37,11 +37,6 @@ under the License.
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassHierarchyBuilder.cs" />
@@ -52,25 +47,13 @@ under the License.
       <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
       <Name>Org.Apache.REEF.Tang</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
-      <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
-      <Name>Org.Apache.REEF.Utilities</Name>
-    </ProjectReference>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
       <Project>{545a0582-4105-44ce-b99c-b1379514a630}</Project>
       <Name>Org.Apache.REEF.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
-      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
-      <Name>Org.Apache.REEF.Driver</Name>
-    </ProjectReference>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples\Org.Apache.REEF.Examples.csproj">
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
       <Name>Org.Apache.REEF.Examples</Name>
-    </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
-      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
-      <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

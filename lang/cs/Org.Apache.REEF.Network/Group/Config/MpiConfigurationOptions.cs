@@ -17,11 +17,7 @@
  * under the License.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Group.Config
@@ -43,8 +39,23 @@ namespace Org.Apache.REEF.Network.Group.Config
         {
         }
 
+        [NamedParameter("Timeout for receiving data", defaultValue: "50000")]
+        public class Timeout : Name<int>
+        {
+        }
+
+        [NamedParameter("Retry times", defaultValue: "5")]
+        public class RetryCount : Name<int>
+        {
+        }
+
         [NamedParameter("Master task identifier")]
         public class MasterTaskId : Name<string>
+        {
+        }
+
+        [NamedParameter("with of the tree in topology", defaultValue:"2")]
+        public class FanOut : Name<int>
         {
         }
 

@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Network.Naming.Observers
     /// </summary>
     internal class NamingGetAllRequestObserver : AbstractObserver<NamingGetAllRequest>
     {
-        private NameServer _server;
+        private readonly NameServer _server;
 
         public NamingGetAllRequestObserver(NameServer server)
         {

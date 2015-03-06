@@ -17,11 +17,11 @@
  * under the License.
  */
 
+using System;
+using System.Globalization;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
-using System;
-using System.Globalization;
 
 namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 {

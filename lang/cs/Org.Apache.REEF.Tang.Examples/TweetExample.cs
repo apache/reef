@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿using System;
+
+using System;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Tang.Examples
@@ -62,9 +63,9 @@ namespace Org.Apache.REEF.Tang.Examples
 
     public class Tweeter
     {
-        ITweetFactory tw;
-        ISMS sms;
-        long phoneNumber;
+        readonly ITweetFactory tw;
+        readonly ISMS sms;
+        readonly long phoneNumber;
 
         [NamedParameter(Documentation="Phone number", ShortName="number", DefaultValue="1800")]
         public class PhoneNumber : Name<long> { }

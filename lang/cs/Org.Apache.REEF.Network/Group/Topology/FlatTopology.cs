@@ -17,20 +17,15 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
@@ -41,13 +36,13 @@ namespace Org.Apache.REEF.Network.Group.Topology
     /// <typeparam name="T">The message type</typeparam>
     public class FlatTopology<T> : ITopology<T>
     {
-        private string _groupName;
-        private string _operatorName;
+        private readonly string _groupName;
+        private readonly string _operatorName;
 
-        private string _rootId;
-        private string _driverId;
+        private readonly string _rootId;
+        private readonly string _driverId;
 
-        private Dictionary<string, TaskNode> _nodes;
+        private readonly Dictionary<string, TaskNode> _nodes;
         private TaskNode _root;
 
         /// <summary>
@@ -93,16 +88,19 @@ namespace Org.Apache.REEF.Network.Group.Topology
                     GenericType<MpiConfigurationOptions.TopologyRootTaskId>.Class,
                     _rootId);
 
-            foreach (string tId in _nodes.Keys)
+            if (taskId.Equals(_rootId))
             {
-                if (!tId.Equals(_rootId))
+                foreach (string tId in _nodes.Keys)
                 {
-                    confBuilder.BindSetEntry<MpiConfigurationOptions.TopologyChildTaskIds, string>(
-                        GenericType<MpiConfigurationOptions.TopologyChildTaskIds>.Class,
-                        tId);
+                    if (!tId.Equals(_rootId))
+                    {
+                        confBuilder.BindSetEntry<MpiConfigurationOptions.TopologyChildTaskIds, string>(
+                            GenericType<MpiConfigurationOptions.TopologyChildTaskIds>.Class,
+                            tId);
+                    }
                 }
             }
-            
+
             if (OperatorSpec is BroadcastOperatorSpec<T>)
             {
                 BroadcastOperatorSpec<T> broadcastSpec = OperatorSpec as BroadcastOperatorSpec<T>;
@@ -176,25 +174,25 @@ namespace Org.Apache.REEF.Network.Group.Topology
 
         private void SetRootNode(string rootId)
         {
-            TaskNode rootNode = new TaskNode(_groupName, _operatorName, rootId, _driverId);
+            TaskNode rootNode = new TaskNode(_groupName, _operatorName, rootId, _driverId, true);
             _root = rootNode;
 
             foreach (TaskNode childNode in _nodes.Values)
             {
                 rootNode.AddChild(childNode);
-                childNode.SetParent(rootNode);
+                childNode.Parent = rootNode;
             }
         }
 
         private void AddChild(string childId)
         {
-            TaskNode childNode = new TaskNode(_groupName, _operatorName, childId, _driverId);
+            TaskNode childNode = new TaskNode(_groupName, _operatorName, childId, _driverId, false);
             _nodes[childId] = childNode;
 
             if (_root != null)
             {
                 _root.AddChild(childNode);
-                childNode.SetParent(_root);
+                childNode.Parent = _root;
             }
         }
     }

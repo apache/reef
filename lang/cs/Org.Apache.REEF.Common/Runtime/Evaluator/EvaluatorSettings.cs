@@ -31,21 +31,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
     // TODO: merge with EvaluatorConfigurations class
     public class EvaluatorSettings
     {
-        private string _applicationId;
+        private readonly string _applicationId;
 
-        private string _evaluatorId;
+        private readonly string _evaluatorId;
 
-        private int _heartBeatPeriodInMs;
+        private readonly int _heartBeatPeriodInMs;
 
-        private int _maxHeartbeatRetries;
+        private readonly int _maxHeartbeatRetries;
 
-        private ContextConfiguration _rootContextConfig;
+        private readonly ContextConfiguration _rootContextConfig;
 
-        private IClock _clock;
+        private readonly IClock _clock;
 
-        private IRemoteManager<REEFMessage> _remoteManager;
+        private readonly IRemoteManager<REEFMessage> _remoteManager;
 
-        private IInjector _injector;
+        private readonly IInjector _injector;
 
         private EvaluatorOperationState _operationState;
 

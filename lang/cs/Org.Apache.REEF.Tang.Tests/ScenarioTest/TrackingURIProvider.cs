@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 
     public class DefaultTrackingURIProvider : ITrackingURIProvider
     {
-        private string port;
+        private readonly string port;
 
         [Inject]
         public DefaultTrackingURIProvider([Parameter(typeof(PortNumber))] string port)

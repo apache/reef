@@ -143,11 +143,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   @Override
   public void unregister(Identifier id) throws IOException {
     Link<NamingMessage> link = transport.open(serverSocketAddr, codec,
-        new LinkListener<NamingMessage>() {
-          @Override
-          public void messageReceived(NamingMessage message) {
-          }
-        });
+        new LoggingLinkListener<NamingMessage>());
     link.write(new NamingUnregisterRequest(id));
   }
 

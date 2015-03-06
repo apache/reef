@@ -17,9 +17,9 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Utilities;
-using System;
 
 namespace Org.Apache.REEF.Driver.Task
 {

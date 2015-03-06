@@ -17,10 +17,10 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Api;
-using Org.Apache.REEF.Utilities;
 using System;
+using Org.Apache.REEF.Common.Api;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common
 {

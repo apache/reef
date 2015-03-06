@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextConfiguration));
         
-        private Dictionary<string, string> _settings;
+        private readonly Dictionary<string, string> _settings;
 
         public ContextConfiguration(string configString)
         {

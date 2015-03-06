@@ -17,8 +17,8 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
 using System;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote
 {

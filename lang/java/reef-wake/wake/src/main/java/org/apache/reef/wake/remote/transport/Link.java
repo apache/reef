@@ -18,7 +18,6 @@
  */
 package org.apache.reef.wake.remote.transport;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 
 /**
@@ -26,7 +25,7 @@ import java.net.SocketAddress;
  *
  * @param <T> type of the message.
  */
-public interface Link<T> extends LinkListener<T> {
+public interface Link<T> {
 
   /**
    * Gets its local address.
@@ -43,10 +42,9 @@ public interface Link<T> extends LinkListener<T> {
   SocketAddress getRemoteAddress();
 
   /**
-   * Writes the value to this link.
+   * Asynchronously writes the value to this link.
    *
    * @param value the data value.
-   * @throws IOException
    */
-  void write(T value) throws IOException;
+  void write(T value);
 }

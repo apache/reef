@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Common.Catalog.Capabilities
 {
     public class RAM : ICapability
     {
-        private int _megaBytes;
+        private readonly int _megaBytes;
 
         public RAM(int megaBytes)
         {

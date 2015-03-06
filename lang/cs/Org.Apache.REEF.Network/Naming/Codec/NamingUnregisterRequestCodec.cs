@@ -17,10 +17,10 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Network.Naming.Contracts;
 using Org.Apache.REEF.Network.Naming.Events;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Network.Naming.Contracts;
 
 namespace Org.Apache.REEF.Network.Naming.Codec
 {

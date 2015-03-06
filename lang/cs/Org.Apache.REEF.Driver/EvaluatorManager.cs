@@ -17,27 +17,26 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Common.Api;
-using Org.Apache.REEF.Common.Catalog;
-using Org.Apache.REEF.Common.Evaluator;
-using Org.Apache.REEF.Common.Exceptions;
-using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Diagnostics;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Time;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Org.Apache.REEF.Common.Api;
+using Org.Apache.REEF.Common.Catalog;
+using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Driver.Bridge.Events;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Time;
 using TaskMessage = Org.Apache.REEF.Common.Tasks.TaskMessage;
 
 namespace Org.Apache.REEF.Driver
@@ -66,23 +65,23 @@ namespace Org.Apache.REEF.Driver
 
         // TODO
         //  private final RemoteManager remoteManager;
-        private DriverManager _driverManager;
+        private readonly DriverManager _driverManager;
 
-        private IResourceReleaseHandler _resourceReleaseHandler;
+        private readonly IResourceReleaseHandler _resourceReleaseHandler;
 
-        private IResourceLaunchHandler _resourceLaunchHandler;
+        private readonly IResourceLaunchHandler _resourceLaunchHandler;
 
-        private EvaluatorDescriptorImpl _evaluatorDescriptor;
+        private readonly EvaluatorDescriptorImpl _evaluatorDescriptor;
 
-        private string _evaluatorId;
+        private readonly string _evaluatorId;
 
-        private IList<EvaluatorContext> _activeContexts = new List<EvaluatorContext>();
+        private readonly IList<EvaluatorContext> _activeContexts = new List<EvaluatorContext>();
 
-        private HashSet<string> _activeContextIds = new HashSet<string>();
+        private readonly HashSet<string> _activeContextIds = new HashSet<string>();
 
         private IRunningTask _runningTask = null;
 
-        private IObserver<EvaluatorControlProto> _evaluatorControlHandler = null;
+        private readonly IObserver<EvaluatorControlProto> _evaluatorControlHandler = null;
 
         private bool _isResourceReleased = false;
 

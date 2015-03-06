@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Tang.Examples
 
     public class AnonymousType
     {
-        private Dictionary<string, MyEventStreamDefinition> d = new Dictionary<string, MyEventStreamDefinition>();
+        private readonly Dictionary<string, MyEventStreamDefinition> d = new Dictionary<string, MyEventStreamDefinition>();
         private Dictionary<string, int> d2;
 
         //Anonymous class in injectable constructor

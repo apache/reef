@@ -52,12 +52,13 @@ under the License.
         <avro.version>1.7.7</avro.version>
         <jetty.version>6.1.26</jetty.version>
         <jackson.version>1.9.13</jackson.version>
+        <protobuf.version>2.5.0</protobuf.version>
     </properties>
 
     <scm>
-        <connection>scm:git:git@github.com:apache/incubator-reef.git</connection>
-        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef.git</developerConnection>
-        <url>scm:git:git@github.com:apache/incubator-reef.git</url>
+        <connection>scm:git:git@github.com:apache/incubator-reef</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-reef</developerConnection>
+        <url>scm:git:git@github.com:apache/incubator-reef</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -236,30 +237,33 @@ under the License.
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
                             <!-- Intellij idea project files -->
-                            <exclude>lang/java/.idea/**</exclude>                            
+                            <exclude>lang/java/.idea/**</exclude>
                             <exclude>**/*.iml</exclude>
                             <exclude>**/target/**</exclude>
-			    <exclude>**/README.*</exclude>
+                            <exclude>**/README.*</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <!-- The Visual Studio build files -->
-                            <exclude>*.sln</exclude>
-                            <exclude>**/*.csproj.user</exclude>
-                            <!-- The below are auto generated during the .Net build -->                            
+                            <exclude>**/*.sln*</exclude>
+                            <exclude>**/*.vcxproj*</exclude>
+                            <exclude>**/*.csproj*</exclude>
+                            <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
                             <exclude>**/obj/**</exclude>
                             <exclude>**/Release/**</exclude>
                             <exclude>**/Debug/**</exclude>
                             <exclude>**/TestResults/**</exclude>
+                            <exclude>**/x64/**</exclude>
+
                             <!-- NuGet dependencies downloaded as part of the build -->
                             <exclude>**/packages/**</exclude>
                             <!-- The below are auto generated files for serialization -->
-                            <exclude>**/Org.Apache.REEF.Common/protobuf/cs/*</exclude>
-                            <exclude>**/Org.Apache.REEF.Common/avro/*</exclude>
+                            <exclude>Org.Apache.REEF.Common/Protobuf/ReefProtocol/*</exclude>
+                            <exclude>Org.Apache.REEF.Common/Avro/*</exclude>
                             <!-- The below are binary data files used in tests -->
-                            <exclude>**/ConfigFiles/evaluator.conf</exclude>
-                            <exclude>**/TangTests/evaluator.conf</exclude>
-                            <exclude>**/TangTests/simpleConstructorJavaProto.bin</exclude>
+                            <exclude>Org.Apache.REEF.Tests/ConfigFiles/evaluator.conf</exclude>
+                            <exclude>Org.Apache.REEF.Tang.Tests/evaluator.conf</exclude>
+                            <exclude>Org.Apache.REEF.Tang.Tests/simpleConstructorJavaProto.bin</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -354,7 +358,7 @@ under the License.
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>2.5.0</version>
+                <version>${protobuf.version}</version>
             </dependency>
             <!-- End of Protocol Buffers -->
 
@@ -639,6 +643,7 @@ under the License.
         <module>lang/java/reef-webserver</module>
         <module>lang/java/reef-utils-hadoop</module>
         <module>lang/java/reef-utils</module>
+        <module>website</module>
     </modules>
 
     <profiles>
