@@ -18,7 +18,7 @@
  */
 using System;
 
-namespace Microsoft.Reef.Interop
+namespace Org.Apache.REEF.Interop
 {
     public interface IInteropReturnInfo
     {
