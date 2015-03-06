@@ -47,14 +47,49 @@ public final class REEFFileNames {
   private static final String DRIVER_STDOUT = "driver.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
-  private static final String CPP_BRIDGE = "JavaClrBridge";
-  private static final String REEF_GLOBAL = "/reef/global";
   private static final String REEF_DRIVER_APPDLL_DIR = "/ReefDriverAppDlls/";
   private static final String TMP_LOAD_DIR = "/reef/CLRLoadingDirectory";
+  private static final String BRIDGE_CLR_DLL_NAME = "Org.Apache.REEF.Bridge.Clr.dll";
+  private static final String BRIDGE_MIXED_DLL_NAME = "Org.Apache.REEF.Bridge.JavaClrBridge.dll";
+
 
   @Inject
   public REEFFileNames() {
   }
+
+
+  /**
+   * @return the filename of the DLL containing the CLR side of the bridge.
+   */
+  public String getBridgeClrDllName() {
+    return BRIDGE_CLR_DLL_NAME;
+  }
+
+  /**
+   * reef/local/BRIDGE_CLR_DLL_NAME
+   *
+   * @return the File pointing to the DLL containing the CLR side of the bridge.
+   */
+  public File getBridgeClrDLLFile() {
+    return new File(getLocalFolder(), getBridgeClrDllName());
+  }
+
+  /**
+   * @return the filename of the CPP DLL for the bridge.
+   */
+  public String getBridgeMixedDLLName() {
+    return BRIDGE_MIXED_DLL_NAME;
+  }
+
+  /**
+   * reef/local/BRIDGE_MIXED_DLL_NAME
+   *
+   * @return the File pointing to the DLL containing the CPP DLL for the bridge.
+   */
+  public File getMixedDLLFile() {
+    return new File(getLocalFolder(), getBridgeMixedDLLName());
+  }
+
 
   /**
    * The name of the REEF folder inside of the working directory of an Evaluator or Driver
@@ -194,23 +229,18 @@ public final class REEFFileNames {
     return EVALUATOR_STDOUT;
   }
 
-  /**
-   * @return the name of cpp bridge file
-   */
-  public String getCppBridge() { return CPP_BRIDGE; }
-
-  /**
-   * @return reeg global file folder
-   */
-  public String getReefGlobal() { return REEF_GLOBAL; }
 
   /**
    * @return reef driver app dll directory
    */
-  public String getReefDriverAppDllDir() { return REEF_DRIVER_APPDLL_DIR; }
+  public String getReefDriverAppDllDir() {
+    return REEF_DRIVER_APPDLL_DIR;
+  }
 
   /**
    * @return temp load directory
    */
-  public String getLoadDir() { return TMP_LOAD_DIR; }
+  public String getLoadDir() {
+    return TMP_LOAD_DIR;
+  }
 }

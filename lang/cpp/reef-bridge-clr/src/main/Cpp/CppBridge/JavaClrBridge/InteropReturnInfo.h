@@ -20,7 +20,7 @@
 #include "org_apache_reef_javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
-#using "clrhandler.dll"
+#using "Org.Apache.REEF.Bridge.Clr.dll"
 
 using namespace System;
 using namespace System::IO;
