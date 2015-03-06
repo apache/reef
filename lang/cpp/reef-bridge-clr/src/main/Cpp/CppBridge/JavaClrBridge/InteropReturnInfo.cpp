@@ -27,8 +27,7 @@ namespace Org {
         JNIEnv*     env,
         jobject     jobjectInteropReturnInfo,
         ILogger^    logger
-        ) 
-        {
+        ) {
           _env = env;
           _jobjectInteropReturnInfo = jobjectInteropReturnInfo;
           jclass thisClass = env->GetObjectClass(jobjectInteropReturnInfo);
