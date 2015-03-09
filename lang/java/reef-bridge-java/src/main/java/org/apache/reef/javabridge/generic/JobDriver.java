@@ -406,7 +406,10 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.httpRequest(parsedHttpRequest.getRequestUri())) {
         final AvroHttpSerializer httpSerializer = new AvroHttpSerializer();
         final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(parsedHttpRequest);
-        final byte[] requestBytes = httpSerializer.toBytes(avroHttpRequest);
+
+        final String requestString = httpSerializer.toString(avroHttpRequest);
+        final byte[] requestBytes = requestString.getBytes();
+        //final byte[] requestBytes = httpSerializer.toBytes(avroHttpRequest);
 
         try {
           final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestBytes);
