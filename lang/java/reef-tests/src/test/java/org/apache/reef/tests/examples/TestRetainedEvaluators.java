@@ -50,7 +50,7 @@ public final class TestRetainedEvaluators {
    */
   private static Configuration getLaunchConfiguration() {
     return Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(Launch.NumEval.class, "" + (LocalTestEnvironment.NUMBER_OF_THREADS - 1))
+        .bindNamedParameter(Launch.NumEval.class, "" + (LocalTestEnvironment.MAX_NUMBER_OF_EVALUATORS - 1))
         .bindNamedParameter(Launch.NumRuns.class, "2")
         .bindNamedParameter(Command.class, "echo " + MESSAGE)
         .build();

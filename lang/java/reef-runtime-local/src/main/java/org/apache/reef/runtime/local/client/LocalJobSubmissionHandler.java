@@ -26,15 +26,10 @@ import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.runtime.local.client.parameters.NumberOfProcesses;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
-import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
-import org.apache.reef.runtime.local.driver.LocalDriverRuntimeConfiguration;
 import org.apache.reef.runtime.local.process.LoggingRunnableProcessObserver;
 import org.apache.reef.runtime.local.process.RunnableProcess;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.logging.LoggingScope;
@@ -64,31 +59,28 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   public static final int DRIVER_MEMORY = 512;
   private static final Logger LOG = Logger.getLogger(LocalJobSubmissionHandler.class.getName());
   private final ExecutorService executor;
-  private final int nThreads;
   private final String rootFolderName;
   private final ConfigurationSerializer configurationSerializer;
-  private final REEFFileNames filenames;
+  private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
-  private final double jvmHeapSlack;
   private final LoggingScopeFactory loggingScopeFactory;
+  private final DriverConfigurationProvider driverConfigurationProvider;
 
   @Inject
   public LocalJobSubmissionHandler(
       final ExecutorService executor,
       final @Parameter(RootFolder.class) String rootFolderName,
-      final @Parameter(NumberOfProcesses.class) int nThreads,
       final ConfigurationSerializer configurationSerializer,
-      final REEFFileNames filenames,
+      final REEFFileNames fileNames,
       final ClasspathProvider classpath,
-      final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
-      final LoggingScopeFactory loggingScopeFactory) {
+      final LoggingScopeFactory loggingScopeFactory,
+      final DriverConfigurationProvider driverConfigurationProvider) {
 
     this.executor = executor;
-    this.nThreads = nThreads;
     this.configurationSerializer = configurationSerializer;
-    this.filenames = filenames;
+    this.fileNames = fileNames;
     this.classpath = classpath;
-    this.jvmHeapSlack = jvmHeapSlack;
+    this.driverConfigurationProvider = driverConfigurationProvider;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
     this.loggingScopeFactory = loggingScopeFactory;
 
@@ -112,34 +104,20 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
         driverFolder.mkdirs();
 
-        final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.filenames);
+        final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.fileNames);
         driverFiles.copyTo(driverFolder);
 
-        final Configuration driverConfigurationPart1 = driverFiles
-            .addNamesTo(LocalDriverConfiguration.CONF,
-                LocalDriverConfiguration.GLOBAL_FILES,
-                LocalDriverConfiguration.GLOBAL_LIBRARIES,
-                LocalDriverConfiguration.LOCAL_FILES,
-                LocalDriverConfiguration.LOCAL_LIBRARIES)
-            .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
-            .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
-            .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
-            .build();
+        final Configuration driverConfiguration = this.driverConfigurationProvider
+            .getDriverConfiguration(jobFolder, t.getRemoteId(), t.getIdentifier(),
+                configurationSerializer.fromString(t.getConfiguration()));
 
-        final Configuration driverConfigurationPart2 = new LocalDriverRuntimeConfiguration()
-            .addClientConfiguration(this.configurationSerializer.fromString(t.getConfiguration()))
-            .setClientRemoteIdentifier(t.getRemoteId())
-            .setJobIdentifier(t.getIdentifier()).build();
-
-        final Configuration driverConfiguration = Tang.Factory.getTang()
-            .newConfigurationBuilder(driverConfigurationPart1, driverConfigurationPart2).build();
-        final File runtimeConfigurationFile = new File(driverFolder, this.filenames.getDriverConfigurationPath());
-        this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
+        this.configurationSerializer.toFile(driverConfiguration,
+            new File(driverFolder, this.fileNames.getDriverConfigurationPath()));
 
         final List<String> command = new JavaLaunchCommandBuilder()
             .setErrorHandlerRID(t.getRemoteId())
             .setLaunchID(t.getIdentifier())
-            .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
+            .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
             .setClassPath(this.classpath.getDriverClasspath())
             .setMemory(DRIVER_MEMORY)
             .build();
@@ -152,8 +130,8 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
             "driver",
             driverFolder,
             new LoggingRunnableProcessObserver(),
-            this.filenames.getDriverStdoutFileName(),
-            this.filenames.getDriverStderrFileName());
+            this.fileNames.getDriverStdoutFileName(),
+            this.fileNames.getDriverStderrFileName());
         this.executor.submit(process);
         this.executor.shutdown();
 

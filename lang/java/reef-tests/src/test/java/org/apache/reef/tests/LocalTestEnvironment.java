@@ -27,9 +27,9 @@ import org.apache.reef.tang.Configuration;
 public final class LocalTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
 
   /**
-   * The number of threads allocated to the local runtime.
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
    */
-  public static final int NUMBER_OF_THREADS = 4;
+  public static final int MAX_NUMBER_OF_EVALUATORS = 4;
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
 
@@ -44,11 +44,11 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
     final String rootFolder = System.getProperty("org.apache.reef.runtime.local.folder");
     if (null == rootFolder) {
       return LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUMBER_OF_THREADS)
+          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .build();
     } else {
       return LocalRuntimeConfiguration.CONF
-          .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUMBER_OF_THREADS)
+          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, rootFolder)
           .build();
 

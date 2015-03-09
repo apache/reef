@@ -27,7 +27,7 @@ import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
-import org.apache.reef.runtime.local.client.parameters.NumberOfProcesses;
+import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -47,7 +47,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
    * terms of the number of slots available on it with one important caveat: The Driver is not counted against this
    * number.
    */
-  public static final OptionalParameter<Integer> NUMBER_OF_THREADS = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> MAX_NUMBER_OF_EVALUATORS = new OptionalParameter<>();
   /**
    * The folder in which the sub-folders, one per Node, will be created. Those will contain one folder per
    * Evaluator instantiated on the virtual node. Those inner folders will be named by the time when the Evaluator was
@@ -72,7 +72,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
           // Bind the message codec for REEF.
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-      .bindNamedParameter(NumberOfProcesses.class, NUMBER_OF_THREADS)
+      .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)

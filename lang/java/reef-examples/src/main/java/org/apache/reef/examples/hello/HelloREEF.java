@@ -34,8 +34,12 @@ import java.util.logging.Logger;
  * The Client for Hello REEF example.
  */
 public final class HelloREEF {
-
   private static final Logger LOG = Logger.getLogger(HelloREEF.class.getName());
+
+  /**
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   */
+  private static final int MAX_NUMBER_OF_EVALUATORS = 2;
 
   /**
    * Number of milliseconds to wait for the job to complete.
@@ -69,7 +73,7 @@ public final class HelloREEF {
    */
   public static void main(final String[] args) throws BindException, InjectionException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
         .build();
     final LauncherStatus status = runHelloReef(runtimeConfiguration, JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);

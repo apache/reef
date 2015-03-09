@@ -32,7 +32,7 @@ public class HelloHttpTest {
   public void testHttpServer() throws BindException, InjectionException {
 
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 2)
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
         .build();
 
     final LauncherStatus status = HelloREEFHttp.runHelloReef(runtimeConfiguration, 10 * 1000);
