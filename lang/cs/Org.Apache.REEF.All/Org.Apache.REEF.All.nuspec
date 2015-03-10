@@ -13,13 +13,13 @@
     <copyright>The Apache Software Foundation</copyright>
     <tags>Single entry point to reference all Reef/Wake/Tang projects </tags>
      <dependencies>
-      <dependency id="Org.Apache.REEF.Evaluator" version="$version$" />
-      <dependency id="Org.Apache.REEF.Driver" version="$version$" />
       <dependency id="Org.Apache.REEF.Utilities" version="$version$" />
-      <dependency id="Org.Apache.REEF.Network" version="$version$" />
+      <dependency id="Org.Apache.REEF.Tang" version="$version$" />
+      <dependency id="Org.Apache.REEF.Wake" version="$version$" />
       <dependency id="Org.Apache.REEF.Common" version="$version$" />
-      <dependency id="Org.Apache.Tang" version="$version$" />
-      <dependency id="Org.Apache.Wake" version="$version$" />
+      <dependency id="Org.Apache.REEF.Driver" version="$version$" />
+      <dependency id="Org.Apache.REEF.Network" version="$version$" />
+      <dependency id="Org.Apache.REEF.Evaluator" version="$version$" />
     </dependencies>
   </metadata>
 </package>
