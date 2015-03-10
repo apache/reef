@@ -93,7 +93,6 @@ public class LibLoader {
     try {
       File bridgeClrDLLFile = this.reefFileNames.getBridgeClrDLLFile();
       LOG.log(Level.INFO, "loadCLRBridgeDLL() - BridgeClrDLLFile: {0}.", bridgeClrDLLFile);
-er""
       loadManagedDLL(bridgeClrDLLFile);
     } catch (final Throwable t) {
       LOG.log(Level.WARNING, "Unable to load {0}, trying the JAR.", this.reefFileNames.getBridgeClrDLLFile().getAbsolutePath());
