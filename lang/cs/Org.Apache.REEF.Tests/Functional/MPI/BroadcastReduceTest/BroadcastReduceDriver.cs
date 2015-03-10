@@ -57,22 +57,13 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
         [Inject]
         public BroadcastReduceDriver(
             [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
-            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations)
+            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations,
+            MpiDriver mpiDriver)
         {
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
-
-            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(MpiTestConstants.DriverId)
-                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(MpiTestConstants.MasterTaskId)
-                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
-                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
-                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(_numEvaluators.ToString())
-                .Build();
-
-            _mpiDriver = TangFactory.GetTang().NewInjector(mpiDriverConfig).GetInstance<MpiDriver>();
-
+            _mpiDriver = mpiDriver;
             _commGroup = _mpiDriver.DefaultGroup
                     .AddBroadcast(
                         MpiTestConstants.BroadcastOperatorName,

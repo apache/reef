@@ -56,21 +56,12 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
 
         [Inject]
         public ScatterReduceDriver(
-            [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators)
+            [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
+            MpiDriver mpiDriver)
         {
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
-
-            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-               .BindStringNamedParam<MpiConfigurationOptions.DriverId>(MpiTestConstants.DriverId)
-               .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(MpiTestConstants.MasterTaskId)
-               .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
-               .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
-               .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(_numEvaluators.ToString())
-               .Build();
-
-            _mpiDriver = TangFactory.GetTang().NewInjector(mpiDriverConfig).GetInstance<MpiDriver>();
-
+            _mpiDriver = mpiDriver; 
             _commGroup = _mpiDriver.DefaultGroup
                     .AddScatter(
                         MpiTestConstants.ScatterOperatorName,

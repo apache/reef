@@ -24,7 +24,9 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -65,7 +67,17 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
                     GenericType<MpiTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))
                 .Build();
-                    
+
+            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
+               .BindStringNamedParam<MpiConfigurationOptions.DriverId>(MpiTestConstants.DriverId)
+               .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(MpiTestConstants.MasterTaskId)
+               .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
+               .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+               .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString())
+               .Build();
+
+            IConfiguration merged = Configurations.Merge(driverConfig, mpiDriverConfig);
+
             HashSet<string> appDlls = new HashSet<string>();
             appDlls.Add(typeof(IDriver).Assembly.GetName().Name);
             appDlls.Add(typeof(ITask).Assembly.GetName().Name);
@@ -73,7 +85,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
             appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
             appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
 
-            TestRun(appDlls, driverConfig, false, JavaLoggingSetting.VERBOSE);
+            TestRun(appDlls, merged, false, JavaLoggingSetting.VERBOSE);
             ValidateSuccessForLocalRuntime(numTasks);
         }
     }

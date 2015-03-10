@@ -57,9 +57,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         private readonly string _executionDirectory;
 
         // TODO: we may want to make this injectable
-        private readonly int _partitionsNumber = 2;
         private readonly int _clustersNumber = 3;
-        private readonly int _fanOut = 2;
         private readonly int _totalEvaluators;
         private int _partitionInex = 0;
         private readonly IMpiDriver _mpiDriver;
@@ -67,7 +65,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         private readonly TaskStarter _mpiTaskStarter;
 
         [Inject]
-        public KMeansDriverHandlers()
+        public KMeansDriverHandlers([Parameter(typeof(NumPartitions))] int numPartitions, MpiDriver mpiDriver)
         {
             Identifier = "KMeansDriverId";
             _executionDirectory = Path.Combine(Directory.GetCurrentDirectory(), Constants.KMeansExecutionBaseDirectory, Guid.NewGuid().ToString("N").Substring(0, 4));
@@ -75,21 +73,13 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             string dataFile = arguments.Single(a => a.StartsWith("DataFile", StringComparison.Ordinal)).Split(':')[1];
             DataVector.ShuffleDataAndGetInitialCentriods(
                 Path.Combine(Directory.GetCurrentDirectory(), "reef", "global", dataFile),
-                _partitionsNumber,
+                numPartitions,
                 _clustersNumber,
-                _executionDirectory); 
+                _executionDirectory);
 
-            _totalEvaluators = _partitionsNumber + 1;
+            _totalEvaluators = numPartitions + 1;
 
-            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(Identifier)
-                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(Constants.MasterTaskId)
-                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(Constants.KMeansCommunicationGroupName)
-                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(_fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
-                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(_totalEvaluators.ToString())
-                .Build();
-
-            _mpiDriver = TangFactory.GetTang().NewInjector(mpiDriverConfig).GetInstance<MpiDriver>();
+            _mpiDriver = mpiDriver;
 
             _commGroup = _mpiDriver.DefaultGroup
                    .AddBroadcast(Constants.CentroidsBroadcastOperatorName,Constants.MasterTaskId, new CentroidsCodec())
@@ -106,10 +96,9 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public void OnNext(IEvaluatorRequestor evalutorRequestor)
         {
-            int evaluatorsNumber = _totalEvaluators;
             int memory = 2048;
             int core = 1;
-            EvaluatorRequest request = new EvaluatorRequest(evaluatorsNumber, memory, core);
+            EvaluatorRequest request = new EvaluatorRequest(_totalEvaluators, memory, core);
 
             evalutorRequestor.Submit(request);
         }
@@ -197,5 +186,10 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
             ClrHandlerHelper.GenerateClassHierarchy(clrDlls);
         }
+    }
+
+    [NamedParameter("Number of partitions")]
+    public class NumPartitions : Name<int>
+    {
     }
 }
