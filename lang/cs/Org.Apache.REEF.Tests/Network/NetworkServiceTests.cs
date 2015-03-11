@@ -139,6 +139,7 @@ namespace Org.Apache.REEF.Tests.Network
                     .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
                         GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
                         nameServiceAddr)
+                    .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
                     .BindImplementation(GenericType<ICodec<string>>.Class, GenericType<StringCodec>.Class)
                     .BindImplementation(GenericType<IObserver<NsMessage<string>>>.Class, GenericType<NetworkMessageHandler>.Class)
                     .Build();
@@ -146,8 +147,19 @@ namespace Org.Apache.REEF.Tests.Network
                 return TangFactory.GetTang().NewInjector(networkServiceConf).GetInstance<NetworkService<string>>();
             }
 
-            return new NetworkService<string>(networkServicePort, nameServiceAddr, nameServicePort, 
-                handler, new StringIdentifierFactory(), new StringCodec());
+            var nameserverConf = TangFactory.GetTang().NewConfigurationBuilder()
+             .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
+                 GenericType<NamingConfigurationOptions.NameServerPort>.Class,
+                 nameServicePort.ToString(CultureInfo.CurrentCulture))
+             .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
+                 GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
+                 nameServiceAddr)
+             .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
+             .Build();
+
+            var nameClient = TangFactory.GetTang().NewInjector(nameserverConf).GetInstance<NameClient>();
+            return new NetworkService<string>(networkServicePort,
+                handler, new StringIdentifierFactory(), new StringCodec(), nameClient);
         }
 
         private class MessageHandler : IObserver<NsMessage<string>>

@@ -201,6 +201,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
                     GenericType<NamingConfigurationOptions.NameServerPort>.Class, 
                     _nameServerPort.ToString(CultureInfo.InvariantCulture))
+                .BindImplementation(GenericType<INameClient>.Class,
+                    GenericType<NameClient>.Class)
                 .Build();
         }
 
