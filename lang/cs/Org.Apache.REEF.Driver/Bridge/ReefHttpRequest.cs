@@ -17,6 +17,8 @@
  * under the License.
  */
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace Org.Apache.REEF.Driver.Bridge
@@ -40,6 +42,8 @@ namespace Org.Apache.REEF.Driver.Bridge
         public byte[] InputStream { get; set; }
 
         public string PathInfo { get; set; }
+
+        public IDictionary<string, string> Header { get; set; }
 
         public string Tostring()
         {

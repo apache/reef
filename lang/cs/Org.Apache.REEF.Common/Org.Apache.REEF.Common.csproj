@@ -64,6 +64,7 @@ under the License.
     <Compile Include="Avro\AvroHttpSerializer.cs" />
     <Compile Include="Avro\AvroJsonSerializer.cs" />
     <Compile Include="Avro\AvroReefServiceInfo.cs" />
+    <Compile Include="Avro\HeaderEntry.cs" />
     <Compile Include="Catalog\Capabilities\CPU.cs" />
     <Compile Include="Catalog\Capabilities\ICapability.cs" />
     <Compile Include="Catalog\Capabilities\RAM.cs" />

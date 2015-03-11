@@ -18,14 +18,18 @@
  */
 package org.apache.reef.webserver;
 
+import org.apache.avro.file.DataFileReader;
+import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 
 import javax.servlet.ServletException;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * Serialize Http Request Response data with Avro.
@@ -41,12 +45,14 @@ public class AvroHttpSerializer {
    * Convert from HttpServletRequest to AvroHttpRequest.
    */
   public AvroHttpRequest toAvro(final ParsedHttpRequest parsedRequest) throws ServletException, IOException {
+
     return AvroHttpRequest.newBuilder()
         .setRequestUrl(parsedRequest.getRequestUrl())
         .setHttpMethod(parsedRequest.getMethod())
         .setQueryString(parsedRequest.getQueryString())
         .setPathInfo(parsedRequest.getPathInfo())
         .setInputStream(ByteBuffer.wrap(parsedRequest.getInputStream()))
+        .setHeader(parsedRequest.getHeaderEntryList())
         .build();
   }
 
@@ -78,6 +84,36 @@ public class AvroHttpSerializer {
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Conver AvroHttpRequest to a file
+   * @param avroHttpRequest
+   * @param file
+   * @throws IOException
+   * @throws ServletException
+   */
+  public void toFile(final AvroHttpRequest avroHttpRequest, final File file) throws IOException, ServletException {
+    final DatumWriter<AvroHttpRequest> httpWriter = new SpecificDatumWriter<>(AvroHttpRequest.class);
+    try (final DataFileWriter<AvroHttpRequest> dataFileWriter = new DataFileWriter<>(httpWriter)) {
+      dataFileWriter.create(avroHttpRequest.getSchema(), file);
+      dataFileWriter.append(avroHttpRequest);
+    }
+  }
+
+  /**
+   * Convert a file to AvroHttpRequest
+   * @param file
+   * @return
+   * @throws IOException
+   */
+  public AvroHttpRequest fromFile(final File file) throws IOException {
+    final AvroHttpRequest avrohttpRequest;
+    try (final DataFileReader<AvroHttpRequest> dataFileReader =
+                 new DataFileReader<>(file, new SpecificDatumReader<>(AvroHttpRequest.class))) {
+      avrohttpRequest = dataFileReader.next();
+    }
+    return avrohttpRequest;
   }
 
   /**

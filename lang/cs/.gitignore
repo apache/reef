@@ -8,5 +8,6 @@ TestResults
 **/obj
 **/.nuget/nuspec
 **/.nuget/packages
+*.sln.GhostDoc.xml
 
 
