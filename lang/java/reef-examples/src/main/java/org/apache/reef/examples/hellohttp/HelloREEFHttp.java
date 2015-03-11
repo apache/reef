@@ -39,6 +39,11 @@ import java.util.logging.Logger;
  */
 public final class HelloREEFHttp {
   /**
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   */
+  private static final int MAX_NUMBER_OF_EVALUATORS = 3;
+
+  /**
    * Number of milliseconds to wait for the job to complete.
    */
   public static final int JOB_TIMEOUT = 60 * 1000; // 60 sec.
@@ -105,7 +110,7 @@ public final class HelloREEFHttp {
    */
   public static void main(final String[] args) throws InjectionException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, 3)
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
         .build();
     final LauncherStatus status = runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
   }

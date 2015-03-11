@@ -25,7 +25,7 @@ import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
-import org.apache.reef.runtime.local.client.parameters.NumberOfProcesses;
+import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -38,9 +38,9 @@ import org.apache.reef.tang.formats.RequiredParameter;
  */
 public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
   /**
-   * The maximum number or processes to spawn.
+   * The maximum number of evaluators.
    */
-  public static final RequiredParameter<Integer> NUMBER_OF_PROCESSES = new RequiredParameter<>();
+  public static final RequiredParameter<Integer> MAX_NUMBER_OF_EVALUATORS = new RequiredParameter<>();
   /**
    * The root folder of the job. Assumed to be an absolute path.
    */
@@ -66,7 +66,7 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(ResourceReleaseHandler.class, LocalResourceReleaseHandler.class)
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, JOB_IDENTIFIER)
-      .bindNamedParameter(NumberOfProcesses.class, NUMBER_OF_PROCESSES)
+      .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)

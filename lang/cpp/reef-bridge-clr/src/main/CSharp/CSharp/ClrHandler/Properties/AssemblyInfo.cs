@@ -22,9 +22,9 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ClrHandler")]
+[assembly: AssemblyTitle("Org.Apache.REEF.Bridge.Clr")]
 [assembly: AssemblyDescription("The interface dll between CPP and CLR code")]
-[assembly: AssemblyProduct("ClrHandler")]
+[assembly: AssemblyProduct("Org.Apache.REEF.Bridge.Clr")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

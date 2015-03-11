@@ -32,7 +32,6 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.CommandLine;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
-import org.apache.reef.util.logging.LoggingScopeImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +46,9 @@ import java.util.logging.Logger;
 public final class Launch {
 
   /**
-   * Number of REEF worker threads in local mode. We assume maximum 10 evaluators can be requested on local runtime
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
    */
-  private static final int NUM_LOCAL_THREADS = 10;
+  private static final int MAX_NUMBER_OF_EVALUATORS = 10;
   /**
    * Standard Java logger
    */
@@ -122,7 +121,7 @@ public final class Launch {
       if (isLocal) {
         LOG.log(Level.INFO, "Running on the local runtime");
         runtimeConfiguration = LocalRuntimeConfiguration.CONF
-            .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, NUM_LOCAL_THREADS)
+            .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
             .build();
       } else {
         LOG.log(Level.INFO, "Running on YARN");

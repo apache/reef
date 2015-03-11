@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         /// <summary>
-        /// Called when receving an http request from Java side
+        /// Called when receiving an http request from Java side
         /// </summary>
         /// <param name="httpMessage">The HTTP message.</param>
         public void OnNext(IHttpMessage httpMessage)
@@ -84,15 +84,20 @@ namespace Org.Apache.REEF.Driver.Bridge
             else
             {
                 LOGGER.Log(Level.Info, "HttpHandler OnNext, handling http request.");
-                byte[] byteData = httpMessage.GetQueryReuestData();                    
-                AvroHttpRequest avroHttpRequest = AvroHttpSerializer.FromBytes(byteData);
-                LOGGER.Log(Level.Info, "HttpHandler OnNext, requestData:" + avroHttpRequest);
+                byte[] byteData = httpMessage.GetQueryReuestData();
+                AvroHttpRequest avroHttpRequest = AvroHttpSerializer.FromBytesWithJoson(byteData);
+                LOGGER.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "HttpHandler OnNext, requestData:", avroHttpRequest));
 
                 string spec = GetSpecification(avroHttpRequest.PathInfo);
                 if (spec != null)
                 {
                     LOGGER.Log(Level.Info, "HttpHandler OnNext, target:" + spec);
                     ReefHttpRequest request = ToHttpRequest(avroHttpRequest);
+
+                    foreach (var h in request.Header)
+                    {
+                        LOGGER.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "HttpRequest Header-key: {0}, value: {1}.", h.Key, h.Value));
+                    }
                     ReefHttpResponse response = new ReefHttpResponse();
 
                     IHttpHandler handler;
@@ -108,9 +113,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                     else
                     {
                         responseData =
-                            ByteUtilities.StringToByteArrays(string.Format(CultureInfo.CurrentCulture,
-                                                                           "No event handler found at CLR side for {0}.",
-                                                                           spec));
+                            ByteUtilities.StringToByteArrays(string.Format(CultureInfo.CurrentCulture, "No event handler found at CLR side for {0}.", spec));
                     }
                     httpMessage.SetQueryResponseData(responseData);
                 }
@@ -153,6 +156,13 @@ namespace Org.Apache.REEF.Driver.Bridge
             httpRequest.InputStream = avroRequest.InputStream;
             httpRequest.Url = avroRequest.RequestUrl;
             httpRequest.Querystring = avroRequest.QueryString;
+
+            IDictionary<string, string> header = new Dictionary<string, string>();
+            foreach (var h in avroRequest.Header)
+            {
+                header.Add(h.key, h.value);
+            }
+            httpRequest.Header = header;
 
             HttpMethod m;
             HttpMethod.TryParse(avroRequest.HttpMethod, true, out m);

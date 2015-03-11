@@ -33,7 +33,7 @@ public class BGDLocal {
 
   private static final Logger LOG = Logger.getLogger(BGDLocal.class.getName());
 
-  private static final int NUM_LOCAL_THREADS = 20;
+  private static final int MAX_NUMBER_OF_EVALUATORS = 20;
   private static final int TIMEOUT = 10 * Timer.MINUTES;
 
   public static void main(final String[] args) throws Exception {
@@ -41,7 +41,7 @@ public class BGDLocal {
     final BGDClient bgdClient = BGDClient.fromCommandLine(args);
 
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.NUMBER_OF_THREADS, "" + NUM_LOCAL_THREADS)
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, "" + MAX_NUMBER_OF_EVALUATORS)
         .build();
 
     final String jobName = System.getProperty("user.name") + "-" + "ResourceAwareBGDLocal";

@@ -40,9 +40,6 @@ public class LibLoader {
   private static final String LIB_BIN = "/";
   private static final String DLL_EXTENSION = ".dll";
   private static final String USER_DIR = "user.dir";
-  private static final String[] MANAGED_DLLS = {
-      "ClrHandler"
-  };
 
   private final LoggingScopeFactory loggingScopeFactory;
 
@@ -60,50 +57,105 @@ public class LibLoader {
   public void loadLib() throws IOException {
     LOG.log(Level.INFO, "Loading DLLs for driver at time {0}." + new Date().toString());
     try (final LoggingScope lb = loggingScopeFactory.loadLib()) {
-      final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
-      LOG.log(Level.INFO, "load Folder: " + tempLoadDir);
-      new File(tempLoadDir).mkdir();
 
-      loadFromReefJar(this.reefFileNames.getCppBridge(), false);
+      // Load the native library connecting C# and Java
+      this.loadMixedDLL();
 
-      loadLibFromGlobal();
+      // Load the CLR side
+      this.loadCLRBridgeDLL();
 
-      for (int i = 0; i < MANAGED_DLLS.length; i++) {
-        loadFromReefJar(MANAGED_DLLS[i], true);
-      }
+      // Load all DLLs in local
+      this.loadAllManagedDLLs(this.reefFileNames.getLocalFolder());
+
+      // Load all DLLs in global
+      this.loadAllManagedDLLs(this.reefFileNames.getGlobalFolder());
     }
     LOG.log(Level.INFO, "Done loading DLLs for Driver at time {0}." + new Date().toString());
+  }
+
+  private void loadMixedDLL() throws IOException {
+    try {
+      final String JavaClrBridgeDll = this.reefFileNames.getMixedDLLFile().getAbsolutePath();
+      LOG.log(Level.INFO, "loadMixedDLL() -JavaClrBridge Dll: {0}.", JavaClrBridgeDll);
+      System.load(JavaClrBridgeDll);
+    } catch (final Throwable e) {
+      LOG.log(Level.WARNING, "loadMixedDLL() - Unable to load {0}, trying the JAR", this.reefFileNames.getMixedDLLFile().getAbsolutePath());
+      final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
+      new File(tempLoadDir).mkdir();
+      LOG.log(Level.INFO, "loadMixedDLL() - tempLoadDir created: {0} ", tempLoadDir);
+      final String bridgeMixedDLLName = this.reefFileNames.getBridgeMixedDLLName();
+      LOG.log(Level.INFO, "loadMixedDLL() - BridgeMixedDLLName: {0}", bridgeMixedDLLName);
+      loadFromReefJar(bridgeMixedDLLName, false);
+    }
+  }
+
+  private void loadCLRBridgeDLL() throws IOException {
+    try {
+      File bridgeClrDLLFile = this.reefFileNames.getBridgeClrDLLFile();
+      LOG.log(Level.INFO, "loadCLRBridgeDLL() - BridgeClrDLLFile: {0}.", bridgeClrDLLFile);
+      loadManagedDLL(bridgeClrDLLFile);
+    } catch (final Throwable t) {
+      LOG.log(Level.WARNING, "Unable to load {0}, trying the JAR.", this.reefFileNames.getBridgeClrDLLFile().getAbsolutePath());
+      final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
+      new File(tempLoadDir).mkdir();
+      LOG.log(Level.INFO, "loadCLRBridgeDLL() - tempLoadDir created: {0} ", tempLoadDir);
+      String bridgeClrDllName = this.reefFileNames.getBridgeClrDllName();
+      LOG.log(Level.INFO, "loadCLRBridgeDLL() - BridgeClrDllName: {0}", bridgeClrDllName);
+      loadFromReefJar(bridgeClrDllName, true);
+    }
   }
 
   /**
    * Load assemblies at global folder
    */
-  private void loadLibFromGlobal() {
-    final String globalFilePath = System.getProperty(USER_DIR) + this.reefFileNames.getReefGlobal();
-    final File[] files = new File(globalFilePath).listFiles(new FilenameFilter() {
+  private void loadDLLsInGlobal() {
+    loadAllManagedDLLs(this.reefFileNames.getGlobalFolder());
+  }
+
+  /**
+   * Loads all managed DLLs found in the given folder.
+   *
+   * @param folder
+   */
+  private void loadAllManagedDLLs(final File folder) {
+    LOG.log(Level.FINE, "Loading all managed DLLs from {0}", folder.getAbsolutePath());
+    final File[] files = folder.listFiles(new FilenameFilter() {
       public boolean accept(File dir, String name) {
         return name.toLowerCase().endsWith(DLL_EXTENSION);
       }
     });
 
-    LOG.log(Level.INFO, "Total dll files to load from {0} is {1}.", new Object[] {globalFilePath, files.length} );
-    for (int i = 0; i < files.length; i++) {
-      try {
-        LOG.log(Level.INFO, "file to load : " + files[i].toString());
-        NativeInterop.loadClrAssembly(files[i].toString());
-      } catch (final Exception e) {
-        LOG.log(Level.SEVERE, "exception in loading dll library: ", files[i].toString());
-        throw e;
-      }
+    LOG.log(Level.FINE, "file size: {0}", files.length);
+
+    for (final File f : files) {
+      loadManagedDLL(f);
+    }
+  }
+
+  /**
+   * Loads the given DLL.
+   *
+   * @param dllFile
+   */
+  private void loadManagedDLL(final File dllFile) {
+    final String absolutePath = dllFile.getAbsolutePath();
+    try {
+      LOG.log(Level.FINE, "Loading Managed DLL {0} ", absolutePath);
+      NativeInterop.loadClrAssembly(absolutePath);
+    } catch (final Exception e) {
+      LOG.log(Level.SEVERE, "Unable to load managed DLL {0}", absolutePath);
+      throw e;
     }
   }
 
   /**
    * Get file from jar file and copy it to temp dir and loads the library to memory
-  **/
+   */
   private void loadFromReefJar(String name, final boolean managed) throws IOException {
 
-    name = name + DLL_EXTENSION;
+    if (!name.endsWith(".dll")) {
+      name = name + DLL_EXTENSION;
+    }
     try {
       File fileOut = null;
       // get input file from jar
@@ -122,7 +174,7 @@ public class LibLoader {
           LOG.log(Level.WARNING, "Cannot find " + path);
           return;
         }
-        try (final OutputStream out = new FileOutputStream(fileOut) ) {
+        try (final OutputStream out = new FileOutputStream(fileOut)) {
           IOUtils.copy(in, out);
         }
       }
@@ -138,6 +190,7 @@ public class LibLoader {
 
   /**
    * load assembly
+   *
    * @param fileOut
    * @param managed
    */

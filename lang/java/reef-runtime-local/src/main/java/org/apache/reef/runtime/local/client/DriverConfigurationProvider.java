@@ -19,7 +19,7 @@
 package org.apache.reef.runtime.local.client;
 
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
-import org.apache.reef.runtime.local.client.parameters.NumberOfProcesses;
+import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
@@ -33,13 +33,13 @@ import java.io.File;
  */
 public final class DriverConfigurationProvider {
 
-  private final int nThreads;
+  private final int maxEvaluators;
   private final double jvmHeapSlack;
 
   @Inject
-  DriverConfigurationProvider(final @Parameter(NumberOfProcesses.class) int nThreads,
+  DriverConfigurationProvider(final @Parameter(MaxNumberOfEvaluators.class) int maxEvaluators,
                               final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
-    this.nThreads = nThreads;
+    this.maxEvaluators = maxEvaluators;
     this.jvmHeapSlack = jvmHeapSlack;
   }
 
@@ -47,7 +47,7 @@ public final class DriverConfigurationProvider {
                                                final String clientRemoteId,
                                                final String jobId) {
     return LocalDriverConfiguration.CONF
-        .set(LocalDriverConfiguration.NUMBER_OF_PROCESSES, this.nThreads)
+        .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
         .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
         .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
         .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
