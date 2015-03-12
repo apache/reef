@@ -59,9 +59,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
 
         [Inject]
         public PipelinedBroadcastReduceDriver(
-            [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
-            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations,
-            [Parameter(typeof(MpiTestConfig.ChunkSize))] int chunkSize,
+            [Parameter(typeof (MpiTestConfig.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof (MpiTestConfig.NumIterations))] int numIterations,
+            [Parameter(typeof (MpiTestConfig.ChunkSize))] int chunkSize,
             MpiDriver mpiDriver)
         {
             LOGGER.Log(Level.Info, "*******entering the driver code " + chunkSize);
@@ -75,19 +75,19 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
 
             _commGroup = _mpiDriver.DefaultGroup
                 .AddBroadcast<int[]>(
-                        MpiTestConstants.BroadcastOperatorName,
-                            MpiTestConstants.MasterTaskId,
-                            new IntArrayCodec(),
-                            TopologyTypes.Flat,
-                            new PipelineIntDataConverter(_chunkSize))
-                    .AddReduce<int[]>(
-                        MpiTestConstants.ReduceOperatorName,
-                            MpiTestConstants.MasterTaskId,
-                            new IntArrayCodec(),
-                            new ArraySumFunction(),
-                            TopologyTypes.Flat,
-                            new PipelineIntDataConverter(_chunkSize))
-                    .Build();
+                    MpiTestConstants.BroadcastOperatorName,
+                    MpiTestConstants.MasterTaskId,
+                    new IntArrayCodec(),
+                    TopologyTypes.Flat,
+                    new PipelineIntDataConverter(_chunkSize))
+                .AddReduce<int[]>(
+                    MpiTestConstants.ReduceOperatorName,
+                    MpiTestConstants.MasterTaskId,
+                    new IntArrayCodec(),
+                    new ArraySumFunction(),
+                    TopologyTypes.Flat,
+                    new PipelineIntDataConverter(_chunkSize))
+                .Build();
 
             _mpiTaskStarter = new TaskStarter(_mpiDriver, numEvaluators);
 
