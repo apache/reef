@@ -44,6 +44,11 @@ namespace Org.Apache.REEF.Network.Group.Config
         {
         }
 
+        [NamedParameter("sleep time in OperatorTypology initialization", defaultValue: "500")]
+        public class SleepTime : Name<int>
+        {
+        }
+
         [NamedParameter("Retry times", defaultValue: "5")]
         public class RetryCount : Name<int>
         {

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Io;
@@ -32,6 +33,7 @@ using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Network.Utilities;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 
@@ -45,9 +47,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <typeparam name="T">The message type</typeparam>
     public class OperatorTopology<T> : IObserver<GroupCommunicationMessage>
     {
-        private const int DefaultTimeout = 50000;
-        private const int RetryCount = 10;
-
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(OperatorTopology<>));
 
         private readonly string _groupName;
@@ -56,6 +55,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private string _driverId;
         private readonly int _timeout;
         private readonly int _retryCount;
+        private readonly int _sleepTime;
 
         private readonly NodeStruct _parent;
         private readonly List<NodeStruct> _children;
@@ -64,39 +64,45 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly INameClient _nameClient;
         private readonly Sender _sender;
         private readonly BlockingCollection<NodeStruct> _nodesWithData;
-            
+
         /// <summary>
-        /// Creates a new OperatorTopology object.
+        /// Initializes a new instance of the <see cref="OperatorTopology{T}"/> class.
         /// </summary>
-        /// <param name="operatorName">The name of the MPI Operator</param>
-        /// <param name="groupName">The name of the operator's Communication Group</param>
-        /// <param name="taskId">The operator's Task identifier</param>
-        /// <param name="driverId">The identifer for the driver</param>
-        /// <param name="rootId">The identifier for the root Task in the topology graph</param>
-        /// <param name="childIds">The set of child Task identifiers in the topology graph</param>
-        /// <param name="networkService">The network service</param>
-        /// <param name="codec">The codec used to serialize and deserialize messages</param>
-        /// <param name="sender">The Sender used to do point to point communication</param>
+        /// <param name="operatorName">Name of the operator.</param>
+        /// <param name="groupName">Name of the group.</param>
+        /// <param name="taskId">The task identifier.</param>
+        /// <param name="driverId">The driver identifier.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <param name="retryCount">The retry count.</param>
+        /// <param name="sleepTime">The sleep time.</param>
+        /// <param name="rootId">The root identifier.</param>
+        /// <param name="childIds">The child ids.</param>
+        /// <param name="networkService">The network service.</param>
+        /// <param name="codec">The codec.</param>
+        /// <param name="sender">The sender.</param>
         [Inject]
         public OperatorTopology(
             [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(MpiConfigurationOptions.Timeout))] int timrout,
+            [Parameter(typeof(MpiConfigurationOptions.Timeout))] int timeout,
             [Parameter(typeof(MpiConfigurationOptions.RetryCount))] int retryCount,
+            [Parameter(typeof(MpiConfigurationOptions.SleepTime))] int sleepTime,
             [Parameter(typeof(MpiConfigurationOptions.TopologyRootTaskId))] string rootId,
             [Parameter(typeof(MpiConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
             NetworkService<GroupCommunicationMessage> networkService,
             ICodec<T> codec,
             Sender sender)
         {
+            LOGGER.LogFunction("OperatorTopology constructor for operator {0}, task id : {1} ", operatorName, taskId);
             _operatorName = operatorName;
             _groupName = groupName;
             _selfId = taskId;
             _driverId = driverId;
-            _timeout = timrout;
+            _timeout = timeout;
             _retryCount = retryCount;
+            _sleepTime = sleepTime;
             _codec = codec;
             _nameClient = networkService.NamingClient;
             _sender = sender;
@@ -128,11 +134,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         public void Initialize()
         {
-            using (LOGGER.LogFunction("OperatorTopology::Initialize"))
+            using (LOGGER.LogFunction("OperatorTopology::Initialize for operator {0}, id {1} ", _operatorName, _selfId))
             {
                 if (_parent != null)
                 {
                     WaitForTaskRegistration(_parent.Identifier, _retryCount);
+                    LOGGER.Log(Level.Info, "parent registered: {0}.", _parent.Identifier);
                 }
 
                 if (_children.Count > 0)
@@ -140,9 +147,11 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     foreach (NodeStruct child in _children)
                     {
                         WaitForTaskRegistration(child.Identifier, _retryCount);
+                        LOGGER.Log(Level.Info, "child registered: {0}.", child.Identifier);
                     }
                 }
             }
+            Thread.Sleep(_sleepTime);
         }
 
         /// <summary>
@@ -483,12 +492,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 {
                     return;
                 }
-
                 Thread.Sleep(500);
                 LOGGER.Log(Level.Verbose, "Retry {0}: retrying lookup for node: {1}", i + 1, identifier);
             }
 
-            throw new IllegalStateException("Failed to initialize operator topology for node: " + identifier);
+            string msg = string.Format(CultureInfo.CurrentCulture,
+                "Failed to initialize operator topology for node: {0}", identifier);
+            Exceptions.Throw(new IllegalStateException(msg), msg, LOGGER);
         }
     }
 }

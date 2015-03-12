@@ -74,6 +74,10 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString())
+               .BindIntNamedParam<MpiConfigurationOptions.Timeout>(MpiTestConstants.Timeout.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+               .BindIntNamedParam<MpiConfigurationOptions.RetryCount>(MpiTestConstants.RetryCount.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+               .BindIntNamedParam<MpiConfigurationOptions.SleepTime>(MpiTestConstants.SleepTime.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+
                .Build();
 
             IConfiguration merged = Configurations.Merge(driverConfig, mpiDriverConfig);

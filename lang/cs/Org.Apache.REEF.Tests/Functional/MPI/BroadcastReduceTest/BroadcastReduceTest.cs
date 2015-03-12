@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
         [TestMethod]
         public void TestBroadcastAndReduce()
         {
-            int numTasks = 4;
+            int numTasks = 7;
 
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule
@@ -78,6 +78,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
                 .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
                 .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
                 .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<MpiConfigurationOptions.Timeout>(MpiTestConstants.Timeout.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<MpiConfigurationOptions.RetryCount>(MpiTestConstants.RetryCount.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<MpiConfigurationOptions.SleepTime>(MpiTestConstants.SleepTime.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             IConfiguration merged = Configurations.Merge(driverConfig, mpiDriverConfig);
