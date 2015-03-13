@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Org.Apache.REEF.Jar</id>
+    <version>$version$</version>
+    <title>Org.Apache.REEF.Jar</title>
+    <authors>The Apache REEF project</authors>
+    <owners>The Apache REEF project</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://reef.incubator.apache.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>REEF is a platform to run applications on distributed environment</description>
+    <copyright>The Apache Software Foundation</copyright>
+    <tags>Reef</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Jar\Org.Apache.REEF.Jar.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Jar\Org.Apache.REEF.jar.pdb" target="lib\net45" />
+  </files>
+</package>
