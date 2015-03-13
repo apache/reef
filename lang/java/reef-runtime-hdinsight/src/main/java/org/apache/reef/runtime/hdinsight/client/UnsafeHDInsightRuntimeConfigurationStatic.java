@@ -24,8 +24,10 @@ import org.apache.reef.client.RunningJob;
 import org.apache.reef.runtime.common.client.REEFImplementation;
 import org.apache.reef.runtime.common.client.RunningJobImpl;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
+import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.runtime.hdinsight.client.sslhacks.UnsafeClientConstructor;
+import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.util.logging.LoggingSetup;
@@ -41,6 +43,7 @@ public final class UnsafeHDInsightRuntimeConfigurationStatic extends Configurati
 
   public static final ConfigurationModule CONF = new UnsafeHDInsightRuntimeConfigurationStatic()
       .bindImplementation(REEF.class, REEFImplementation.class)
+          .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
       .bindImplementation(RunningJob.class, RunningJobImpl.class)
       .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
       .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)

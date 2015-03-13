@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.util.OSUtils;
+import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -47,26 +48,25 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
 
   // Used when we can't get a classpath from YARN
   private static final String[] LEGACY_CLASSPATH_LIST = new String[]{
-      HADOOP_CONF_DIR,
-      HADOOP_HOME + "/*",
-      HADOOP_HOME + "/lib/*",
-      HADOOP_COMMON_HOME + "/*",
-      HADOOP_COMMON_HOME + "/lib/*",
-      HADOOP_YARN_HOME + "/*",
-      HADOOP_YARN_HOME + "/lib/*",
-      HADOOP_HDFS_HOME + "/*",
-      HADOOP_HDFS_HOME + "/lib/*",
-      HADOOP_MAPRED_HOME + "/*",
-      HADOOP_MAPRED_HOME + "/lib/*",
-      HADOOP_HOME + "/etc/hadoop",
-      HADOOP_HOME + "/share/hadoop/common/*",
-      HADOOP_HOME + "/share/hadoop/common/lib/*",
-      HADOOP_HOME + "/share/hadoop/yarn/*",
-      HADOOP_HOME + "/share/hadoop/yarn/lib/*",
-      HADOOP_HOME + "/share/hadoop/hdfs/*",
-      HADOOP_HOME + "/share/hadoop/hdfs/lib/*",
-      HADOOP_HOME + "/share/hadoop/mapreduce/*",
-      HADOOP_HOME + "/share/hadoop/mapreduce/lib/*"
+          HADOOP_HOME + "/*",
+          HADOOP_HOME + "/lib/*",
+          HADOOP_COMMON_HOME + "/*",
+          HADOOP_COMMON_HOME + "/lib/*",
+          HADOOP_YARN_HOME + "/*",
+          HADOOP_YARN_HOME + "/lib/*",
+          HADOOP_HDFS_HOME + "/*",
+          HADOOP_HDFS_HOME + "/lib/*",
+          HADOOP_MAPRED_HOME + "/*",
+          HADOOP_MAPRED_HOME + "/lib/*",
+          HADOOP_HOME + "/etc/hadoop",
+          HADOOP_HOME + "/share/hadoop/common/*",
+          HADOOP_HOME + "/share/hadoop/common/lib/*",
+          HADOOP_HOME + "/share/hadoop/yarn/*",
+          HADOOP_HOME + "/share/hadoop/yarn/lib/*",
+          HADOOP_HOME + "/share/hadoop/hdfs/*",
+          HADOOP_HOME + "/share/hadoop/hdfs/lib/*",
+          HADOOP_HOME + "/share/hadoop/mapreduce/*",
+          HADOOP_HOME + "/share/hadoop/mapreduce/lib/*"
   };
   private final List<String> classPathPrefix;
   private final List<String> classPathSuffix;
@@ -76,19 +76,19 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
     boolean needsLegacyClasspath = false; // will be set to true below whenever we encounter issues with the YARN Configuration
     final ClassPathBuilder builder = new ClassPathBuilder();
 
+
     try {
       // Add the classpath actually configured on this cluster
-      final String[] yarnClassPath = yarnConfiguration.getTrimmedStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH);
-      if (null == yarnClassPath || yarnClassPath.length == 0) {
-        needsLegacyClasspath = true;
-      } else {
-        builder.addAll(yarnClassPath);
-      }
+      final Optional<String[]> yarnClassPath = getTrimmedStrings(yarnConfiguration, YarnConfiguration.YARN_APPLICATION_CLASSPATH);
       final String[] yarnDefaultClassPath = YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH;
-      if (null == yarnDefaultClassPath || yarnDefaultClassPath.length == 0) {
-        LOG.log(Level.SEVERE, "YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH is empty. This indicates a broken cluster configuration");
+
+      if (!yarnClassPath.isPresent()) {
+        LOG.log(Level.SEVERE, "YarnConfiguration.YARN_APPLICATION_CLASSPATH is empty. This indicates a broken cluster configuration.");
         needsLegacyClasspath = true;
       } else {
+        LOG.log(CLASSPATH_LOG_LEVEL, "YarnConfiguration.YARN_APPLICATION_CLASSPATH is [" + StringUtils.join(yarnClassPath.get(), '|') + "]");
+        LOG.log(CLASSPATH_LOG_LEVEL, "YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH is [" + StringUtils.join(yarnDefaultClassPath, '|') + "]");
+        builder.addAll(yarnClassPath.get());
         builder.addAll(yarnDefaultClassPath);
       }
     } catch (final NoSuchFieldError e) {
@@ -99,12 +99,22 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
     }
 
     if (needsLegacyClasspath) {
-      builder.addAll(LEGACY_CLASSPATH_LIST);
+      builder.addToPrefix(HADOOP_CONF_DIR);
+      builder.addAllToSuffix(LEGACY_CLASSPATH_LIST);
     }
 
     this.classPathPrefix = builder.getPrefixAsImmutableList();
     this.classPathSuffix = builder.getSuffixAsImmutableList();
     this.logClasspath();
+  }
+
+  private static Optional<String[]> getTrimmedStrings(final YarnConfiguration configuration, final String key) {
+    final String[] result = configuration.getTrimmedStrings(key);
+    if (null == result || result.length == 0) {
+      return Optional.empty();
+    } else {
+      return Optional.of(result);
+    }
   }
 
   @Override
