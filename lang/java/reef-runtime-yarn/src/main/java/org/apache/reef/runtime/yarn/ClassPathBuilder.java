@@ -45,8 +45,8 @@ final class ClassPathBuilder {
    */
   private static boolean couldBeYarnConfigurationPath(final String path) {
     return path.contains("conf") ||
-        path.contains("etc") ||
-        path.contains(HadoopEnvironment.HADOOP_CONF_DIR);
+            path.contains("etc") ||
+            path.contains(HadoopEnvironment.HADOOP_CONF_DIR);
   }
 
   /**
@@ -92,6 +92,18 @@ final class ClassPathBuilder {
       this.add(classPathEntry);
     }
   }
+
+  /**
+   * Adds all the given entries to the classpath suffix.
+   *
+   * @param entries
+   */
+  void addAllToSuffix(final String... entries) {
+    for (final String classPathEntry : entries) {
+      this.addToPrefix(classPathEntry);
+    }
+  }
+
 
   /**
    * @return the suffix in an immutable list.
