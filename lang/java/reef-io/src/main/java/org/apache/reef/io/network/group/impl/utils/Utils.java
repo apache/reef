@@ -61,6 +61,10 @@ public class Utils {
     return (gcm.getMsgsCount() == 1) ? gcm.getData()[0] : null;
   }
 
+  public static byte[][] getDataArray(final GroupCommunicationMessage gcm) {
+    return (gcm.getMsgsCount() > 0) ? gcm.getData() : null;
+  }
+  
   /**
    * @param msg
    * @return
@@ -76,5 +80,13 @@ public class Utils {
     } else {
       throw new RuntimeException("Expecting exactly one GCM object inside Message but found none");
     }
+  }
+  
+  public static int getSizeOf2dByteArray(final byte[][] twoDArray) {
+    int size = 0;
+    for (final byte[] array: twoDArray) {
+      size += array.length;
+    }
+    return size;
   }
 }

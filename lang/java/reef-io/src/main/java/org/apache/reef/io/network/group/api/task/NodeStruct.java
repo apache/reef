@@ -37,6 +37,8 @@ public interface NodeStruct {
   void setVersion(int version);
 
   byte[] getData();
+  
+  byte[][] getDataArray();
 
   void addData(GroupCommunicationMessage msg);
 }

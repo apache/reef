@@ -212,11 +212,54 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     LOG.exiting("OperatorTopologyStructImpl", "sendToNode", Arrays.toString(new Object[]{getQualifiedName(), data,
         msgType, node}));
   }
+  
+  private void sendArrayToNode(final byte[][] data,
+                               final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType,
+                               final NodeStruct node) {
+    LOG.entering("OperatorTopologyStructImpl", "sendArrayToNode", new Object[]{getQualifiedName(),
+        data, msgType, node});
+    final String nodeId = node.getId();
+    try {
+      int sizeOfData = Utils.getSizeOf2dByteArray(data);
+      
+      if (sizeOfData > SMALL_MSG_LENGTH) {
+        LOG.finest(getQualifiedName() + "Msg too big. Sending readiness to send " + msgType + " msg to " + nodeId);
+        sender.send(Utils.bldVersionedGCM(groupName, operName, msgType, selfId, version, nodeId, node.getVersion(),
+            Utils.EmptyByteArr));
+        final byte[] tmpVal = receiveFromNode(node, true);
+        if (tmpVal != null) {
+          LOG.finest(getQualifiedName() + "Got readiness to accept " + msgType + " msg from " + nodeId
+              + ". Will send actual msg now");
+        } else {
+          LOG.exiting("OperatorTopologyStructImpl", "sendArrayToNode", Arrays.toString(new Object[]{getQualifiedName(),
+              data, msgType, node}));
+          return;
+        }
+      }
 
-  /**
-   * @param childNode
-   * @return
-   */
+      sender.send(Utils.bldVersionedGCM(groupName, operName, msgType, selfId, version, nodeId, node.getVersion(), data));
+
+      if (data.length > SMALL_MSG_LENGTH) {
+        LOG.finest(getQualifiedName() + "Msg too big. Will wait for ACK before queing up one more msg");
+        final byte[] tmpVal = receiveFromNode(node, true);
+        if (tmpVal != null) {
+          LOG.finest(getQualifiedName() + "Got " + msgType + " msg received ACK from " + nodeId
+              + ". Will move to next msg if it exists");
+        } else {
+          LOG.exiting("OperatorTopologyStructImpl", "sendArrayToNode", Arrays.toString(new Object[]{getQualifiedName(),
+              data, msgType, node}));
+          return;
+        }
+      }
+    } catch (final NetworkException e) {
+      throw new RuntimeException(
+          "NetworkException while sending " + msgType + " data from " + selfId + " to " + nodeId, e);
+    }
+    LOG.exiting("OperatorTopologyStructImpl", "sendArrayToNode", Arrays.toString(new Object[]{getQualifiedName(), data,
+        msgType, node}));
+  }
+
+
   private byte[] receiveFromNode(final NodeStruct node, final boolean remove) {
     LOG.entering("OperatorTopologyStructImpl", "receiveFromNode", new Object[]{getQualifiedName(), node, remove});
     final byte[] retVal = node.getData();
@@ -234,6 +277,24 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
         node, remove}));
     return retVal;
   }
+  
+  private byte[][] receiveArrayFromNode(final NodeStruct node, final boolean remove) {
+    LOG.entering("OperatorTopologyStructImpl", "receiveArrayFromNode", new Object[]{getQualifiedName(), node, remove});
+    final byte[][] retVal = node.getDataArray();
+    if (remove) {
+      final boolean removed = nodesWithData.remove(node);
+      final String msg = getQualifiedName() + "Removed(" + removed + ") node " + node.getId()
+          + " from nodesWithData queue";
+      if (removed) {
+        LOG.finest(msg);
+      } else {
+        LOG.fine(msg);
+      }
+    }
+    LOG.exiting("OperatorTopologyStructImpl", "receiveArrayFromNode", Arrays.toString(new Object[]{retVal, getQualifiedName(),
+        node, remove}));
+    return retVal;
+  }
 
   @Override
   public void sendToParent(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
@@ -246,12 +307,38 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     LOG.exiting("OperatorTopologyStructImpl", "sendToParent", Arrays.toString(new Object[]{getQualifiedName(), data,
         msgType}));
   }
+  
+  @Override
+  public void sendArrayToParent(final byte[][] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
+    LOG.entering("OperatorTopologyStructImpl", "sendArrayToParent", new Object[]{getQualifiedName(), data, msgType});
+    if (parent != null) {
+      sendArrayToNode(data, msgType, parent);
+    } else {
+      LOG.fine(getQualifiedName() + "Perhaps parent has died or has not been configured");
+    }
+    LOG.exiting("OperatorTopologyStructImpl", "sendArrayToParent", Arrays.toString(new Object[]{getQualifiedName(), data,
+        msgType}));
+  }
 
   @Override
   public void sendToChildren(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
     LOG.entering("OperatorTopologyStructImpl", "sendToChildren", new Object[]{getQualifiedName(), data, msgType});
     for (final NodeStruct child : children) {
       sendToNode(data, msgType, child);
+    }
+    LOG.exiting("OperatorTopologyStructImpl", "sendToChildren", Arrays.toString(new Object[]{getQualifiedName(),
+        data, msgType}));
+  }
+  
+  @Override
+  public void sendArrayToChildren(final byte[][] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
+    LOG.entering("OperatorTopologyStructImpl", "sendArrayToChildren", new Object[]{getQualifiedName(), data, msgType});
+    List<Integer> counts = org.apache.reef.io.network.util.Utils.createUniformCounts(data.length, children.size());
+    int index = 0, offset = 0;
+    for (final NodeStruct child : children) {
+      final byte[][] dataToSend = Arrays.copyOfRange(data, offset, offset + counts.get(index));
+      sendArrayToNode(dataToSend, msgType, child);
+      offset += counts.get(index++);
     }
     LOG.exiting("OperatorTopologyStructImpl", "sendToChildren", Arrays.toString(new Object[]{getQualifiedName(),
         data, msgType}));
@@ -274,6 +361,27 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       }
     }
     LOG.exiting("OperatorTopologyStructImpl", "recvFromParent",
+        Arrays.toString(new Object[]{retVal, getQualifiedName()}));
+    return retVal;
+  }
+  
+  @Override
+  public byte[][] recvArrayFromParent() {
+    LOG.entering("OperatorTopologyStructImpl", "recvArrayFromParent", getQualifiedName());
+    LOG.finest(getQualifiedName() + "Waiting for " + parent.getId() + " to send data");
+    byte[][] retVal = receiveArrayFromNode(parent, true);
+    if (retVal != null && retVal.length == 1 && retVal[0].length == 0) {
+      LOG.finest(getQualifiedName() + "Got msg that parent " + parent.getId()
+          + " has large data and is ready to send data. Sending Ack to receive data");
+      sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Scatter, parent);
+      retVal = receiveArrayFromNode(parent, true);
+      if (retVal != null) {
+        LOG.finest(getQualifiedName() + "Received large msg from Parent " + parent.getId()
+            + ". Will return it after ACKing it");
+        sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Scatter, parent);
+      }
+    }
+    LOG.exiting("OperatorTopologyStructImpl", "recvArrayFromParent",
         Arrays.toString(new Object[]{retVal, getQualifiedName()}));
     return retVal;
   }
@@ -323,6 +431,56 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     LOG.exiting("OperatorTopologyStructImpl", "recvFromChildren", Arrays.toString(new Object[]{retVal, getQualifiedName(),
         redFunc, dataCodec}));
     return retVal;
+  }
+  
+  @Override
+  public byte[][] recvArrayFromChildren() {
+    LOG.entering("OperatorTopologyStructImpl", "recvArrayFromChildren", new Object[]{getQualifiedName()});
+    final List<byte[]> retList = new LinkedList<>();
+    for (final NodeStruct child : children) {
+      childrenToRcvFrom.add(child.getId());
+    }
+
+    while (!childrenToRcvFrom.isEmpty()) {
+      LOG.finest(getQualifiedName() + "Waiting for some child to send data");
+      NodeStruct child;
+      try {
+        child = nodesWithData.take();
+      } catch (final InterruptedException e) {
+        throw new RuntimeException("InterruptedException while waiting to take data from nodesWithData queue", e);
+      }
+      byte[][] retVals = receiveArrayFromNode(child, false);
+      if (retVals != null && retVals.length == 0) {
+        LOG.finest(getQualifiedName() + "Got msg that child " + child.getId()
+            + " has large data and is ready to send data. Sending Ack to receive data");
+        sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Gather, child);
+        retVals = receiveArrayFromNode(child, true);
+        if (retVals != null) {
+          LOG.finest(getQualifiedName() + "Received large msg from child " + child.getId()
+              + ". Will gather it after ACKing it");
+          sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Gather, child);
+        } else {
+          LOG.finest(getQualifiedName() + "Will not gather it");
+        }
+      }
+      if(retVals != null) {
+        for (final byte[] retVal : retVals) {
+          if (retVal != null) {
+            retList.add(retVal);
+          }
+        }
+      }
+      childrenToRcvFrom.remove(child.getId());
+    }
+    byte[][] retArray = new byte[retList.size()][];
+    int i = 0;
+    for (final byte[] elem : retList) {
+      retArray[i++] = elem;
+    }
+    LOG.exiting("OperatorTopologyStructImpl", "recvArrayFromChildren", Arrays.toString(new Object[]{retArray,
+        getQualifiedName()
+    }));
+    return retArray;
   }
 
   private boolean removedDeadMsg(final String msgSrcId, final int msgSrcVersion) {

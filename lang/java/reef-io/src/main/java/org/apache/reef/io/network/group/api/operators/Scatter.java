@@ -19,6 +19,9 @@
 package org.apache.reef.io.network.group.api.operators;
 
 import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.group.impl.operators.ScatterReceiver;
+import org.apache.reef.io.network.group.impl.operators.ScatterSender;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.Identifier;
 
 import java.util.List;
@@ -35,6 +38,7 @@ public interface Scatter {
   /**
    * Sender or Root.
    */
+  @DefaultImplementation(ScatterSender.class)
   static interface Sender<T> extends GroupCommOperator {
 
     /**
@@ -63,6 +67,7 @@ public interface Scatter {
   /**
    * Receiver or non-roots.
    */
+  @DefaultImplementation(ScatterReceiver.class)
   static interface Receiver<T> extends GroupCommOperator {
     /**
      * Receive the sub-list of elements targeted for the current receiver.

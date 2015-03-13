@@ -77,6 +77,21 @@ public abstract class NodeStructImpl implements NodeStruct {
     LOG.exiting("NodeStructImpl", "getData", retVal);
     return retVal;
   }
+  
+  @Override
+  public byte[][] getDataArray() {
+    LOG.entering("NodeStructImpl", "getDataArray");
+    GroupCommunicationMessage gcm;
+    try {
+      gcm = dataQue.take();
+    } catch (final InterruptedException e) {
+      throw new RuntimeException("InterruptedException while waiting for data from " + id, e);
+    }
+    
+    final byte[][] retVal = checkDead(gcm) ? null : Utils.getDataArray(gcm);
+    LOG.exiting("NodeStructImpl", "getDataArray", retVal);
+    return retVal;
+  }
 
   @Override
   public String toString() {

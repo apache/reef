@@ -19,9 +19,11 @@
 package org.apache.reef.io.network.group.api.task;
 
 import org.apache.reef.annotations.audience.TaskSide;
-import org.apache.reef.io.network.group.api.operators.Broadcast;
-import org.apache.reef.io.network.group.api.operators.Reduce;
 import org.apache.reef.io.network.group.api.GroupChanges;
+import org.apache.reef.io.network.group.api.operators.Broadcast;
+import org.apache.reef.io.network.group.api.operators.Gather;
+import org.apache.reef.io.network.group.api.operators.Reduce;
+import org.apache.reef.io.network.group.api.operators.Scatter;
 import org.apache.reef.io.network.group.impl.task.CommunicationGroupClientImpl;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Name;
@@ -43,7 +45,7 @@ public interface CommunicationGroupClient {
 
   /**
    * The broadcast sender configured on this communication group
-   * with the given oepratorName
+   * with the given operatorName
    *
    * @param operatorName
    * @return
@@ -52,7 +54,7 @@ public interface CommunicationGroupClient {
 
   /**
    * The broadcast receiver configured on this communication group
-   * with the given oepratorName
+   * with the given operatorName
    *
    * @param operatorName
    * @return
@@ -61,7 +63,7 @@ public interface CommunicationGroupClient {
 
   /**
    * The reduce receiver configured on this communication group
-   * with the given oepratorName
+   * with the given operatorName
    *
    * @param operatorName
    * @return
@@ -70,13 +72,48 @@ public interface CommunicationGroupClient {
 
   /**
    * The reduce sender configured on this communication group
-   * with the given oepratorName
+   * with the given operatorName
    *
    * @param operatorName
    * @return
    */
   Reduce.Sender getReduceSender(Class<? extends Name<String>> operatorName);
 
+  /**
+   * The scatter sender configured on this communication group
+   * with the given operatorName
+   *
+   * @param operatorName
+   * @return
+   */
+  Scatter.Sender getScatterSender(Class<? extends Name<String>> operatorName);
+
+  /**
+   * The scatter receiver configured on this communication group
+   * with the given operatorName
+   *
+   * @param operatorName
+   * @return
+   */
+  Scatter.Receiver getScatterReceiver(Class<? extends Name<String>> operatorName);
+
+  /**
+   * The gather receiver configured on this communication group
+   * with the given operatorName
+   *
+   * @param operatorName
+   * @return
+   */
+  Gather.Receiver getGatherReceiver(Class<? extends Name<String>> operatorName);
+  
+  /**
+   * The gather sender configured on this communication group
+   * with the given operatorName
+   *
+   * @param operatorName
+   * @return
+   */
+  Gather.Sender getGatherSender(Class<? extends Name<String>> operatorName);
   /**
    * @return Changes in topology of this communication group since the last time
    * this method was called

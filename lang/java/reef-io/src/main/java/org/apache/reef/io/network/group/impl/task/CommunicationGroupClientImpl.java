@@ -21,9 +21,7 @@ package org.apache.reef.io.network.group.impl.task;
 import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.group.api.operators.Broadcast;
-import org.apache.reef.io.network.group.api.operators.GroupCommOperator;
-import org.apache.reef.io.network.group.api.operators.Reduce;
+import org.apache.reef.io.network.group.api.operators.*;
 import org.apache.reef.io.network.impl.NetworkService;
 import org.apache.reef.io.network.group.api.GroupChanges;
 import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
@@ -147,6 +145,32 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
   }
 
   @Override
+  public Scatter.Sender getScatterSender(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getScatterSender", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Scatter.Sender)) {
+      throw new RuntimeException("Configured operator is not a scatter sender");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getScatterSender", getQualifiedName() + op);
+    return (Scatter.Sender) op;
+  }
+  
+  @Override
+  public Gather.Receiver getGatherReceiver(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getGatherReceiver", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Gather.Receiver)) {
+      throw new RuntimeException("Configured operator is not a gather receiver");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getGatherReceiver", getQualifiedName() + op);
+    return (Gather.Receiver) op;
+  }
+  
+  @Override
   public Broadcast.Receiver getBroadcastReceiver(final Class<? extends Name<String>> operatorName) {
     LOG.entering("CommunicationGroupClientImpl", "getBroadcastReceiver", new Object[]{getQualifiedName(),
         Utils.simpleName(operatorName)});
@@ -171,7 +195,34 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
     LOG.exiting("CommunicationGroupClientImpl", "getReduceSender", getQualifiedName() + op);
     return (Reduce.Sender) op;
   }
-
+  
+  @Override
+  public Scatter.Receiver getScatterReceiver(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getScatterReceiver", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Scatter.Receiver)) {
+      throw new RuntimeException("Configured operator is not a scatter receiver");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getScatterReceiver", getQualifiedName() + op);
+    return (Scatter.Receiver) op;
+  }
+  
+  
+  @Override
+  public Gather.Sender getGatherSender(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getGatherSender", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Gather.Sender)) {
+      throw new RuntimeException("Configured operator is not a gather sender");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getGatherSender", getQualifiedName() + op);
+    return (Gather.Sender) op;
+  }
+  
   @Override
   public void initialize() {
     LOG.entering("CommunicationGroupClientImpl", "initialize", getQualifiedName());
