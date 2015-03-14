@@ -42,6 +42,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Examples", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Common.Tests", "Org.Apache.REEF.Common.Tests\Org.Apache.REEF.Common.Tests.csproj", "{F1A3495C-2CBD-4F3B-AEDC-9C1A43D9F238}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Jar", "Org.Apache.REEF.Jar\Org.Apache.REEF.Jar.csproj", "{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Apache.REEF.Bridge", "Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.csproj", "{3C851833-11F4-43D8-BF78-1150BD1A844B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +180,22 @@ Global
 		{F1A3495C-2CBD-4F3B-AEDC-9C1A43D9F238}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1A3495C-2CBD-4F3B-AEDC-9C1A43D9F238}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F1A3495C-2CBD-4F3B-AEDC-9C1A43D9F238}.Release|x64.ActiveCfg = Release|Any CPU
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Debug|x64.ActiveCfg = Debug|x64
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Debug|x64.Build.0 = Debug|x64
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Release|x64.ActiveCfg = Release|x64
+		{96BAB6AB-BD8C-45AE-B794-5BB83DBB4E21}.Release|x64.Build.0 = Release|x64
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Debug|x64.ActiveCfg = Debug|x64
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Debug|x64.Build.0 = Debug|x64
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Release|x64.ActiveCfg = Release|x64
+		{3C851833-11F4-43D8-BF78-1150BD1A844B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
