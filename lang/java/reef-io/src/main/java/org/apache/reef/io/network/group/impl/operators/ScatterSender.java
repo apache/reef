@@ -143,8 +143,8 @@ public class ScatterSender<T> implements Scatter.Sender<T>, EventHandler<GroupCo
 
     try {
       final byte[][] data = new byte[elements.size()][];
-      for (final T element : elements) {
-        data[elements.indexOf(element)] = dataCodec.encode(element);
+      for (int index = 0; index < elements.size(); index++) {
+        data[index] = dataCodec.encode(elements.get(index));
       }
       LOG.fine(this + " Scattering data");
       topology.sendArrayToChildren(data, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Scatter);
