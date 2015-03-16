@@ -16,13 +16,23 @@ specific language governing permissions and limitations
 under the License.
 -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <!--Set configuration parameters usually set in the Solution. This is needed for build.props to work.-->
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)\..))</SolutionDir>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <RootNameSpace>$(MSBuildProjectName)</RootNameSpace>
+  </PropertyGroup>
   <Import Project="..\build.props" />
   <PropertyGroup>
     <!--The folder where the REEF sources have been checked out to.-->
     <REEF_Source_Folder>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)\..\..\..))</REEF_Source_Folder>
     <!--The shaded jar of the bridge -->
-    <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR>
+    <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
+    <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\$(Bridge_JAR_Name)</Bridge_JAR>
+    <!--The destination folder where to put the JAR file -->
   </PropertyGroup>
+  
   <Target Name="CheckMavenInstall">
     <!--Check that maven is installed-->
     <Error Condition=" '$(M2_HOME)' == '' " Text="$M2_HOME is not set. Please make sure that Maven is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
@@ -33,11 +43,13 @@ under the License.
   -->
   <Target Name="Build" DependsOnTargets="CheckMavenInstall">
     <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests install" Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Bridge_JAR)"/>
   </Target>
   <!--
     Executes 'mvn clean', if the JAR exists.
   -->
   <Target Name="Clean" DependsOnTargets="CheckMavenInstall">
     <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests clean" Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
   </Target>
 </Project>
