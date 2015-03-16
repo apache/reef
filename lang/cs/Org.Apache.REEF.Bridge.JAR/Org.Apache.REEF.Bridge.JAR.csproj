@@ -22,11 +22,6 @@ under the License.
     <REEF_Source_Folder>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)\..\..\..))</REEF_Source_Folder>
     <!--The shaded jar of the bridge -->
     <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <Target Name="CheckMavenInstall">
     <!--Check that maven is installed-->
