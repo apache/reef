@@ -24,20 +24,24 @@ using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI Operator used to send messages to child Tasks.
+    /// MPI Operator used to send messages to child Tasks in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
     public class BroadcastSender<T> : IBroadcastSender<T>
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastSender<T>));
+
         private const int DefaultVersion = 1;
 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
-        private readonly OperatorTopology<T> _topology;
-            
+        private readonly OperatorTopology<PipelineMessage<T>> _topology;
+
         /// <summary>
         /// Creates a new BroadcastSender to send messages to other Tasks.
         /// </summary>
@@ -46,12 +50,15 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// belongs to</param>
         /// <param name="topology">The node's topology graph</param>
         /// <param name="networkHandler">The incoming message handler</param>
+        /// <param name="dataConverter">The converter used to convert original 
+        /// message to pipelined ones and vice versa.</param>
         [Inject]
         public BroadcastSender(
             [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
-            OperatorTopology<T> topology, 
-            ICommunicationGroupNetworkObserver networkHandler)
+            OperatorTopology<PipelineMessage<T>> topology,
+            ICommunicationGroupNetworkObserver networkHandler,
+            IPipelineDataConverter<T> dataConverter)
         {
             OperatorName = operatorName;
             GroupName = groupName;
@@ -63,6 +70,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             _networkHandler.Register(operatorName, msgHandler);
+
+            PipelineDataConverter = dataConverter;
         }
 
         /// <summary>
@@ -81,17 +90,41 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public int Version { get; private set; }
 
         /// <summary>
+        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
+        /// </summary>        
+        public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+
+        /// <summary>
         /// Send the data to all BroadcastReceivers.
         /// </summary>
         /// <param name="data">The data to send.</param>
         public void Send(T data)
         {
+            var messageList = PipelineDataConverter.PipelineMessage(data);
+
             if (data == null)
             {
-                throw new ArgumentNullException("data");    
+                throw new ArgumentNullException("data");
             }
 
-            _topology.SendToChildren(data, MessageType.Data);
+            //LOGGER.Log(Level.Info, "beginnign sending pielined message");
+            foreach (var message in messageList)
+            {
+                /*var intmess = message as PipelineMessage<int[]>;
+
+                if (intmess != null)
+                {
+                    LOGGER.Log(Level.Info, "***************** Master sending message ******************** " + intmess.IsLast);
+
+                    for (int i = 0; i < intmess.Data.Length; i++)
+                    {
+                        LOGGER.Log(Level.Info, intmess.Data[i].ToString());
+                    }
+                }*/
+
+                _topology.SendToChildren(message, MessageType.Data);
+            }
+            LOGGER.Log(Level.Info, "ending sending pielined message");
         }
     }
 }

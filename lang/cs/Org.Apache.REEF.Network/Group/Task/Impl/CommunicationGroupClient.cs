@@ -108,6 +108,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <typeparam name="T">The message type</typeparam>
         /// <param name="operatorName">The name of the Broadcast operator</param>
+        /// <param name="isPipelined">Determined whether the operator is pipelined</param>
         /// <returns>The BroadcastSender</returns>
         public IBroadcastSender<T> GetBroadcastSender<T>(string operatorName)
         {
@@ -119,6 +120,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <typeparam name="T">The message type</typeparam>
         /// <param name="operatorName">The name of the Broadcast operator</param>
+        /// <param name="isPipelined">Determined whether the operator is pipelined</param>
         /// <returns>The BroadcastReceiver</returns>
         public IBroadcastReceiver<T> GetBroadcastReceiver<T>(string operatorName)
         {
@@ -130,6 +132,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <typeparam name="T">The message type</typeparam>
         /// <param name="operatorName">The name of the Reduce operator</param>
+        /// <param name="isPipelined">Determined whether the operator is pipelined</param>
         /// <returns>The ReduceSender</returns>
         public IReduceSender<T> GetReduceSender<T>(string operatorName)
         {
@@ -141,6 +144,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <typeparam name="T">The message type</typeparam>
         /// <param name="operatorName">The name of the Reduce operator</param>
+        /// <param name="isPipelined">Determined whether the operator is pipelined</param>
         /// <returns>The ReduceReceiver</returns>
         public IReduceReceiver<T> GetReduceReceiver<T>(string operatorName)
         {

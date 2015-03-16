@@ -64,7 +64,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly INameClient _nameClient;
         private readonly Sender _sender;
         private readonly BlockingCollection<NodeStruct> _nodesWithData;
-            
+        private readonly Object _thisLock = new Object();
+    
         /// <summary>
         /// Creates a new OperatorTopology object.
         /// </summary>
@@ -107,17 +108,23 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             if (_selfId.Equals(rootId))
             {
                 _parent = null;
+                LOGGER.Log(Level.Info, "*************NULL PARENT ASSIGNED***************");
+
             }
             else
             {
                 _parent = new NodeStruct(rootId);
                 _idToNodeMap[rootId] = _parent;
+                LOGGER.Log(Level.Info, "*************Parent assigned is *************** " + rootId);
+
             }
             foreach (string childId in childIds)
             {
                 NodeStruct node = new NodeStruct(childId);
                 _children.Add(node);
                 _idToNodeMap[childId] = node;
+                LOGGER.Log(Level.Info, "*************Children assigned is *************** " + childId);
+
             }
         }
 
@@ -132,6 +139,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             {
                 if (_parent != null)
                 {
+                    LOGGER.Log(Level.Info, "$$$$$$$$$$$$doing parent registration$$$$$$$$$$$$$$");
                     WaitForTaskRegistration(_parent.Identifier, _retryCount);
                 }
 
@@ -139,6 +147,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 {
                     foreach (NodeStruct child in _children)
                     {
+                        LOGGER.Log(Level.Info, "$$$$$$$$$$$$$$$$$doing child registration " + child);
                         WaitForTaskRegistration(child.Identifier, _retryCount);
                     }
                 }
@@ -152,6 +161,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="gcm">The incoming message</param>
         public void OnNext(GroupCommunicationMessage gcm)
         {
+            LOGGER.Log(Level.Info, "*********In ONNext go the message***************");
+
             if (gcm == null)
             {
                 throw new ArgumentNullException("gcm");
@@ -167,8 +178,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw new IllegalStateException("Received message from invalid task id: " + gcm.Source);
             }
 
-            _nodesWithData.Add(sourceNode);
-            sourceNode.AddData(gcm);
+            lock (_thisLock)
+            {
+                _nodesWithData.Add(sourceNode);
+                sourceNode.AddData(gcm);
+            }
+            
         }
 
         /// <summary>
@@ -200,6 +215,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
             foreach (NodeStruct child in _children)
             {
+                //LOGGER.Log(Level.Info, "******************88sendng message to child *********** " + child.Identifier);
                 SendToNode(message, MessageType.Data, child); 
             }
         }
@@ -286,7 +302,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The parent Task's message</returns>
         public T ReceiveFromParent()
         {
-            byte[][] data = ReceiveFromNode(_parent, true);
+            byte[][] data = ReceiveFromNode(_parent);
             if (data == null || data.Length != 1)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
@@ -301,7 +317,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The parent Task's list of messages</returns>
         public List<T> ReceiveListFromParent()
         {
-            byte[][] data = ReceiveFromNode(_parent, true);
+            byte[][] data = ReceiveFromNode(_parent);
             if (data == null || data.Length == 0)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
@@ -326,17 +342,39 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             var receivedData = new List<T>();
             var childrenToReceiveFrom = new HashSet<string>(_children.Select(node => node.Identifier));
 
+            //LOGGER.Log(Level.Info, "*************entering receive frm children***************");
+            
             while (childrenToReceiveFrom.Count > 0)
             {
-                NodeStruct childWithData = GetNodeWithData();
-                byte[][] data = ReceiveFromNode(childWithData, false);
-                if (data == null || data.Length != 1)
+                var childrenWithData = GetNodeWithData(childrenToReceiveFrom);
+
+                //LOGGER.Log(Level.Info, "+++++++++++received data from +++++++++++++ " + childrenWithData.ToList().Count);
+
+                /*foreach (var child in childrenWithData)
                 {
-                    throw new InvalidOperationException("Received invalid data from child with id: " + childWithData.Identifier);
+                    LOGGER.Log(Level.Info, "++++++++++Children Id: " + child.Identifier);
+                }*/
+
+               // + childWithData.Identifier);
+                foreach (var child in childrenWithData)
+                {
+                    byte[][] data = ReceiveFromNode(child);
+                    if (data == null || data.Length != 1)
+                    {
+                        throw new InvalidOperationException("Received invalid data from child with id: " + child.Identifier);
+                    }
+
+                    receivedData.Add(_codec.Decode(data[0]));
+                    childrenToReceiveFrom.Remove(child.Identifier);
                 }
 
-                receivedData.Add(_codec.Decode(data[0]));
-                childrenToReceiveFrom.Remove(childWithData.Identifier);
+                /*LOGGER.Log(Level.Info, "----------- children remaining  ---------------- " + childrenToReceiveFrom.Count);
+
+                foreach (var child in childrenToReceiveFrom)
+                {
+                    LOGGER.Log(Level.Info, "-------Children Id: " + child);
+                }*/
+
             }
 
             return reduceFunction.Reduce(receivedData);
@@ -355,6 +393,72 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             return _children.Count > 0;
         }
 
+        /// <summary>
+        /// Get a set of node containing an incoming message and belonging to candidate set of nodes.
+        /// </summary>
+        ///<param name="nodeSet">Candidate set of nodes</param>
+        /// <returns>A NodeStruct with incoming data.</returns>
+        /// private IEnumerable<NodeStruct> GetNodeWithData(IEnumerable<string> nodeSet)
+        private IEnumerable<NodeStruct> GetNodeWithData(IEnumerable<string> nodeSetIdentifier)
+        {
+            CancellationTokenSource timeoutSource = new CancellationTokenSource(_timeout);
+            List<NodeStruct> nodesSubsetWithData = new List<NodeStruct>();
+     
+            try
+            {
+                lock (_thisLock)
+                {
+                    foreach (var identifier in nodeSetIdentifier)
+                    {
+                        if (_idToNodeMap[identifier].HasMessage())
+                        {
+                            nodesSubsetWithData.Add(_idToNodeMap[identifier]);
+                        }
+                    }
+
+                    if (nodesSubsetWithData.Count > 0)
+                    {
+                        return nodesSubsetWithData;
+                    }
+                    else
+                    {
+                        while (_nodesWithData.Count != 0)
+                        {
+                            LOGGER.Log(Level.Info, "^^^^^^^^^^^^^^^^^ locked in ths loop ^^^^^^^^ ");
+                            _nodesWithData.Take();
+                        }
+                    }
+                }
+
+                var potentialNode = _nodesWithData.Take();
+
+                while (!nodeSetIdentifier.Contains(potentialNode.Identifier))
+                {
+                    potentialNode = _nodesWithData.Take();
+                    LOGGER.Log(Level.Info, "^^^^^^^^^^^^^^^^^ potential node in wait code ^^^^^^^^^^^^^^^^^ " + potentialNode.Identifier);
+                }
+
+                LOGGER.Log(Level.Info, "$$$$$$$$$$$$$$$$$ entering wait code $$$$$$$$$$$$$$$ " + potentialNode.Identifier);
+                return new NodeStruct[] { potentialNode };
+
+            }
+            catch (OperationCanceledException)
+            {
+                LOGGER.Log(Level.Error, "No data to read from child");
+                throw;
+            }
+            catch (ObjectDisposedException)
+            {
+                LOGGER.Log(Level.Error, "No data to read from child");
+                throw;
+            }
+            catch (InvalidOperationException)
+            {
+                LOGGER.Log(Level.Error, "No data to read from child");
+                throw;
+            }
+        }
+        
         /// <summary>
         /// Get a node containing an incoming message.
         /// </summary>
@@ -383,6 +487,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw;
             }
         }
+
 
         /// <summary>
         /// Sends the message to the Task represented by the given NodeStruct.
@@ -447,14 +552,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="removeFromQueue">Whether or not to remove the NodeStruct
         /// from the nodesWithData queue</param>
         /// <returns>The byte array message from the node</returns>
-        private byte[][] ReceiveFromNode(NodeStruct node, bool removeFromQueue)
+        private byte[][] ReceiveFromNode(NodeStruct node)
         {
             byte[][] data = node.GetData();
-            if (removeFromQueue)
-            {
-                _nodesWithData.Take(node);
-            }
-
             return data;
         }
 
@@ -479,13 +579,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             for (int i = 0; i < retries; i++)
             {
-                if (_nameClient.Lookup(identifier) != null)
+                System.Net.IPEndPoint endPoint;
+                if ((endPoint = _nameClient.Lookup(identifier)) != null)
                 {
                     return;
                 }
 
                 Thread.Sleep(500);
-                LOGGER.Log(Level.Verbose, "Retry {0}: retrying lookup for node: {1}", i + 1, identifier);
             }
 
             throw new IllegalStateException("Failed to initialize operator topology for node: " + identifier);

@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
         [TestMethod]
         public void TestBroadcastAndReduce()
         {
-            int numTasks = 4;
+            int numTasks = 7;
 
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule

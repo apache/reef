@@ -52,6 +52,36 @@ under the License.
   <ItemGroup>
     <Compile Include="Group\Codec\GcmMessageProto.cs" />
     <Compile Include="Group\Codec\GroupCommunicationMessageCodec.cs" />
+    <Compile Include="Group\CommonOperators\Driver\Codecs\FloatArrayCodec.cs" />
+    <Compile Include="Group\CommonOperators\Driver\Codecs\IntegerArrayCodec.cs" />
+    <Compile Include="Group\CommonOperators\Driver\Codecs\DoubleArrayCodec.cs" />
+    <Compile Include="Group\CommonOperators\Driver\Codecs\FloatCodec.cs" />
+    <Compile Include="Group\CommonOperators\Driver\Codecs\DoubleCodec.cs" />
+    <Compile Include="Group\CommonOperators\Driver\Codecs\IntegerCodec.cs" />
+    <Compile Include="Group\CommonOperators\Driver\AddCommonBroadcastOperators.cs" />
+    <Compile Include="Group\CommonOperators\Driver\AddCommonReduceOperators.cs" />
+    <Compile Include="Group\CommonOperators\DefaultCommonOperatorNames.cs" />
+    <Compile Include="Group\CommonOperators\Driver\PipelineDataConverters\PipelineDoubleDataConverter.cs" />
+    <Compile Include="Group\CommonOperators\Driver\PipelineDataConverters\PipelineFloatDataConverter.cs" />
+    <Compile Include="Group\CommonOperators\Driver\PipelineDataConverters\PipelineIntDataConverter.cs" />
+    <Compile Include="Group\CommonOperators\Driver\PipelineDataConverters\PipelineOptions.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\DoubleMaxFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\DoubleMinFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\DoubleArrayMergeFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\FloatMaxFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\FloatMinFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\FloatSumFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\DoubleSumFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\FloatArrayMergeFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\IntegerArrayMergeFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\IntegerArraySumFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\DoubleArraySumFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\FloatArraySumFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\IntegerMaxFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\IntegerMinFunction.cs" />
+    <Compile Include="Group\CommonOperators\Driver\ReduceFunctions\IntegerSumFunction.cs" />
+    <Compile Include="Group\CommonOperators\Task\GetCommonBroadcastOperators.cs" />
+    <Compile Include="Group\CommonOperators\Task\GetCommonReduceOperators.cs" />
     <Compile Include="Group\Config\MpiConfigurationOptions.cs" />
     <Compile Include="Group\Driver\ICommunicationGroupDriver.cs" />
     <Compile Include="Group\Driver\IMpiDriver.cs" />
@@ -63,9 +93,10 @@ under the License.
     <Compile Include="Group\Operators\IBroadcastReceiver.cs" />
     <Compile Include="Group\Operators\IBroadcastSender.cs" />
     <Compile Include="Group\Operators\IMpiOperator.cs" />
-    <Compile Include="Group\Operators\Impl\BroadcastOperatorSpec.cs" />
-    <Compile Include="Group\Operators\Impl\BroadcastReceiver.cs" />
+    <Compile Include="Group\Operators\Impl\PipelinedReduceFunction.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastSender.cs" />
+    <Compile Include="Group\Operators\Impl\BroadcastReceiver.cs" />
+    <Compile Include="Group\Operators\Impl\BroadcastOperatorSpec.cs" />
     <Compile Include="Group\Operators\Impl\ReduceFunction.cs" />
     <Compile Include="Group\Operators\Impl\ReduceOperatorSpec.cs" />
     <Compile Include="Group\Operators\Impl\ReduceReceiver.cs" />
@@ -80,6 +111,12 @@ under the License.
     <Compile Include="Group\Operators\IReduceSender.cs" />
     <Compile Include="Group\Operators\IScatterReceiver.cs" />
     <Compile Include="Group\Operators\IScatterSender.cs" />
+    <Compile Include="Group\Pipelining\Impl\DefaultPipelineDataConverter.cs" />
+    <Compile Include="Group\Pipelining\IPipelineDataConverter.cs" />
+    <Compile Include="Group\Pipelining\PipelineMessageCodec.cs" />
+    <Compile Include="Group\Pipelining\PipelineMessage.cs" />
+    <Compile Include="Group\StreamingCodec\IOperatorLevelStreamingCodec.cs" />
+    <Compile Include="Group\StreamingCodec\IStreamingCodec.cs" />
     <Compile Include="Group\Task\ICommunicationGroupClient.cs" />
     <Compile Include="Group\Task\ICommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\IMpiClient.cs" />
@@ -139,9 +176,6 @@ under the License.
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
       <Project>{97dbb573-3994-417a-9f69-ffa25f00d2a6}</Project>
       <Name>Org.Apache.REEF.Tang</Name>
@@ -166,6 +200,10 @@ under the License.
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

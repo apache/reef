@@ -17,7 +17,10 @@
  * under the License.
  */
 
+using System.Security.AccessControl;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -35,7 +38,30 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         {
             SenderId = senderId;
             Codec = codecType;
+            PipelineDataConverter = null;
         }
+
+        /// <summary>
+        /// Create a new BroadcastOperatorSpec.
+        /// </summary>
+        /// <param name="senderId">The identifier of the root sending Task.</param>
+        /// <param name="codecType">The codec used to serialize messages.</param>
+        /// <param name="dataConverter">The converter used to convert original 
+        /// message to pipelined ones and vice versa.</param>
+        public BroadcastOperatorSpec(
+            string senderId, 
+            ICodec<T> codecType, 
+            IPipelineDataConverter<T> dataConverter)
+        {
+            SenderId = senderId;
+            Codec = codecType;
+            PipelineDataConverter = dataConverter;
+        }
+
+        /// <summary>
+        /// Returns the IPipelineDataConverter class type used to convert messages to pipeline form and vice-versa
+        /// </summary>
+        public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
 
         /// <summary>
         /// Returns the identifier of the Task that will broadcast data to other Tasks.
