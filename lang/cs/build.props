@@ -70,6 +70,12 @@ under the License.
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
+  <!-- REEF Version -->
+  <PropertyGroup>
+    <!--TODO: Fetch this from the POM-->
+    <REEF_Version>0.11.0-incubating-SNAPSHOT</REEF_Version>
+  </PropertyGroup>
+  
   <!-- REEF NuGet properties -->
   <PropertyGroup>
     <IsSnapshot>true</IsSnapshot>
