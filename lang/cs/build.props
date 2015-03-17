@@ -15,8 +15,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Common build paths --> 
+<Project InitialTargets="ExtractPOMVersion" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Common build paths -->
   <PropertyGroup>
     <BinDir Condition="$(BinDir) == '' Or $(BinDir) == '*Undefined*'">$(SolutionDir)\bin</BinDir>
     <PackagesDir Condition="$(PackagesDir) == '' Or $(PackagesDir) == '*Undefined*'">$(SolutionDir)\packages</PackagesDir>
@@ -70,12 +70,6 @@ under the License.
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <!-- REEF Version -->
-  <PropertyGroup>
-    <!--TODO: Fetch this from the POM-->
-    <REEF_Version>0.11.0-incubating-SNAPSHOT</REEF_Version>
-  </PropertyGroup>
-  
   <!-- REEF NuGet properties -->
   <PropertyGroup>
     <IsSnapshot>true</IsSnapshot>
@@ -86,10 +80,56 @@ under the License.
 
   <!-- Package versions -->
   <PropertyGroup>
-    <AvroVersion>1.4.0.0</AvroVersion> 
-    <NewtonsoftJsonVersion>6.0.8</NewtonsoftJsonVersion> 
-    <ProtobufVersion>2.0.0.668</ProtobufVersion> 
-    <RxVersion>2.2.5</RxVersion> 
+    <AvroVersion>1.4.0.0</AvroVersion>
+    <NewtonsoftJsonVersion>6.0.8</NewtonsoftJsonVersion>
+    <ProtobufVersion>2.0.0.668</ProtobufVersion>
+    <RxVersion>2.2.5</RxVersion>
   </PropertyGroup>
 
+  <!-- Locations -->
+  <PropertyGroup>
+    <!--The root directory of the REEF source tree. -->
+    <REEF_Source_Folder>$([System.IO.Path]::GetFullPath($(SolutionDir)\..\..))</REEF_Source_Folder>
+  </PropertyGroup>
+
+  <!-- 
+       ########################################################################
+         Extract the REEF Version from the POM file 
+       ######################################################################## 
+  -->
+  <!--A Task that extracts the version from the pom in a given folder.-->
+  <UsingTask
+    TaskName="GetMavenProjectVersion"
+    TaskFactory="CodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" >
+    <ParameterGroup>
+      <ProjectFolder Required="true"/>
+      <Version Output="true"/>
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Xml"/>
+      <Reference Include="System.Xml.Linq"/>
+      <Using Namespace="System"/>
+      <Using Namespace="System.IO"/>
+      <Using Namespace="System.Linq"/>
+      <Using Namespace="System.Xml.Linq"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
+            .Where(x => x.Name.ToString().Contains("version"))
+            .FirstOrDefault().Value;
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <!--
+    A Target that extract the REEF version from the pom and makes it available as REEF_Version
+  -->
+  <Target Name="ExtractPOMVersion">
+    <Message Text="The root directory of the source tree is $(REEF_Source_Folder)" />
+    <GetMavenProjectVersion ProjectFolder="$(REEF_Source_Folder)">
+      <Output PropertyName="REEF_Version" TaskParameter="Version"/>
+    </GetMavenProjectVersion>
+    <Message Text="Extracted the following version from the POM: $(REEF_Version)"/>
+  </Target>
 </Project>
