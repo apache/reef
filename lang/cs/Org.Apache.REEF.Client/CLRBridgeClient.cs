@@ -36,8 +36,8 @@ namespace Org.Apache.REEF.Client
     public class CLRBridgeClient
     {
         public const string ReefHome = "REEF_HOME";
-        public const string DefaultClrFolder = @"lang\reef-bridge\dotnetHello";
-        public const string DefaultReefJar = @"lang\reef-bridge\target\" + Constants.BridgeJarFileName;
+        public const string DefaultClrFolder = @"lang\java\reef-bridge-java\dotnetHello";
+        public const string DefaultReefJar = @"lang\java\reef-bridge-java\target\" + Constants.JavaBridgeJarFileName;
         public const string DefaultRunCommand = "run.cmd";
 
         private static string _clrFolder = null;

@@ -140,7 +140,7 @@ namespace Org.Apache.REEF.Driver
 
         private static void ExtractConfigFromJar(string jarfileFolder)
         {
-            string jarfile = jarfileFolder + Constants.BridgeJarFileName;
+            string jarfile = jarfileFolder + Constants.JavaBridgeJarFileName;
             List<string> files = new List<string>();
             files.Add(DriverConfigGenerator.HttpServerConfigFile);
             files.Add(DriverConfigGenerator.JobDriverConfigFile);
