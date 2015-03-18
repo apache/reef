@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             arguments.Add(runOnYarn.ToString());
             arguments.Add(Constants.BridgeLaunchClass);
             arguments.Add(".");
-            arguments.Add(Path.Combine(_binFolder, Constants.BridgeJarFileName));
+            arguments.Add(Path.Combine(_binFolder, Constants.JavaBridgeJarFileName));
             arguments.Add(Path.Combine(_binFolder, _cmdFile));
 
             ProcessStartInfo startInfo = new ProcessStartInfo()

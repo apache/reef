@@ -59,10 +59,7 @@ public class LibLoader {
     try (final LoggingScope lb = loggingScopeFactory.loadLib()) {
 
       // Load the native library connecting C# and Java
-      this.loadMixedDLL();
-
-      // Load the CLR side
-      //this.loadCLRBridgeDLL();
+      this.loadBridgeDLL();
 
       // Load all DLLs in local
       this.loadAllManagedDLLs(this.reefFileNames.getLocalFolder());
@@ -73,56 +70,66 @@ public class LibLoader {
     LOG.log(Level.INFO, "Done loading DLLs for Driver at time {0}." + new Date().toString());
   }
 
-  //load Org.Apache.REEF.Bridge.JavaClrBridge.dll
-  private void loadMixedDLL() throws IOException {
+  /**
+   * Loads the Bridge DLL. First, it attempts to load from the reef/local folder. Second attempt is reef/global, last
+   * attempt is loading it from the JAR.
+   *
+   * @throws IOException If all attempts fail.
+   */
+  private void loadBridgeDLL() throws IOException {
     try {
-      final String JavaClrBridgeDll = this.reefFileNames.getMixedDLLFile().getAbsolutePath();
-      LOG.log(Level.INFO, "loadMixedDLL() -JavaClrBridge Dll: {0}.", JavaClrBridgeDll);
-      System.load(JavaClrBridgeDll);
-    } catch (final Throwable e) {
+      loadBridgeDLLFromLocal();
+    } catch (final Throwable t) {
       try {
-        final String JavaClrBridgeDll = this.reefFileNames.getClrFileFromGlobal().getAbsolutePath();
-        LOG.log(Level.INFO, "loadMixedDLL() -JavaClrBridge Dll: {0}.", JavaClrBridgeDll);
-        if (!(new File(JavaClrBridgeDll)).exists()) {
-          LOG.log(Level.WARNING, "loadMixedDLL() - cannot find file: ", JavaClrBridgeDll);
-        }
-        System.load(JavaClrBridgeDll);
-      } catch (final Throwable e1) {
-        LOG.log(Level.WARNING, e1.getMessage());
-        LOG.log(Level.WARNING, "loadMixedDLL() - Unable to load {0}, trying the JAR", this.reefFileNames.getClrFileFromGlobal().getAbsolutePath());
-        LOG.log(Level.WARNING, e1.getMessage());
-        final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
-        new File(tempLoadDir).mkdir();
-        LOG.log(Level.INFO, "loadMixedDLL() - tempLoadDir created: {0} ", tempLoadDir);
-        final String bridgeMixedDLLName = this.reefFileNames.getBridgeMixedDLLName();
-        LOG.log(Level.INFO, "loadMixedDLL() - BridgeMixedDLLName: {0}", bridgeMixedDLLName);
-        loadFromReefJar(bridgeMixedDLLName, false);
+        loadBridgeDLLFromGlobal();
+      } catch (final Throwable t2) {
+        loadBridgeDLLFromJAR();
       }
     }
   }
 
-  //Org.Apache.REEF.Bridge.Clr.dll no need any more
-  private void loadCLRBridgeDLL() throws IOException {
-    try {
-      File bridgeClrDLLFile = this.reefFileNames.getBridgeClrDLLFile();
-      LOG.log(Level.INFO, "loadCLRBridgeDLL() - BridgeClrDLLFile: {0}.", bridgeClrDLLFile);
-      loadManagedDLL(bridgeClrDLLFile);
-    } catch (final Throwable t) {
-      LOG.log(Level.WARNING, "Unable to load {0}, trying the JAR.", this.reefFileNames.getBridgeClrDLLFile().getAbsolutePath());
-      final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
-      new File(tempLoadDir).mkdir();
-      LOG.log(Level.INFO, "loadCLRBridgeDLL() - tempLoadDir created: {0} ", tempLoadDir);
-      String bridgeClrDllName = this.reefFileNames.getBridgeClrDllName();
-      LOG.log(Level.INFO, "loadCLRBridgeDLL() - BridgeClrDllName: {0}", bridgeClrDllName);
-      loadFromReefJar(bridgeClrDllName, true);
-    }
+
+  /**
+   * Attempts to load the bridge DLL from the global folder.
+   */
+  private void loadBridgeDLLFromGlobal() {
+    LOG.log(Level.INFO, "Attempting to load the bridge DLL from the global folder.");
+    loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInGlobalFolderFile());
   }
 
   /**
-   * Load assemblies at global folder
+   * Attempts to load the bridge DLL from the local folder.
    */
-  private void loadDLLsInGlobal() {
-    loadAllManagedDLLs(this.reefFileNames.getGlobalFolder());
+  private void loadBridgeDLLFromLocal() {
+    LOG.log(Level.INFO, "Attempting to load the bridge DLL from the local folder.");
+    loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInLocalFolderFile());
+  }
+
+  /**
+   * Attempts to load the bridge DLL from the given file.
+   *
+   * @param bridgeDLLFile
+   */
+  private static void loadBridgeDLLFromFile(final File bridgeDLLFile) {
+    LOG.log(Level.INFO, "Attempting to load the bridge DLL from {0}", bridgeDLLFile);
+    System.load(bridgeDLLFile.getAbsolutePath());
+    LOG.log(Level.INFO, "Successfully loaded the bridge DLL from {0}", bridgeDLLFile);
+  }
+
+  /**
+   * Attempts to load the bridge DLL from the JAR file.
+   *
+   * @throws IOException
+   * @deprecated We should use the files instead.
+   */
+  @Deprecated
+  private void loadBridgeDLLFromJAR() throws IOException {
+    final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
+    new File(tempLoadDir).mkdir();
+    LOG.log(Level.INFO, "loadBridgeDLL() - tempLoadDir created: {0} ", tempLoadDir);
+    final String bridgeMixedDLLName = this.reefFileNames.getBridgeDLLName();
+    LOG.log(Level.INFO, "loadBridgeDLL() - BridgeMixedDLLName: {0}", bridgeMixedDLLName);
+    loadFromReefJar(bridgeMixedDLLName, false);
   }
 
   /**
@@ -162,10 +169,13 @@ public class LibLoader {
   }
 
   /**
-   * Get file from jar file and copy it to temp dir and loads the library to memory
+   * Get file from jar file and copy it to temp dir and loads the library to memory.
+   *
+   * @deprecated This is replaced by loading it from the folders directly.
    */
+  @Deprecated
   private void loadFromReefJar(String name, final boolean managed) throws IOException {
-
+    LOG.log(Level.SEVERE, "Consider upgrading your REEF client. Loading DLLs from the JAR is deprecated.");
     if (!name.endsWith(".dll")) {
       name = name + DLL_EXTENSION;
     }

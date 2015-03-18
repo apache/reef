@@ -71,8 +71,6 @@ namespace Org.Apache.REEF.Driver
 
         public const string DriverAppDirectory = "ReefDriverAppDlls";
 
-        public const string BridgeJarFileName = "reef-bridge-0.11.0-incubating-SNAPSHOT-shaded.jar";
-
         public const string JavaBridgeJarFileName = "reef-bridge-java-0.11.0-incubating-SNAPSHOT-shaded.jar";
 
         public const string BridgeLaunchClass = "org.apache.reef.javabridge.generic.Launch";

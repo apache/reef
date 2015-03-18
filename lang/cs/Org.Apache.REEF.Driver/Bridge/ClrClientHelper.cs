@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Driver.Bridge
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClrClientHelper));
 
-        public static void Run(HashSet<string> appDlls, IConfiguration driverBridgeConfig, DriverSubmissionSettings driverSubmissionSettings, string reefJar = Constants.BridgeJarFileName, string runCommand = "run.cmd", string clrFolder = ".", string className = Constants.BridgeLaunchClass)
+        public static void Run(HashSet<string> appDlls, IConfiguration driverBridgeConfig, DriverSubmissionSettings driverSubmissionSettings, string reefJar = Constants.JavaBridgeJarFileName, string runCommand = "run.cmd", string clrFolder = ".", string className = Constants.BridgeLaunchClass)
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::Run"))
             {

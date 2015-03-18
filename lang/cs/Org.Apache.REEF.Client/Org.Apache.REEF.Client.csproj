@@ -78,10 +78,6 @@ under the License.
       <Project>{4e69d40a-26d6-4d4a-b96d-729946c07fe1}</Project>
       <Name>Org.Apache.REEF.Bridge</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.csproj">
-      <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
-      <Name>Org.Apache.REEF.Evaluator</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
