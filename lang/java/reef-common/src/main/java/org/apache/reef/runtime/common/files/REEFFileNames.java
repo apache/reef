@@ -50,7 +50,7 @@ public final class REEFFileNames {
   private static final String REEF_DRIVER_APPDLL_DIR = "/ReefDriverAppDlls/";
   private static final String TMP_LOAD_DIR = "/reef/CLRLoadingDirectory";
   private static final String BRIDGE_CLR_DLL_NAME = "Org.Apache.REEF.Bridge.Clr.dll";
-  private static final String BRIDGE_MIXED_DLL_NAME = "Org.Apache.REEF.Bridge.JavaClrBridge.dll";
+  private static final String BRIDGE_MIXED_DLL_NAME = "Org.Apache.REEF.Bridge.dll";// "Org.Apache.REEF.Bridge.JavaClrBridge.dll";
 
 
   @Inject
@@ -88,6 +88,10 @@ public final class REEFFileNames {
    */
   public File getMixedDLLFile() {
     return new File(getLocalFolder(), getBridgeMixedDLLName());
+  }
+
+  public File getClrFileFromGlobal() {
+    return new File(getGlobalFolder(), getBridgeMixedDLLName());
   }
 
 

@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+#include "stdafx.h"
+
 using namespace System;
 using namespace System::Reflection;
 using namespace System::Runtime::CompilerServices;
@@ -27,9 +30,15 @@ using namespace System::Security::Permissions;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly:AssemblyTitleAttribute("JavaClrBridge")];
-[assembly:AssemblyProductAttribute("JavaClrBridge")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c)  2014")];
+[assembly:AssemblyTitleAttribute(L"OrgApacheREEFJavaClrBridge")];
+[assembly:AssemblyDescriptionAttribute(L"")];
+[assembly:AssemblyConfigurationAttribute(L"")];
+[assembly:AssemblyCompanyAttribute(L"")];
+[assembly:AssemblyProductAttribute(L"OrgApacheREEFJavaClrBridge")];
+[assembly:AssemblyCopyrightAttribute(L"Copyright (c)  2015")];
+[assembly:AssemblyTrademarkAttribute(L"")];
+[assembly:AssemblyCultureAttribute(L"")];
+
 //
 // Version information for an assembly consists of the following four values:
 //
@@ -46,5 +55,3 @@ using namespace System::Security::Permissions;
 [assembly:ComVisible(false)];
 
 [assembly:CLSCompliantAttribute(true)];
-
-[assembly:SecurityPermission(SecurityAction::RequestMinimum, UnmanagedCode = true)];

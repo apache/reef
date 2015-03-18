@@ -135,6 +135,8 @@ under the License.
     <Compile Include="Evaluator\IFailedEvaluator.cs" />
     <Compile Include="FailedJob.cs" />
     <Compile Include="IDriver.cs" />
+    <Compile Include="InteropInterface\IInteropReturnInfo.cs" />
+    <Compile Include="InteropInterface\ILogger.cs" />
     <Compile Include="IStartHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\ICompletedTask.cs" />

@@ -20,7 +20,7 @@
 #include "org_apache_reef_javabridge_NativeInterop.h"
 #include "JavaClrBridge.h"
 #include "InteropAssemblies.h"
-#using "Org.Apache.REEF.Bridge.Clr.dll"
+#using "Org.Apache.REEF.Driver.dll"
 
 using namespace System;
 using namespace System::IO;
@@ -32,15 +32,25 @@ using namespace Microsoft::Reef::Interop;
 namespace Microsoft {
   namespace Reef {
     namespace Interop {
-      public ref class InteropLogger : public ILogger {
-          jobject _jobjectInteropLogger;
-          jclass  _jclassInteropLogger;
-          jmethodID _jmidLog;
+      public ref class InteropReturnInfo : public IInteropReturnInfo {
           JNIEnv* _env;
+          jobject   _jobjectInteropReturnInfo;
+
+          jmethodID _jmidAddExceptionString;
+          jmethodID _jmidHasExceptions;
+          jmethodID _jmidsetReturnCode;
+          jmethodID _jmidgetReturnCode;
 
         public:
-          InteropLogger (JNIEnv* env, jobject jobjectInteropLogger);
-          virtual void Log(TraceLevel traceLevel, String^ message );
+          InteropReturnInfo  (
+            JNIEnv* env,
+            jobject     jobjectInteropReturnInfo,
+            ILogger^    logger
+          );
+          virtual void AddExceptionString(String^ exceptionString);
+          virtual Boolean HasExceptions();
+          virtual void SetReturnCode(int rc);
+          virtual int GetReturnCode();
       };
     }
   }

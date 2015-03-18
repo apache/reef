@@ -24,6 +24,7 @@ under the License.
     <RootNameSpace>$(MSBuildProjectName)</RootNameSpace>
   </PropertyGroup>
   <Import Project="..\build.props" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
   <!--
     Check that maven is installed
   -->
@@ -59,4 +60,8 @@ under the License.
     Standard Rebuild target: Clean, then build
   -->
   <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
+ <Target Name="GetNativeManifest"> 
+ </Target>
+ <Target Name="GetCopyToOutputDirectoryItems"> 
+</Target> 
 </Project>
