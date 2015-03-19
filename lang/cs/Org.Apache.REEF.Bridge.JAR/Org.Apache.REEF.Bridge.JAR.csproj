@@ -30,12 +30,28 @@ under the License.
   -->
   <Target Name="CheckMavenInstall">
     <Error Condition=" '$(M2_HOME)' == '' " Text="$M2_HOME is not set. Please make sure that Maven is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
+	<Error Condition=" '$(JAVA_HOME)' == '' " Text="$JAVA_HOME is not set. Please make sure that Java is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
     <Message Text="Using the maven installation found in $(M2_HOME)" />
   </Target>
+  
+  <Target Name="CheckJavaInstall">    
+	<Error Condition=" '$(JAVA_HOME)' == '' " Text="$JAVA_HOME is not set. Please make sure that Java is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
+    <Message Text="Using the java installation found in $(JAVA_HOME)" />
+  </Target>
+
+  <Target Name="CheckProtocInstall">        
+	<Exec ContinueOnError="True" IgnoreExitCode='true'
+		Command='"cmd /c where protoc.exe"'>
+       <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
+    </Exec>   
+   <Message Text="The exit code is $(ErrorCode)"/>
+   <Error Text="protoc.exe not found. Please make sure that protoc.exe is on the path. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." Condition="'$(ErrorCode)' > '0'" />
+  </Target>  
+
   <!--
     Executes 'mvn install', if the JAR does not exist.
   -->
-  <Target Name="Build" DependsOnTargets="CheckMavenInstall">
+  <Target Name="Build" DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall">
     <PropertyGroup>
       <!--The shaded jar of the bridge -->
       <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
@@ -47,12 +63,12 @@ under the License.
   <!--
     Executes 'mvn clean', if the JAR exists.
   -->
-  <Target Name="Clean" DependsOnTargets="CheckMavenInstall">
+  <Target Name="Clean" DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall">
     <PropertyGroup>
       <!--The shaded jar of the bridge -->
       <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
       <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\$(Bridge_JAR_Name)</Bridge_JAR>
-    </PropertyGroup>
+    </PropertyGroup>	
     <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests clean" Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
   </Target>
