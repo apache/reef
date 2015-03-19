@@ -77,6 +77,7 @@ Function Finalize-Nuspec-Version {
     }
 
     $nuspecDir = "$SolutionDir\.nuget\nuspec"
+    Write-Output $nuspecDir
     $nuspecFiles = Get-ChildItem $nuspecDir
     
     # Replace the $version$ token with the specified version in each nuspec file
