@@ -696,8 +696,7 @@ namespace Org.Apache.REEF.Tests.Network
             IPEndPoint nameServerEndpoint, IObserver<NsMessage<GroupCommunicationMessage>> handler)
         {
             return new NetworkService<GroupCommunicationMessage>(
-                0, nameServerEndpoint.Address.ToString(), nameServerEndpoint.Port, 
-                handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec());
+                0, handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec(), new NameClient(nameServerEndpoint.Address.ToString(), nameServerEndpoint.Port));
         }
 
         private GroupCommunicationMessage CreateGcm(string message, string from, string to)

@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly INameClient _nameClient;
         private readonly Sender _sender;
         private readonly BlockingCollection<NodeStruct> _nodesWithData;
-            
+
         /// <summary>
         /// Creates a new OperatorTopology object.
         /// </summary>
