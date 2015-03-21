@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Org.Apache.REEF.Bridge.JAR</id>
+    <version>$version$</version>
+    <title>Org.Apache.REEF.Bridge.JAR</title>
+    <authors>The Apache REEF project</authors>
+    <owners>The Apache REEF project</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://reef.incubator.apache.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The Java side of the REEF Bridge. Note that this contains all its dependencies as well.</description>
+    <copyright>The Apache Software Foundation and the respective owners of the packaged libraries.</copyright>
+  </metadata>
+  <files>
+      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Bridge.JAR\reef-bridge-java-$REEF_Version$-shaded.jar" target="jars" />
+  </files>
+</package>
