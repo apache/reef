@@ -16,14 +16,20 @@ specific language governing permissions and limitations
 under the License.
 -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <!--Set configuration parameters usually set in the Solution. This is needed for build.props to work.-->
-    <SolutionDir Condition="'$(SolutionDir)' == ''">$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)\..))</SolutionDir>
+    <!--<SolutionDir Condition="'$(SolutionDir)' == ''">$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)\..))</SolutionDir> -->
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
     <RootNameSpace>$(MSBuildProjectName)</RootNameSpace>
+    <ProjectGuid>{62905C7C-1A7E-4923-B78D-1BF42D7FAD40}</ProjectGuid>
+    <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
-  <Import Project="..\build.props" />
+  <Import Project="$(SolutionDir)\build.props" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
   <!--
     Check that maven is installed
@@ -45,6 +51,7 @@ under the License.
        <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
     </Exec>   
    <Message Text="The exit code is $(ErrorCode)"/>
+   <Message Text="BuildPackage is $(BuildPackage)"/>
    <Error Text="protoc.exe not found. Please make sure that protoc.exe is on the path. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." Condition="'$(ErrorCode)' > '0'" />
   </Target>  
 
@@ -76,8 +83,18 @@ under the License.
     Standard Rebuild target: Clean, then build
   -->
   <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
- <Target Name="GetNativeManifest"> 
- </Target>
- <Target Name="GetCopyToOutputDirectoryItems"> 
-</Target> 
+  <Target Name="CheckPrerequisites" DependsOnTargets="Build"/>
+    <Target Name="BuildPackage" Condition="'$(BuildPackage)' == 'true'" DependsOnTargets="ExtractPOMVersion; CheckPrerequisites; FinalizeNuspecFiles" AfterTargets="Build">
+        <PropertyGroup>
+            <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
+        </PropertyGroup>
+
+        <Exec Command="$(BuildCommand)"
+              Condition=" '$(OS)' != 'Windows_NT' " />
+
+        <Exec Command="$(BuildCommand)"
+              LogStandardErrorAsError="true"
+              Condition=" '$(OS)' == 'Windows_NT' " />
+    </Target>
+  
 </Project>
