@@ -52,9 +52,10 @@ under the License.
   <!-- REEF NuGet properties -->
   <PropertyGroup>
     <IsSnapshot>true</IsSnapshot>
-    <SnapshotNumber>7</SnapshotNumber>
+    <SnapshotNumber>9</SnapshotNumber>
     <PushPackages>false</PushPackages>
-    <NuGetRepository>https://www.nuget.org</NuGetRepository>
+    <!--NuGetRepository>https://www.nuget.org</NuGetRepository-->
+    <NuGetRepository>http://localhost:46824</NuGetRepository>
   </PropertyGroup>
 
   <!-- Package versions -->
@@ -82,8 +83,10 @@ under the License.
     TaskFactory="CodeTaskFactory"
     AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" >
     <ParameterGroup>
+      <SnapshotNumber/>
       <ProjectFolder Required="true"/>
       <Version Output="true"/>
+      <NugetVersion Output="true"/>
     </ParameterGroup>
     <Task>
       <Reference Include="System.Xml"/>
@@ -94,10 +97,11 @@ under the License.
       <Using Namespace="System.Xml.Linq"/>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
+          Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
             .Where(x => x.Name.ToString().Contains("version"))
             .FirstOrDefault().Value;
-]]>
+          NugetVersion = Version.Replace("-incubating","") + "-" + SnapshotNumber;
+        ]]>
       </Code>
     </Task>
   </UsingTask>
@@ -108,6 +112,7 @@ Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
     <Message Text="The root directory of the source tree is $(REEF_Source_Folder)" />
     <GetMavenProjectVersion ProjectFolder="$(REEF_Source_Folder)">
       <Output PropertyName="REEF_Version" TaskParameter="Version"/>
+      <Output PropertyName="REEF_NugetVersion" TaskParameter="NugetVersion"/>
     </GetMavenProjectVersion>
     <Message Text="Extracted the following version from the POM: $(REEF_Version)"/>
   </Target>
