@@ -54,8 +54,7 @@ under the License.
     <IsSnapshot>true</IsSnapshot>
     <SnapshotNumber>9</SnapshotNumber>
     <PushPackages>false</PushPackages>
-    <!--NuGetRepository>https://www.nuget.org</NuGetRepository-->
-    <NuGetRepository>http://localhost:46824</NuGetRepository>
+    <NuGetRepository>https://www.nuget.org</NuGetRepository>
   </PropertyGroup>
 
   <!-- Package versions -->

@@ -108,6 +108,5 @@ under the License.
             Command="$(PushCommand)"
             LogStandardErrorAsError="true">
         </Exec>
-	<Message Text="xxx PackageFile is [$(PackageFile)]"/>
     </Target>
 </Project>
