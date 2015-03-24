@@ -13,6 +13,6 @@
     <copyright>The Apache Software Foundation and the respective owners of the packaged libraries.</copyright>
   </metadata>
   <files>
-      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Bridge.JAR\reef-bridge-java-$REEF_Version$-shaded.jar" target="jars" />
+      <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Bridge.JAR\reef-bridge-java-$REEF_Version$-shaded.jar" target="content" />
   </files>
 </package>
