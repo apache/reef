@@ -623,7 +623,6 @@ under the License.
     </dependencyManagement>
 
     <modules>
-        <module>lang/cs</module>
         <module>lang/java/reef-annotations</module>
      	<module>lang/java/reef-bridge-java</module>
         <module>lang/java/reef-checkpoint</module>
