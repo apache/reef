@@ -138,14 +138,12 @@ public class LibLoader {
    * @param folder
    */
   private void loadAllManagedDLLs(final File folder) {
-    LOG.log(Level.FINE, "Loading all managed DLLs from {0}", folder.getAbsolutePath());
+    LOG.log(Level.INFO, "Loading all managed DLLs from {0}", folder.getAbsolutePath());
     final File[] files = folder.listFiles(new FilenameFilter() {
       public boolean accept(File dir, String name) {
         return name.toLowerCase().endsWith(DLL_EXTENSION);
       }
     });
-
-    LOG.log(Level.FINE, "file size: {0}", files.length);
 
     for (final File f : files) {
       loadManagedDLL(f);
