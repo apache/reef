@@ -19,7 +19,7 @@
 package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.Naming;
-import org.apache.reef.io.network.Cache;
+import org.apache.reef.util.cache.Cache;
 import org.apache.reef.io.network.naming.exception.NamingRuntimeException;
 import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;
 import org.apache.reef.io.network.naming.serialization.NamingMessage;
