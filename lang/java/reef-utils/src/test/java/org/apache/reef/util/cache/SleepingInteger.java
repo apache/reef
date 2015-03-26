@@ -16,38 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
-
-import org.apache.reef.exception.evaluator.NetworkException;
+package org.apache.reef.util.cache;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 /**
- * Cache for network and naming services
+ * A mock computation that simulates computation time by sleeping and returns an integer
  */
-public interface Cache<K, V> {
-  /**
-   *  Constructs with timeout
-   *  key is evicted when it's not used for timeout milli-seconds
-   */
+class SleepingInteger implements Callable<Integer> {
+  private final int returnValue;
+  private final long sleepMillis;
 
   /**
-   * Returns a value for the key if cached; otherwise creates, caches and returns
-   * When it creates a value for a key, only one callable for the key is executed
+   * Construct the mock value fetcher
    *
-   * @param key      a key
-   * @param callable a value fetcher
-   * @return a value
-   * @throws NetworkException
+   * @param returnValue value to return
+   * @param sleepMillis amount to sleep
    */
-  public V get(K key, Callable<V> valueFetcher) throws ExecutionException;
+  public SleepingInteger(final int returnValue, final long sleepMillis) {
+    this.returnValue = returnValue;
+    this.sleepMillis = sleepMillis;
+  }
 
-  /**
-   * Invalidates a key from the cache
-   *
-   * @param key a key
-   */
-  public void invalidate(K key);
-
+  @Override
+  public Integer call() throws Exception {
+    Thread.sleep(sleepMillis);
+    return returnValue;
+  }
 }
