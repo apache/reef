@@ -131,6 +131,7 @@ under the License.
     <Compile Include="Util\SetValuedKey.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Org.Apache.REEF.Tang.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

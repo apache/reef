@@ -52,6 +52,7 @@ under the License.
     <Compile Include="ValidationUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Org.Apache.Reef.Utilities.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -154,6 +154,7 @@ under the License.
     <Compile Include="Tasks\TaskMessage.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Org.Apache.REEF.Common.nuspec" />
     <None Include="packages.config" />
     <None Include="Protobuf\Proto\client_runtime.proto" />
     <None Include="Protobuf\Proto\driver_runtime.proto" />

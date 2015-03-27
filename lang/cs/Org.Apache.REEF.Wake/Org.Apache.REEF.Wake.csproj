@@ -137,6 +137,7 @@ under the License.
     <Compile Include="WakeRuntimeException.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Org.Apache.REEF.Wake.nuspec" />
     <None Include="packages.config" />
     <None Include="Remote\Proto\RemoteProtocol.proto" />
   </ItemGroup>

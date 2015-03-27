@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Org.Apache.REEF.JavaClrBridge.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -47,9 +44,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Org.Apache.REEF.JavaClrBridge.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AssemblyInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -132,5 +126,8 @@
     <Image Include="app.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Org.Apache.REEF.Bridge.nuspec" />
   </ItemGroup>
 </Project>
