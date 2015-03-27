@@ -905,7 +905,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             }
         }
 
-        public IInjector ForkInjector(IConfiguration[] configurations)
+        public IInjector ForkInjector(params IConfiguration[] configurations)
         {
             InjectorImpl ret;
             ret = Copy(this, configurations);
