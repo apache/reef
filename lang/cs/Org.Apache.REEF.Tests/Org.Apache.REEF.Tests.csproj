@@ -129,7 +129,7 @@ under the License.
       <Name>Org.Apache.REEF.Bridge</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
+    <ItemGroup>
     <Content Include="bin\reef-bridge-java-0.11.0-incubating-SNAPSHOT-shaded.jar">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -14,5 +14,6 @@
   </metadata>
   <files>
       <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Bridge.JAR\reef-bridge-java-$REEF_Version$-shaded.jar" target="content" />
+	    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Bridge.JAR\install.ps1" target="tools" />
   </files>
 </package>
