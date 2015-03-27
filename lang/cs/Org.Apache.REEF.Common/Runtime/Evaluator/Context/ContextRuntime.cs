@@ -139,7 +139,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 try
                 {
-                    IInjector childServiceInjector = _serviceInjector.ForkInjector(new IConfiguration[] { serviceConfiguration });
+                    IInjector childServiceInjector = _serviceInjector.ForkInjector(serviceConfiguration);
                     childContext = new ContextRuntime(childServiceInjector, contextConfiguration, Optional<ContextRuntime>.Of(this));
                     _childContext = Optional<ContextRuntime>.Of(childContext);
                     return childContext;
@@ -226,7 +226,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 try
                 {
-                    IInjector taskInjector = _contextInjector.ForkInjector(new IConfiguration[] { taskConfiguration.TangConfig });
+                    IInjector taskInjector = _contextInjector.ForkInjector(taskConfiguration.TangConfig);
                     LOGGER.Log(Level.Info, "Trying to inject task with configuration" + taskConfiguration.ToString());
                     TaskRuntime taskRuntime = new TaskRuntime(taskInjector, contextId, taskConfiguration.TaskId, heartBeatManager); // taskInjector.getInstance(TaskRuntime.class);
                     taskRuntime.Initialize();
