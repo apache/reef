@@ -145,6 +145,7 @@ under the License.
     <Compile Include="Task\RunningTaskImpl.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Org.Apache.REEF.Driver.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -139,6 +139,7 @@ under the License.
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Org.Apache.REEF.Network.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

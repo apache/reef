@@ -173,6 +173,9 @@ under the License.
       <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Org.Apache.REEF.Bridge.nuspec" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ImportGroup Label="ExtensionTargets">
