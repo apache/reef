@@ -184,9 +184,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
                     if (message == null)
                     {
+                        LOGGER.Log(Level.Error, "ProcessClient, no message received, break." + link.RemoteEndpoint + " - " + link.LocalEndpoint);
                         break;
                     }
                 }
+                LOGGER.Log(Level.Error, "ProcessClient close the Link. IsCancellationRequested: " + token.IsCancellationRequested);
             }
         }
     }

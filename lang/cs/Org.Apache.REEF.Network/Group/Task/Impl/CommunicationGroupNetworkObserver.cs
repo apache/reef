@@ -19,8 +19,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -29,15 +33,22 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     public class CommunicationGroupNetworkObserver : ICommunicationGroupNetworkObserver
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupNetworkObserver));
         private readonly Dictionary<string, IObserver<GroupCommunicationMessage>> _handlers;
-            
+        private readonly int _retryCount;
+        private readonly int _sleepTime;
+
         /// <summary>
         /// Creates a new CommunicationGroupNetworkObserver.
         /// </summary>
         [Inject]
-        public CommunicationGroupNetworkObserver()
+        public CommunicationGroupNetworkObserver(
+            [Parameter(typeof(MpiConfigurationOptions.RetryCountWaitingForHanler))] int retryCount,
+            [Parameter(typeof(MpiConfigurationOptions.SleepTimeWaitingForHandler))] int sleepTime)
         {
             _handlers = new Dictionary<string, IObserver<GroupCommunicationMessage>>();
+            _retryCount = retryCount;
+            _sleepTime = sleepTime;
         }
 
         /// <summary>
@@ -72,13 +83,46 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             string operatorName = message.OperatorName;
 
-            IObserver<GroupCommunicationMessage> handler;
-            if (!_handlers.TryGetValue(operatorName, out handler))
-            {
-                throw new ArgumentException("No handler registered with the operator name: " + operatorName);
-            }
+            IObserver<GroupCommunicationMessage> handler = GetOperatorHandler(operatorName, _retryCount, _sleepTime);
 
-            handler.OnNext(message);
+            if (handler == null)
+            {
+                Exceptions.Throw(new ArgumentException("No handler registered with the operator name: " + operatorName), LOGGER);
+            }
+            else
+            {
+                handler.OnNext(message);
+            }
+        }
+
+        /// <summary>
+        /// GetOperatorHandler for operatorName
+        /// </summary>
+        /// <param name="operatorName"></param>
+        /// <param name="retry"></param>
+        /// <param name="sleepTime"></param>
+        /// <returns></returns>
+        private IObserver<GroupCommunicationMessage> GetOperatorHandler(string operatorName, int retry, int sleepTime)
+        {
+            //registration of handler might be delayed while the Network Service has received message from other servers
+            for (int i = 0; i < retry; i++)
+            {
+                if (!_handlers.ContainsKey(operatorName))
+                {
+                    LOGGER.Log(Level.Info, "handler for operator {0} has not been registered." + operatorName);
+                    Thread.Sleep(sleepTime);
+                }
+                else
+                {
+                    IObserver<GroupCommunicationMessage> handler;
+                    if (!_handlers.TryGetValue(operatorName, out handler))
+                    {
+                        Exceptions.Throw(new ArgumentException("No handler registered yet with the operator name: " + operatorName), LOGGER);
+                    }
+                    return handler;
+                }
+            }
+            return null;
         }
 
         public void OnError(Exception error)

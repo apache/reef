@@ -70,7 +70,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             [Parameter(typeof(MpiConfigurationOptions.SerializedOperatorConfigs))] ISet<string> operatorConfigs,
             IMpiNetworkObserver mpiNetworkObserver,
             NetworkService<GroupCommunicationMessage> networkService,
-            AvroConfigurationSerializer configSerializer)
+            AvroConfigurationSerializer configSerializer,
+            CommunicationGroupNetworkObserver commGroupNetworkHandler)
         {
             _taskId = taskId;
             _driverId = driverId;
@@ -81,7 +82,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
             _networkService = networkService;
             _mpiNetworkHandler = mpiNetworkObserver;
-            _commGroupNetworkHandler = new CommunicationGroupNetworkObserver();
+            _commGroupNetworkHandler = commGroupNetworkHandler;
             _mpiNetworkHandler.Register(groupName, _commGroupNetworkHandler);
 
             // Deserialize operator configuration and store each injector.
