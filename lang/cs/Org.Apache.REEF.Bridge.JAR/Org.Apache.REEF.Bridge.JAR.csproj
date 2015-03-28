@@ -23,7 +23,7 @@ under the License.
     <RootNamespace>Org.Apache.REEF.Bridge.JAR</RootNamespace>
     <ProjectGuid>{62905C7C-1A7E-4923-B78D-1BF42D7FAD40}</ProjectGuid>
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
-    <RestorePackages>true</RestorePackages>     
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
@@ -107,22 +107,9 @@ under the License.
               LogStandardErrorAsError="true"
               Condition=" '$(OS)' == 'Windows_NT' " />
     </Target>
-    <Choose>
-        <When Condition="'$(SolutionDir)'=='..'">
-            <PropertyGroup>
-                <SolutionDir2>..\</SolutionDir2>
-            </PropertyGroup>
-        </When>
-        <Otherwise>
-            <PropertyGroup>
-                <SolutionDir2>$(SolutionDir)</SolutionDir2>
-            </PropertyGroup>
-        </Otherwise>
-    </Choose>
-
     <Target Name="PushPackages" Condition="'$(PushPackages)' == 'true'" DependsOnTargets="BuildPackage"  AfterTargets="BuildPackage">
         <ItemGroup>
-            <PackageFile Include="$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion)$(SnapshotNumber).nupkg" />
+            <PackageFile Include="$(SolutionDir).nuget\packages\$(RootNamespace).$(REEF_NugetVersion)$(SnapshotNumber).nupkg" />
         </ItemGroup>
         <PropertyGroup>
             <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
