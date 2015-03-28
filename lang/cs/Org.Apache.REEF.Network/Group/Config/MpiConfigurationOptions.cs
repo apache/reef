@@ -49,6 +49,16 @@ namespace Org.Apache.REEF.Network.Group.Config
         {
         }
 
+        [NamedParameter("sleep time to wait for handlers to be registered", defaultValue: "500")]
+        public class SleepTimeWaitingForHandler : Name<int>
+        {
+        }
+
+        [NamedParameter("Retry times to wait for handlers to be registered", defaultValue: "5")]
+        public class RetryCountWaitingForHanler : Name<int>
+        {
+        }
+
         [NamedParameter("Master task identifier")]
         public class MasterTaskId : Name<string>
         {
