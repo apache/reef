@@ -28,6 +28,7 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
@@ -37,6 +38,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     public class MpiClient : IMpiClient
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(MpiClient));
+
         private readonly Dictionary<string, ICommunicationGroupClient> _commGroups;
 
         private readonly INetworkService<GroupCommunicationMessage> _networkService;
@@ -58,6 +61,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             NetworkService<GroupCommunicationMessage> networkService,
             AvroConfigurationSerializer configSerializer)
         {
+            LOGGER.LogFunction("MpiClient constructor for task {0}", taskId);
             _commGroups = new Dictionary<string, ICommunicationGroupClient>();
             _networkService = networkService;
             networkService.Register(new StringIdentifier(taskId));
