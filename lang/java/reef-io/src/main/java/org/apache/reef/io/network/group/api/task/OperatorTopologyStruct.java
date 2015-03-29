@@ -65,9 +65,17 @@ public interface OperatorTopologyStruct {
 
   void sendToParent(byte[] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
 
+  void sendArrayToParent(byte[][] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
+  
   byte[] recvFromParent();
+  
+  byte[][] recvArrayFromParent();
 
   void sendToChildren(byte[] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
+  
+  void sendArrayToChildren(byte[][] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
 
   <T> T recvFromChildren(ReduceFunction<T> redFunc, Codec<T> dataCodec);
+  
+  byte[][] recvArrayFromChildren();
 }

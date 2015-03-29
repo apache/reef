@@ -21,13 +21,15 @@ package org.apache.reef.io.network.group.api.driver;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.io.network.group.api.task.GroupCommClient;
 import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.GatherOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.ScatterOperatorSpec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Name;
 
 /**
  * The driver side interface of a Communication Group
- * Lets one add opertaors and tasks.
+ * Lets one add operators and tasks.
  * Main function is to extract the configuration related
  * to the Group Communication for a task in the comm group
  */
@@ -56,6 +58,28 @@ public interface CommunicationGroupDriver {
    */
   public CommunicationGroupDriver addReduce(Class<? extends Name<String>> operatorName, ReduceOperatorSpec spec);
 
+  /**
+   * Add the scatter operator specified by the
+   * 'spec' with name 'operatorName' into this
+   * Communication Group
+   *
+   * @param operatorName
+   * @param spec
+   * @return
+   */
+  public CommunicationGroupDriver addScatter(Class<? extends Name<String>> operatorName, ScatterOperatorSpec spec);
+
+  /**
+   * Add the gather operator specified by the
+   * 'spec' with name 'operatorName' into this
+   * Communication Group
+   *
+   * @param operatorName
+   * @param spec
+   * @return
+   */
+  public CommunicationGroupDriver addGather(Class<? extends Name<String>> operatorName, GatherOperatorSpec spec);
+  
   /**
    * This signals to the service that no more
    * operator specs will be added to this communication

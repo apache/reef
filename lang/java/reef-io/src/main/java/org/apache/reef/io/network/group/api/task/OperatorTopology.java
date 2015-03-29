@@ -48,11 +48,19 @@ public interface OperatorTopology {
 
   void sendToParent(byte[] encode, ReefNetworkGroupCommProtos.GroupCommMessage.Type reduce) throws ParentDeadException;
 
+  void sendArrayToParent(byte[][] encode, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException;
+  
   byte[] recvFromParent() throws ParentDeadException;
+  
+  byte[][] recvArrayFromParent() throws ParentDeadException;
 
   void sendToChildren(byte[] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException;
+  
+  void sendArrayToChildren(byte[][] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException;
 
   <T> T recvFromChildren(ReduceFunction<T> redFunc, Codec<T> dataCodec) throws ParentDeadException;
+  
+  byte[][] recvArrayFromChildren() throws ParentDeadException;
 
   void initialize() throws ParentDeadException;
 }

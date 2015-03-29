@@ -202,6 +202,15 @@ public class OperatorTopologyImpl implements OperatorTopology {
     effectiveTopology.sendToParent(data, msgType);
     LOG.exiting("OperatorTopologyImpl", "sendToParent", Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
   }
+  
+  @Override
+  public void sendArrayToParent(final byte[][] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException {
+    LOG.entering("OperatorTopologyImpl", "sendArrayToParent", new Object[]{getQualifiedName(), data, msgType});
+    refreshEffectiveTopology();
+    assert (effectiveTopology != null);
+    effectiveTopology.sendArrayToParent(data, msgType);
+    LOG.exiting("OperatorTopologyImpl", "sendArrayToParent", Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
+  }
 
   @Override
   public void sendToChildren(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException {
@@ -210,6 +219,15 @@ public class OperatorTopologyImpl implements OperatorTopology {
     assert (effectiveTopology != null);
     effectiveTopology.sendToChildren(data, msgType);
     LOG.exiting("OperatorTopologyImpl", "sendToChildren", Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
+  }
+  
+  @Override
+  public void sendArrayToChildren(final byte[][] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException {
+    LOG.entering("OperatorTopologyImpl", "sendArrayToChildren", new Object[]{getQualifiedName(), data, msgType});
+    refreshEffectiveTopology();
+    assert (effectiveTopology != null);
+    effectiveTopology.sendArrayToChildren(data, msgType);
+    LOG.exiting("OperatorTopologyImpl", "sendArrayToChildren", new Object[]{getQualifiedName(), data, msgType});
   }
 
   @Override
@@ -221,6 +239,16 @@ public class OperatorTopologyImpl implements OperatorTopology {
     LOG.exiting("OperatorTopologyImpl", "recvFromParent", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
     return retVal;
   }
+  
+  @Override
+  public byte[][] recvArrayFromParent() throws ParentDeadException {
+    LOG.entering("OperatorTopologyImpl", "recvArrayFromParent", getQualifiedName());
+    refreshEffectiveTopology();
+    assert (effectiveTopology != null);
+    final byte[][] retVal = effectiveTopology.recvArrayFromParent();
+    LOG.exiting("OperatorTopologyImpl", "recvArrayFromParent", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
+    return retVal;
+  }
 
   @Override
   public <T> T recvFromChildren(final Reduce.ReduceFunction<T> redFunc, final Codec<T> dataCodec) throws ParentDeadException {
@@ -229,6 +257,16 @@ public class OperatorTopologyImpl implements OperatorTopology {
     assert (effectiveTopology != null);
     final T retVal = effectiveTopology.recvFromChildren(redFunc, dataCodec);
     LOG.exiting("OperatorTopologyImpl", "recvFromChildren", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
+    return retVal;
+  }
+  
+  @Override
+  public byte[][] recvArrayFromChildren() throws ParentDeadException {
+    LOG.entering("OperatorTopologyImpl", "recvArrayFromChildren", getQualifiedName());
+    refreshEffectiveTopology();
+    assert (effectiveTopology != null);
+    final byte[][] retVal = effectiveTopology.recvArrayFromChildren();
+    LOG.exiting("OperatorTopologyImpl", "recvArrayFromChildren", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
     return retVal;
   }
 
