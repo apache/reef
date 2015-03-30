@@ -78,11 +78,11 @@ under the License.
     <Compile Include="Utility\TestDriverConfigGenerator.cs" />
     <Compile Include="Utility\TestExceptions.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="bin\run.cmd">
+  <ItemGroup>  
+    <None Include="run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ConfigFiles\evaluator.conf">
+  <None Include="ConfigFiles\evaluator.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -130,11 +130,6 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bin\reef-bridge-java-0.11.0-incubating-SNAPSHOT-shaded.jar">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="bin\Debug\" />
     <Folder Include="bin\Release\" />
   </ItemGroup>
@@ -143,11 +138,18 @@ under the License.
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!--begin jar reference-->
+  <PropertyGroup>
+    <AfterBuildDependsOn>
+      $(AfterBuildDependsOn);
+      CopyJarFiles;
+    </AfterBuildDependsOn>
+  </PropertyGroup>
+  <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn);" />
+  <!--end jar reference-->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
   </Target>
   -->
 </Project>
