@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Tests.Functional
         protected const string _stdout = "driver.stdout";
         protected const string _stderr = "driver.stderr";
         protected const string _cmdFile = "run.cmd";
-        protected const string _binFolder = "bin";
+        protected const string _binFolder = ".";
         // TODO: we will need a proper way to hide this when we are OSS'ed
         protected const string _blobStorageConnectionString =
             @"DefaultEndpointsProtocol=https;AccountName=reeftestlog;AccountKey=cuUmPRF9DiG56bciNc37O/SfHAoh1jFfJW6AsXAtWLPnjlOzXJGWgXhkyDFOGEHIMscqDU41ElUKnjcsJjWD9w==";
