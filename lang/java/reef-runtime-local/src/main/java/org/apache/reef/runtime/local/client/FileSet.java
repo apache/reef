@@ -23,6 +23,7 @@ import org.apache.reef.tang.formats.OptionalParameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
@@ -79,7 +80,7 @@ final class FileSet {
   final void copyTo(final File destinationFolder) throws IOException {
     for (final File f : this.theFiles) {
       final File destinationFile = new File(destinationFolder, f.getName());
-      Files.copy(f.toPath(), destinationFile.toPath());
+      Files.copy(f.toPath(), destinationFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
     }
   }
 
