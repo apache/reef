@@ -82,7 +82,7 @@ under the License.
     <None Include="run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-	<None Include="ConfigFiles\evaluator.conf">
+  <None Include="ConfigFiles\evaluator.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
