@@ -94,7 +94,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       for (final FileResourceProto file : jobSubmissionProto.getLocalFileList()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getLocalFolderPath() + "/" + file.getName()).toPath();
-        Files.copy(src, dst);
+        Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
       }
 
       final File globalFolder = new File(reefFolder, this.fileNames.getGlobalFolderName());
@@ -102,7 +102,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       for (final FileResourceProto file : jobSubmissionProto.getGlobalFileList()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getGlobalFolderPath() + "/" + file.getName()).toPath();
-        Files.copy(src, dst);
+        Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
       }
 
       final Configuration driverConfiguration =
