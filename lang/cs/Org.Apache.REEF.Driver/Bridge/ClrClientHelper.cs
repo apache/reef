@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                     ClrHandlerHelper.CopyDllsToAppDirectory(appDlls);
                     UpdateJarFileWithAssemblies(reefJar);
                 }
+
                 using (LOGGER.LogScope("ClrHandlerHelper::serialize driverBridgeConfig to clrRuntimeConfigFile"))
                 {
                     string clrRuntimeConfigFile = Path.Combine(clrFolder, Constants.DriverBridgeConfiguration);
@@ -71,34 +72,11 @@ namespace Org.Apache.REEF.Driver.Bridge
                                           " " + clrFolder + " " + driverSubmissionSettings.ToComamndLineArguments();
                 }
                 startInfo.RedirectStandardOutput = true;
-                startInfo.RedirectStandardError = true;
                 startInfo.UseShellExecute = false;
                 startInfo.CreateNoWindow = false;
                 LOGGER.Log(Level.Info, "Executing\r\n" + startInfo.FileName + "\r\n" + startInfo.Arguments);
-                LOGGER.Log(Level.Info, "Current Directroy " + Directory.GetCurrentDirectory());
                 using (Process process = Process.Start(startInfo))
                 {
-                    process.ErrorDataReceived += (sender, errorLine) =>
-                    {
-                        if (errorLine.Data != null)
-                        {
-                            Trace.WriteLine(errorLine.Data);
-                            Console.WriteLine(errorLine.Data);
-                        }
-                        ;
-                    };
-                    process.OutputDataReceived += (sender, outputLine) =>
-                    {
-                        if (outputLine.Data != null)
-                        {
-                            Trace.WriteLine(outputLine.Data);
-                            Console.WriteLine(outputLine.Data);
-                        }
-                        
-                    };
-                    process.BeginErrorReadLine();
-                    process.BeginOutputReadLine();
-
                     process.WaitForExit();
                 }
             }
