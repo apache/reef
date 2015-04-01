@@ -63,15 +63,13 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
             _numEvaluators = numEvaluators;
             _mpiDriver = mpiDriver; 
             _commGroup = _mpiDriver.DefaultGroup
-                    .AddScatter(
+                    .AddScatter<int, IntCodec>(
                         MpiTestConstants.ScatterOperatorName,
                             MpiTestConstants.MasterTaskId,
-                            new IntCodec(),
                             TopologyTypes.Tree)
-                    .AddReduce(
+                    .AddReduce<int, IntCodec>(
                         MpiTestConstants.ReduceOperatorName,
                             MpiTestConstants.MasterTaskId,
-                            new IntCodec(), 
                             new SumFunction())
                     .Build();
 

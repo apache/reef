@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
@@ -24,17 +25,17 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// <summary>
     /// The specification used to define Broadcast Operators.
     /// </summary>
-    public class BroadcastOperatorSpec<T> : IOperatorSpec<T>
+    public class BroadcastOperatorSpec<T1, T2> : IOperatorSpec<T1, T2> where T2 : ICodec<T1>
     {
         /// <summary>
         /// Create a new BroadcastOperatorSpec.
         /// </summary>
         /// <param name="senderId">The identifier of the root sending Task.</param>
         /// <param name="codecType">The codec used to serialize messages.</param>
-        public BroadcastOperatorSpec(string senderId, ICodec<T> codecType)
+        public BroadcastOperatorSpec(string senderId)
         {
             SenderId = senderId;
-            Codec = codecType;
+            Codec = typeof(T2);
         }
 
         /// <summary>
@@ -45,6 +46,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Returns the ICodec used to serialize messages.
         /// </summary>
-        public ICodec<T> Codec { get; private set; }
+        public Type Codec { get; private set; }
     }
 }
