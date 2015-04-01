@@ -82,9 +82,9 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             _mpiDriver = mpiDriver;
 
             _commGroup = _mpiDriver.DefaultGroup
-                   .AddBroadcast(Constants.CentroidsBroadcastOperatorName,Constants.MasterTaskId, new CentroidsCodec())
-                   .AddBroadcast(Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId, new ControlMessageCodec())
-                   .AddReduce(Constants.MeansReduceOperatorName, Constants.MasterTaskId, new ProcessedResultsCodec(), new KMeansMasterTask.AggregateMeans())
+                   .AddBroadcast<Centroids, CentroidsCodec>(Constants.CentroidsBroadcastOperatorName, Constants.MasterTaskId)
+                   .AddBroadcast<ControlMessage, ControlMessageCodec>(Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId)
+                   .AddReduce<ProcessedResults, ProcessedResultsCodec>(Constants.MeansReduceOperatorName, Constants.MasterTaskId, new KMeansMasterTask.AggregateMeans())
                    .Build();
 
             _mpiTaskStarter = new TaskStarter(_mpiDriver, _totalEvaluators);

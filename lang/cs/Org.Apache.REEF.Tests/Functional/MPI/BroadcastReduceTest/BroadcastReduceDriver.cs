@@ -65,14 +65,12 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
             _numIterations = numIterations;
             _mpiDriver = mpiDriver;
             _commGroup = _mpiDriver.DefaultGroup
-                    .AddBroadcast(
+                    .AddBroadcast<int, IntCodec>(
                         MpiTestConstants.BroadcastOperatorName,
-                       MpiTestConstants.MasterTaskId,
-                            new IntCodec())
-                    .AddReduce(
+                       MpiTestConstants.MasterTaskId)
+                    .AddReduce<int, IntCodec>(
                         MpiTestConstants.ReduceOperatorName,
                             MpiTestConstants.MasterTaskId,
-                            new IntCodec(), 
                             new SumFunction())
                     .Build();
 
