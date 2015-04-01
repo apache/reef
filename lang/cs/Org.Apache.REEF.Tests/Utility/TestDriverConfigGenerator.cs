@@ -36,9 +36,8 @@ namespace Org.Apache.REEF.Tests.Utility
                 SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
                 IncludingHttpServer = true,
                 IncludingNameServer = true,
-                //ClrFolder = "C:\\Reef\\ReefApache\\incubator-reef\\reef-bridge-project\\reef-bridge\\dotnetHello",
                 ClrFolder = ".",
-                JarFileFolder = ".\\bin\\"
+                JarFileFolder = ".\\"
             };
 
             DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
@@ -54,9 +53,8 @@ namespace Org.Apache.REEF.Tests.Utility
                 SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
                 IncludingHttpServer = false,
                 IncludingNameServer = true,
-//                ClrFolder = "C:\\Reef\\ReefApache\\incubator-reef\\reef-bridge-project\\reef-bridge\\dotnetHello",
                 ClrFolder = ".",
-                JarFileFolder = ".\\bin\\"
+                JarFileFolder = ".\\"
             };
 
             DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
@@ -72,9 +70,8 @@ namespace Org.Apache.REEF.Tests.Utility
                 SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
                 IncludingHttpServer = true,
                 IncludingNameServer = false,
-                //ClrFolder = "C:\\Reef\\ReefApache\\incubator-reef\\reef-bridge-project\\reef-bridge\\dotnetHello",
                 ClrFolder = ".",
-                JarFileFolder = ".\\bin\\"
+                JarFileFolder = ".\\"
             };
 
             DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
@@ -90,9 +87,8 @@ namespace Org.Apache.REEF.Tests.Utility
                 SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
                 IncludingHttpServer = false,
                 IncludingNameServer = false,
-                //ClrFolder = "C:\\Reef\\ReefApache\\incubator-reef\\reef-bridge-project\\reef-bridge\\dotnetHello",
                 ClrFolder = ".",
-                JarFileFolder = ".\\bin\\"
+                JarFileFolder = ".\\"
             };
 
             DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);

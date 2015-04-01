@@ -33,7 +33,7 @@
 
 
 :: RUNTIME
-set SHADED_JAR=bin\reef-bridge-0.11.0-incubating-SNAPSHOT-shaded.jar
+set SHADED_JAR=.\reef-bridge-0.11.0-incubating-SNAPSHOT-shaded.jar
 
 set LOGGING_CONFIG=-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
 
