@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,26 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-using System;
-
-namespace Org.Apache.REEF.Common
-{
-    public class Constants
-    {
-        [Obsolete(message:"Use REEFFileNames instead.")]
-        public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
-
-        // if 8080 port is not used, then query would fail, 
-        // this is only for local runtime testing purpose though, so it should be ok
-        public const string LocalHttpEndpointBaseUri = @"http://localhost:8080/";  
-
-        public const string HDInsightClusterHttpEndpointBaseUri = @"http://headnodehost:9014/proxy/";
-
-        public const string HttpReefUriSpecification = @"Reef/v1/";
-
-        public const string HttpDriverUriTarget = @"Driver/";
-
-        public const string NameServerServiceName = "NameServer";
-    }
-}
+/**
+ * Contains the client of the bridge.
+ */
+package org.apache.reef.bridge.client;

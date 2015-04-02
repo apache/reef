@@ -18,10 +18,13 @@
  */
 
 using System;
+using System.CodeDom;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Context;
@@ -167,10 +170,22 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_OnNext"))
             {
-                GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
-                ClrSystemHandler<IHttpMessage> obj = (ClrSystemHandler<IHttpMessage>)gc.Target;
-                obj.OnNext(new HttpMessage(clr2Java));
-            }      
+                try
+                {
+                    GCHandle gc = GCHandle.FromIntPtr((IntPtr) handle);
+                    if (!gc.IsAllocated)
+                    {
+                        LOGGER.Log(Level.Warning, "gc is not allocated.");
+                    } 
+                    ClrSystemHandler<IHttpMessage> obj = (ClrSystemHandler<IHttpMessage>) gc.Target;
+                    obj.OnNext(new HttpMessage(clr2Java));
+                }
+                catch (Exception ex)
+                {
+                  
+                    LOGGER.Log(Level.Info, "Caught exception: " + ex.Message + ex.StackTrace );
+                    Exceptions.CaughtAndThrow(ex, Level.Warning,  LOGGER);
+                }}
         }
 
         public static void Call_ClrSystemClosedContext_OnNext(ulong handle, IClosedContextClr2Java clr2Java)
@@ -235,32 +250,16 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private static ulong[] GetHandlers(string httpServerPortNumber)
         {
-            IStartHandler startHandler;
-            IInjector injector = null;
-            string errorMessage;
-            string bridgeConfiguration = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global", Constants.DriverBridgeConfiguration);
-            if (!File.Exists(bridgeConfiguration))
-            {
-                errorMessage = "Cannot find CLR Driver bridge configuration file " + bridgeConfiguration;
-                Exceptions.Throw(new InvalidOperationException(errorMessage), LOGGER);
-            }
-            try
-            {
-                IConfiguration driverBridgeConfiguration = new AvroConfigurationSerializer().FromFile(bridgeConfiguration);
-                injector = TangFactory.GetTang().NewInjector(driverBridgeConfiguration);
-            }
-            catch (Exception e)
-            {
-                errorMessage = "Failed to get injector from driver bridge configuration.";
-                Exceptions.CaughtAndThrow(new InvalidOperationException(errorMessage, e), Level.Error, errorMessage, LOGGER);
-            }
+            var injector = BridgeConfigurationProvider.GetBridgeInjector();
 
             try
             {
-                HttpServerPort port = injector.GetInstance<HttpServerPort>();
-                port.PortNumber = httpServerPortNumber == null ? 0 : int.Parse(httpServerPortNumber, CultureInfo.InvariantCulture);
+                var port = injector.GetInstance<HttpServerPort>();
+                port.PortNumber = httpServerPortNumber == null
+                    ? 0
+                    : int.Parse(httpServerPortNumber, CultureInfo.InvariantCulture);
 
-                startHandler = injector.GetInstance<IStartHandler>();
+                var startHandler = injector.GetInstance<IStartHandler>();
                 LOGGER.Log(Level.Info, "Start handler set to be " + startHandler.Identifier);
                 _driverBridge = injector.GetInstance<DriverBridge>();
             }

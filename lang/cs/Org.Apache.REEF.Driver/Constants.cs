@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Driver
@@ -67,6 +68,7 @@ namespace Org.Apache.REEF.Driver
 
         public const string DriverRestartRunningTaskHandler = "DriverRestartRunningTask";
 
+        [Obsolete(message:"Use REEFFileNames instead.")]
         public const string DriverBridgeConfiguration = Common.Constants.ClrBridgeRuntimeConfiguration;
 
         public const string DriverAppDirectory = "ReefDriverAppDlls";

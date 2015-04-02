@@ -17,25 +17,18 @@
  * under the License.
  */
 
-using System;
-
-namespace Org.Apache.REEF.Common
+namespace Org.Apache.REEF.Client.API
 {
-    public class Constants
+    /// <summary>
+    /// Interface for job submission on a REEF cluster
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    public interface IREEFClient
     {
-        [Obsolete(message:"Use REEFFileNames instead.")]
-        public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
-
-        // if 8080 port is not used, then query would fail, 
-        // this is only for local runtime testing purpose though, so it should be ok
-        public const string LocalHttpEndpointBaseUri = @"http://localhost:8080/";  
-
-        public const string HDInsightClusterHttpEndpointBaseUri = @"http://headnodehost:9014/proxy/";
-
-        public const string HttpReefUriSpecification = @"Reef/v1/";
-
-        public const string HttpDriverUriTarget = @"Driver/";
-
-        public const string NameServerServiceName = "NameServer";
+        /// <summary>
+        /// Submit the job described in jobSubmission to the cluster.
+        /// </summary>
+        /// <param name="jobSubmission"></param>
+        void Submit(JobSubmission jobSubmission);
     }
 }
