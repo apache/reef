@@ -1,4 +1,6 @@
-﻿/**
+﻿using System;
+
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,25 +19,19 @@
  * under the License.
  */
 
-using System;
-
-namespace Org.Apache.REEF.Common
+namespace Org.Apache.REEF.Client.API.Exceptions
 {
-    public class Constants
+    /// <summary>
+    /// Thrown when the client fails to assemble the classpath for the Java part of the client.
+    /// </summary>
+    public sealed class ClasspathException : Exception
     {
-        [Obsolete(message:"Use REEFFileNames instead.")]
-        public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
+        public ClasspathException(string message) : base(message)
+        {
+        }
 
-        // if 8080 port is not used, then query would fail, 
-        // this is only for local runtime testing purpose though, so it should be ok
-        public const string LocalHttpEndpointBaseUri = @"http://localhost:8080/";  
-
-        public const string HDInsightClusterHttpEndpointBaseUri = @"http://headnodehost:9014/proxy/";
-
-        public const string HttpReefUriSpecification = @"Reef/v1/";
-
-        public const string HttpDriverUriTarget = @"Driver/";
-
-        public const string NameServerServiceName = "NameServer";
+        public ClasspathException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 }

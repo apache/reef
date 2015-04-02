@@ -22,6 +22,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Context;
@@ -167,10 +168,18 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemHttpServer_OnNext"))
             {
-                GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
-                ClrSystemHandler<IHttpMessage> obj = (ClrSystemHandler<IHttpMessage>)gc.Target;
-                obj.OnNext(new HttpMessage(clr2Java));
-            }      
+                try
+                {
+                    GCHandle gc = GCHandle.FromIntPtr((IntPtr) handle);
+                    ClrSystemHandler<IHttpMessage> obj = (ClrSystemHandler<IHttpMessage>) gc.Target;
+                    obj.OnNext(new HttpMessage(clr2Java));
+                }
+                catch (Exception ex)
+                {
+                  
+                    LOGGER.Log(Level.Info, "Caught exception: " + ex.Message + ex.StackTrace );
+                    Exceptions.CaughtAndThrow(ex, Level.Warning,  LOGGER);
+                }}
         }
 
         public static void Call_ClrSystemClosedContext_OnNext(ulong handle, IClosedContextClr2Java clr2Java)
@@ -235,23 +244,15 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private static ulong[] GetHandlers(string httpServerPortNumber)
         {
-            IStartHandler startHandler;
             IInjector injector = null;
-            string errorMessage;
-            string bridgeConfiguration = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global", Constants.DriverBridgeConfiguration);
-            if (!File.Exists(bridgeConfiguration))
-            {
-                errorMessage = "Cannot find CLR Driver bridge configuration file " + bridgeConfiguration;
-                Exceptions.Throw(new InvalidOperationException(errorMessage), LOGGER);
-            }
             try
             {
-                IConfiguration driverBridgeConfiguration = new AvroConfigurationSerializer().FromFile(bridgeConfiguration);
+                IConfiguration driverBridgeConfiguration = LoadBridgeConfiguration();
                 injector = TangFactory.GetTang().NewInjector(driverBridgeConfiguration);
             }
             catch (Exception e)
             {
-                errorMessage = "Failed to get injector from driver bridge configuration.";
+                const string errorMessage = "Failed to get injector from driver bridge configuration.";
                 Exceptions.CaughtAndThrow(new InvalidOperationException(errorMessage, e), Level.Error, errorMessage, LOGGER);
             }
 
@@ -260,7 +261,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                 HttpServerPort port = injector.GetInstance<HttpServerPort>();
                 port.PortNumber = httpServerPortNumber == null ? 0 : int.Parse(httpServerPortNumber, CultureInfo.InvariantCulture);
 
-                startHandler = injector.GetInstance<IStartHandler>();
+                var startHandler = injector.GetInstance<IStartHandler>();
                 LOGGER.Log(Level.Info, "Start handler set to be " + startHandler.Identifier);
                 _driverBridge = injector.GetInstance<DriverBridge>();
             }
@@ -270,6 +271,49 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
 
             return _driverBridge.Subscribe();
+        }
+
+        /// <summary>
+        /// Loads the bridge configuration from disk.
+        /// </summary>
+        /// <remarks>
+        /// It tries both the new and the legacy locations and gives preference to the new locations. Warnings will be logged when
+        /// both are present as well as when the configuration is read from the legacy location.
+        /// </remarks>
+        /// <exception cref="FileNotFoundException">When neither the legacy nor the new file exists.</exception>
+        /// <returns>The bridge Configuration loaded from disk</returns>
+        private static IConfiguration LoadBridgeConfiguration()
+        {
+            var fileNames = new REEFFileNames(); // TODO Use Tang
+            var newBridgeConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(),
+                fileNames.GetClrDriverConfigurationPath());
+            var legacyBridgeConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
+                Constants.DriverBridgeConfiguration);
+
+
+            if (File.Exists(newBridgeConfigurationPath))
+            {
+                if (File.Exists(legacyBridgeConfigurationPath))
+                {
+                    LOGGER.Log(Level.Warning, "Found configurations in both the legacy location (" +
+                                              legacyBridgeConfigurationPath + ") and the new location (" +
+                                              newBridgeConfigurationPath +
+                                              "). Loading only the one found in the new location."
+                        );
+                }
+                return new AvroConfigurationSerializer().FromFile(newBridgeConfigurationPath);
+            }
+            if (File.Exists(newBridgeConfigurationPath))
+            {
+                LOGGER.Log(Level.Warning, "Only found configuration in the legacy location (" +
+                                          legacyBridgeConfigurationPath + ") and not the new location (" +
+                                          newBridgeConfigurationPath +
+                                          "). Loading only the one found in the legacy location.");
+                return new AvroConfigurationSerializer().FromFile(legacyBridgeConfigurationPath);
+            }
+            Exceptions.Throw(
+                new FileNotFoundException("No bridge Configuration file found", newBridgeConfigurationPath), LOGGER);
+            return null;
         }
     }
 }

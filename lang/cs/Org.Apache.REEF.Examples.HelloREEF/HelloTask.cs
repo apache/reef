@@ -18,24 +18,30 @@
  */
 
 using System;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Common
+namespace Org.Apache.REEF.Examples.HelloREEF
 {
-    public class Constants
+    /// <summary>
+    /// A Task that merely prints a greeting and exits.
+    /// </summary>
+    public sealed class HelloTask : ITask
     {
-        [Obsolete(message:"Use REEFFileNames instead.")]
-        public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
+        [Inject]
+        private HelloTask()
+        {
+        }
 
-        // if 8080 port is not used, then query would fail, 
-        // this is only for local runtime testing purpose though, so it should be ok
-        public const string LocalHttpEndpointBaseUri = @"http://localhost:8080/";  
+        public void Dispose()
+        {
+            Console.WriteLine("Disposed.");
+        }
 
-        public const string HDInsightClusterHttpEndpointBaseUri = @"http://headnodehost:9014/proxy/";
-
-        public const string HttpReefUriSpecification = @"Reef/v1/";
-
-        public const string HttpDriverUriTarget = @"Driver/";
-
-        public const string NameServerServiceName = "NameServer";
+        public byte[] Call(byte[] memento)
+        {
+            Console.WriteLine("Hello, REEF!");
+            return null;
+        }
     }
 }

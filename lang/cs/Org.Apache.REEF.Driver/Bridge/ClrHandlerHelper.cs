@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -80,8 +81,11 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::GetCommandLineArguments"))
             {
-                string bridgeConfiguration = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
-                                                          Constants.DriverBridgeConfiguration);
+                // TODO Replace with Tang
+                var fileNames = new REEFFileNames();
+
+                string bridgeConfiguration = Path.Combine(Directory.GetCurrentDirectory(),
+                    fileNames.GetClrDriverConfigurationPath());                
 
                 if (!File.Exists(bridgeConfiguration))
                 {
@@ -116,7 +120,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             File.WriteAllText(path, string.Join(",", classPaths));
         }
 
-        public static void GenerateClassHierarchy(HashSet<string> clrDlls)
+        public static void GenerateClassHierarchy(ISet<string> clrDlls)
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::GenerateClassHierarchy"))
             {

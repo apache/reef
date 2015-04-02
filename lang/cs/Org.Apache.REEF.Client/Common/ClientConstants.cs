@@ -17,25 +17,21 @@
  * under the License.
  */
 
-using System;
-
-namespace Org.Apache.REEF.Common
+namespace Org.Apache.REEF.Client.Common
 {
-    public class Constants
+    /// <summary>
+    /// Constants used by the O.A.R.Client project.
+    /// </summary>
+    internal static class ClientConstants
     {
-        [Obsolete(message:"Use REEFFileNames instead.")]
-        public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
+        /// <summary>
+        /// The prefix of the JAR file containing the client logic.
+        /// </summary>
+        internal const string ClientJarFilePrefix = "reef-bridge-client-";
 
-        // if 8080 port is not used, then query would fail, 
-        // this is only for local runtime testing purpose though, so it should be ok
-        public const string LocalHttpEndpointBaseUri = @"http://localhost:8080/";  
-
-        public const string HDInsightClusterHttpEndpointBaseUri = @"http://headnodehost:9014/proxy/";
-
-        public const string HttpReefUriSpecification = @"Reef/v1/";
-
-        public const string HttpDriverUriTarget = @"Driver/";
-
-        public const string NameServerServiceName = "NameServer";
+        /// <summary>
+        /// The prefix of the JAR file to be copied to the driver.
+        /// </summary>
+        internal const string DriverJarFilePrefix = "reef-bridge-java-";
     }
 }
