@@ -141,7 +141,8 @@ final class DriverFiles {
       this.localLibs.createSymbolicLinkTo(localFolder);
       this.globalLibs.createSymbolicLinkTo(globalFolder);
       this.globalFiles.createSymbolicLinkTo(globalFolder);
-    } catch (IOException e) {
+    } catch (final Throwable t) {
+      LOG.log(Level.FINE, "Can't symlink the files, copying them instead.", t);
       this.localFiles.copyTo(localFolder);
       this.localLibs.copyTo(localFolder);
       this.globalLibs.copyTo(globalFolder);
