@@ -18,19 +18,31 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
-/**
- * An Entry in the Environment field of an ApplicationSubmission
- */
-public final class EnvironmentEntry {
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
+/**
+ * An Entry with String Key and String Value in the Environment field
+ * and the ApplicationAcls field of an ApplicationSubmission.
+ * For detail information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
+ */
+public final class StringEntry {
+
+  private static final String STRING_ENTRY = "stringEntry";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private String key;
   private String value;
 
-  public EnvironmentEntry(final String key, final String value) {
+  public StringEntry(final String key, final String value) {
     this.key = key;
     this.value = value;
   }
 
+  @JsonProperty(Constants.KEY)
   public String getKey() {
     return this.key;
   }
@@ -39,6 +51,7 @@ public final class EnvironmentEntry {
     this.key = key;
   }
 
+  @JsonProperty(Constants.VALUE)
   public String getValue() {
     return this.value;
   }
@@ -49,10 +62,16 @@ public final class EnvironmentEntry {
 
   @Override
   public String toString() {
-    return "EnvironmentEntry{" +
-        "key='" + this.key + '\'' +
-        ", value='" + this.value + '\'' +
-        '}';
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return STRING_ENTRY + objectString;
   }
 
   @Override
@@ -61,7 +80,7 @@ public final class EnvironmentEntry {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    final EnvironmentEntry that = (EnvironmentEntry) o;
+    final StringEntry that = (StringEntry) o;
 
     return (this.key == that.key || (this.key != null && this.key.equals(that.key)))
         && (this.value == that.value || (this.value != null && this.value.equals(that.value)));

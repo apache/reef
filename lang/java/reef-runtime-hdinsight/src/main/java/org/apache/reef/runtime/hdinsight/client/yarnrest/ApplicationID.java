@@ -18,22 +18,37 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
 /**
- * Represents the response to an application ID request.
+ * Represents the response to an application ID request to
+ * the YARN Resource Manager via the YARN REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApplicationID {
 
-  private String id;
+  private static final String APPLICATION_ID = "applicationId";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private String applicationId;
   private Resource resource;
 
-  public String getId() {
-    return id;
+  @JsonProperty(Constants.APPLICATION_ID)
+  public String getApplicationId() {
+    return applicationId;
   }
 
-  public void setId(final String id) {
-    this.id = id;
+  public void setApplicationId(final String applicationId) {
+    this.applicationId = applicationId;
   }
 
+  @JsonProperty(Constants.MAXIMUM_RESOURCE_CAPABILITY)
   public Resource getResource() {
     return resource;
   }
@@ -44,9 +59,15 @@ public final class ApplicationID {
 
   @Override
   public String toString() {
-    return "ApplicationID{" +
-        "id='" + id + '\'' +
-        ", resource=" + resource +
-        '}';
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return APPLICATION_ID + objectString;
   }
 }
