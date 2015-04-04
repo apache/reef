@@ -58,6 +58,10 @@ under the License.
     <Compile Include="Functional\Messaging\MessageTask.cs" />
     <Compile Include="Functional\Messaging\TestTaskMessage.cs" />
     <Compile Include="Functional\ML\KMeans\TestKMeans.cs" />
+    <Compile Include="Functional\MPI\PipelinedBroadcastReduceTest\PipelinedBroadcastReduceDriver.cs" />
+    <Compile Include="Functional\MPI\PipelinedBroadcastReduceTest\PipelinedBroadcastReduceTest.cs" />
+    <Compile Include="Functional\MPI\PipelinedBroadcastReduceTest\PipelinedMasterTask.cs" />
+    <Compile Include="Functional\MPI\PipelinedBroadcastReduceTest\PipelinedSlaveTask.cs" />
     <Compile Include="Functional\MPI\BroadcastReduceTest\BroadcastReduceDriver.cs" />
     <Compile Include="Functional\MPI\BroadcastReduceTest\BroadcastReduceTest.cs" />
     <Compile Include="Functional\MPI\BroadcastReduceTest\MasterTask.cs" />
