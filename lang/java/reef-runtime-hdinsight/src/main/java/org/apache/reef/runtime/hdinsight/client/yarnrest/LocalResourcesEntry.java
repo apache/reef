@@ -18,16 +18,19 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 public final class LocalResourcesEntry {
 
   private String key;
-  private FileResource value;
+  private LocalResource value;
 
-  public LocalResourcesEntry(final String key, final FileResource value) {
+  public LocalResourcesEntry(final String key, final LocalResource value) {
     this.key = key;
     this.value = value;
   }
 
+  @JsonProperty(Constants.KEY)
   public String getKey() {
     return this.key;
   }
@@ -37,11 +40,12 @@ public final class LocalResourcesEntry {
     return this;
   }
 
-  public FileResource getValue() {
+  @JsonProperty(Constants.VALUE)
+  public LocalResource getValue() {
     return this.value;
   }
 
-  public LocalResourcesEntry setValue(final FileResource value) {
+  public LocalResourcesEntry setValue(final LocalResource value) {
     this.value = value;
     return this;
   }

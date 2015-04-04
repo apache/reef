@@ -18,42 +18,33 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * Represents the resoure field in the YARN REST API
+ * Created by afchung on 4/4/15.
  */
-public final class Resource {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ListApplicationResponse {
 
-  private static final String RESOURCE = "resouce";
-  private int memory;
-  private int vCores;
+  private Map<String, List<ApplicationState>> apps;
 
-  @JsonProperty(Constants.MEMORY)
-  public int getMemory() {
-    return this.memory;
+  @JsonProperty(Constants.APPS)
+  public Map<String, List<ApplicationState>> getApps() {
+    return apps;
   }
 
-  public Resource setMemory(final int memory) {
-    this.memory = memory;
-    return this;
+  public void setApps(final Map<String, List<ApplicationState>> apps) {
+    this.apps = apps;
   }
 
-  @JsonProperty(Constants.VCORES)
-  public int getvCores() {
-    return this.vCores;
-  }
-
-  public Resource setvCores(final int vCores) {
-    this.vCores = vCores;
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return RESOURCE + "{" +
-        Constants.MEMORY + "=" + this.memory +
-        ", " + Constants.VCORES + "=" + this.vCores +
-        '}';
+  public List<ApplicationState> getApplicationStates() {
+    if (!this.apps.containsKey(Constants.APP)) {
+      return null;
+    }
+    return apps.get(Constants.APP);
   }
 }

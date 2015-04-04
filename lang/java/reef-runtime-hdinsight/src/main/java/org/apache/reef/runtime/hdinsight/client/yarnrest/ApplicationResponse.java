@@ -18,27 +18,27 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
-import java.util.List;
-import java.util.Map;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Created by marku_000 on 2014-06-30.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApplicationResponse {
 
-  private Map<String, List<ApplicationState>> apps;
+  private ApplicationState app;
 
-  public Map<String, List<ApplicationState>> getApps() {
-    return apps;
+  @JsonProperty(Constants.APP)
+  public ApplicationState getApp() {
+    return this.app;
   }
 
-  public void setApps(Map<String, List<ApplicationState>> apps) {
-    this.apps = apps;
+  public void setApp(final ApplicationState app) {
+    this.app = app;
   }
 
-  public List<ApplicationState> getApplicationStates() {
-    return apps.get("app");
+  public ApplicationState getApplicationState() {
+    return app;
   }
-
-
 }

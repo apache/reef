@@ -18,22 +18,28 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * Represents the response to an application ID request.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApplicationID {
 
-  private String id;
+  private String applicationId;
   private Resource resource;
 
-  public String getId() {
-    return id;
+  @JsonProperty(Constants.APPLICATION_ID)
+  public String getApplicationId() {
+    return applicationId;
   }
 
-  public void setId(final String id) {
-    this.id = id;
+  public void setApplicationId(final String applicationId) {
+    this.applicationId = applicationId;
   }
 
+  @JsonProperty(Constants.MAXIMUM_RESOURCE_CAPABILITY)
   public Resource getResource() {
     return resource;
   }
@@ -44,9 +50,9 @@ public final class ApplicationID {
 
   @Override
   public String toString() {
-    return "ApplicationID{" +
-        "id='" + id + '\'' +
-        ", resource=" + resource +
+    return Constants.APPLICATION_ID + "{" +
+        Constants.ID + "='" + applicationId + '\'' +
+        ", " + Constants.MAXIMUM_RESOURCE_CAPABILITY + "=" + resource +
         '}';
   }
 }

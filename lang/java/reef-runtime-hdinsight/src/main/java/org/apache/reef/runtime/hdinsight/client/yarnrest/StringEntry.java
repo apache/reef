@@ -18,19 +18,24 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
-/**
- * An Entry in the Environment field of an ApplicationSubmission
- */
-public final class EnvironmentEntry {
+import org.codehaus.jackson.annotate.JsonProperty;
 
+/**
+ * An Entry with String Key and String Value in the Environment field
+ * and the ApplicationAcls field of an ApplicationSubmission
+ */
+public final class StringEntry {
+
+  private static final String STRING_ENTRY = "string-entry";
   private String key;
   private String value;
 
-  public EnvironmentEntry(final String key, final String value) {
+  public StringEntry(final String key, final String value) {
     this.key = key;
     this.value = value;
   }
 
+  @JsonProperty(Constants.KEY)
   public String getKey() {
     return this.key;
   }
@@ -39,6 +44,7 @@ public final class EnvironmentEntry {
     this.key = key;
   }
 
+  @JsonProperty(Constants.VALUE)
   public String getValue() {
     return this.value;
   }
@@ -49,9 +55,9 @@ public final class EnvironmentEntry {
 
   @Override
   public String toString() {
-    return "EnvironmentEntry{" +
-        "key='" + this.key + '\'' +
-        ", value='" + this.value + '\'' +
+    return STRING_ENTRY + "{" +
+        Constants.KEY + "='" + this.key + '\'' +
+        ", " + Constants.VALUE + "='" + this.value + '\'' +
         '}';
   }
 
@@ -61,7 +67,7 @@ public final class EnvironmentEntry {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    final EnvironmentEntry that = (EnvironmentEntry) o;
+    final StringEntry that = (StringEntry) o;
 
     return (this.key == that.key || (this.key != null && this.key.equals(that.key)))
         && (this.value == that.value || (this.value != null && this.value.equals(that.value)));

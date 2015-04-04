@@ -104,7 +104,7 @@ public final class HDICLI {
    *
    * @param applicationId
    */
-  private void kill(final String applicationId) {
+  private void kill(final String applicationId) throws IOException {
     LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
     this.hdInsightInstance.killApplication(applicationId);
   }

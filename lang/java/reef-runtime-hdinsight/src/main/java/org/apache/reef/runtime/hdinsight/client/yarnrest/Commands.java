@@ -21,39 +21,20 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * Represents the resoure field in the YARN REST API
+ * Created by afchung on 4/4/15.
  */
-public final class Resource {
+public class Commands {
 
-  private static final String RESOURCE = "resouce";
-  private int memory;
-  private int vCores;
+    public static final String DEFAULT_COMMAND = "";
 
-  @JsonProperty(Constants.MEMORY)
-  public int getMemory() {
-    return this.memory;
-  }
+    private String command = DEFAULT_COMMAND;
 
-  public Resource setMemory(final int memory) {
-    this.memory = memory;
-    return this;
-  }
+    @JsonProperty(Constants.COMMAND)
+    public String getCommand() {
+        return this.command;
+    }
 
-  @JsonProperty(Constants.VCORES)
-  public int getvCores() {
-    return this.vCores;
-  }
-
-  public Resource setvCores(final int vCores) {
-    this.vCores = vCores;
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return RESOURCE + "{" +
-        Constants.MEMORY + "=" + this.memory +
-        ", " + Constants.VCORES + "=" + this.vCores +
-        '}';
-  }
+    public void setCommand(final String command) {
+        this.command = command;
+    }
 }

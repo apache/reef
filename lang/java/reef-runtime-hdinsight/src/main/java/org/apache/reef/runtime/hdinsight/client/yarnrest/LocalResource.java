@@ -18,72 +18,84 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
-public final class FileResource {
+import org.codehaus.jackson.annotate.JsonProperty;
+
+public final class LocalResource {
 
   public static final String TYPE_FILE = "FILE";
   public static final String TYPE_ARCHIVE = "ARCHIVE";
+  public static final String TYPE_PATTERN = "PATTERN";
 
+  public static final String VISIBILITY_PUBLIC = "PUBLIC";
+  public static final String VISIBILITY_PRIVATE = "PRIVATE";
   public static final String VISIBILITY_APPLICATION = "APPLICATION";
 
-  private String url;
+  private static final String LOCAL_RESOURCE = "local-resource";
+
+  private String resource;
   private String type;
   private String visibility;
-  private String size;
-  private String timestamp;
+  private long size;
+  private long timestamp;
 
-  public String getUrl() {
-    return this.url;
+  @JsonProperty(Constants.RESOURCE)
+  public String getResource() {
+    return this.resource;
   }
 
-  public FileResource setUrl(final String url) {
-    this.url = url;
+  public LocalResource setResource(final String resource) {
+    this.resource = resource;
     return this;
   }
 
+  @JsonProperty(Constants.TYPE)
   public String getType() {
     return this.type;
   }
 
-  public FileResource setType(final String type) {
+  public LocalResource setType(final String type) {
     this.type = type;
     return this;
   }
 
+  @JsonProperty(Constants.VISIBILITY)
   public String getVisibility() {
     return this.visibility;
   }
 
-  public FileResource setVisibility(final String visibility) {
+  public LocalResource setVisibility(final String visibility) {
     this.visibility = visibility;
     return this;
   }
 
-  public String getSize() {
+  @JsonProperty(Constants.SIZE)
+  public long getSize() {
     return this.size;
   }
 
-  public FileResource setSize(final String size) {
+  public LocalResource setSize(final long size) {
     this.size = size;
     return this;
   }
 
-  public String getTimestamp() {
+  @JsonProperty(Constants.TIMESTAMP)
+  public long getTimestamp() {
     return this.timestamp;
   }
 
-  public FileResource setTimestamp(final String timestamp) {
+  public LocalResource setTimestamp(final long timestamp) {
     this.timestamp = timestamp;
     return this;
   }
 
   @Override
   public String toString() {
-    return "FileResource{" +
-        "url='" + url + '\'' +
-        ", type='" + type + '\'' +
-        ", visibility='" + visibility + '\'' +
-        ", size=" + size +
-        ", timestamp=" + timestamp +
+    return LOCAL_RESOURCE + "{" +
+        Constants.RESOURCE + "='" + resource + '\'' +
+        ", " + Constants.TYPE + "='" + type + '\'' +
+        ", " + Constants.VISIBILITY + "='" + visibility + '\'' +
+        ", " + Constants.SIZE + "=" + size +
+        ", " + Constants.TIMESTAMP + "=" + timestamp +
         '}';
   }
 }
