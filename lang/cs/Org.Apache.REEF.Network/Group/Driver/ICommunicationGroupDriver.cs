@@ -41,13 +41,13 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <summary>
         /// Adds the Broadcast MPI operator to the communication group.
         /// </summary>
-        /// <typeparam name="T1">The type of messages that operators will send</typeparam>
-        /// <typeparam name="T2">The codec used for serializing messages</typeparam>
+        /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
+        /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
         /// <param name="operatorName">The name of the broadcast operator</param>
         /// <param name="masterTaskId">The master task id in broadcast operator</param>
         /// <param name="topologyType">The topology type for the operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
-        ICommunicationGroupDriver AddBroadcast<T1, T2>(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat) where T2 : ICodec<T1>;
+        ICommunicationGroupDriver AddBroadcast<TMessage, TMessageCodec>(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
         /// Adds the Broadcast MPI operator to the communication group. Default to IntCodec
@@ -61,14 +61,14 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <summary>
         /// Adds the Reduce MPI operator to the communication group.
         /// </summary>
-        /// <typeparam name="T1">The type of messages that operators will send</typeparam>
-        /// <typeparam name="T2">The codec used for serializing messages</typeparam>
+        /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
+        /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="masterTaskId">The master task id for the typology</param>
         /// <param name="reduceFunction">The class used to aggregate all messages.</param>
         /// <param name="topologyType">The topology for the operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
-        ICommunicationGroupDriver AddReduce<T1, T2>(string operatorName, string masterTaskId, IReduceFunction<T1> reduceFunction, TopologyTypes topologyType = TopologyTypes.Flat) where T2 : ICodec<T1>;
+        ICommunicationGroupDriver AddReduce<TMessage, TMessageCodec>(string operatorName, string masterTaskId, IReduceFunction<TMessage> reduceFunction, TopologyTypes topologyType = TopologyTypes.Flat) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
         /// Adds the Reduce MPI operator to the communication group with default IntCodec
@@ -83,13 +83,13 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <summary>
         /// Adds the Scatter MPI operator to the communication group.
         /// </summary>
-        /// <typeparam name="T1">The type of messages that operators will send</typeparam>
-        /// <typeparam name="T2">The codec used for serializing messages</typeparam>
+        /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
+        /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="senderId">The sender id</param>
         /// <param name="topologyType">type of topology used in the operaor</param>
         /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
-        ICommunicationGroupDriver AddScatter<T1, T2>(string operatorName, string senderId, TopologyTypes topologyType = TopologyTypes.Flat) where T2 : ICodec<T1>;
+        ICommunicationGroupDriver AddScatter<TMessage, TMessageCodec>(string operatorName, string senderId, TopologyTypes topologyType = TopologyTypes.Flat) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
         /// Adds the Scatter MPI operator to the communication group with default Codec
