@@ -18,7 +18,7 @@
  */
 using System;
 
-namespace Org.Apache.REEF.Driver.Interop
+namespace Org.Apache.REEF.Driver.Bridge
 {
     public interface IInteropReturnInfo
     {

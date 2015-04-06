@@ -27,12 +27,12 @@ using namespace System::IO;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
-using namespace Org::Apache::REEF::Driver::Interop;
+using namespace Org::Apache::REEF::Driver::Bridge;
 
 namespace Org {
   namespace Apache {
     namespace REEF {
-		namespace Interop {
+		namespace Bridge {
 			public ref class InteropReturnInfo : public IInteropReturnInfo {
 				JNIEnv* _env;
 				jobject   _jobjectInteropReturnInfo;

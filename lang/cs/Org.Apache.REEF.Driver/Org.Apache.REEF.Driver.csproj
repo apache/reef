@@ -79,6 +79,8 @@ under the License.
     <Compile Include="Bridge\HttpServerPort.cs" />
     <Compile Include="Bridge\IHttpHandler.cs" />
     <Compile Include="Bridge\IHttpMessage.cs" />
+    <Compile Include="Bridge\IInteropReturnInfo.cs" />
+    <Compile Include="Bridge\ILogger.cs" />
     <Compile Include="Bridge\ReefHttpRequest.cs" />
     <Compile Include="Bridge\ReefHttpResponse.cs" />
     <Compile Include="ClientManager.cs" />
@@ -133,8 +135,6 @@ under the License.
     <Compile Include="Evaluator\IFailedEvaluator.cs" />
     <Compile Include="FailedJob.cs" />
     <Compile Include="IDriver.cs" />
-    <Compile Include="Interop\IInteropReturnInfo.cs" />
-    <Compile Include="Interop\ILogger.cs" />
     <Compile Include="IStartHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\ICompletedTask.cs" />

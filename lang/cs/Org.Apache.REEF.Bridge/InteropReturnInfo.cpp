@@ -21,7 +21,7 @@
 namespace Org {
 	namespace Apache {
 		namespace REEF {
-			namespace Interop {
+			namespace Bridge {
 				// currently not being used
 				InteropReturnInfo::InteropReturnInfo(
 					JNIEnv*     env,
