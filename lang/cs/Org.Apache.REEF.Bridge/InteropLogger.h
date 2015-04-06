@@ -27,21 +27,23 @@ using namespace System::IO;
 using namespace System::Collections::Generic;
 using namespace System::Runtime::InteropServices;
 using namespace System::Reflection;
-using namespace Microsoft::Reef::Interop;
+using namespace Org::Apache::REEF::Driver::Interop;
 
-namespace Microsoft {
-  namespace Reef {
-    namespace Interop {
-      public ref class InteropLogger : public ILogger {
-          jobject _jobjectInteropLogger;
-          jclass  _jclassInteropLogger;
-          jmethodID _jmidLog;
-          JNIEnv* _env;
+namespace Org {
+	namespace Apache {
+		namespace REEF {
+			namespace Interop {
+				public ref class InteropLogger : public ILogger {
+					jobject _jobjectInteropLogger;
+					jclass  _jclassInteropLogger;
+					jmethodID _jmidLog;
+					JNIEnv* _env;
 
-        public:
-          InteropLogger (JNIEnv* env, jobject jobjectInteropLogger);
-          virtual void Log(TraceLevel traceLevel, String^ message );
-      };
-    }
-  }
+				public:
+					InteropLogger(JNIEnv* env, jobject jobjectInteropLogger);
+					virtual void Log(TraceLevel traceLevel, String^ message);
+				};
+			}
+		}
+	}
 }

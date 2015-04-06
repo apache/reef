@@ -18,7 +18,7 @@
  */
 using System;
 
-namespace Microsoft.Reef.Interop
+namespace Org.Apache.REEF.Driver.Interop
 {
     public interface IInteropReturnInfo
     {
