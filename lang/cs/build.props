@@ -23,6 +23,9 @@ under the License.
     <BinDir Condition="$(BinDir) == '' Or $(BinDir) == '*Undefined*'">$(SolutionDir)\bin</BinDir>
     <PackagesDir Condition="$(PackagesDir) == '' Or $(PackagesDir) == '*Undefined*'">$(SolutionDir)\packages</PackagesDir>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
+    <BaseIntermediateOutputPath>$(BinDir)\Temp\$(RootNamespace)\$(Platform)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
 
   <!-- Common build configurations -->
@@ -31,7 +34,6 @@ under the License.
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -43,7 +45,6 @@ under the License.
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -133,4 +134,10 @@ under the License.
       DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')"
     />
   </Target>
+    <ItemGroup>
+        <DirectoriesToRemove Include="$(IntermediateOutputPath)" />
+     </ItemGroup>
+     <Target Name="RemoveIntermediateDirectories"  AfterTargets="clean">
+        <RemoveDir Directories="@(DirectoriesToRemove)" Condition="!Exists('$(IntermediateOutputPath)\$(RootNamespace).log')"/>
+     </Target>
 </Project>
