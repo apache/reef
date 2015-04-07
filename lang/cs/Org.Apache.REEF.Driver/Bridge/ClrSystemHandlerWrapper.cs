@@ -288,9 +288,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             var newBridgeConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(),
                 fileNames.GetClrDriverConfigurationPath());
             var legacyBridgeConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
-                Constants.DriverBridgeConfiguration);
-
-
+               "clrBridge.config");
             if (File.Exists(newBridgeConfigurationPath))
             {
                 if (File.Exists(legacyBridgeConfigurationPath))
