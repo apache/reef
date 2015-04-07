@@ -102,14 +102,12 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddBroadcast<int>(
+                .AddBroadcast<int, IntCodec>(
                     broadcastOperatorName,
-                    masterTaskId,
-                    new IntCodec())
-                .AddReduce<int>(
+                    masterTaskId)
+                .AddReduce<int, IntCodec>(
                     reduceOperatorName,
                     masterTaskId,
-                    new IntCodec(),
                     new SumFunction())
                 .Build();
 
@@ -159,14 +157,12 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddScatter<int>(
+                .AddScatter<int, IntCodec>(
                     scatterOperatorName,
-                    masterTaskId,
-                    new IntCodec())
-                .AddReduce(
+                    masterTaskId)
+                .AddReduce<int, IntCodec>(
                     reduceOperatorName,
                         masterTaskId,
-                        new IntCodec(),
                         new SumFunction())
                 .Build();
 
@@ -224,7 +220,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-                .AddBroadcast(operatorName, masterTaskId, new IntCodec())
+                .AddBroadcast<int, IntCodec>(operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -292,7 +288,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-              .AddBroadcast(operatorName, masterTaskId, new IntCodec())
+              .AddBroadcast<int, IntCodec>(operatorName, masterTaskId)
               .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -331,7 +327,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-                .AddReduce(operatorName, "task0", new IntCodec(), new SumFunction())
+                .AddReduce<int, IntCodec>(operatorName, "task0", new SumFunction())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -366,7 +362,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-                .AddReduce(operatorName, "task0", new IntCodec(), new SumFunction())
+                .AddReduce<int, IntCodec>(operatorName, "task0", new SumFunction())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -410,7 +406,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec())
+                .AddScatter(operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -488,7 +484,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec())
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -538,7 +534,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec())
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -585,7 +581,7 @@ namespace Org.Apache.REEF.Tests.Network
             IMpiDriver mpiDriver = GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec())
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -622,8 +618,8 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestConfigurationBroadcastSpec()
         {
-            FlatTopology<int> topology = new FlatTopology<int>("Operator", "Operator", "task1", "driverid",
-                new BroadcastOperatorSpec<int>("Sender", new IntCodec()));
+            FlatTopology<int, IntCodec> topology = new FlatTopology<int, IntCodec>("Operator", "Operator", "task1", "driverid",
+                new BroadcastOperatorSpec<int, IntCodec>("Sender"));
 
             topology.AddTask("task1");
             var conf = topology.GetTaskConfiguration("task1");
@@ -635,8 +631,8 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestConfigurationReduceSpec()
         {
-            FlatTopology<int> topology = new FlatTopology<int>("Operator", "Group", "task1", "driverid",
-                new ReduceOperatorSpec<int>("task1", new IntCodec(), new SumFunction()));
+            FlatTopology<int, IntCodec> topology = new FlatTopology<int, IntCodec>("Operator", "Group", "task1", "driverid",
+                new ReduceOperatorSpec<int, IntCodec>("task1", new SumFunction()));
 
             topology.AddTask("task1");
             var conf2 = topology.GetTaskConfiguration("task1");

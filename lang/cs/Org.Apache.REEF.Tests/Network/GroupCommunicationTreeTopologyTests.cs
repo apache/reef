@@ -34,8 +34,8 @@ namespace Org.Apache.REEF.Tests.Network
         [TestMethod]
         public void TestTreeTopology()
         {
-            TreeTopology<int> topology = new TreeTopology<int>("Operator", "Operator", "task1", "driverid",
-                new BroadcastOperatorSpec<int>("task1", new IntCodec()), 2);
+            TreeTopology<int, IntCodec> topology = new TreeTopology<int, IntCodec>("Operator", "Operator", "task1", "driverid",
+                new BroadcastOperatorSpec<int, IntCodec>("task1"), 2);
             for (int i = 1; i < 8; i++)
             {
                 string taskid = "task" + i;
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddReduce(operatorName, masterTaskId, new IntCodec(), new SumFunction(), TopologyTypes.Tree)
+                .AddReduce<int, IntCodec>(operatorName, masterTaskId, new SumFunction(), TopologyTypes.Tree)
                 .Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -117,7 +117,7 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddBroadcast(operatorName, masterTaskId, new IntCodec(), TopologyTypes.Tree)
+                .AddBroadcast<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -193,15 +193,13 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddBroadcast<int>(
+                .AddBroadcast<int, IntCodec>(
                     broadcastOperatorName,
                     masterTaskId,
-                    new IntCodec(), 
                     TopologyTypes.Tree)
-                .AddReduce<int>(
+                .AddReduce<int, IntCodec>(
                     reduceOperatorName,
                     masterTaskId,
-                    new IntCodec(),
                     new SumFunction(),
                     TopologyTypes.Tree)
                 .Build();
@@ -308,7 +306,7 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec(), TopologyTypes.Tree)
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -353,7 +351,7 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec(), TopologyTypes.Tree)
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -407,7 +405,7 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec(), TopologyTypes.Tree)
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -458,7 +456,7 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec(), TopologyTypes.Tree)
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -510,7 +508,7 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-                .AddScatter(operatorName, masterTaskId, new IntCodec(), TopologyTypes.Tree)
+                .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
@@ -574,16 +572,14 @@ namespace Org.Apache.REEF.Tests.Network
             var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
-              .AddScatter(
+              .AddScatter<int, IntCodec>(
                     scatterOperatorName,
                     masterTaskId,
-                    new IntCodec(), 
                     TopologyTypes.Tree)
-                .AddReduce(
+                .AddReduce<int, IntCodec>(
                     reduceOperatorName,
                     masterTaskId,
-                    new IntCodec(),
-                    new SumFunction(), 
+                    new SumFunction(),
                     TopologyTypes.Tree).Build();
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);

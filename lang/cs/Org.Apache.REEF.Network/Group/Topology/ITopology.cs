@@ -19,15 +19,16 @@
 
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
     /// <summary>
     /// Represents a topology graph for IMpiOperators.
     /// </summary>
-    public interface ITopology<T>
+    public interface ITopology<T1, T2> where T2 : ICodec<T1>
     {
-        IOperatorSpec<T> OperatorSpec { get; }
+        IOperatorSpec<T1, T2> OperatorSpec { get; }
 
         IConfiguration GetTaskConfiguration(string taskId);
 
