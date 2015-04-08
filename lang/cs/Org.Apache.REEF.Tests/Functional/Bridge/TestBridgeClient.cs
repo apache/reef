@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 CreateNoWindow = false
             }; 
             
-            LOGGER.Log(Level.Info, "executing\r\n" + startInfo.FileName + "\r\n" + startInfo.Arguments);
+            LOGGER.Log(Level.Info, "Executing '" + startInfo.FileName + " " + startInfo.Arguments +"' in working directory '" + Directory.GetCurrentDirectory() +"'");
             using (Process process = Process.Start(startInfo))
             {
                 process.WaitForExit();

@@ -109,6 +109,7 @@ under the License.
     <Compile Include="Protobuf\ReefProtocol\ReefProtocol.pb.cs" />
     <Compile Include="Protobuf\ReefProtocol\ReefService.pb.cs" />
     <Compile Include="Protobuf\ReefProtocol\Serializer.cs" />
+    <Compile Include="Files\REEFFileNames.cs" />
     <Compile Include="Runtime\Evaluator\Constants.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextClientCodeException.cs" />
     <Compile Include="Runtime\Evaluator\Context\ContextConfiguration.cs" />

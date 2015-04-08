@@ -35,12 +35,28 @@ under the License.
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\ClientFactory.cs" />
+    <Compile Include="API\Exceptions\ClasspathException.cs" />
+    <Compile Include="API\Exceptions\JavaNotFoundException.cs" />
+    <Compile Include="API\IREEFClient.cs" />
+    <Compile Include="API\JobSubmission.cs" />
     <Compile Include="CLRBridgeClient.cs" />
+    <Compile Include="Common\ClientConstants.cs" />
+    <Compile Include="Common\DriverFolderPreparationHelper.cs" />
+    <Compile Include="Common\FileSets.cs" />
+    <Compile Include="Common\JavaClientLauncher.cs" />
+    <Compile Include="Local\LocalClient.cs" />
+    <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
+    <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
+    <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="run.cmd" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +94,13 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

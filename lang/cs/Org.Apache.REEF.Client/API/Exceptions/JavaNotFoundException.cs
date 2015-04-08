@@ -17,25 +17,21 @@
  * under the License.
  */
 
-using System;
+using System.IO;
 
-namespace Org.Apache.REEF.Common
+namespace Org.Apache.REEF.Client.API.Exceptions
 {
-    public class Constants
+    /// <summary>
+    /// Thrown when the java installation cannot be found on the client.
+    /// </summary>
+    public sealed class JavaNotFoundException : FileNotFoundException
     {
-        [Obsolete(message:"Use REEFFileNames instead.")]
-        public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
+        public JavaNotFoundException(string message) : base(message)
+        {
+        }
 
-        // if 8080 port is not used, then query would fail, 
-        // this is only for local runtime testing purpose though, so it should be ok
-        public const string LocalHttpEndpointBaseUri = @"http://localhost:8080/";  
-
-        public const string HDInsightClusterHttpEndpointBaseUri = @"http://headnodehost:9014/proxy/";
-
-        public const string HttpReefUriSpecification = @"Reef/v1/";
-
-        public const string HttpDriverUriTarget = @"Driver/";
-
-        public const string NameServerServiceName = "NameServer";
+        public JavaNotFoundException(string message, string fileName) : base(message, fileName)
+        {
+        }
     }
 }

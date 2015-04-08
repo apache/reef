@@ -23,7 +23,6 @@ under the License.
     <RootNamespace>Org.Apache.REEF.Bridge.JAR</RootNamespace>
     <ProjectGuid>{62905C7C-1A7E-4923-B78D-1BF42D7FAD40}</ProjectGuid>
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
-	<OutputType>JAR</OutputType>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <ItemGroup>
@@ -59,24 +58,33 @@ under the License.
           DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall" 
           Outputs="$(OutputPath)">
     <PropertyGroup>
-      <!--The shaded jar of the bridge -->
+      <!--The shaded jar of the bridge (driver side) -->
       <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
       <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\$(Bridge_JAR_Name)</Bridge_JAR>
+      <!--The shaded jar of the bridge (client side) -->
+      <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
+      <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
     </PropertyGroup>
     <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests install" Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Bridge_JAR)" />
+    <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Client_JAR)" />
   </Target>
   <!--
     Executes 'mvn clean', if the JAR exists.
   -->
   <Target Name="Clean" DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall">
     <PropertyGroup>
-      <!--The shaded jar of the bridge -->
+      <!--The shaded jar of the bridge (driver side) -->
       <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
       <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\$(Bridge_JAR_Name)</Bridge_JAR>
+      <!--The shaded jar of the bridge (client side) -->
+      <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
+      <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
     </PropertyGroup>
     <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests clean" Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
+    <Delete Files="$(OutputPath)\$(Client_JAR_Name)" />
+
   </Target>
   <!--
     Standard Rebuild target: Clean, then build
@@ -91,6 +99,10 @@ under the License.
   <ItemGroup>
     <Line Include="line01"><Text>param($installPath, $toolsPath, $package, $project)</Text></Line>
     <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-java-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
+    <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
+    <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
+    <!--Copy the client JAR-->
+    <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-client-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
     <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
     <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
     <LineText Include="%(Line.Text)" />

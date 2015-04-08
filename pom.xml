@@ -240,7 +240,9 @@ under the License.
                             <exclude>lang/java/.idea/**</exclude>
                             <exclude>**/*.iml</exclude>
                             <exclude>**/target/**</exclude>
+                            <!-- ReadMe files -->
                             <exclude>**/README.*</exclude>
+                            <exclude>**/*.md</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
                             <!-- The Visual Studio build files -->
@@ -625,7 +627,8 @@ under the License.
     <modules>
         <module>lang/cs</module>
         <module>lang/java/reef-annotations</module>
-     	<module>lang/java/reef-bridge-java</module>
+        <module>lang/java/reef-bridge-client</module>
+        <module>lang/java/reef-bridge-java</module>
         <module>lang/java/reef-checkpoint</module>
         <module>lang/java/reef-common</module>
         <module>lang/java/reef-examples</module>

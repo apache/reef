@@ -16,26 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+using Org.Apache.REEF.Tang.Annotations;
 
-using System;
-
-namespace Org.Apache.REEF.Common
+namespace Org.Apache.REEF.Client.Local.Parameters
 {
-    public class Constants
+    [NamedParameter(defaultValue: "2")]
+    public class NumberOfEvaluators : Name<int>
     {
-        [Obsolete(message:"Use REEFFileNames instead.")]
-        public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
-
-        // if 8080 port is not used, then query would fail, 
-        // this is only for local runtime testing purpose though, so it should be ok
-        public const string LocalHttpEndpointBaseUri = @"http://localhost:8080/";  
-
-        public const string HDInsightClusterHttpEndpointBaseUri = @"http://headnodehost:9014/proxy/";
-
-        public const string HttpReefUriSpecification = @"Reef/v1/";
-
-        public const string HttpDriverUriTarget = @"Driver/";
-
-        public const string NameServerServiceName = "NameServer";
     }
 }
