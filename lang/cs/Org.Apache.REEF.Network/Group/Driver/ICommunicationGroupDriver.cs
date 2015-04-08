@@ -17,9 +17,11 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake.Remote;
@@ -37,6 +39,18 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// Returns the list of task ids that belong to this Communication Group
         /// </summary>
         List<string> TaskIds { get; }
+
+        /// <summary>
+        /// Adds the Broadcast MPI operator to the communication group.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
+        /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
+        /// <param name="operatorName">The name of the broadcast operator</param>
+        /// <param name="masterTaskId">The master task id in broadcast operator</param>
+        /// <param name="topologyType">The topology type for the operator</param>
+        /// <param name="pipelineDataConverter">The class used to convert data back and forth to pipelined one</param>
+        /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
+        ICommunicationGroupDriver AddBroadcast<TMessage, TMessageCodec>(string operatorName, string masterTaskId, TopologyTypes topologyType, IPipelineDataConverter<TMessage> pipelineDataConverter) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
         /// Adds the Broadcast MPI operator to the communication group.
@@ -68,7 +82,20 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <param name="reduceFunction">The class used to aggregate all messages.</param>
         /// <param name="topologyType">The topology for the operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
+        ICommunicationGroupDriver AddReduce<TMessage, TMessageCodec>(string operatorName, string masterTaskId, IReduceFunction<TMessage> reduceFunction, TopologyTypes topologyType, IPipelineDataConverter<TMessage> pipelineDataConverter) where TMessageCodec : ICodec<TMessage>;
+
+        /// <summary>
+        /// Adds the Reduce MPI operator to the communication group.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
+        /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
+        /// <param name="operatorName">The name of the reduce operator</param>
+        /// <param name="masterTaskId">The master task id for the typology</param>
+        /// <param name="reduceFunction">The class used to aggregate all messages.</param>
+        /// <param name="topologyType">The topology for the operator</param>
+        /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
         ICommunicationGroupDriver AddReduce<TMessage, TMessageCodec>(string operatorName, string masterTaskId, IReduceFunction<TMessage> reduceFunction, TopologyTypes topologyType = TopologyTypes.Flat) where TMessageCodec : ICodec<TMessage>;
+
 
         /// <summary>
         /// Adds the Reduce MPI operator to the communication group with default IntCodec

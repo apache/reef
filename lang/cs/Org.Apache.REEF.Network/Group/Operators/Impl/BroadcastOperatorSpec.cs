@@ -19,6 +19,8 @@
 
 using System;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -35,8 +37,29 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public BroadcastOperatorSpec(string senderId)
         {
             SenderId = senderId;
-            Codec = typeof(T2);
+             Codec = typeof(T2);
+            PipelineDataConverter = new DefaultPipelineDataConverter<T1>();
         }
+
+        /// <summary>
+        /// Create a new BroadcastOperatorSpec.
+        /// </summary>
+        /// <param name="senderId">The identifier of the root sending Task.</param>
+        /// <param name="dataConverter">The converter used to convert original
+        /// message to pipelined ones and vice versa.</param>
+        public BroadcastOperatorSpec(
+            string senderId,
+            IPipelineDataConverter<T1> dataConverter)
+        {
+            SenderId = senderId;
+            Codec = typeof(T2);;
+            PipelineDataConverter = dataConverter ?? new DefaultPipelineDataConverter<T1>();
+        }
+
+        /// <summary>
+        /// Returns the IPipelineDataConverter class type used to convert messages to pipeline form and vice-versa
+        /// </summary>
+        public IPipelineDataConverter<T1> PipelineDataConverter { get; private set; }
 
         /// <summary>
         /// Returns the identifier of the Task that will broadcast data to other Tasks.
