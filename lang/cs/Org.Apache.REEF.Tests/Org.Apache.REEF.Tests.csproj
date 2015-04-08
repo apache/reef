@@ -83,12 +83,6 @@ under the License.
     <Compile Include="Utility\TestExceptions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="data\mouseData.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\mouseData_small.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
