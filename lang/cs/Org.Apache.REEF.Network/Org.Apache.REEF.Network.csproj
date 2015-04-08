@@ -66,6 +66,7 @@ under the License.
     <Compile Include="Group\Operators\Impl\BroadcastOperatorSpec.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastReceiver.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastSender.cs" />
+    <Compile Include="Group\Operators\Impl\PipelinedReduceFunction.cs" />
     <Compile Include="Group\Operators\Impl\ReduceFunction.cs" />
     <Compile Include="Group\Operators\Impl\ReduceOperatorSpec.cs" />
     <Compile Include="Group\Operators\Impl\ReduceReceiver.cs" />
@@ -80,6 +81,10 @@ under the License.
     <Compile Include="Group\Operators\IReduceSender.cs" />
     <Compile Include="Group\Operators\IScatterReceiver.cs" />
     <Compile Include="Group\Operators\IScatterSender.cs" />
+    <Compile Include="Group\Pipelining\Impl\DefaultPipelineDataConverter.cs" />
+    <Compile Include="Group\Pipelining\IPipelineDataConverter.cs" />
+    <Compile Include="Group\Pipelining\PipelineMessage.cs" />
+    <Compile Include="Group\Pipelining\PipelineMessageCodec.cs" />
     <Compile Include="Group\Task\ICommunicationGroupClient.cs" />
     <Compile Include="Group\Task\ICommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\IMpiClient.cs" />

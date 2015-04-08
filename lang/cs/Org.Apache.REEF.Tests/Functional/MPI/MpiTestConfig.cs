@@ -37,5 +37,20 @@ namespace Org.Apache.REEF.Tests.Functional.MPI
         public class FanOut : Name<int>
         {
         }
+
+        [NamedParameter("integer id of the evaluator")]
+        public class EvaluatorId : Name<string>
+        {
+        }
+
+        [NamedParameter("Size of the array")]
+        public class ArraySize : Name<int>
+        {
+        }
+
+        [NamedParameter("Chunk size for pipelining")]
+        public class ChunkSize : Name<int>
+        {
+        }
     }
 }

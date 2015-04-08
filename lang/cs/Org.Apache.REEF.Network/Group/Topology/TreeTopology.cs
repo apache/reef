@@ -26,6 +26,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Network.Group.Pipelining;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
@@ -42,7 +43,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
         private TaskNode _logicalRoot;
         private TaskNode _prev;
 
-        private int _fanOut;
+        private readonly int _fanOut;
 
         /// <summary>
         /// Creates a new TreeTopology.
@@ -120,7 +121,10 @@ namespace Org.Apache.REEF.Network.Group.Topology
 
             if (OperatorSpec is BroadcastOperatorSpec<T1, T2>)
             {
-                BroadcastOperatorSpec<T1, T2> broadcastSpec = OperatorSpec as BroadcastOperatorSpec<T1, T2>;
+                var broadcastSpec = OperatorSpec as BroadcastOperatorSpec<T1, T2>;
+                confBuilder.AddConfiguration(broadcastSpec.PipelineDataConverter.GetConfiguration());
+                confBuilder.BindImplementation(typeof(IPipelineDataConverter<T1>), broadcastSpec.PipelineDataConverter.GetType())
+                .BindImplementation(GenericType<ICodec<PipelineMessage<T1>>>.Class, GenericType<PipelineMessageCodec<T1>>.Class);
                 if (taskId.Equals(broadcastSpec.SenderId))
                 {
                     confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<BroadcastSender<T1>>.Class);
@@ -132,8 +136,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
             }
             else if (OperatorSpec is ReduceOperatorSpec<T1, T2>)
             {
-                ReduceOperatorSpec<T1, T2> reduceSpec = OperatorSpec as ReduceOperatorSpec<T1, T2>;
-                confBuilder.BindImplementation(typeof(IReduceFunction<T1>), reduceSpec.ReduceFunction.GetType());
+                var reduceSpec = OperatorSpec as ReduceOperatorSpec<T1, T2>;
+                confBuilder.AddConfiguration(reduceSpec.PipelineDataConverter.GetConfiguration());
+                confBuilder.BindImplementation(typeof(IPipelineDataConverter<T1>), reduceSpec.PipelineDataConverter.GetType())
+                .BindImplementation(typeof(IReduceFunction<T1>), reduceSpec.ReduceFunction.GetType())
+                .BindImplementation(GenericType<ICodec<PipelineMessage<T1>>>.Class, GenericType<PipelineMessageCodec<T1>>.Class);
 
                 if (taskId.Equals(reduceSpec.ReceiverId))
                 {
