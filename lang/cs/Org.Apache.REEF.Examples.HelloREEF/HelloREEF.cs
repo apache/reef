@@ -20,6 +20,7 @@
 using System;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
+using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -34,6 +35,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     public sealed class HelloREEF
     {
         private const string Local = "local";
+        private const string YARN = "yarn";
         private readonly IREEFClient _reefClient;
 
         [Inject]
@@ -74,6 +76,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                     return LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
                         .Build();
+                case YARN:
+                    return YARNClientConfiguration.ConfigurationModule.Build();
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }
