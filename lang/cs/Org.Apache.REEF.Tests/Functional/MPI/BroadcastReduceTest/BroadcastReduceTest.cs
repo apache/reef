@@ -51,10 +51,24 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
         }
 
         [TestMethod]
-        public void TestBroadcastAndReduce()
+        public void TestBroadcastAndReduceOnLocalRuntime()
         {
             int numTasks = 9;
+            TestBroadcastAndReduce(false, numTasks);
+            ValidateSuccessForLocalRuntime(numTasks);
+        }
 
+        [Ignore]
+        [TestMethod]
+        public void TestBroadcastAndReduceOnYarn()
+        {
+            int numTasks = 9;
+            TestBroadcastAndReduce(true, numTasks);
+        }
+
+        [TestMethod]
+        public void TestBroadcastAndReduce(bool runOnYarn, int numTasks)
+        {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule
                     .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<BroadcastReduceDriver>.Class)
@@ -89,8 +103,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
             appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
             appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
 
-            TestRun(appDlls, merged, false, JavaLoggingSetting.VERBOSE);
-            ValidateSuccessForLocalRuntime(numTasks);
+            TestRun(appDlls, merged, runOnYarn, JavaLoggingSetting.VERBOSE);
         }
     }
 }

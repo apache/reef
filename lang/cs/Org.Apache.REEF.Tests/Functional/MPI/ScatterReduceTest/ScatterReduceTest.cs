@@ -50,10 +50,23 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
         }
 
         [TestMethod]
-        public void TestScatterAndReduce()
+        public void TestScatterAndReduceOnLocalRuntime()
         {
             int numTasks = 5;
+            TestScatterAndReduce(false, numTasks);
+            ValidateSuccessForLocalRuntime(numTasks);
+        }
 
+        [TestMethod]
+        public void TestScatterAndReduceOnYarn()
+        {
+            int numTasks = 5;
+            TestScatterAndReduce(true, numTasks);
+        }
+
+        [TestMethod]
+        public void TestScatterAndReduce(bool runOnYarn, int numTasks)
+        {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule
                     .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<ScatterReduceDriver>.Class)
@@ -85,8 +98,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
             appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
             appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
 
-            TestRun(appDlls, merged, false, JavaLoggingSetting.VERBOSE);
-            ValidateSuccessForLocalRuntime(numTasks);
+            TestRun(appDlls, merged, runOnYarn, JavaLoggingSetting.VERBOSE);
         }
     }
 }
