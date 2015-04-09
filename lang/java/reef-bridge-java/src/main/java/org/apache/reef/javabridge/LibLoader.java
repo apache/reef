@@ -80,9 +80,11 @@ public class LibLoader {
     try {
       loadBridgeDLLFromLocal();
     } catch (final Throwable t) {
+      LOG.log(Level.INFO, "Unable to load bridge DLL from local folder. Attempting global folder next.", t);
       try {
         loadBridgeDLLFromGlobal();
       } catch (final Throwable t2) {
+        LOG.log(Level.WARNING, "Unable to load bridge DLL from global folder. Attempting jar next.", t2);
         loadBridgeDLLFromJAR();
       }
     }
@@ -92,7 +94,7 @@ public class LibLoader {
   /**
    * Attempts to load the bridge DLL from the global folder.
    */
-  private void loadBridgeDLLFromGlobal() {
+  private void loadBridgeDLLFromGlobal() throws FileNotFoundException {
     LOG.log(Level.INFO, "Attempting to load the bridge DLL from the global folder.");
     loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInGlobalFolderFile());
   }
@@ -100,7 +102,7 @@ public class LibLoader {
   /**
    * Attempts to load the bridge DLL from the local folder.
    */
-  private void loadBridgeDLLFromLocal() {
+  private void loadBridgeDLLFromLocal() throws FileNotFoundException {
     LOG.log(Level.INFO, "Attempting to load the bridge DLL from the local folder.");
     loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInLocalFolderFile());
   }
@@ -110,10 +112,18 @@ public class LibLoader {
    *
    * @param bridgeDLLFile
    */
-  private static void loadBridgeDLLFromFile(final File bridgeDLLFile) {
-    LOG.log(Level.INFO, "Attempting to load the bridge DLL from {0}", bridgeDLLFile);
-    System.load(bridgeDLLFile.getAbsolutePath());
-    LOG.log(Level.INFO, "Successfully loaded the bridge DLL from {0}", bridgeDLLFile);
+  private static void loadBridgeDLLFromFile(final File bridgeDLLFile) throws FileNotFoundException {
+    if (!bridgeDLLFile.exists()) {
+      throw new FileNotFoundException("Unable to load Bridge DLL from " + bridgeDLLFile.getAbsolutePath() + " because the file can't be found.");
+    }
+    try {
+      LOG.log(Level.INFO, "Attempting to load the bridge DLL from {0}", bridgeDLLFile);
+      System.load(bridgeDLLFile.getAbsolutePath());
+      LOG.log(Level.INFO, "Successfully loaded the bridge DLL from {0}", bridgeDLLFile);
+    } catch (final Throwable t) {
+      LOG.log(Level.WARNING, "Unable to load " + bridgeDLLFile.getAbsolutePath(), t);
+      throw t;
+    }
   }
 
   /**

@@ -39,7 +39,8 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         private const string JarFolder = "./";
 
-        private static readonly Logger Logger = Logger.GetLogger(typeof (JavaClientLauncher));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(JavaClientLauncher));
+        private readonly IList<string> _additionalClasspathEntries = new List<string>();
 
         [Inject]
         private JavaClientLauncher()
@@ -152,15 +153,28 @@ namespace Org.Apache.REEF.Client.Common
             var files = Directory.GetFiles(JarFolder)
                 .Where(x => (!string.IsNullOrWhiteSpace(x)))
                 .Where(e => Path.GetFileName(e).ToLower().StartsWith(ClientConstants.ClientJarFilePrefix))
-                .ToArray();
+                .ToList();
 
-            if (null == files || files.Length == 0)
+            if (files.Count == 0)
             {
                 Exceptions.Throw(new ClasspathException(
                     "Unable to assemble classpath. Make sure the REEF JAR is in the current working directory."), Logger);
             }
-            var classPath = string.Join(";", files);
-            return classPath;
+
+            var classpathEntries = new List<string>(_additionalClasspathEntries).Concat(files);
+            return string.Join(";", classpathEntries);
+        }
+
+        /// <summary>
+        /// Add entries to the end of the classpath of the java client.
+        /// </summary>
+        /// <param name="entries"></param>
+        internal void AddToClassPath(IEnumerable<string> entries)
+        {
+            foreach (var entry in entries)
+            {
+                _additionalClasspathEntries.Add(entry);
+            }
         }
     }
 }
