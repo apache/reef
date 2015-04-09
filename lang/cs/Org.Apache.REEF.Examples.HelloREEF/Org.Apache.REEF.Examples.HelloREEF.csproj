@@ -10,6 +10,10 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
+  <PropertyGroup>
+    <BuildPackage>false</BuildPackage>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <ItemGroup>
     <Reference Include="System" />

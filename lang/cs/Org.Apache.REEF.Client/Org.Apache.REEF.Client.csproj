@@ -31,6 +31,7 @@ under the License.
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
     <BuildPackage>false</BuildPackage>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
