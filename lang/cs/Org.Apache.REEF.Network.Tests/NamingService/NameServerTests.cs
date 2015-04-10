@@ -29,7 +29,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Tests.Network
+namespace Org.Apache.REEF.Network.Tests.NamingService
 {
     [TestClass]
     public class NameServerTests

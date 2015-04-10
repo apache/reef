@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -25,6 +24,7 @@ using System.Linq;
 using System.Net;
 using System.Reactive;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Codec;
 using Org.Apache.REEF.Network.Group.Config;
@@ -45,7 +45,7 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
-namespace Org.Apache.REEF.Tests.Network
+namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {
     [TestClass]
     public class GroupCommunicationTests

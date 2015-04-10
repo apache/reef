@@ -34,7 +34,7 @@ using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
 
-namespace Org.Apache.REEF.Tests.Network
+namespace Org.Apache.REEF.Network.Tests.NetworkService
 {
     [TestClass]
     public class NetworkServiceTests
