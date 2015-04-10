@@ -26,7 +26,7 @@ using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
-namespace Org.Apache.REEF.Tests.Network
+namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {
     [TestClass]
     public class GroupCommunicationTreeTopologyTests

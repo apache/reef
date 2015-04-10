@@ -22,7 +22,7 @@ using System.Collections.Concurrent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Network.Utilities;
 
-namespace Org.Apache.REEF.Tests.Network
+namespace Org.Apache.REEF.Network.Tests
 {
     [TestClass]
     public class BlockingCollectionExtensionTests
