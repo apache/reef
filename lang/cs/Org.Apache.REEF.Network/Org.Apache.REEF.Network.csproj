@@ -51,13 +51,12 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Group\Codec\GcmMessageProto.cs" />
-    <Compile Include="Group\Codec\StreamingGroupCommunicationMessageCodec.cs" />
     <Compile Include="Group\Codec\GroupCommunicationMessageCodec.cs" />
     <Compile Include="Group\Config\MpiConfigurationOptions.cs" />
     <Compile Include="Group\Driver\ICommunicationGroupDriver.cs" />
     <Compile Include="Group\Driver\IMpiDriver.cs" />
     <Compile Include="Group\Driver\Impl\CommunicationGroupDriver.cs" />
-    <Compile Include="Group\Driver\Impl\StreamingGroupCommunicationMessage.cs" />
+    <Compile Include="Group\Driver\Impl\SerializableGroupCommunicationMessage.cs" />
     <Compile Include="Group\Driver\Impl\GroupCommunicationMessage.cs" />
     <Compile Include="Group\Driver\Impl\MessageType.cs" />
     <Compile Include="Group\Driver\Impl\MpiDriver.cs" />
@@ -126,7 +125,6 @@ under the License.
     <Compile Include="Naming\Observers\NamingRegisterRequestObserver.cs" />
     <Compile Include="Naming\Observers\NamingUnregisterRequestObserver.cs" />
     <Compile Include="NetworkService\Codec\ControlMessageCodec.cs" />
-    <Compile Include="NetworkService\Codec\StreamingNsMessageCodec.cs" />
     <Compile Include="NetworkService\Codec\NsMessageCodec.cs" />
     <Compile Include="NetworkService\Codec\NsMessageProto.cs" />
     <Compile Include="NetworkService\ControlMessage.cs" />
@@ -136,15 +134,11 @@ under the License.
     <Compile Include="NetworkService\NetworkServiceConfiguration.cs" />
     <Compile Include="NetworkService\NetworkServiceOptions.cs" />
     <Compile Include="NetworkService\NsConnection.cs" />
-    <Compile Include="NetworkService\StreamingNsMessage.cs" />
+    <Compile Include="NetworkService\SerializableNsMessage.cs" />
     <Compile Include="NetworkService\NsMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Group\Codec\DataPlusCodec.cs" />
-    <Compile Include="StreamingCodec\Impl\DataCodec.cs" />
-    <Compile Include="StreamingCodec\IDataCodecObj.cs" />
-    <Compile Include="StreamingCodec\IStreamingDataCodecObj.cs" />
-    <Compile Include="StreamingCodec\Impl\StreamingDataCodec.cs" />
-    <Compile Include="StreamingCodec\StreamWithPosition.cs" />
+    <Compile Include="StreamingCodec\AuxillaryStreamingFunctions.cs" />
+    <Compile Include="StreamingCodec\IWritable.cs" />
     <Compile Include="Utilities\BlockingCollectionExtensions.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
