@@ -19,6 +19,7 @@
 
 using System;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Network.Group.Pipelining;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -39,6 +40,28 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             SenderId = senderId;
             Codec = typeof(T2);
         }
+
+        /// <summary>
+        /// Creates a new ScatterOperatorSpec.
+        /// </summary>
+        /// <param name="senderId">The identifier of the task that will
+        /// be sending messages</param>
+        /// deserialize messages</param>
+        /// <param name="dataConverter">The converter used to convert original
+        /// message to pipelined ones and vice versa.</param>
+        public ScatterOperatorSpec(
+            string senderId,
+            IPipelineDataConverter<T1> dataConverter)
+        {
+            SenderId = senderId;
+            Codec = typeof(T2);
+            PipelineDataConverter = dataConverter;
+        }
+
+        /// <summary>
+        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
+        /// </summary>
+        public IPipelineDataConverter<T1> PipelineDataConverter { get; private set; }
 
         /// <summary>
         /// Returns the identifier for the task that splits and scatters a list

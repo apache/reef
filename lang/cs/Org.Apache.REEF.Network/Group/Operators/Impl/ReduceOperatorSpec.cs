@@ -19,6 +19,8 @@
 
 using System;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Network.Group.Pipelining.Impl;
+using Org.Apache.REEF.Network.Group.Pipelining;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
@@ -41,7 +43,32 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             ReceiverId = receiverId;
             Codec = typeof(T2);
             ReduceFunction = reduceFunction;
+            PipelineDataConverter = new DefaultPipelineDataConverter<T1>();
         }
+
+        /// <summary>
+        /// Creates a new ReduceOperatorSpec.
+        /// </summary>
+        /// <param name="receiverId">The identifier of the task that
+        /// will receive and reduce incoming messages.</param>
+        /// <param name="reduceFunction">The class used to aggregate all messages.</param>
+        /// <param name="dataConverter">The converter used to convert original
+        /// message to pipelined ones and vice versa.</param>
+        public ReduceOperatorSpec(
+            string receiverId,
+            IPipelineDataConverter<T1> dataConverter,
+            IReduceFunction<T1> reduceFunction)
+        {
+            ReceiverId = receiverId;
+            Codec = typeof(T2);
+            ReduceFunction = reduceFunction;
+            PipelineDataConverter = dataConverter ?? new DefaultPipelineDataConverter<T1>();
+        }
+
+        /// <summary>
+        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
+        /// </summary>
+        public IPipelineDataConverter<T1> PipelineDataConverter { get; private set; }
 
         /// <summary>
         /// Returns the identifier for the task that receives and reduces
