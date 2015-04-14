@@ -24,6 +24,8 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Network.Examples.GroupCommunication;
+using Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -32,10 +34,10 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
+namespace Org.Apache.REEF.Tests.Functional.Group
 {
     [TestClass]
-    public class ScatterReduceTest : ReefFunctionalTest
+    public class PipelinedBroadcastReduceTest : ReefFunctionalTest
     {
         [TestInitialize]
         public void TestSetup()
@@ -50,51 +52,57 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
         }
 
         [TestMethod]
-        public void TestScatterAndReduceOnLocalRuntime()
+        public void TestPipelinedBroadcastAndReduceOnLocalRuntime()
         {
-            int numTasks = 5;
-            TestScatterAndReduce(false, numTasks);
+            const int numTasks = 9;
+            TestBroadcastAndReduce(false, numTasks);
             ValidateSuccessForLocalRuntime(numTasks);
         }
 
+        [Ignore]
         [TestMethod]
-        public void TestScatterAndReduceOnYarn()
+        public void TestPipelinedBroadcastAndReduceOnYarn()
         {
-            int numTasks = 5;
-            TestScatterAndReduce(true, numTasks);
+            const int numTasks = 9;
+            TestBroadcastAndReduce(true, numTasks);
         }
 
-        [TestMethod]
-        public void TestScatterAndReduce(bool runOnYarn, int numTasks)
+        public void TestBroadcastAndReduce(bool runOnYarn, int numTasks)
         {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule
-                    .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorFailed, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnContextActive, GenericType<ScatterReduceDriver>.Class)
+                    .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverBridgeConfiguration.OnEvaluatorFailed, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverBridgeConfiguration.OnContextActive, GenericType<PipelinedBroadcastReduceDriver>.Class)
                     .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
                     .Build())
-                .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
-                    GenericType<MpiTestConfig.NumEvaluators>.Class,
+                .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                    GenericType<GroupTestConfig.NumIterations>.Class,
+                    GroupTestConstants.NumIterations.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                    GenericType<GroupTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))
+                 .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
+                    GenericType<GroupTestConfig.ChunkSize>.Class,
+                    GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-               .BindStringNamedParam<MpiConfigurationOptions.DriverId>(MpiTestConstants.DriverId)
-               .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(MpiTestConstants.MasterTaskId)
-               .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
-               .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
-               .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString())
-               .Build();
+                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(GroupTestConstants.DriverId)
+                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(GroupTestConstants.MasterTaskId)
+                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(GroupTestConstants.GroupName)
+                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(GroupTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString(CultureInfo.InvariantCulture))
+                .Build();
 
             IConfiguration merged = Configurations.Merge(driverConfig, mpiDriverConfig);
-
+                    
             HashSet<string> appDlls = new HashSet<string>();
             appDlls.Add(typeof(IDriver).Assembly.GetName().Name);
             appDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            appDlls.Add(typeof(ScatterReduceDriver).Assembly.GetName().Name);
+            appDlls.Add(typeof(PipelinedBroadcastReduceDriver).Assembly.GetName().Name);
             appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
             appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
 

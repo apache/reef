@@ -25,7 +25,7 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks
 {
     public class PipelinedMasterTask : ITask
     {
@@ -42,9 +42,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
 
         [Inject]
         public PipelinedMasterTask(
-            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIters,
-            [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
-            [Parameter(typeof(MpiTestConfig.ArraySize))] int arraySize,
+            [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
+            [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof(GroupTestConfig.ArraySize))] int arraySize,
             IMpiClient mpiClient)
         {
             Logger.Log(Level.Info, "Hello from master task");
@@ -53,9 +53,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
             _arraySize = arraySize;
             _mpiClient = mpiClient;
 
-            _commGroup = mpiClient.GetCommunicationGroup(MpiTestConstants.GroupName);
-            _broadcastSender = _commGroup.GetBroadcastSender<int[]>(MpiTestConstants.BroadcastOperatorName);
-            _sumReducer = _commGroup.GetReduceReceiver<int[]>(MpiTestConstants.ReduceOperatorName);
+            _commGroup = mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _broadcastSender = _commGroup.GetBroadcastSender<int[]>(GroupTestConstants.BroadcastOperatorName);
+            _sumReducer = _commGroup.GetReduceReceiver<int[]>(GroupTestConstants.ReduceOperatorName);
             Logger.Log(Level.Info, "finished master task constructor");
         }
 

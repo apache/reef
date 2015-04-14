@@ -17,9 +17,9 @@
  * under the License.
  */
 
-namespace Org.Apache.REEF.Tests.Functional.MPI
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication
 {
-    internal class MpiTestConstants
+    public class GroupTestConstants
     {
         public const string DriverId = "BroadcastReduceDriver";
         public const string GroupName = "BroadcastReduceGroup";

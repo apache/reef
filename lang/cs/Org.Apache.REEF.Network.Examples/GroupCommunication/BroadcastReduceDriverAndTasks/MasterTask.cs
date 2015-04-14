@@ -17,7 +17,7 @@
  * under the License.
  */
 
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -25,35 +25,53 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks
 {
     public class MasterTask : ITask
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(MasterTask));
 
+        private readonly int _numIters;
+        private readonly int _numReduceSenders;
+
         private readonly IMpiClient _mpiClient;
         private readonly ICommunicationGroupClient _commGroup;
-        private readonly IScatterSender<int> _scatterSender;
+        private readonly IBroadcastSender<int> _broadcastSender;
         private readonly IReduceReceiver<int> _sumReducer;
 
         [Inject]
-        public MasterTask(IMpiClient mpiClient)
+        public MasterTask(
+            [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
+            [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
+            IMpiClient mpiClient)
         {
             _logger.Log(Level.Info, "Hello from master task");
+            _numIters = numIters;
+            _numReduceSenders = numEvaluators - 1;
             _mpiClient = mpiClient;
 
-            _commGroup = mpiClient.GetCommunicationGroup(MpiTestConstants.GroupName);
-            _scatterSender = _commGroup.GetScatterSender<int>(MpiTestConstants.ScatterOperatorName);
-            _sumReducer = _commGroup.GetReduceReceiver<int>(MpiTestConstants.ReduceOperatorName);
+            _commGroup = mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _broadcastSender = _commGroup.GetBroadcastSender<int>(GroupTestConstants.BroadcastOperatorName);
+            _sumReducer = _commGroup.GetReduceReceiver<int>(GroupTestConstants.ReduceOperatorName);
         }
 
         public byte[] Call(byte[] memento)
         {
-            List<int> data = Enumerable.Range(1, 100).ToList();
-            _scatterSender.Send(data);
+            for (int i = 1; i <= _numIters; i++)
+            {
+                // Each slave task calculates the nth triangle number
+                _broadcastSender.Send(i);
+                
+                // Sum up all of the calculated triangle numbers
+                int sum = _sumReducer.Reduce();
+                _logger.Log(Level.Info, "Received sum: {0} on iteration: {1}", sum, i);
 
-            int sum = _sumReducer.Reduce();
-            _logger.Log(Level.Info, "Received sum: {0}", sum);
+                int expected = TriangleNumber(i) * _numReduceSenders;
+                if (sum != TriangleNumber(i) * _numReduceSenders)
+                {
+                    throw new Exception("Expected " + expected + " but got " + sum);
+                }
+            }
 
             return null;
         }
@@ -63,9 +81,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
             _mpiClient.Dispose();
         }
 
-        private List<string> GetScatterOrder()
+        private int TriangleNumber(int n)
         {
-            return new List<string> { "SlaveTask-4", "SlaveTask-3", "SlaveTask-2", "SlaveTask-1" };
+            return Enumerable.Range(1, n).Sum();
         }
     }
 }

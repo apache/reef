@@ -89,9 +89,13 @@ under the License.
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
       <Name>Org.Apache.REEF.Examples</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj">
       <Project>{4e69d40a-26d6-4d4a-b96d-729946c07fe1}</Project>
       <Name>Org.Apache.REEF.Bridge</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Evaluator\Org.Apache.REEF.Evaluator.csproj">
+      <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
+      <Name>Org.Apache.REEF.Evaluator</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -102,6 +106,15 @@ under the License.
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
+  <!--begin jar reference-->
+  <PropertyGroup>
+    <AfterBuildDependsOn>
+      $(AfterBuildDependsOn);
+      CopyJarFiles;
+    </AfterBuildDependsOn>
+  </PropertyGroup>
+  <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn);" />
+  <!--end jar reference-->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -25,36 +25,35 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDriverAndTasks
 {
-    public class SlaveTask : ITask
+    public class MasterTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(MasterTask));
 
         private readonly IMpiClient _mpiClient;
         private readonly ICommunicationGroupClient _commGroup;
-        private readonly IScatterReceiver<int> _scatterReceiver;
-        private readonly IReduceSender<int> _sumSender;
+        private readonly IScatterSender<int> _scatterSender;
+        private readonly IReduceReceiver<int> _sumReducer;
 
         [Inject]
-        public SlaveTask(IMpiClient mpiClient)
+        public MasterTask(IMpiClient mpiClient)
         {
-            _logger.Log(Level.Info, "Hello from slave task");
-
+            _logger.Log(Level.Info, "Hello from master task");
             _mpiClient = mpiClient;
-            _commGroup = _mpiClient.GetCommunicationGroup(MpiTestConstants.GroupName);
-            _scatterReceiver = _commGroup.GetScatterReceiver<int>(MpiTestConstants.ScatterOperatorName);
-            _sumSender = _commGroup.GetReduceSender<int>(MpiTestConstants.ReduceOperatorName);
+
+            _commGroup = mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _scatterSender = _commGroup.GetScatterSender<int>(GroupTestConstants.ScatterOperatorName);
+            _sumReducer = _commGroup.GetReduceReceiver<int>(GroupTestConstants.ReduceOperatorName);
         }
 
         public byte[] Call(byte[] memento)
         {
-            List<int> data = _scatterReceiver.Receive();
-            _logger.Log(Level.Info, "Received data: {0}", string.Join(" ", data));
+            List<int> data = Enumerable.Range(1, 100).ToList();
+            _scatterSender.Send(data);
 
-            int sum = data.Sum();
-            _logger.Log(Level.Info, "Sending back sum: {0}", sum);
-            _sumSender.Send(sum);
+            int sum = _sumReducer.Reduce();
+            _logger.Log(Level.Info, "Received sum: {0}", sum);
 
             return null;
         }
@@ -62,6 +61,11 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
         public void Dispose()
         {
             _mpiClient.Dispose();
+        }
+
+        private List<string> GetScatterOrder()
+        {
+            return new List<string> { "SlaveTask-4", "SlaveTask-3", "SlaveTask-2", "SlaveTask-1" };
         }
     }
 }
