@@ -24,6 +24,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN
 {
@@ -32,6 +34,8 @@ namespace Org.Apache.REEF.Client.YARN
     /// </summary>
     internal sealed class YarnCommandLineEnvironment
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(YarnCommandLineEnvironment));
+
         [Inject]
         private YarnCommandLineEnvironment()
         {
@@ -46,14 +50,18 @@ namespace Org.Apache.REEF.Client.YARN
             var path = Environment.GetEnvironmentVariable("HADOOP_HOME");
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new FileNotFoundException("HADOOP_HOME isn't set.");
+                var ex = new FileNotFoundException("HADOOP_HOME isn't set.");
+                Exceptions.Throw(ex, Logger);
+                throw ex;
             }
 
             var fullPath = Path.GetFullPath(path);
 
             if (!Directory.Exists(fullPath))
             {
-                throw new FileNotFoundException("HADOOP_HOME points to [" + fullPath + "] which doesn't exist.");
+                var ex = new FileNotFoundException("HADOOP_HOME points to [" + fullPath + "] which doesn't exist.");
+                Exceptions.Throw(ex, Logger);
+                throw ex;
             }
             return fullPath;
         }
@@ -67,7 +75,9 @@ namespace Org.Apache.REEF.Client.YARN
             var result = Path.Combine(GetHadoopHomePath(), "bin", "yarn.cmd");
             if (!File.Exists(result))
             {
-                throw new FileNotFoundException("Couldn't find yarn.cmd", result);
+                var ex = new FileNotFoundException("Couldn't find yarn.cmd", result);
+                Exceptions.Throw(ex, Logger);
+                throw ex;
             }
             return result;
         }
@@ -103,7 +113,9 @@ namespace Org.Apache.REEF.Client.YARN
             }
             else
             {
-                throw new Exception("YARN process didn't start.");
+                var ex = new Exception("YARN process didn't start.");
+                Exceptions.Throw(ex, Logger);
+                throw ex;
             }
             return output.ToString();
         }

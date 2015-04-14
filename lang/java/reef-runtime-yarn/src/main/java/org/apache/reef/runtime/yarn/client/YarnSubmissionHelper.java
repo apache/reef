@@ -156,7 +156,6 @@ public final class YarnSubmissionHelper implements Closeable{
       LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(launchCommand, ' '));
     }
 
-
     // TODO: this is currently being developed on a hacked 2.4.0 bits, should be 2.4.1
     final String minVersionKeepContainerOptionAvailable = "2.4.0";
 
@@ -173,7 +172,6 @@ public final class YarnSubmissionHelper implements Closeable{
 
     this.yarnClient.submitApplication(applicationSubmissionContext);
   }
-
 
   /**
    * Extract the desired driver memory from jobSubmissionProto.
@@ -196,7 +194,6 @@ public final class YarnSubmissionHelper implements Closeable{
     }
     return amMemory;
   }
-
 
   @Override
   public void close() throws IOException {
