@@ -19,9 +19,9 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication
 {
-    public class MpiTestConfig
+    public class GroupTestConfig
     {
         [NamedParameter("Number of iterations of messages to send")]
         public class NumIterations : Name<int>

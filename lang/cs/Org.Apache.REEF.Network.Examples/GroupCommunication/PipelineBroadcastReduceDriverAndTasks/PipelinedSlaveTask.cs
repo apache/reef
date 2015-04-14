@@ -24,30 +24,30 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks
 {
-    public class SlaveTask : ITask
+    public class PipelinedSlaveTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(PipelinedSlaveTask));
 
         private readonly int _numIterations;
         private readonly IMpiClient _mpiClient;
         private readonly ICommunicationGroupClient _commGroup;
-        private readonly IBroadcastReceiver<int> _broadcastReceiver;
-        private readonly IReduceSender<int> _triangleNumberSender;
+        private readonly IBroadcastReceiver<int[]> _broadcastReceiver;
+        private readonly IReduceSender<int[]> _triangleNumberSender;
 
         [Inject]
-        public SlaveTask(
-            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIters,
+        public PipelinedSlaveTask(
+            [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
             IMpiClient mpiClient)
         {
-            _logger.Log(Level.Info, "Hello from slave task");
+            Logger.Log(Level.Info, "Hello from slave task");
 
             _numIterations = numIters;
             _mpiClient = mpiClient;
-            _commGroup = _mpiClient.GetCommunicationGroup(MpiTestConstants.GroupName);
-            _broadcastReceiver = _commGroup.GetBroadcastReceiver<int>(MpiTestConstants.BroadcastOperatorName);
-            _triangleNumberSender = _commGroup.GetReduceSender<int>(MpiTestConstants.ReduceOperatorName);
+            _commGroup = _mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _broadcastReceiver = _commGroup.GetBroadcastReceiver<int[]>(GroupTestConstants.BroadcastOperatorName);
+            _triangleNumberSender = _commGroup.GetReduceSender<int[]>(GroupTestConstants.ReduceOperatorName);
         }
 
         public byte[] Call(byte[] memento)
@@ -55,13 +55,22 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
             for (int i = 0; i < _numIterations; i++)
             {
                 // Receive n from Master Task
-                int n = _broadcastReceiver.Receive();
-                _logger.Log(Level.Info, "Calculating TriangleNumber({0}) on slave task...", n);
+                int[] intVec = _broadcastReceiver.Receive();
+
+                Logger.Log(Level.Info, "Calculating TriangleNumber({0}) on slave task...", intVec[0]);
 
                 // Calculate the nth Triangle number and send it back to driver
-                int triangleNum = TriangleNumber(n);
-                _logger.Log(Level.Info, "Sending sum: {0} on iteration {1}.", triangleNum, i);
-                _triangleNumberSender.Send(triangleNum);
+                int triangleNum = TriangleNumber(intVec[0]);
+                Logger.Log(Level.Info, "Sending sum: {0} on iteration {1}.", triangleNum, i);
+
+                int[] resArr = new int[intVec.Length];
+
+                for (int j = 0; j < resArr.Length; j++)
+                {
+                    resArr[j] = triangleNum;
+                }
+
+                _triangleNumberSender.Send(resArr);
             }
 
             return null;

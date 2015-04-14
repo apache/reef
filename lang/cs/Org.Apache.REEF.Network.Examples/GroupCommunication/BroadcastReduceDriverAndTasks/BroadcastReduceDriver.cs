@@ -27,21 +27,18 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks
 {
     public class BroadcastReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>, IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
     {
@@ -56,8 +53,8 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
 
         [Inject]
         public BroadcastReduceDriver(
-            [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
-            [Parameter(typeof(MpiTestConfig.NumIterations))] int numIterations,
+            [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof(GroupTestConfig.NumIterations))] int numIterations,
             MpiDriver mpiDriver)
         {
             Identifier = "BroadcastStartHandler";
@@ -66,11 +63,11 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
             _mpiDriver = mpiDriver;
             _commGroup = _mpiDriver.DefaultGroup
                     .AddBroadcast<int, IntCodec>(
-                        MpiTestConstants.BroadcastOperatorName,
-                       MpiTestConstants.MasterTaskId)
+                        GroupTestConstants.BroadcastOperatorName,
+                       GroupTestConstants.MasterTaskId)
                     .AddReduce<int, IntCodec>(
-                        MpiTestConstants.ReduceOperatorName,
-                            MpiTestConstants.MasterTaskId,
+                        GroupTestConstants.ReduceOperatorName,
+                            GroupTestConstants.MasterTaskId,
                             new SumFunction())
                     .Build();
 
@@ -101,18 +98,18 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
                 // Configure Master Task
                 IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
                     TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, MpiTestConstants.MasterTaskId)
+                        .Set(TaskConfiguration.Identifier, GroupTestConstants.MasterTaskId)
                         .Set(TaskConfiguration.Task, GenericType<MasterTask>.Class)
                         .Build())
-                    .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
-                        GenericType<MpiTestConfig.NumEvaluators>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                        GenericType<GroupTestConfig.NumEvaluators>.Class,
                         _numEvaluators.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<MpiTestConfig.NumIterations, int>(
-                        GenericType<MpiTestConfig.NumIterations>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                        GenericType<GroupTestConfig.NumIterations>.Class,
                         _numIterations.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
-                _commGroup.AddTask(MpiTestConstants.MasterTaskId);
+                _commGroup.AddTask(GroupTestConstants.MasterTaskId);
                 _mpiTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
             else
@@ -124,11 +121,11 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
                         .Set(TaskConfiguration.Identifier, slaveTaskId)
                         .Set(TaskConfiguration.Task, GenericType<SlaveTask>.Class)
                         .Build())
-                    .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
-                        GenericType<MpiTestConfig.NumEvaluators>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                        GenericType<GroupTestConfig.NumEvaluators>.Class,
                         _numEvaluators.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<MpiTestConfig.NumIterations, int>(
-                        GenericType<MpiTestConfig.NumIterations>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                        GenericType<GroupTestConfig.NumIterations>.Class,
                         _numIterations.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
