@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
@@ -27,22 +26,18 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDriverAndTasks
 {
     public class ScatterReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>, IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
     {
@@ -56,7 +51,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
 
         [Inject]
         public ScatterReduceDriver(
-            [Parameter(typeof(MpiTestConfig.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
             MpiDriver mpiDriver)
         {
             Identifier = "BroadcastStartHandler";
@@ -64,12 +59,12 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
             _mpiDriver = mpiDriver; 
             _commGroup = _mpiDriver.DefaultGroup
                     .AddScatter<int, IntCodec>(
-                        MpiTestConstants.ScatterOperatorName,
-                            MpiTestConstants.MasterTaskId,
+                        GroupTestConstants.ScatterOperatorName,
+                            GroupTestConstants.MasterTaskId,
                             TopologyTypes.Tree)
                     .AddReduce<int, IntCodec>(
-                        MpiTestConstants.ReduceOperatorName,
-                            MpiTestConstants.MasterTaskId,
+                        GroupTestConstants.ReduceOperatorName,
+                            GroupTestConstants.MasterTaskId,
                             new SumFunction())
                     .Build();
 
@@ -99,17 +94,17 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.ScatterReduceTest
             {
                 // Configure Master Task
                 IConfiguration partialTaskConf = TaskConfiguration.ConfigurationModule
-                    .Set(TaskConfiguration.Identifier, MpiTestConstants.MasterTaskId)
+                    .Set(TaskConfiguration.Identifier, GroupTestConstants.MasterTaskId)
                     .Set(TaskConfiguration.Task, GenericType<MasterTask>.Class)
                     .Build();
 
-                _commGroup.AddTask(MpiTestConstants.MasterTaskId);
+                _commGroup.AddTask(GroupTestConstants.MasterTaskId);
                 _mpiTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
             else
             {
                 // Configure Slave Task
-                string slaveTaskId = MpiTestConstants.SlaveTaskId +
+                string slaveTaskId = GroupTestConstants.SlaveTaskId +
                     _mpiDriver.GetContextNum(activeContext);
 
                 IConfiguration partialTaskConf = TaskConfiguration.ConfigurationModule

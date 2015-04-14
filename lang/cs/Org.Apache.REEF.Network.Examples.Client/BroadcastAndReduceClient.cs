@@ -19,56 +19,32 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Network.Examples.GroupCommunication;
+using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
+namespace Org.Apache.REEF.Network.Examples.Client
 {
-    [TestClass]
-    public class BroadcastReduceTest : ReefFunctionalTest
+    class BroadcastAndReduceClient
     {
-        [TestInitialize]
-        public void TestSetup()
+        public void RunBroadcastAndReduce(bool runOnYarn, int numTasks)
         {
-            CleanUp();
-        }
+            const int numIterations = 10;
+            const string driverId = "BroadcastReduceDriver";
+            const string groupName = "BroadcastReduceGroup";
+            const string masterTaskId = "MasterTask";
+            const int fanOut = 2;
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            CleanUp();
-        }
-
-        [TestMethod]
-        public void TestBroadcastAndReduceOnLocalRuntime()
-        {
-            int numTasks = 9;
-            TestBroadcastAndReduce(false, numTasks);
-            ValidateSuccessForLocalRuntime(numTasks);
-        }
-
-        [Ignore]
-        [TestMethod]
-        public void TestBroadcastAndReduceOnYarn()
-        {
-            int numTasks = 9;
-            TestBroadcastAndReduce(true, numTasks);
-        }
-
-        [TestMethod]
-        public void TestBroadcastAndReduce(bool runOnYarn, int numTasks)
-        {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule
                     .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<BroadcastReduceDriver>.Class)
@@ -78,24 +54,24 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
                     .Set(DriverBridgeConfiguration.OnContextActive, GenericType<BroadcastReduceDriver>.Class)
                     .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
                     .Build())
-                .BindNamedParameter<MpiTestConfig.NumIterations, int>(
-                    GenericType<MpiTestConfig.NumIterations>.Class,
-                    MpiTestConstants.NumIterations.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
-                    GenericType<MpiTestConfig.NumEvaluators>.Class,
+                .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                    GenericType<GroupTestConfig.NumIterations>.Class,
+                    numIterations.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                    GenericType<GroupTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(MpiTestConstants.DriverId)
-                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(MpiTestConstants.MasterTaskId)
-                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(MpiTestConstants.GroupName)
-                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(MpiTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(driverId)
+                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(masterTaskId)
+                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(groupName)
+                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
                 .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             IConfiguration merged = Configurations.Merge(driverConfig, mpiDriverConfig);
-                    
+
             HashSet<string> appDlls = new HashSet<string>();
             appDlls.Add(typeof(IDriver).Assembly.GetName().Name);
             appDlls.Add(typeof(ITask).Assembly.GetName().Name);
@@ -103,7 +79,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.BroadcastReduceTest
             appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
             appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
 
-            TestRun(appDlls, merged, runOnYarn, JavaLoggingSetting.VERBOSE);
+            ClrClientHelper.Run(appDlls, merged, new DriverSubmissionSettings() { RunOnYarn = runOnYarn, JavaLogLevel = JavaLoggingSetting.VERBOSE });
         }
     }
 }

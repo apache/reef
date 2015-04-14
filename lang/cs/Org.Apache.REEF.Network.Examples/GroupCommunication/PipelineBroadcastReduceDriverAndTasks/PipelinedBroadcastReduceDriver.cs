@@ -31,6 +31,7 @@ using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -38,9 +39,8 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Network.Group.Topology;
 
-namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
+namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks
 {
     public class PipelinedBroadcastReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>, IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
     {
@@ -56,9 +56,9 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
 
         [Inject]
         public PipelinedBroadcastReduceDriver(
-            [Parameter(typeof (MpiTestConfig.NumEvaluators))] int numEvaluators,
-            [Parameter(typeof (MpiTestConfig.NumIterations))] int numIterations,
-            [Parameter(typeof (MpiTestConfig.ChunkSize))] int chunkSize,
+            [Parameter(typeof (GroupTestConfig.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof(GroupTestConfig.NumIterations))] int numIterations,
+            [Parameter(typeof(GroupTestConfig.ChunkSize))] int chunkSize,
             MpiDriver mpiDriver)
         {
             Logger.Log(Level.Info, "*******entering the driver code " + chunkSize);
@@ -72,13 +72,13 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
 
             _commGroup = _mpiDriver.DefaultGroup
                 .AddBroadcast<int[], IntArrayCodec>(
-                    MpiTestConstants.BroadcastOperatorName,
-                    MpiTestConstants.MasterTaskId,
+                    GroupTestConstants.BroadcastOperatorName,
+                    GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
                     new PipelineIntDataConverter(_chunkSize))
                 .AddReduce<int[], IntArrayCodec>(
-                    MpiTestConstants.ReduceOperatorName,
-                    MpiTestConstants.MasterTaskId,
+                    GroupTestConstants.ReduceOperatorName,
+                    GroupTestConstants.MasterTaskId,
                     new ArraySumFunction(),
                     TopologyTypes.Tree,
                     new PipelineIntDataConverter(_chunkSize))
@@ -113,21 +113,21 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
                 // Configure Master Task
                 IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
                     TaskConfiguration.ConfigurationModule
-                        .Set(TaskConfiguration.Identifier, MpiTestConstants.MasterTaskId)
+                        .Set(TaskConfiguration.Identifier, GroupTestConstants.MasterTaskId)
                         .Set(TaskConfiguration.Task, GenericType<PipelinedMasterTask>.Class)
                         .Build())
-                    .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
-                        GenericType<MpiTestConfig.NumEvaluators>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                        GenericType<GroupTestConfig.NumEvaluators>.Class,
                         _numEvaluators.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<MpiTestConfig.NumIterations, int>(
-                        GenericType<MpiTestConfig.NumIterations>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                        GenericType<GroupTestConfig.NumIterations>.Class,
                         _numIterations.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<MpiTestConfig.ArraySize, int>(
-                        GenericType<MpiTestConfig.ArraySize>.Class,
-                        MpiTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
+                    .BindNamedParameter<GroupTestConfig.ArraySize, int>(
+                        GenericType<GroupTestConfig.ArraySize>.Class,
+                        GroupTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
-                _commGroup.AddTask(MpiTestConstants.MasterTaskId);
+                _commGroup.AddTask(GroupTestConstants.MasterTaskId);
                 _mpiTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
             else
@@ -139,15 +139,15 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
                         .Set(TaskConfiguration.Identifier, slaveTaskId)
                         .Set(TaskConfiguration.Task, GenericType<PipelinedSlaveTask>.Class)
                         .Build())
-                    .BindNamedParameter<MpiTestConfig.NumEvaluators, int>(
-                        GenericType<MpiTestConfig.NumEvaluators>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                        GenericType<GroupTestConfig.NumEvaluators>.Class,
                         _numEvaluators.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<MpiTestConfig.NumIterations, int>(
-                        GenericType<MpiTestConfig.NumIterations>.Class,
+                    .BindNamedParameter<GroupTestConfig.NumIterations, int>(
+                        GenericType<GroupTestConfig.NumIterations>.Class,
                         _numIterations.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter<MpiTestConfig.ArraySize, int>(
-                        GenericType<MpiTestConfig.ArraySize>.Class,
-                        MpiTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
+                    .BindNamedParameter<GroupTestConfig.ArraySize, int>(
+                        GenericType<GroupTestConfig.ArraySize>.Class,
+                        GroupTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
                 _commGroup.AddTask(slaveTaskId);
@@ -263,7 +263,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
             readonly int _chunkSize;
             
             [Inject]
-            public PipelineIntDataConverter([Parameter(typeof(MpiTestConfig.ChunkSize))] int chunkSize)
+            public PipelineIntDataConverter([Parameter(typeof(GroupTestConfig.ChunkSize))] int chunkSize)
             {
                 _chunkSize = chunkSize;
             }
@@ -312,7 +312,7 @@ namespace Org.Apache.REEF.Tests.Functional.MPI.PipelinedBroadcastReduceTest
             public IConfiguration GetConfiguration()
             {
                 return TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<MpiTestConfig.ChunkSize, int>(GenericType<MpiTestConfig.ChunkSize>.Class, _chunkSize.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.ChunkSize, int>(GenericType<GroupTestConfig.ChunkSize>.Class, _chunkSize.ToString(CultureInfo.InvariantCulture))
                 .Build();
             }
         }
